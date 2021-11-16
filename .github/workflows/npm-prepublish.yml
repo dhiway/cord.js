@@ -1,0 +1,52 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: Publish prerelease package to npm
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "! startsWith(github.event.head_commit.message, '[CI Skip]') && github.repository == 'dhiway/cord.js'"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Bump prerelease version of root package
+        run: npm version --no-git-tag-version prerelease
+      - name: Get current package version
+        id: package_version
+        run: echo "::set-output name=package_version::$(node -pe "require('./package.json').version")"
+      - name: Set all other packages to same version
+        env:
+          PACKAGE_VERSION: ${{ steps.package_version.outputs.package_version }}
+        run: yarn workspaces foreach -pt --no-private exec npm version --no-git-tag-version $PACKAGE_VERSION
+      - name: Build packages
+        run: yarn run build
+      - name: Bundle library
+        run: yarn run bundle
+      - name: Publish to npm
+        run: yarn run publish --tag beta
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.npm_token }}
+      - name: Commit files
+        run: |
+          git config --local user.name "Github Action"
+          git config --local user.email "action@github.com"
+          git add .
+          git commit -m "[CI Skip] ci: publish prerelease" -n
+          git push
+  
