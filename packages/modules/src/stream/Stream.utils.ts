@@ -105,13 +105,3 @@ export function getStreamId(identifier: string): string {
 export function hexToString(hex: string): string {
   return Buffer.from(hex.substring(2), 'hex').toString()
 }
-
-export default {
-  decompress,
-  compress,
-  errorCheck,
-  getIdForStream,
-  getIdWithPrefix,
-  getStreamId,
-  hexToString,
-}

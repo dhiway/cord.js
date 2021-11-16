@@ -15,7 +15,7 @@ import { DecoderUtils } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { SchemaDetails } from './Schema'
-import StreamUtils from '../stream/Stream.utils'
+import { hexToString } from '../stream/Stream.utils'
 
 const log = ConfigService.LoggingFactory.getLogger('Schema')
 
@@ -65,10 +65,10 @@ function decodeSchema(
       id: schemaId,
       schema_hash: anchoredSchema.schema_hash.toString(),
       cid: anchoredSchema.cid
-        ? StreamUtils.hexToString(anchoredSchema.cid.toString())
+        ? hexToString(anchoredSchema.cid.toString())
         : null,
       pcid: anchoredSchema.pcid
-        ? StreamUtils.hexToString(anchoredSchema.pcid.toString())
+        ? hexToString(anchoredSchema.pcid.toString())
         : null,
       creator: anchoredSchema.creator.toString(),
       block: anchoredSchema.block.toString(),

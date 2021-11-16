@@ -17,8 +17,8 @@
     "node": ">=14.0"
   },
   "author": "",
-  "bugs": "https://github.com/dhiway/cord-sdk/issues",
-  "homepage": "https://github.com/dhiway/cord-sdk#readme",
+  "bugs": "https://github.com/dhiway/cord.js/issues",
+  "homepage": "https://github.com/dhiway/cord.js#readme",
   "dependencies": {
     "@polkadot/api": "^6.3.1",
     "@polkadot/keyring": "^7.8.2",
