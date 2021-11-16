@@ -1,0 +1,22 @@
+# allows running tests and integration tests in a dockerized environment
+# `docker-compose run sdk` will run integration tests using the latest
+# cord-node image. The src/ directory is mounted, so rebuilding
+# is not required to integrate changes in this directory.
+
+version: '3.2'
+
+services:
+  cord-node:
+    image: dhiway/cord:develop
+    command: '--dev --ws-port 9944 --ws-external'
+
+  platform-sdk:
+    build: .
+    image: local/platform-sdk
+    volumes:
+      - ./src:/app/src
+    environment:
+      DEFAULT_WS_ADDRESS: ws://cord-node:9944
+    command: 'yarn test:integration'
+    depends_on:
+      - cord-node

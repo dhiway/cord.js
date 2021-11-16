@@ -1,0 +1,6 @@
+jsonabc.js
+jsonabc.d.ts
+lib
+*.json
+jest.*
+coverage

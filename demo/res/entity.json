@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "name": "Basic Entity Demo",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "country": {
+        "type": "string"
+        }
+    },
+    "type": "object"
+}
