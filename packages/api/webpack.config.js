@@ -7,8 +7,8 @@ module.exports = {
   mode: 'production',
   // build two different bundles from the transpiled js
   entry: {
-    'sdk-js': './lib/index.js',
-    'sdk-js.min': './lib/index.js',
+    'cord-api': './lib/index.js',
+    'cord-api.min': './lib/index.js',
   },
   output: {
     filename: '[name].umd.js',
@@ -37,7 +37,11 @@ module.exports = {
   optimization: {
     minimize: true,
     // only minimize the *.min* bundle output
-    minimizer: [new TerserPlugin({ include: /\.min\.umd\.js$/ })],
+    minimizer: [new TerserPlugin({ extractComments: false, terserOptions: {
+        format: {
+          comments: false,
+        },
+      },include: /\.min\.umd\.js$/ })],
   },
   plugins: [
     new webpack.ProvidePlugin({
