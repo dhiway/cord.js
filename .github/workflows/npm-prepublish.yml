@@ -41,7 +41,7 @@ jobs:
       - name: Publish to npm
         run: yarn run publish --tag beta
         env:
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.npm_token }}
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Commit files
         run: |
           git config --local user.name "Github Action"
