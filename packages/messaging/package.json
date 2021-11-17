@@ -1,6 +1,6 @@
 {
     "name": "@cord.network/messaging",
-    "version": "0.5.2-1",
+    "version": "0.5.2-3",
     "description": "",
     "main": "./lib/index.js",
     "typings": "./lib/index.d.ts",
@@ -27,6 +27,6 @@
         "@cord.network/modules": "workspace:*",
         "@cord.network/types": "workspace:*",
         "@cord.network/utils": "workspace:*",
-        "@polkadot/util": "^7.8.2"
+        "@polkadot/util": "7.8.2"
     }
 }
