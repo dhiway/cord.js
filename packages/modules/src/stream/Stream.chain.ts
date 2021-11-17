@@ -13,7 +13,7 @@ import type { AccountId, BlockNumber, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream'
-import * as StreamUtils from './Stream.utils'
+import { hexToString } from './Stream.utils'
 
 const log = ConfigService.LoggingFactory.getLogger('Mark')
 
@@ -59,10 +59,10 @@ function decodeStream(
       id: streamId,
       streamHash: anchoredStream.streamHash.toString(),
       cid: anchoredStream.cid
-        ? StreamUtils.hexToString(anchoredStream.cid.toString())
+        ? hexToString(anchoredStream.cid.toString())
         : null,
       parent_cid: anchoredStream.parent_cid
-        ? StreamUtils.hexToString(anchoredStream.parent_cid.toString())
+        ? hexToString(anchoredStream.parent_cid.toString())
         : null,
       schema: anchoredStream.schema.toString() || null,
       link: anchoredStream.link.toString() || null,

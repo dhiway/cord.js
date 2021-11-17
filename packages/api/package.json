@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/api",
-  "version": "0.5.2-1",
+  "version": "0.5.2-3",
   "description": "",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
@@ -19,8 +19,8 @@
     "node": ">=14.0"
   },
   "author": "",
-  "bugs": "https://github.com/dhiway/cord-sdk/issues",
-  "homepage": "https://github.com/dhiway/cord-sdk#readme",
+  "bugs": "https://github.com/dhiway/cord.js/issues",
+  "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
