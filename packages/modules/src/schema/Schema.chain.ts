@@ -103,6 +103,44 @@ export async function query(schemaId: string): Promise<SchemaDetails | null> {
  * @param identifier
  * @internal
  */
+export async function add_delegate(
+  schemaId: string,
+  creator: string,
+  delegate: string
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Adding a delagate to ${schemaId}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.addDelegate(
+    schemaId,
+    creator,
+    delegate
+  )
+  return tx
+}
+
+/**
+ * @param identifier
+ * @internal
+ */
+export async function remove_delegate(
+  schemaId: string,
+  creator: string,
+  delegate: string
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Removing delagation from ${schemaId}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.removeDelegate(
+    schemaId,
+    creator,
+    delegate
+  )
+  return tx
+}
+
+/**
+ * @param identifier
+ * @internal
+ */
 export async function set_status(
   streamId: string,
   creator: string,

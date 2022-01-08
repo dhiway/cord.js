@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "name": "Demo Product Listing",
+    "properties": {
+        "store_name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "price": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        }
+    },
+    "type": "object"
+}

@@ -701,7 +701,7 @@ __metadata:
   resolution: "@cord.network/network@workspace:packages/network"
   dependencies:
     "@cord.network/config": "workspace:*"
-    "@cord.network/type-definitions": 0.2.4-13
+    "@cord.network/type-definitions": 0.2.4-14
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     "@polkadot/api": 6.7.2
@@ -714,12 +714,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/type-definitions@npm:0.2.4-13":
-  version: 0.2.4-13
-  resolution: "@cord.network/type-definitions@npm:0.2.4-13"
+"@cord.network/type-definitions@npm:0.2.4-14":
+  version: 0.2.4-14
+  resolution: "@cord.network/type-definitions@npm:0.2.4-14"
   dependencies:
     "@open-web3/orml-type-definitions": ^1.0.2-0
-  checksum: d68c215f847e2df6f5195137655c19f62f0a1f0e4d8c68030d752b195b7e9f46a3f285561bcb716f1b7f05e3ddfe8f15ce2ba78c35935d0585ba310d6c207725
+  checksum: ad303ddd966a2b01d9dc37029327162b553fcd6577ba74c43c4ec81091e94b03b7627497bdcbcacbf0e1709d5ce16df112076eabbda8b45fdf7538d105c3a709
   languageName: node
   linkType: hard
 

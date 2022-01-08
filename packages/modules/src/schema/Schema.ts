@@ -18,7 +18,13 @@ import type {
   SchemaWithoutId,
   SubmittableExtrinsic,
 } from '@cord.network/types'
-import { set_status, query, store } from './Schema.chain'
+import {
+  set_status,
+  query,
+  store,
+  add_delegate,
+  remove_delegate,
+} from './Schema.chain'
 import * as SchemaUtils from './Schema.utils'
 
 export class Schema implements ISchema {
@@ -138,6 +144,16 @@ export class Schema implements ISchema {
    */
   public async store(cid: string): Promise<SubmittableExtrinsic> {
     return store(this, cid)
+  }
+
+  public async add_delegate(delegate: string): Promise<SubmittableExtrinsic> {
+    return add_delegate(this.schema.$id, this.creator, delegate)
+  }
+
+  public async remove_delegate(
+    delegate: string
+  ): Promise<SubmittableExtrinsic> {
+    return remove_delegate(this.id, this.creator, delegate)
   }
 
   /**
