@@ -6,7 +6,7 @@ import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
 import { CID } from 'multiformats/cid'
 
 async function main() {
-  await cord.init({ address: 'ws://127.0.0.1:9944' })
+  await cord.init({ address: 'wss://staging.cord.network' })
 
   // Step 1: Setup Org Identity
   console.log(`\n🏛  Creating Identities\n`)

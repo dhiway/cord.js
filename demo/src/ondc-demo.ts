@@ -1,6 +1,6 @@
 import * as cord from '@cord.network/api'
 import * as utils from './utils'
-import { createIdentities, registerProducts, addProductListing } from './ondc-helper';
+import { createIdentities, registerProducts, addProductListing, placeOrder, giveRating } from './ondc-helper';
 
 
 async function main() {
@@ -11,12 +11,20 @@ async function main() {
     console.log('✅ Identities created!')
     
     // Step 2: Setup a new Product
-    let product = await registerProducts(id);
-    console.log(`✅ New Product (${product.product!.id}) added! `)
+    let products = await registerProducts(id);
+    console.log(`✅ ${products.length} Products added! `)
  
     // Step 3: Create a new Listing
-    let listing = await addProductListing(id, product);
-    console.log(`✅ Listing (${listing.listing!.id}) created! `)
+    let listings = await addProductListing(id, products);
+    console.log(`✅ ${listings.length} products listed by seller! `)
+
+    // Step 4: Create an Order from the lists
+    let orders = await placeOrder(id, listings);
+    console.log(`✅ ${orders.length} orders placed! `)
+
+    // Step 4: Create an Rating from the lists
+    let ratings = await giveRating(id, orders);
+    console.log(`✅ ${ratings.length} rating given! `)
 
     await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }

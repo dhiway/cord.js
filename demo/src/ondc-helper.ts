@@ -102,6 +102,8 @@ export async function registerProducts(id: any) {
 
   // Step 2: Setup a new Product
   console.log(`\n✉️  Listening to new Product Additions`, '\n')
+  let products: any = [];
+  for (let i = 0; i < 10 ; i++) {
   let content = {
     name: 'Sony OLED 55 Inch Television',
     description: 'Best Television in the World',
@@ -156,20 +158,21 @@ export async function registerProducts(id: any) {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
-
-    return {
+    products.push({
 	product: newProduct,
 	prodContent: content,
 	schema: newProductSchema,
 	stream: productStream,
-    }
+    })
+  }
+  return products;
 }
 
-export async function addProductListing(id: any, product: any) {
+export async function addProductListing(id: any, products: any) {
   console.log(`\n\n✉️  Listening to Product Listings \n`)
   let store_name = 'ABC Store'
   let price = 135000
-
+  let listings = await Promise.all(products.map(async (product:any) => {
   let listStream = cord.Content.fromSchemaAndContent(
     product.schema!,
     product.stream!.contents,
@@ -223,5 +226,19 @@ export async function addProductListing(id: any, product: any) {
     console.log(e.errorCode, '-', e.message)
   }
 
-    return { listing: newListing }
+  return { listing: newListing }
+  }));
+
+  return listings;
+}
+
+
+export async function placeOrder(id: any, listings: any) {
+  let orders: any = []
+  return orders;
+}
+
+export async function giveRating(id: any, orders: any) {
+  let ratings: any = []
+  return ratings;
 }
