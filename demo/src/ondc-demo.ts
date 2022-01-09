@@ -11,19 +11,19 @@ async function main() {
     console.log('✅ Identities created!')
     
     // Step 2: Setup a new Product
-    let products = await registerProducts(id);
+    let { products, schema } = await registerProducts(id);
     console.log(`✅ ${products.length} Products added! `)
  
     // Step 3: Create a new Listing
-    let listings = await addProductListing(id, products);
+    let listings = await addProductListing(id, schema, products);
     console.log(`✅ ${listings.length} products listed by seller! `)
 
     // Step 4: Create an Order from the lists
-    let orders = await placeOrder(id, listings);
+    let orders = await placeOrder(id, schema, listings);
     console.log(`✅ ${orders.length} orders placed! `)
 
     // Step 4: Create an Rating from the lists
-    let ratings = await giveRating(id, orders);
+    let ratings = await giveRating(id, schema, orders);
     console.log(`✅ ${ratings.length} rating given! `)
 
     await utils.waitForEnter('\n⏎ Press Enter to continue..')
