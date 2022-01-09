@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/modules",
-  "version": "0.5.2-3",
+  "version": "0.5.2-5",
   "description": "Core Modules",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
