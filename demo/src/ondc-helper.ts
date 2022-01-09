@@ -182,7 +182,7 @@ export async function addProductListing(id: any, product: any) {
     listStream,
     id.sellerOne!,
     {
-      link: product.id!,
+      link: product.product!.id!,
     }
   )
   console.log(`\n📧 Hashed Product Stream `)
