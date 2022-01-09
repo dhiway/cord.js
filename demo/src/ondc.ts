@@ -157,8 +157,8 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 2: Create a new Product Schema
-  console.log(`\n\n✉️  Listening to Product Listings \n`)
+  // Step 3: Create a new Store Lisiting
+  console.log(`\n\n✉️  Listening to Store Listings \n`)
   let store_name = 'ABC Store'
   let price = 135000
 
@@ -177,7 +177,7 @@ async function main() {
       link: newProduct.id,
     }
   )
-  console.log(`\n📧 Hashed Product Stream `)
+  console.log(`\n📧 Hashed Listing Stream `)
   console.dir(newListingContent, { depth: null, colors: true })
 
   bytes = json.encode(newListingContent)
@@ -187,6 +187,7 @@ async function main() {
     store: store_name,
     seller: sellerOne.address,
   }
+
   const storeId = Crypto.hashObjectAsStr(storeVal)
 
   let newListing = cord.Product.fromProductContentAnchor(
@@ -208,10 +209,115 @@ async function main() {
       listingCreationExtrinsic,
       networkAuthor,
       {
-        resolveOn: cord.ChainUtils.IS_READY,
+        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
       }
     )
     console.log(`✅ Listing (${newListing.id}) created! `)
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 3: Create a new Product order
+  console.log(`\n\n✉️  Listening to Product Orders \n`)
+
+  let orderStream = cord.Content.fromSchemaAndContent(
+    newProductSchema,
+    productStream.contents,
+    buyerOne.address
+  )
+  console.log(`📧 Product Order Details `)
+  console.dir(orderStream, { depth: null, colors: true })
+
+  let newOrderContent = cord.ContentStream.fromStreamContent(
+    orderStream,
+    buyerOne,
+    {
+      link: newListing.id,
+    }
+  )
+  console.log(`\n📧 Hashed Order Stream `)
+  console.dir(newOrderContent, { depth: null, colors: true })
+
+  bytes = json.encode(newOrderContent)
+  encoded_hash = await hasher.digest(bytes)
+  const orderCid = CID.create(1, 0xb220, encoded_hash)
+
+  let newOrder = cord.Product.fromProductContentAnchor(
+    newOrderContent,
+    orderCid.toString(),
+    newListing.store_id,
+    price
+  )
+
+  let orderCreationExtrinsic = await newOrder.order()
+
+  console.log(`\n📧 Order On-Chain Details`)
+  console.dir(newOrder, { depth: null, colors: true })
+  console.log('\n⛓  Anchoring Product Ordering Event to the chain...')
+  console.log(`🔑 Controller: ${buyerOne.address} `)
+
+  try {
+    await cord.ChainUtils.signAndSubmitTx(
+      orderCreationExtrinsic,
+      networkAuthor,
+      {
+        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+      }
+    )
+    console.log(`✅ Order (${newOrder.id}) created! `)
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 3: Create a new Product order
+  console.log(`\n\n✉️  Listening to Ratings \n`)
+
+  let ratingStream = cord.Content.fromSchemaAndContent(
+    newProductSchema,
+    productStream.contents,
+    buyerOne.address
+  )
+  console.log(`📧 Product Order Details `)
+  console.dir(ratingStream, { depth: null, colors: true })
+
+  let newRatingContent = cord.ContentStream.fromStreamContent(
+    ratingStream,
+    buyerOne,
+    {
+      link: newOrder.id,
+    }
+  )
+  console.log(`\n📧 Hashed Order Stream `)
+  console.dir(newRatingContent, { depth: null, colors: true })
+
+  bytes = json.encode(newRatingContent)
+  encoded_hash = await hasher.digest(bytes)
+  const ratingCid = CID.create(1, 0xb220, encoded_hash)
+  let rating = 5
+  let newRating = cord.Product.fromProductContentAnchor(
+    newRatingContent,
+    ratingCid.toString(),
+    newListing.store_id,
+    price,
+    rating
+  )
+
+  let ratingCreationExtrinsic = await newRating.order_rating()
+
+  console.log(`\n📧 Order On-Chain Details`)
+  console.dir(newRating, { depth: null, colors: true })
+  console.log('\n⛓  Anchoring Product Ordering Event to the chain...')
+  console.log(`🔑 Controller: ${buyerOne.address} `)
+
+  try {
+    await cord.ChainUtils.signAndSubmitTx(
+      ratingCreationExtrinsic,
+      networkAuthor,
+      {
+        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+      }
+    )
+    console.log(`✅ Rating for (${newOrder.id}) created! `)
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }

@@ -15,7 +15,15 @@ import type {
   IContentStream,
   CompressedProduct,
 } from '@cord.network/types'
-import { set_status, query, create, list } from './Product.chain'
+import {
+  set_status,
+  query,
+  create,
+  list,
+  order,
+  order_return,
+  order_rating,
+} from './Product.chain'
 import * as ProductUtils from './Product.utils'
 // import Storage from '@cord.network/storage'
 // import SchemaUtils from '../schema/Schema.utils'
@@ -172,6 +180,18 @@ export class Product implements IProduct {
 
   public async list(): Promise<SubmittableExtrinsic> {
     return list(this)
+  }
+
+  public async order(): Promise<SubmittableExtrinsic> {
+    return order(this)
+  }
+
+  public async order_return(): Promise<SubmittableExtrinsic> {
+    return order_return(this.id, this.creator)
+  }
+
+  public async order_rating(): Promise<SubmittableExtrinsic> {
+    return order_rating(this)
   }
 
   /**

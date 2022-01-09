@@ -50,6 +50,7 @@ export async function list(stream: IProduct): Promise<SubmittableExtrinsic> {
     stream.store_id,
     stream.price,
     stream.cid,
+    stream.schema,
     stream.link
   )
   return tx
@@ -61,43 +62,47 @@ export async function list(stream: IProduct): Promise<SubmittableExtrinsic> {
  * @param stream The stream to anchor on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
-export async function order(
-  id: string,
-  creator: string,
-  tx_hash: string,
-  link: string,
-  cid?: string
-): Promise<SubmittableExtrinsic> {
+export async function order(stream: IProduct): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.product.order(
-    id,
-    creator,
-    tx_hash,
-    cid,
-    link
+    stream.id,
+    stream.creator,
+    stream.hash,
+    stream.store_id,
+    stream.price,
+    stream.cid,
+    stream.schema,
+    stream.link
   )
   return tx
 }
 
 export async function order_return(
-  id: string,
+  streamId: string,
   creator: string
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const tx: SubmittableExtrinsic = blockchain.api.tx.product.order(id, creator)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.product.order(
+    streamId,
+    creator
+  )
   return tx
 }
 
-export async function rating(
-  id: string,
-  creator: string,
-  rating: number
+export async function order_rating(
+  stream: IProduct
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.product.rating(
-    id,
-    creator,
-    rating
+    stream.id,
+    stream.creator,
+    stream.hash,
+    stream.store_id,
+    stream.price,
+    stream.cid,
+    stream.schema,
+    stream.link,
+    stream.rating
   )
   return tx
 }
