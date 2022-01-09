@@ -4,7 +4,7 @@ import { createIdentities, registerProducts, addProductListing } from './ondc-he
 
 
 async function main() {
-    await cord.init({ address: 'ws://127.0.0.1:9944' })
+    await cord.init({ address: 'wss://staging.cord.network' })
 
     /* Create Identities - Can have a separate registry for this */
     let id = await createIdentities();
