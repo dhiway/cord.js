@@ -228,7 +228,7 @@ export async function addProductListing(id: any, schema: any, products: any) {
 		listingCreationExtrinsic,
 		id.networkAuthor!,
 		{
-		    resolveOn: cord.ChainUtils.IS_READY,
+		    resolveOn: cord.ChainUtils.IS_IN_BLOCK,
 		}
 	    )
 	} catch (e: any) {
