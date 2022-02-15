@@ -54,7 +54,7 @@ export async function createIdentities() {
 export async function registerProducts(id: any) {
     
     console.log(`\n\n✉️  Adding a new Product Schema \n`)
-    let newProdSchemaContent = require('../res/prod-schema.json')
+    let newProdSchemaContent = require('../res/ondc-prod-schema.json')
     let newProdSchemaName = newProdSchemaContent.name + ':' + UUID.generate()
     newProdSchemaContent.name = newProdSchemaName
 
