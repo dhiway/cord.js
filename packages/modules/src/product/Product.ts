@@ -115,6 +115,37 @@ export class Product implements IProduct {
   }
 
   /**
+   * [STATIC] Builds a new instance of an [[Product]], from a complete set of input required for an stream.
+   *
+   * @param all the required fields from the 'create' extrinsic
+   * @returns A new [[Product]] object.
+   */
+  public static fromProductAnchor(
+    id: string,
+    contentHash: string,
+    cid: string,
+    creator: string,
+    store_id?: string,
+    schemaId?: string,
+    price?: number,
+    link?: string,
+    rating?: number
+  ): Product {
+    return new Product({
+      id: id,
+      hash: contentHash,
+      cid: cid,
+      store_id: store_id,
+      schema: schemaId,
+      price: price,
+      rating: rating,
+      link: link,
+      creator: creator,
+      status: true,
+    })
+  }
+
+  /**
    *  [STATIC] Custom Type Guard to determine input being of type IProduct using the ProductUtils errorCheck.
    *
    * @param input The potentially only partial IProduct.

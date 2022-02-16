@@ -14,7 +14,7 @@
       "@cord.network/messaging": ["messaging/src"],
       "@cord.network/api": ["api/src"],
       "@cord.network/types": ["types/src"],
-      "@cord.network/utils": ["utils/src"],
+      "@cord.network/utils": ["utils/src"]
     }
   },
   "skipLibCheck": true
