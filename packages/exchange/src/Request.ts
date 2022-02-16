@@ -18,7 +18,7 @@ import type {
   // IContentStream,
   // IMessage,
   IRequestStreamForCredential,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { Message } from '@cord.network/messaging'
 import { UUID, Crypto } from '@cord.network/utils'
 

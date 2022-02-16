@@ -56,7 +56,7 @@
 //   IPublicIdentity,
 //   ISubmittableResult,
 //   SubmittableExtrinsic,
-// } from '@cord.network/types'
+// } from '@cord.network/api-types'
 // import { mockChainQueryReturn } from './BlockchainQuery'
 // import TYPE_REGISTRY from '../TypeRegistry'
 

@@ -21,7 +21,7 @@ import type {
   IMessage,
   PartialContent,
   IContent,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { isHex } from '@polkadot/util'
 

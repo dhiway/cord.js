@@ -17,7 +17,7 @@ import type {
   CompressedSchemaType,
   SchemaWithoutId,
   SubmittableExtrinsic,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import {
   set_status,
   query,
@@ -87,7 +87,8 @@ export class Schema implements ISchema {
    */
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
-    creator: ISchema['creator']
+    creator: ISchema['creator'],
+    permission: boolean
   ): Schema {
     return new Schema({
       id: SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema)),
@@ -99,7 +100,7 @@ export class Schema implements ISchema {
         ),
         ...schema,
       },
-      permissioned: true,
+      permissioned: permission,
       revoked: false,
     })
   }

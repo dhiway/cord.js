@@ -9,7 +9,7 @@ import type {
   IContent,
   CompressedSchema,
   CompressedSchemaType,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { jsonabc, Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import { getOwner } from './Schema.chain'
 import { SchemaModel, SchemaWrapperModel } from './TypeSchema'

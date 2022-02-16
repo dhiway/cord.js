@@ -7,7 +7,7 @@ import type {
   IProduct,
   IProductDetails,
   SubmittableExtrinsic,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { DecoderUtils } from '@cord.network/utils'
 import type { AccountId, BlockNumber, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'

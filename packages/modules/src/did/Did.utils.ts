@@ -4,7 +4,7 @@
  */
 
 import type { Option, Struct, u8, Vec } from '@polkadot/types'
-import type { IPublicIdentity } from '@cord.network/types'
+import type { IPublicIdentity } from '@cord.network/api-types'
 import { Crypto, DecoderUtils, SDKErrors } from '@cord.network/utils'
 import type { Hash } from '@polkadot/types/interfaces'
 import { hexToString } from '@polkadot/util'

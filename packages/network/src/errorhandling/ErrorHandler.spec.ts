@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import type { ISubmittableResult } from '@cord.network/types'
+import type { ISubmittableResult } from '@cord.network/api-types'
 import { DispatchError, EventRecord } from '@polkadot/types/interfaces'
 import { ErrorHandler, PalletIndex } from '.'
 import { ExtrinsicError, ExtrinsicErrors } from './ExtrinsicError'

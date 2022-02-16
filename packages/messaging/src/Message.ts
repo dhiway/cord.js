@@ -19,8 +19,8 @@ import type {
   IEncryptedMessage,
   MessageBody,
   ISchema,
-} from '@cord.network/types'
-import { MessageBodyType } from '@cord.network/types'
+} from '@cord.network/api-types'
+import { MessageBodyType } from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import {
   compressMessage,

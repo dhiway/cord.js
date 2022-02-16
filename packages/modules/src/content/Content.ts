@@ -15,7 +15,7 @@ import type {
   IPublicIdentity,
   CompressedPartialContent,
   PartialContent,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
 import { Schema as ISchema } from '../schema/Schema'
 import * as SchemaUtils from '../schema/Schema.utils'

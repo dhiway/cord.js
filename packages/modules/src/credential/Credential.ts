@@ -16,7 +16,7 @@ import type {
   IContentStream,
   IPresentationOptions,
   IPresentationSigningOptions,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
 import { Stream } from '../stream/Stream'
 import { ContentStream } from '../contentstream/ContentStream'

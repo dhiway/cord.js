@@ -8,7 +8,7 @@ import type {
   CompressedCredential,
   CompressedContentStream,
   IContentStream,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import * as CredentialUtils from '../credential/Credential.utils'
 import * as ContentUtils from '../content/Content.utils'

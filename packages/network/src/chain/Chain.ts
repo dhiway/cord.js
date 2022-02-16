@@ -6,7 +6,7 @@
  * @packageDocumentation
  * @module Chain
  */
-
+import '@polkadot/api-augment'
 import type { ApiPromise } from '@polkadot/api'
 import type { Header } from '@polkadot/types/interfaces/types'
 import type { AnyJson, AnyNumber, Codec } from '@polkadot/types/types'
@@ -22,7 +22,7 @@ import type {
   IChainApi,
   ChainStats,
   SubscriptionPromise,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { submitSignedTx } from './Chain.utils'
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
@@ -61,7 +61,6 @@ export class Chain implements IChainApi {
   ): Promise<() => void> {
     return this.api.rpc.chain.subscribeNewHeads(listener)
   }
-
   /**
    * [ASYNC] Signs the SubmittableExtrinsic with the given identity.
    *

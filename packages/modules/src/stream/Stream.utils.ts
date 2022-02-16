@@ -3,7 +3,7 @@
  * @module StreamUtils
  */
 
-import type { IStream, CompressedStream } from '@cord.network/types'
+import type { IStream, CompressedStream } from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 
 /**

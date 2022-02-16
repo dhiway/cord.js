@@ -5,7 +5,11 @@
 
 import { Credential, SDKErrors } from '@cord.network/modules'
 import { ConfigService } from '@cord.network/config'
-import type { ICredential, IContentStream, IMessage } from '@cord.network/types'
+import type {
+  ICredential,
+  IContentStream,
+  IMessage,
+} from '@cord.network/api-types'
 import { Message } from '@cord.network/messaging'
 import { IRequestSession } from './Request'
 

@@ -3,6 +3,7 @@
  * @module IBlockchain
  */
 
+import '@polkadot/api-augment'
 import type { ApiPromise } from '@polkadot/api'
 import type { Header } from '@polkadot/types/interfaces/types'
 import { AnyNumber } from '@polkadot/types/types'

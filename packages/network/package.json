@@ -21,17 +21,18 @@
   "homepage": "https://github.com/dhiway/cord-js#readme",
   "devDependencies": {
     "rimraf": "^3.0.2",
-    "typescript": "^4.2.2"
+    "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@cord.network/api-types": "workspace:*",
     "@cord.network/config": "workspace:*",
-    "@cord.network/type-definitions": "0.2.4-16",
-    "@cord.network/types": "workspace:*",
+    "@cord.network/type-definitions": "0.6.1-2",
+    "@cord.network/types": "0.6.1-2",
     "@cord.network/utils": "workspace:*",
-    "@polkadot/api": "6.7.2",
-    "@polkadot/keyring": "7.8.2",
-    "@polkadot/types": "6.7.2",
-    "@polkadot/util": "7.8.2",
+    "@polkadot/api": "^7.8.1",
+    "@polkadot/keyring": "^8.4.0",
+    "@polkadot/types": "^7.8.1",
+    "@polkadot/util": "^8.4.0",
     "typescript-logging": "^0.6.4"
   }
 }

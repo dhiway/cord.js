@@ -12,7 +12,7 @@ import type {
   ReSignOpts,
   SubmittableExtrinsic,
   SubscriptionPromise,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { ErrorHandler, ExtrinsicError, ExtrinsicErrors } from '../errorhandling'
 import { makeSubscriptionPromise } from './SubscriptionPromise'
 import { getConnectionOrConnect } from '../chainApiConnection/ChainApiConnection'

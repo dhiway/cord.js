@@ -5,7 +5,7 @@ import type {
   IIdentity,
   IPresentation,
   IPresentationSigningOptions,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { Credential } from './Credential'
 
 function ensureCredentialOwnership(

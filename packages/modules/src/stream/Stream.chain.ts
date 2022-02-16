@@ -7,7 +7,7 @@ import type {
   IStream,
   IStreamDetails,
   SubmittableExtrinsic,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { DecoderUtils } from '@cord.network/utils'
 import type { AccountId, BlockNumber, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
@@ -112,7 +112,7 @@ export async function set_status(
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${streamId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.set_status(
+  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.setStatus(
     streamId,
     creator,
     status

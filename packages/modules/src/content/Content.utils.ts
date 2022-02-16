@@ -9,7 +9,7 @@ import type {
   CompressedContent,
   PartialContent,
   CompressedPartialContent,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { jsonabc, DataUtils, Crypto, SDKErrors } from '@cord.network/utils'
 import { getIdWithPrefix } from '../schema/Schema.utils'
 

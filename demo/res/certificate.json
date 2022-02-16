@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "name": "Student Certificate Demo",
+    "properties": {
+        "certificateId": {
+            "type":"string"
+        },
+        "studentId": {
+            "type": "string"
+        },
+        "studentName": {
+            "type": "string"
+        },
+        "issuerName": {
+          "type": "string"
+        },
+        "credential": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        },
+        "batch": {
+           "type": "string"
+        },
+        "issuedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date"
+        } 
+    },
+    "type": "object"
+}

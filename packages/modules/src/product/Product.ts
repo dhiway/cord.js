@@ -14,7 +14,7 @@ import type {
   IProductDetails,
   IContentStream,
   CompressedProduct,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import {
   set_status,
   query,

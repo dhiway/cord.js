@@ -11,7 +11,7 @@ import type {
   Hash,
   IContent,
   ICredential,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { Crypto, SDKErrors } from '@cord.network/utils'
 import * as ContentUtils from '../content/Content.utils'
 import { Credential } from '../credential/Credential'

@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "name": "Institute Accrediation Demo",
+    "properties": {
+        "instituteId": {
+            "type": "string"
+        },
+        "instituteName": {
+            "type": "string"
+        },
+        "establishmentYear": {
+            "type": "string",
+            "format": "date"
+        },
+        "gstnId":{
+            "type": "string"
+        },
+        "category": {
+           "type": "string"
+        },
+        "cgpaGrade":{
+            "type":"string"
+        },
+        "issuerName": {
+          "type": "string"
+        },
+        "issuedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date"
+        } 
+    },
+    "type": "object"
+}
+

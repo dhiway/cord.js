@@ -6,6 +6,7 @@
  * @module ConfigService
  */
 
+import '@polkadot/api-augment'
 import {
   LFService,
   LoggerFactoryOptions,

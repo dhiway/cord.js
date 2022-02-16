@@ -10,7 +10,7 @@ import type {
   ISchemaDetails,
   IPublicIdentity,
   SubmittableExtrinsic,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { DecoderUtils } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'

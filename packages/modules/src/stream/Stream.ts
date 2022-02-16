@@ -14,7 +14,7 @@ import type {
   IStreamDetails,
   IContentStream,
   CompressedStream,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { set_status, query, store } from './Stream.chain'
 import * as StreamUtils from './Stream.utils'
 // import Storage from '@cord.network/storage'

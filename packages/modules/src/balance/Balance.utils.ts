@@ -5,7 +5,7 @@
 
 import { BN } from '@polkadot/util'
 import { formatBalance } from '@polkadot/util'
-import type { BalanceOptions } from '@cord.network/types'
+import type { BalanceOptions } from '@cord.network/api-types'
 
 export const WAY_UNIT = new BN(1)
 

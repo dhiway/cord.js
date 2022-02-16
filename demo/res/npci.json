@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "name": "Identity Demo",
+    "properties": {
+        "type": {
+            "type": "string"
+        },
+        "verifiedName": {
+            "type": "string"
+        },
+        "id": {
+            "type": "integer"
+        }
+    },
+    "type": "object"
+}

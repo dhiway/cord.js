@@ -14,7 +14,7 @@ import type {
   Balances,
   IPublicIdentity,
   SubmittableExtrinsic,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { ChainApiConnection } from '@cord.network/network'
 
 import BalanceUtils from './Balance.utils'

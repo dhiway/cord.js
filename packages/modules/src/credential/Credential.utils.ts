@@ -3,7 +3,7 @@
  * @module MarkedStreamUtils
  */
 
-import type { ICredential, CompressedCredential } from '@cord.network/types'
+import type { ICredential, CompressedCredential } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
 import * as StreamUtils from '../stream/Stream.utils'
 import * as ContentStreamUtils from '../contentstream/ContentStream.utils'
