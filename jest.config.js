@@ -25,8 +25,10 @@ module.exports = {
     '!**/cord/*',
     '!**/chainApiConnection/*',
     '!**/types/**/*',
-    '!**/SDKErrors.ts'
+    '!**/SDKErrors.ts',
+    '!utils/src/json-schema/*',
   ],
+  resolver: "ts-jest-resolver",
   rootDir: 'packages',
   coverageDirectory: 'coverage',
   moduleDirectories: [

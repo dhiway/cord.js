@@ -9,16 +9,13 @@
 
 import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import type {
-  // IPublicIdentity,
   IStream,
   IStreamDetails,
   IContentStream,
   CompressedStream,
 } from '@cord.network/api-types'
-import { set_status, query, store } from './Stream.chain'
-import * as StreamUtils from './Stream.utils'
-// import Storage from '@cord.network/storage'
-// import SchemaUtils from '../schema/Schema.utils'
+import { set_status, query, store } from './Stream.chain.js'
+import * as StreamUtils from './Stream.utils.js'
 
 export class Stream implements IStream {
   /**

@@ -13,10 +13,10 @@ import type {
   ICredential,
 } from '@cord.network/api-types'
 import { Crypto, SDKErrors } from '@cord.network/utils'
-import * as ContentUtils from '../content/Content.utils'
-import { Credential } from '../credential/Credential'
-import Identity from '../identity/Identity'
-import * as ContentStreamUtils from './ContentStream.utils'
+import * as ContentUtils from '../content/Content.utils.js'
+import { Credential } from '../credential/Credential.js'
+import { Identity } from '../identity/Identity.js'
+import * as ContentStreamUtils from './ContentStream.utils.js'
 
 function verifyHolderSignature(content: IContentStream): boolean {
   return Crypto.verify(

@@ -40,20 +40,22 @@ async function main() {
   // Step 2: Create a new Schema
   console.log(`\n\n✉️  Adding a new Schema \n`)
   let newSchemaContent = require('../res/schema.json')
-  let newSchemaName = newSchemaContent.name + ':' + UUID.generate()
-  newSchemaContent.name = newSchemaName
+  let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
+  newSchemaContent.title = newSchemaTitle
+  console.dir(newSchemaContent, { depth: null, colors: true })
 
   let newSchema = cord.Schema.fromSchemaProperties(
     newSchemaContent,
     employeeIdentity.address
   )
+
   let bytes = json.encode(newSchema)
   let encoded_hash = await hasher.digest(bytes)
   const schemaCid = CID.create(1, 0xb220, encoded_hash)
-  newSchema.cid = schemaCid.toString()
-  console.dir(newSchema, { depth: null, colors: true })
-
-  let schemaCreationExtrinsic = await newSchema.store()
+  // newSchema.cid =
+  // console.dir(newSchema, { depth: null, colors: true })
+  console.log('Version', newSchema.version)
+  let schemaCreationExtrinsic = await newSchema.store(schemaCid.toString())
 
   console.log(`📧 Schema Details `)
   console.dir(newSchema, { depth: null, colors: true })
@@ -61,6 +63,7 @@ async function main() {
   console.log('\n⛓  Anchoring Schema to the chain...')
   console.log(`🔑 Creator: ${employeeIdentity.address} `)
   console.log(`🔑 Controller: ${entityIdentity.address} `)
+  console.dir(schemaCreationExtrinsic, { depth: null, colors: true })
 
   try {
     await cord.ChainUtils.signAndSubmitTx(
@@ -139,10 +142,10 @@ async function main() {
     employeeIdentity.address
   )
 
-  bytes = json.encode(credSchemaStream)
-  encoded_hash = await hasher.digest(bytes)
-  const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
-  credSchemaStream.cid = credSchemaCid.toString()
+  // bytes = json.encode(credSchemaStream)
+  // encoded_hash = await hasher.digest(bytes)
+  // const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
+  // credSchemaStream.cid =
   let credSchemaCreationExtrinsic = await credSchemaStream.store()
   console.log('\n⛓  Anchoring Credential Schema to the chain...')
 

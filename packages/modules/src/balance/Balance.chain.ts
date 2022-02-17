@@ -17,7 +17,7 @@ import type {
 } from '@cord.network/api-types'
 import { ChainApiConnection } from '@cord.network/network'
 
-import BalanceUtils from './Balance.utils'
+import BalanceUtils from './Balance.utils.js'
 
 /**
  * Fetches the current balances of the account with [accountAddress].

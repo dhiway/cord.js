@@ -17,15 +17,20 @@ import type {
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
 import { ConfigService } from '@cord.network/config'
-import Identity from '../identity/Identity'
-import { queryByAddress, queryByIdentifier, remove, store } from './Did.chain'
+import { Identity } from '../identity/Identity.js'
+import {
+  queryByAddress,
+  queryByIdentifier,
+  remove,
+  store,
+} from './Did.chain.js'
 import {
   createDefaultDidDocument,
   getAddressFromIdentifier,
   getIdentifierFromAddress,
   signDidDocument,
   verifyDidDocumentSignature,
-} from './Did.utils'
+} from './Did.utils.js'
 
 const log = ConfigService.LoggingFactory.getLogger('DID')
 
@@ -88,7 +93,7 @@ export interface IDidDocumentSigned extends IDidDocument {
   signature: string
 }
 
-export default class Did implements IDid {
+export class Did implements IDid {
   public readonly identifier: string
   public readonly publicBoxKey: string
   public readonly publicSigningKey: string

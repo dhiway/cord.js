@@ -5,9 +5,9 @@
 
 import type { ICredential, CompressedCredential } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
-import * as StreamUtils from '../stream/Stream.utils'
-import * as ContentStreamUtils from '../contentstream/ContentStream.utils'
-import { Credential } from './Credential'
+import * as StreamUtils from '../stream/Stream.utils.js'
+import * as ContentStreamUtils from '../contentstream/ContentStream.utils.js'
+import { Credential } from './Credential.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an IMarkedStream object.

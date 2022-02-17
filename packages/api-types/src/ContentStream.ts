@@ -3,9 +3,9 @@
  * @module IJournalContent
  */
 
-import type { ICredential, CompressedCredential } from './Credential'
-import type { IContent, CompressedContent } from './Content'
-import type { IPublicIdentity } from './PublicIdentity'
+import type { ICredential, CompressedCredential } from './Credential.js'
+import type { IContent, CompressedContent } from './Content.js'
+import type { IPublicIdentity } from './PublicIdentity.js'
 
 export type Hash = string
 

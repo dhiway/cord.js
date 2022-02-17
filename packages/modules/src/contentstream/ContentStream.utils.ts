@@ -10,9 +10,9 @@ import type {
   IContentStream,
 } from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
-import * as CredentialUtils from '../credential/Credential.utils'
-import * as ContentUtils from '../content/Content.utils'
-import { ContentStream } from './ContentStream'
+import * as CredentialUtils from '../credential/Credential.utils.js'
+import * as ContentUtils from '../content/Content.utils.js'
+import { ContentStream } from './ContentStream.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an IContentStream object.

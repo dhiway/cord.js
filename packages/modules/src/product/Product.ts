@@ -23,8 +23,8 @@ import {
   order,
   order_return,
   order_rating,
-} from './Product.chain'
-import * as ProductUtils from './Product.utils'
+} from './Product.chain.js'
+import * as ProductUtils from './Product.utils.js'
 // import Storage from '@cord.network/storage'
 // import SchemaUtils from '../schema/Schema.utils'
 

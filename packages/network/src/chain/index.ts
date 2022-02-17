@@ -1,3 +1,3 @@
-export { Chain } from './Chain'
-export * as ChainUtils from './Chain.utils'
-export * as SubscriptionPromise from './SubscriptionPromise'
+export { Chain } from './Chain.js'
+export * as ChainUtils from './Chain.utils.js'
+export * as SubscriptionPromise from './SubscriptionPromise.js'

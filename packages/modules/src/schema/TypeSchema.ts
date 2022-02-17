@@ -3,7 +3,9 @@
  * @module TypeSchema
  */
 
-export const SchemaModel = {
+import { JsonSchema } from '@cord.network/utils'
+
+export const SchemaModel: JsonSchema.Schema = {
   $id: 'http://dway.io/draft-01/schema#',
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
@@ -18,6 +20,13 @@ export const SchemaModel = {
     },
     title: {
       type: 'string',
+    },
+    description: {
+      type: 'string',
+    },
+    $metadata: {
+      version: { type: ['string', 'null'] },
+      discoverable: { type: 'boolean' },
     },
     type: {
       type: 'string',
@@ -62,14 +71,6 @@ export const SchemaModel = {
 export const SchemaWrapperModel = {
   $id: 'http://dway.io/draft-01/schema-wrapper#',
   $schema: 'http://json-schema.org/draft-07/schema#',
-  $metadata: {
-    slug: { type: ['string', 'null'] },
-    version: { type: ['string', 'null'] },
-    creator: { type: ['string', 'null'] },
-    cid: { type: ['string', 'null'] },
-    discoverable: { type: 'boolean' },
-    permissioned: { type: 'boolean' },
-  },
   type: 'object',
   properties: {
     schema: {
@@ -81,9 +82,11 @@ export const SchemaWrapperModel = {
     hash: {
       type: 'string',
     },
+    creator: { type: ['string', 'null'] },
     version: {
       type: 'string',
     },
+    permissioned: { type: 'boolean' },
   },
   additionalProperties: false,
   required: ['schema', 'id', 'hash'],
@@ -174,7 +177,6 @@ export const MetadataModel = {
     hash: { type: 'string', minLength: 1 },
     version: { type: 'string', minLength: 1 },
     permissioned: { type: 'boolean' },
-    // revoked: { type: 'boolean' },
   },
   required: ['metadata', 'id', 'hash'],
   additionalProperties: false,

@@ -3,35 +3,39 @@
  * @module SchemaUtils
  */
 
-import Ajv from 'ajv'
 import type {
-  ISchema,
+  ISchemaEnvelope,
   IContent,
   CompressedSchema,
   CompressedSchemaType,
+  SchemaWithoutId,
 } from '@cord.network/api-types'
-import { jsonabc, Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
-import { getOwner } from './Schema.chain'
-import { SchemaModel, SchemaWrapperModel } from './TypeSchema'
+import {
+  jsonabc,
+  Crypto,
+  DataUtils,
+  SDKErrors,
+  JsonSchema,
+} from '@cord.network/utils'
+import { getOwner } from './Schema.chain.js'
+import { SchemaModel, SchemaWrapperModel } from './TypeSchema.js'
 
 export function verifySchemaProperties(
   object: Record<string, unknown>,
   schema: Record<string, unknown>,
   messages?: string[]
 ): boolean {
-  const ajv = new Ajv()
-  ajv.addMetaSchema(SchemaModel)
-  const result = ajv.validate(schema, object)
-  if (!result && ajv.errors) {
-    if (messages) {
-      ajv.errors.forEach((error: Ajv.ErrorObject) => {
-        if (typeof error.message === 'string') {
-          messages.push(error.message)
-        }
-      })
-    }
+  const validator = new JsonSchema.Validator(schema, '7', false)
+  if (schema.$id !== SchemaModel.$id) {
+    validator.addSchema(SchemaModel)
   }
-  return !!result
+  const result = validator.validate(object)
+  if (!result.valid && messages) {
+    result.errors.forEach((error: any) => {
+      messages.push(error.error)
+    })
+  }
+  return result.valid
 }
 
 export function verifySchema(
@@ -42,17 +46,17 @@ export function verifySchema(
 }
 
 /**
- *  Verifies the structure of the provided IStream['contents'] with ISchema['schema'].
+ *  Verifies the structure of the provided IStream['contents'] with ISchemaEnvelope['schema'].
  *
  * @param streamContents IStream['contents'] to be verified against the schema.
- * @param schema ISchema['schema'] to be verified against the [SchemaModel].
+ * @param schema ISchemaEnvelope['schema'] to be verified against the [SchemaModel].
  * @throws [[ERROR_OBJECT_MALFORMED]] when schema does not correspond to the SchemaModel.
  *
  * @returns Boolean whether both streamContents and schema could be verified.
  */
 export function verifyContentProperties(
   contents: IContent['contents'],
-  schema: ISchema['schema']
+  schema: ISchemaEnvelope['schema']
 ): boolean {
   if (!verifySchema(schema, SchemaModel)) {
     throw SDKErrors.ERROR_OBJECT_MALFORMED()
@@ -60,34 +64,27 @@ export function verifyContentProperties(
   return verifySchema(contents, schema)
 }
 
-export async function verifyStored(schema: ISchema): Promise<boolean> {
-  return typeof (await getOwner(schema.id)) === 'string'
+export async function verifyStored(schema: ISchemaEnvelope): Promise<boolean> {
+  return typeof (await getOwner(schema.hash)) === 'string'
 }
 
-export async function verifyOwner(schema: ISchema): Promise<boolean> {
-  const creator = await getOwner(schema.id)
+export async function verifyOwner(schema: ISchemaEnvelope): Promise<boolean> {
+  const creator = await getOwner(schema.hash)
   return creator ? creator === schema.creator : false
 }
 
-type schemaPropsForHashing = {
-  $schema: ISchema['schema']['$schema']
-  properties: ISchema['schema']['properties']
-  name: ISchema['schema']['name']
-  type: ISchema['schema']['type']
+export function getHashForSchema(
+  schema: SchemaWithoutId | ISchemaEnvelope['schema']
+): string {
+  return Crypto.hashObjectAsStr(schema)
 }
 
-export function getHashForSchema(schema: schemaPropsForHashing): string {
-  const hashVal = {
-    $schema: schema.$schema,
-    properties: schema.properties,
-    name: schema.name,
-    type: schema.type,
-  }
-  return Crypto.hashObjectAsStr(hashVal)
-}
-
-export function getIdForSchema(hash: string): string {
-  return getIdWithPrefix(Crypto.hashObjectAsStr(hash))
+export function getIdForSchema(
+  schema: SchemaWithoutId | ISchemaEnvelope['schema'],
+  creator: ISchemaEnvelope['creator']
+): string {
+  const schemaHash = getHashForSchema(schema)
+  return getIdWithPrefix(Crypto.hashObjectAsStr({ schemaHash, creator }))
 }
 
 export function getIdWithPrefix(hash: string): string {
@@ -99,27 +96,21 @@ export function getSchemaId(id: string): string {
 }
 
 /**
- *  Checks whether the input meets all the required criteria of an ISchema object.
+ *  Checks whether the input meets all the required criteria of an ISchemaEnvelope object.
  *  Throws on invalid input.
  *
- * @param input The potentially only partial ISchema.
+ * @param input The potentially only partial ISchemaEnvelope.
  * @throws [[ERROR_OBJECT_MALFORMED]] when input does not correspond to either it's schema, or the SchemaWrapperModel.
- * @throws [[ERROR_HASH_MALFORMED]] when the input's hash does not match the hash calculated from ISchema's schema.
+ * @throws [[ERROR_HASH_MALFORMED]] when the input's hash does not match the hash calculated from ISchemaEnvelope's schema.
  * @throws [[ERROR_MTYPE_OWNER_TYPE]] when the input's owner is not of type string or null.
  *
  */
-export function errorCheck(input: ISchema): void {
+export function errorCheck(input: ISchemaEnvelope): void {
   if (!verifySchema(input, SchemaWrapperModel)) {
     throw SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   if (!input.schema || getHashForSchema(input.schema) !== input.hash) {
     throw SDKErrors.ERROR_HASH_MALFORMED(input.hash, 'Schema')
-  }
-  if (getSchemaId(getIdForSchema(input.hash)) !== input.schema.$id) {
-    throw SDKErrors.ERROR_SCHEMA_ID_NOT_MATCHING(
-      getIdForSchema(input.hash),
-      input.schema.$id
-    )
   }
   if (
     typeof input.creator === 'string'
@@ -140,12 +131,14 @@ export function errorCheck(input: ISchema): void {
  */
 
 export function compressSchema(
-  typeSchema: ISchema['schema']
+  typeSchema: ISchemaEnvelope['schema']
 ): CompressedSchema {
   if (
     !typeSchema.$id ||
     !typeSchema.$schema ||
-    !typeSchema.name ||
+    !typeSchema.$metadata ||
+    !typeSchema.title ||
+    !typeSchema.description ||
     !typeSchema.properties ||
     !typeSchema.type
   ) {
@@ -155,7 +148,9 @@ export function compressSchema(
   return [
     sortedTypeSchema.$id,
     sortedTypeSchema.$schema,
-    sortedTypeSchema.name,
+    sortedTypeSchema.$metadata,
+    sortedTypeSchema.title,
+    sortedTypeSchema.description,
     sortedTypeSchema.properties,
     sortedTypeSchema.type,
   ]
@@ -172,16 +167,18 @@ export function compressSchema(
 
 export function decompressSchema(
   typeSchema: CompressedSchema
-): ISchema['schema'] {
-  if (!Array.isArray(typeSchema) || typeSchema.length !== 5) {
+): ISchemaEnvelope['schema'] {
+  if (!Array.isArray(typeSchema) || typeSchema.length !== 7) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('typeSchema')
   }
   return {
     $id: typeSchema[0],
     $schema: typeSchema[1],
-    name: typeSchema[2],
-    properties: typeSchema[3],
-    type: typeSchema[4],
+    $metadata: typeSchema[2],
+    title: typeSchema[3],
+    description: typeSchema[4],
+    properties: typeSchema[5],
+    type: typeSchema[6],
   }
 }
 
@@ -193,14 +190,13 @@ export function decompressSchema(
  * @returns An ordered array of a [[Schema]].
  */
 
-export function compress(schema: ISchema): CompressedSchemaType {
+export function compress(schema: ISchemaEnvelope): CompressedSchemaType {
   errorCheck(schema)
   return [
     schema.id,
     schema.hash,
     schema.version,
     schema.creator,
-    schema.cid,
     schema.parent,
     schema.permissioned,
     compressSchema(schema.schema),
@@ -216,8 +212,8 @@ export function compress(schema: ISchema): CompressedSchemaType {
  * @returns An object that has the same properties as a [[Schema]].
  */
 
-export function decompress(schema: CompressedSchemaType): ISchema {
-  if (!Array.isArray(schema) || schema.length !== 8) {
+export function decompress(schema: CompressedSchemaType): ISchemaEnvelope {
+  if (!Array.isArray(schema) || schema.length !== 7) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
@@ -225,10 +221,9 @@ export function decompress(schema: CompressedSchemaType): ISchema {
     hash: schema[1],
     version: schema[2],
     creator: schema[3],
-    cid: schema[4],
-    parent: schema[5],
-    permissioned: schema[6],
-    schema: decompressSchema(schema[7]),
+    parent: schema[4],
+    permissioned: schema[5],
+    schema: decompressSchema(schema[6]),
   }
 }
 
@@ -244,23 +239,21 @@ export function decompress(schema: CompressedSchemaType): ISchema {
  */
 
 export function validateNestedSchemas(
-  schema: ISchema['schema'],
-  nestedSchemas: Array<ISchema['schema']>,
+  schema: ISchemaEnvelope['schema'],
+  nestedSchemas: Array<ISchemaEnvelope['schema']>,
   streamContents: Record<string, any>,
   messages?: string[]
 ): boolean {
-  const ajv = new Ajv()
-  ajv.addMetaSchema(SchemaModel)
-  const validate = ajv.addSchema(nestedSchemas).compile(schema)
-  const result = validate(streamContents)
-  if (!result && ajv.errors) {
-    if (messages) {
-      ajv.errors.forEach((error: Ajv.ErrorObject) => {
-        if (typeof error.message === 'string') {
-          messages.push(error.message)
-        }
-      })
-    }
+  const validator = new JsonSchema.Validator(schema, '7', false)
+  nestedSchemas.forEach((schema) => {
+    validator.addSchema(schema)
+  })
+  validator.addSchema(SchemaModel)
+  const result = validator.validate(streamContents)
+  if (!result.valid && messages) {
+    result.errors.forEach((error) => {
+      messages.push(error.error)
+    })
   }
-  return !!result
+  return result.valid
 }

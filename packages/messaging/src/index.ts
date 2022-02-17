@@ -1,2 +1,2 @@
-export * from './Message'
-export * from './Message.utils'
+export * from './Message.js'
+export * from './Message.utils.js'

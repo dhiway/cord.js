@@ -6,17 +6,16 @@ export interface ISchemaMetadata {
   metadata: IMetadata
   id: string | null
   hash: string | null
-  link: string | null
 }
 
 export interface IMetadata {
-  name: IMultilangLabel
+  title: IMultilangLabel
   description?: IMultilangLabel
   properties: IMetadataProperties
 }
 
 export type IMetadataProperties = {
-  [key: string]: { name: IMultilangLabel; description?: IMultilangLabel }
+  [key: string]: { title: IMultilangLabel; description?: IMultilangLabel }
 }
 
 /**

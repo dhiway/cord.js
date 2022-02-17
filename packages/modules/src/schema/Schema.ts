@@ -12,7 +12,7 @@
 
 import type {
   IContent,
-  ISchema,
+  ISchemaEnvelope,
   ISchemaDetails,
   CompressedSchemaType,
   SchemaWithoutId,
@@ -24,16 +24,16 @@ import {
   store,
   add_delegate,
   remove_delegate,
-} from './Schema.chain'
-import * as SchemaUtils from './Schema.utils'
+} from './Schema.chain.js'
+import * as SchemaUtils from './Schema.utils.js'
 
-export type Options = {
-  permission?: boolean
-  version?: string
-  cid?: string
-}
+// export type Options = {
+//   permission?: boolean
+//   version?: string | '1.0.0'
+//   cid?: string
+// }
 
-export class Schema implements ISchema {
+export class Schema implements ISchemaEnvelope {
   /**
    * [STATIC] [ASYNC] Queries the chain for a given stream entry, by `identifier`.
    *
@@ -71,13 +71,13 @@ export class Schema implements ISchema {
 
   /**
    * [STATIC] Clone an already existing [[Schema]]
-   * or initializes from an [[ISchema]] object
+   * or initializes from an [[ISchemaEnvelope]] object
    * which has non-initialized and non-verified Schema data.
    *
    * @param schemaInput The [[Schema]] which shall be cloned.
    * @returns A copy of the given [[Schema]].
    */
-  public static fromSchemaType(schemaInput: ISchema): Schema {
+  public static fromSchemaType(schemaInput: ISchemaEnvelope): Schema {
     return new Schema(schemaInput)
   }
 
@@ -92,58 +92,56 @@ export class Schema implements ISchema {
    * @returns An instance of [[Schema]].
    */
   public static fromSchemaProperties(
-    schema: SchemaWithoutId | ISchema['schema'],
-    creator: ISchema['creator'],
-    { permission, version, cid }: Options = {}
+    schema: SchemaWithoutId | ISchemaEnvelope['schema'],
+    creator: ISchemaEnvelope['creator'],
+    version?: ISchemaEnvelope['version'],
+    permission?: boolean
   ): Schema {
+    const schemaId = SchemaUtils.getIdForSchema(schema, creator)
+    const schemaWithId = {
+      $id: schemaId,
+      ...schema,
+    }
     return new Schema({
-      id: SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema)),
-      hash: SchemaUtils.getHashForSchema(schema),
+      id: schemaId,
+      hash: SchemaUtils.getHashForSchema(schemaWithId),
       version: version || '1.0.0',
-      schema: {
-        $id: SchemaUtils.getSchemaId(
-          SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema))
-        ),
-        ...schema,
-      },
+      schema: schemaWithId,
       creator: creator,
-      cid: cid,
       permissioned: permission || false,
     })
   }
 
   /**
-   *  [STATIC] Custom Type Guard to determine input being of type ISchema using the SchemaUtils errorCheck.
+   *  [STATIC] Custom Type Guard to determine input being of type ISchemaEnvelope using the SchemaUtils errorCheck.
    *
-   * @param input The potentially only partial ISchema.
-   * @returns Boolean whether input is of type ISchema.
+   * @param input The potentially only partial ISchemaEnvelope.
+   * @returns Boolean whether input is of type ISchemaEnvelope.
    */
-  static isISchema(input: unknown): input is ISchema {
+  static isISchema(input: unknown): input is ISchemaEnvelope {
     try {
-      SchemaUtils.errorCheck(input as ISchema)
+      SchemaUtils.errorCheck(input as ISchemaEnvelope)
     } catch (error) {
       return false
     }
     return true
   }
 
-  public id: ISchema['id']
-  public hash: ISchema['hash']
-  public version: ISchema['version']
-  public creator: ISchema['creator']
-  public schema: ISchema['schema']
-  public cid?: ISchema['cid'] | undefined
-  public parent?: ISchema['parent'] | undefined
-  public permissioned: ISchema['permissioned']
+  public id: ISchemaEnvelope['id']
+  public hash: ISchemaEnvelope['hash']
+  public version: ISchemaEnvelope['version']
+  public creator: ISchemaEnvelope['creator']
+  public schema: ISchemaEnvelope['schema']
+  public parent?: ISchemaEnvelope['parent'] | undefined
+  public permissioned: ISchemaEnvelope['permissioned']
 
-  public constructor(schemaInput: ISchema) {
+  public constructor(schemaInput: ISchemaEnvelope) {
     SchemaUtils.errorCheck(schemaInput)
     this.id = schemaInput.id
     this.hash = schemaInput.hash
     this.version = schemaInput.version
     this.creator = schemaInput.creator
     this.schema = schemaInput.schema
-    this.cid = schemaInput.cid
     this.parent = schemaInput.parent
     this.permissioned = schemaInput.permissioned
   }
@@ -154,8 +152,8 @@ export class Schema implements ISchema {
    * @param schemaCId The IPFS CID of the schema.
    * @returns A promise of a unsigned SubmittableExtrinsic.
    */
-  public async store(): Promise<SubmittableExtrinsic> {
-    return store(this)
+  public async store(cid?: string | undefined): Promise<SubmittableExtrinsic> {
+    return store(this, cid)
   }
 
   public async add_delegate(delegate: string): Promise<SubmittableExtrinsic> {
@@ -256,7 +254,7 @@ export class SchemaDetails implements ISchemaDetails {
   public schema_hash: ISchemaDetails['schema_hash']
   public version: ISchemaDetails['version']
   public creator: ISchemaDetails['creator']
-  public cid: ISchemaDetails['cid'] | null | undefined
+  public cid: string | null | undefined
   public parent: ISchemaDetails['parent'] | null | undefined
   public permissioned: ISchemaDetails['permissioned']
   public revoked: ISchemaDetails['revoked']

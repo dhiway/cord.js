@@ -1,2 +1,2 @@
-export { Product } from './Product'
-export * as ProductUtils from './Product.utils'
+export { Product } from './Product.js'
+export * as ProductUtils from './Product.utils.js'

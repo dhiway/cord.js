@@ -1,1 +1,1 @@
-export * from './CordConfig'
+export * from './CordConfig.js'

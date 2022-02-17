@@ -6,7 +6,7 @@
 import { Option, Struct, Vec, u8 } from '@polkadot/types'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import type {
-  ISchema,
+  ISchemaEnvelope,
   ISchemaDetails,
   IPublicIdentity,
   SubmittableExtrinsic,
@@ -14,29 +14,32 @@ import type {
 import { DecoderUtils } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { SchemaDetails } from './Schema'
-import { hexToString } from '../stream/Stream.utils'
-import { getIdForSchema } from './Schema.utils'
+import { SchemaDetails } from './Schema.js'
+import { hexToString } from '../stream/Stream.utils.js'
+import { getSchemaId } from './Schema.utils.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Schema')
 
 /**
- * Generate the extrinsic to store the provided [[ISchema]].
+ * Generate the extrinsic to store the provided [[ISchemaEnvelope]].
  *
  * @param schema The schema to anchor on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
 
-export async function store(schema: ISchema): Promise<SubmittableExtrinsic> {
+export async function store(
+  schema: ISchemaEnvelope,
+  cid?: string | undefined
+): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
 
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
-    schema.schema.$id,
+    getSchemaId(schema.id),
     schema.creator,
     schema.version,
     schema.hash,
-    schema.cid,
+    cid,
     schema.permissioned
   )
   return tx
@@ -79,7 +82,7 @@ function decodeSchema(
   return null
 }
 
-async function queryRaw(
+async function queryRawHash(
   schema_hash: string
 ): Promise<Option<AnchoredSchemaDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
@@ -88,7 +91,15 @@ async function queryRaw(
   >(schema_hash)
   return result
 }
-
+async function queryRawId(
+  schema_id: string
+): Promise<ISchemaDetails['schema_hash']> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const result = await blockchain.api.query.schema.schemaId<Option<Hash>>(
+    schema_id
+  )
+  return result.toString()
+}
 /**
  * @param identifier
  * @internal
@@ -96,7 +107,7 @@ async function queryRaw(
 export async function queryhash(
   schema_hash: string
 ): Promise<SchemaDetails | null> {
-  const encoded = await queryRaw(schema_hash)
+  const encoded = await queryRawHash(schema_hash)
   return decodeSchema(encoded, schema_hash)
 }
 
@@ -104,12 +115,11 @@ export async function queryhash(
  * @param identifier
  * @internal
  */
-export async function query(schema: string): Promise<SchemaDetails | null> {
-  const schemaId = getIdForSchema(schema)
-  const schemaIdQuery = await queryRaw(schemaId)
-  const schemaDetails = decodeSchema(schemaIdQuery, schema)
-  const encoded = await queryRaw(schemaDetails!.schema_hash)
-  return decodeSchema(encoded, schema)
+export async function query(schema_id: string): Promise<SchemaDetails | null> {
+  const schemaId = getSchemaId(schema_id)
+  const schemaHash = await queryRawId(schemaId)
+  const encoded = await queryRawHash(schemaHash)
+  return decodeSchema(encoded, schemaHash)
 }
 
 /**
@@ -174,9 +184,9 @@ export async function set_status(
  * @internal
  */
 export async function getOwner(
-  id: ISchema['id']
+  hash: ISchemaEnvelope['hash']
 ): Promise<IPublicIdentity['address'] | null> {
-  const encoded = await queryRaw(id)
-  const queriedSchemaAccount = decodeSchema(encoded, id)
+  const encoded = await queryRawHash(hash)
+  const queriedSchemaAccount = decodeSchema(encoded, hash)
   return queriedSchemaAccount!.creator
 }

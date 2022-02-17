@@ -13,7 +13,7 @@ import type {
   ISubmittableResult,
   SubmittableExtrinsic,
   SubscriptionPromise,
-} from '.'
+} from './index.js'
 
 export type ReSignOpts = { reSign: boolean; tip: AnyNumber }
 export type ChainStats = {

@@ -3,8 +3,11 @@
  * @module ICredential
  */
 
-import type { IStream, CompressedStream } from './Stream'
-import type { IContentStream, CompressedContentStream } from './ContentStream'
+import type { IStream, CompressedStream } from './Stream.js'
+import type {
+  IContentStream,
+  CompressedContentStream,
+} from './ContentStream.js'
 
 export interface ICredential {
   content: IStream

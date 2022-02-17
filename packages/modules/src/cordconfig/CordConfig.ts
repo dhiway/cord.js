@@ -10,7 +10,7 @@
 
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection, Chain } from '@cord.network/network'
-import { Identity } from '../identity'
+import { Identity } from '../identity/index.js'
 
 export function connect(): Promise<Chain> {
   return ChainApiConnection.getConnectionOrConnect()

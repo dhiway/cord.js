@@ -17,7 +17,7 @@ import type {
   MessageBody,
   CompressedRequestCredentialContent,
   IRequestStreamForCredential,
-  ISchema,
+  ISchemaEnvelope,
   IMessage,
   PartialContent,
   IContent,
@@ -25,7 +25,7 @@ import type {
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { isHex } from '@polkadot/util'
 
-import { Message } from './Message'
+import { Message } from './Message.js'
 
 export function errorCheckMessageBody(body: MessageBody): boolean | void {
   switch (body.type) {
@@ -139,9 +139,9 @@ export function errorCheckMessage(message: IMessage): boolean | void {
 
 export function verifyRequiredSchemaProperties(
   requiredProperties: string[],
-  schema: ISchema
+  schema: ISchemaEnvelope
 ): boolean {
-  SchemaUtils.errorCheck(schema as ISchema)
+  SchemaUtils.errorCheck(schema as ISchemaEnvelope)
 
   const validProperties = requiredProperties.find(
     (property) => !(property in schema.schema.properties)

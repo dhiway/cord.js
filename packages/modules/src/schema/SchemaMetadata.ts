@@ -5,13 +5,12 @@
 
 import type { ISchemaMetadata } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
-import * as SchemaUtils from './Schema.utils'
-import { MetadataModel } from './TypeSchema'
+import * as SchemaUtils from './Schema.utils.js'
+import { MetadataModel } from './TypeSchema.js'
 
 export class SchemaMetadata implements ISchemaMetadata {
   public id: ISchemaMetadata['id']
   public hash: ISchemaMetadata['hash']
-  public link: ISchemaMetadata['link']
   public metadata: ISchemaMetadata['metadata']
 
   /**
@@ -28,6 +27,5 @@ export class SchemaMetadata implements ISchemaMetadata {
     this.metadata = metadata.metadata
     this.id = metadata.id
     this.hash = metadata.hash
-    this.link = metadata.link
   }
 }

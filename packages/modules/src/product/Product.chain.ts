@@ -12,8 +12,8 @@ import { DecoderUtils } from '@cord.network/utils'
 import type { AccountId, BlockNumber, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { ProductDetails } from './Product'
-import { hexToString } from './Product.utils'
+import { ProductDetails } from './Product.js'
+import { hexToString } from './Product.utils.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Mark')
 

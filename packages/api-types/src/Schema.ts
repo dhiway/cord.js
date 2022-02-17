@@ -1,8 +1,8 @@
 /**
  * @packageDocumentation
- * @module ISchema
+ * @module ISchemaEnvelope
  */
-import type { IPublicIdentity } from './PublicIdentity'
+import type { IPublicIdentity } from './PublicIdentity.js'
 
 export type InstanceType =
   | 'array'
@@ -16,14 +16,12 @@ export type InstanceType =
 export interface ISchemaType {
   $id: string
   $schema: string
-  $metadata: {
-    slug?: string
-    version?: string
-    icon?: string
-    discoverable?: boolean
-  }
   title: string
   description: string
+  $metadata: {
+    version?: string
+    discoverable?: boolean
+  }
   properties: {
     [key: string]: { $ref?: string; type?: InstanceType; format?: string }
   }
@@ -31,13 +29,12 @@ export interface ISchemaType {
 }
 
 export type SchemaWithoutId = Omit<ISchemaType, '$id'>
-export interface ISchema {
+export interface ISchemaEnvelope {
   id: string
   hash: string
   version: string
   creator: IPublicIdentity['address']
   schema: ISchemaType
-  cid?: string
   parent?: string
   permissioned: boolean
 }
@@ -45,29 +42,30 @@ export interface ISchema {
 export type CompressedSchema = [
   ISchemaType['$id'],
   ISchemaType['$schema'],
+  ISchemaType['$metadata'],
   ISchemaType['title'],
+  ISchemaType['description'],
   ISchemaType['properties'],
   ISchemaType['type']
 ]
 
 export type CompressedSchemaType = [
-  ISchema['id'],
-  ISchema['hash'],
-  ISchema['version'],
-  ISchema['creator'],
-  ISchema['cid'],
-  ISchema['parent'],
-  ISchema['permissioned'],
+  ISchemaEnvelope['id'],
+  ISchemaEnvelope['hash'],
+  ISchemaEnvelope['version'],
+  ISchemaEnvelope['creator'],
+  ISchemaEnvelope['parent'],
+  ISchemaEnvelope['permissioned'],
   CompressedSchema
 ]
 
 export interface ISchemaDetails {
-  version: ISchema['version']
-  id: ISchema['id']
-  schema_hash: ISchema['hash']
+  id: ISchemaEnvelope['id']
+  schema_hash: ISchemaEnvelope['hash']
+  version: ISchemaEnvelope['version']
   creator: IPublicIdentity['address']
-  cid: ISchema['cid'] | null
-  parent: ISchema['parent'] | null
-  permissioned: ISchema['permissioned']
+  cid?: string | null
+  parent: ISchemaEnvelope['parent'] | null
+  permissioned: ISchemaEnvelope['permissioned']
   revoked: boolean
 }

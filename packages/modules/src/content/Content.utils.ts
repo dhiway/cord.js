@@ -11,7 +11,7 @@ import type {
   CompressedPartialContent,
 } from '@cord.network/api-types'
 import { jsonabc, DataUtils, Crypto, SDKErrors } from '@cord.network/utils'
-import { getIdWithPrefix } from '../schema/Schema.utils'
+import { getIdWithPrefix } from '../schema/Schema.utils.js'
 
 const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
 

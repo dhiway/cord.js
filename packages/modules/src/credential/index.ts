@@ -1,3 +1,3 @@
-export { Credential } from './Credential'
-export * as CredentialUtils from './Credential.utils'
-export * as Presenation from './Presentation'
+export { Credential } from './Credential.js'
+export * as CredentialUtils from './Credential.utils.js'
+export * as Presenation from './Presentation.js'

@@ -1,1 +1,1 @@
-export * as ConfigService from './ConfigService'
+export * as ConfigService from './ConfigService.js'

@@ -1,4 +1,4 @@
-import { ICredential } from './Credential'
+import { ICredential } from './Credential.js'
 
 export interface IPresentation {
   credentials: ICredential[]

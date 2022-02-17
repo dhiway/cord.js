@@ -9,8 +9,8 @@
 
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { ConfigService } from '@cord.network/config'
-import { Chain } from '../chain/Chain'
-import { TYPE_REGISTRY } from './TypeRegistry'
+import { Chain } from '../chain/Chain.js'
+import { TYPE_REGISTRY } from './TypeRegistry.js'
 
 let instance: Promise<Chain> | null
 

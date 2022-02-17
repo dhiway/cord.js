@@ -9,7 +9,7 @@
 import type { EventRecord } from '@polkadot/types/interfaces'
 import type { ISubmittableResult } from '@cord.network/api-types'
 import { ConfigService } from '@cord.network/config'
-import { errorForPallet, ExtrinsicError } from './ExtrinsicError'
+import { errorForPallet, ExtrinsicError } from './ExtrinsicError.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 

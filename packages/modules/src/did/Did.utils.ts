@@ -8,7 +8,7 @@ import type { IPublicIdentity } from '@cord.network/api-types'
 import { Crypto, DecoderUtils, SDKErrors } from '@cord.network/utils'
 import type { Hash } from '@polkadot/types/interfaces'
 import { hexToString } from '@polkadot/util'
-import Identity from '../identity/Identity'
+import { Identity } from '../identity/Identity.js'
 import {
   CONTEXT,
   IDENTIFIER_PREFIX,
@@ -19,7 +19,7 @@ import {
   KEY_TYPE_ENCRYPTION,
   KEY_TYPE_SIGNATURE,
   SERVICE_DWAY_MESSAGING,
-} from './Did'
+} from './Did.js'
 
 export interface IEncodedDidRecord extends Struct {
   readonly signKey: Hash

@@ -18,9 +18,9 @@ import type {
   IPresentationSigningOptions,
 } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
-import { Stream } from '../stream/Stream'
-import { ContentStream } from '../contentstream/ContentStream'
-import * as CredentialUtils from './Credential.utils'
+import { Stream } from '../stream/Stream.js'
+import { ContentStream } from '../contentstream/ContentStream.js'
+import * as CredentialUtils from './Credential.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
 
 export class Credential implements ICredential {

@@ -6,12 +6,13 @@
  */
 
 import type { IPublicIdentity } from '@cord.network/api-types'
-import Did, {
+import {
+  Did,
   IDENTIFIER_PREFIX,
   KEY_TYPE_ENCRYPTION,
   SERVICE_DWAY_MESSAGING,
-} from '../did/Did'
-import { getAddressFromIdentifier } from '../did/Did.utils'
+} from '../did/Did.js'
+import { getAddressFromIdentifier } from '../did/Did.utils.js'
 
 export interface IURLResolver {
   resolve(url: string): Promise<Record<string, unknown> | null>
@@ -48,7 +49,7 @@ function isDIDResult(object: Record<string, unknown>): object is DIDResult {
   return isDIDDocument((object as DIDResult).didDocument)
 }
 
-export default class PublicIdentity implements IPublicIdentity {
+export class PublicIdentity implements IPublicIdentity {
   /**
    * [STATIC] Creates a new Public Identity from a DID document (DID - Decentralized Identifiers: https://w3c-ccg.github.io/did-spec/).
    *

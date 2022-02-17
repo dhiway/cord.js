@@ -2,14 +2,14 @@
  * @packageDocumentation
  * @module IStream
  */
-import type { ISchema } from './Schema'
-import type { IPublicIdentity } from './PublicIdentity'
+import type { ISchemaEnvelope } from './Schema.js'
+import type { IPublicIdentity } from './PublicIdentity.js'
 
 export interface IStream {
   id: string
   hash: string
   cid: string
-  schema: ISchema['id']
+  schema: ISchemaEnvelope['id']
   link?: string
   creator: IPublicIdentity['address']
   revoked: boolean
@@ -30,7 +30,7 @@ export interface IStreamDetails {
   streamHash: IStream['hash']
   cid: string | null
   parent_cid: string | null
-  schema: ISchema['id'] | null
+  schema: ISchemaEnvelope['id'] | null
   link: IStream['id'] | null
   creator: IPublicIdentity['address']
   block: string

@@ -17,13 +17,13 @@ import type {
   PartialContent,
 } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
-import { Schema as ISchema } from '../schema/Schema'
-import * as SchemaUtils from '../schema/Schema.utils'
-import * as ContentUtils from './Content.utils'
+import { Schema as ISchemaEnvelope } from '../schema/Schema.js'
+import * as SchemaUtils from '../schema/Schema.utils.js'
+import * as ContentUtils from './Content.utils.js'
 
 function verifyContent(
   contents: IContent['contents'],
-  schema: ISchema['schema']
+  schema: ISchemaEnvelope['schema']
 ): boolean {
   return SchemaUtils.verifyContentProperties(contents, schema)
 }
@@ -33,14 +33,14 @@ export class Content implements IContent {
    * Instantiates a new Content stream from the given [[IContent]] and [[Schema]].
    *
    * @param input IContent to instantiate the new stream from.
-   * @param schema ISchema['schema'] to verify input's contents.
+   * @param schema ISchemaEnvelope['schema'] to verify input's contents.
    * @throws [[ERROR_CONTENT_UNVERIFIABLE]] when input's contents could not be verified with the provided schema.
    *
    * @returns An instantiated Content stream.
    */
   public static fromContent(
     input: IContent,
-    schema: ISchema['schema']
+    schema: ISchemaEnvelope['schema']
   ): Content {
     if (!verifyContent(input.contents, schema)) {
       throw SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
@@ -59,8 +59,8 @@ export class Content implements IContent {
    */
 
   public static fromNestedTypeContent(
-    schema: ISchema,
-    nestedSchemas: Array<ISchema['schema']>,
+    schema: ISchemaEnvelope,
+    nestedSchemas: Array<ISchemaEnvelope['schema']>,
     contents: IContent['contents'],
     creator: IPublicIdentity['address']
   ): Content {
@@ -77,16 +77,16 @@ export class Content implements IContent {
   }
 
   /**
-   * Instantiates a new Content stream from the given [[ISchema]], IContent['contents'] and IPublicIdentity['address'].
+   * Instantiates a new Content stream from the given [[ISchemaEnvelope]], IContent['contents'] and IPublicIdentity['address'].
    *
-   * @param schema [[ISchema]] from which the Content stream will be built.
+   * @param schema [[ISchemaEnvelope]] from which the Content stream will be built.
    * @param contents IContent['contents'] to be used as the data of the instantiated Content stream.
    * @throws [[ERROR_STREAM_UNVERIFIABLE]] when streamInput's contents could not be verified with the schema of the provided mtypeInput.
    *
    * @returns An instantiated [[Content]] stream.
    */
   public static fromSchemaAndContent(
-    schema: ISchema,
+    schema: ISchemaEnvelope,
     contents: IContent['contents'],
     creator: IPublicIdentity['address']
   ): Content {
