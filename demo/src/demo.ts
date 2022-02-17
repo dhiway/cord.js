@@ -47,12 +47,13 @@ async function main() {
     newSchemaContent,
     employeeIdentity.address
   )
-
   let bytes = json.encode(newSchema)
   let encoded_hash = await hasher.digest(bytes)
   const schemaCid = CID.create(1, 0xb220, encoded_hash)
+  newSchema.cid = schemaCid.toString()
+  console.dir(newSchema, { depth: null, colors: true })
 
-  let schemaCreationExtrinsic = await newSchema.store(schemaCid.toString())
+  let schemaCreationExtrinsic = await newSchema.store()
 
   console.log(`📧 Schema Details `)
   console.dir(newSchema, { depth: null, colors: true })
@@ -141,10 +142,8 @@ async function main() {
   bytes = json.encode(credSchemaStream)
   encoded_hash = await hasher.digest(bytes)
   const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
-
-  let credSchemaCreationExtrinsic = await credSchemaStream.store(
-    credSchemaCid.toString()
-  )
+  credSchemaStream.cid = credSchemaCid.toString()
+  let credSchemaCreationExtrinsic = await credSchemaStream.store()
   console.log('\n⛓  Anchoring Credential Schema to the chain...')
 
   try {

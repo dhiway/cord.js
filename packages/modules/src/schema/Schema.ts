@@ -27,6 +27,12 @@ import {
 } from './Schema.chain'
 import * as SchemaUtils from './Schema.utils'
 
+export type Options = {
+  permission?: boolean
+  version?: string
+  cid?: string
+}
+
 export class Schema implements ISchema {
   /**
    * [STATIC] [ASYNC] Queries the chain for a given stream entry, by `identifier`.
@@ -88,20 +94,21 @@ export class Schema implements ISchema {
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
     creator: ISchema['creator'],
-    permission: boolean
+    { permission, version, cid }: Options = {}
   ): Schema {
     return new Schema({
       id: SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema)),
       hash: SchemaUtils.getHashForSchema(schema),
-      creator: creator,
+      version: version || '1.0.0',
       schema: {
         $id: SchemaUtils.getSchemaId(
           SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema))
         ),
         ...schema,
       },
-      permissioned: permission,
-      revoked: false,
+      creator: creator,
+      cid: cid,
+      permissioned: permission || false,
     })
   }
 
@@ -122,19 +129,23 @@ export class Schema implements ISchema {
 
   public id: ISchema['id']
   public hash: ISchema['hash']
+  public version: ISchema['version']
   public creator: ISchema['creator']
   public schema: ISchema['schema']
+  public cid?: ISchema['cid'] | undefined
+  public parent?: ISchema['parent'] | undefined
   public permissioned: ISchema['permissioned']
-  public revoked: ISchema['revoked']
 
   public constructor(schemaInput: ISchema) {
     SchemaUtils.errorCheck(schemaInput)
     this.id = schemaInput.id
     this.hash = schemaInput.hash
+    this.version = schemaInput.version
     this.creator = schemaInput.creator
     this.schema = schemaInput.schema
+    this.cid = schemaInput.cid
+    this.parent = schemaInput.parent
     this.permissioned = schemaInput.permissioned
-    this.revoked = schemaInput.revoked
   }
 
   /**
@@ -143,8 +154,8 @@ export class Schema implements ISchema {
    * @param schemaCId The IPFS CID of the schema.
    * @returns A promise of a unsigned SubmittableExtrinsic.
    */
-  public async store(cid: string): Promise<SubmittableExtrinsic> {
-    return store(this, cid)
+  public async store(): Promise<SubmittableExtrinsic> {
+    return store(this)
   }
 
   public async add_delegate(delegate: string): Promise<SubmittableExtrinsic> {
@@ -243,10 +254,10 @@ export class SchemaDetails implements ISchemaDetails {
 
   public id: ISchemaDetails['id']
   public schema_hash: ISchemaDetails['schema_hash']
-  public cid: ISchemaDetails['cid']
-  public pcid: ISchemaDetails['pcid']
+  public version: ISchemaDetails['version']
   public creator: ISchemaDetails['creator']
-  public block: ISchemaDetails['block']
+  public cid: ISchemaDetails['cid'] | null | undefined
+  public parent: ISchemaDetails['parent'] | null | undefined
   public permissioned: ISchemaDetails['permissioned']
   public revoked: ISchemaDetails['revoked']
 
@@ -254,10 +265,10 @@ export class SchemaDetails implements ISchemaDetails {
     // SchemaUtils.errorCheck(details)
     this.id = details.id
     this.schema_hash = details.schema_hash
+    this.version = details.version
     this.cid = details.cid
-    this.pcid = details.pcid
+    this.parent = details.parent
     this.creator = details.creator
-    this.block = details.block
     this.permissioned = details.permissioned
     this.revoked = details.revoked
   }

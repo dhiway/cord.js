@@ -17,6 +17,83 @@ export class ExtrinsicError extends Error {
 }
 
 export const ExtrinsicErrors = {
+  Schema: {
+    ERROR_SCHEMA_ALREADY_EXISTS: {
+      code: 41000,
+      message: 'Schema already exist',
+    },
+    ERROR_SCHEMA_NOT_FOUND: { code: 41001, message: 'Schema not found' },
+    ERROR_SCHEMA_REVOKED: { code: 41002, message: 'Schema marked inactive' },
+    ERROR_INVALID_CID_ENCODING: {
+      code: 41003,
+      message: 'Invalid CID encoding',
+    },
+    ERROR_CID_VERSION: { code: 41004, message: 'Invalid CID Version' },
+    ERROR_STATUS_CHANGE_NOT_REQUIRED: {
+      code: 41005,
+      message: 'Schema status change not required',
+    },
+    ERROR_UNAUTHORISED_OPERATION: {
+      code: 41006,
+      message: 'Schema usage not authorised',
+    },
+    ERROR_TOO_MANY_SCHEMA_DELEGATES: {
+      code: 41007,
+      message: 'Schema delegates exceed max limit',
+    },
+    ERROR_SCHEMA_NOT_PERMISSIONED: {
+      code: 41008,
+      message: 'Schema type is not permissioned',
+    },
+    ERROR_SCHEMA_PERMISSION_CHANGE_NOT_REQUIRED: {
+      code: 41009,
+      message: 'Schema permission change not required',
+    },
+    ERROR_SCHEMA_VERSION: {
+      code: 41010,
+      message: 'Invalid schema version',
+    },
+    ERROR_SCHEMA_GENESIS: {
+      code: 41011,
+      message: 'Invalid schema genesis version',
+    },
+    ERROR_SCHEMA_AUTHORISATION: {
+      code: 41012,
+      message: 'Identity not authorised to delegate this schema',
+    },
+    UNKNOWN_SCHEMA_ERROR: {
+      code: 41013,
+      message: 'An unknown schema pallet error occured',
+    },
+  },
+  Stream: {
+    ERROR_STREAM_ALREADY_EXISTS: {
+      code: 42000,
+      message: 'Stream already exist',
+    },
+    ERROR_STREAM_NOT_FOUND: { code: 42001, message: 'Stream not found' },
+    ERROR_STREAM_REVOKED: { code: 42002, message: 'Stream revoked' },
+    ERROR_STREAM_STATUS_CHANGE_NOT_REQUIRED: {
+      code: 42003,
+      message: 'Stream status change not required',
+    },
+    ERROR_STREAM_OPERATION_NOT_PERMITTED: {
+      code: 42004,
+      message: 'Stream operation not permitted',
+    },
+    ERROR_STREAM_LINK_NOT_FOUND: {
+      code: 42005,
+      message: 'Stream link not found',
+    },
+    ERROR_STREAM_LINK_REVOKED: {
+      code: 42006,
+      message: 'Stream link revoked',
+    },
+    UNKNOWN_STREAM_ERROR: {
+      code: 42007,
+      message: 'An unknown stream pallet error occured',
+    },
+  },
   Entity: {
     ERROR_VERIFIER_ACCOUNT_NOT_FOUND: {
       code: 32000,
@@ -47,108 +124,14 @@ export const ExtrinsicErrors = {
       message: 'an unknown entity pallet error occured',
     },
   },
-  Schema: {
-    ERROR_INVALID_REQUEST: {
-      code: 33000,
-      message: 'Schema request is not valid',
-    },
-    ERROR_SAME_SCHEMA_ID_AND_HASH: {
-      code: 33001,
-      message: 'Schema ID and hash are the same',
-    },
-    ERROR_SCHEMA_ALREADY_EXISTS: {
-      code: 33002,
-      message: 'Schema already exist',
-    },
-    ERROR_SCHEMA_HASH_ALREADY_EXISTS: {
-      code: 33003,
-      message: 'Schema hash already exist',
-    },
-    ERROR_SCHEMA_NOT_FOUND: { code: 33004, message: 'Schema not found' },
-    ERROR_SCHEMA_DELEGATE_NOT_FOUND: {
-      code: 33005,
-      message: 'Schema delegate not found',
-    },
-    ERROR_SCHEMA_REVOKED: { code: 33006, message: 'Schema revoked' },
-    ERROR_INVALID_CID_ENCODING: {
-      code: 33007,
-      message: 'Invalid CID encoding',
-    },
-    ERROR_CID_ALREADY_ANCHORED: { code: 33008, message: 'CID already mapped' },
-    ERROR_CID_VERSION: { code: 33009, message: 'Invalid CID Version' },
-    ERROR_SCHEMA_STATUS_CHANGE_NOT_REQUIRED: {
-      code: 33010,
-      message: 'Schema status change not required',
-    },
-    ERROR_SCHEMA_OPERATION_NOT_PERMITTED: {
-      code: 33011,
-      message: 'Schema usage not permitted',
-    },
-    ERROR_TOO_MANY_SCHEMA_DELEGATES: {
-      code: 33012,
-      message: 'Schema delegates exceed max limit',
-    },
-    ERROR_SCHEMA_NOT_PERMISSIONED: {
-      code: 33013,
-      message: 'Schema not permissioned type',
-    },
-    ERROR_SCHEMA_PERMISSION_CHANGE_NOT_REQUIRED: {
-      code: 33014,
-      message: 'Schema permission change not required',
-    },
-    UNKNOWN_SCHEMA_ERROR: {
-      code: 33015,
-      message: 'An unknown schema pallet error occured',
-    },
-  },
-  Stream: {
-    ERROR_INVALID_REQUEST: {
-      code: 34000,
-      message: 'Stream request is not valid',
-    },
-    ERROR_SAME_STREAM_ID_AND_HASH: {
-      code: 34001,
-      message: 'Strea identifier and hash are the same',
-    },
-    ERROR_STREAM_ALREADY_EXISTS: {
-      code: 34002,
-      message: 'Stream already exist',
-    },
-    ERROR_STREAM_NOT_FOUND: { code: 34003, message: 'Stream not found' },
-    ERROR_STREAM_REVOKED: { code: 34004, message: 'Stream revoked' },
-    ERROR_CID_ALREADY_ANCHORED: {
-      code: 34005,
-      message: 'CID already anchored',
-    },
-    ERROR_STREAM_STATUS_CHANGE_NOT_REQUIRED: {
-      code: 34006,
-      message: 'Stream status change not required',
-    },
-    ERROR_STREAM_OPERATION_NOT_PERMITTED: {
-      code: 34007,
-      message: 'Stream operation not permitted',
-    },
-    ERROR_STREAM_LINK_NOT_FOUND: {
-      code: 34008,
-      message: 'Stream link not found',
-    },
-    ERROR_STREAM_LINK_REVOKED: {
-      code: 34009,
-      message: 'Stream link revoked',
-    },
-    UNKNOWN_STREAM_ERROR: {
-      code: 34010,
-      message: 'An unknown stream pallet error occured',
-    },
-  },
   UNKNOWN_ERROR: { code: -1, message: 'an unknown extrinsic error ocurred' },
 }
 
 export enum PalletIndex {
   DID = 31,
   Entity = 32,
-  Schema = 33,
-  Stream = 34,
+  Schema = 41,
+  Stream = 42,
   Nix = 35,
 }
 
@@ -162,6 +145,32 @@ export interface IPalletToExtrinsicErrors {
 }
 
 export const PalletToExtrinsicErrors: IPalletToExtrinsicErrors = {
+  [PalletIndex.Schema]: {
+    0: ExtrinsicErrors.Schema.ERROR_SCHEMA_ALREADY_EXISTS,
+    1: ExtrinsicErrors.Schema.ERROR_SCHEMA_NOT_FOUND,
+    2: ExtrinsicErrors.Schema.ERROR_SCHEMA_REVOKED,
+    3: ExtrinsicErrors.Schema.ERROR_INVALID_CID_ENCODING,
+    4: ExtrinsicErrors.Schema.ERROR_CID_VERSION,
+    5: ExtrinsicErrors.Schema.ERROR_STATUS_CHANGE_NOT_REQUIRED,
+    6: ExtrinsicErrors.Schema.ERROR_UNAUTHORISED_OPERATION,
+    7: ExtrinsicErrors.Schema.ERROR_TOO_MANY_SCHEMA_DELEGATES,
+    8: ExtrinsicErrors.Schema.ERROR_SCHEMA_NOT_PERMISSIONED,
+    9: ExtrinsicErrors.Schema.ERROR_SCHEMA_PERMISSION_CHANGE_NOT_REQUIRED,
+    10: ExtrinsicErrors.Schema.ERROR_SCHEMA_VERSION,
+    11: ExtrinsicErrors.Schema.ERROR_SCHEMA_GENESIS,
+    12: ExtrinsicErrors.Schema.ERROR_SCHEMA_AUTHORISATION,
+    [-1]: ExtrinsicErrors.Schema.UNKNOWN_SCHEMA_ERROR,
+  },
+  [PalletIndex.Stream]: {
+    0: ExtrinsicErrors.Stream.ERROR_STREAM_ALREADY_EXISTS,
+    1: ExtrinsicErrors.Stream.ERROR_STREAM_NOT_FOUND,
+    2: ExtrinsicErrors.Stream.ERROR_STREAM_REVOKED,
+    3: ExtrinsicErrors.Stream.ERROR_STREAM_STATUS_CHANGE_NOT_REQUIRED,
+    4: ExtrinsicErrors.Stream.ERROR_STREAM_OPERATION_NOT_PERMITTED,
+    5: ExtrinsicErrors.Stream.ERROR_STREAM_LINK_NOT_FOUND,
+    6: ExtrinsicErrors.Stream.ERROR_STREAM_LINK_REVOKED,
+    [-1]: ExtrinsicErrors.Stream.UNKNOWN_STREAM_ERROR,
+  },
   [PalletIndex.Entity]: {
     0: ExtrinsicErrors.Entity.ERROR_VERIFIER_ACCOUNT_NOT_FOUND,
     1: ExtrinsicErrors.Entity.ERROR_VERIFIER_ACCOUNT_ALREADY_EXISTS,
@@ -170,37 +179,6 @@ export const PalletToExtrinsicErrors: IPalletToExtrinsicErrors = {
     4: ExtrinsicErrors.Entity.ERROR_VERIFIER_ACCOUNT_REVOKED,
     5: ExtrinsicErrors.Entity.ERROR_NO_STATUS_CHANGE_REQUIRED,
     [-1]: ExtrinsicErrors.Entity.UNKNOWN_VERIFIER_ERROR,
-  },
-  [PalletIndex.Schema]: {
-    0: ExtrinsicErrors.Schema.ERROR_INVALID_REQUEST,
-    1: ExtrinsicErrors.Schema.ERROR_SAME_SCHEMA_ID_AND_HASH,
-    2: ExtrinsicErrors.Schema.ERROR_SCHEMA_ALREADY_EXISTS,
-    3: ExtrinsicErrors.Schema.ERROR_SCHEMA_HASH_ALREADY_EXISTS,
-    4: ExtrinsicErrors.Schema.ERROR_SCHEMA_NOT_FOUND,
-    5: ExtrinsicErrors.Schema.ERROR_SCHEMA_DELEGATE_NOT_FOUND,
-    6: ExtrinsicErrors.Schema.ERROR_SCHEMA_REVOKED,
-    7: ExtrinsicErrors.Schema.ERROR_INVALID_CID_ENCODING,
-    8: ExtrinsicErrors.Schema.ERROR_CID_ALREADY_ANCHORED,
-    9: ExtrinsicErrors.Schema.ERROR_CID_VERSION,
-    10: ExtrinsicErrors.Schema.ERROR_SCHEMA_STATUS_CHANGE_NOT_REQUIRED,
-    11: ExtrinsicErrors.Schema.ERROR_SCHEMA_OPERATION_NOT_PERMITTED,
-    12: ExtrinsicErrors.Schema.ERROR_TOO_MANY_SCHEMA_DELEGATES,
-    13: ExtrinsicErrors.Schema.ERROR_SCHEMA_NOT_PERMISSIONED,
-    14: ExtrinsicErrors.Schema.ERROR_SCHEMA_PERMISSION_CHANGE_NOT_REQUIRED,
-    [-1]: ExtrinsicErrors.Schema.UNKNOWN_SCHEMA_ERROR,
-  },
-  [PalletIndex.Stream]: {
-    0: ExtrinsicErrors.Stream.ERROR_INVALID_REQUEST,
-    1: ExtrinsicErrors.Stream.ERROR_SAME_STREAM_ID_AND_HASH,
-    2: ExtrinsicErrors.Stream.ERROR_STREAM_ALREADY_EXISTS,
-    3: ExtrinsicErrors.Stream.ERROR_STREAM_NOT_FOUND,
-    4: ExtrinsicErrors.Stream.ERROR_STREAM_REVOKED,
-    5: ExtrinsicErrors.Stream.ERROR_CID_ALREADY_ANCHORED,
-    6: ExtrinsicErrors.Stream.ERROR_STREAM_STATUS_CHANGE_NOT_REQUIRED,
-    7: ExtrinsicErrors.Stream.ERROR_STREAM_OPERATION_NOT_PERMITTED,
-    8: ExtrinsicErrors.Stream.ERROR_STREAM_LINK_NOT_FOUND,
-    9: ExtrinsicErrors.Stream.ERROR_STREAM_LINK_REVOKED,
-    [-1]: ExtrinsicErrors.Stream.UNKNOWN_STREAM_ERROR,
   },
 }
 

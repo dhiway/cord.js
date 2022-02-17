@@ -4,7 +4,7 @@
  */
 
 import { Option, Struct, Vec, u8 } from '@polkadot/types'
-import type { AccountId, BlockNumber, Hash } from '@polkadot/types/interfaces'
+import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import type {
   ISchema,
   ISchemaDetails,
@@ -16,6 +16,7 @@ import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { SchemaDetails } from './Schema'
 import { hexToString } from '../stream/Stream.utils'
+import { getIdForSchema } from './Schema.utils'
 
 const log = ConfigService.LoggingFactory.getLogger('Schema')
 
@@ -26,35 +27,33 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
 
-export async function store(
-  schema: ISchema,
-  cid: string
-): Promise<SubmittableExtrinsic> {
+export async function store(schema: ISchema): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
 
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
     schema.schema.$id,
     schema.creator,
+    schema.version,
     schema.hash,
-    cid,
+    schema.cid,
     schema.permissioned
   )
   return tx
 }
 export interface AnchoredSchemaDetails extends Struct {
-  readonly schema_hash: Hash
-  readonly cid: Option<Vec<u8>>
-  readonly pcid: Option<Vec<u8>>
+  readonly version: Vec<u8>
+  readonly id: Hash
   readonly creator: AccountId
-  readonly block: BlockNumber
+  readonly cid: Option<Vec<u8>>
+  readonly parent: Option<Hash>
   readonly permissioned: boolean
   readonly revoked: boolean
 }
 
 function decodeSchema(
   encodedSchema: Option<AnchoredSchemaDetails>,
-  schemaId: string
+  schema_hash: string
 ): SchemaDetails | null {
   DecoderUtils.assertCodecIsType(encodedSchema, [
     'Option<PalletSchemaSchemasSchemaDetails>',
@@ -62,16 +61,16 @@ function decodeSchema(
   if (encodedSchema.isSome) {
     const anchoredSchema = encodedSchema.unwrap()
     const schema: ISchemaDetails = {
-      id: schemaId,
-      schema_hash: anchoredSchema.schema_hash.toString(),
+      id: anchoredSchema.id.toString(),
+      schema_hash: schema_hash,
+      version: anchoredSchema.version.toString(),
       cid: anchoredSchema.cid
         ? hexToString(anchoredSchema.cid.toString())
         : null,
-      pcid: anchoredSchema.pcid
-        ? hexToString(anchoredSchema.pcid.toString())
+      parent: anchoredSchema.parent
+        ? hexToString(anchoredSchema.parent.toString())
         : null,
       creator: anchoredSchema.creator.toString(),
-      block: anchoredSchema.block.toString(),
       permissioned: anchoredSchema.permissioned.valueOf(),
       revoked: anchoredSchema.revoked.valueOf(),
     }
@@ -81,12 +80,12 @@ function decodeSchema(
 }
 
 async function queryRaw(
-  schemaId: string
+  schema_hash: string
 ): Promise<Option<AnchoredSchemaDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const result = await blockchain.api.query.schema.schemas<
     Option<AnchoredSchemaDetails>
-  >(schemaId)
+  >(schema_hash)
   return result
 }
 
@@ -94,9 +93,23 @@ async function queryRaw(
  * @param identifier
  * @internal
  */
-export async function query(schemaId: string): Promise<SchemaDetails | null> {
-  const encoded = await queryRaw(schemaId)
-  return decodeSchema(encoded, schemaId)
+export async function queryhash(
+  schema_hash: string
+): Promise<SchemaDetails | null> {
+  const encoded = await queryRaw(schema_hash)
+  return decodeSchema(encoded, schema_hash)
+}
+
+/**
+ * @param identifier
+ * @internal
+ */
+export async function query(schema: string): Promise<SchemaDetails | null> {
+  const schemaId = getIdForSchema(schema)
+  const schemaIdQuery = await queryRaw(schemaId)
+  const schemaDetails = decodeSchema(schemaIdQuery, schema)
+  const encoded = await queryRaw(schemaDetails!.schema_hash)
+  return decodeSchema(encoded, schema)
 }
 
 /**

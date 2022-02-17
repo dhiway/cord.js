@@ -16,7 +16,7 @@ export const SchemaModel = {
       format: 'uri',
       const: 'http://json-schema.org/draft-07/schema#',
     },
-    name: {
+    title: {
       type: 'string',
     },
     type: {
@@ -56,12 +56,20 @@ export const SchemaModel = {
     },
   },
   additionalProperties: false,
-  required: ['$id', 'name', '$schema', 'properties', 'type'],
+  required: ['$id', 'title', '$schema', 'properties', 'type'],
 }
 
 export const SchemaWrapperModel = {
   $id: 'http://dway.io/draft-01/schema-wrapper#',
   $schema: 'http://json-schema.org/draft-07/schema#',
+  $metadata: {
+    slug: { type: ['string', 'null'] },
+    version: { type: ['string', 'null'] },
+    creator: { type: ['string', 'null'] },
+    cid: { type: ['string', 'null'] },
+    discoverable: { type: 'boolean' },
+    permissioned: { type: 'boolean' },
+  },
   type: 'object',
   properties: {
     schema: {
@@ -69,13 +77,13 @@ export const SchemaWrapperModel = {
       properties: SchemaModel.properties,
       required: SchemaModel.required,
     },
-    creator: { type: ['string', 'null'] },
     id: { type: 'string', format: 'uri', pattern: '^cord:schema:0x[0-9a-f]+$' },
     hash: {
       type: 'string',
     },
-    permissioned: { type: 'boolean' },
-    revoked: { type: 'boolean' },
+    version: {
+      type: 'string',
+    },
   },
   additionalProperties: false,
   required: ['schema', 'id', 'hash'],
@@ -89,7 +97,7 @@ export const MetadataModel = {
     metadata: {
       type: 'object',
       properties: {
-        name: {
+        title: {
           type: 'object',
           properties: {
             default: {
@@ -124,7 +132,7 @@ export const MetadataModel = {
             '^.*$': {
               type: 'object',
               properties: {
-                name: {
+                title: {
                   type: 'object',
                   properties: {
                     default: {
@@ -153,19 +161,20 @@ export const MetadataModel = {
                   required: ['default'],
                 },
               },
-              required: ['name'],
+              required: ['title'],
               additionalProperties: false,
             },
           },
         },
       },
-      required: ['name', 'properties'],
+      required: ['title', 'properties'],
       additionalProperties: false,
     },
     id: { type: 'string', minLength: 1 },
     hash: { type: 'string', minLength: 1 },
+    version: { type: 'string', minLength: 1 },
     permissioned: { type: 'boolean' },
-    revoked: { type: 'boolean' },
+    // revoked: { type: 'boolean' },
   },
   required: ['metadata', 'id', 'hash'],
   additionalProperties: false,
