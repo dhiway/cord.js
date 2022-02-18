@@ -34,10 +34,10 @@ export async function create(
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
-    getSchemaId(schema.schemaId),
+    getSchemaId(schema.id),
     schema.creator,
     schema.version,
-    schema.schemaHash,
+    schema.hash,
     cid,
     schema.permissioned
   )
@@ -58,10 +58,10 @@ export async function version(
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema' version update`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.version(
-    getSchemaId(schema.schemaId),
+    getSchemaId(schema.id),
     schema.creator,
     schema.version,
-    schema.schemaHash,
+    schema.hash,
     cid
   )
   return tx
@@ -71,14 +71,14 @@ export async function version(
  * TBD
  */
 export async function status(
-  schemaId: string,
+  id: string,
   creator: string,
   status: boolean
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking a schema with ID ${schemaId}`)
+  log.debug(() => `Revoking a schema with ID ${id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.status(
-    getSchemaId(schemaId),
+    getSchemaId(id),
     creator,
     status
   )
@@ -89,14 +89,14 @@ export async function status(
  * TBD
  */
 export async function permission(
-  schemaId: string,
+  id: string,
   creator: string,
   permission: boolean
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking a schema with ID ${schemaId}`)
+  log.debug(() => `Revoking a schema with ID ${id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.permission(
-    getSchemaId(schemaId),
+    getSchemaId(id),
     creator,
     permission
   )
@@ -107,14 +107,14 @@ export async function permission(
  * TBD
  */
 export async function authorise(
-  schemaId: string,
+  id: string,
   creator: string,
   delegates: [string]
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Adding a delagate to ${schemaId}`)
+  log.debug(() => `Adding a delagate to ${id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.authorise(
-    getSchemaId(schemaId),
+    getSchemaId(id),
     creator,
     delegates
   )
@@ -125,14 +125,14 @@ export async function authorise(
  * TBD
  */
 export async function deauthorise(
-  schemaId: string,
+  id: string,
   creator: string,
   delegates: [string]
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Removing delagation from ${schemaId}`)
+  log.debug(() => `Removing delagation from ${id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.deauthorise(
-    getSchemaId(schemaId),
+    getSchemaId(id),
     creator,
     delegates
   )
@@ -159,8 +159,8 @@ function decodeSchema(
   if (encodedSchema.isSome) {
     const anchoredSchema = encodedSchema.unwrap()
     const schema: ISchemaDetails = {
-      schemaId: anchoredSchema.id.toString(),
-      schemaHash: schema_hash,
+      id: anchoredSchema.id.toString(),
+      hash: schema_hash,
       version: anchoredSchema.version.toString(),
       cid: anchoredSchema.cid
         ? hexToString(anchoredSchema.cid.toString())
@@ -187,13 +187,9 @@ async function queryRawHash(
   return result
 }
 
-async function queryRawId(
-  schema_id: string
-): Promise<ISchemaDetails['schemaHash']> {
+async function queryRawId(schema_id: string): Promise<ISchemaDetails['hash']> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const result = await blockchain.api.query.schema.schemaId<Option<Hash>>(
-    schema_id
-  )
+  const result = await blockchain.api.query.schema.id<Option<Hash>>(schema_id)
   return result.toString()
 }
 /**
@@ -212,10 +208,10 @@ export async function queryhash(
  * @internal
  */
 export async function query(schema_id: string): Promise<SchemaDetails | null> {
-  const schemaId: string = getSchemaId(schema_id)
-  const schemaHash = await queryRawId(schemaId)
-  const encoded = await queryRawHash(schemaHash)
-  return decodeSchema(encoded, schemaHash)
+  const id: string = getSchemaId(schema_id)
+  const hash = await queryRawId(id)
+  const encoded = await queryRawHash(hash)
+  return decodeSchema(encoded, hash)
 }
 
 /**
@@ -223,7 +219,7 @@ export async function query(schema_id: string): Promise<SchemaDetails | null> {
  * @internal
  */
 export async function getOwner(
-  hash: ISchema['schemaHash']
+  hash: ISchema['hash']
 ): Promise<IPublicIdentity['address'] | null> {
   const encoded = await queryRawHash(hash)
   const queriedSchemaAccount = decodeSchema(encoded, hash)

@@ -26,7 +26,6 @@ export function verifySchemaProperties(
   messages?: string[]
 ): boolean {
   const validator = new JsonSchema.Validator(schema, '7', false)
-  console.log(object, schema)
   if (schema.$id !== SchemaModel.$id) {
     validator.addSchema(SchemaModel)
   }
@@ -60,18 +59,17 @@ export function verifyContentProperties(
   schema: ISchema['schema']
 ): boolean {
   if (!verifySchema(schema, SchemaModel)) {
-    console.log('Error with verifyContentProp')
     throw SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   return verifySchema(contents, schema)
 }
 
 export async function verifyStored(schema: ISchema): Promise<boolean> {
-  return typeof (await getOwner(schema.schemaHash)) === 'string'
+  return typeof (await getOwner(schema.hash)) === 'string'
 }
 
 export async function verifyOwner(schema: ISchema): Promise<boolean> {
-  const creator = await getOwner(schema.schemaHash)
+  const creator = await getOwner(schema.hash)
   return creator ? creator === schema.creator : false
 }
 
@@ -85,8 +83,8 @@ export function getIdForSchema(
   schema: SchemaWithoutId | ISchema['schema'],
   creator: ISchema['creator']
 ): string {
-  const schemaHash = getHashForSchema(schema)
-  return getIdWithPrefix(Crypto.hashObjectAsStr({ schemaHash, creator }))
+  const hash = getHashForSchema(schema)
+  return getIdWithPrefix(Crypto.hashObjectAsStr({ hash, creator }))
 }
 
 export function getIdWithPrefix(hash: string): string {
@@ -109,11 +107,10 @@ export function getSchemaId(id: string): string {
  */
 export function errorCheck(input: ISchema): void {
   if (!verifySchema(input, SchemaWrapperModel)) {
-    console.log('Error with errorCheck')
     throw SDKErrors.ERROR_OBJECT_MALFORMED()
   }
-  if (!input.schema || getHashForSchema(input.schema) !== input.schemaHash) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
+  if (!input.schema || getHashForSchema(input.schema) !== input.hash) {
+    throw SDKErrors.ERROR_HASH_MALFORMED(input.hash, 'Schema')
   }
   if (
     typeof input.creator === 'string'
@@ -196,8 +193,8 @@ export function decompressSchema(
 export function compress(schema: ISchema): CompressedSchemaType {
   errorCheck(schema)
   return [
-    schema.schemaId,
-    schema.schemaHash,
+    schema.id,
+    schema.hash,
     schema.version,
     schema.creator,
     schema.parent,
@@ -220,8 +217,8 @@ export function decompress(schema: CompressedSchemaType): ISchema {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
-    schemaId: schema[0],
-    schemaHash: schema[1],
+    id: schema[0],
+    hash: schema[1],
     version: schema[2],
     creator: schema[3],
     parent: schema[4],

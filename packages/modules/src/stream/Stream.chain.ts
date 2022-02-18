@@ -42,9 +42,9 @@ export interface AnchoredStreamDetails extends Struct {
   readonly streamId: Hash
   readonly creator: AccountId
   readonly holder: Option<AccountId>
-  readonly schemaId: Option<Hash>
-  readonly linkId: Option<Hash>
-  readonly parentHash: Option<Hash>
+  readonly schema: Option<Hash>
+  readonly link: Option<Hash>
+  readonly parent: Option<Hash>
   readonly cid: Option<Vec<u8>>
   readonly revoked: boolean
 }
@@ -63,9 +63,9 @@ function decodeStream(
       streamHash: streamHash,
       creator: anchoredStream.creator.toString(),
       holder: anchoredStream.holder.toString() || null,
-      schemaId: anchoredStream.schemaId.toString() || null,
-      linkId: anchoredStream.linkId.toString() || null,
-      parentHash: anchoredStream.parentHash.toString() || null,
+      schemaId: anchoredStream.schema.toString() || null,
+      linkId: anchoredStream.link.toString() || null,
+      parentHash: anchoredStream.parent.toString() || null,
       cid: anchoredStream.cid
         ? hexToString(anchoredStream.cid.toString())
         : null,

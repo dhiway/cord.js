@@ -476,7 +476,7 @@ async function main() {
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()
       .requestPresentation({
-        schemaId: newCertificateSchema.id,
+        id: newCertificateSchema.id,
         properties: ['studentName', 'credential', 'grade', 'issuerName'],
       })
       .finalize(

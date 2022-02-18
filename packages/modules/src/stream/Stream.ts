@@ -114,9 +114,9 @@ export class Stream implements IStream {
   public streamHash: IStream['streamHash']
   public creator: IStream['creator']
   public holder?: IStream['holder'] | null | undefined
-  public cid?: IStream['cid'] | null | undefined
   public schemaId: IStream['schemaId']
   public linkId?: IStream['linkId'] | null | undefined
+  public cid?: IStream['cid'] | null | undefined
 
   /**
    * Builds a new [[Stream]] instance.
@@ -133,9 +133,9 @@ export class Stream implements IStream {
     this.streamHash = stream.streamHash
     this.creator = stream.creator
     this.holder = stream.holder
-    this.cid = stream.cid
     this.schemaId = stream.schemaId
     this.linkId = stream.linkId
+    this.cid = stream.cid
   }
 
   /**
@@ -238,10 +238,10 @@ export class StreamDetails implements IStreamDetails {
   public streamHash: IStreamDetails['streamHash']
   public creator: IStreamDetails['creator']
   public holder: IStreamDetails['holder']
-  public cid: IStreamDetails['cid']
   public schemaId: IStreamDetails['schemaId']
   public parentHash: IStreamDetails['parentHash']
   public linkId: IStreamDetails['linkId']
+  public cid: IStreamDetails['cid']
   public revoked: IStreamDetails['revoked']
 
   public constructor(details: IStreamDetails) {
@@ -250,10 +250,10 @@ export class StreamDetails implements IStreamDetails {
     this.streamHash = details.streamHash
     this.creator = details.creator
     this.holder = details.holder
-    this.cid = details.cid
     this.schemaId = details.schemaId
     this.parentHash = details.parentHash
     this.linkId = details.linkId
+    this.cid = details.cid
     this.revoked = details.revoked
   }
 }

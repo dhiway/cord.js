@@ -76,14 +76,12 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       break
     }
     case Message.BodyType.ACCEPT_CREDENTIAL: {
-      body.content.map((schemaId) =>
-        DataUtils.validateId(schemaId, 'invalid schema hash')
-      )
+      body.content.map((id) => DataUtils.validateId(id, 'invalid schema hash'))
       break
     }
     case Message.BodyType.REJECT_CREDENTIAL: {
-      body.content.map((schemaId) =>
-        DataUtils.validateId(schemaId, 'rejected streams - invalid schema hash')
+      body.content.map((id) =>
+        DataUtils.validateId(id, 'rejected streams - invalid schema hash')
       )
       break
     }

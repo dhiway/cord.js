@@ -10,7 +10,7 @@ export interface IStream {
   streamHash: string
   creator: IPublicIdentity['address']
   holder?: IPublicIdentity['address'] | null
-  schemaId: ISchema['schemaId']
+  schemaId: ISchema['id']
   linkId?: string | null
   cid?: string | null
 }
@@ -30,7 +30,7 @@ export interface IStreamDetails {
   streamHash: IStream['streamHash']
   creator: IPublicIdentity['address']
   holder: IPublicIdentity['address'] | null
-  schemaId: ISchema['schemaId'] | null
+  schemaId: ISchema['id'] | null
   linkId: IStream['streamId'] | null
   parentHash?: string | null
   cid: string | null

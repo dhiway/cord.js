@@ -65,14 +65,14 @@ export class Schema implements ISchema {
     version?: ISchema['version'],
     permission?: boolean
   ): Schema {
-    const schemaId = SchemaUtils.getIdForSchema(schema, creator)
+    const id = SchemaUtils.getIdForSchema(schema, creator)
     const schemaWithId = {
-      $id: schemaId,
+      $id: id,
       ...schema,
     }
     return new Schema({
-      schemaId: schemaId,
-      schemaHash: SchemaUtils.getHashForSchema(schemaWithId),
+      id: id,
+      hash: SchemaUtils.getHashForSchema(schemaWithId),
       version: version || '1.0.0',
       schema: schemaWithId,
       creator: creator,
@@ -95,8 +95,8 @@ export class Schema implements ISchema {
     return true
   }
 
-  public schemaId: ISchema['schemaId']
-  public schemaHash: ISchema['schemaHash']
+  public id: ISchema['id']
+  public hash: ISchema['hash']
   public version: ISchema['version']
   public creator: ISchema['creator']
   public schema: ISchema['schema']
@@ -105,8 +105,8 @@ export class Schema implements ISchema {
 
   public constructor(schemaInput: ISchema) {
     SchemaUtils.errorCheck(schemaInput)
-    this.schemaId = schemaInput.schemaId
-    this.schemaHash = schemaInput.schemaHash
+    this.id = schemaInput.id
+    this.hash = schemaInput.hash
     this.version = schemaInput.version
     this.creator = schemaInput.creator
     this.schema = schemaInput.schema
@@ -198,8 +198,8 @@ export class SchemaDetails implements ISchemaDetails {
    * ```
    */
 
-  public schemaId: ISchemaDetails['schemaId']
-  public schemaHash: ISchemaDetails['schemaHash']
+  public id: ISchemaDetails['id']
+  public hash: ISchemaDetails['hash']
   public version: ISchemaDetails['version']
   public creator: ISchemaDetails['creator']
   public parent: ISchemaDetails['parent'] | null | undefined
@@ -209,8 +209,8 @@ export class SchemaDetails implements ISchemaDetails {
 
   public constructor(details: ISchemaDetails) {
     // SchemaUtils.errorCheck(details)
-    this.schemaId = details.schemaId
-    this.schemaHash = details.schemaHash
+    this.id = details.id
+    this.hash = details.hash
     this.version = details.version
     this.creator = details.creator
     this.parent = details.parent

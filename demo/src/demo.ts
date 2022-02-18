@@ -42,7 +42,7 @@ async function main() {
   let newSchemaContent = require('../res/schema.json')
   let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
   newSchemaContent.title = newSchemaTitle
-  console.dir(newSchemaContent, { depth: null, colors: true })
+  // console.dir(newSchemaContent, { depth: null, colors: true })
 
   let newSchema = cord.Schema.fromSchemaProperties(
     newSchemaContent,
@@ -52,8 +52,6 @@ async function main() {
   let bytes = json.encode(newSchema)
   let encoded_hash = await hasher.digest(bytes)
   const schemaCid = CID.create(1, 0xb220, encoded_hash)
-  // newSchema.cid =
-  // console.dir(newSchema, { depth: null, colors: true })
   console.log('Version', newSchema.version)
   let schemaCreationExtrinsic = await newSchema.create(schemaCid.toString())
 
@@ -135,7 +133,7 @@ async function main() {
   // Step 3: Create a new Credential and Link to the Stream
   console.log(`\n\n✉️  Adding a new Credential Schema \n`)
   let credSchema = require('../res/cred-schema.json')
-  credSchema.name = credSchema.name + ':' + UUID.generate()
+  credSchema.title = credSchema.title + ':' + UUID.generate()
 
   let credSchemaStream = cord.Schema.fromSchemaProperties(
     credSchema,
@@ -220,7 +218,7 @@ async function main() {
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()
       .requestPresentation({
-        schemaId: newSchema.schemaId,
+        id: newSchema.id,
         properties: ['name'],
       })
       .finalize(

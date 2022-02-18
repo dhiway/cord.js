@@ -108,11 +108,11 @@ export interface ISubmitCredential extends IMessageBodyBase {
   type: MessageBodyType.SUBMIT_CREDENTIAL
 }
 export interface IAcceptCredential extends IMessageBodyBase {
-  content: Array<ISchema['schemaId']>
+  content: Array<ISchema['id']>
   type: MessageBodyType.ACCEPT_CREDENTIAL
 }
 export interface IRejectCredential extends IMessageBodyBase {
-  content: Array<ISchema['schemaId']>
+  content: Array<ISchema['id']>
   type: MessageBodyType.REJECT_CREDENTIAL
 }
 
@@ -139,11 +139,11 @@ export type CompressedSubmitCredential = [
 ]
 export type CompressedAcceptCredential = [
   MessageBodyType.ACCEPT_CREDENTIAL,
-  Array<ISchema['schemaId']>
+  Array<ISchema['id']>
 ]
 export type CompressedRejectCredential = [
   MessageBodyType.REJECT_CREDENTIAL,
-  Array<ISchema['schemaId']>
+  Array<ISchema['id']>
 ]
 
 export interface IRequestStreamContent {
@@ -155,7 +155,7 @@ export interface IAnchorStreamContent {
   stream: IStream
 }
 export interface IRequestStreamForCredential {
-  id: ISchema['schemaId']
+  id: ISchema['id']
   acceptedIssuer?: Array<IPublicIdentity['address']>
   requiredProperties?: string[]
 }
@@ -167,7 +167,7 @@ export type CompressedPartialContentStream = [
 ]
 
 export type CompressedRequestCredentialContent = [
-  ISchema['schemaId'],
+  ISchema['id'],
   Array<IPublicIdentity['address']> | undefined,
   string[] | undefined
 ]

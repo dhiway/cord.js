@@ -55,7 +55,7 @@ async function verifySharedPresentation(
       const rawProperties = Array.from(providedProperties.keys()).map(
         (prop) => `${prop}`
       )
-      rawProperties.push('content.schemaId')
+      rawProperties.push('content.id')
       rawProperties.push('content.creator')
       return (
         requested.properties.every((p) => {

@@ -13,7 +13,7 @@ export const SchemaModel: JsonSchema.Schema = {
     $id: {
       type: 'string',
       format: 'uri',
-      pattern: '^cordt:schema:0x[0-9a-f]+$',
+      pattern: '^cord:schema:0x[0-9a-f]+$',
     },
     $schema: {
       type: 'string',
@@ -80,12 +80,12 @@ export const SchemaWrapperModel = {
       properties: SchemaModel.properties,
       required: SchemaModel.required,
     },
-    schemaId: {
+    id: {
       type: 'string',
       format: 'uri',
       pattern: '^cord:schema:0x[0-9a-f]+$',
     },
-    schemaHash: {
+    hash: {
       type: 'string',
     },
     creator: { type: ['string', 'null'] },
@@ -95,7 +95,7 @@ export const SchemaWrapperModel = {
     permissioned: { type: 'boolean' },
   },
   additionalProperties: false,
-  required: ['schema', 'schemaId', 'schemaHash'],
+  required: ['schema', 'id', 'hash'],
 }
 
 export const MetadataModel = {

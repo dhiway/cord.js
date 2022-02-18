@@ -30,8 +30,8 @@ export interface ISchemaType {
 
 export type SchemaWithoutId = Omit<ISchemaType, '$id'>
 export interface ISchema {
-  schemaId: string
-  schemaHash: string
+  id: string
+  hash: string
   version: string
   creator: IPublicIdentity['address']
   schema: ISchemaType
@@ -50,8 +50,8 @@ export type CompressedSchema = [
 ]
 
 export type CompressedSchemaType = [
-  ISchema['schemaId'],
-  ISchema['schemaHash'],
+  ISchema['id'],
+  ISchema['hash'],
   ISchema['version'],
   ISchema['creator'],
   ISchema['parent'],
@@ -60,8 +60,8 @@ export type CompressedSchemaType = [
 ]
 
 export interface ISchemaDetails {
-  schemaId: ISchema['schemaId']
-  schemaHash: ISchema['schemaHash']
+  id: ISchema['id']
+  hash: ISchema['hash']
   version: ISchema['version']
   creator: IPublicIdentity['address']
   cid?: string | null
