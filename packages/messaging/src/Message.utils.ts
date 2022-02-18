@@ -17,7 +17,7 @@ import type {
   MessageBody,
   CompressedRequestCredentialContent,
   IRequestStreamForCredential,
-  ISchemaEnvelope,
+  ISchema,
   IMessage,
   PartialContent,
   IContent,
@@ -139,9 +139,9 @@ export function errorCheckMessage(message: IMessage): boolean | void {
 
 export function verifyRequiredSchemaProperties(
   requiredProperties: string[],
-  schema: ISchemaEnvelope
+  schema: ISchema
 ): boolean {
-  SchemaUtils.errorCheck(schema as ISchemaEnvelope)
+  SchemaUtils.errorCheck(schema as ISchema)
 
   const validProperties = requiredProperties.find(
     (property) => !(property in schema.schema.properties)

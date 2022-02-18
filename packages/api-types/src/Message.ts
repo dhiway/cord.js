@@ -12,7 +12,7 @@ import type {
   IContents,
   PartialContent,
 } from './Content.js'
-import type { ISchemaEnvelope } from './Schema.js'
+import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 import type {
   CompressedContentStream,
@@ -95,7 +95,7 @@ export interface IAnchorStream extends IMessageBodyBase {
   type: MessageBodyType.ANCHOR_STREAM
 }
 export interface IRejectStream extends IMessageBodyBase {
-  content: IContentStream['id']
+  content: IContentStream['contentId']
   type: MessageBodyType.REJECT_STREAM
 }
 
@@ -108,11 +108,11 @@ export interface ISubmitCredential extends IMessageBodyBase {
   type: MessageBodyType.SUBMIT_CREDENTIAL
 }
 export interface IAcceptCredential extends IMessageBodyBase {
-  content: Array<ISchemaEnvelope['id']>
+  content: Array<ISchema['schemaId']>
   type: MessageBodyType.ACCEPT_CREDENTIAL
 }
 export interface IRejectCredential extends IMessageBodyBase {
-  content: Array<ISchemaEnvelope['id']>
+  content: Array<ISchema['schemaId']>
   type: MessageBodyType.REJECT_CREDENTIAL
 }
 
@@ -126,7 +126,7 @@ export type CompressedAnchorStream = [
 ]
 export type CompressedRejectStream = [
   MessageBodyType.REJECT_STREAM,
-  IContentStream['id']
+  IContentStream['contentId']
 ]
 
 export type CompressedRequestCredential = [
@@ -139,11 +139,11 @@ export type CompressedSubmitCredential = [
 ]
 export type CompressedAcceptCredential = [
   MessageBodyType.ACCEPT_CREDENTIAL,
-  Array<ISchemaEnvelope['id']>
+  Array<ISchema['schemaId']>
 ]
 export type CompressedRejectCredential = [
   MessageBodyType.REJECT_CREDENTIAL,
-  Array<ISchemaEnvelope['id']>
+  Array<ISchema['schemaId']>
 ]
 
 export interface IRequestStreamContent {
@@ -155,7 +155,7 @@ export interface IAnchorStreamContent {
   stream: IStream
 }
 export interface IRequestStreamForCredential {
-  id: ISchemaEnvelope['id']
+  id: ISchema['schemaId']
   acceptedIssuer?: Array<IPublicIdentity['address']>
   requiredProperties?: string[]
 }
@@ -167,7 +167,7 @@ export type CompressedPartialContentStream = [
 ]
 
 export type CompressedRequestCredentialContent = [
-  ISchemaEnvelope['id'],
+  ISchema['schemaId'],
   Array<IPublicIdentity['address']> | undefined,
   string[] | undefined
 ]

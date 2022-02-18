@@ -2,7 +2,7 @@
  * @packageDocumentation
  * @module IContent
  */
-import type { ISchemaEnvelope } from './Schema'
+import type { ISchema } from './Schema'
 import type { IPublicIdentity } from './PublicIdentity'
 
 /**
@@ -15,7 +15,7 @@ export type IContents = Record<
   Record<string, unknown> | string | number | boolean
 >
 export interface IContent {
-  schemaId: ISchemaEnvelope['id']
+  schemaId: ISchema['schemaId']
   contents: IContents
   creator: IPublicIdentity['address']
 }

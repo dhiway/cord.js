@@ -101,7 +101,7 @@ export class Product implements IProduct {
     rating?: number
   ): Product {
     return new Product({
-      id: ProductUtils.getIdentifier(content.id),
+      id: ProductUtils.getIdentifier(content.contentId),
       hash: content.contentHash,
       cid: cid,
       store_id: store_id,

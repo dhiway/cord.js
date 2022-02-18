@@ -2,54 +2,37 @@
  * @packageDocumentation
  * @module IStream
  */
-import type { ISchemaEnvelope } from './Schema.js'
+import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 
 export interface IStream {
-  id: string
-  hash: string
-  cid: string
-  schema: ISchemaEnvelope['id']
-  link?: string
+  streamId: string
+  streamHash: string
   creator: IPublicIdentity['address']
-  revoked: boolean
+  holder?: IPublicIdentity['address'] | null
+  schemaId: ISchema['schemaId']
+  linkId?: string | null
+  cid?: string | null
 }
 
 export type CompressedStream = [
-  IStream['id'],
-  IStream['hash'],
-  IStream['cid'],
-  IStream['schema'],
-  IStream['link'],
+  IStream['streamId'],
+  IStream['streamHash'],
   IStream['creator'],
-  IStream['revoked']
+  IStream['holder'],
+  IStream['schemaId'],
+  IStream['linkId'],
+  IStream['cid']
 ]
 
 export interface IStreamDetails {
-  id: IStream['id']
-  streamHash: IStream['hash']
-  cid: string | null
-  parent_cid: string | null
-  schema: ISchemaEnvelope['id'] | null
-  link: IStream['id'] | null
+  streamId: IStream['streamId']
+  streamHash: IStream['streamHash']
   creator: IPublicIdentity['address']
-  block: string
+  holder: IPublicIdentity['address'] | null
+  schemaId: ISchema['schemaId'] | null
+  linkId: IStream['streamId'] | null
+  parentHash?: string | null
+  cid: string | null
   revoked: boolean
-}
-
-export interface IStreamLinks {
-  id: IStream['id']
-  creator: IPublicIdentity['address']
-}
-
-export enum StreamCommitOf {
-  Genesis,
-  Update,
-  StatusChange,
-}
-export interface IStreamCommits {
-  streamHash: IStream['hash']
-  cid: string | null
-  block: string
-  commit: StreamCommitOf
 }

@@ -2,7 +2,7 @@
  * @packageDocumentation
  * @module IProduct
  */
-import type { ISchemaEnvelope } from './Schema.js'
+import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 
 export interface IProduct {
@@ -10,7 +10,7 @@ export interface IProduct {
   hash: string
   cid: string
   store_id?: string
-  schema?: ISchemaEnvelope['id']
+  schema?: ISchema['schemaId']
   price?: number
   rating?: number
   link?: string
@@ -37,7 +37,7 @@ export interface IProductDetails {
   cid: string | null
   parent_cid: string | null
   store_id: IProduct['id'] | null
-  schema: ISchemaEnvelope['id'] | null
+  schema: ISchema['schemaId'] | null
   link: IProduct['id'] | null
   creator: IPublicIdentity['address']
   price: IProduct['id'] | null

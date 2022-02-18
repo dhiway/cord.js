@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module ISchemaEnvelope
+ * @module ISchema
  */
 import type { IPublicIdentity } from './PublicIdentity.js'
 
@@ -29,9 +29,9 @@ export interface ISchemaType {
 }
 
 export type SchemaWithoutId = Omit<ISchemaType, '$id'>
-export interface ISchemaEnvelope {
-  id: string
-  hash: string
+export interface ISchema {
+  schemaId: string
+  schemaHash: string
   version: string
   creator: IPublicIdentity['address']
   schema: ISchemaType
@@ -50,22 +50,22 @@ export type CompressedSchema = [
 ]
 
 export type CompressedSchemaType = [
-  ISchemaEnvelope['id'],
-  ISchemaEnvelope['hash'],
-  ISchemaEnvelope['version'],
-  ISchemaEnvelope['creator'],
-  ISchemaEnvelope['parent'],
-  ISchemaEnvelope['permissioned'],
+  ISchema['schemaId'],
+  ISchema['schemaHash'],
+  ISchema['version'],
+  ISchema['creator'],
+  ISchema['parent'],
+  ISchema['permissioned'],
   CompressedSchema
 ]
 
 export interface ISchemaDetails {
-  id: ISchemaEnvelope['id']
-  schema_hash: ISchemaEnvelope['hash']
-  version: ISchemaEnvelope['version']
+  schemaId: ISchema['schemaId']
+  schemaHash: ISchema['schemaHash']
+  version: ISchema['version']
   creator: IPublicIdentity['address']
   cid?: string | null
-  parent: ISchemaEnvelope['parent'] | null
-  permissioned: ISchemaEnvelope['permissioned']
+  parent: ISchema['parent'] | null
+  permissioned: ISchema['permissioned']
   revoked: boolean
 }

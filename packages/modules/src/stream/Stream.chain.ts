@@ -6,14 +6,16 @@ import { Option, Struct, Vec, u8 } from '@polkadot/types'
 import type {
   IStream,
   IStreamDetails,
+  IPublicIdentity,
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
 import { DecoderUtils } from '@cord.network/utils'
-import type { AccountId, BlockNumber, Hash } from '@polkadot/types/interfaces'
+import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream.js'
-import { hexToString } from './Stream.utils'
+import { hexToString, getStreamId, getLinkId } from './Stream.utils'
+import { getSchemaId } from '../schema/Schema.utils.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Mark')
 
@@ -23,32 +25,33 @@ const log = ConfigService.LoggingFactory.getLogger('Mark')
  * @param stream The stream to anchor on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
-export async function store(stream: IStream): Promise<SubmittableExtrinsic> {
+export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
-    stream.id,
+    getStreamId(stream.streamId),
     stream.creator,
-    stream.hash,
+    stream.streamHash,
+    stream.holder,
+    getSchemaId(stream.schemaId),
     stream.cid,
-    stream.schema,
-    stream.link
+    getLinkId(stream.linkId)
   )
   return tx
 }
 export interface AnchoredStreamDetails extends Struct {
-  readonly streamHash: Hash
-  readonly cid: Option<Vec<u8>>
-  readonly parent_cid: Option<Vec<u8>>
-  readonly link: Option<Hash>
-  readonly schema: Option<Hash>
+  readonly streamId: Hash
   readonly creator: AccountId
-  readonly block: BlockNumber
+  readonly holder: Option<AccountId>
+  readonly schemaId: Option<Hash>
+  readonly linkId: Option<Hash>
+  readonly parentHash: Option<Hash>
+  readonly cid: Option<Vec<u8>>
   readonly revoked: boolean
 }
 
 function decodeStream(
   encodedStream: Option<AnchoredStreamDetails>,
-  streamId: string
+  streamHash: string
 ): StreamDetails | null {
   DecoderUtils.assertCodecIsType(encodedStream, [
     'Option<PalletStreamStreamsStreamDetails>',
@@ -56,18 +59,16 @@ function decodeStream(
   if (encodedStream.isSome) {
     const anchoredStream = encodedStream.unwrap()
     const stream: IStreamDetails = {
-      id: streamId,
-      streamHash: anchoredStream.streamHash.toString(),
+      streamId: anchoredStream.streamId.toString(),
+      streamHash: streamHash,
+      creator: anchoredStream.creator.toString(),
+      holder: anchoredStream.holder.toString() || null,
+      schemaId: anchoredStream.schemaId.toString() || null,
+      linkId: anchoredStream.linkId.toString() || null,
+      parentHash: anchoredStream.parentHash.toString() || null,
       cid: anchoredStream.cid
         ? hexToString(anchoredStream.cid.toString())
         : null,
-      parent_cid: anchoredStream.parent_cid
-        ? hexToString(anchoredStream.parent_cid.toString())
-        : null,
-      schema: anchoredStream.schema.toString() || null,
-      link: anchoredStream.link.toString() || null,
-      creator: anchoredStream.creator.toString(),
-      block: anchoredStream.block.toString(),
       revoked: anchoredStream.revoked.valueOf(),
     }
 
@@ -76,14 +77,35 @@ function decodeStream(
   return null
 }
 
-async function queryRaw(
-  streamId: string
+async function queryRawHash(
+  streamHash: string
 ): Promise<Option<AnchoredStreamDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const result = await blockchain.api.query.stream.streams<
     Option<AnchoredStreamDetails>
-  >(streamId)
+  >(streamHash)
   return result
+}
+
+async function queryRawId(
+  streamId: string
+): Promise<IStreamDetails['streamHash']> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const result = await blockchain.api.query.stream.streamId<Option<Hash>>(
+    streamId
+  )
+  return result.toString()
+}
+
+/**
+ * @param identifier
+ * @internal
+ */
+export async function queryhash(
+  streamHash: string
+): Promise<StreamDetails | null> {
+  const encoded = await queryRawHash(streamHash)
+  return decodeStream(encoded, streamHash)
 }
 
 /**
@@ -93,8 +115,10 @@ async function queryRaw(
  * @returns Either the retrieved [[StreamDetails]] or null.
  */
 export async function query(streamId: string): Promise<StreamDetails | null> {
-  const encoded = await queryRaw(streamId)
-  return decodeStream(encoded, streamId)
+  const stream_Id = getStreamId(streamId)
+  const streamHash = await queryRawId(stream_Id)
+  const encoded = await queryRawHash(streamHash)
+  return decodeStream(encoded, streamHash)
 }
 
 /**
@@ -118,4 +142,16 @@ export async function set_status(
     status
   )
   return tx
+}
+
+/**
+ * @param id
+ * @internal
+ */
+export async function getOwner(
+  streamHash: IStream['streamHash']
+): Promise<IPublicIdentity['address'] | null> {
+  const encoded = await queryRawHash(streamHash)
+  const queriedSchemaAccount = decodeStream(encoded, streamHash)
+  return queriedSchemaAccount!.creator
 }

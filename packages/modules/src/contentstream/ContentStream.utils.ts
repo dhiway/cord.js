@@ -94,7 +94,7 @@ export function compress(
     contentStream.link,
     compressProof(contentStream.proofs),
     contentStream.contentHash,
-    contentStream.id,
+    contentStream.contentId,
   ]
 }
 
@@ -123,7 +123,7 @@ export function decompress(
     link: contentStream[6],
     proofs: decompressProof(contentStream[7]),
     contentHash: contentStream[8],
-    id: contentStream[9],
+    contentId: contentStream[9],
   }
 }
 

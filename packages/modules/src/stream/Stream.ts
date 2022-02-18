@@ -14,7 +14,7 @@ import type {
   IContentStream,
   CompressedStream,
 } from '@cord.network/api-types'
-import { set_status, query, store } from './Stream.chain.js'
+import { set_status, query, create } from './Stream.chain.js'
 import * as StreamUtils from './Stream.utils.js'
 
 export class Stream implements IStream {
@@ -85,13 +85,13 @@ export class Stream implements IStream {
     cid: string
   ): Stream {
     return new Stream({
-      id: StreamUtils.getStreamId(content.id),
-      hash: content.contentHash,
-      cid: cid,
-      schema: content.content.schemaId,
-      link: content.link,
+      streamId: content.contentId,
+      streamHash: content.contentHash,
       creator: content.creator,
-      revoked: false,
+      holder: content.holder,
+      schemaId: content.content.schemaId,
+      linkId: content.link,
+      cid: cid,
     })
   }
 
@@ -110,13 +110,13 @@ export class Stream implements IStream {
     return true
   }
 
-  public id: IStream['id']
-  public hash: IStream['hash']
-  public cid: IStream['cid']
-  public schema: IStream['schema']
-  public link: IStream['link']
+  public streamId: IStream['streamId']
+  public streamHash: IStream['streamHash']
   public creator: IStream['creator']
-  public revoked: IStream['revoked']
+  public holder?: IStream['holder'] | null | undefined
+  public cid?: IStream['cid'] | null | undefined
+  public schemaId: IStream['schemaId']
+  public linkId?: IStream['linkId'] | null | undefined
 
   /**
    * Builds a new [[Stream]] instance.
@@ -129,13 +129,13 @@ export class Stream implements IStream {
    */
   public constructor(stream: IStream) {
     StreamUtils.errorCheck(stream)
-    this.id = stream.id
-    this.hash = stream.hash
-    this.cid = stream.cid
-    this.schema = stream.schema
-    this.link = stream.link
+    this.streamId = stream.streamId
+    this.streamHash = stream.streamHash
     this.creator = stream.creator
-    this.revoked = stream.revoked
+    this.holder = stream.holder
+    this.cid = stream.cid
+    this.schemaId = stream.schemaId
+    this.linkId = stream.linkId
   }
 
   /**
@@ -149,8 +149,8 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async store(): Promise<SubmittableExtrinsic> {
-    return store(this)
+  public async create(): Promise<SubmittableExtrinsic> {
+    return create(this)
   }
 
   /**
@@ -166,7 +166,7 @@ export class Stream implements IStream {
    * ```
    */
   public async set_status(status: boolean): Promise<SubmittableExtrinsic> {
-    return set_status(this.id, this.creator, status)
+    return set_status(this.streamId, this.creator, status)
   }
 
   /**
@@ -183,14 +183,14 @@ export class Stream implements IStream {
    */
   public static async checkValidity(
     stream: IStream,
-    identifier: string = stream.id
+    identifier: string = stream.streamId
   ): Promise<boolean> {
     // Query stream by stream identifier. null if no stream is found on-chain for this hash
     const chainStream: StreamDetails | null = await Stream.query(identifier)
     return !!(
       chainStream !== null &&
       chainStream.creator === stream.creator &&
-      chainStream.streamHash === stream.hash &&
+      chainStream.streamHash === stream.streamHash &&
       !chainStream.revoked
     )
   }
@@ -234,26 +234,26 @@ export class StreamDetails implements IStreamDetails {
    * ```
    */
 
-  public id: IStreamDetails['id']
+  public streamId: IStreamDetails['streamId']
   public streamHash: IStreamDetails['streamHash']
-  public cid: IStreamDetails['cid']
-  public parent_cid: IStreamDetails['parent_cid']
-  public schema: IStreamDetails['schema']
-  public link: IStreamDetails['link']
   public creator: IStreamDetails['creator']
-  public block: IStreamDetails['block']
+  public holder: IStreamDetails['holder']
+  public cid: IStreamDetails['cid']
+  public schemaId: IStreamDetails['schemaId']
+  public parentHash: IStreamDetails['parentHash']
+  public linkId: IStreamDetails['linkId']
   public revoked: IStreamDetails['revoked']
 
   public constructor(details: IStreamDetails) {
     // StreamUtils.errorCheck(details)
-    this.id = details.id
+    this.streamId = details.streamId
     this.streamHash = details.streamHash
-    this.cid = details.cid
-    this.parent_cid = details.parent_cid
-    this.schema = details.schema
-    this.link = details.link
     this.creator = details.creator
-    this.block = details.block
+    this.holder = details.holder
+    this.cid = details.cid
+    this.schemaId = details.schemaId
+    this.parentHash = details.parentHash
+    this.linkId = details.linkId
     this.revoked = details.revoked
   }
 }

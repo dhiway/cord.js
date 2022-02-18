@@ -14,30 +14,21 @@ import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
  *
  */
 export function errorCheck(input: IStream): void {
-  if (!input.id) {
+  if (!input.streamId) {
     throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.id, 'Stream ID')
+  } else DataUtils.validateHash(input.streamId, 'Stream ID')
 
-  if (!input.hash) {
+  if (!input.streamHash) {
     throw SDKErrors.ERROR_MARK_HASH_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.hash, 'Stream hash')
+  } else DataUtils.validateHash(input.streamHash, 'Stream hash')
 
-  if (!input.schema) {
+  if (!input.schemaId) {
     throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.schema, 'Schema link')
-
-  //TODO: Fix this
-  // if (!input.link) {
-  //   throw SDKErrors.ERROR_MARK_JOURNAL_ID_NOT_PROVIDED()
-  // } else DataUtils.validateHash(input.link, 'Mark link')
+  } else DataUtils.validateHash(input.schemaId, 'Schema link')
 
   if (!input.creator) {
     throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
   } else DataUtils.validateAddress(input.creator, 'Stream controller')
-
-  if (typeof input.revoked !== 'boolean') {
-    throw SDKErrors.ERROR_MARK_REVOCATION_BIT_MISSING()
-  }
 }
 
 /**
@@ -51,13 +42,13 @@ export function errorCheck(input: IStream): void {
 export function compress(stream: IStream): CompressedStream {
   errorCheck(stream)
   return [
-    stream.id,
-    stream.hash,
-    stream.cid,
-    stream.schema,
-    stream.link,
+    stream.streamId,
+    stream.streamHash,
     stream.creator,
-    stream.revoked,
+    stream.holder,
+    stream.schemaId,
+    stream.linkId,
+    stream.cid,
   ]
 }
 
@@ -75,13 +66,13 @@ export function decompress(stream: CompressedStream): IStream {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
   }
   return {
-    id: stream[0],
-    hash: stream[1],
-    cid: stream[2],
-    schema: stream[3],
-    link: stream[4],
-    creator: stream[5],
-    revoked: stream[6],
+    streamId: stream[0],
+    streamHash: stream[1],
+    creator: stream[2],
+    holder: stream[3],
+    schemaId: stream[4],
+    linkId: stream[5],
+    cid: stream[6],
   }
 }
 
@@ -95,6 +86,16 @@ export function getIdWithPrefix(hash: string): string {
 
 export function getStreamId(identifier: string): string {
   return identifier.split('cord:stream:').join('')
+}
+
+export function getLinkId(
+  identifier: string | null | undefined
+): string | null | undefined {
+  if (identifier) {
+    return identifier.split('cord:stream:').join('')
+  } else {
+    return undefined
+  }
 }
 
 /**

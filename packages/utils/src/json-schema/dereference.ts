@@ -170,7 +170,6 @@ export function dereference(
       dereference(subSchema, lookup, baseURI, keyBase)
     }
   }
-
   return lookup
 }
 

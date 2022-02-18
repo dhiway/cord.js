@@ -24,7 +24,7 @@ export interface IContentStream {
   creator: IPublicIdentity['address']
   creatorSignature: string
   contentHash: Hash
-  id: string
+  contentId: string
 }
 
 export type CompressedContentStream = [
@@ -37,5 +37,5 @@ export type CompressedContentStream = [
   IContentStream['link'],
   CompressedCredential[],
   IContentStream['contentHash'],
-  IContentStream['id']
+  IContentStream['contentId']
 ]

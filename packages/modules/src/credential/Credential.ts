@@ -134,10 +134,10 @@ export class Credential implements ICredential {
    * ```
    */
   public static verifyData(credStream: ICredential): boolean {
-    if (credStream.request.content.schemaId !== credStream.content.schema)
+    if (credStream.request.content.schemaId !== credStream.content.schemaId)
       return false
     return (
-      credStream.request.contentHash === credStream.content.hash &&
+      credStream.request.contentHash === credStream.content.streamHash &&
       ContentStream.verifyData(credStream.request)
     )
   }
@@ -172,11 +172,11 @@ export class Credential implements ICredential {
    * ```
    */
   public getHash(): string {
-    return this.content.hash
+    return this.content.streamHash
   }
 
   public getId(): string {
-    return this.content.id
+    return this.content.streamId
   }
 
   public getAttributes(): Set<string> {

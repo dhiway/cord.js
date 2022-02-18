@@ -25,6 +25,7 @@ export class Validator {
   }
 
   public addSchema(schema: Schema, id?: string) {
+    console.log(schema.id)
     if (id) {
       schema = { ...schema, $id: id }
     }

@@ -55,7 +55,7 @@ async function main() {
   // newSchema.cid =
   // console.dir(newSchema, { depth: null, colors: true })
   console.log('Version', newSchema.version)
-  let schemaCreationExtrinsic = await newSchema.store(schemaCid.toString())
+  let schemaCreationExtrinsic = await newSchema.create(schemaCid.toString())
 
   console.log(`📧 Schema Details `)
   console.dir(newSchema, { depth: null, colors: true })
@@ -111,7 +111,7 @@ async function main() {
     streamCid.toString()
   )
 
-  let streamCreationExtrinsic = await newStream.store()
+  let streamCreationExtrinsic = await newStream.create()
   console.log(`\n📧 Stream On-Chain Details`)
   console.dir(newStream, { depth: null, colors: true })
 
@@ -146,7 +146,7 @@ async function main() {
   // encoded_hash = await hasher.digest(bytes)
   // const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
   // credSchemaStream.cid =
-  let credSchemaCreationExtrinsic = await credSchemaStream.store()
+  let credSchemaCreationExtrinsic = await credSchemaStream.create()
   console.log('\n⛓  Anchoring Credential Schema to the chain...')
 
   try {
@@ -179,7 +179,7 @@ async function main() {
     employeeIdentity,
     {
       holder: holderIdentity.address,
-      link: newStream.id,
+      link: newStream.streamId,
     }
   )
   console.log(`\n📧 Hashed Stream Details`)
@@ -194,7 +194,7 @@ async function main() {
     credStreamCid.toString()
   )
 
-  let credStreamCreationExtrinsic = await credStreamTx.store()
+  let credStreamCreationExtrinsic = await credStreamTx.create()
   console.log(`\n📧 Credential On-Chain Details`)
   console.dir(credStreamTx, { depth: null, colors: true })
 
@@ -220,7 +220,7 @@ async function main() {
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()
       .requestPresentation({
-        schemaId: newSchema.id,
+        schemaId: newSchema.schemaId,
         properties: ['name'],
       })
       .finalize(

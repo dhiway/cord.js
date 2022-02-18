@@ -12,28 +12,16 @@
 
 import type {
   IContent,
-  ISchemaEnvelope,
+  ISchema,
   ISchemaDetails,
   CompressedSchemaType,
   SchemaWithoutId,
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
-import {
-  set_status,
-  query,
-  store,
-  add_delegate,
-  remove_delegate,
-} from './Schema.chain.js'
+import { query, create, version } from './Schema.chain.js'
 import * as SchemaUtils from './Schema.utils.js'
 
-// export type Options = {
-//   permission?: boolean
-//   version?: string | '1.0.0'
-//   cid?: string
-// }
-
-export class Schema implements ISchemaEnvelope {
+export class Schema implements ISchema {
   /**
    * [STATIC] [ASYNC] Queries the chain for a given stream entry, by `identifier`.
    *
@@ -50,34 +38,14 @@ export class Schema implements ISchemaEnvelope {
   }
 
   /**
-   * [STATIC] [ASYNC] Revokes a stream stream Also available as an instance method.
-   * @param identifier - The ID of the stream stream.
-   * @param status - bool value to set the status of the  stream stream.
-   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * Stream.revoke('0xd8024cdc147c4fa9221cd177', true).then(() => {
-   *   // the stream status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
-   */
-  public static async set_status(
-    identifier: string,
-    creator: string,
-    status: boolean
-  ): Promise<SubmittableExtrinsic> {
-    return set_status(identifier, creator, status)
-  }
-
-  /**
    * [STATIC] Clone an already existing [[Schema]]
-   * or initializes from an [[ISchemaEnvelope]] object
+   * or initializes from an [[ISchema]] object
    * which has non-initialized and non-verified Schema data.
    *
    * @param schemaInput The [[Schema]] which shall be cloned.
    * @returns A copy of the given [[Schema]].
    */
-  public static fromSchemaType(schemaInput: ISchemaEnvelope): Schema {
+  public static fromSchemaType(schemaInput: ISchema): Schema {
     return new Schema(schemaInput)
   }
 
@@ -92,9 +60,9 @@ export class Schema implements ISchemaEnvelope {
    * @returns An instance of [[Schema]].
    */
   public static fromSchemaProperties(
-    schema: SchemaWithoutId | ISchemaEnvelope['schema'],
-    creator: ISchemaEnvelope['creator'],
-    version?: ISchemaEnvelope['version'],
+    schema: SchemaWithoutId | ISchema['schema'],
+    creator: ISchema['creator'],
+    version?: ISchema['version'],
     permission?: boolean
   ): Schema {
     const schemaId = SchemaUtils.getIdForSchema(schema, creator)
@@ -103,8 +71,8 @@ export class Schema implements ISchemaEnvelope {
       ...schema,
     }
     return new Schema({
-      id: schemaId,
-      hash: SchemaUtils.getHashForSchema(schemaWithId),
+      schemaId: schemaId,
+      schemaHash: SchemaUtils.getHashForSchema(schemaWithId),
       version: version || '1.0.0',
       schema: schemaWithId,
       creator: creator,
@@ -113,32 +81,32 @@ export class Schema implements ISchemaEnvelope {
   }
 
   /**
-   *  [STATIC] Custom Type Guard to determine input being of type ISchemaEnvelope using the SchemaUtils errorCheck.
+   *  [STATIC] Custom Type Guard to determine input being of type ISchema using the SchemaUtils errorCheck.
    *
-   * @param input The potentially only partial ISchemaEnvelope.
-   * @returns Boolean whether input is of type ISchemaEnvelope.
+   * @param input The potentially only partial ISchema.
+   * @returns Boolean whether input is of type ISchema.
    */
-  static isISchema(input: unknown): input is ISchemaEnvelope {
+  static isISchema(input: unknown): input is ISchema {
     try {
-      SchemaUtils.errorCheck(input as ISchemaEnvelope)
+      SchemaUtils.errorCheck(input as ISchema)
     } catch (error) {
       return false
     }
     return true
   }
 
-  public id: ISchemaEnvelope['id']
-  public hash: ISchemaEnvelope['hash']
-  public version: ISchemaEnvelope['version']
-  public creator: ISchemaEnvelope['creator']
-  public schema: ISchemaEnvelope['schema']
-  public parent?: ISchemaEnvelope['parent'] | undefined
-  public permissioned: ISchemaEnvelope['permissioned']
+  public schemaId: ISchema['schemaId']
+  public schemaHash: ISchema['schemaHash']
+  public version: ISchema['version']
+  public creator: ISchema['creator']
+  public schema: ISchema['schema']
+  public parent?: ISchema['parent'] | undefined
+  public permissioned: ISchema['permissioned']
 
-  public constructor(schemaInput: ISchemaEnvelope) {
+  public constructor(schemaInput: ISchema) {
     SchemaUtils.errorCheck(schemaInput)
-    this.id = schemaInput.id
-    this.hash = schemaInput.hash
+    this.schemaId = schemaInput.schemaId
+    this.schemaHash = schemaInput.schemaHash
     this.version = schemaInput.version
     this.creator = schemaInput.creator
     this.schema = schemaInput.schema
@@ -152,34 +120,14 @@ export class Schema implements ISchemaEnvelope {
    * @param schemaCId The IPFS CID of the schema.
    * @returns A promise of a unsigned SubmittableExtrinsic.
    */
-  public async store(cid?: string | undefined): Promise<SubmittableExtrinsic> {
-    return store(this, cid)
+  public async create(cid?: string | undefined): Promise<SubmittableExtrinsic> {
+    return create(this, cid)
   }
 
-  public async add_delegate(delegate: string): Promise<SubmittableExtrinsic> {
-    return add_delegate(this.schema.$id, this.creator, delegate)
-  }
-
-  public async remove_delegate(
-    delegate: string
+  public async update_version(
+    cid?: string | undefined
   ): Promise<SubmittableExtrinsic> {
-    return remove_delegate(this.id, this.creator, delegate)
-  }
-
-  /**
-   * [ASYNC] Set status (active/revoked) a journal stream.
-   *
-   * @param status - bool value to set the status of the  journal stream.
-   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * stream.set_status(false).then((tx) => {
-   *   // the stream entry status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
-   */
-  public async set_status(status: boolean): Promise<SubmittableExtrinsic> {
-    return set_status(this.id, this.creator, status)
+    return version(this, cid)
   }
 
   /**
@@ -250,23 +198,23 @@ export class SchemaDetails implements ISchemaDetails {
    * ```
    */
 
-  public id: ISchemaDetails['id']
-  public schema_hash: ISchemaDetails['schema_hash']
+  public schemaId: ISchemaDetails['schemaId']
+  public schemaHash: ISchemaDetails['schemaHash']
   public version: ISchemaDetails['version']
   public creator: ISchemaDetails['creator']
-  public cid: string | null | undefined
   public parent: ISchemaDetails['parent'] | null | undefined
+  public cid: string | null | undefined
   public permissioned: ISchemaDetails['permissioned']
   public revoked: ISchemaDetails['revoked']
 
   public constructor(details: ISchemaDetails) {
     // SchemaUtils.errorCheck(details)
-    this.id = details.id
-    this.schema_hash = details.schema_hash
+    this.schemaId = details.schemaId
+    this.schemaHash = details.schemaHash
     this.version = details.version
-    this.cid = details.cid
-    this.parent = details.parent
     this.creator = details.creator
+    this.parent = details.parent
+    this.cid = details.cid
     this.permissioned = details.permissioned
     this.revoked = details.revoked
   }

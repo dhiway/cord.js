@@ -82,11 +82,11 @@ export class ContentStream implements IContentStream {
       contentNonceMap,
       proofs: proofs || [],
       link,
+      creator: creator.address,
       creatorSignature: ContentStream.sign(creator, contentHash),
       holder,
-      creator: creator.address,
       contentHash,
-      id: ContentStreamUtils.getIdForContent(contentHash),
+      contentId: ContentStreamUtils.getIdForContent(contentHash),
     })
   }
 
@@ -115,7 +115,7 @@ export class ContentStream implements IContentStream {
   public holder: IContentStream['holder']
   public creator: IContentStream['creator']
   public contentHash: Hash
-  public id: string
+  public contentId: string
 
   /**
    * Builds a new [[ContentStream]] instance.
@@ -128,7 +128,7 @@ export class ContentStream implements IContentStream {
    */
   public constructor(requestForContentStream: IContentStream) {
     ContentStreamUtils.errorCheck(requestForContentStream)
-    this.id = requestForContentStream.id
+    this.contentId = requestForContentStream.contentId
     this.creator = requestForContentStream.creator
     this.holder = requestForContentStream.holder
     this.content = requestForContentStream.content
@@ -269,7 +269,7 @@ export class ContentStream implements IContentStream {
     })
     if (proofs) {
       proofs.forEach((proof) => {
-        result.push(Crypto.coToUInt8(proof.content.id))
+        result.push(Crypto.coToUInt8(proof.content.streamId))
       })
     }
     return result

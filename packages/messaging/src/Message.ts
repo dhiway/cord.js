@@ -18,7 +18,7 @@ import type {
   ISubmitCredential,
   IEncryptedMessage,
   MessageBody,
-  ISchemaEnvelope,
+  ISchema,
 } from '@cord.network/api-types'
 import { MessageBodyType } from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
@@ -231,7 +231,7 @@ export class Message implements IMessage {
 
   public static verifyRequiredSchemaProperties(
     requiredProperties: string[],
-    schema: ISchemaEnvelope
+    schema: ISchema
   ): boolean {
     return verifyRequiredSchemaProperties(requiredProperties, schema)
   }
