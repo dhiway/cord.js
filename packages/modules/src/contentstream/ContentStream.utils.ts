@@ -127,12 +127,11 @@ export function decompress(
   }
 }
 
-export function getIdForContent(hash: string, holder?: string): string {
-  const hashVal = {
-    hash,
-    holder,
-  }
-  return getIdWithPrefix(Crypto.hashObjectAsStr(hashVal))
+export function getIdForContent(
+  hash: IContentStream['contentHash'],
+  creator: IContentStream['creator']
+): string {
+  return getIdWithPrefix(Crypto.hashObjectAsStr({ hash, creator }))
 }
 
 export function getIdWithPrefix(hash: string): string {

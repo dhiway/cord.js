@@ -86,7 +86,10 @@ export class ContentStream implements IContentStream {
       creatorSignature: ContentStream.sign(creator, contentHash),
       holder,
       contentHash,
-      contentId: ContentStreamUtils.getIdForContent(contentHash),
+      contentId: ContentStreamUtils.getIdForContent(
+        contentHash,
+        creator.address
+      ),
     })
   }
 
