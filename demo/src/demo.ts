@@ -68,7 +68,8 @@ async function main() {
       schemaCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Schema created!')
@@ -122,7 +123,8 @@ async function main() {
       streamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Stream created!')
@@ -152,7 +154,8 @@ async function main() {
       credSchemaCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Schema created!')
@@ -201,7 +204,8 @@ async function main() {
       credStreamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Credential created!')
