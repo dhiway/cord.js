@@ -142,11 +142,12 @@ async function main() {
     employeeIdentity.address
   )
 
-  // bytes = json.encode(credSchemaStream)
-  // encoded_hash = await hasher.digest(bytes)
-  // const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
-  // credSchemaStream.cid =
-  let credSchemaCreationExtrinsic = await credSchemaStream.create()
+  bytes = json.encode(credSchemaStream)
+  encoded_hash = await hasher.digest(bytes)
+  const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
+  let credSchemaCreationExtrinsic = await credSchemaStream.create(
+    credSchemaCid.toString()
+  )
   console.log('\n⛓  Anchoring Credential Schema to the chain...')
 
   try {
@@ -162,6 +163,8 @@ async function main() {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
+  console.log(`📧 Schema Details `)
+  console.dir(credSchema, { depth: null, colors: true })
 
   console.log(`\n✉️  Adding a new Credential`, '\n')
   let credStream = {
@@ -212,6 +215,7 @@ async function main() {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
+  await utils.waitForEnter('\n⏎ Press Enter to continue..')
 
   //  Step 7: Credential exchange via messaging
   console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
@@ -219,6 +223,8 @@ async function main() {
   const purpose = 'Account Opening Request'
   const validUntil = Date.now() + 864000000
   const relatedData = true
+  console.dir(newSchema, { depth: null, colors: true })
+
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()
       .requestPresentation({
@@ -250,8 +256,6 @@ async function main() {
       showAttributes: message.body.content[0].requiredProperties,
       signer: holderIdentity,
       request: message.body.request,
-      // purpose: request.body.purpose,
-      // validUntil: request.body.validUntil,
     }
   )
 

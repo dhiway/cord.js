@@ -207,7 +207,6 @@ export class Credential implements ICredential {
       : []
     excludedProperties.push(...hideAttributes)
     const deepCopy = new Credential(JSON.parse(JSON.stringify(this)))
-    // console.dir(deepCopy, { depth: null, colors: true })
 
     deepCopy.request.removeContentProperties(excludedProperties)
     const signingOpts = request && signer ? { request, signer } : undefined

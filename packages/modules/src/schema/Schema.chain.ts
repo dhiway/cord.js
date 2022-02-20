@@ -51,7 +51,7 @@ export async function create(
  * @returns The [[SubmittableExtrinsic]] for the `version` call.
  */
 
-export async function version(
+export async function setVersion(
   schema: ISchema,
   cid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
@@ -70,7 +70,7 @@ export async function version(
 /**
  * TBD
  */
-export async function status(
+export async function setStatus(
   id: string,
   creator: string,
   status: boolean
@@ -88,7 +88,7 @@ export async function status(
 /**
  * TBD
  */
-export async function permission(
+export async function setPermission(
   id: string,
   creator: string,
   permission: boolean

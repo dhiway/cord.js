@@ -43,9 +43,9 @@ export interface AnchoredStreamDetails extends Struct {
   readonly creator: AccountId
   readonly holder: Option<AccountId>
   readonly schema: Option<Hash>
-  readonly link: Option<Hash>
-  readonly parent: Option<Hash>
   readonly cid: Option<Vec<u8>>
+  readonly parent: Option<Hash>
+  readonly link: Option<Hash>
   readonly revoked: boolean
 }
 
@@ -64,26 +64,25 @@ function decodeStream(
       creator: anchoredStream.creator.toString(),
       holder: anchoredStream.holder.toString() || null,
       schemaId: anchoredStream.schema.toString() || null,
-      linkId: anchoredStream.link.toString() || null,
-      parentHash: anchoredStream.parent.toString() || null,
       cid: anchoredStream.cid
         ? hexToString(anchoredStream.cid.toString())
         : null,
+      parentHash: anchoredStream.parent.toString() || null,
+      linkId: anchoredStream.link.toString() || null,
       revoked: anchoredStream.revoked.valueOf(),
     }
-
     return StreamDetails.fromStreamDetails(stream)
   }
   return null
 }
 
 async function queryRawHash(
-  streamHash: string
+  stream_hash: string
 ): Promise<Option<AnchoredStreamDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const result = await blockchain.api.query.stream.streams<
     Option<AnchoredStreamDetails>
-  >(streamHash)
+  >(stream_hash)
   return result
 }
 
@@ -101,9 +100,7 @@ async function queryRawId(
  * @param identifier
  * @internal
  */
-export async function queryhash(
-  streamHash: string
-): Promise<StreamDetails | null> {
+export async function query(streamHash: string): Promise<StreamDetails | null> {
   const encoded = await queryRawHash(streamHash)
   return decodeStream(encoded, streamHash)
 }
@@ -114,7 +111,7 @@ export async function queryhash(
  * @param streamId The Id of the stream anchored.
  * @returns Either the retrieved [[StreamDetails]] or null.
  */
-export async function query(streamId: string): Promise<StreamDetails | null> {
+export async function queryId(streamId: string): Promise<StreamDetails | null> {
   const stream_Id = getStreamId(streamId)
   const streamHash = await queryRawId(stream_Id)
   const encoded = await queryRawHash(streamHash)

@@ -18,7 +18,15 @@ import type {
   SchemaWithoutId,
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
-import { query, create, version } from './Schema.chain.js'
+import {
+  query,
+  create,
+  setVersion,
+  authorise,
+  deauthorise,
+  setStatus,
+  setPermission,
+} from './Schema.chain.js'
 import * as SchemaUtils from './Schema.utils.js'
 
 export class Schema implements ISchema {
@@ -124,10 +132,28 @@ export class Schema implements ISchema {
     return create(this, cid)
   }
 
-  public async update_version(
+  public async authorise(delegates: [string]): Promise<SubmittableExtrinsic> {
+    return authorise(this.schema.$id, this.creator, delegates)
+  }
+
+  public async deauthorise(delegates: [string]): Promise<SubmittableExtrinsic> {
+    return deauthorise(this.id, this.creator, delegates)
+  }
+
+  public async setStatus(status: boolean): Promise<SubmittableExtrinsic> {
+    return setStatus(this.id, this.creator, status)
+  }
+
+  public async setPermission(
+    permission: boolean
+  ): Promise<SubmittableExtrinsic> {
+    return setPermission(this.id, this.creator, permission)
+  }
+
+  public async setVersion(
     cid?: string | undefined
   ): Promise<SubmittableExtrinsic> {
-    return version(this, cid)
+    return setVersion(this, cid)
   }
 
   /**

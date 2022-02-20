@@ -59,7 +59,7 @@ async function main() {
   let encoded_hash = await hasher.digest(bytes)
   const schemaCid = CID.create(1, 0xb220, encoded_hash)
 
-  let productSchemaCreationExtrinsic = await newProductSchema.store(
+  let productSchemaCreationExtrinsic = await newProductSchema.create(
     schemaCid.toString()
   )
   console.log(`📧 Schema Details `)
@@ -81,9 +81,9 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  let productSchemaDelegateExtrinsic = await newProductSchema.add_delegate(
-    sellerOne.address
-  )
+  let productSchemaDelegateExtrinsic = await newProductSchema.authorise([
+    sellerOne.address,
+  ])
 
   console.log(`📧 Schema Delegation `)
   try {

@@ -8,7 +8,6 @@ import {
   Schema,
   SDKErrors,
   Identity,
-  SchemaUtils,
 } from '@cord.network/modules'
 // import { ConfigService } from '@cord.network/config'
 import type {
@@ -74,7 +73,7 @@ export class PresentationRequestBuilder {
     }
     if (!id) throw SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
     this.partialReq.push({
-      id: SchemaUtils.getSchemaId(id),
+      id: id,
       properties: rawProperties,
     })
     return this

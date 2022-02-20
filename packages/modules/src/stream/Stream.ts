@@ -186,7 +186,14 @@ export class Stream implements IStream {
     identifier: string = stream.streamId
   ): Promise<boolean> {
     // Query stream by stream identifier. null if no stream is found on-chain for this hash
-    const chainStream: StreamDetails | null = await Stream.query(identifier)
+    const chainStream: StreamDetails | null = await Stream.query(
+      stream.streamHash
+    )
+    // let allVerified: boolean
+    // if (stream.holder !== null) {
+    //   chainStream?.holder === stream.holder
+    // }
+
     return !!(
       chainStream !== null &&
       chainStream.creator === stream.creator &&
