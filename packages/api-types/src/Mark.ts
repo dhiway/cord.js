@@ -1,14 +1,14 @@
 /**
  * @packageDocumentation
- * @module ICredential
+ * @module IMark
  */
 
 import type { IStream, CompressedStream } from './Stream.js'
 import type { IMarkContent, CompressedMarkContent } from './MarkContent.js'
 
-export interface ICredential {
+export interface IMark {
   content: IStream
   request: IMarkContent
 }
 
-export type CompressedCredential = [CompressedMarkContent, CompressedStream]
+export type CompressedMark = [CompressedMarkContent, CompressedStream]

@@ -4,7 +4,7 @@
  */
 
 import {
-  // Credential,
+  // Mark,
   Schema,
   SDKErrors,
   Identity,
@@ -13,7 +13,7 @@ import {
 import type {
   IPublicIdentity,
   IMessage,
-  // ICredential,
+  // IMark,
   // IMarkContent,
   // IMessage,
   IRequestStreamForCredential,
@@ -53,7 +53,7 @@ export class PresentationRequestBuilder {
    *
    * @param p The parameter object.
    * @param p.id The ID of the [[Schema]].
-   * @param p.properties A list of properties of the [[Credential]]s requested.
+   * @param p.properties A list of properties of the [[Mark]]s requested.
    * @param p.proofs An optional boolean representing whether the verifier requests to see the proofs of the issuers which signed the [[Credentials]]s.
    * The default value for this is the current date.
    * @returns A [[PresentationRequestBuilder]] on which you need to call [[finalize]] to complete the presentation request.

@@ -3,7 +3,7 @@
  * @module IMarkContent
  */
 
-import type { ICredential, CompressedCredential } from './Credential.js'
+import type { IMark, CompressedMark } from './Mark.js'
 import type { IContent, CompressedContent } from './Content.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 
@@ -18,7 +18,7 @@ export interface IMarkContent {
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
-  proofs: ICredential[]
+  proofs: IMark[]
   link?: string
   holder?: IPublicIdentity['address']
   creator: IPublicIdentity['address']
@@ -35,7 +35,7 @@ export type CompressedMarkContent = [
   IMarkContent['holder'],
   IMarkContent['creator'],
   IMarkContent['link'],
-  CompressedCredential[],
+  CompressedMark[],
   IMarkContent['contentHash'],
   IMarkContent['contentId']
 ]

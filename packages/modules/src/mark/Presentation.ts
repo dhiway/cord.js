@@ -1,15 +1,15 @@
 import { Crypto, DataUtils } from '@cord.network/utils'
 import type {
-  ICredential,
+  IMark,
   IMarkContent,
   IIdentity,
   IPresentation,
   IPresentationSigningOptions,
 } from '@cord.network/api-types'
-import { Credential } from './Credential.js'
+import { Mark } from './Mark.js'
 
 function ensureCredentialOwnership(
-  credentials: ICredential[]
+  credentials: IMark[]
 ): IMarkContent['holder'] {
   const holders = credentials.reduce((owns, credential) => {
     owns.add(credential.request.holder!)
@@ -29,7 +29,7 @@ export type SignedPresentation = Presentation &
   Pick<Required<Presentation>, 'request' | 'signature'>
 
 export class Presentation implements IPresentation {
-  public credentials: Credential[]
+  public credentials: Mark[]
   public request?: string
   // public purpose?: string
   public signature?: string
@@ -43,7 +43,7 @@ export class Presentation implements IPresentation {
   }: // validUntil,
   IPresentation) {
     ensureCredentialOwnership(credentials)
-    this.credentials = credentials.map((i) => new Credential(i))
+    this.credentials = credentials.map((i) => new Mark(i))
     // this.request = request
     // this.purpose = purpose
     this.signature = signature
@@ -54,7 +54,7 @@ export class Presentation implements IPresentation {
     presentations: IPresentation[],
     signingOpts?: IPresentationSigningOptions
   ): Presentation {
-    const credentials = ([] as ICredential[]).concat(
+    const credentials = ([] as IMark[]).concat(
       ...presentations.map((i) => i.credentials)
     )
     const presentation = new Presentation({
@@ -66,7 +66,7 @@ export class Presentation implements IPresentation {
   }
 
   public static fromCredentials(
-    credentials: ICredential[],
+    credentials: IMark[],
     options?: IPresentationSigningOptions
   ): Presentation {
     const presentation = new Presentation({ credentials })

@@ -10,8 +10,8 @@
  */
 
 import type {
-  ICredential,
-  CompressedCredential,
+  IMark,
+  CompressedMark,
   IStream,
   IMarkContent,
   IPresentationOptions,
@@ -20,10 +20,10 @@ import type {
 import { SDKErrors } from '@cord.network/utils'
 import { Stream } from '../stream/Stream.js'
 import { MarkContent } from '../markcontent/MarkContent.js'
-import * as CredentialUtils from './Credential.utils.js'
+import * as CredentialUtils from './Mark.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
 
-export class Credential implements ICredential {
+export class Mark implements IMark {
   /**
    * [STATIC] Builds an instance of [[MarkedStream]], from a simple object with the same properties.
    * Used for deserialization.
@@ -35,8 +35,8 @@ export class Credential implements ICredential {
    * MarkedStream.fromMarkedStream(JSON.parse(serialized));
    * ```
    */
-  public static fromCredential(credStream: ICredential): Credential {
-    return new Credential(credStream)
+  public static fromCredential(credStream: IMark): Mark {
+    return new Mark(credStream)
   }
 
   /**
@@ -53,8 +53,8 @@ export class Credential implements ICredential {
   public static fromStreamProperties(
     request: IMarkContent,
     content: IStream
-  ): Credential {
-    return new Credential({
+  ): Mark {
+    return new Mark({
       request,
       content,
     })
@@ -67,9 +67,9 @@ export class Credential implements ICredential {
    *
    * @returns Boolean whether input is of type IMarkedStream.
    */
-  public static isICredential(input: unknown): input is ICredential {
+  public static isICredential(input: unknown): input is IMark {
     try {
-      CredentialUtils.errorCheck(input as ICredential)
+      CredentialUtils.errorCheck(input as IMark)
     } catch (error) {
       return false
     }
@@ -88,7 +88,7 @@ export class Credential implements ICredential {
    * const credential = new MarkedStream(markedStreamInput);
    * ```
    */
-  public constructor(credStream: ICredential) {
+  public constructor(credStream: IMark) {
     CredentialUtils.errorCheck(credStream)
     this.request = MarkContent.fromRequest(credStream.request)
     this.content = Stream.fromStream(credStream.content)
@@ -110,15 +110,14 @@ export class Credential implements ICredential {
    * });
    * ```
    */
-  public static async verify(credStream: ICredential): Promise<boolean> {
+  public static async verify(credStream: IMark): Promise<boolean> {
     return (
-      Credential.verifyData(credStream) &&
-      Stream.checkValidity(credStream.content)
+      Mark.verifyData(credStream) && Stream.checkValidity(credStream.content)
     )
   }
 
   public async verify(): Promise<boolean> {
-    return Credential.verify(this)
+    return Mark.verify(this)
   }
 
   /**
@@ -133,7 +132,7 @@ export class Credential implements ICredential {
    * const verificationResult = markedStream.verifyData();
    * ```
    */
-  public static verifyData(credStream: ICredential): boolean {
+  public static verifyData(credStream: IMark): boolean {
     if (credStream.request.content.schemaId !== credStream.content.schemaId)
       return false
     return (
@@ -143,7 +142,7 @@ export class Credential implements ICredential {
   }
 
   public verifyData(): boolean {
-    return Credential.verifyData(this)
+    return Mark.verifyData(this)
   }
 
   /**
@@ -154,9 +153,9 @@ export class Credential implements ICredential {
    *
    * @returns Boolean whether each element of the given Array of IMarkedStreams is verifiable.
    */
-  public static validateProofs(proofs: ICredential[]): boolean {
-    proofs.forEach((proof: ICredential) => {
-      if (!Credential.verifyData(proof)) {
+  public static validateProofs(proofs: IMark[]): boolean {
+    proofs.forEach((proof: IMark) => {
+      if (!Mark.verifyData(proof)) {
         throw SDKErrors.ERROR_LEGITIMATIONS_UNVERIFIABLE()
       }
     })
@@ -206,7 +205,7 @@ export class Credential implements ICredential {
       ? allAttributes.filter((i) => !showAttributes.includes(i))
       : []
     excludedProperties.push(...hideAttributes)
-    const deepCopy = new Credential(JSON.parse(JSON.stringify(this)))
+    const deepCopy = new Mark(JSON.parse(JSON.stringify(this)))
 
     deepCopy.request.removeContentProperties(excludedProperties)
     const signingOpts = request && signer ? { request, signer } : undefined
@@ -218,7 +217,7 @@ export class Credential implements ICredential {
    *
    * @returns An array that contains the same properties of an [[MarkedStream]].
    */
-  public compress(): CompressedCredential {
+  public compress(): CompressedMark {
     return CredentialUtils.compress(this)
   }
 
@@ -228,8 +227,8 @@ export class Credential implements ICredential {
    * @param markedStream The [[CompressedMarkedStream]] that should get decompressed.
    * @returns A new [[MarkedStream]] object.
    */
-  public static decompress(credStream: CompressedCredential): Credential {
+  public static decompress(credStream: CompressedMark): Mark {
     const decompressedCredential = CredentialUtils.decompress(credStream)
-    return Credential.fromCredential(decompressedCredential)
+    return Mark.fromCredential(decompressedCredential)
   }
 }

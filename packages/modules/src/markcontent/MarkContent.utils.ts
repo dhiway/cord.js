@@ -4,13 +4,13 @@
  */
 
 import type {
-  ICredential,
-  CompressedCredential,
+  IMark,
+  CompressedMark,
   CompressedMarkContent,
   IMarkContent,
 } from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
-import * as CredentialUtils from '../credential/Credential.utils.js'
+import * as CredentialUtils from '../mark/Mark.utils.js'
 import * as ContentUtils from '../content/Content.utils.js'
 import { MarkContent } from './MarkContent.js'
 
@@ -56,7 +56,7 @@ export function errorCheck(input: IMarkContent): void {
  * @returns An ordered array of [[CordMark]]s.
  */
 
-export function compressProof(leg: ICredential[]): CompressedCredential[] {
+export function compressProof(leg: IMark[]): CompressedMark[] {
   return leg.map(CredentialUtils.compress)
 }
 
@@ -68,7 +68,7 @@ export function compressProof(leg: ICredential[]): CompressedCredential[] {
  * @returns An object that has the same properties as an [[CordMark]].
  */
 
-function decompressProof(leg: CompressedCredential[]): ICredential[] {
+function decompressProof(leg: CompressedMark[]): IMark[] {
   return leg.map(CredentialUtils.decompress)
 }
 

@@ -1,7 +1,7 @@
-import { ICredential } from './Credential.js'
+import { IMark } from './Mark.js'
 
 export interface IPresentation {
-  credentials: ICredential[]
+  credentials: IMark[]
   // request?: string
   // purpose?: string
   // validUntil?: number

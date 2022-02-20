@@ -11,11 +11,11 @@ import type {
   CompressedMarkContent,
   Hash,
   IContent,
-  ICredential,
+  IMark,
 } from '@cord.network/api-types'
 import { Crypto, SDKErrors } from '@cord.network/utils'
 import * as ContentUtils from '../content/Content.utils.js'
-import { Credential } from '../credential/Credential.js'
+import { Mark } from '../mark/Mark.js'
 import { Identity } from '../identity/Identity.js'
 import * as MarkContentUtils from './MarkContent.utils.js'
 
@@ -33,7 +33,7 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 }
 
 export type Options = {
-  proofs?: Credential[]
+  proofs?: Mark[]
   holder?: IMarkContent['holder']
   link?: IMarkContent['link']
 }
@@ -53,7 +53,7 @@ export class MarkContent implements IMarkContent {
    * @param content An `IMarkContent` object the request for mark is built for.
    * @param identity The Holder's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.proofs Array of [[Credential]] objects.
+   * @param option.proofs Array of [[Mark]] objects.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
    * @returns A new [[MarkContent]] object.
    * @example ```javascript
@@ -110,7 +110,7 @@ export class MarkContent implements IMarkContent {
   public content: IContent
   public contentHashes: string[]
   public contentNonceMap: Record<string, string>
-  public proofs: Credential[]
+  public proofs: Mark[]
   public link: IMarkContent['link']
   public creatorSignature: string
   public holder: IMarkContent['holder']
@@ -141,7 +141,7 @@ export class MarkContent implements IMarkContent {
       markContentRequest.proofs.length
     ) {
       this.proofs = markContentRequest.proofs.map((proof) =>
-        Credential.fromCredential(proof)
+        Mark.fromCredential(proof)
       )
     } else {
       this.proofs = []
@@ -218,7 +218,7 @@ export class MarkContent implements IMarkContent {
       )
 
     // check proofs
-    Credential.validateProofs(input.proofs)
+    Mark.validateProofs(input.proofs)
 
     return true
   }
@@ -262,7 +262,7 @@ export class MarkContent implements IMarkContent {
 
   private static getHashLeaves(
     contentHashes: Hash[],
-    proofs: ICredential[]
+    proofs: IMark[]
   ): Uint8Array[] {
     const result: Uint8Array[] = []
     contentHashes.forEach((item) => {

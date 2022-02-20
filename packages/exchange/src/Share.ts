@@ -3,7 +3,7 @@
  * @module Share
  */
 
-import { Credential, Identity, SDKErrors } from '@cord.network/modules'
+import { Mark, Identity, SDKErrors } from '@cord.network/modules'
 import type {
   IMessage,
   IPublicIdentity,
@@ -29,7 +29,7 @@ export function createPresentation(
   identity: Identity,
   message: IMessage,
   verifier: IPublicIdentity,
-  credentials: Credential[],
+  credentials: Mark[],
   {
     showAttributes,
     hideAttributes = [],

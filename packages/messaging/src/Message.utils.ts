@@ -11,8 +11,8 @@ import {
   MarkContentUtils,
 } from '@cord.network/modules'
 import type {
-  ICredential,
-  CompressedCredential,
+  IMark,
+  CompressedMark,
   CompressedMessageBody,
   MessageBody,
   CompressedRequestCredentialContent,
@@ -69,7 +69,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
-      const creds: ICredential[] = body.content.map((credentials, i) => {
+      const creds: IMark[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
       creds.map((cred) => CredentialUtils.errorCheck(cred))
@@ -186,11 +186,11 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
-      const cordStreams: ICredential[] = body.content.map((credentials, i) => {
+      const cordStreams: IMark[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
       compressedContents = cordStreams.map(
-        (cordStream: ICredential | CompressedCredential) =>
+        (cordStream: IMark | CompressedMark) =>
           Array.isArray(cordStream)
             ? cordStream
             : CredentialUtils.compress(cordStream)
@@ -251,7 +251,7 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     }
     // case Message.BodyType.SUBMIT_STREAM_FOR_SCHEMA: {
     //   decompressedContents = body[1].map(
-    //     (cordStream: ICredential | CompressedCredential) =>
+    //     (cordStream: IMark | CompressedMark) =>
     //       !Array.isArray(cordStream)
     //         ? cordStream
     //         : CredentialUtils.decompress(cordStream)

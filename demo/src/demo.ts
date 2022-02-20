@@ -132,8 +132,8 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 3: Create a new Credential and Link to the Stream
-  console.log(`\n\n✉️  Adding a new Credential Schema \n`)
+  // Step 3: Create a new Mark and Link to the Stream
+  console.log(`\n\n✉️  Adding a new Mark Schema \n`)
   let credSchema = require('../res/cred-schema.json')
   credSchema.title = credSchema.title + ':' + UUID.generate()
 
@@ -148,7 +148,7 @@ async function main() {
   let credSchemaCreationExtrinsic = await credSchemaStream.create(
     credSchemaCid.toString()
   )
-  console.log('\n⛓  Anchoring Credential Schema to the chain...')
+  console.log('\n⛓  Anchoring Mark Schema to the chain...')
 
   try {
     await cord.ChainUtils.signAndSubmitTx(
@@ -166,7 +166,7 @@ async function main() {
   console.log(`📧 Schema Details `)
   console.dir(credSchema, { depth: null, colors: true })
 
-  console.log(`\n✉️  Adding a new Credential`, '\n')
+  console.log(`\n✉️  Adding a new Mark`, '\n')
   let credStream = {
     name: newStreamContent.content.contents.name,
     country: newStreamContent.content.contents.country,
@@ -199,7 +199,7 @@ async function main() {
   )
 
   let credStreamCreationExtrinsic = await credStreamTx.create()
-  console.log(`\n📧 Credential On-Chain Details`)
+  console.log(`\n📧 Mark On-Chain Details`)
   console.dir(credStreamTx, { depth: null, colors: true })
 
   try {
@@ -211,14 +211,14 @@ async function main() {
         rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
-    console.log('✅ Credential created!')
+    console.log('✅ Mark created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
   await utils.waitForEnter('\n⏎ Press Enter to continue..')
 
-  //  Step 7: Credential exchange via messaging
-  console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
+  //  Step 7: Mark exchange via messaging
+  console.log(`\n\n📩 Mark Exchange - Selective Disclosure (Verifier)`)
   console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
   const purpose = 'Account Opening Request'
   const validUntil = Date.now() + 864000000
@@ -242,11 +242,8 @@ async function main() {
   console.log(`\n📧 Selective Disclosure Request`)
   console.dir(message, { depth: null, colors: true })
 
-  let credential: cord.Credential
-  credential = cord.Credential.fromStreamProperties(
-    credContentStream,
-    credStreamTx
-  )
+  let credential: cord.Mark
+  credential = cord.Mark.fromStreamProperties(credContentStream, credStreamTx)
   const presentation = cord.Exchange.Share.createPresentation(
     holderIdentity,
     message,
@@ -264,7 +261,7 @@ async function main() {
     session
   )
 
-  console.log(`\n📧 Received Credential `)
+  console.log(`\n📧 Received Mark `)
   console.dir(presentation, { depth: null, colors: true })
   console.log('🔍 All valid? ', verified)
 
