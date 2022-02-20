@@ -1,12 +1,12 @@
 /**
- * In CORD, an [[MarkedStream]] is a **credential**, which a Holder can store locally and share with Verifiers as they wish.
+ * In CORD, a [[Mark]] is a **stream**, which a Holder can store locally and share with Verifiers as they wish.
  *
- * Once a [[RequestForMark]] has been made, the [[Stream]] can be built and the Issuer submits it wrapped in an [[MarkedStream]] object.
- * This [[MarkedStream]] also contains the original request for mark.
- * RequestForMark also exposes a [[createPresentation]] method, that can be used by the holder to hide some specific information from the verifier for more privacy.
+ * Once a request for Mark has been made, the [[Stream]] can be built and the Issuer submits it wrapped in a [[Mark]] object.
+ * This [[Mark]] also contains the original request.
+ * Mark also exposes a [[createPresentation]] method, that can be used by the holder to hide some specific information from the verifier for more privacy.
  *
  * @packageDocumentation
- * @module MarkContent
+ * @module Mark
  */
 
 import type {
@@ -25,14 +25,14 @@ import { Presentation, SignedPresentation } from './Presentation'
 
 export class Mark implements IMark {
   /**
-   * [STATIC] Builds an instance of [[MarkedStream]], from a simple object with the same properties.
+   * [STATIC] Builds an instance of [[Mark]], from a simple object with the same properties.
    * Used for deserialization.
    *
-   * @param markedStreamInput - The base object from which to create the attested stream.
-   * @returns A new instantiated [[MarkedStream]] object.
+   * @param markStreamInput - The base object from which to create the Mark.
+   * @returns A new instantiated [[Mark]] object.
    * @example ```javascript
-   * // create an MarkedStream object, so we can call methods on it (`serialized` is a serialized MarkedStream object)
-   * MarkedStream.fromMarkedStream(JSON.parse(serialized));
+   * // create a Mark object, so we can call methods on it (`serialized` is a serialized Mark object)
+   * Mark.fromMarkType(JSON.parse(serialized));
    * ```
    */
   public static fromMarkType(markStream: IMark): Mark {
@@ -40,14 +40,14 @@ export class Mark implements IMark {
   }
 
   /**
-   * [STATIC] Builds a new instance of [[MarkedStream]], from all required properties.
+   * [STATIC] Builds a new instance of [[Mark]], from all required properties.
    *
-   * @param request - The request for mark for the stream that was attested.
-   * @param mark - The mark for the stream by the issuer.
-   * @returns A new [[MarkedStream]] object.
+   * @param request - The request for mark for the stream that was anchored.
+   * @param content - The mark stream from the issuer.
+   * @returns A new [[Mark]] object.
    * @example ```javascript
-   * // create an MarkedStream object after receiving the mark from the issuer
-   * MarkedStream.fromRequestAndMark(request, mark);
+   * // create an Mark object after receiving the mark from the issuer
+   * Mark.fromMarkProperties(request, content);
    * ```
    */
   public static fromMarkProperties(
@@ -61,11 +61,11 @@ export class Mark implements IMark {
   }
 
   /**
-   *  [STATIC] Custom Type Guard to determine input being of type IMarkedStream using the MarkedStreamUtils errorCheck.
+   *  [STATIC] Custom Type Guard to determine input being of type IMark using the MarkUtils errorCheck.
    *
-   * @param input The potentially only partial IMarkedStream.
+   * @param input The potentially only partial IMark.
    *
-   * @returns Boolean whether input is of type IMarkedStream.
+   * @returns Boolean whether input is of type IMark.
    */
   public static isIMark(input: unknown): input is IMark {
     try {
@@ -80,11 +80,11 @@ export class Mark implements IMark {
   public content: Stream
 
   /**
-   * Builds a new [[MarkedStream]] instance.
+   * Builds a new [[Mark]] instance.
    *
-   * @param markedStreamInput - The base object with all required input, from which to create the attested stream.
+   * @param markStream - The base object with all required input, from which to create the Mark.
    * @example ```javascript
-   * // Create an `MarkedStream` upon successful `Stream` creation:
+   * // Create an `Mark` upon successful `Stream` creation:
    * const credential = new MarkedStream(markedStreamInput);
    * ```
    */
@@ -95,14 +95,14 @@ export class Mark implements IMark {
   }
 
   /**
-   * (ASYNC) Verifies whether the attested stream is valid. It is valid if:
+   * (ASYNC) Verifies whether the mark stream is valid. It is valid if:
    * * the data is valid (see [[verifyData]]);
    * and
-   * * the [[Stream]] object for this attested stream is valid (see [[Stream.checkValidity]], where the **chain** is queried).
+   * * the [[Stream]] object for this stream is valid (see [[Stream.checkValidity]], where the **chain** is queried).
    *
-   * Upon presentation of an attested stream, a verifier would call this [[verify]] function.
+   * Upon presentation of a stream, a verifier would call this [[verify]] function.
    *
-   * @param markedStream - The attested stream to check for validity.
+   * @param markedStream - The stream to check for validity.
    * @returns A promise containing whether this attested stream is valid.
    * @example ```javascript
    * markedStream.verify().then((isVerified) => {
