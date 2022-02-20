@@ -20,7 +20,7 @@ import type {
 import { SDKErrors } from '@cord.network/utils'
 import { Stream } from '../stream/Stream.js'
 import { MarkContent } from '../markcontent/MarkContent.js'
-import * as CredentialUtils from './Mark.utils.js'
+import * as MarkUtils from './Mark.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
 
 export class Mark implements IMark {
@@ -35,8 +35,8 @@ export class Mark implements IMark {
    * MarkedStream.fromMarkedStream(JSON.parse(serialized));
    * ```
    */
-  public static fromCredential(credStream: IMark): Mark {
-    return new Mark(credStream)
+  public static fromMarkType(markStream: IMark): Mark {
+    return new Mark(markStream)
   }
 
   /**
@@ -50,7 +50,7 @@ export class Mark implements IMark {
    * MarkedStream.fromRequestAndMark(request, mark);
    * ```
    */
-  public static fromStreamProperties(
+  public static fromMarkProperties(
     request: IMarkContent,
     content: IStream
   ): Mark {
@@ -67,9 +67,9 @@ export class Mark implements IMark {
    *
    * @returns Boolean whether input is of type IMarkedStream.
    */
-  public static isICredential(input: unknown): input is IMark {
+  public static isIMark(input: unknown): input is IMark {
     try {
-      CredentialUtils.errorCheck(input as IMark)
+      MarkUtils.errorCheck(input as IMark)
     } catch (error) {
       return false
     }
@@ -88,10 +88,10 @@ export class Mark implements IMark {
    * const credential = new MarkedStream(markedStreamInput);
    * ```
    */
-  public constructor(credStream: IMark) {
-    CredentialUtils.errorCheck(credStream)
-    this.request = MarkContent.fromMarkTypeRequest(credStream.request)
-    this.content = Stream.fromStream(credStream.content)
+  public constructor(markStream: IMark) {
+    MarkUtils.errorCheck(markStream)
+    this.request = MarkContent.fromMarkTypeRequest(markStream.request)
+    this.content = Stream.fromStream(markStream.content)
   }
 
   /**
@@ -110,9 +110,9 @@ export class Mark implements IMark {
    * });
    * ```
    */
-  public static async verify(credStream: IMark): Promise<boolean> {
+  public static async verify(markStream: IMark): Promise<boolean> {
     return (
-      Mark.verifyData(credStream) && Stream.checkValidity(credStream.content)
+      Mark.verifyData(markStream) && Stream.checkValidity(markStream.content)
     )
   }
 
@@ -132,12 +132,12 @@ export class Mark implements IMark {
    * const verificationResult = markedStream.verifyData();
    * ```
    */
-  public static verifyData(credStream: IMark): boolean {
-    if (credStream.request.content.schemaId !== credStream.content.schemaId)
+  public static verifyData(markStream: IMark): boolean {
+    if (markStream.request.content.schemaId !== markStream.content.schemaId)
       return false
     return (
-      credStream.request.contentHash === credStream.content.streamHash &&
-      MarkContent.verifyData(credStream.request)
+      markStream.request.contentHash === markStream.content.streamHash &&
+      MarkContent.verifyData(markStream.request)
     )
   }
 
@@ -218,7 +218,7 @@ export class Mark implements IMark {
    * @returns An array that contains the same properties of an [[MarkedStream]].
    */
   public compress(): CompressedMark {
-    return CredentialUtils.compress(this)
+    return MarkUtils.compress(this)
   }
 
   /**
@@ -227,8 +227,8 @@ export class Mark implements IMark {
    * @param markedStream The [[CompressedMarkedStream]] that should get decompressed.
    * @returns A new [[MarkedStream]] object.
    */
-  public static decompress(credStream: CompressedMark): Mark {
-    const decompressedCredential = CredentialUtils.decompress(credStream)
-    return Mark.fromCredential(decompressedCredential)
+  public static decompress(markStream: CompressedMark): Mark {
+    const decompressedCredential = MarkUtils.decompress(markStream)
+    return Mark.fromMarkType(decompressedCredential)
   }
 }

@@ -80,7 +80,7 @@ export class Stream implements IStream {
    * Stream.fromContentAndPublicIdentity(request, issuerPublicIdentity);
    * ```
    */
-  public static fromContentStreamProperties(
+  public static fromMarkContentProperties(
     content: IMarkContent,
     cid: string
   ): Stream {

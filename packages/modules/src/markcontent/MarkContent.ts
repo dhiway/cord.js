@@ -141,7 +141,7 @@ export class MarkContent implements IMarkContent {
       markContentRequest.proofs.length
     ) {
       this.proofs = markContentRequest.proofs.map((proof) =>
-        Mark.fromCredential(proof)
+        Mark.fromMarkType(proof)
       )
     } else {
       this.proofs = []

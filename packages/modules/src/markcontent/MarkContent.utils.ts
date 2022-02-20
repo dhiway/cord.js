@@ -10,7 +10,7 @@ import type {
   IMarkContent,
 } from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
-import * as CredentialUtils from '../mark/Mark.utils.js'
+import * as MarkUtils from '../mark/Mark.utils.js'
 import * as ContentUtils from '../content/Content.utils.js'
 import { MarkContent } from './MarkContent.js'
 
@@ -57,7 +57,7 @@ export function errorCheck(input: IMarkContent): void {
  */
 
 export function compressProof(leg: IMark[]): CompressedMark[] {
-  return leg.map(CredentialUtils.compress)
+  return leg.map(MarkUtils.compress)
 }
 
 /**
@@ -69,7 +69,7 @@ export function compressProof(leg: IMark[]): CompressedMark[] {
  */
 
 function decompressProof(leg: CompressedMark[]): IMark[] {
-  return leg.map(CredentialUtils.decompress)
+  return leg.map(MarkUtils.decompress)
 }
 
 /**

@@ -91,7 +91,7 @@ export async function verifyPresentation(
       return credentials.credentials[i]
     }
   )
-  const credStreams = credentialStreams.map(Mark.fromCredential)
+  const credStreams = credentialStreams.map(Mark.fromMarkType)
 
   // currently only supporting id-ed credentials
   return verifySharedPresentation(credStreams, session)

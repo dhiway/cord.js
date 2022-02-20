@@ -5,7 +5,7 @@
 
 import {
   StreamUtils,
-  CredentialUtils,
+  MarkUtils,
   ContentUtils,
   SchemaUtils,
   MarkContentUtils,
@@ -72,7 +72,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       const creds: IMark[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
-      creds.map((cred) => CredentialUtils.errorCheck(cred))
+      creds.map((cred) => MarkUtils.errorCheck(cred))
       break
     }
     case Message.BodyType.ACCEPT_CREDENTIAL: {
@@ -193,7 +193,7 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
         (cordStream: IMark | CompressedMark) =>
           Array.isArray(cordStream)
             ? cordStream
-            : CredentialUtils.compress(cordStream)
+            : MarkUtils.compress(cordStream)
       )
       break
     }
@@ -254,7 +254,7 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     //     (cordStream: IMark | CompressedMark) =>
     //       !Array.isArray(cordStream)
     //         ? cordStream
-    //         : CredentialUtils.decompress(cordStream)
+    //         : MarkUtils.decompress(cordStream)
     //   )
 
     //   break

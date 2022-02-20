@@ -105,7 +105,7 @@ async function main() {
   encoded_hash = await hasher.digest(bytes)
   const streamCid = CID.create(1, 0xb220, encoded_hash)
 
-  let newStream = cord.Stream.fromContentStreamProperties(
+  let newStream = cord.Stream.fromMarkContentProperties(
     newStreamContent,
     streamCid.toString()
   )
@@ -167,14 +167,14 @@ async function main() {
   console.dir(credSchema, { depth: null, colors: true })
 
   console.log(`\n✉️  Adding a new Mark`, '\n')
-  let credStream = {
+  let markStream = {
     name: newStreamContent.content.contents.name,
     country: newStreamContent.content.contents.country,
   }
 
   let credStreamContent = cord.Content.fromContentProperties(
     credSchemaStream,
-    credStream,
+    markStream,
     employeeIdentity.address
   )
 
@@ -193,7 +193,7 @@ async function main() {
   encoded_hash = await hasher.digest(bytes)
   const credStreamCid = CID.create(1, 0xb220, encoded_hash)
 
-  let credStreamTx = cord.Stream.fromContentStreamProperties(
+  let credStreamTx = cord.Stream.fromMarkContentProperties(
     credContentStream,
     credStreamCid.toString()
   )
@@ -243,7 +243,7 @@ async function main() {
   console.dir(message, { depth: null, colors: true })
 
   let credential: cord.Mark
-  credential = cord.Mark.fromStreamProperties(credContentStream, credStreamTx)
+  credential = cord.Mark.fromMarkProperties(credContentStream, credStreamTx)
   const presentation = cord.Exchange.Share.createPresentation(
     holderIdentity,
     message,
