@@ -138,7 +138,7 @@ export async function makeTransfer(
     accountAddressTo,
     cleanExponent === -12
       ? amount
-      : BalanceUtils.convertToTxUnit(amount, cleanExponent)
+      : BalanceUtils.convertToWayUnit(amount, cleanExponent)
   )
   return transfer
 }

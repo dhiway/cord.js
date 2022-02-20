@@ -25,11 +25,11 @@ async function main() {
   for (let j = 0; j < txCount; j++) {
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
-        moment.duration(moment().diff(startTxPrep)).as('seconds') +
-        ' Seconds\r'
+        moment.duration(moment().diff(startTxPrep)).as('seconds').toFixed(3) +
+        's\r'
     )
     try {
-      let txTransfer = await cord.Balance.makeTransfer(Eve.address, amount, -18)
+      let txTransfer = await cord.Balance.makeTransfer(Eve.address, amount, -6)
       tx_batch.push(txTransfer)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
@@ -40,9 +40,11 @@ async function main() {
   console.log('\n')
   for (let i = 0; i < tx_batch.length; i++) {
     process.stdout.write(
-      '  🎁  Extrinsic anchoring took ' +
-        moment.duration(moment().diff(ancStartTime)).as('seconds') +
-        ' Seconds\r'
+      '  🎁  Anchoring ' +
+        (i + 1) +
+        ' extrinsics took ' +
+        moment.duration(moment().diff(ancStartTime)).as('seconds').toFixed(3) +
+        's\r'
     )
     try {
       await cord.ChainUtils.signAndSubmitTx(tx_batch[i], Bob, {
@@ -59,7 +61,7 @@ async function main() {
   console.log(
     `\n  🙌  Block TPS (extrinsic) - ${+(
       txCount / ancDuration.as('seconds')
-    ).toFixed(3)} `
+    ).toFixed(0)} `
   )
 
   const { api } =
@@ -78,14 +80,14 @@ async function main() {
     batchAncEndTime.diff(batchAncStartTime)
   )
   console.log(
-    `\n  🎁  Batch extrinsic anchoring took ${batchAncDuration.as(
-      'seconds'
-    )} Seconds`
+    `\n  🎁  Anchoring a batch of ${
+      tx_batch.length
+    } extrinsics took ${batchAncDuration.as('seconds')}s`
   )
   console.log(
     `  🙌  Block TPS (batch) - ${+(
       txCount / batchAncDuration.as('seconds')
-    ).toFixed(3)} `
+    ).toFixed(0)} `
   )
   await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
