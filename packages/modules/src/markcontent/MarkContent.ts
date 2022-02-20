@@ -1,13 +1,14 @@
 /**
- * A ContentStream represents [[Content]] which needs to be validated.
+ * A MarkContent represents [[Content]] which needs to be validated
+ * and transformed.
  *
  * @packageDocumentation
- * @module ContentStream
+ * @module MarkContent
  */
 
 import type {
-  IContentStream,
-  CompressedContentStream,
+  IMarkContent,
+  CompressedMarkContent,
   Hash,
   IContent,
   ICredential,
@@ -16,9 +17,9 @@ import { Crypto, SDKErrors } from '@cord.network/utils'
 import * as ContentUtils from '../content/Content.utils.js'
 import { Credential } from '../credential/Credential.js'
 import { Identity } from '../identity/Identity.js'
-import * as ContentStreamUtils from './ContentStream.utils.js'
+import * as MarkContentUtils from './MarkContent.utils.js'
 
-function verifyHolderSignature(content: IContentStream): boolean {
+function verifyHolderSignature(content: IMarkContent): boolean {
   return Crypto.verify(
     content.contentHash,
     content.creatorSignature,
@@ -33,37 +34,37 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 
 export type Options = {
   proofs?: Credential[]
-  holder?: IContentStream['holder']
-  link?: IContentStream['link']
+  holder?: IMarkContent['holder']
+  link?: IMarkContent['link']
 }
-export class ContentStream implements IContentStream {
+export class MarkContent implements IMarkContent {
   /**
-   * [STATIC] Builds an instance of [[ContentStream]], from a simple object with the same properties.
+   * [STATIC] Builds an instance of [[MarkContent]], from a simple object with the same properties.
    * Used for deserialization.
    *
    */
-  public static fromRequest(content: IContentStream): ContentStream {
-    return new ContentStream(content)
+  public static fromRequest(content: IMarkContent): MarkContent {
+    return new MarkContent(content)
   }
 
   /**
-   * [STATIC] Builds a new instance of [[ContentStream]], from a complete set of required parameters.
+   * [STATIC] Builds a new instance of [[MarkContent]], from a complete set of required parameters.
    *
-   * @param content An `IContentStream` object the request for mark is built for.
+   * @param content An `IMarkContent` object the request for mark is built for.
    * @param identity The Holder's [[Identity]].
    * @param option Container for different options that can be passed to this method.
    * @param option.proofs Array of [[Credential]] objects.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
-   * @returns A new [[ContentStream]] object.
+   * @returns A new [[MarkContent]] object.
    * @example ```javascript
-   * const input = ContentStream.fromStreamAndIdentity(content, alice);
+   * const input = MarkContent.fromStreamAndIdentity(content, alice);
    * ```
    */
   public static fromStreamContent(
     content: IContent,
     creator: Identity,
     { proofs, holder, link }: Options = {}
-  ): ContentStream {
+  ): MarkContent {
     if (content.creator !== creator.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
@@ -71,38 +72,35 @@ export class ContentStream implements IContentStream {
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content)
 
-    const contentHash = ContentStream.calculateRootHash({
+    const contentHash = MarkContent.calculateRootHash({
       proofs,
       contentHashes,
     })
 
-    return new ContentStream({
+    return new MarkContent({
       content,
       contentHashes,
       contentNonceMap,
       proofs: proofs || [],
       link,
       creator: creator.address,
-      creatorSignature: ContentStream.sign(creator, contentHash),
+      creatorSignature: MarkContent.sign(creator, contentHash),
       holder,
       contentHash,
-      contentId: ContentStreamUtils.getIdForContent(
-        contentHash,
-        creator.address
-      ),
+      contentId: MarkContentUtils.getIdForContent(contentHash, creator.address),
     })
   }
 
   /**
-   * [STATIC] Custom Type Guard to determine input being of type IContentStream..
+   * [STATIC] Custom Type Guard to determine input being of type IMarkContent..
    *
    * @param input - A potentially only partial [[]].
    *
-   * @returns  Boolean whether input is of type IContentStream.
+   * @returns  Boolean whether input is of type IMarkContent.
    */
-  public static isIContentStream(input: unknown): input is IContentStream {
+  public static isIContentStream(input: unknown): input is IMarkContent {
     try {
-      ContentStreamUtils.errorCheck(input as IContentStream)
+      MarkContentUtils.errorCheck(input as IMarkContent)
     } catch (error) {
       return false
     }
@@ -113,50 +111,50 @@ export class ContentStream implements IContentStream {
   public contentHashes: string[]
   public contentNonceMap: Record<string, string>
   public proofs: Credential[]
-  public link: IContentStream['link']
+  public link: IMarkContent['link']
   public creatorSignature: string
-  public holder: IContentStream['holder']
-  public creator: IContentStream['creator']
+  public holder: IMarkContent['holder']
+  public creator: IMarkContent['creator']
   public contentHash: Hash
   public contentId: string
 
   /**
-   * Builds a new [[ContentStream]] instance.
+   * Builds a new [[MarkContent]] instance.
    *
    * @param requestForMarkInput - The base object from which to create the input.
    * @example ```javascript
    * // create a new request for mark
-   * const reqForAtt = new ContentStream(requestForMarkInput);
+   * const reqForAtt = new MarkContent(requestForMarkInput);
    * ```
    */
-  public constructor(requestForContentStream: IContentStream) {
-    ContentStreamUtils.errorCheck(requestForContentStream)
-    this.contentId = requestForContentStream.contentId
-    this.creator = requestForContentStream.creator
-    this.holder = requestForContentStream.holder
-    this.content = requestForContentStream.content
-    this.contentHashes = requestForContentStream.contentHashes
-    this.contentNonceMap = requestForContentStream.contentNonceMap
+  public constructor(markContentRequest: IMarkContent) {
+    MarkContentUtils.errorCheck(markContentRequest)
+    this.contentId = markContentRequest.contentId
+    this.creator = markContentRequest.creator
+    this.holder = markContentRequest.holder
+    this.content = markContentRequest.content
+    this.contentHashes = markContentRequest.contentHashes
+    this.contentNonceMap = markContentRequest.contentNonceMap
     if (
-      requestForContentStream.proofs &&
-      Array.isArray(requestForContentStream.proofs) &&
-      requestForContentStream.proofs.length
+      markContentRequest.proofs &&
+      Array.isArray(markContentRequest.proofs) &&
+      markContentRequest.proofs.length
     ) {
-      this.proofs = requestForContentStream.proofs.map((proof) =>
+      this.proofs = markContentRequest.proofs.map((proof) =>
         Credential.fromCredential(proof)
       )
     } else {
       this.proofs = []
     }
-    this.creatorSignature = requestForContentStream.creatorSignature
-    this.contentHash = requestForContentStream.contentHash
-    this.link = requestForContentStream.link
+    this.creatorSignature = markContentRequest.creatorSignature
+    this.contentHash = markContentRequest.contentHash
+    this.link = markContentRequest.link
     this.verifySignature()
     this.verifyData()
   }
 
   /**
-   * Removes [[Content] properties from the [[ContentStream]] object, provides anonymity and security when building the [[createPresentation]] method.
+   * Removes [[Content] properties from the [[MarkContent]] object, provides anonymity and security when building the [[createPresentation]] method.
    *
    * @param properties - Properties to remove from the [[Stream]] object.
    * @throws [[ERROR_STREAM_HASHTREE_MISMATCH]] when a property which should be deleted wasn't found.
@@ -166,7 +164,7 @@ export class ContentStream implements IContentStream {
    *   age: 29,
    * };
    * const stream = Stream.fromMTypeAndStreamContents(mtype, rawStream, alice);
-   * const reqForAtt = ContentStream.fromStreamAndIdentity({
+   * const reqForAtt = MarkContent.fromStreamAndIdentity({
    *   stream,
    *   identity: alice,
    * });
@@ -184,24 +182,24 @@ export class ContentStream implements IContentStream {
   }
 
   /**
-   * Verifies the data of the [[ContentStream]] object; used to check that the data was not tampered with, by checking the data against hashes.
+   * Verifies the data of the [[MarkContent]] object; used to check that the data was not tampered with, by checking the data against hashes.
    *
-   * @param input - The [[ContentStream]] for which to verify data.
+   * @param input - The [[MarkContent]] for which to verify data.
    * @returns Whether the data is valid.
    * @throws [[ERROR_STREAM_NONCE_MAP_MALFORMED]] when any key of the stream marks could not be found in the streamHashTree.
    * @throws [[ERROR_ROOT_HASH_UNVERIFIABLE]] or [[ERROR_SIGNATURE_UNVERIFIABLE]] when either the rootHash or the signature are not verifiable respectively.
    * @example ```javascript
-   * const reqForAtt = ContentStream.fromStreamAndIdentity(stream, alice);
-   * ContentStream.verifyData(reqForAtt); // returns true if the data is correct
+   * const reqForAtt = MarkContent.fromStreamAndIdentity(stream, alice);
+   * MarkContent.verifyData(reqForAtt); // returns true if the data is correct
    * ```
    */
-  public static verifyData(input: IContentStream): boolean {
+  public static verifyData(input: IMarkContent): boolean {
     // check stream hash
-    if (!ContentStream.verifyRootHash(input)) {
+    if (!MarkContent.verifyRootHash(input)) {
       throw SDKErrors.ERROR_ROOT_HASH_UNVERIFIABLE()
     }
     // check signature
-    if (!ContentStream.verifySignature(input)) {
+    if (!MarkContent.verifySignature(input)) {
       throw SDKErrors.ERROR_SIGNATURE_UNVERIFIABLE()
     }
 
@@ -226,36 +224,36 @@ export class ContentStream implements IContentStream {
   }
 
   public verifyData(): boolean {
-    return ContentStream.verifyData(this)
+    return MarkContent.verifyData(this)
   }
 
   /**
-   * Verifies the signature of the [[ContentStream]] object.
+   * Verifies the signature of the [[MarkContent]] object.
    *
-   * @param input - [[ContentStream]] .
+   * @param input - [[MarkContent]] .
    * @returns Whether the signature is correct.
    * @example ```javascript
-   * const reqForAtt = ContentStream.fromStreamAndIdentity({
+   * const reqForAtt = MarkContent.fromStreamAndIdentity({
    *   stream,
    *   identity: alice,
    * });
-   * ContentStream.verifySignature(reqForAtt); // returns `true` if the signature is correct
+   * MarkContent.verifySignature(reqForAtt); // returns `true` if the signature is correct
    * ```
    */
-  public static verifySignature(input: IContentStream): boolean {
+  public static verifySignature(input: IMarkContent): boolean {
     return verifyHolderSignature(input)
   }
 
   public verifySignature(): boolean {
-    return ContentStream.verifySignature(this)
+    return MarkContent.verifySignature(this)
   }
 
-  public static verifyRootHash(input: IContentStream): boolean {
-    return input.contentHash === ContentStream.calculateRootHash(input)
+  public static verifyRootHash(input: IMarkContent): boolean {
+    return input.contentHash === MarkContent.calculateRootHash(input)
   }
 
   public verifyRootHash(): boolean {
-    return ContentStream.verifyRootHash(this)
+    return MarkContent.verifyRootHash(this)
   }
 
   private static sign(identity: Identity, rootHash: Hash): string {
@@ -279,30 +277,30 @@ export class ContentStream implements IContentStream {
   }
 
   /**
-   * Compresses an [[ContentStream]] object.
+   * Compresses an [[MarkContent]] object.
    *
-   * @returns An array that contains the same properties of an [[ContentStream]].
+   * @returns An array that contains the same properties of an [[MarkContent]].
    */
-  public compress(): CompressedContentStream {
-    return ContentStreamUtils.compress(this)
+  public compress(): CompressedMarkContent {
+    return MarkContentUtils.compress(this)
   }
 
   /**
-   * [STATIC] Builds an [[ContentStream]] from the decompressed array.
+   * [STATIC] Builds an [[MarkContent]] from the decompressed array.
    *
-   * @param reqForAtt The [[CompressedContentStream]] that should get decompressed.
-   * @returns A new [[ContentStream]] object.
+   * @param reqForAtt The [[CompressedMarkContent]] that should get decompressed.
+   * @returns A new [[MarkContent]] object.
    */
   public static decompress(
-    requestForStream: CompressedContentStream
-  ): ContentStream {
+    requestForStream: CompressedMarkContent
+  ): MarkContent {
     const decompressedContentStream =
-      ContentStreamUtils.decompress(requestForStream)
-    return ContentStream.fromRequest(decompressedContentStream)
+      MarkContentUtils.decompress(requestForStream)
+    return MarkContent.fromRequest(decompressedContentStream)
   }
 
-  private static calculateRootHash(mark: Partial<IContentStream>): Hash {
-    const hashes: Uint8Array[] = ContentStream.getHashLeaves(
+  private static calculateRootHash(mark: Partial<IMarkContent>): Hash {
+    const hashes: Uint8Array[] = MarkContent.getHashLeaves(
       mark.contentHashes || [],
       mark.proofs || []
     )

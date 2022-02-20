@@ -94,7 +94,7 @@ async function main() {
   console.log(`📧 Stream Details `)
   console.dir(schemaStream, { depth: null, colors: true })
 
-  let newStreamContent = cord.ContentStream.fromStreamContent(
+  let newStreamContent = cord.MarkContent.fromStreamContent(
     schemaStream,
     employeeIdentity
   )
@@ -178,7 +178,7 @@ async function main() {
     employeeIdentity.address
   )
 
-  let credContentStream = cord.ContentStream.fromStreamContent(
+  let credContentStream = cord.MarkContent.fromStreamContent(
     credStreamContent,
     employeeIdentity,
     {

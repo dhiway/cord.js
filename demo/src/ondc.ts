@@ -120,7 +120,7 @@ async function main() {
   console.log(`📧 Product Details `)
   console.dir(productStream, { depth: null, colors: true })
 
-  let newProductContent = cord.ContentStream.fromStreamContent(
+  let newProductContent = cord.MarkContent.fromStreamContent(
     productStream,
     productOwner
   )
@@ -170,7 +170,7 @@ async function main() {
   console.log(`📧 Product Listing Details `)
   console.dir(productStream, { depth: null, colors: true })
 
-  let newListingContent = cord.ContentStream.fromStreamContent(
+  let newListingContent = cord.MarkContent.fromStreamContent(
     listStream,
     sellerOne,
     {
@@ -228,7 +228,7 @@ async function main() {
   console.log(`📧 Product Order Details `)
   console.dir(orderStream, { depth: null, colors: true })
 
-  let newOrderContent = cord.ContentStream.fromStreamContent(
+  let newOrderContent = cord.MarkContent.fromStreamContent(
     orderStream,
     buyerOne,
     {
@@ -280,7 +280,7 @@ async function main() {
   console.log(`📧 Product Order Details `)
   console.dir(ratingStream, { depth: null, colors: true })
 
-  let newRatingContent = cord.ContentStream.fromStreamContent(
+  let newRatingContent = cord.MarkContent.fromStreamContent(
     ratingStream,
     buyerOne,
     {

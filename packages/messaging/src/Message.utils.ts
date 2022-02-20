@@ -8,7 +8,7 @@ import {
   CredentialUtils,
   ContentUtils,
   SchemaUtils,
-  ContentStreamUtils,
+  MarkContentUtils,
 } from '@cord.network/modules'
 import type {
   ICredential,
@@ -30,7 +30,7 @@ import { Message } from './Message.js'
 export function errorCheckMessageBody(body: MessageBody): boolean | void {
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
-      ContentStreamUtils.errorCheck(body.content.requestStream)
+      MarkContentUtils.errorCheck(body.content.requestStream)
       if (body.content.prerequisiteStreams) {
         body.content.prerequisiteStreams.map(
           (content: IContent | PartialContent) =>
@@ -164,7 +164,7 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
       compressedContents = [
-        ContentStreamUtils.compress(body.content.requestStream),
+        MarkContentUtils.compress(body.content.requestStream),
         body.content.prerequisiteStreams
           ? body.content.prerequisiteStreams.map((content) =>
               ContentUtils.compress(content)
@@ -220,7 +220,7 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
   switch (body[0]) {
     case Message.BodyType.REQUEST_STREAM: {
       decompressedContents = {
-        requestStream: ContentStreamUtils.decompress(body[1][0]),
+        requestStream: MarkContentUtils.decompress(body[1][0]),
         prerequisiteStreams: body[1][1]
           ? body[1][1].map((stream) => ContentUtils.decompress(stream))
           : undefined,

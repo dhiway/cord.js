@@ -14,10 +14,7 @@ import type {
 } from './Content.js'
 import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
-import type {
-  CompressedContentStream,
-  IContentStream,
-} from './ContentStream.js'
+import type { CompressedMarkContent, IMarkContent } from './MarkContent.js'
 import { IPresentation } from './Presentation.js'
 
 export enum MessageBodyType {
@@ -95,7 +92,7 @@ export interface IAnchorStream extends IMessageBodyBase {
   type: MessageBodyType.ANCHOR_STREAM
 }
 export interface IRejectStream extends IMessageBodyBase {
-  content: IContentStream['contentId']
+  content: IMarkContent['contentId']
   type: MessageBodyType.REJECT_STREAM
 }
 
@@ -126,7 +123,7 @@ export type CompressedAnchorStream = [
 ]
 export type CompressedRejectStream = [
   MessageBodyType.REJECT_STREAM,
-  IContentStream['contentId']
+  IMarkContent['contentId']
 ]
 
 export type CompressedRequestCredential = [
@@ -147,7 +144,7 @@ export type CompressedRejectCredential = [
 ]
 
 export interface IRequestStreamContent {
-  requestStream: IContentStream
+  requestStream: IMarkContent
   prerequisiteStreams?: Array<IContent | PartialContent>
 }
 // Seems this can be removed
@@ -173,7 +170,7 @@ export type CompressedRequestCredentialContent = [
 ]
 
 export type CompressedRequestStreamContent = [
-  CompressedContentStream,
+  CompressedMarkContent,
   Array<CompressedPartialContentStream | CompressedContent> | undefined
 ]
 

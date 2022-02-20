@@ -4,14 +4,11 @@
  */
 
 import type { IStream, CompressedStream } from './Stream.js'
-import type {
-  IContentStream,
-  CompressedContentStream,
-} from './ContentStream.js'
+import type { IMarkContent, CompressedMarkContent } from './MarkContent.js'
 
 export interface ICredential {
   content: IStream
-  request: IContentStream
+  request: IMarkContent
 }
 
-export type CompressedCredential = [CompressedContentStream, CompressedStream]
+export type CompressedCredential = [CompressedMarkContent, CompressedStream]

@@ -7,7 +7,7 @@ import { Credential, SDKErrors } from '@cord.network/modules'
 import { ConfigService } from '@cord.network/config'
 import type {
   ICredential,
-  IContentStream,
+  IMarkContent,
   IMessage,
 } from '@cord.network/api-types'
 import { Message } from '@cord.network/messaging'
@@ -83,7 +83,7 @@ export async function verifyPresentation(
   session: IRequestSession
 ): Promise<{
   verified: boolean
-  streams: Array<Partial<IContentStream | ICredential>>
+  streams: Array<Partial<IMarkContent | ICredential>>
 }> {
   if (message.body.type !== Message.BodyType.SUBMIT_CREDENTIAL)
     throw SDKErrors.ERROR_MESSAGE_TYPE(

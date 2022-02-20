@@ -215,13 +215,8 @@ export class SchemaDetails implements ISchemaDetails {
     return new SchemaDetails(input)
   }
   /**
-   * Builds a new [[Schema]] instance.
+   * Builds a new [[SchemaDetails]] instance.
    *
-   * @param stream - The base object from which to create the stream.
-   * @example ```javascript
-   * // create an stream, e.g. to store it on-chain
-   * const stream = new Schema(stream);
-   * ```
    */
 
   public id: ISchemaDetails['id']
@@ -234,7 +229,6 @@ export class SchemaDetails implements ISchemaDetails {
   public revoked: ISchemaDetails['revoked']
 
   public constructor(details: ISchemaDetails) {
-    // SchemaUtils.errorCheck(details)
     this.id = details.id
     this.hash = details.hash
     this.version = details.version

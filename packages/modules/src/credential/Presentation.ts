@@ -1,7 +1,7 @@
 import { Crypto, DataUtils } from '@cord.network/utils'
 import type {
   ICredential,
-  IContentStream,
+  IMarkContent,
   IIdentity,
   IPresentation,
   IPresentationSigningOptions,
@@ -10,7 +10,7 @@ import { Credential } from './Credential.js'
 
 function ensureCredentialOwnership(
   credentials: ICredential[]
-): IContentStream['holder'] {
+): IMarkContent['holder'] {
   const holders = credentials.reduce((owns, credential) => {
     owns.add(credential.request.holder!)
     return owns

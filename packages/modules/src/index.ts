@@ -8,7 +8,7 @@ export { Balance, BalanceUtils } from './balance/index.js'
 export { Content, ContentUtils } from './content/index.js'
 export { Stream, StreamUtils } from './stream/index.js'
 export { Product, ProductUtils } from './product/index.js'
-export { ContentStream, ContentStreamUtils } from './contentstream/index.js'
+export { MarkContent, MarkContentUtils } from './markcontent/index.js'
 export { Credential, CredentialUtils, Presenation } from './credential/index.js'
 export { Identity, IURLResolver, PublicIdentity } from './identity/index.js'
 export {

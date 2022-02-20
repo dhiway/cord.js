@@ -12,7 +12,7 @@ import type {
   // IPublicIdentity,
   IProduct,
   IProductDetails,
-  IContentStream,
+  IMarkContent,
   CompressedProduct,
 } from '@cord.network/api-types'
 import {
@@ -94,7 +94,7 @@ export class Product implements IProduct {
    * ```
    */
   public static fromProductContentAnchor(
-    content: IContentStream,
+    content: IMarkContent,
     cid: string,
     store_id?: string,
     price?: number,

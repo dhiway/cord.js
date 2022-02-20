@@ -14,7 +14,7 @@ import type {
   IPublicIdentity,
   IMessage,
   // ICredential,
-  // IContentStream,
+  // IMarkContent,
   // IMessage,
   IRequestStreamForCredential,
 } from '@cord.network/api-types'

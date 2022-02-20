@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module IJournalContent
+ * @module IMarkContent
  */
 
 import type { ICredential, CompressedCredential } from './Credential.js'
@@ -14,7 +14,7 @@ export type NonceHash = {
   nonce?: string
 }
 
-export interface IContentStream {
+export interface IMarkContent {
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
@@ -27,15 +27,15 @@ export interface IContentStream {
   contentId: string
 }
 
-export type CompressedContentStream = [
+export type CompressedMarkContent = [
   CompressedContent,
-  IContentStream['contentHashes'],
-  IContentStream['contentNonceMap'],
-  IContentStream['creatorSignature'],
-  IContentStream['holder'],
-  IContentStream['creator'],
-  IContentStream['link'],
+  IMarkContent['contentHashes'],
+  IMarkContent['contentNonceMap'],
+  IMarkContent['creatorSignature'],
+  IMarkContent['holder'],
+  IMarkContent['creator'],
+  IMarkContent['link'],
   CompressedCredential[],
-  IContentStream['contentHash'],
-  IContentStream['contentId']
+  IMarkContent['contentHash'],
+  IMarkContent['contentId']
 ]

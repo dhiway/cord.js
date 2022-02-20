@@ -6,20 +6,20 @@
  * RequestForMark also exposes a [[createPresentation]] method, that can be used by the holder to hide some specific information from the verifier for more privacy.
  *
  * @packageDocumentation
- * @module ContentStream
+ * @module MarkContent
  */
 
 import type {
   ICredential,
   CompressedCredential,
   IStream,
-  IContentStream,
+  IMarkContent,
   IPresentationOptions,
   IPresentationSigningOptions,
 } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
 import { Stream } from '../stream/Stream.js'
-import { ContentStream } from '../contentstream/ContentStream.js'
+import { MarkContent } from '../markcontent/MarkContent.js'
 import * as CredentialUtils from './Credential.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
 
@@ -51,7 +51,7 @@ export class Credential implements ICredential {
    * ```
    */
   public static fromStreamProperties(
-    request: IContentStream,
+    request: IMarkContent,
     content: IStream
   ): Credential {
     return new Credential({
@@ -76,7 +76,7 @@ export class Credential implements ICredential {
     return true
   }
 
-  public request: ContentStream
+  public request: MarkContent
   public content: Stream
 
   /**
@@ -90,7 +90,7 @@ export class Credential implements ICredential {
    */
   public constructor(credStream: ICredential) {
     CredentialUtils.errorCheck(credStream)
-    this.request = ContentStream.fromRequest(credStream.request)
+    this.request = MarkContent.fromRequest(credStream.request)
     this.content = Stream.fromStream(credStream.content)
   }
 
@@ -138,7 +138,7 @@ export class Credential implements ICredential {
       return false
     return (
       credStream.request.contentHash === credStream.content.streamHash &&
-      ContentStream.verifyData(credStream.request)
+      MarkContent.verifyData(credStream.request)
     )
   }
 

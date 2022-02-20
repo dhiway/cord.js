@@ -11,7 +11,7 @@ import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import type {
   IStream,
   IStreamDetails,
-  IContentStream,
+  IMarkContent,
   CompressedStream,
 } from '@cord.network/api-types'
 import { set_status, query, create } from './Stream.chain.js'
@@ -81,7 +81,7 @@ export class Stream implements IStream {
    * ```
    */
   public static fromContentStreamProperties(
-    content: IContentStream,
+    content: IMarkContent,
     cid: string
   ): Stream {
     return new Stream({

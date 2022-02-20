@@ -6,7 +6,7 @@
 import type { ICredential, CompressedCredential } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
 import * as StreamUtils from '../stream/Stream.utils.js'
-import * as ContentStreamUtils from '../contentstream/ContentStream.utils.js'
+import * as MarkContentUtils from '../markcontent/MarkContent.utils.js'
 import { Credential } from './Credential.js'
 
 /**
@@ -24,7 +24,7 @@ export function errorCheck(input: ICredential): void {
   } else throw SDKErrors.ERROR_MARK_NOT_PROVIDED()
 
   if (input.request) {
-    ContentStreamUtils.errorCheck(input.request)
+    MarkContentUtils.errorCheck(input.request)
   } else throw SDKErrors.ERROR_RFA_NOT_PROVIDED()
 
   if (!Credential.verifyData(input as ICredential)) {
@@ -44,7 +44,7 @@ export function compress(stream: ICredential): CompressedCredential {
   errorCheck(stream)
 
   return [
-    ContentStreamUtils.compress(stream.request),
+    MarkContentUtils.compress(stream.request),
     StreamUtils.compress(stream.content),
   ]
 }
@@ -63,7 +63,7 @@ export function decompress(stream: CompressedCredential): ICredential {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Cord Mark')
   }
   return {
-    request: ContentStreamUtils.decompress(stream[0]),
+    request: MarkContentUtils.decompress(stream[0]),
     content: StreamUtils.decompress(stream[1]),
   }
 }
