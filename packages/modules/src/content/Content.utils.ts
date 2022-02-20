@@ -32,8 +32,6 @@ function JsonLDcontents(
   if (!schemaId) SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
   const vocabulary = `${getIdWithPrefix(schemaId)}#`
   const result: Record<string, unknown> = {}
-  //TODO: enable this after adding DID
-  // if (creator) result['@id'] = Did.getIdentifierFromAddress(creator)
   if (!expanded) {
     return {
       ...result,

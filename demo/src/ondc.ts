@@ -112,7 +112,7 @@ async function main() {
     sku: UUID.generate(),
   }
 
-  let productStream = cord.Content.fromSchemaAndContent(
+  let productStream = cord.Content.fromContentProperties(
     newProductSchema,
     content,
     productOwner.address
@@ -120,7 +120,7 @@ async function main() {
   console.log(`📧 Product Details `)
   console.dir(productStream, { depth: null, colors: true })
 
-  let newProductContent = cord.MarkContent.fromStreamContent(
+  let newProductContent = cord.MarkContent.fromContent(
     productStream,
     productOwner
   )
@@ -162,7 +162,7 @@ async function main() {
   let store_name = 'ABC Store'
   let price = 135000
 
-  let listStream = cord.Content.fromSchemaAndContent(
+  let listStream = cord.Content.fromContentProperties(
     newProductSchema,
     productStream.contents,
     sellerOne.address
@@ -170,13 +170,9 @@ async function main() {
   console.log(`📧 Product Listing Details `)
   console.dir(productStream, { depth: null, colors: true })
 
-  let newListingContent = cord.MarkContent.fromStreamContent(
-    listStream,
-    sellerOne,
-    {
-      link: newProduct.id,
-    }
-  )
+  let newListingContent = cord.MarkContent.fromContent(listStream, sellerOne, {
+    link: newProduct.id,
+  })
   console.log(`\n📧 Hashed Listing Stream `)
   console.dir(newListingContent, { depth: null, colors: true })
 
@@ -220,7 +216,7 @@ async function main() {
   // Step 3: Create a new Product order
   console.log(`\n\n✉️  Listening to Product Orders \n`)
 
-  let orderStream = cord.Content.fromSchemaAndContent(
+  let orderStream = cord.Content.fromContentProperties(
     newProductSchema,
     productStream.contents,
     buyerOne.address
@@ -228,13 +224,9 @@ async function main() {
   console.log(`📧 Product Order Details `)
   console.dir(orderStream, { depth: null, colors: true })
 
-  let newOrderContent = cord.MarkContent.fromStreamContent(
-    orderStream,
-    buyerOne,
-    {
-      link: newListing.id,
-    }
-  )
+  let newOrderContent = cord.MarkContent.fromContent(orderStream, buyerOne, {
+    link: newListing.id,
+  })
   console.log(`\n📧 Hashed Order Stream `)
   console.dir(newOrderContent, { depth: null, colors: true })
 
@@ -272,7 +264,7 @@ async function main() {
   // Step 3: Create a new Product order
   console.log(`\n\n✉️  Listening to Ratings \n`)
 
-  let ratingStream = cord.Content.fromSchemaAndContent(
+  let ratingStream = cord.Content.fromContentProperties(
     newProductSchema,
     productStream.contents,
     buyerOne.address
@@ -280,13 +272,9 @@ async function main() {
   console.log(`📧 Product Order Details `)
   console.dir(ratingStream, { depth: null, colors: true })
 
-  let newRatingContent = cord.MarkContent.fromStreamContent(
-    ratingStream,
-    buyerOne,
-    {
-      link: newOrder.id,
-    }
-  )
+  let newRatingContent = cord.MarkContent.fromContent(ratingStream, buyerOne, {
+    link: newOrder.id,
+  })
   console.log(`\n📧 Hashed Order Stream `)
   console.dir(newRatingContent, { depth: null, colors: true })
 

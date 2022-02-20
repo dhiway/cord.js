@@ -86,7 +86,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = cord.Content.fromSchemaAndContent(
+  let schemaStream = cord.Content.fromContentProperties(
     newSchema,
     content,
     employeeIdentity.address
@@ -94,7 +94,7 @@ async function main() {
   console.log(`📧 Stream Details `)
   console.dir(schemaStream, { depth: null, colors: true })
 
-  let newStreamContent = cord.MarkContent.fromStreamContent(
+  let newStreamContent = cord.MarkContent.fromContent(
     schemaStream,
     employeeIdentity
   )
@@ -172,13 +172,13 @@ async function main() {
     country: newStreamContent.content.contents.country,
   }
 
-  let credStreamContent = cord.Content.fromSchemaAndContent(
+  let credStreamContent = cord.Content.fromContentProperties(
     credSchemaStream,
     credStream,
     employeeIdentity.address
   )
 
-  let credContentStream = cord.MarkContent.fromStreamContent(
+  let credContentStream = cord.MarkContent.fromContent(
     credStreamContent,
     employeeIdentity,
     {

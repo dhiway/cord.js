@@ -38,6 +38,47 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   )
   return tx
 }
+
+/**
+ * Generate the extrinsic to update the provided [[IStream]].
+ *
+ * @param stream The stream to update on the chain.
+ * @returns The [[SubmittableExtrinsic]] for the `create` call.
+ */
+export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.update(
+    getStreamId(stream.streamId),
+    stream.creator,
+    stream.streamHash,
+    stream.cid
+  )
+  return tx
+}
+
+/**
+ * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
+ *
+ * @param streamId The stream Is.
+ * @param creator The submitter
+ * @param status The stream status
+ * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
+ */
+export async function setStatus(
+  streamId: string,
+  creator: string,
+  status: boolean
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Revoking stream with ID ${streamId}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.setStatus(
+    streamId,
+    creator,
+    status
+  )
+  return tx
+}
+
 export interface AnchoredStreamDetails extends Struct {
   readonly streamId: Hash
   readonly creator: AccountId
@@ -100,7 +141,9 @@ async function queryRawId(
  * @param identifier
  * @internal
  */
-export async function query(streamHash: string): Promise<StreamDetails | null> {
+export async function queryHash(
+  streamHash: string
+): Promise<StreamDetails | null> {
   const encoded = await queryRawHash(streamHash)
   return decodeStream(encoded, streamHash)
 }
@@ -111,34 +154,11 @@ export async function query(streamHash: string): Promise<StreamDetails | null> {
  * @param streamId The Id of the stream anchored.
  * @returns Either the retrieved [[StreamDetails]] or null.
  */
-export async function queryId(streamId: string): Promise<StreamDetails | null> {
+export async function query(streamId: string): Promise<StreamDetails | null> {
   const stream_Id = getStreamId(streamId)
   const streamHash = await queryRawId(stream_Id)
   const encoded = await queryRawHash(streamHash)
   return decodeStream(encoded, streamHash)
-}
-
-/**
- * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
- *
- * @param streamId The stream Is.
- * @param creator The submitter
- * @param status The stream status
- * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
- */
-export async function set_status(
-  streamId: string,
-  creator: string,
-  status: boolean
-): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking stream with ID ${streamId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.setStatus(
-    streamId,
-    creator,
-    status
-  )
-  return tx
 }
 
 /**

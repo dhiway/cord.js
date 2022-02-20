@@ -30,15 +30,15 @@ function verifyContent(
 
 export class Content implements IContent {
   /**
-   * Instantiates a new Content stream from the given [[IContent]] and [[Schema]].
+   * [STATIC] Instantiates a new [[Content]] stream from [[IContent]] and [[ISchema]].
    *
-   * @param input IContent to instantiate the new stream from.
+   * @param input IContent to create the new stream from.
    * @param schema ISchema['schema'] to verify input's contents.
    * @throws [[ERROR_CONTENT_UNVERIFIABLE]] when input's contents could not be verified with the provided schema.
    *
-   * @returns An instantiated Content stream.
+   * @returns A validated [[Content]] stream.
    */
-  public static fromContent(
+  public static fromContentType(
     input: IContent,
     schema: ISchema['schema']
   ): Content {
@@ -49,16 +49,16 @@ export class Content implements IContent {
   }
 
   /**
-   * [STATIC] Builds a [[Content]] stream from a [[Schema]] which has nested [[Schema]]s within the schema.
+   * [STATIC] Builds a [[Content]] stream from [[IContent]] and nested [[ISchema]]s.
    *
    * @param schema A [[Schema]] object that has nested [[Schema]]s.
    * @param nestedSchemas The array of [[Schema]]s, which are used inside the main [[Schema]].
    * @param contents The data inside the [[Content]].
    *
-   * @returns A [[Content]] stream.
+   * @returns A validated [[Content]] stream.
    */
 
-  public static fromNestedTypeContent(
+  public static fromNestedContentProperties(
     schema: ISchema,
     nestedSchemas: Array<ISchema['schema']>,
     contents: IContent['contents'],
@@ -77,15 +77,15 @@ export class Content implements IContent {
   }
 
   /**
-   * Instantiates a new Content stream from the given [[ISchema]], IContent['contents'] and IPublicIdentity['address'].
+   * [STATIC] Builds a new [[Content]] stream from [[ISchema]], IContent['contents'] and creator's [[IPublicIdentity['address']].
    *
    * @param schema [[ISchema]] from which the Content stream will be built.
    * @param contents IContent['contents'] to be used as the data of the instantiated Content stream.
    * @throws [[ERROR_STREAM_UNVERIFIABLE]] when streamInput's contents could not be verified with the schema of the provided mtypeInput.
    *
-   * @returns An instantiated [[Content]] stream.
+   * @returns A validated [[Content]] stream.
    */
-  public static fromSchemaAndContent(
+  public static fromContentProperties(
     schema: ISchema,
     contents: IContent['contents'],
     creator: IPublicIdentity['address']

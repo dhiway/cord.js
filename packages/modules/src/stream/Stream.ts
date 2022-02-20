@@ -14,7 +14,7 @@ import type {
   IMarkContent,
   CompressedStream,
 } from '@cord.network/api-types'
-import { set_status, query, create } from './Stream.chain.js'
+import { setStatus, query, create, update } from './Stream.chain.js'
 import * as StreamUtils from './Stream.utils.js'
 
 export class Stream implements IStream {
@@ -33,25 +33,25 @@ export class Stream implements IStream {
     return query(identifier)
   }
 
-  /**
-   * [STATIC] [ASYNC] Revokes a stream stream Also available as an instance method.
-   * @param identifier - The ID of the stream stream.
-   * @param status - bool value to set the status of the  stream stream.
-   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * Stream.revoke('0xd8024cdc147c4fa9221cd177', true).then(() => {
-   *   // the stream status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
-   */
-  public static async set_status(
-    identifier: string,
-    creator: string,
-    status: boolean
-  ): Promise<SubmittableExtrinsic> {
-    return set_status(identifier, creator, status)
-  }
+  // /**
+  //  * [STATIC] [ASYNC] Revokes a stream stream Also available as an instance method.
+  //  * @param identifier - The ID of the stream stream.
+  //  * @param status - bool value to set the status of the  stream stream.
+  //  * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
+  //  * @example ```javascript
+  //  * Stream.revoke('0xd8024cdc147c4fa9221cd177', true).then(() => {
+  //  *   // the stream status tx was created, sign and send it!
+  //  *   ChainUtils.signAndSendTx(tx, identity);
+  //  * });
+  //  * ```
+  //  */
+  // public static async set_status(
+  //   identifier: string,
+  //   creator: string,
+  //   status: boolean
+  // ): Promise<SubmittableExtrinsic> {
+  //   return set_status(identifier, creator, status)
+  // }
 
   /**
    * [STATIC] Builds an instance of [[StreamStream]], from a simple object with the same properties.
@@ -153,6 +153,10 @@ export class Stream implements IStream {
     return create(this)
   }
 
+  public async update(): Promise<SubmittableExtrinsic> {
+    return update(this)
+  }
+
   /**
    * [ASYNC] Set status (active/revoked) a journal stream.
    *
@@ -165,8 +169,8 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async set_status(status: boolean): Promise<SubmittableExtrinsic> {
-    return set_status(this.streamId, this.creator, status)
+  public async setStatus(status: boolean): Promise<SubmittableExtrinsic> {
+    return setStatus(this.streamId, this.creator, status)
   }
 
   /**
@@ -186,14 +190,8 @@ export class Stream implements IStream {
     identifier: string = stream.streamId
   ): Promise<boolean> {
     // Query stream by stream identifier. null if no stream is found on-chain for this hash
-    const chainStream: StreamDetails | null = await Stream.query(
-      stream.streamHash
-    )
-    // let allVerified: boolean
-    // if (stream.holder !== null) {
-    //   chainStream?.holder === stream.holder
-    // }
-
+    const chainStream: StreamDetails | null = await Stream.query(identifier)
+    //TODO - add holder checks
     return !!(
       chainStream !== null &&
       chainStream.creator === stream.creator &&

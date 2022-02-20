@@ -90,7 +90,7 @@ export class Mark implements IMark {
    */
   public constructor(credStream: IMark) {
     CredentialUtils.errorCheck(credStream)
-    this.request = MarkContent.fromRequest(credStream.request)
+    this.request = MarkContent.fromMarkTypeRequest(credStream.request)
     this.content = Stream.fromStream(credStream.content)
   }
 

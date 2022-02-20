@@ -19,7 +19,7 @@ import { Mark } from '../mark/Mark.js'
 import { Identity } from '../identity/Identity.js'
 import * as MarkContentUtils from './MarkContent.utils.js'
 
-function verifyHolderSignature(content: IMarkContent): boolean {
+function verifyCreatorSignature(content: IMarkContent): boolean {
   return Crypto.verify(
     content.contentHash,
     content.creatorSignature,
@@ -43,7 +43,7 @@ export class MarkContent implements IMarkContent {
    * Used for deserialization.
    *
    */
-  public static fromRequest(content: IMarkContent): MarkContent {
+  public static fromMarkTypeRequest(content: IMarkContent): MarkContent {
     return new MarkContent(content)
   }
 
@@ -60,7 +60,7 @@ export class MarkContent implements IMarkContent {
    * const input = MarkContent.fromStreamAndIdentity(content, alice);
    * ```
    */
-  public static fromStreamContent(
+  public static fromContent(
     content: IContent,
     creator: Identity,
     { proofs, holder, link }: Options = {}
@@ -98,7 +98,7 @@ export class MarkContent implements IMarkContent {
    *
    * @returns  Boolean whether input is of type IMarkContent.
    */
-  public static isIContentStream(input: unknown): input is IMarkContent {
+  public static isIMarkContent(input: unknown): input is IMarkContent {
     try {
       MarkContentUtils.errorCheck(input as IMarkContent)
     } catch (error) {
@@ -241,7 +241,7 @@ export class MarkContent implements IMarkContent {
    * ```
    */
   public static verifySignature(input: IMarkContent): boolean {
-    return verifyHolderSignature(input)
+    return verifyCreatorSignature(input)
   }
 
   public verifySignature(): boolean {
@@ -296,7 +296,7 @@ export class MarkContent implements IMarkContent {
   ): MarkContent {
     const decompressedContentStream =
       MarkContentUtils.decompress(requestForStream)
-    return MarkContent.fromRequest(decompressedContentStream)
+    return MarkContent.fromMarkTypeRequest(decompressedContentStream)
   }
 
   private static calculateRootHash(mark: Partial<IMarkContent>): Hash {
