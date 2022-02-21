@@ -146,8 +146,8 @@ export class Schema implements ISchema {
     return store(this, cid)
   }
 
-  public async add_delegate(delegate: string): Promise<SubmittableExtrinsic> {
-    return add_delegate(this.schema.$id, this.creator, delegate)
+  public async add_delegate(delegate: string, quantity: number): Promise<SubmittableExtrinsic> {
+    return add_delegate(this.schema.$id, this.creator, delegate, quantity)
   }
 
   public async remove_delegate(

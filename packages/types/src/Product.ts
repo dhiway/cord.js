@@ -13,6 +13,7 @@ export interface IProduct {
   schema?: ISchema['id']
   price?: number
   rating?: number
+  quantity?: number
   link?: string
   creator: IPublicIdentity['address']
   status: boolean
@@ -26,6 +27,7 @@ export type CompressedProduct = [
   IProduct['schema'],
   IProduct['price'],
   IProduct['rating'],
+  IProduct['quantity'],
   IProduct['link'],
   IProduct['creator'],
   IProduct['status']
@@ -41,6 +43,7 @@ export interface IProductDetails {
   link: IProduct['id'] | null
   creator: IPublicIdentity['address']
   price: IProduct['id'] | null
+  quantity: IProduct['id'] | null
   rating: IProduct['id'] | null
   block: string
   status: boolean

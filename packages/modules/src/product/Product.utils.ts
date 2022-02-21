@@ -58,6 +58,7 @@ export function compress(stream: IProduct): CompressedProduct {
     stream.schema,
     stream.price,
     stream.rating,
+    stream.quantity,
     stream.link,
     stream.creator,
     stream.status,
@@ -74,7 +75,7 @@ export function compress(stream: IProduct): CompressedProduct {
  */
 
 export function decompress(stream: CompressedProduct): IProduct {
-  if (!Array.isArray(stream) || stream.length !== 10) {
+  if (!Array.isArray(stream) || stream.length !== 11) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
   }
   return {
@@ -85,9 +86,10 @@ export function decompress(stream: CompressedProduct): IProduct {
     schema: stream[4],
     price: stream[5],
     rating: stream[6],
-    link: stream[7],
-    creator: stream[8],
-    status: stream[9],
+    quantity: stream[7],
+    link: stream[8],
+    creator: stream[9],
+    status: stream[10],
   }
 }
 

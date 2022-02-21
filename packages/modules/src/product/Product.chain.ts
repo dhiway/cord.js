@@ -30,7 +30,8 @@ export async function create(stream: IProduct): Promise<SubmittableExtrinsic> {
     stream.creator,
     stream.hash,
     stream.cid,
-    stream.schema
+    stream.schema,
+    stream.quantity
   )
   return tx
 }
@@ -49,6 +50,7 @@ export async function list(stream: IProduct): Promise<SubmittableExtrinsic> {
     stream.hash,
     stream.store_id,
     stream.price,
+    stream.quantity,
     stream.cid,
     stream.schema,
     stream.link
@@ -70,6 +72,7 @@ export async function order(stream: IProduct): Promise<SubmittableExtrinsic> {
     stream.hash,
     stream.store_id,
     stream.price,
+    stream.quantity,
     stream.cid,
     stream.schema,
     stream.link
@@ -117,6 +120,7 @@ export interface AnchoredProductDetails extends Struct {
   readonly creator: AccountId
   readonly price: u32
   readonly rating: u8
+  readonly quantity: u32
   readonly block: BlockNumber
   readonly status: boolean
 }
@@ -144,7 +148,8 @@ function decodeProduct(
       link: anchoredProduct.link.toString() || null,
       creator: anchoredProduct.creator.toString(),
       price: anchoredProduct.price.toString() || null,
-      rating: anchoredProduct.price.toString() || null,
+      rating: anchoredProduct.rating.toString() || null,
+      quantity: anchoredProduct.quantity.toString() || null,
       block: anchoredProduct.block.toString(),
       status: anchoredProduct.status.valueOf(),
     }

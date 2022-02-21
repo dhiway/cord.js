@@ -106,14 +106,16 @@ export async function query(schemaId: string): Promise<SchemaDetails | null> {
 export async function add_delegate(
   schemaId: string,
   creator: string,
-  delegate: string
+  delegate: string,
+  quantity: number
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schemaId}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.addDelegate(
     schemaId,
+    quantity,
     creator,
-    delegate
+    delegate,
   )
   return tx
 }
