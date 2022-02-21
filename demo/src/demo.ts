@@ -2,8 +2,14 @@ import * as cord from '@cord.network/api'
 import { UUID } from '@cord.network/utils'
 import * as utils from './utils'
 import * as json from 'multiformats/codecs/json'
+import { base32 } from 'multiformats/bases/base32'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
 import { CID } from 'multiformats/cid'
+import {
+  base58Encode,
+  base64Encode,
+  encodeAddress,
+} from '@polkadot/util-crypto'
 
 async function main() {
   await cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -51,7 +57,20 @@ async function main() {
 
   let bytes = json.encode(newSchema)
   let encoded_hash = await hasher.digest(bytes)
-  const schemaCid = CID.create(1, 0xb220, encoded_hash)
+  const schemaCid = CID.create(1, 0xb254, encoded_hash)
+
+  //identifier test
+  console.log('b32', schemaCid.toString(base32.encoder))
+  console.log(base64Encode(newSchema.hash))
+  console.log(base58Encode(newSchema.hash))
+  console.log(encodeAddress(newSchema.hash, 10031))
+  console.log(base64Encode(newSchema.hash, true))
+  const newValue = newSchema.hash
+  const block = json.encode({ newValue, hasher })
+  const enc_hash = await hasher.digest(block)
+  const cid = CID.create(1, 0xb254, enc_hash)
+  console.log(cid.toString())
+
   console.log('Version', newSchema.version)
   let schemaCreationExtrinsic = await newSchema.create(schemaCid.toString())
 
@@ -86,6 +105,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
+  const nonceSaltValue = UUID.generate()
   let schemaStream = cord.Content.fromContentProperties(
     newSchema,
     content,
@@ -96,7 +116,8 @@ async function main() {
 
   let newStreamContent = cord.MarkContent.fromContent(
     schemaStream,
-    employeeIdentity
+    employeeIdentity,
+    { nonceSalt: nonceSaltValue }
   )
   console.log(`\n📧 Hashed Stream `)
   console.dir(newStreamContent, { depth: null, colors: true })
@@ -184,6 +205,7 @@ async function main() {
     {
       holder: holderIdentity.address,
       link: newStream.streamId,
+      nonceSalt: nonceSaltValue,
     }
   )
   console.log(`\n📧 Hashed Stream Details`)

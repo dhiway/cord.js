@@ -15,8 +15,17 @@ import { hashStr } from './Crypto.js'
  *
  * @returns The hashed uuid.
  */
-export function generate(): string {
+export function generateHash(): string {
   return hashStr(uuid())
+}
+
+/**
+ * Generates a v4 UUID.
+ *
+ * @returns The v4 uuid.
+ */
+export function generate(): string {
+  return uuid()
 }
 
 export default {

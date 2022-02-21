@@ -18,6 +18,7 @@ import * as ContentUtils from '../content/Content.utils.js'
 import { Mark } from '../mark/Mark.js'
 import { Identity } from '../identity/Identity.js'
 import * as MarkContentUtils from './MarkContent.utils.js'
+import { UUID } from '@cord.network/utils'
 
 function verifyCreatorSignature(content: IMarkContent): boolean {
   return Crypto.verify(
@@ -36,6 +37,7 @@ export type Options = {
   proofs?: Mark[]
   holder?: IMarkContent['holder']
   link?: IMarkContent['link']
+  nonceSalt?: string
 }
 export class MarkContent implements IMarkContent {
   /**
@@ -63,14 +65,16 @@ export class MarkContent implements IMarkContent {
   public static fromContent(
     content: IContent,
     creator: Identity,
-    { proofs, holder, link }: Options = {}
+    { proofs, holder, link, nonceSalt }: Options = {}
   ): MarkContent {
     if (content.creator !== creator.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
 
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
-      ContentUtils.hashContents(content)
+      ContentUtils.hashContents(content, {
+        nonceGenerator: (key: string) => nonceSalt || UUID.generate(),
+      })
 
     const contentHash = MarkContent.calculateRootHash({
       proofs,
