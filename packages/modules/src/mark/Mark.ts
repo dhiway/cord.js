@@ -32,10 +32,10 @@ export class Mark implements IMark {
    * @returns A new instantiated [[Mark]] object.
    * @example ```javascript
    * // create a Mark object, so we can call methods on it (`serialized` is a serialized Mark object)
-   * Mark.fromMarkType(JSON.parse(serialized));
+   * Mark.fromMark(JSON.parse(serialized));
    * ```
    */
-  public static fromMarkType(markStream: IMark): Mark {
+  public static fromMark(markStream: IMark): Mark {
     return new Mark(markStream)
   }
 
@@ -47,10 +47,10 @@ export class Mark implements IMark {
    * @returns A new [[Mark]] object.
    * @example ```javascript
    * // create an Mark object after receiving the mark from the issuer
-   * Mark.fromMarkProperties(request, content);
+   * Mark.fromMarkContentStream(request, content);
    * ```
    */
-  public static fromMarkProperties(
+  public static fromMarkContentStream(
     request: IMarkContent,
     content: IStream
   ): Mark {
@@ -90,7 +90,7 @@ export class Mark implements IMark {
    */
   public constructor(markStream: IMark) {
     MarkUtils.errorCheck(markStream)
-    this.request = MarkContent.fromMarkTypeRequest(markStream.request)
+    this.request = MarkContent.fromMarkContent(markStream.request)
     this.content = Stream.fromStream(markStream.content)
   }
 
@@ -229,6 +229,6 @@ export class Mark implements IMark {
    */
   public static decompress(markStream: CompressedMark): Mark {
     const decompressedCredential = MarkUtils.decompress(markStream)
-    return Mark.fromMarkType(decompressedCredential)
+    return Mark.fromMark(decompressedCredential)
   }
 }

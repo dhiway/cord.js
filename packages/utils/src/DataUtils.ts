@@ -71,7 +71,7 @@ export function validateId(id: string, name: string): boolean {
   }
   const blake2bPattern = new RegExp('(0x)[A-F0-9]{64}', 'i')
   if (!id.match(blake2bPattern)) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(id, name)
+    throw SDKErrors.ERROR_ID_MALFORMED()
   }
   return true
 }

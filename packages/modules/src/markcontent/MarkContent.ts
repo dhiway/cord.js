@@ -45,7 +45,7 @@ export class MarkContent implements IMarkContent {
    * Used for deserialization.
    *
    */
-  public static fromMarkTypeRequest(content: IMarkContent): MarkContent {
+  public static fromMarkContent(content: IMarkContent): MarkContent {
     return new MarkContent(content)
   }
 
@@ -62,7 +62,7 @@ export class MarkContent implements IMarkContent {
    * const input = MarkContent.fromStreamAndIdentity(content, alice);
    * ```
    */
-  public static fromContent(
+  public static fromContentProperties(
     content: IContent,
     creator: Identity,
     { proofs, holder, link, nonceSalt }: Options = {}
@@ -145,7 +145,7 @@ export class MarkContent implements IMarkContent {
       markContentRequest.proofs.length
     ) {
       this.proofs = markContentRequest.proofs.map((proof) =>
-        Mark.fromMarkType(proof)
+        Mark.fromMark(proof)
       )
     } else {
       this.proofs = []
@@ -300,7 +300,7 @@ export class MarkContent implements IMarkContent {
   ): MarkContent {
     const decompressedContentStream =
       MarkContentUtils.decompress(requestForStream)
-    return MarkContent.fromMarkTypeRequest(decompressedContentStream)
+    return MarkContent.fromMarkContent(decompressedContentStream)
   }
 
   private static calculateRootHash(mark: Partial<IMarkContent>): Hash {

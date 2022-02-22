@@ -611,7 +611,6 @@ __metadata:
     "@polkadot/keyring": ^8.4.0
     "@polkadot/types": ^7.8.1
     rimraf: ^3.0.2
-    ts-node: ^10.5.0
     tweetnacl: ^1.0.3
     typescript: ^4.5.4
   languageName: unknown
@@ -7929,7 +7928,7 @@ fsevents@^2.3.2:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.4.0, ts-node@npm:^10.5.0":
+"ts-node@npm:^10.4.0":
   version: 10.5.0
   resolution: "ts-node@npm:10.5.0"
   dependencies:

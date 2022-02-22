@@ -85,7 +85,7 @@ module.exports = {
     'jsdoc/check-alignment': 'off',
     'jsdoc/no-multi-asterisks': 'off',
     'jsdoc/tag-lines': 'off',
-    'license-header/header': ['error', './license-header.js'],
+    // 'license-header/header': ['error', './license-header.js'],
     'import/prefer-default-export': 'off',
     'import/no-default-export': 'error',
     '@typescript-eslint/no-explicit-any': 'off',

@@ -22,38 +22,6 @@ export enum ErrorCode {
   ERROR_SCHEMA_ID_NOT_PROVIDED = 10001,
   ERROR_SCHEMA_ID_NOT_MATCHING = 10013,
   ERROR_SCHEMA_CONTROLLER_TYPE = 10021,
-  ERROR_SPACE_CONTROLLER_TYPE = 10022,
-  ERROR_STREAM_ID_NOT_PROVIDED = 10023,
-  ERROR_STREAM_LINK_NOT_PROVIDED = 10024,
-  ERROR_STREAM_TYPE_NOT_VALID = 10025,
-  ERROR_STREAM_CREATOR_NOT_PROVIDED = 10026,
-
-  ERROR_JOURNAL_ID_NOT_PROVIDED = 10027,
-  ERROR_JOURNAL_HASH_NOT_PROVIDED = 10028,
-  ERROR_JOURNAL_SCHEMA_ID_NOT_PROVIDED = 10029,
-  ERROR_JOURNAL_SPACE_ID_NOT_PROVIDED = 10030,
-  ERROR_JOURNAL_CREATOR_NOT_PROVIDED = 10031,
-  ERROR_JOURNAL_REVOCATION_BIT_MISSING = 10032,
-  ERROR_JOURNAL_STREAM_NOT_PROVIDED = 10045,
-
-  ERROR_STREAM_NONCE_MAP_MALFORMED = 10047,
-
-  ERROR_MARK_ID_NOT_PROVIDED = 10033,
-  ERROR_MARK_HASH_NOT_PROVIDED = 10034,
-  ERROR_MARK_SCHEMA_ID_NOT_PROVIDED = 10035,
-  ERROR_MARK_JOURNAL_ID_NOT_PROVIDED = 10036,
-  ERROR_MARK_CREATOR_NOT_PROVIDED = 10037,
-  ERROR_MARK_REVOCATION_BIT_MISSING = 10038,
-
-  ERROR_LINK_ID_NOT_PROVIDED = 10039,
-  ERROR_LINK_HASH_NOT_PROVIDED = 10040,
-  ERROR_LINK_SCHEMA_ID_NOT_PROVIDED = 10041,
-  ERROR_LINK_MARK_ID_NOT_PROVIDED = 10042,
-  ERROR_LINK_CREATOR_NOT_PROVIDED = 10043,
-  ERROR_LINK_REVOCATION_BIT_MISSING = 10044,
-
-  ERROR_STREAM_NOT_PROVIDED = 10023,
-
   ERROR_SCHEMA_HASH_INVALID = 30007,
   ERROR_SCHEMA_PROPERTIES_NOT_MATCHING = 30013,
 
@@ -61,10 +29,22 @@ export enum ErrorCode {
   ERROR_STREAM_HASH_NOT_PROVIDED = 10002,
   ERROR_STREAM_NONCE_MAP_NOT_PROVIDED = 10003,
   ERROR_MARK_STREAM_NOT_PROVIDED = 10004,
-  // ERROR_STREAM_ID_TYPE_MISSING = 10019,
+  ERROR_STREAM_ID_NOT_PROVIDED = 10023,
+  ERROR_STREAM_LINK_NOT_PROVIDED = 10024,
+  ERROR_STREAM_TYPE_NOT_VALID = 10025,
+  ERROR_STREAM_CREATOR_NOT_PROVIDED = 10026,
+  ERROR_STREAM_NOT_PROVIDED = 10023,
+  ERROR_STREAM_NONCE_MAP_MALFORMED = 10047,
+  ERROR_LINK_ID_NOT_PROVIDED = 10039,
 
   //Mark
   ERROR_MARK_NOT_PROVIDED = 10007,
+  ERROR_MARK_ID_NOT_PROVIDED = 10033,
+  ERROR_MARK_HASH_NOT_PROVIDED = 10034,
+  ERROR_MARK_SCHEMA_ID_NOT_PROVIDED = 10035,
+  ERROR_MARK_JOURNAL_ID_NOT_PROVIDED = 10036,
+  ERROR_MARK_CREATOR_NOT_PROVIDED = 10037,
+  ERROR_MARK_REVOCATION_BIT_MISSING = 10038,
 
   // Data is missing
   ERROR_OWNER_NOT_PROVIDED = 10005,
@@ -72,21 +52,16 @@ export enum ErrorCode {
   ERROR_REVOCATION_BIT_MISSING = 10008,
   ERROR_PROOFS_NOT_PROVIDED = 10009,
   ERROR_MARK_SESSION_MISSING = 10010,
-  ERROR_PE_MISSING = 10011,
-  ERROR_PE_CREDENTIAL_MISSING = 10012,
-  ERROR_PE_VERIFICATION = 10014,
   ERROR_NO_PROOF_FOR_STATEMENT = 10015,
-  ERROR_IDENTITY_NOT_PE_ENABLED = 10016,
   ERROR_WS_ADDRESS_NOT_SET = 10017,
   ERROR_DELEGATION_ID_MISSING = 10018,
-  // ERROR_PARENT_ID_TYPE_MISSING = 10020,
 
   // Data type is wrong or malformed
   ERROR_ADDRESS_TYPE = 20001,
   ERROR_HASH_TYPE = 20002,
   ERROR_HASH_MALFORMED = 20003,
+  ERROR_ID_MALFORMED = 20004,
   ERROR_SIGNATURE_DATA_TYPE = 20005,
-  ERROR_ENTITY_CONTROLLER_TYPE = 20006,
   ERROR_DELEGATION_ID_TYPE = 20007,
   ERROR_CONTENT_STREAM_MALFORMED = 20009,
   ERROR_CONTENT_NONCE_MAP_MALFORMED = 20010,
@@ -94,7 +69,6 @@ export enum ErrorCode {
   ERROR_MNEMONIC_PHRASE_MALFORMED = 20012,
   ERROR_QUOTE_MALFORMED = 20013,
   ERROR_STREAM_HASHTREE_MISMATCH = 20014,
-  ERROR_PE_MISMATCH = 20015,
   ERROR_DID_IDENTIFIER_MISMATCH = 20016,
   ERROR_ROOT_NODE_QUERY = 20017,
   ERROR_INVALID_DID_PREFIX = 20018,
@@ -207,55 +181,6 @@ export const ERROR_SCHEMA_PROPERTIES_NOT_MATCHING: () => SDKError = () => {
   )
 }
 
-export const ERROR_JOURNAL_ID_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_JOURNAL_ID_NOT_PROVIDED,
-    'Journal ID missing'
-  )
-}
-
-export const ERROR_JOURNAL_HASH_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_JOURNAL_HASH_NOT_PROVIDED,
-    'Journal hash missing'
-  )
-}
-
-export const ERROR_JOURNAL_SCHEMA_ID_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_JOURNAL_SCHEMA_ID_NOT_PROVIDED,
-    'Journal schema link ID missing'
-  )
-}
-
-export const ERROR_JOURNAL_SPACE_ID_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_JOURNAL_SPACE_ID_NOT_PROVIDED,
-    'Journal space link ID missing'
-  )
-}
-
-export const ERROR_JOURNAL_CREATOR_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_JOURNAL_CREATOR_NOT_PROVIDED,
-    'Journal Creator ID missing'
-  )
-}
-
-export const ERROR_JOURNAL_REVOCATION_BIT_MISSING: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_JOURNAL_REVOCATION_BIT_MISSING,
-    'Journal revocaltion input missing'
-  )
-}
-
-export const ERROR_JOURNAL_STREAM_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_JOURNAL_STREAM_NOT_PROVIDED,
-    'Journal stream missing'
-  )
-}
-
 export const ERROR_STREAM_NONCE_MAP_MALFORMED: () => SDKError = () => {
   return new SDKError(
     ErrorCode.ERROR_STREAM_NONCE_MAP_MALFORMED,
@@ -304,41 +229,6 @@ export const ERROR_MARK_REVOCATION_BIT_MISSING: () => SDKError = () => {
 
 export const ERROR_LINK_ID_NOT_PROVIDED: () => SDKError = () => {
   return new SDKError(ErrorCode.ERROR_LINK_ID_NOT_PROVIDED, 'Link ID missing')
-}
-
-export const ERROR_LINK_HASH_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_LINK_HASH_NOT_PROVIDED,
-    'Link hash missing'
-  )
-}
-
-export const ERROR_LINK_SCHEMA_ID_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_LINK_SCHEMA_ID_NOT_PROVIDED,
-    'Link schema link ID missing'
-  )
-}
-
-export const ERROR_LINK_MARK_ID_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_LINK_MARK_ID_NOT_PROVIDED,
-    'Link journal link ID missing'
-  )
-}
-
-export const ERROR_LINK_CREATOR_NOT_PROVIDED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_LINK_CREATOR_NOT_PROVIDED,
-    'Link Creator ID missing'
-  )
-}
-
-export const ERROR_LINK_REVOCATION_BIT_MISSING: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_LINK_REVOCATION_BIT_MISSING,
-    'Link revocaltion input missing'
-  )
 }
 
 export const ERROR_STREAM_LINK_NOT_PROVIDED: () => SDKError = () => {
@@ -397,18 +287,6 @@ export const ERROR_MARK_SESSION_MISSING: () => SDKError = () => {
     'Privacy enhancement was forced, but mark session is missing.'
   )
 }
-export const ERROR_PE_MISSING: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_PE_MISSING,
-    'Privacy enhancement is missing.'
-  )
-}
-export const ERROR_PE_CREDENTIAL_MISSING: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_PE_CREDENTIAL_MISSING,
-    'Missing privacy enhanced credential.'
-  )
-}
 export const ERROR_STREAM_NONCE_MAP_NOT_PROVIDED: () => SDKError = () => {
   return new SDKError(
     ErrorCode.ERROR_STREAM_NONCE_MAP_NOT_PROVIDED,
@@ -428,27 +306,35 @@ export const ERROR_HASH_TYPE: () => SDKError = () => {
   return new SDKError(ErrorCode.ERROR_HASH_TYPE, 'Hash of wrong type')
 }
 
-export const ERROR_HASH_MALFORMED: (hash?: string, type?: string) => SDKError =
-  (hash?: string, type?: string) => {
-    if (hash && type) {
-      return new SDKError(
-        ErrorCode.ERROR_HASH_MALFORMED,
-        `Provided ${type} hash invalid or malformed \nHash: ${hash}`
-      )
-    }
-    if (hash) {
-      return new SDKError(
-        ErrorCode.ERROR_HASH_MALFORMED,
-        `Provided hash invalid or malformed \nHash: ${hash}`
-      )
-    }
-
+export const ERROR_HASH_MALFORMED: (
+  hash?: string,
+  type?: string
+) => SDKError = (hash?: string, type?: string) => {
+  if (hash && type) {
     return new SDKError(
       ErrorCode.ERROR_HASH_MALFORMED,
-      `Provided hash invalid or malformed`
+      `Provided ${type} hash invalid or malformed \nHash: ${hash}`
+    )
+  }
+  if (hash) {
+    return new SDKError(
+      ErrorCode.ERROR_HASH_MALFORMED,
+      `Provided hash invalid or malformed \nHash: ${hash}`
     )
   }
 
+  return new SDKError(
+    ErrorCode.ERROR_HASH_MALFORMED,
+    `Provided hash invalid or malformed`
+  )
+}
+
+export const ERROR_ID_MALFORMED: () => SDKError = () => {
+  return new SDKError(
+    ErrorCode.ERROR_ID_MALFORMED,
+    'Provided ID invalid or malformed'
+  )
+}
 export const ERROR_DELEGATION_ID_TYPE: () => SDKError = () => {
   return new SDKError(
     ErrorCode.ERROR_DELEGATION_ID_TYPE,
@@ -479,19 +365,6 @@ export const ERROR_SCHEMA_CONTROLLER_TYPE: () => SDKError = () => {
   return new SDKError(
     ErrorCode.ERROR_SCHEMA_CONTROLLER_TYPE,
     'Schema owner of wrong type'
-  )
-}
-
-export const ERROR_ENTITY_CONTROLLER_TYPE: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_ENTITY_CONTROLLER_TYPE,
-    'Enity controller of wrong type'
-  )
-}
-export const ERROR_SPACE_CONTROLLER_TYPE: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_SPACE_CONTROLLER_TYPE,
-    'Space controller of wrong type'
   )
 }
 
@@ -556,12 +429,6 @@ export const ERROR_DID_IDENTIFIER_MISMATCH: (
   return new SDKError(
     ErrorCode.ERROR_DID_IDENTIFIER_MISMATCH,
     `This identifier (${identifier}) doesn't match the DID Document's identifier (${id})`
-  )
-}
-export const ERROR_PE_MISMATCH: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_PE_MISMATCH,
-    'Verifier requested public presentation, but privacy enhancement was forced.'
   )
 }
 export const ERROR_ROOT_NODE_QUERY: (rootId: string) => SDKError = (
@@ -702,12 +569,6 @@ export const ERROR_IDENTITY_MISMATCH: (
   )
 }
 
-export const ERROR_IDENTITY_NOT_PE_ENABLED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_IDENTITY_NOT_PE_ENABLED,
-    'Identity is not privacy enhaced'
-  )
-}
 export const ERROR_WS_ADDRESS_NOT_SET: () => SDKError = () => {
   return new SDKError(
     ErrorCode.ERROR_WS_ADDRESS_NOT_SET,
@@ -808,19 +669,6 @@ export const ERROR_UNKNOWN: () => SDKError = () => {
 
 export const ERROR_TIMEOUT: () => SDKError = () => {
   return new SDKError(ErrorCode.ERROR_TIMEOUT, 'operation timed out')
-}
-
-export const ERROR_PE_VERIFICATION: (
-  accFailure: boolean,
-  keyFailure: boolean
-) => SDKError = (accFailure: boolean, keyFailure: boolean) => {
-  return new SDKError(
-    ErrorCode.ERROR_PE_VERIFICATION,
-    `Received privacy enhanced presentation with insufficient data. 
-    \n\tMissing accumulators? ${accFailure}
-    \n\tMissing issuer public keys? ${keyFailure}
-    `
-  )
 }
 
 export const ERROR_INVALID_PROOF_FOR_STATEMENT: (
