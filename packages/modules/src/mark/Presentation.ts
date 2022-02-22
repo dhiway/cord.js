@@ -10,9 +10,9 @@ import { Mark } from './Mark.js'
 
 function ensureCredentialOwnership(
   credentials: IMark[]
-): IMarkContent['holder'] {
+): IMarkContent['content']['holder'] {
   const holders = credentials.reduce((owns, credential) => {
-    owns.add(credential.request.holder!)
+    owns.add(credential.request.content.holder!)
     return owns
   }, new Set<IIdentity['address']>())
   if (holders.size !== 1) {

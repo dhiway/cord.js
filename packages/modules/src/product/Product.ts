@@ -109,7 +109,7 @@ export class Product implements IProduct {
       price: price,
       rating: rating,
       link: content.link,
-      creator: content.creator,
+      creator: content.content.creator,
       status: true,
     })
   }

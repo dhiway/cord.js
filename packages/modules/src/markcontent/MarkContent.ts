@@ -24,7 +24,7 @@ function verifyCreatorSignature(content: IMarkContent): boolean {
   return Crypto.verify(
     content.contentHash,
     content.creatorSignature,
-    content.creator
+    content.content.creator
   )
 }
 
@@ -35,7 +35,6 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 
 export type Options = {
   proofs?: Mark[]
-  holder?: IMarkContent['holder']
   link?: IMarkContent['link']
   nonceSalt?: string
 }
@@ -65,7 +64,7 @@ export class MarkContent implements IMarkContent {
   public static fromContentProperties(
     content: IContent,
     creator: Identity,
-    { proofs, holder, link, nonceSalt }: Options = {}
+    { proofs, link, nonceSalt }: Options = {}
   ): MarkContent {
     if (content.creator !== creator.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
@@ -87,9 +86,7 @@ export class MarkContent implements IMarkContent {
       contentNonceMap,
       proofs: proofs || [],
       link,
-      creator: creator.address,
       creatorSignature: MarkContent.sign(creator, contentHash),
-      holder,
       contentHash,
       contentId: MarkContentUtils.getIdForContent(contentHash, creator.address),
     })
@@ -117,8 +114,6 @@ export class MarkContent implements IMarkContent {
   public proofs: Mark[]
   public link: IMarkContent['link']
   public creatorSignature: string
-  public holder: IMarkContent['holder']
-  public creator: IMarkContent['creator']
   public contentHash: Hash
   public contentId: string
 
@@ -134,8 +129,6 @@ export class MarkContent implements IMarkContent {
   public constructor(markContentRequest: IMarkContent) {
     MarkContentUtils.errorCheck(markContentRequest)
     this.contentId = markContentRequest.contentId
-    this.creator = markContentRequest.creator
-    this.holder = markContentRequest.holder
     this.content = markContentRequest.content
     this.contentHashes = markContentRequest.contentHashes
     this.contentNonceMap = markContentRequest.contentNonceMap

@@ -62,7 +62,8 @@ export class Content implements IContent {
     schema: ISchema,
     nestedSchemas: Array<ISchema['schema']>,
     contents: IContent['contents'],
-    creator: IPublicIdentity['address']
+    creator: IPublicIdentity['address'],
+    holder?: IPublicIdentity['address']
   ): Content {
     if (
       !SchemaUtils.validateNestedSchemas(schema.schema, nestedSchemas, contents)
@@ -73,6 +74,7 @@ export class Content implements IContent {
       schemaId: SchemaUtils.getSchemaId(schema.id),
       contents: contents,
       creator: creator,
+      holder: holder,
     })
   }
 
@@ -88,7 +90,8 @@ export class Content implements IContent {
   public static fromContentProperties(
     schema: ISchema,
     contents: IContent['contents'],
-    creator: IPublicIdentity['address']
+    creator: IPublicIdentity['address'],
+    holder?: IPublicIdentity['address']
   ): Content {
     if (schema.schema) {
       if (!verifyContent(contents, schema.schema)) {
@@ -98,6 +101,7 @@ export class Content implements IContent {
     return new Content({
       schemaId: schema.id,
       creator: creator,
+      holder: holder,
       contents: contents,
     })
   }
@@ -121,12 +125,14 @@ export class Content implements IContent {
   public schemaId: IContent['schemaId']
   public contents: IContent['contents']
   public creator: IContent['creator']
+  public holder?: IContent['holder']
 
   public constructor(input: IContent) {
     ContentUtils.errorCheck(input)
     this.schemaId = input.schemaId
     this.contents = input.contents
     this.creator = input.creator
+    this.holder = input.holder || input.creator
   }
 
   /**

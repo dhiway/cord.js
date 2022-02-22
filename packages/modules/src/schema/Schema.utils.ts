@@ -88,11 +88,11 @@ export function getIdForSchema(
 }
 
 export function getIdWithPrefix(hash: string): string {
-  return `cord:schema:${hash}`
+  return `schema:cord:${hash}`
 }
 
 export function getSchemaId(id: string): string {
-  return id.split('cord:schema:').join('')
+  return id.split('schema:cord:').join('')
 }
 
 /**

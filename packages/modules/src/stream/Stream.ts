@@ -87,8 +87,8 @@ export class Stream implements IStream {
     return new Stream({
       streamId: content.contentId,
       streamHash: content.contentHash,
-      creator: content.creator,
-      holder: content.holder,
+      creator: content.content.creator,
+      holder: content.content.holder,
       schemaId: content.content.schemaId,
       linkId: content.link,
       cid: cid,

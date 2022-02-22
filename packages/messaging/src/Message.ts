@@ -50,7 +50,10 @@ export class Message implements IMessage {
       case Message.BodyType.REQUEST_STREAM:
         {
           const requestStream = body
-          if (requestStream.content.requestStream.creator !== senderAddress) {
+          if (
+            requestStream.content.requestStream.content.creator !==
+            senderAddress
+          ) {
             throw SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Sender')
           }
         }

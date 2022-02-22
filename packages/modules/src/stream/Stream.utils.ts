@@ -81,18 +81,18 @@ export function getIdForStream(hash: string): string {
 }
 
 export function getIdWithPrefix(hash: string): string {
-  return `cord:stream:${hash}`
+  return `stream:cord:${hash}`
 }
 
 export function getStreamId(identifier: string): string {
-  return identifier.split('cord:stream:').join('')
+  return identifier.split('stream:cord').join('')
 }
 
 export function getLinkId(
   identifier: string | null | undefined
 ): string | null | undefined {
   if (identifier) {
-    return identifier.split('cord:stream:').join('')
+    return identifier.split('stream:cord').join('')
   } else {
     return undefined
   }

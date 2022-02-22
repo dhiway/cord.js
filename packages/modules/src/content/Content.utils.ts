@@ -216,7 +216,7 @@ export function compress(
   if (content.contents) {
     sortedContents = jsonabc.sortObj(content.contents)
   }
-  return [content.schemaId, content.creator, sortedContents]
+  return [content.schemaId, content.creator, content.holder, sortedContents]
 }
 
 /**
@@ -239,12 +239,13 @@ export function decompress(content: CompressedPartialContent): PartialContent
 export function decompress(
   content: CompressedContent | CompressedPartialContent
 ): IContent | PartialContent {
-  if (!Array.isArray(content) || content.length !== 3) {
+  if (!Array.isArray(content) || content.length !== 4) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
   }
   return {
     schemaId: content[0],
     creator: content[1],
-    contents: content[2],
+    holder: content[2],
+    contents: content[3],
   }
 }

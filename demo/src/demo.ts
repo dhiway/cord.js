@@ -176,14 +176,14 @@ async function main() {
   let credStreamContent = cord.Content.fromContentProperties(
     credSchemaStream,
     markStream,
-    employeeIdentity.address
+    employeeIdentity.address,
+    holderIdentity.address
   )
 
   let credContentStream = cord.MarkContent.fromContentProperties(
     credStreamContent,
     employeeIdentity,
     {
-      holder: holderIdentity.address,
       link: newStream.streamId,
       nonceSalt: nonceSaltValue,
     }

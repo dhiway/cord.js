@@ -87,8 +87,6 @@ export function compress(markContent: IMarkContent): CompressedMarkContent {
     markContent.contentHashes,
     markContent.contentNonceMap,
     markContent.creatorSignature,
-    markContent.holder,
-    markContent.creator,
     markContent.link,
     compressProof(markContent.proofs),
     markContent.contentHash,
@@ -106,7 +104,7 @@ export function compress(markContent: IMarkContent): CompressedMarkContent {
  */
 
 export function decompress(markContent: CompressedMarkContent): IMarkContent {
-  if (!Array.isArray(markContent) || markContent.length !== 10) {
+  if (!Array.isArray(markContent) || markContent.length !== 8) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Request for Stream Content')
   }
   return {
@@ -114,22 +112,20 @@ export function decompress(markContent: CompressedMarkContent): IMarkContent {
     contentHashes: markContent[1],
     contentNonceMap: markContent[2],
     creatorSignature: markContent[3],
-    holder: markContent[4],
-    creator: markContent[5],
-    link: markContent[6],
-    proofs: decompressProof(markContent[7]),
-    contentHash: markContent[8],
-    contentId: markContent[9],
+    link: markContent[4],
+    proofs: decompressProof(markContent[5]),
+    contentHash: markContent[6],
+    contentId: markContent[7],
   }
 }
 
 export function getIdForContent(
   hash: IMarkContent['contentHash'],
-  creator: IMarkContent['creator']
+  creator: string
 ): string {
   return getIdWithPrefix(Crypto.hashObjectAsStr({ hash, creator }))
 }
 
 export function getIdWithPrefix(hash: string): string {
-  return `cord:stream:${hash}`
+  return `stream:cord:${hash}`
 }

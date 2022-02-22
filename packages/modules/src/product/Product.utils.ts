@@ -96,11 +96,11 @@ export function getIdForProduct(hash: string): string {
 }
 
 export function getIdWithPrefix(hash: string): string {
-  return `cord:stream:${hash}`
+  return `stream:cord:${hash}`
 }
 
 export function getIdentifier(identifier: string): string {
-  return identifier.split('cord:stream:').join('')
+  return identifier.split('stream:cord:').join('')
 }
 
 /**
