@@ -12,7 +12,7 @@ import type {
   IContent,
   ICredential,
 } from '@cord.network/types'
-import { Crypto, SDKErrors } from '@cord.network/utils'
+import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
 import * as ContentUtils from '../content/Content.utils'
 import { Credential } from '../credential/Credential'
 import Identity from '../identity/Identity'
@@ -35,6 +35,7 @@ export type Options = {
   proofs?: Credential[]
   holder?: IContentStream['holder']
   link?: IContentStream['link']
+  nonceSalt?: string
 }
 export class ContentStream implements IContentStream {
   /**
@@ -62,14 +63,16 @@ export class ContentStream implements IContentStream {
   public static fromStreamContent(
     content: IContent,
     creator: Identity,
-    { proofs, holder, link }: Options = {}
+    { proofs, holder, link, nonceSalt }: Options = {}
   ): ContentStream {
     if (content.creator !== creator.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
 
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
-      ContentUtils.hashContents(content)
+      ContentUtils.hashContents(content, {
+        nonceGenerator: (key: string) => nonceSalt || UUID.generate(),
+      })
 
     const contentHash = ContentStream.calculateRootHash({
       proofs,

@@ -9,9 +9,14 @@ async function main() {
     /* Create Identities - Can have a separate registry for this */
     let id = await createIdentities();
     console.log('✅ Identities created!')
-    
+
+    let content = {
+	    name: 'Grade A Shimla Apple',
+	    sku: 'SHMGRN002'
+    }
+
     // Step 2: Setup a new Product
-    let { products, schema } = await registerProducts(id);
+    let { products, schema } = await registerProducts(id, content);
     console.log(`✅ ${products.length} Products added! `)
  
     // Step 3: Create a new Listing

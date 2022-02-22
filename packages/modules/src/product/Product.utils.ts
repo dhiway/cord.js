@@ -4,7 +4,7 @@
  */
 
 import type { IProduct, CompressedProduct } from '@cord.network/types'
-import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
+import { DataUtils, SDKErrors } from '@cord.network/utils'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IProduct]] object.
@@ -91,10 +91,6 @@ export function decompress(stream: CompressedProduct): IProduct {
     creator: stream[9],
     status: stream[10],
   }
-}
-
-export function getIdForProduct(hash: string): string {
-  return getIdForProduct(Crypto.hashObjectAsStr(hash))
 }
 
 export function getIdWithPrefix(hash: string): string {
