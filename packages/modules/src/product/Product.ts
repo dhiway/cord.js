@@ -19,6 +19,7 @@ import {
   set_status,
   query,
   create,
+  delegate,
   list,
   order,
   order_return,
@@ -213,6 +214,10 @@ export class Product implements IProduct {
    */
   public async create(): Promise<SubmittableExtrinsic> {
     return create(this)
+  }
+
+  public async delegate(): Promise<SubmittableExtrinsic> {
+    return delegate(this)
   }
 
   public async list(): Promise<SubmittableExtrinsic> {

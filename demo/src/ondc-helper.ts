@@ -61,7 +61,8 @@ export async function registerProducts(id: any, content: any) {
     let products: any = [];
     let newProductSchema = cord.Schema.fromSchemaProperties(
 	newProdSchemaContent,
-	id.productOwner!.address
+	id.productOwner!.address,
+	false
     )
 
     let bytes = json.encode(newProductSchema)
@@ -90,25 +91,6 @@ export async function registerProducts(id: any, content: any) {
 	console.log(e.errorCode, '-', e.message)
     }
 
-    let productSchemaDelegateExtrinsic = await newProductSchema.add_delegate(
-	id.sellerOne!.address,
-	500
-    )
-
-    console.log(`📧 Schema Delegation `)
-    try {
-	await cord.ChainUtils.signAndSubmitTx(
-	    productSchemaDelegateExtrinsic,
-	    id.productOwner!,
-	    {
-		resolveOn: cord.ChainUtils.IS_IN_BLOCK,
-	    }
-	)
-	console.log('✅ Schema Delegation added: ${sellerOne.address}')
-    } catch (e: any) {
-	console.log(e.errorCode, '-', e.message)
-    }
-
     // Step 2: Setup a new Product
     console.log(`\n✉️  Listening to new Product Additions`, '\n')
     let productStream = cord.Content.fromSchemaAndContent(
@@ -131,7 +113,7 @@ export async function registerProducts(id: any, content: any) {
 
 	bytes = json.encode(newProductContent)
 	encoded_hash = await hasher.digest(bytes)
-	const streamCid = CID.create(1, 0xb220, encoded_hash)
+	let streamCid = CID.create(1, 0xb220, encoded_hash)
 
 	let newProduct = cord.Product.fromProductContentAnchor(
 	    newProductContent,
@@ -161,13 +143,63 @@ export async function registerProducts(id: any, content: any) {
 	} catch (e: any) {
 	    console.log(e.errorCode, '-', e.message)
 	}
+
+    /* Handle delegation */
+
+    let productDelegationStream = cord.Content.fromSchemaAndContent(
+        newProductSchema,
+        content,
+        id.sellerOne!.address
+     )
+	let newProductDelegationContent = cord.ContentStream.fromStreamContent(
+	    productDelegationStream,
+	    id.sellerOne!,
+	    {
+		link: newProduct.id,
+		nonceSalt: `${content.name}:${content.sku}:delegate`
+	    }
+	)
+	bytes = json.encode(newProductDelegationContent)
+	encoded_hash = await hasher.digest(bytes)
+	streamCid = CID.create(1, 0xb220, encoded_hash)
+
+	let newDelegateProduct = cord.Product.fromProductContentAnchor(
+	    newProductDelegationContent,
+	    streamCid.toString(),
+	    undefined,
+	    0,
+	    undefined,
+	    500
+	)
+
+	let productDelegationExtrinsic = await newDelegateProduct.delegate()
+
+	console.log(`\n📧 Stream On-Chain Details`)
+	console.dir(newDelegateProduct, { depth: null, colors: true })
+
+	console.log('\n⛓  Anchoring Product Delegation to the chain...')
+	console.log(`🔑 Controller: ${id.productOwner!.address} `)
+    
+        try {
+	    await cord.ChainUtils.signAndSubmitTx(
+		productDelegationExtrinsic,
+		id.productOwner!,
+		{
+		    resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+		}
+	    )
+	} catch (e: any) {
+	    console.log(e.errorCode, '-', e.message)
+	}
+    
 	products.push({
 	    product: newProduct,
 	    prodContent: content,
 	    schema: newProductSchema,
 	    stream: productStream,
 	})
-    
+
+
     return { products, schema: newProductSchema};
 }
 

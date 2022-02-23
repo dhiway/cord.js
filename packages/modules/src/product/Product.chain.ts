@@ -40,6 +40,27 @@ export async function create(stream: IProduct): Promise<SubmittableExtrinsic> {
  * Generate the extrinsic to store the provided [[IProduct]].
  *
  * @param stream The stream to anchor on the chain.
+ * @returns The [[SubmittableExtrinsic]] for the `delegate` call.
+ */
+export async function delegate(stream: IProduct): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const tx: SubmittableExtrinsic = blockchain.api.tx.product.delegate(
+    stream.id,
+    stream.creator,
+    stream.hash,
+    stream.store_id,
+    stream.quantity,
+    stream.cid,
+    stream.schema,
+    stream.link
+  )
+  return tx
+}
+
+/**
+ * Generate the extrinsic to store the provided [[IProduct]].
+ *
+ * @param stream The stream to anchor on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
 export async function list(stream: IProduct): Promise<SubmittableExtrinsic> {

@@ -87,7 +87,8 @@ export class Schema implements ISchema {
    */
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
-    creator: ISchema['creator']
+    creator: ISchema['creator'],
+    permissioned: boolean = true
   ): Schema {
     return new Schema({
       id: SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema)),
@@ -99,7 +100,7 @@ export class Schema implements ISchema {
         ),
         ...schema,
       },
-      permissioned: true,
+      permissioned: permissioned,
       revoked: false,
     })
   }
