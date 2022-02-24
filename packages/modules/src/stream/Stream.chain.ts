@@ -26,6 +26,9 @@ const log = ConfigService.LoggingFactory.getLogger('Mark')
  */
 export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const linkId = stream.linkId
+    ? Identifier.getIdentifierKey(stream.linkId, STREAM_PREFIX)
+    : null
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
     Identifier.getIdentifierKey(stream.streamId, STREAM_PREFIX),
     stream.creator,
@@ -33,7 +36,7 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
     stream.holder,
     Identifier.getIdentifierKey(stream.schemaId, SCHEMA_PREFIX),
     stream.cid,
-    Identifier.getIdentifierKey(stream.linkId, STREAM_PREFIX)
+    linkId
   )
   return tx
 }

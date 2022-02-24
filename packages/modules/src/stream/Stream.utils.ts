@@ -16,7 +16,7 @@ import { DataUtils, SDKErrors } from '@cord.network/utils'
 export function errorCheck(input: IStream): void {
   if (!input.streamId) {
     throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.streamId, 'Stream ID')
+  } else DataUtils.validateId(input.streamId)
 
   if (!input.streamHash) {
     throw SDKErrors.ERROR_MARK_HASH_NOT_PROVIDED()
@@ -24,7 +24,7 @@ export function errorCheck(input: IStream): void {
 
   if (!input.schemaId) {
     throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.schemaId, 'Schema link')
+  } else DataUtils.validateId(input.schemaId)
 
   if (!input.creator) {
     throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
