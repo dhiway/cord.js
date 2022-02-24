@@ -9,7 +9,7 @@ import type {
   CompressedMarkContent,
   IMarkContent,
 } from '@cord.network/api-types'
-import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
+import { DataUtils, SDKErrors } from '@cord.network/utils'
 import * as MarkUtils from '../mark/Mark.utils.js'
 import * as ContentUtils from '../content/Content.utils.js'
 import { MarkContent } from './MarkContent.js'
@@ -117,15 +117,4 @@ export function decompress(markContent: CompressedMarkContent): IMarkContent {
     contentHash: markContent[6],
     contentId: markContent[7],
   }
-}
-
-export function getIdForContent(
-  hash: IMarkContent['contentHash'],
-  creator: string
-): string {
-  return getIdWithPrefix(Crypto.hashObjectAsStr({ hash, creator }))
-}
-
-export function getIdWithPrefix(hash: string): string {
-  return `stream:cord:${hash}`
 }

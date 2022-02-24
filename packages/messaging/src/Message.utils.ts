@@ -52,10 +52,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
     case Message.BodyType.REQUEST_CREDENTIAL: {
       body.content.forEach(
         (requestStreamsForSchema: IRequestStreamForCredential): void => {
-          DataUtils.validateId(
-            requestStreamsForSchema.id,
-            'Invalid Schema Identifier'
-          )
+          DataUtils.validateId(requestStreamsForSchema.id)
           requestStreamsForSchema.acceptedIssuer?.map((address) =>
             DataUtils.validateAddress(address, 'Invalid Schema Owner Address')
           )
@@ -76,13 +73,11 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       break
     }
     case Message.BodyType.ACCEPT_CREDENTIAL: {
-      body.content.map((id) => DataUtils.validateId(id, 'invalid schema hash'))
+      body.content.map((id) => DataUtils.validateId(id))
       break
     }
     case Message.BodyType.REJECT_CREDENTIAL: {
-      body.content.map((id) =>
-        DataUtils.validateId(id, 'rejected streams - invalid schema hash')
-      )
+      body.content.map((id) => DataUtils.validateId(id))
       break
     }
 

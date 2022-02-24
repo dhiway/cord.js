@@ -19,6 +19,8 @@ import { Mark } from '../mark/Mark.js'
 import { Identity } from '../identity/Identity.js'
 import * as MarkContentUtils from './MarkContent.utils.js'
 import { UUID } from '@cord.network/utils'
+import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/api-types'
+import { Identifier } from '@cord.network/utils'
 
 function verifyCreatorSignature(content: IMarkContent): boolean {
   return Crypto.verify(
@@ -88,7 +90,11 @@ export class MarkContent implements IMarkContent {
       link,
       creatorSignature: MarkContent.sign(creator, contentHash),
       contentHash,
-      contentId: MarkContentUtils.getIdForContent(contentHash, creator.address),
+      contentId: Identifier.getIdentifier(
+        contentHash,
+        STREAM_IDENTIFIER,
+        STREAM_PREFIX
+      ),
     })
   }
 

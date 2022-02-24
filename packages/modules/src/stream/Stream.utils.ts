@@ -4,7 +4,7 @@
  */
 
 import type { IStream, CompressedStream } from '@cord.network/api-types'
-import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
+import { DataUtils, SDKErrors } from '@cord.network/utils'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStream]] object.
@@ -76,33 +76,24 @@ export function decompress(stream: CompressedStream): IStream {
   }
 }
 
-export function getIdForStream(hash: string): string {
-  return getIdForStream(Crypto.hashObjectAsStr(hash))
-}
+// export function getIdForStream(hash: string): string {
+//   return getIdForStream(Crypto.hashObjectAsStr(hash))
+// }
 
-export function getIdWithPrefix(hash: string): string {
-  return `stream:cord:${hash}`
-}
+// export function getIdWithPrefix(hash: string): string {
+//   return `stream:cord:${hash}`
+// }
 
-export function getStreamId(identifier: string): string {
-  return identifier.split('stream:cord').join('')
-}
+// export function getStreamId(identifier: string): string {
+//   return identifier.split('stream:cord').join('')
+// }
 
-export function getLinkId(
-  identifier: string | null | undefined
-): string | null | undefined {
-  if (identifier) {
-    return identifier.split('stream:cord').join('')
-  } else {
-    return undefined
-  }
-}
-
-/**
- * Convert from hex to string
- * @param hex Hex string with prefix `0x`
- * @returns With string back
- */
-export function hexToString(hex: string): string {
-  return Buffer.from(hex.substring(2), 'hex').toString()
-}
+// export function getLinkId(
+//   identifier: string | null | undefined
+// ): string | null | undefined {
+//   if (identifier) {
+//     return identifier.split('stream:cord').join('')
+//   } else {
+//     return undefined
+//   }
+// }

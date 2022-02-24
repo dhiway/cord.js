@@ -11,7 +11,6 @@ import type {
   CompressedPartialContent,
 } from '@cord.network/api-types'
 import { jsonabc, DataUtils, Crypto, SDKErrors } from '@cord.network/utils'
-import { getIdWithPrefix } from '../schema/Schema.utils.js'
 
 const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
 
@@ -30,7 +29,7 @@ function JsonLDcontents(
 ): Record<string, unknown> {
   const { schemaId, contents } = content
   if (!schemaId) SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
-  const vocabulary = `${getIdWithPrefix(schemaId)}#`
+  const vocabulary = `${schemaId}#`
   const result: Record<string, unknown> = {}
   if (!expanded) {
     return {
@@ -55,7 +54,7 @@ export function toJsonLD(
     [`${prefix}credentialSubject`]: credentialSubject,
   }
   result[`${prefix}credentialSchema`] = {
-    '@id': getIdWithPrefix(content.schemaId),
+    '@id': content.schemaId,
   }
   if (!expanded) result['@context'] = { '@vocab': VC_VOCAB }
   return result
@@ -189,7 +188,7 @@ export function errorCheck(input: IContent | PartialContent): void {
       }
     })
   }
-  DataUtils.validateId(input.schemaId, 'Stream Schema')
+  DataUtils.validateId(input.schemaId)
 }
 
 /**

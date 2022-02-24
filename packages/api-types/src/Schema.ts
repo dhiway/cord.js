@@ -4,6 +4,9 @@
  */
 import type { IPublicIdentity } from './PublicIdentity.js'
 
+export const SCHEMA_IDENTIFIER: number = 0
+export const SCHEMA_PREFIX: string = 'schema:cord:'
+
 export type InstanceType =
   | 'array'
   | 'boolean'

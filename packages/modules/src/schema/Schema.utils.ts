@@ -73,26 +73,23 @@ export async function verifyOwner(schema: ISchema): Promise<boolean> {
   return creator ? creator === schema.creator : false
 }
 
+export function getSchemaPropertiesForHash(
+  schemaType: SchemaWithoutId | ISchema['schema']
+): Partial<ISchema['schema']> {
+  const schemaWithoutId: Partial<ISchema['schema']> =
+    '$id' in schemaType
+      ? (schemaType as ISchema['schema'])
+      : (schemaType as SchemaWithoutId)
+  const shallowCopy = { ...schemaWithoutId }
+  delete shallowCopy.$id
+  return shallowCopy
+}
+
 export function getHashForSchema(
   schema: SchemaWithoutId | ISchema['schema']
 ): string {
-  return Crypto.hashObjectAsStr(schema)
-}
-
-export function getIdForSchema(
-  schema: SchemaWithoutId | ISchema['schema'],
-  creator: ISchema['creator']
-): string {
-  const hash = getHashForSchema(schema)
-  return getIdWithPrefix(Crypto.hashObjectAsStr({ hash, creator }))
-}
-
-export function getIdWithPrefix(hash: string): string {
-  return `schema:cord:${hash}`
-}
-
-export function getSchemaId(id: string): string {
-  return id.split('schema:cord:').join('')
+  const prepSchema = getSchemaPropertiesForHash(schema)
+  return Crypto.hashObjectAsStr(prepSchema)
 }
 
 /**
@@ -109,6 +106,7 @@ export function errorCheck(input: ISchema): void {
   if (!verifySchema(input, SchemaWrapperModel)) {
     throw SDKErrors.ERROR_OBJECT_MALFORMED()
   }
+  console.log(input.schema, getHashForSchema(input.schema))
   if (!input.schema || getHashForSchema(input.schema) !== input.hash) {
     throw SDKErrors.ERROR_HASH_MALFORMED(input.hash, 'Schema')
   }

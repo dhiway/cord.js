@@ -18,6 +18,7 @@ import type {
   SchemaWithoutId,
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
+import { Identifier } from '@cord.network/utils'
 import {
   query,
   create,
@@ -28,6 +29,7 @@ import {
   setPermission,
 } from './Schema.chain.js'
 import * as SchemaUtils from './Schema.utils.js'
+import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/api-types'
 
 export class Schema implements ISchema {
   /**
@@ -73,16 +75,20 @@ export class Schema implements ISchema {
     version?: ISchema['version'],
     permission?: boolean
   ): Schema {
-    const id = SchemaUtils.getIdForSchema(schema, creator)
-    const schemaWithId = {
-      $id: id,
-      ...schema,
-    }
+    const schemaHash = SchemaUtils.getHashForSchema(schema)
+    const schemaId = Identifier.getIdentifier(
+      schemaHash,
+      SCHEMA_IDENTIFIER,
+      SCHEMA_PREFIX
+    )
     return new Schema({
-      id: id,
-      hash: SchemaUtils.getHashForSchema(schemaWithId),
+      id: schemaId,
+      hash: schemaHash,
       version: version || '1.0.0',
-      schema: schemaWithId,
+      schema: {
+        ...schema,
+        $id: schemaId,
+      },
       creator: creator,
       permissioned: permission || false,
     })

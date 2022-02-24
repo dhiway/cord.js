@@ -5,6 +5,9 @@
 import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 
+export const STREAM_IDENTIFIER: number = 4
+export const STREAM_PREFIX: string = 'stream:cord:'
+
 export interface IStream {
   streamId: string
   streamHash: string

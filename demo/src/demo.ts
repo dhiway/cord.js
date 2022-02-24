@@ -54,6 +54,16 @@ async function main() {
   console.log('Version', newSchema.version)
   let schemaCreationExtrinsic = await newSchema.create(schemaCid.toString())
 
+  // let schemaIdentifier = cord.Utils.Identifier.encodeIdentifier(
+  //   newSchema.hash,
+  //   65
+  // )
+  // console.log('SDK', schemaIdentifier)
+  // console.log(
+  //   'SDK',
+  //   cord.Utils.Identifier.decodeIdentifierKey(schemaIdentifier)
+  // )
+
   console.log(`📧 Schema Details `)
   console.dir(newSchema, { depth: null, colors: true })
   console.log(`CID: `, schemaCid.toString())
@@ -67,7 +77,7 @@ async function main() {
       schemaCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_READY,
+        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
         rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )

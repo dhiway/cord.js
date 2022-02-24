@@ -9,13 +9,12 @@ import type {
   IPublicIdentity,
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
-import { DecoderUtils } from '@cord.network/utils'
+import { DecoderUtils, Identifier } from '@cord.network/utils'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream.js'
-import { hexToString, getStreamId, getLinkId } from './Stream.utils'
-import { getSchemaId } from '../schema/Schema.utils.js'
+import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/api-types'
 
 const log = ConfigService.LoggingFactory.getLogger('Mark')
 
@@ -28,13 +27,13 @@ const log = ConfigService.LoggingFactory.getLogger('Mark')
 export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
-    getStreamId(stream.streamId),
+    Identifier.getIdentifierKey(stream.streamId, STREAM_PREFIX),
     stream.creator,
     stream.streamHash,
     stream.holder,
-    getSchemaId(stream.schemaId),
+    Identifier.getIdentifierKey(stream.schemaId, SCHEMA_PREFIX),
     stream.cid,
-    getLinkId(stream.linkId)
+    Identifier.getIdentifierKey(stream.linkId, STREAM_PREFIX)
   )
   return tx
 }
@@ -48,7 +47,7 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
 export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.update(
-    getStreamId(stream.streamId),
+    Identifier.getIdentifierKey(stream.streamId, STREAM_PREFIX),
     stream.creator,
     stream.streamHash,
     stream.cid
@@ -80,13 +79,13 @@ export async function setStatus(
 }
 
 export interface AnchoredStreamDetails extends Struct {
-  readonly streamId: Hash
+  readonly streamId: Vec<u8>
   readonly creator: AccountId
   readonly holder: Option<AccountId>
   readonly schema: Option<Hash>
   readonly cid: Option<Vec<u8>>
   readonly parent: Option<Hash>
-  readonly link: Option<Hash>
+  readonly link: Option<Vec<u8>>
   readonly revoked: boolean
 }
 
@@ -100,16 +99,16 @@ function decodeStream(
   if (encodedStream.isSome) {
     const anchoredStream = encodedStream.unwrap()
     const stream: IStreamDetails = {
-      streamId: anchoredStream.streamId.toString(),
+      streamId: DecoderUtils.hexToString(anchoredStream.streamId.toString()),
       streamHash: streamHash,
       creator: anchoredStream.creator.toString(),
       holder: anchoredStream.holder.toString() || null,
       schemaId: anchoredStream.schema.toString() || null,
       cid: anchoredStream.cid
-        ? hexToString(anchoredStream.cid.toString())
+        ? DecoderUtils.hexToString(anchoredStream.cid.toString())
         : null,
       parentHash: anchoredStream.parent.toString() || null,
-      linkId: anchoredStream.link.toString() || null,
+      linkId: DecoderUtils.hexToString(anchoredStream.link.toString()) || null,
       revoked: anchoredStream.revoked.valueOf(),
     }
     return StreamDetails.fromStreamDetails(stream)
@@ -155,7 +154,7 @@ export async function queryHash(
  * @returns Either the retrieved [[StreamDetails]] or null.
  */
 export async function query(streamId: string): Promise<StreamDetails | null> {
-  const stream_Id = getStreamId(streamId)
+  const stream_Id = Identifier.getIdentifierKey(streamId, STREAM_PREFIX)
   const streamHash = await queryRawId(stream_Id)
   const encoded = await queryRawHash(streamHash)
   return decodeStream(encoded, streamHash)
