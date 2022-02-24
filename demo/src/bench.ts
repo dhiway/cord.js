@@ -19,7 +19,7 @@ async function main() {
   let tx_batch = []
 
   let startTxPrep = moment()
-  let txCount = 1200
+  let txCount = 1000
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
   for (let j = 0; j < txCount; j++) {
