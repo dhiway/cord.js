@@ -3,6 +3,7 @@ import { Crypto } from '@cord.network/utils'
 import * as json from 'multiformats/codecs/json'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
 import { CID } from 'multiformats/cid'
+//import * as utils from './utils'
 
 //const NUMBER_OF_ORDERS = 8
 //const NUMBER_OF_RATING = 5
@@ -55,7 +56,7 @@ export async function registerProducts(id: any, content: any) {
     
     console.log(`\n\n✉️  Adding a new Product Schema \n`)
     let newProdSchemaContent = require('../res/ondc-prod-schema.json')
-    let newProdSchemaName = `Item: ${content.name}`
+    let newProdSchemaName = `Item Schema: ${content.name}`
     newProdSchemaContent.name = newProdSchemaName
 
     let products: any = [];
@@ -91,6 +92,7 @@ export async function registerProducts(id: any, content: any) {
 	console.log(e.errorCode, '-', e.message)
     }
 
+
     // Step 2: Setup a new Product
     console.log(`\n✉️  Listening to new Product Additions`, '\n')
     let productStream = cord.Content.fromSchemaAndContent(
@@ -121,7 +123,7 @@ export async function registerProducts(id: any, content: any) {
 	    undefined,
 	    100,
 	    undefined,
-	    10000
+	    100000
 	)
 
 	let productCreationExtrinsic = await newProduct.create()
@@ -167,9 +169,9 @@ export async function registerProducts(id: any, content: any) {
 	    newProductDelegationContent,
 	    streamCid.toString(),
 	    undefined,
-	    0,
+	    103,
 	    undefined,
-	    500
+	    1000
 	)
 
 	let productDelegationExtrinsic = await newDelegateProduct.delegate()

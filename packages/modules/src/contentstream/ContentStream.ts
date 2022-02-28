@@ -36,6 +36,7 @@ export type Options = {
   holder?: IContentStream['holder']
   link?: IContentStream['link']
   nonceSalt?: string
+  quantity?: number
 }
 export class ContentStream implements IContentStream {
   /**
@@ -63,7 +64,7 @@ export class ContentStream implements IContentStream {
   public static fromStreamContent(
     content: IContent,
     creator: Identity,
-    { proofs, holder, link, nonceSalt }: Options = {}
+    { proofs, holder, link, nonceSalt, quantity }: Options = {}
   ): ContentStream {
     if (content.creator !== creator.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
@@ -88,6 +89,7 @@ export class ContentStream implements IContentStream {
       creatorSignature: ContentStream.sign(creator, contentHash),
       holder,
       creator: creator.address,
+      quantity,
       contentHash,
       id: ContentStreamUtils.getIdForContent(contentHash),
     })
@@ -119,7 +121,8 @@ export class ContentStream implements IContentStream {
   public creator: IContentStream['creator']
   public contentHash: Hash
   public id: string
-
+  public quantity: number | undefined
+  
   /**
    * Builds a new [[ContentStream]] instance.
    *
@@ -151,6 +154,7 @@ export class ContentStream implements IContentStream {
     this.creatorSignature = requestForContentStream.creatorSignature
     this.contentHash = requestForContentStream.contentHash
     this.link = requestForContentStream.link
+    this.quantity = requestForContentStream.quantity
     this.verifySignature()
     this.verifyData()
   }

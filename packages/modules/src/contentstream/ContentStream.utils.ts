@@ -95,6 +95,7 @@ export function compress(
     compressProof(contentStream.proofs),
     contentStream.contentHash,
     contentStream.id,
+    contentStream.quantity,
   ]
 }
 
@@ -110,7 +111,7 @@ export function compress(
 export function decompress(
   contentStream: CompressedContentStream
 ): IContentStream {
-  if (!Array.isArray(contentStream) || contentStream.length !== 10) {
+  if (!Array.isArray(contentStream) || contentStream.length !== 11) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Request for Stream Content')
   }
   return {
@@ -124,6 +125,7 @@ export function decompress(
     proofs: decompressProof(contentStream[7]),
     contentHash: contentStream[8],
     id: contentStream[9],
+    quantity: contentStream[10],
   }
 }
 
