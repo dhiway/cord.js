@@ -1,5 +1,6 @@
 module.exports = {
   exclude: [
+    'demo/**/**',
     '**/*spec.ts',
     '**/__mocks__/**',
     '**/testingTools/**',
@@ -8,13 +9,18 @@ module.exports = {
     '**/__integrationtests__/**',
     '**/index.ts',
   ],
+  entryPoints: [
+    "packages/api/src/index.ts"
+  ],
   excludeExternals: true,
-  excludeNotExported: true,
+  //excludeNotExported: true,
   excludePrivate: true,
-  stripInternal: true,
+  //stripInternal: true,
   hideGenerator: true,
   name: '@cord.network/api',
-  listInvalidSymbolLinks: true,
+  validation: {
+    invalidLink: true,
+  },
   tsconfig: 'tsconfig.json',
   readme: 'README.md',
 }
