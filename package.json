@@ -60,8 +60,7 @@
     "prettier": "^2.0.5",
     "ts-jest": "^27.0.5",
     "ts-node": "^9.1.1",
-    "typedoc": "^0.19",
-    "typedoc-plugin-external-module-name": "^4.0.6",
+    "typedoc": "^0.22.12",
     "typescript": "^4.2.2",
     "wait-for-enter": "^1.0.0"
   },
