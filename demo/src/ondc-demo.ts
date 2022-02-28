@@ -4,16 +4,16 @@ import { createIdentities, registerProducts, addProductListing, placeOrder, give
 
 
 async function main() {
-    await cord.init({ address: 'ws://localhost:9944' })
-    // await cord.init({ address: 'wss://staging.cord.network' })
+    //await cord.init({ address: 'ws://localhost:9944' })
+    await cord.init({ address: 'wss://staging.cord.network' })
 
     /* Create Identities - Can have a separate registry for this */
     let id = await createIdentities();
     console.log('✅ Identities created!')
 
     let content = {
-	    name: 'Grade A Bengaluru Apple',
-	    sku: 'BLRGRN002'
+	    name: 'Grade A Bengaluru Apples',
+	    sku: 'BLRGRN004'
     }
 
     // Step 2: Setup a new Product
