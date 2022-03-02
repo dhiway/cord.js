@@ -8,55 +8,64 @@ export const SchemaModel = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
   properties: {
-    $id: {
-      type: 'string',
-    },
-    $schema: {
-      type: 'string',
-      format: 'uri',
-      const: 'http://json-schema.org/draft-07/schema#',
-    },
-    name: {
-      type: 'string',
-    },
-    type: {
-      type: 'string',
-      const: 'object',
-    },
-    properties: {
-      type: 'object',
-      patternProperties: {
-        '^.*$': {
-          type: 'object',
-          properties: {
-            type: {
-              type: 'string',
-              enum: ['string', 'integer', 'number', 'boolean'],
-            },
-            $ref: {
-              type: 'string',
-              format: 'uri',
-            },
-            format: {
-              type: 'string',
-              enum: ['date', 'time', 'uri'],
-            },
-          },
-          additionalProperties: false,
-          oneOf: [
-            {
-              required: ['type'],
-            },
-            {
-              required: ['$ref'],
-            },
-          ],
-        },
+      $id: {
+	  type: 'string',
       },
-    },
+      $schema: {
+	  type: 'string',
+	  format: 'uri',
+	  const: 'http://json-schema.org/draft-07/schema#'
+      },
+      name: {
+	  type: 'string'
+      },
+      type: {
+	  type: 'string',
+	  const: 'object'
+      },
+      properties: {
+	  type: 'object',
+	  patternProperties: {
+              '^.*$': {
+		  type: 'object',
+		  properties: {
+		      type: {
+			  type: 'string',
+			  enum: ['string', 'integer', 'number', 'boolean', "object", "array"]
+		      },
+		      $ref: {
+			  type: 'string',
+			  format: 'uri'
+		      },
+		      format: {
+			  type: 'string',
+			  enum: ['date', 'time', 'uri', 'email', 'date-time']
+		      },
+		      items: {
+			  type: 'object',
+			  properties: {
+			      type: {
+				  type: 'string',
+				  enum: ['string', 'integer', 'number', 'boolean', "object", "array"]
+			      },
+			      $ref: {
+				  type: 'string',
+				  format: 'uri'
+			      },
+			      format: {
+				  type: 'string',
+				  enum: ['date', 'time', 'uri', 'email', 'date-time']
+			      }
+			  }
+		      },
+		      additionalProperties: false,
+		  },
+	      },
+	  },
+      },
   },
-  additionalProperties: false,
-  required: ['$id', 'name', '$schema', 'properties', 'type'],
+    additionalProperties: false,
+    required: ['$id', 'name', '$schema', 'properties', 'type'],
 }
 
 export const SchemaWrapperModel = {

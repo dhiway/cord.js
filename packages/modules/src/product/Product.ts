@@ -19,6 +19,7 @@ import {
   set_status,
   query,
   create,
+  delegate,
   list,
   order,
   order_return,
@@ -98,7 +99,8 @@ export class Product implements IProduct {
     cid: string,
     store_id?: string,
     price?: number,
-    rating?: number
+    rating?: number,
+    quantity?: number
   ): Product {
     return new Product({
       id: ProductUtils.getIdentifier(content.id),
@@ -108,6 +110,7 @@ export class Product implements IProduct {
       schema: content.content.schemaId,
       price: price,
       rating: rating,
+      quantity: quantity,
       link: content.link,
       creator: content.creator,
       status: true,
@@ -129,7 +132,8 @@ export class Product implements IProduct {
     schemaId?: string,
     price?: number,
     link?: string,
-    rating?: number
+    rating?: number,
+    quantity?: number
   ): Product {
     return new Product({
       id: id,
@@ -138,6 +142,7 @@ export class Product implements IProduct {
       store_id: store_id,
       schema: schemaId,
       price: price,
+      quantity: quantity,
       rating: rating,
       link: link,
       creator: creator,
@@ -167,6 +172,7 @@ export class Product implements IProduct {
   public schema: IProduct['schema']
   public price?: number | undefined
   public rating?: number | undefined
+  public quantity?: number | undefined
   public link: IProduct['link']
   public creator: IProduct['creator']
   public status: IProduct['status']
@@ -189,6 +195,7 @@ export class Product implements IProduct {
     this.schema = stream.schema
     this.price = stream.price
     this.rating = stream.rating
+    this.quantity = stream.quantity
     this.link = stream.link
     this.creator = stream.creator
     this.status = stream.status
@@ -207,6 +214,10 @@ export class Product implements IProduct {
    */
   public async create(): Promise<SubmittableExtrinsic> {
     return create(this)
+  }
+
+  public async delegate(): Promise<SubmittableExtrinsic> {
+    return delegate(this)
   }
 
   public async list(): Promise<SubmittableExtrinsic> {
@@ -315,6 +326,7 @@ export class ProductDetails implements IProductDetails {
   public link: IProductDetails['link']
   public creator: IProductDetails['creator']
   public price: IProductDetails['price']
+  public quantity: IProductDetails['quantity']
   public rating: IProductDetails['rating']
   public block: IProductDetails['block']
   public status: IProductDetails['status']
@@ -331,6 +343,7 @@ export class ProductDetails implements IProductDetails {
     this.creator = details.creator
     this.price = details.price
     this.rating = details.rating
+    this.quantity = details.quantity
     this.block = details.block
     this.status = details.status
   }

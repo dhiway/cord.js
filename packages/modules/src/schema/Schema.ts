@@ -87,7 +87,8 @@ export class Schema implements ISchema {
    */
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
-    creator: ISchema['creator']
+    creator: ISchema['creator'],
+    permissioned: boolean = true
   ): Schema {
     return new Schema({
       id: SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema)),
@@ -99,7 +100,7 @@ export class Schema implements ISchema {
         ),
         ...schema,
       },
-      permissioned: true,
+      permissioned: permissioned,
       revoked: false,
     })
   }
@@ -146,8 +147,8 @@ export class Schema implements ISchema {
     return store(this, cid)
   }
 
-  public async add_delegate(delegate: string): Promise<SubmittableExtrinsic> {
-    return add_delegate(this.schema.$id, this.creator, delegate)
+  public async add_delegate(delegate: string, quantity: number): Promise<SubmittableExtrinsic> {
+    return add_delegate(this.schema.$id, this.creator, delegate, quantity)
   }
 
   public async remove_delegate(

@@ -1,11 +1,12 @@
 import * as cord from '@cord.network/api'
-import { Crypto, UUID } from '@cord.network/utils'
+import { Crypto } from '@cord.network/utils'
 import * as json from 'multiformats/codecs/json'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
 import { CID } from 'multiformats/cid'
+//import * as utils from './utils'
 
-const NUMBER_OF_ORDERS = 8
-const NUMBER_OF_RATING = 5
+//const NUMBER_OF_ORDERS = 8
+//const NUMBER_OF_RATING = 5
 
 function between(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
@@ -22,7 +23,7 @@ export async function createIdentities() {
     const productOwner = cord.Identity.buildFromURI('//Bob', {
 	signingKeyPairType: 'sr25519',
     })
-    const sellerOne = cord.Identity.buildFromURI('//SellerOne', {
+    const sellerOne = cord.Identity.buildFromURI('//seller//2', {
 	signingKeyPairType: 'sr25519',
     })
     const sellerTwo = cord.Identity.buildFromURI('//SellerTwo', {
@@ -51,16 +52,18 @@ export async function createIdentities() {
 }
 
 
-export async function registerProducts(id: any) {
+export async function registerProducts(id: any, content: any) {
     
     console.log(`\n\n✉️  Adding a new Product Schema \n`)
-    let newProdSchemaContent = require('../res/prod-schema.json')
-    let newProdSchemaName = newProdSchemaContent.name + ':' + UUID.generate()
+    let newProdSchemaContent = require('../res/ondc-prod-schema.json')
+    let newProdSchemaName = `Item Schema: ${content.name}`
     newProdSchemaContent.name = newProdSchemaName
 
+    let products: any = [];
     let newProductSchema = cord.Schema.fromSchemaProperties(
 	newProdSchemaContent,
-	id.productOwner!.address
+	id.productOwner!.address,
+	false
     )
 
     let bytes = json.encode(newProductSchema)
@@ -81,7 +84,7 @@ export async function registerProducts(id: any) {
 	    productSchemaCreationExtrinsic,
 	    id.productOwner!,
 	    {
-		resolveOn: cord.ChainUtils.IS_READY,
+		resolveOn: cord.ChainUtils.IS_IN_BLOCK,
 	    }
 	)
 	console.log('✅ Schema created!')
@@ -89,61 +92,38 @@ export async function registerProducts(id: any) {
 	console.log(e.errorCode, '-', e.message)
     }
 
-    let productSchemaDelegateExtrinsic = await newProductSchema.add_delegate(
-	id.sellerOne!.address
-    )
-
-    console.log(`📧 Schema Delegation `)
-    try {
-	await cord.ChainUtils.signAndSubmitTx(
-	    productSchemaDelegateExtrinsic,
-	    id.productOwner!,
-	    {
-		resolveOn: cord.ChainUtils.IS_READY,
-	    }
-	)
-	console.log('✅ Schema Delegation added: ${sellerOne.address}')
-    } catch (e: any) {
-	console.log(e.errorCode, '-', e.message)
-    }
 
     // Step 2: Setup a new Product
     console.log(`\n✉️  Listening to new Product Additions`, '\n')
-    let products: any = [];
-    for (let i = 0; i < 10 ; i++) {
-	let content = {
-	    name: 'Sony OLED 55 Inch Television',
-	    description: 'Best Television in the World',
-	    countryOfOrigin: 'India',
-	    gtin: UUID.generate(),
-	    brand: 'Sony OLED',
-	    manufacturer: 'Sony',
-	    model: '2022',
-	    sku: UUID.generate(),
-	}
-
-	let productStream = cord.Content.fromSchemaAndContent(
-	    newProductSchema,
-	    content,
-	    id.productOwner!.address
-	)
+    let productStream = cord.Content.fromSchemaAndContent(
+        newProductSchema,
+        content,
+        id.productOwner!.address
+     )
 	console.log(`📧 Product Details `)
 	console.dir(productStream, { depth: null, colors: true })
 
 	let newProductContent = cord.ContentStream.fromStreamContent(
 	    productStream,
-	    id.productOwner!
+	    id.productOwner!,
+	    {
+	    nonceSalt: `${content.name}:${content.sku}:create`
+	    }
 	)
 	console.log(`\n📧 Hashed Product Stream `)
 	console.dir(newProductContent, { depth: null, colors: true })
 
 	bytes = json.encode(newProductContent)
 	encoded_hash = await hasher.digest(bytes)
-	const streamCid = CID.create(1, 0xb220, encoded_hash)
+	let streamCid = CID.create(1, 0xb220, encoded_hash)
 
 	let newProduct = cord.Product.fromProductContentAnchor(
 	    newProductContent,
-	    streamCid.toString()
+	    streamCid.toString(),
+	    undefined,
+	    100,
+	    undefined,
+	    100000
 	)
 
 	let productCreationExtrinsic = await newProduct.create()
@@ -165,13 +145,64 @@ export async function registerProducts(id: any) {
 	} catch (e: any) {
 	    console.log(e.errorCode, '-', e.message)
 	}
+
+    /* Handle delegation */
+
+    let productDelegationStream = cord.Content.fromSchemaAndContent(
+        newProductSchema,
+        content,
+        id.sellerOne!.address
+     )
+	let newProductDelegationContent = cord.ContentStream.fromStreamContent(
+	    productDelegationStream,
+	    id.sellerOne!,
+	    {
+		link: newProduct.id,
+		nonceSalt: `${content.name}:${content.sku}:delegate`
+	    }
+	)
+	bytes = json.encode(newProductDelegationContent)
+	encoded_hash = await hasher.digest(bytes)
+	streamCid = CID.create(1, 0xb220, encoded_hash)
+
+
+	let newDelegateProduct = cord.Product.fromProductContentAnchor(
+	    newProductDelegationContent,
+	    streamCid.toString(),
+	    undefined,
+	    103,
+	    undefined,
+	    1000
+	)
+
+	let productDelegationExtrinsic = await newDelegateProduct.delegate()
+
+	console.log(`\n📧 Stream On-Chain Details`)
+	console.dir(newDelegateProduct, { depth: null, colors: true })
+
+	console.log('\n⛓  Anchoring Product Delegation to the chain...')
+	console.log(`🔑 Controller: ${id.productOwner!.address} `)
+    
+        try {
+	    await cord.ChainUtils.signAndSubmitTx(
+		productDelegationExtrinsic,
+		id.productOwner!,
+		{
+		    resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+		}
+	    )
+	} catch (e: any) {
+	    console.log(e.errorCode, '-', e.message)
+	}
+    
 	products.push({
 	    product: newProduct,
 	    prodContent: content,
 	    schema: newProductSchema,
 	    stream: productStream,
 	})
-    }
+
+
     return { products, schema: newProductSchema};
 }
 
@@ -179,12 +210,14 @@ export async function addProductListing(id: any, schema: any, products: any) {
     let listings: any = [];
     console.log(`\n\n✉️  Listening to Product Listings \n`)
     let store_name = 'ABC Store'
-    let price = 135000
-    for (let i = 0; i < products.length; i++) {
+    let price = 100
+    for (let i = 0; i < 1; i++) {
         let product = products[i];
+	console.log(product);
+	let content = product.stream!.contents;
 	let listStream = cord.Content.fromSchemaAndContent(
 	    schema,
-	    product.stream!.contents,
+	    content,
 	    id.sellerOne!.address
 	)
 	console.log(`📧 Product Listing Details `)
@@ -195,6 +228,7 @@ export async function addProductListing(id: any, schema: any, products: any) {
 	    id.sellerOne!,
 	    {
 		link: product.product!.id!,
+		nonceSalt: `${content.name}:${content.sku}:list`
 	    }
 	)
 	console.log(`\n📧 Hashed Product Stream `)
@@ -213,7 +247,9 @@ export async function addProductListing(id: any, schema: any, products: any) {
 	    newListingContent,
 	    listCid.toString(),
 	    storeId.toString(),
-	    price
+	    price,
+	    undefined,
+	    500
 	)
 
 	let listingCreationExtrinsic = await newListing.list()
@@ -243,14 +279,14 @@ export async function addProductListing(id: any, schema: any, products: any) {
 
 export async function placeOrder(id: any, schema: any, listings: any) {
     let orders: any = []
-    let price = 135000
     console.log(`\n\n✉️  Listening to Product Orders \n`)
-
-    for (let i = 0; i < NUMBER_OF_ORDERS; i++) {
-	let inventory = listings[between(0, listings.length)];
+    let price = 99;
+    	let inventory = listings[0];
+	console.log(inventory);
+	let content = inventory.product!.stream!.contents;
 	let orderStream = cord.Content.fromSchemaAndContent(
 	    schema,
-	    inventory.product!.stream!.contents,
+	    content,
 	    id.buyerOne!.address
 	)
 	console.log(`📧 Product Order Details `)
@@ -261,6 +297,7 @@ export async function placeOrder(id: any, schema: any, listings: any) {
 	    id.buyerOne!,
 	    {
 		link: inventory.listing!.id,
+		nonceSalt: `${content.name}:${content.sku}:order`
 	    }
 	)
 	console.log(`\n📧 Hashed Order Stream `)
@@ -274,7 +311,9 @@ export async function placeOrder(id: any, schema: any, listings: any) {
 	    newOrderContent,
 	    orderCid.toString(),
 	    inventory.listing!.store_id,
-	    price
+	    price,
+	    undefined,
+	    5
 	)
 
 	let orderCreationExtrinsic = await newOrder.order()
@@ -301,22 +340,19 @@ export async function placeOrder(id: any, schema: any, listings: any) {
 		     listing: inventory.listing
 		    })
 	
-    }
     return orders;
 }
 
 export async function giveRating(id: any, schema: any, orders: any) {
     let ratings: any = [];
-    let price = 135000
 
     console.log(`\n\n✉️  Listening to Ratings \n`)
 
-    for (let i = 0; i < NUMBER_OF_RATING; i++) {
-	let order = orders[between(0, orders.length)];
-	
+	let order = orders[0];
+	let content = order.product!.stream!.contents;
 	let ratingStream = cord.Content.fromSchemaAndContent(
 	    schema,
-	    order.product!.stream!.contents,
+	    content,
 	    id.buyerOne!.address
 	)
 	console.log(`📧 Product Order Details `)
@@ -327,6 +363,7 @@ export async function giveRating(id: any, schema: any, orders: any) {
 	    id.buyerOne!,
 	    {
 		link: order.order!.id,
+		nonceSalt: `${content.name}:${content.sku}:order`
 	    }
 	)
 	console.log(`\n📧 Hashed Order Stream `)
@@ -340,8 +377,9 @@ export async function giveRating(id: any, schema: any, orders: any) {
 	    newRatingContent,
 	    ratingCid.toString(),
 	    order.listing!.store_id,
-	    price,
-	    rating
+	    99,
+	    rating,
+	    undefined
 	)
 
 	let ratingCreationExtrinsic = await newRating.order_rating()
@@ -365,6 +403,6 @@ export async function giveRating(id: any, schema: any, orders: any) {
 	}
 
 	ratings.push({rating: newRating})
-    }
+
     return ratings;
 }
