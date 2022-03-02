@@ -19,7 +19,7 @@ async function main() {
 
     let content = {
 	    name: 'Grade A Shimla Apple',
-	    sku: 'BLRGRN008'
+	    sku: 'BLRGRN008903'
     }
 
     // Step 2: Setup a new Product

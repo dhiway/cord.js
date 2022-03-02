@@ -165,6 +165,7 @@ export async function registerProducts(id: any, content: any) {
 	encoded_hash = await hasher.digest(bytes)
 	streamCid = CID.create(1, 0xb220, encoded_hash)
 
+
 	let newDelegateProduct = cord.Product.fromProductContentAnchor(
 	    newProductDelegationContent,
 	    streamCid.toString(),
@@ -210,8 +211,9 @@ export async function addProductListing(id: any, schema: any, products: any) {
     console.log(`\n\n✉️  Listening to Product Listings \n`)
     let store_name = 'ABC Store'
     let price = 100
-    for (let i = 0; i < products.length; i++) {
+    for (let i = 0; i < 1; i++) {
         let product = products[i];
+	console.log(product);
 	let content = product.stream!.contents;
 	let listStream = cord.Content.fromSchemaAndContent(
 	    schema,
