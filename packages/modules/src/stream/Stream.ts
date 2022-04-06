@@ -14,6 +14,8 @@ import type {
   IMarkContent,
   CompressedStream,
 } from '@cord.network/api-types'
+import { Identity } from '../identity/Identity.js'
+import { Crypto, UUID, SDKErrors } from '@cord.network/utils'
 import { setStatus, query, create, update } from './Stream.chain.js'
 import * as StreamUtils from './Stream.utils.js'
 
@@ -32,26 +34,6 @@ export class Stream implements IStream {
   public static async query(identifier: string): Promise<StreamDetails | null> {
     return query(identifier)
   }
-
-  // /**
-  //  * [STATIC] [ASYNC] Revokes a stream stream Also available as an instance method.
-  //  * @param identifier - The ID of the stream stream.
-  //  * @param status - bool value to set the status of the  stream stream.
-  //  * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-  //  * @example ```javascript
-  //  * Stream.revoke('0xd8024cdc147c4fa9221cd177', true).then(() => {
-  //  *   // the stream status tx was created, sign and send it!
-  //  *   ChainUtils.signAndSendTx(tx, identity);
-  //  * });
-  //  * ```
-  //  */
-  // public static async set_status(
-  //   identifier: string,
-  //   creator: string,
-  //   status: boolean
-  // ): Promise<SubmittableExtrinsic> {
-  //   return set_status(identifier, creator, status)
-  // }
 
   /**
    * [STATIC] Builds an instance of [[StreamStream]], from a simple object with the same properties.
@@ -81,8 +63,8 @@ export class Stream implements IStream {
    * ```
    */
   public static fromMarkContentProperties(
-    content: IMarkContent,
-    cid: string
+    content: IMarkContent
+    // cid: string
   ): Stream {
     return new Stream({
       streamId: content.contentId,
@@ -91,7 +73,7 @@ export class Stream implements IStream {
       holder: content.content.holder,
       schemaId: content.content.schemaId,
       linkId: content.link,
-      cid: cid,
+      signature: content.creatorSignature,
     })
   }
 
@@ -116,8 +98,7 @@ export class Stream implements IStream {
   public holder?: IStream['holder'] | null | undefined
   public schemaId: IStream['schemaId']
   public linkId?: IStream['linkId'] | null | undefined
-  public cid?: IStream['cid'] | null | undefined
-
+  public signature: IStream['signature']
   /**
    * Builds a new [[Stream]] instance.
    *
@@ -135,7 +116,7 @@ export class Stream implements IStream {
     this.holder = stream.holder
     this.schemaId = stream.schemaId
     this.linkId = stream.linkId
-    this.cid = stream.cid
+    this.signature = stream.signature
   }
 
   /**
@@ -169,8 +150,18 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async setStatus(status: boolean): Promise<SubmittableExtrinsic> {
-    return setStatus(this.streamId, this.creator, status)
+  public async setStatus(
+    status: boolean,
+    creator: Identity
+  ): Promise<SubmittableExtrinsic> {
+    if (this.creator !== creator.address) {
+      throw SDKErrors.ERROR_IDENTITY_MISMATCH()
+    }
+    const txId = UUID.generate()
+    const hashVal = { txId, status }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = StreamUtils.sign(creator, txHash)
+    return setStatus(this.streamId, status, txHash, txSignature)
   }
 
   /**
@@ -194,7 +185,7 @@ export class Stream implements IStream {
     //TODO - add holder checks
     return !!(
       chainStream !== null &&
-      chainStream.creator === stream.creator &&
+      chainStream.controller === stream.creator &&
       chainStream.streamHash === stream.streamHash &&
       !chainStream.revoked
     )
@@ -241,24 +232,20 @@ export class StreamDetails implements IStreamDetails {
 
   public streamId: IStreamDetails['streamId']
   public streamHash: IStreamDetails['streamHash']
-  public creator: IStreamDetails['creator']
+  public controller: IStreamDetails['controller']
   public holder: IStreamDetails['holder']
   public schemaId: IStreamDetails['schemaId']
-  public parentHash: IStreamDetails['parentHash']
   public linkId: IStreamDetails['linkId']
-  public cid: IStreamDetails['cid']
   public revoked: IStreamDetails['revoked']
 
   public constructor(details: IStreamDetails) {
     // StreamUtils.errorCheck(details)
     this.streamId = details.streamId
     this.streamHash = details.streamHash
-    this.creator = details.creator
+    this.controller = details.controller
     this.holder = details.holder
     this.schemaId = details.schemaId
-    this.parentHash = details.parentHash
     this.linkId = details.linkId
-    this.cid = details.cid
     this.revoked = details.revoked
   }
 }

@@ -3,8 +3,9 @@
  * @module StreamUtils
  */
 
-import type { IStream, CompressedStream } from '@cord.network/api-types'
+import type { IStream, CompressedStream, Hash } from '@cord.network/api-types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
+import { Identity } from '../identity/Identity.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStream]] object.
@@ -48,7 +49,7 @@ export function compress(stream: IStream): CompressedStream {
     stream.holder,
     stream.schemaId,
     stream.linkId,
-    stream.cid,
+    stream.signature,
   ]
 }
 
@@ -72,8 +73,13 @@ export function decompress(stream: CompressedStream): IStream {
     holder: stream[3],
     schemaId: stream[4],
     linkId: stream[5],
-    cid: stream[6],
+    signature: stream[6],
   }
+}
+
+export function sign(identity: Identity, txHash: Hash): string {
+  // return identity.signStr(Crypto.hashStr(rootHash))
+  return identity.signStr(txHash)
 }
 
 // export function getIdForStream(hash: string): string {

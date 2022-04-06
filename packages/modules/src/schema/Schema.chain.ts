@@ -33,8 +33,8 @@ export async function create(
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
-    Identifier.getIdentifierKey(schema.id, SCHEMA_PREFIX),
-    schema.creator,
+    // Identifier.getIdentifierKey(schema.id, SCHEMA_PREFIX),
+    // schema.creator,
     schema.version,
     schema.hash,
     cid,

@@ -15,7 +15,7 @@ export interface IStream {
   holder?: IPublicIdentity['address'] | null
   schemaId: ISchema['id']
   linkId?: string | null
-  cid?: string | null
+  signature: string
 }
 
 export type CompressedStream = [
@@ -25,17 +25,15 @@ export type CompressedStream = [
   IStream['holder'],
   IStream['schemaId'],
   IStream['linkId'],
-  IStream['cid']
+  IStream['signature']
 ]
 
 export interface IStreamDetails {
   streamId: IStream['streamId']
   streamHash: IStream['streamHash']
-  creator: IPublicIdentity['address']
+  controller: IPublicIdentity['address']
   holder: IPublicIdentity['address'] | null
   schemaId: ISchema['id'] | null
   linkId: IStream['streamId'] | null
-  parentHash?: string | null
-  cid: string | null
   revoked: boolean
 }

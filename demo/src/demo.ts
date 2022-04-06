@@ -15,7 +15,7 @@ async function main() {
     signingKeyPairType: 'sr25519',
   })
   const employeeIdentity = cord.Identity.buildFromURI('//Dave', {
-    signingKeyPairType: 'ed25519',
+    signingKeyPairType: 'sr25519',
   })
   const holderIdentity = cord.Identity.buildFromURI('//Alice', {
     signingKeyPairType: 'sr25519',
@@ -112,14 +112,18 @@ async function main() {
   console.log(`\n📧 Hashed Stream `)
   console.dir(newStreamContent, { depth: null, colors: true })
 
-  bytes = json.encode(newStreamContent)
-  encoded_hash = await hasher.digest(bytes)
-  const streamCid = CID.create(1, 0xb220, encoded_hash)
+  // bytes = json.encode(newStreamContent)
+  // encoded_hash = await hasher.digest(bytes)
+  // const streamCid = CID.create(1, 0xb220, encoded_hash)
 
-  let newStream = cord.Stream.fromMarkContentProperties(
-    newStreamContent,
-    streamCid.toString()
-  )
+  let newStream = cord.Stream.fromMarkContentProperties(newStreamContent)
+  // const hash = Crypto.hashStr(newStream.streamHash)
+  // const hash1 = Crypto.hashStr(newStream.streamHash)
+  // const hash2 = Crypto.hashStr(newStream.streamHash)
+  // const signature = employeeIdentity.signStr(hash)
+  // const newSignature = verifierIdentity.signStr(hash)
+
+  // console.log(hash, hash1, hash2, signature, newSignature)
 
   let streamCreationExtrinsic = await newStream.create()
   console.log(`\n📧 Stream On-Chain Details`)
@@ -142,6 +146,71 @@ async function main() {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
+
+  // Step 3: Update a Stream
+  console.log(`\n✉️  Updating a Stream`, '\n')
+  let updateContent = newStreamContent
+  updateContent.content.contents.name = 'Alice Jackson'
+
+  let updateStreamContent = cord.MarkContent.updateMarkContentProperties(
+    updateContent,
+    employeeIdentity
+  )
+  console.log(`\n📧 Hashed Stream `)
+  console.dir(updateStreamContent, { depth: null, colors: true })
+
+  let updateStream = cord.Stream.fromMarkContentProperties(updateStreamContent)
+
+  let updateStreamCreationExtrinsic = await updateStream.update()
+  console.log(`\n📧 Stream On-Chain Details`)
+  console.dir(updateStream, { depth: null, colors: true })
+
+  console.log('\n⛓  Anchoring Stream to the chain...')
+  console.log(`🔑 Creator: ${employeeIdentity.address} `)
+  console.log(`🔑 Controller: ${entityIdentity.address} `)
+
+  try {
+    await cord.ChainUtils.signAndSubmitTx(
+      updateStreamCreationExtrinsic,
+      entityIdentity,
+      {
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
+      }
+    )
+    console.log('✅ Stream updated!')
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 3: Revoke a Stream
+  // console.log(`\n✉️  Revoking a Stream`, '\n')
+  // let revokeStream = updateStream
+
+  // let revokeStreamCreationExtrinsic = await revokeStream.setStatus(
+  //   true,
+  //   employeeIdentity
+  // )
+  // console.log(`\n📧 Stream On-Chain Details`)
+  // console.dir(updateStream, { depth: null, colors: true })
+
+  // console.log('\n⛓  Anchoring Stream to the chain...')
+  // console.log(`🔑 Creator: ${employeeIdentity.address} `)
+  // console.log(`🔑 Controller: ${entityIdentity.address} `)
+
+  // try {
+  //   await cord.ChainUtils.signAndSubmitTx(
+  //     revokeStreamCreationExtrinsic,
+  //     entityIdentity,
+  //     {
+  //       resolveOn: cord.ChainUtils.IS_READY,
+  //       rejectOn: cord.ChainUtils.IS_ERROR,
+  //     }
+  //   )
+  //   console.log('✅ Stream revoked!')
+  // } catch (e: any) {
+  //   console.log(e.errorCode, '-', e.message)
+  // }
 
   // Step 3: Create a new Mark and Link to the Stream
   console.log(`\n\n✉️  Adding a new Mark Schema \n`)
@@ -175,7 +244,7 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
   console.log(`📧 Schema Details `)
-  console.dir(credSchema, { depth: null, colors: true })
+  console.dir(credSchemaStream, { depth: null, colors: true })
 
   console.log(`\n✉️  Adding a new Mark`, '\n')
   let markStream = {
@@ -201,14 +270,7 @@ async function main() {
   console.log(`\n📧 Hashed Stream Details`)
   console.dir(credContentStream, { depth: null, colors: true })
 
-  bytes = json.encode(credContentStream)
-  encoded_hash = await hasher.digest(bytes)
-  const credStreamCid = CID.create(1, 0xb220, encoded_hash)
-
-  let credStreamTx = cord.Stream.fromMarkContentProperties(
-    credContentStream,
-    credStreamCid.toString()
-  )
+  let credStreamTx = cord.Stream.fromMarkContentProperties(credContentStream)
 
   let credStreamCreationExtrinsic = await credStreamTx.create()
   console.log(`\n📧 Mark On-Chain Details`)
@@ -235,12 +297,12 @@ async function main() {
   const purpose = 'Account Opening Request'
   const validUntil = Date.now() + 864000000
   const relatedData = true
-  console.dir(newSchema, { depth: null, colors: true })
+  // console.dir(newSchema, { depth: null, colors: true })
 
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()
       .requestPresentation({
-        id: newSchema.id,
+        id: credSchemaStream.id,
         properties: ['name'],
       })
       .finalize(

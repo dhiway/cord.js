@@ -18,12 +18,15 @@ import * as ContentUtils from '../content/Content.utils.js'
 import { Mark } from '../mark/Mark.js'
 import { Identity } from '../identity/Identity.js'
 import * as MarkContentUtils from './MarkContent.utils.js'
-import { UUID } from '@cord.network/utils'
+// import { UUID } from '@cord.network/utils'
 import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/api-types'
 import { Identifier } from '@cord.network/utils'
+// import { stringToU8a } from '@polkadot/util'
 
 function verifyCreatorSignature(content: IMarkContent): boolean {
+  // console.log('Hash u8a', stringToU8a(content.contentHash))
   return Crypto.verify(
+    // Crypto.hashStr(content.contentHash),
     content.contentHash,
     content.creatorSignature,
     content.content.creator
@@ -66,16 +69,14 @@ export class MarkContent implements IMarkContent {
   public static fromContentProperties(
     content: IContent,
     creator: Identity,
-    { proofs, link, nonceSalt }: Options = {}
+    { proofs, link }: Options = {}
   ): MarkContent {
     if (content.creator !== creator.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
 
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
-      ContentUtils.hashContents(content, {
-        nonceGenerator: (key: string) => nonceSalt || UUID.generate(),
-      })
+      ContentUtils.hashContents(content)
 
     const contentHash = MarkContent.calculateRootHash({
       proofs,
@@ -95,6 +96,49 @@ export class MarkContent implements IMarkContent {
         STREAM_IDENTIFIER,
         STREAM_PREFIX
       ),
+    })
+  }
+
+  /**
+   * [STATIC] Update instance of [[MarkContent]], from a complete set of required parameters.
+   *
+   * @param content An `IMarkContent` object the request for mark is built for.
+   * @param identity The Holder's [[Identity]].
+   * @param option Container for different options that can be passed to this method.
+   * @param option.proofs Array of [[Mark]] objects.
+   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
+   * @returns A new [[MarkContent]] object.
+   * @example ```javascript
+   * const input = MarkContent.fromStreamAndIdentity(content, alice);
+   * ```
+   */
+  public static updateMarkContentProperties(
+    content: IMarkContent,
+    creator: Identity,
+    { proofs }: Options = {}
+  ): MarkContent {
+    if (content.content.creator !== creator.address) {
+      throw SDKErrors.ERROR_IDENTITY_MISMATCH()
+    }
+    let updateProofs = proofs || content.proofs
+
+    const { hashes: contentHashes, nonceMap: contentNonceMap } =
+      ContentUtils.hashContents(content.content)
+
+    const contentHash = MarkContent.calculateRootHash({
+      proofs: updateProofs,
+      contentHashes,
+    })
+
+    return new MarkContent({
+      content: content.content,
+      contentHashes,
+      contentNonceMap,
+      proofs: proofs || content.proofs,
+      link: content.link,
+      creatorSignature: MarkContent.sign(creator, contentHash),
+      contentHash,
+      contentId: content.contentId,
     })
   }
 
@@ -260,6 +304,7 @@ export class MarkContent implements IMarkContent {
   }
 
   private static sign(identity: Identity, rootHash: Hash): string {
+    // return identity.signStr(Crypto.hashStr(rootHash))
     return identity.signStr(rootHash)
   }
 
@@ -308,6 +353,7 @@ export class MarkContent implements IMarkContent {
       mark.proofs || []
     )
     const root: Uint8Array = getHashRoot(hashes)
-    return Crypto.u8aToHex(root)
+    // return Crypto.u8aToHex(root)
+    return Crypto.hashStr(root)
   }
 }

@@ -83,6 +83,7 @@ export function sign(
   signKeyPair: KeyringPair
 ): Uint8Array {
   return signKeyPair.sign(coToUInt8(message), { withType: true })
+  // return signKeyPair.sign(stringToU8a(message), { withType: true })
 }
 
 /**
