@@ -5,7 +5,7 @@
 
 import type { IMark, CompressedMark } from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
-import * as StreamUtils from '../stream/Stream.utils.js'
+import * as StreamDetailUtils from '../stream/StreamDetails.utils.js'
 import * as MarkContentUtils from '../markcontent/MarkContent.utils.js'
 import { Mark } from './Mark.js'
 
@@ -20,7 +20,7 @@ import { Mark } from './Mark.js'
  */
 export function errorCheck(input: IMark): void {
   if (input.content) {
-    StreamUtils.errorCheck(input.content)
+    StreamDetailUtils.errorCheck(input.content)
   } else throw SDKErrors.ERROR_MARK_NOT_PROVIDED()
 
   if (input.request) {
@@ -45,7 +45,7 @@ export function compress(stream: IMark): CompressedMark {
 
   return [
     MarkContentUtils.compress(stream.request),
-    StreamUtils.compress(stream.content),
+    StreamDetailUtils.compress(stream.content),
   ]
 }
 
@@ -64,6 +64,6 @@ export function decompress(stream: CompressedMark): IMark {
   }
   return {
     request: MarkContentUtils.decompress(stream[0]),
-    content: StreamUtils.decompress(stream[1]),
+    content: StreamDetailUtils.decompress(stream[1]),
   }
 }

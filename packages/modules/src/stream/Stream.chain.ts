@@ -107,7 +107,8 @@ function decodeStream(
       streamHash: anchoredStream.streamHash.toString(),
       controller: anchoredStream.controller.toString(),
       holder: anchoredStream.holder.toString() || null,
-      schemaId: anchoredStream.schema.toString() || null,
+      schemaId:
+        DecoderUtils.hexToString(anchoredStream.schema.toString()) || null,
       linkId: DecoderUtils.hexToString(anchoredStream.link.toString()) || null,
       revoked: anchoredStream.revoked.valueOf(),
     }

@@ -316,28 +316,33 @@ async function main() {
   console.log(`\n📧 Selective Disclosure Request`)
   console.dir(message, { depth: null, colors: true })
 
-  let credential: cord.Mark
-  credential = cord.Mark.fromMarkContentStream(credContentStream, credStreamTx)
-  const presentation = cord.Exchange.Share.createPresentation(
-    holderIdentity,
-    message,
-    verifierIdentity.getPublicIdentity(),
-    [credential],
-    {
-      showAttributes: message.body.content[0].requiredProperties,
-      signer: holderIdentity,
-      request: message.body.request,
-    }
-  )
+  const chainStream = await cord.Stream.query(credContentStream.contentId)
+  if (chainStream) {
+    let credential: cord.Mark
+    credential = cord.Mark.fromMarkContentStream(credContentStream, chainStream)
+    const presentation = cord.Exchange.Share.createPresentation(
+      holderIdentity,
+      message,
+      verifierIdentity.getPublicIdentity(),
+      [credential],
+      {
+        showAttributes: message.body.content[0].requiredProperties,
+        signer: holderIdentity,
+        request: message.body.request,
+      }
+    )
 
-  const { verified } = await cord.Exchange.Verify.verifyPresentation(
-    presentation,
-    session
-  )
+    const { verified } = await cord.Exchange.Verify.verifyPresentation(
+      presentation,
+      session
+    )
 
-  console.log(`\n📧 Received Mark `)
-  console.dir(presentation, { depth: null, colors: true })
-  console.log('🔍 All valid? ', verified)
+    console.log(`\n📧 Received Mark `)
+    console.dir(presentation, { depth: null, colors: true })
+    console.log('🔍 All valid? ', verified)
+  } else {
+    console.log(`\n❌ Mark not found `)
+  }
 
   await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }

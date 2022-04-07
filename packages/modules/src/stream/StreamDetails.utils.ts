@@ -1,20 +1,22 @@
 /**
  * @packageDocumentation
- * @module StreamUtils
+ * @module StreamDetailUtils
  */
 
-import type { IStream, CompressedStream, Hash } from '@cord.network/api-types'
+import type {
+  IStreamDetails,
+  CompressedStreamDetails,
+} from '@cord.network/api-types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
-import { Identity } from '../identity/Identity.js'
 
 /**
- *  Checks whether the input meets all the required criteria of an [[IStream]] object.
+ *  Checks whether the input meets all the required criteria of an [[IStreamDetail]] object.
  *  Throws on invalid input.
  *
- * @param input The potentially only partial [[IStream]].
+ * @param input The potentially only partial [[IStreamDetail]].
  *
  */
-export function errorCheck(input: IStream): void {
+export function errorCheck(input: IStreamDetails): void {
   if (!input.streamId) {
     throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
   } else DataUtils.validateId(input.streamId)
@@ -27,9 +29,9 @@ export function errorCheck(input: IStream): void {
     throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
   } else DataUtils.validateId(input.schemaId)
 
-  if (!input.creator) {
+  if (!input.controller) {
     throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
-  } else DataUtils.validateAddress(input.creator, 'Stream controller')
+  } else DataUtils.validateAddress(input.controller, 'Stream controller')
 }
 
 /**
@@ -40,16 +42,16 @@ export function errorCheck(input: IStream): void {
  * @returns An ordered array of an [[Mark]].
  */
 
-export function compress(stream: IStream): CompressedStream {
+export function compress(stream: IStreamDetails): CompressedStreamDetails {
   errorCheck(stream)
   return [
     stream.streamId,
     stream.streamHash,
-    stream.creator,
+    stream.controller,
     stream.holder,
     stream.schemaId,
     stream.linkId,
-    stream.signature,
+    stream.revoked,
   ]
 }
 
@@ -62,21 +64,17 @@ export function compress(stream: IStream): CompressedStream {
  * @returns An object that has the same properties as an [[Mark]].
  */
 
-export function decompress(stream: CompressedStream): IStream {
+export function decompress(stream: CompressedStreamDetails): IStreamDetails {
   if (!Array.isArray(stream) || stream.length !== 7) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
   }
   return {
     streamId: stream[0],
     streamHash: stream[1],
-    creator: stream[2],
+    controller: stream[2],
     holder: stream[3],
     schemaId: stream[4],
     linkId: stream[5],
-    signature: stream[6],
+    revoked: stream[6],
   }
-}
-
-export function sign(identity: Identity, txHash: Hash): string {
-  return identity.signStr(txHash)
 }

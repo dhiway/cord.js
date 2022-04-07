@@ -37,3 +37,13 @@ export interface IStreamDetails {
   linkId: IStream['streamId'] | null
   revoked: boolean
 }
+
+export type CompressedStreamDetails = [
+  IStreamDetails['streamId'],
+  IStreamDetails['streamHash'],
+  IStreamDetails['controller'],
+  IStreamDetails['holder'],
+  IStreamDetails['schemaId'],
+  IStreamDetails['linkId'],
+  IStreamDetails['revoked']
+]

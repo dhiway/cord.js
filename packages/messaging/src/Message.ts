@@ -71,7 +71,7 @@ export class Message implements IMessage {
         {
           const submitStreamsForSchema: ISubmitCredential = body
           submitStreamsForSchema.content.forEach((stream, i) => {
-            if (stream.credentials[i].content.creator !== senderAddress) {
+            if (stream.credentials[i].content.controller !== senderAddress) {
               throw SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
             }
           })

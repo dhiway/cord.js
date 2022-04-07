@@ -12,16 +12,17 @@
 import type {
   IMark,
   CompressedMark,
-  IStream,
   IMarkContent,
   IPresentationOptions,
   IPresentationSigningOptions,
+  IStreamDetails,
 } from '@cord.network/api-types'
-import { SDKErrors } from '@cord.network/utils'
-import { Stream } from '../stream/Stream.js'
+import { SDKErrors, Identifier } from '@cord.network/utils'
+import { StreamDetails } from '../stream/Stream.js'
 import { MarkContent } from '../markcontent/MarkContent.js'
 import * as MarkUtils from './Mark.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
+import { SCHEMA_PREFIX } from '@cord.network/api-types'
 
 export class Mark implements IMark {
   /**
@@ -52,7 +53,7 @@ export class Mark implements IMark {
    */
   public static fromMarkContentStream(
     request: IMarkContent,
-    content: IStream
+    content: IStreamDetails
   ): Mark {
     return new Mark({
       request,
@@ -77,7 +78,7 @@ export class Mark implements IMark {
   }
 
   public request: MarkContent
-  public content: Stream
+  public content: StreamDetails
 
   /**
    * Builds a new [[Mark]] instance.
@@ -91,7 +92,7 @@ export class Mark implements IMark {
   public constructor(markStream: IMark) {
     MarkUtils.errorCheck(markStream)
     this.request = MarkContent.fromMarkContent(markStream.request)
-    this.content = Stream.fromStream(markStream.content)
+    this.content = StreamDetails.fromStreamDetails(markStream.content)
   }
 
   /**
@@ -112,7 +113,8 @@ export class Mark implements IMark {
    */
   public static async verify(markStream: IMark): Promise<boolean> {
     return (
-      Mark.verifyData(markStream) && Stream.checkValidity(markStream.content)
+      Mark.verifyData(markStream) &&
+      StreamDetails.checkValidity(markStream.content)
     )
   }
 
@@ -133,8 +135,13 @@ export class Mark implements IMark {
    * ```
    */
   public static verifyData(markStream: IMark): boolean {
-    if (markStream.request.content.schemaId !== markStream.content.schemaId)
-      return false
+    const schemaId = markStream.request.content.schemaId
+      ? Identifier.getIdentifierKey(
+          markStream.request.content.schemaId,
+          SCHEMA_PREFIX
+        )
+      : null
+    if (schemaId !== markStream.content.schemaId) return false
     return (
       markStream.request.contentHash === markStream.content.streamHash &&
       MarkContent.verifyData(markStream.request)

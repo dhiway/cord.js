@@ -220,6 +220,26 @@ export class StreamDetails implements IStreamDetails {
   public static fromStreamDetails(input: IStreamDetails): StreamDetails {
     return new StreamDetails(input)
   }
+
+  public static async checkValidity(
+    stream: IStreamDetails,
+    identifier: string = stream.streamId
+  ): Promise<boolean> {
+    // Query stream by stream identifier. null if no stream is found on-chain for this hash
+    const chainStream: StreamDetails | null = await Stream.query(identifier)
+    //TODO - add holder checks
+    return !!(
+      chainStream !== null &&
+      chainStream.controller === stream.controller &&
+      chainStream.streamHash === stream.streamHash &&
+      !chainStream.revoked
+    )
+  }
+
+  public async checkValidity(): Promise<boolean> {
+    return StreamDetails.checkValidity(this)
+  }
+
   /**
    * Builds a new [[Stream]] instance.
    *
