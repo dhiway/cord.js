@@ -161,7 +161,13 @@ export class Stream implements IStream {
     const hashVal = { txId, status }
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = StreamUtils.sign(creator, txHash)
-    return setStatus(this.streamId, status, txHash, txSignature)
+    return setStatus(
+      this.streamId,
+      creator.address,
+      status,
+      txHash,
+      txSignature
+    )
   }
 
   /**

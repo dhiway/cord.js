@@ -14,10 +14,10 @@ async function main() {
   await cord.init({ address: 'ws://127.0.0.1:9944' })
 
   // Step 1: Setup Identities
-  const Eve = cord.Identity.buildFromURI('//Alice', {
+  const Alice = cord.Identity.buildFromURI('//Alice', {
     signingKeyPairType: 'sr25519',
   })
-  const Bob = cord.Identity.buildFromURI('//Dave', {
+  const Bob = cord.Identity.buildFromURI('//Bob', {
     signingKeyPairType: 'sr25519',
   })
 
@@ -52,7 +52,7 @@ async function main() {
   let tx_batch = []
 
   let startTxPrep = moment()
-  let txCount = 500
+  let txCount = 525
   let newStreamContent: cord.MarkContent
   // let link_id: string = '5P4oXCREF8Uw6pJHRMZfhgmoN6DDAtAN72hNuAMgGnCqkJn7'
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
@@ -65,32 +65,32 @@ async function main() {
       country: 'India',
       credit: 1000,
     }
-    const nonceSaltValue = UUID.generate()
+    // const nonceSaltValue = UUID.generate()
     let schemaStream = cord.Content.fromContentProperties(
       newSchema,
       content,
-      Eve.address
+      Alice.address
     )
 
     newStreamContent = cord.MarkContent.fromContentProperties(
       schemaStream,
-      Eve,
-      { nonceSalt: nonceSaltValue }
+      Alice
+      // { nonceSalt: nonceSaltValue }
     )
 
     // newStreamContent = cord.MarkContent.fromContentProperties(
     //   schemaStream,
-    //   Eve,
+    //   Alice,
     //   { link: link_id, nonceSalt: nonceSaltValue }
     // )
 
-    bytes = json.encode(newStreamContent)
-    encoded_hash = await hasher.digest(bytes)
-    const streamCid = CID.create(1, 0xb220, encoded_hash)
+    // bytes = json.encode(newStreamContent)
+    // encoded_hash = await hasher.digest(bytes)
+    // const streamCid = CID.create(1, 0xb220, encoded_hash)
 
     let newStream = cord.Stream.fromMarkContentProperties(
-      newStreamContent,
-      streamCid.toString()
+      newStreamContent
+      // streamCid.toString()
     )
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
@@ -145,26 +145,26 @@ async function main() {
       country: 'India',
       credit: 1000,
     }
-    const nonceSaltValue = UUID.generate()
+    // const nonceSaltValue = UUID.generate()
     let schemaStream = cord.Content.fromContentProperties(
       newSchema,
       content,
-      Eve.address
+      Alice.address
     )
 
     let newStreamContent = cord.MarkContent.fromContentProperties(
       schemaStream,
-      Eve,
-      { nonceSalt: nonceSaltValue }
+      Alice
+      // { nonceSalt: nonceSaltValue }
     )
 
-    bytes = json.encode(newStreamContent)
-    encoded_hash = await hasher.digest(bytes)
-    const streamCid = CID.create(1, 0xb220, encoded_hash)
+    // bytes = json.encode(newStreamContent)
+    // encoded_hash = await hasher.digest(bytes)
+    // const streamCid = CID.create(1, 0xb220, encoded_hash)
 
     let newStream = cord.Stream.fromMarkContentProperties(
-      newStreamContent,
-      streamCid.toString()
+      newStreamContent
+      // streamCid.toString()
     )
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +

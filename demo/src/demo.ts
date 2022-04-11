@@ -112,18 +112,7 @@ async function main() {
   console.log(`\n📧 Hashed Stream `)
   console.dir(newStreamContent, { depth: null, colors: true })
 
-  // bytes = json.encode(newStreamContent)
-  // encoded_hash = await hasher.digest(bytes)
-  // const streamCid = CID.create(1, 0xb220, encoded_hash)
-
   let newStream = cord.Stream.fromMarkContentProperties(newStreamContent)
-  // const hash = Crypto.hashStr(newStream.streamHash)
-  // const hash1 = Crypto.hashStr(newStream.streamHash)
-  // const hash2 = Crypto.hashStr(newStream.streamHash)
-  // const signature = employeeIdentity.signStr(hash)
-  // const newSignature = verifierIdentity.signStr(hash)
-
-  // console.log(hash, hash1, hash2, signature, newSignature)
 
   let streamCreationExtrinsic = await newStream.create()
   console.log(`\n📧 Stream On-Chain Details`)
@@ -156,16 +145,16 @@ async function main() {
     updateContent,
     employeeIdentity
   )
-  console.log(`\n📧 Hashed Stream `)
+  console.log(`\n📧 Updated Stream `)
   console.dir(updateStreamContent, { depth: null, colors: true })
 
   let updateStream = cord.Stream.fromMarkContentProperties(updateStreamContent)
 
   let updateStreamCreationExtrinsic = await updateStream.update()
-  console.log(`\n📧 Stream On-Chain Details`)
+  console.log(`\n📧 Updated Stream On-Chain Details`)
   console.dir(updateStream, { depth: null, colors: true })
 
-  console.log('\n⛓  Anchoring Stream to the chain...')
+  console.log('\n⛓  Anchoring Updated Stream to the chain...')
   console.log(`🔑 Creator: ${employeeIdentity.address} `)
   console.log(`🔑 Controller: ${entityIdentity.address} `)
 
@@ -184,33 +173,33 @@ async function main() {
   }
 
   // Step 3: Revoke a Stream
-  // console.log(`\n✉️  Revoking a Stream`, '\n')
-  // let revokeStream = updateStream
+  console.log(`\n✉️  Revoking a Stream`, '\n')
+  let revokeStream = updateStream
 
-  // let revokeStreamCreationExtrinsic = await revokeStream.setStatus(
-  //   true,
-  //   employeeIdentity
-  // )
-  // console.log(`\n📧 Stream On-Chain Details`)
-  // console.dir(updateStream, { depth: null, colors: true })
+  let revokeStreamCreationExtrinsic = await revokeStream.setStatus(
+    true,
+    employeeIdentity
+  )
+  console.log(`\n📧 Stream On-Chain Details`)
+  console.dir(updateStream, { depth: null, colors: true })
 
-  // console.log('\n⛓  Anchoring Stream to the chain...')
-  // console.log(`🔑 Creator: ${employeeIdentity.address} `)
-  // console.log(`🔑 Controller: ${entityIdentity.address} `)
+  console.log('\n⛓  Anchoring Stream to the chain...')
+  console.log(`🔑 Creator: ${employeeIdentity.address} `)
+  console.log(`🔑 Controller: ${entityIdentity.address} `)
 
-  // try {
-  //   await cord.ChainUtils.signAndSubmitTx(
-  //     revokeStreamCreationExtrinsic,
-  //     entityIdentity,
-  //     {
-  //       resolveOn: cord.ChainUtils.IS_READY,
-  //       rejectOn: cord.ChainUtils.IS_ERROR,
-  //     }
-  //   )
-  //   console.log('✅ Stream revoked!')
-  // } catch (e: any) {
-  //   console.log(e.errorCode, '-', e.message)
-  // }
+  try {
+    await cord.ChainUtils.signAndSubmitTx(
+      revokeStreamCreationExtrinsic,
+      entityIdentity,
+      {
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
+      }
+    )
+    console.log('✅ Stream revoked!')
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
 
   // Step 3: Create a new Mark and Link to the Stream
   console.log(`\n\n✉️  Adding a new Mark Schema \n`)

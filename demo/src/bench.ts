@@ -10,10 +10,10 @@ async function main() {
   await cord.init({ address: 'ws://127.0.0.1:9944' })
 
   // Step 1: Setup Identities
-  const Eve = cord.Identity.buildFromURI('//Alice', {
+  const Alice = cord.Identity.buildFromURI('//Alice', {
     signingKeyPairType: 'sr25519',
   })
-  const Bob = cord.Identity.buildFromURI('//Dave', {
+  const Bob = cord.Identity.buildFromURI('//Bob', {
     signingKeyPairType: 'sr25519',
   })
   let tx_batch = []
@@ -29,7 +29,11 @@ async function main() {
         's\r'
     )
     try {
-      let txTransfer = await cord.Balance.makeTransfer(Eve.address, amount, -6)
+      let txTransfer = await cord.Balance.makeTransfer(
+        Alice.address,
+        amount,
+        -6
+      )
       tx_batch.push(txTransfer)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)

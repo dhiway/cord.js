@@ -52,6 +52,7 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.update(
     Identifier.getIdentifierKey(stream.streamId, STREAM_PREFIX),
+    stream.creator,
     stream.streamHash,
     stream.signature
   )
@@ -68,6 +69,7 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
  */
 export async function setStatus(
   streamId: string,
+  creator: string,
   status: boolean,
   txHash: string,
   txSignature: string
@@ -76,6 +78,7 @@ export async function setStatus(
   log.debug(() => `Revoking stream with ID ${streamId}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.status(
     Identifier.getIdentifierKey(streamId, STREAM_PREFIX),
+    creator,
     status,
     txHash,
     txSignature
