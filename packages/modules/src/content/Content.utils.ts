@@ -174,8 +174,8 @@ export function errorCheck(input: IContent | PartialContent): void {
   if (!input.schemaId) {
     throw SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
   }
-  if (input.creator) {
-    DataUtils.validateAddress(input.creator, 'Content Creator')
+  if (input.issuer) {
+    DataUtils.validateAddress(input.issuer, 'Content Creator')
   }
   if (input.contents !== undefined) {
     Object.entries(input.contents).forEach(([key, value]) => {
@@ -215,7 +215,7 @@ export function compress(
   if (content.contents) {
     sortedContents = jsonabc.sortObj(content.contents)
   }
-  return [content.schemaId, content.creator, content.holder, sortedContents]
+  return [content.schemaId, content.issuer, content.holder, sortedContents]
 }
 
 /**
@@ -243,7 +243,7 @@ export function decompress(
   }
   return {
     schemaId: content[0],
-    creator: content[1],
+    issuer: content[1],
     holder: content[2],
     contents: content[3],
   }

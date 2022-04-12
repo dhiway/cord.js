@@ -51,8 +51,7 @@ export class Message implements IMessage {
         {
           const requestStream = body
           if (
-            requestStream.content.requestStream.content.creator !==
-            senderAddress
+            requestStream.content.requestStream.content.issuer !== senderAddress
           ) {
             throw SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Sender')
           }
@@ -62,7 +61,7 @@ export class Message implements IMessage {
         {
           const submitStream = body
           //TODO - Add schema delegation checks
-          if (submitStream.content.stream.creator !== senderAddress) {
+          if (submitStream.content.stream.issuer !== senderAddress) {
             throw SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Creator')
           }
         }
@@ -71,7 +70,7 @@ export class Message implements IMessage {
         {
           const submitStreamsForSchema: ISubmitCredential = body
           submitStreamsForSchema.content.forEach((stream, i) => {
-            if (stream.credentials[i].content.controller !== senderAddress) {
+            if (stream.credentials[i].content.issuer !== senderAddress) {
               throw SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
             }
           })

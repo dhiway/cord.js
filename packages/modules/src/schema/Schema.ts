@@ -2,7 +2,7 @@
  * Schema.
  *
  * * A Schema is a description of the [[Stream]] data structure, based on [JSON Schema](http://json-schema.org/).
- * * Schemas are published and stored by the creator.
+ * * Schemas are published and stored by the issuer.
  * * Permissioned users can use a Schema to create a new [[Stream]].
  *
  * @packageDocumentation
@@ -22,7 +22,7 @@ import { Identifier } from '@cord.network/utils'
 import {
   query,
   create,
-  setVersion,
+  update,
   authorise,
   deauthorise,
   setStatus,
@@ -65,13 +65,13 @@ export class Schema implements ISchema {
    * [[SchemaWithoutId]] will automatically generate it.
    *
    * @param schema The JSON schema from which the [[Schema]] should be generated.
-   * @param creator The public SS58 address of the creator of the [[Schema]].
+   * @param issuer The public SS58 address of the issuer of the [[Schema]].
    * @param schema The identity of the space to which the schema is linked..
    * @returns An instance of [[Schema]].
    */
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
-    creator: ISchema['creator'],
+    issuer: ISchema['issuer'],
     version?: ISchema['version'],
     permission?: boolean
   ): Schema {
@@ -89,7 +89,7 @@ export class Schema implements ISchema {
         ...schema,
         $id: schemaId,
       },
-      creator: creator,
+      issuer: issuer,
       permissioned: permission || false,
     })
   }
@@ -112,7 +112,7 @@ export class Schema implements ISchema {
   public id: ISchema['id']
   public hash: ISchema['hash']
   public version: ISchema['version']
-  public creator: ISchema['creator']
+  public issuer: ISchema['issuer']
   public schema: ISchema['schema']
   public parent?: ISchema['parent'] | undefined
   public permissioned: ISchema['permissioned']
@@ -122,7 +122,7 @@ export class Schema implements ISchema {
     this.id = schemaInput.id
     this.hash = schemaInput.hash
     this.version = schemaInput.version
-    this.creator = schemaInput.creator
+    this.issuer = schemaInput.issuer
     this.schema = schemaInput.schema
     this.parent = schemaInput.parent
     this.permissioned = schemaInput.permissioned
@@ -139,27 +139,25 @@ export class Schema implements ISchema {
   }
 
   public async authorise(delegates: [string]): Promise<SubmittableExtrinsic> {
-    return authorise(this.schema.$id, this.creator, delegates)
+    return authorise(this.schema.$id, delegates)
   }
 
   public async deauthorise(delegates: [string]): Promise<SubmittableExtrinsic> {
-    return deauthorise(this.id, this.creator, delegates)
+    return deauthorise(this.id, delegates)
   }
 
   public async setStatus(status: boolean): Promise<SubmittableExtrinsic> {
-    return setStatus(this.id, this.creator, status)
+    return setStatus(this.id, status)
   }
 
   public async setPermission(
     permission: boolean
   ): Promise<SubmittableExtrinsic> {
-    return setPermission(this.id, this.creator, permission)
+    return setPermission(this.id, permission)
   }
 
-  public async setVersion(
-    cid?: string | undefined
-  ): Promise<SubmittableExtrinsic> {
-    return setVersion(this, cid)
+  public async update(cid?: string | undefined): Promise<SubmittableExtrinsic> {
+    return update(this, cid)
   }
 
   /**
@@ -228,7 +226,7 @@ export class SchemaDetails implements ISchemaDetails {
   public id: ISchemaDetails['id']
   public hash: ISchemaDetails['hash']
   public version: ISchemaDetails['version']
-  public creator: ISchemaDetails['creator']
+  public issuer: ISchemaDetails['issuer']
   public parent: ISchemaDetails['parent'] | null | undefined
   public cid: string | null | undefined
   public permissioned: ISchemaDetails['permissioned']
@@ -238,7 +236,7 @@ export class SchemaDetails implements ISchemaDetails {
     this.id = details.id
     this.hash = details.hash
     this.version = details.version
-    this.creator = details.creator
+    this.issuer = details.issuer
     this.parent = details.parent
     this.cid = details.cid
     this.permissioned = details.permissioned

@@ -17,20 +17,20 @@ export type IContents = Record<
 export interface IContent {
   schemaId: ISchema['id']
   contents: IContents
-  creator: IPublicIdentity['address']
+  issuer: IPublicIdentity['address']
   holder?: IPublicIdentity['address']
 }
 
 export type CompressedContent = [
   IContent['schemaId'],
-  IContent['creator'],
+  IContent['issuer'],
   IContent['holder'],
   IContents
 ]
 
 export type CompressedPartialContent = [
   IContent['schemaId'],
-  IContent['creator'] | undefined,
+  IContent['issuer'] | undefined,
   IContent['holder'] | undefined,
   IContents | undefined
 ]

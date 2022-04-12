@@ -31,9 +31,9 @@ export function errorCheck(input: IProduct): void {
   //   throw SDKErrors.ERROR_MARK_JOURNAL_ID_NOT_PROVIDED()
   // } else DataUtils.validateHash(input.link, 'Mark link')
 
-  if (!input.creator) {
+  if (!input.issuer) {
     throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
-  } else DataUtils.validateAddress(input.creator, 'Product controller')
+  } else DataUtils.validateAddress(input.issuer, 'Product controller')
 
   if (typeof input.status !== 'boolean') {
     throw SDKErrors.ERROR_MARK_REVOCATION_BIT_MISSING()
@@ -59,7 +59,7 @@ export function compress(stream: IProduct): CompressedProduct {
     stream.price,
     stream.rating,
     stream.link,
-    stream.creator,
+    stream.issuer,
     stream.status,
   ]
 }
@@ -86,7 +86,7 @@ export function decompress(stream: CompressedProduct): IProduct {
     price: stream[5],
     rating: stream[6],
     link: stream[7],
-    creator: stream[8],
+    issuer: stream[8],
     status: stream[9],
   }
 }

@@ -33,8 +33,6 @@ export async function create(
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
-    // Identifier.getIdentifierKey(schema.id, SCHEMA_PREFIX),
-    // schema.creator,
     schema.version,
     schema.hash,
     cid,
@@ -50,15 +48,14 @@ export async function create(
  * @returns The [[SubmittableExtrinsic]] for the `version` call.
  */
 
-export async function setVersion(
+export async function update(
   schema: ISchema,
   cid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema' version update`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.version(
+  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.update(
     Identifier.getIdentifierKey(schema.id, SCHEMA_PREFIX),
-    schema.creator,
     schema.version,
     schema.hash,
     cid
@@ -71,14 +68,12 @@ export async function setVersion(
  */
 export async function setStatus(
   schema_id: string,
-  creator: string,
   status: boolean
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.status(
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    creator,
     status
   )
   return tx
@@ -89,14 +84,12 @@ export async function setStatus(
  */
 export async function setPermission(
   schema_id: string,
-  creator: string,
   permission: boolean
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.permission(
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    creator,
     permission
   )
   return tx
@@ -107,14 +100,12 @@ export async function setPermission(
  */
 export async function authorise(
   schema_id: string,
-  creator: string,
   delegates: [string]
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.authorise(
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    creator,
     delegates
   )
   return tx
@@ -125,14 +116,12 @@ export async function authorise(
  */
 export async function deauthorise(
   schema_id: string,
-  creator: string,
   delegates: [string]
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.deauthorise(
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    creator,
     delegates
   )
   return tx
@@ -141,7 +130,7 @@ export async function deauthorise(
 export interface AnchoredSchemaDetails extends Struct {
   readonly version: Vec<u8>
   readonly id: Vec<u8>
-  readonly creator: AccountId
+  readonly issuer: AccountId
   readonly cid: Option<Vec<u8>>
   readonly parent: Option<Hash>
   readonly permissioned: boolean
@@ -167,7 +156,7 @@ function decodeSchema(
       parent: anchoredSchema.parent
         ? DecoderUtils.hexToString(anchoredSchema.parent.toString())
         : null,
-      creator: anchoredSchema.creator.toString(),
+      issuer: anchoredSchema.issuer.toString(),
       permissioned: anchoredSchema.permissioned.valueOf(),
       revoked: anchoredSchema.revoked.valueOf(),
     }
@@ -222,5 +211,5 @@ export async function getOwner(
 ): Promise<IPublicIdentity['address'] | null> {
   const encoded = await queryRawHash(hash)
   const queriedSchemaAccount = decodeSchema(encoded, hash)
-  return queriedSchemaAccount!.creator
+  return queriedSchemaAccount!.issuer
 }

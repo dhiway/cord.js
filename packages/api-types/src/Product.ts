@@ -14,7 +14,7 @@ export interface IProduct {
   price?: number
   rating?: number
   link?: string
-  creator: IPublicIdentity['address']
+  issuer: IPublicIdentity['address']
   status: boolean
 }
 
@@ -27,7 +27,7 @@ export type CompressedProduct = [
   IProduct['price'],
   IProduct['rating'],
   IProduct['link'],
-  IProduct['creator'],
+  IProduct['issuer'],
   IProduct['status']
 ]
 
@@ -39,7 +39,7 @@ export interface IProductDetails {
   store_id: IProduct['id'] | null
   schema: ISchema['id'] | null
   link: IProduct['id'] | null
-  creator: IPublicIdentity['address']
+  issuer: IPublicIdentity['address']
   price: IProduct['id'] | null
   rating: IProduct['id'] | null
   block: string
@@ -49,7 +49,7 @@ export interface IProductDetails {
 export interface IProductLinks {
   id: IProduct['id']
   store_id: IProduct['id']
-  creator: IPublicIdentity['address']
+  issuer: IPublicIdentity['address']
 }
 
 export enum ProductCommitOf {

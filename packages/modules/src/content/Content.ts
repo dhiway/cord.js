@@ -62,7 +62,7 @@ export class Content implements IContent {
     schema: ISchema,
     nestedSchemas: Array<ISchema['schema']>,
     contents: IContent['contents'],
-    creator: IPublicIdentity['address'],
+    issuer: IPublicIdentity['address'],
     holder?: IPublicIdentity['address']
   ): Content {
     if (
@@ -73,13 +73,13 @@ export class Content implements IContent {
     return new Content({
       schemaId: schema.id,
       contents: contents,
-      creator: creator,
+      issuer: issuer,
       holder: holder,
     })
   }
 
   /**
-   * [STATIC] Builds a new [[Content]] stream from [[ISchema]], IContent['contents'] and creator's [[IPublicIdentity['address']].
+   * [STATIC] Builds a new [[Content]] stream from [[ISchema]], IContent['contents'] and issuer's [[IPublicIdentity['address']].
    *
    * @param schema [[ISchema]] from which the Content stream will be built.
    * @param contents IContent['contents'] to be used as the data of the instantiated Content stream.
@@ -90,7 +90,7 @@ export class Content implements IContent {
   public static fromContentProperties(
     schema: ISchema,
     contents: IContent['contents'],
-    creator: IPublicIdentity['address'],
+    issuer: IPublicIdentity['address'],
     holder?: IPublicIdentity['address']
   ): Content {
     if (schema.schema) {
@@ -100,7 +100,7 @@ export class Content implements IContent {
     }
     return new Content({
       schemaId: schema.id,
-      creator: creator,
+      issuer: issuer,
       holder: holder,
       contents: contents,
     })
@@ -124,15 +124,15 @@ export class Content implements IContent {
 
   public schemaId: IContent['schemaId']
   public contents: IContent['contents']
-  public creator: IContent['creator']
+  public issuer: IContent['issuer']
   public holder?: IContent['holder']
 
   public constructor(input: IContent) {
     ContentUtils.errorCheck(input)
     this.schemaId = input.schemaId
     this.contents = input.contents
-    this.creator = input.creator
-    this.holder = input.holder || input.creator
+    this.issuer = input.issuer
+    this.holder = input.holder || input.issuer
   }
 
   /**

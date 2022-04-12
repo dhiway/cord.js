@@ -28,8 +28,8 @@ function verifyCreatorSignature(content: IMarkContent): boolean {
   return Crypto.verify(
     // Crypto.hashStr(content.contentHash),
     content.contentHash,
-    content.creatorSignature,
-    content.content.creator
+    content.issuerSignature,
+    content.content.issuer
   )
 }
 
@@ -68,10 +68,10 @@ export class MarkContent implements IMarkContent {
    */
   public static fromContentProperties(
     content: IContent,
-    creator: Identity,
+    issuer: Identity,
     { proofs, link }: Options = {}
   ): MarkContent {
-    if (content.creator !== creator.address) {
+    if (content.issuer !== issuer.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
 
@@ -89,7 +89,7 @@ export class MarkContent implements IMarkContent {
       contentNonceMap,
       proofs: proofs || [],
       link,
-      creatorSignature: MarkContent.sign(creator, contentHash),
+      issuerSignature: MarkContent.sign(issuer, contentHash),
       contentHash,
       contentId: Identifier.getIdentifier(
         contentHash,
@@ -114,10 +114,10 @@ export class MarkContent implements IMarkContent {
    */
   public static updateMarkContentProperties(
     content: IMarkContent,
-    creator: Identity,
+    issuer: Identity,
     { proofs }: Options = {}
   ): MarkContent {
-    if (content.content.creator !== creator.address) {
+    if (content.content.issuer !== issuer.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
     let updateProofs = proofs || content.proofs
@@ -136,7 +136,7 @@ export class MarkContent implements IMarkContent {
       contentNonceMap,
       proofs: proofs || content.proofs,
       link: content.link,
-      creatorSignature: MarkContent.sign(creator, contentHash),
+      issuerSignature: MarkContent.sign(issuer, contentHash),
       contentHash,
       contentId: content.contentId,
     })
@@ -163,7 +163,7 @@ export class MarkContent implements IMarkContent {
   public contentNonceMap: Record<string, string>
   public proofs: Mark[]
   public link: IMarkContent['link']
-  public creatorSignature: string
+  public issuerSignature: string
   public contentHash: Hash
   public contentId: string
 
@@ -195,7 +195,7 @@ export class MarkContent implements IMarkContent {
     }
     this.contentHash = markContentRequest.contentHash
     this.link = markContentRequest.link
-    this.creatorSignature = markContentRequest.creatorSignature
+    this.issuerSignature = markContentRequest.issuerSignature
     this.verifySignature()
     this.verifyData()
   }

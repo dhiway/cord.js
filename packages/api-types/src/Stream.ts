@@ -11,27 +11,27 @@ export const STREAM_PREFIX: string = 'stream:cord:'
 export interface IStream {
   streamId: string
   streamHash: string
-  creator: IPublicIdentity['address']
+  issuer: IPublicIdentity['address']
   holder?: IPublicIdentity['address'] | null
   schemaId: ISchema['id']
   linkId?: string | null
-  signature: string
+  issuerSignature: string
 }
 
 export type CompressedStream = [
   IStream['streamId'],
   IStream['streamHash'],
-  IStream['creator'],
+  IStream['issuer'],
   IStream['holder'],
   IStream['schemaId'],
   IStream['linkId'],
-  IStream['signature']
+  IStream['issuerSignature']
 ]
 
 export interface IStreamDetails {
   streamId: IStream['streamId']
   streamHash: IStream['streamHash']
-  controller: IPublicIdentity['address']
+  issuer: IPublicIdentity['address']
   holder: IPublicIdentity['address'] | null
   schemaId: ISchema['id'] | null
   linkId: IStream['streamId'] | null
@@ -41,7 +41,7 @@ export interface IStreamDetails {
 export type CompressedStreamDetails = [
   IStreamDetails['streamId'],
   IStreamDetails['streamHash'],
-  IStreamDetails['controller'],
+  IStreamDetails['issuer'],
   IStreamDetails['holder'],
   IStreamDetails['schemaId'],
   IStreamDetails['linkId'],

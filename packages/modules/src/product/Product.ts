@@ -60,10 +60,10 @@ export class Product implements IProduct {
    */
   public static async set_status(
     identifier: string,
-    creator: string,
+    issuer: string,
     status: boolean
   ): Promise<SubmittableExtrinsic> {
-    return set_status(identifier, creator, status)
+    return set_status(identifier, issuer, status)
   }
 
   /**
@@ -86,7 +86,7 @@ export class Product implements IProduct {
    *
    * @param content - The base request for stream.
    * @param link - ID of the [[Space]] this [[Journal]] is linked to.
-   * @param creatorPublicIdentity - Public Identity of the creator, used to anchor the underlying stream.
+   * @param creatorPublicIdentity - Public Identity of the issuer, used to anchor the underlying stream.
    * @returns A new [[Product]] object.
    * @example ```javascript
    * // create a complete new stream from the `ProductProduct` and all other needed properties
@@ -109,7 +109,7 @@ export class Product implements IProduct {
       price: price,
       rating: rating,
       link: content.link,
-      creator: content.content.creator,
+      issuer: content.content.issuer,
       status: true,
     })
   }
@@ -137,7 +137,7 @@ export class Product implements IProduct {
   public price?: number | undefined
   public rating?: number | undefined
   public link: IProduct['link']
-  public creator: IProduct['creator']
+  public issuer: IProduct['issuer']
   public status: IProduct['status']
 
   /**
@@ -159,7 +159,7 @@ export class Product implements IProduct {
     this.price = stream.price
     this.rating = stream.rating
     this.link = stream.link
-    this.creator = stream.creator
+    this.issuer = stream.issuer
     this.status = stream.status
   }
 
@@ -187,7 +187,7 @@ export class Product implements IProduct {
   }
 
   public async order_return(): Promise<SubmittableExtrinsic> {
-    return order_return(this.id, this.creator)
+    return order_return(this.id, this.issuer)
   }
 
   public async order_rating(): Promise<SubmittableExtrinsic> {
@@ -207,7 +207,7 @@ export class Product implements IProduct {
    * ```
    */
   public async set_status(status: boolean): Promise<SubmittableExtrinsic> {
-    return set_status(this.id, this.creator, status)
+    return set_status(this.id, this.issuer, status)
   }
 
   /**
@@ -230,7 +230,7 @@ export class Product implements IProduct {
     const chainProduct: ProductDetails | null = await Product.query(identifier)
     return !!(
       chainProduct !== null &&
-      chainProduct.creator === stream.creator &&
+      chainProduct.issuer === stream.issuer &&
       chainProduct.tx_hash === stream.hash &&
       chainProduct.status
     )
@@ -282,7 +282,7 @@ export class ProductDetails implements IProductDetails {
   public parent_cid: IProductDetails['parent_cid']
   public schema: IProductDetails['schema']
   public link: IProductDetails['link']
-  public creator: IProductDetails['creator']
+  public issuer: IProductDetails['issuer']
   public price: IProductDetails['price']
   public rating: IProductDetails['rating']
   public block: IProductDetails['block']
@@ -297,7 +297,7 @@ export class ProductDetails implements IProductDetails {
     this.store_id = details.store_id
     this.schema = details.schema
     this.link = details.link
-    this.creator = details.creator
+    this.issuer = details.issuer
     this.price = details.price
     this.rating = details.rating
     this.block = details.block

@@ -52,7 +52,7 @@ async function verifySharedPresentation(
         (prop) => `${prop}`
       )
       rawProperties.push('content.id')
-      rawProperties.push('content.creator')
+      rawProperties.push('content.issuer')
       return (
         requested.properties.every((p) => {
           return rawProperties.includes(p)

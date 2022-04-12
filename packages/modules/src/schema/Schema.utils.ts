@@ -69,8 +69,8 @@ export async function verifyStored(schema: ISchema): Promise<boolean> {
 }
 
 export async function verifyOwner(schema: ISchema): Promise<boolean> {
-  const creator = await getOwner(schema.hash)
-  return creator ? creator === schema.creator : false
+  const issuer = await getOwner(schema.hash)
+  return issuer ? issuer === schema.issuer : false
 }
 
 export function getSchemaPropertiesForHash(
@@ -111,9 +111,9 @@ export function errorCheck(input: ISchema): void {
     throw SDKErrors.ERROR_HASH_MALFORMED(input.hash, 'Schema')
   }
   if (
-    typeof input.creator === 'string'
-      ? !DataUtils.validateAddress(input.creator, 'Schema creator')
-      : !(input.creator === null)
+    typeof input.issuer === 'string'
+      ? !DataUtils.validateAddress(input.issuer, 'Schema issuer')
+      : !(input.issuer === null)
   ) {
     throw SDKErrors.ERROR_SCHEMA_CONTROLLER_TYPE()
   }
@@ -194,7 +194,7 @@ export function compress(schema: ISchema): CompressedSchemaType {
     schema.id,
     schema.hash,
     schema.version,
-    schema.creator,
+    schema.issuer,
     schema.parent,
     schema.permissioned,
     compressSchema(schema.schema),
@@ -218,7 +218,7 @@ export function decompress(schema: CompressedSchemaType): ISchema {
     id: schema[0],
     hash: schema[1],
     version: schema[2],
-    creator: schema[3],
+    issuer: schema[3],
     parent: schema[4],
     permissioned: schema[5],
     schema: decompressSchema(schema[6]),

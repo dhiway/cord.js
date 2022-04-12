@@ -29,9 +29,9 @@ export function errorCheck(input: IStreamDetails): void {
     throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
   } else DataUtils.validateId(input.schemaId)
 
-  if (!input.controller) {
+  if (!input.issuer) {
     throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
-  } else DataUtils.validateAddress(input.controller, 'Stream controller')
+  } else DataUtils.validateAddress(input.issuer, 'Stream controller')
 }
 
 /**
@@ -47,7 +47,7 @@ export function compress(stream: IStreamDetails): CompressedStreamDetails {
   return [
     stream.streamId,
     stream.streamHash,
-    stream.controller,
+    stream.issuer,
     stream.holder,
     stream.schemaId,
     stream.linkId,
@@ -71,7 +71,7 @@ export function decompress(stream: CompressedStreamDetails): IStreamDetails {
   return {
     streamId: stream[0],
     streamHash: stream[1],
-    controller: stream[2],
+    issuer: stream[2],
     holder: stream[3],
     schemaId: stream[4],
     linkId: stream[5],

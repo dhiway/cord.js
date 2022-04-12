@@ -28,12 +28,12 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
 
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
-    stream.creator,
+    stream.issuer,
     stream.streamHash,
     stream.holder,
     stream.schemaId,
     stream.linkId,
-    stream.signature
+    stream.issuerSignature
   )
   return tx
 }
@@ -48,9 +48,9 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.update(
     stream.streamId,
-    stream.creator,
+    stream.issuer,
     stream.streamHash,
-    stream.signature
+    stream.issuerSignature
   )
   return tx
 }
@@ -59,13 +59,13 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
  * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
  *
  * @param streamId The stream Is.
- * @param creator The submitter
+ * @param issuer The submitter
  * @param status The stream status
  * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
  */
 export async function setStatus(
   streamId: string,
-  creator: string,
+  issuer: string,
   status: boolean,
   txHash: string,
   txSignature: string
@@ -74,7 +74,7 @@ export async function setStatus(
   log.debug(() => `Revoking stream with ID ${streamId}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.status(
     streamId,
-    creator,
+    issuer,
     status,
     txHash,
     txSignature
@@ -104,7 +104,7 @@ function decodeStream(
       streamId: streamId,
       // streamId: DecoderUtils.hexToString(anchoredStream.streamId.toString()),
       streamHash: anchoredStream.streamHash.toString(),
-      controller: anchoredStream.controller.toString(),
+      issuer: anchoredStream.controller.toString(),
       holder: anchoredStream.holder.toString() || null,
       schemaId:
         DecoderUtils.hexToString(anchoredStream.schema.toString()) || null,
@@ -148,5 +148,5 @@ export async function getOwner(
 
   const encoded = await queryRaw(stream_Id)
   const queriedStreamAccount = decodeStream(encoded, stream_Id)
-  return queriedStreamAccount!.controller
+  return queriedStreamAccount!.issuer
 }

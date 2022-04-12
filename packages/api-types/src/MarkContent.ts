@@ -19,7 +19,7 @@ export interface IMarkContent {
   contentNonceMap: Record<Hash, string>
   proofs: IMark[]
   link?: string
-  creatorSignature: string
+  issuerSignature: string
   contentHash: Hash
   contentId: string
 }
@@ -28,7 +28,7 @@ export type CompressedMarkContent = [
   CompressedContent,
   IMarkContent['contentHashes'],
   IMarkContent['contentNonceMap'],
-  IMarkContent['creatorSignature'],
+  IMarkContent['issuerSignature'],
   IMarkContent['link'],
   CompressedMark[],
   IMarkContent['contentHash'],

@@ -159,7 +159,7 @@ export interface IRequestStreamForCredential {
 
 export type CompressedPartialContentStream = [
   IContent['schemaId'],
-  IContent['creator'] | undefined,
+  IContent['issuer'] | undefined,
   IContent['holder'] | undefined,
   IContents | undefined
 ]

@@ -56,7 +56,7 @@ export class Stream implements IStream {
    *
    * @param content - The base request for stream.
    * @param link - ID of the [[Space]] this [[Journal]] is linked to.
-   * @param creatorPublicIdentity - Public Identity of the creator, used to anchor the underlying stream.
+   * @param creatorPublicIdentity - Public Identity of the issuer, used to anchor the underlying stream.
    * @returns A new [[Stream]] object.
    * @example ```javascript
    * // create a complete new stream from the `StreamStream` and all other needed properties
@@ -73,14 +73,14 @@ export class Stream implements IStream {
     return new Stream({
       streamId: Identifier.getIdentifierKey(content.contentId, STREAM_PREFIX),
       streamHash: content.contentHash,
-      creator: content.content.creator,
+      issuer: content.content.issuer,
       holder: content.content.holder,
       schemaId: Identifier.getIdentifierKey(
         content.content.schemaId,
         SCHEMA_PREFIX
       ),
       linkId,
-      signature: content.creatorSignature,
+      issuerSignature: content.issuerSignature,
     })
   }
 
@@ -101,11 +101,11 @@ export class Stream implements IStream {
 
   public streamId: IStream['streamId']
   public streamHash: IStream['streamHash']
-  public creator: IStream['creator']
+  public issuer: IStream['issuer']
   public holder?: IStream['holder'] | null | undefined
   public schemaId: IStream['schemaId']
   public linkId?: IStream['linkId'] | null | undefined
-  public signature: IStream['signature']
+  public issuerSignature: IStream['issuerSignature']
   /**
    * Builds a new [[Stream]] instance.
    *
@@ -119,11 +119,11 @@ export class Stream implements IStream {
     StreamUtils.errorCheck(stream)
     this.streamId = stream.streamId
     this.streamHash = stream.streamHash
-    this.creator = stream.creator
+    this.issuer = stream.issuer
     this.holder = stream.holder
     this.schemaId = stream.schemaId
     this.linkId = stream.linkId
-    this.signature = stream.signature
+    this.issuerSignature = stream.issuerSignature
   }
 
   /**
@@ -159,18 +159,18 @@ export class Stream implements IStream {
    */
   public async setStatus(
     status: boolean,
-    creator: Identity
+    issuer: Identity
   ): Promise<SubmittableExtrinsic> {
-    if (this.creator !== creator.address) {
+    if (this.issuer !== issuer.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
     const txId = UUID.generate()
     const hashVal = { txId, status }
     const txHash = Crypto.hashObjectAsStr(hashVal)
-    const txSignature = StreamUtils.sign(creator, txHash)
+    const txSignature = StreamUtils.sign(issuer, txHash)
     return setStatus(
       Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
-      creator.address,
+      issuer.address,
       status,
       txHash,
       txSignature
@@ -198,7 +198,7 @@ export class Stream implements IStream {
     //TODO - add holder checks
     return !!(
       chainStream !== null &&
-      chainStream.controller === stream.creator &&
+      chainStream.issuer === stream.issuer &&
       chainStream.streamHash === stream.streamHash &&
       !chainStream.revoked
     )
@@ -243,7 +243,7 @@ export class StreamDetails implements IStreamDetails {
     //TODO - add holder checks
     return !!(
       chainStream !== null &&
-      chainStream.controller === stream.controller &&
+      chainStream.issuer === stream.issuer &&
       chainStream.streamHash === stream.streamHash &&
       !chainStream.revoked
     )
@@ -265,7 +265,7 @@ export class StreamDetails implements IStreamDetails {
 
   public streamId: IStreamDetails['streamId']
   public streamHash: IStreamDetails['streamHash']
-  public controller: IStreamDetails['controller']
+  public issuer: IStreamDetails['issuer']
   public holder: IStreamDetails['holder']
   public schemaId: IStreamDetails['schemaId']
   public linkId: IStreamDetails['linkId']
@@ -275,7 +275,7 @@ export class StreamDetails implements IStreamDetails {
     // StreamUtils.errorCheck(details)
     this.streamId = details.streamId
     this.streamHash = details.streamHash
-    this.controller = details.controller
+    this.issuer = details.issuer
     this.holder = details.holder
     this.schemaId = details.schemaId
     this.linkId = details.linkId

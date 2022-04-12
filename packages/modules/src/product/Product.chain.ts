@@ -27,7 +27,7 @@ export async function create(stream: IProduct): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.product.create(
     stream.id,
-    stream.creator,
+    stream.issuer,
     stream.hash,
     stream.cid,
     stream.schema
@@ -45,7 +45,7 @@ export async function list(stream: IProduct): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.product.list(
     stream.id,
-    stream.creator,
+    stream.issuer,
     stream.hash,
     stream.store_id,
     stream.price,
@@ -66,7 +66,7 @@ export async function order(stream: IProduct): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.product.order(
     stream.id,
-    stream.creator,
+    stream.issuer,
     stream.hash,
     stream.store_id,
     stream.price,
@@ -79,12 +79,12 @@ export async function order(stream: IProduct): Promise<SubmittableExtrinsic> {
 
 export async function order_return(
   streamId: string,
-  creator: string
+  issuer: string
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.product.order(
     streamId,
-    creator
+    issuer
   )
   return tx
 }
@@ -95,7 +95,7 @@ export async function order_rating(
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.product.rating(
     stream.id,
-    stream.creator,
+    stream.issuer,
     stream.hash,
     stream.store_id,
     stream.price,
@@ -114,7 +114,7 @@ export interface AnchoredProductDetails extends Struct {
   readonly store_id: Option<Hash>
   readonly link: Option<Hash>
   readonly schema: Option<Hash>
-  readonly creator: AccountId
+  readonly issuer: AccountId
   readonly price: u32
   readonly rating: u8
   readonly block: BlockNumber
@@ -142,7 +142,7 @@ function decodeProduct(
       store_id: anchoredProduct.store_id.toString() || null,
       schema: anchoredProduct.schema.toString() || null,
       link: anchoredProduct.link.toString() || null,
-      creator: anchoredProduct.creator.toString(),
+      issuer: anchoredProduct.issuer.toString(),
       price: anchoredProduct.price.toString() || null,
       rating: anchoredProduct.price.toString() || null,
       block: anchoredProduct.block.toString(),
@@ -179,20 +179,20 @@ export async function query(streamId: string): Promise<ProductDetails | null> {
  * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
  *
  * @param streamId The stream Is.
- * @param creator The submitter
+ * @param issuer The submitter
  * @param status The stream status
  * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
  */
 export async function set_status(
   streamId: string,
-  creator: string,
+  issuer: string,
   status: boolean
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${streamId}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.set_status(
     streamId,
-    creator,
+    issuer,
     status
   )
   return tx
