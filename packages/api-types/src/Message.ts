@@ -71,7 +71,7 @@ export type IEncryptedMessage = Pick<
   encryptedStream: string
   nonce: string
   hash: string
-  signature: string
+  requestorSignature: string
 }
 interface IMessageBodyBase {
   content: any
@@ -80,7 +80,7 @@ interface IMessageBodyBase {
   purpose?: string
   validUntil?: number
   relatedData?: boolean
-  signature?: string
+  requestorSignature?: string
 }
 
 export interface IRequestStream extends IMessageBodyBase {

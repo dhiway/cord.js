@@ -104,7 +104,7 @@ export class Message implements IMessage {
     }
     DataUtils.validateSignature(
       encrypted.hash,
-      encrypted.signature,
+      encrypted.requestorSignature,
       senderAddress
     )
   }
@@ -213,14 +213,14 @@ export class Message implements IMessage {
 
     const hashInput: string = encryptedStream + nonce + this.createdAt
     const hash = Crypto.hashStr(hashInput)
-    const signature = sender.signStr(hash)
+    const requestorSignature = sender.signStr(hash)
     return {
       receivedAt: this.receivedAt,
       encryptedStream,
       nonce,
       createdAt: this.createdAt,
       hash,
-      signature,
+      requestorSignature,
       receiverAddress: this.receiverAddress,
       senderAddress: this.senderAddress,
       senderPublicKey: this.senderPublicKey,

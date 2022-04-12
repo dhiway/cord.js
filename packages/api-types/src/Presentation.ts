@@ -2,11 +2,7 @@ import { IMark } from './Mark.js'
 
 export interface IPresentation {
   credentials: IMark[]
-  // request?: string
-  // purpose?: string
-  // validUntil?: number
-  // relatedData?: boolean
-  signature?: string
+  holderSignature?: string
 }
 
 export interface Signer {

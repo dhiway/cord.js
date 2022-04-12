@@ -119,7 +119,7 @@ export class PresentationRequestBuilder {
       holder
     )
     const hash = Crypto.hashStr(JSON.stringify(message))
-    message.body.signature = requester.signStr(hash)
+    message.body.requestorSignature = requester.signStr(hash)
     return {
       session: session,
       message: message,

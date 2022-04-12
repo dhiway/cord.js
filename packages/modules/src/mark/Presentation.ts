@@ -26,28 +26,17 @@ function ensureCredentialOwnership(
 }
 
 export type SignedPresentation = Presentation &
-  Pick<Required<Presentation>, 'request' | 'signature'>
+  Pick<Required<Presentation>, 'holderSignature'>
 
 export class Presentation implements IPresentation {
   public credentials: Mark[]
-  public request?: string
-  // public purpose?: string
-  public signature?: string
-  // public validUntil?: number
+  public?: string
+  public holderSignature?: string
 
-  constructor({
-    credentials,
-    // request,
-    // purpose,
-    signature,
-  }: // validUntil,
-  IPresentation) {
+  constructor({ credentials, holderSignature }: IPresentation) {
     ensureCredentialOwnership(credentials)
     this.credentials = credentials.map((i) => new Mark(i))
-    // this.request = request
-    // this.purpose = purpose
-    this.signature = signature
-    // this.validUntil = validUntil
+    this.holderSignature = holderSignature
   }
 
   public static fromPresentations(
@@ -76,26 +65,26 @@ export class Presentation implements IPresentation {
     return presentation
   }
 
-  public sign({
-    request,
-    signer,
-  }: IPresentationSigningOptions): SignedPresentation {
-    this.request = request
-    delete this.signature
+  public sign({ signer }: IPresentationSigningOptions): SignedPresentation {
+    delete this.holderSignature
     const signature = signer.sign(Crypto.coToUInt8(JSON.stringify(this)))
-    this.signature = Crypto.u8aToHex(signature)
+    this.holderSignature = Crypto.u8aToHex(signature)
     return this as SignedPresentation
   }
 
   public isSigned(): this is SignedPresentation {
-    return !!this.signature
+    return !!this.holderSignature
   }
 
   public verifySignature(): boolean {
     if (!this.isSigned()) return false
     const claimsOwner = ensureCredentialOwnership(this.credentials)
-    const { signature, ...document } = this
-    return Crypto.verify(JSON.stringify(document), signature, claimsOwner!)
+    const { holderSignature, ...document } = this
+    return Crypto.verify(
+      JSON.stringify(document),
+      holderSignature,
+      claimsOwner!
+    )
   }
 
   public verifyData(): boolean {
