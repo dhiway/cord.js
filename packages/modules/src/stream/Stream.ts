@@ -15,9 +15,10 @@ import type {
   CompressedStream,
 } from '@cord.network/api-types'
 import { Identity } from '../identity/Identity.js'
-import { Crypto, UUID, SDKErrors } from '@cord.network/utils'
+import { Crypto, UUID, SDKErrors, Identifier } from '@cord.network/utils'
 import { setStatus, query, create, update } from './Stream.chain.js'
 import * as StreamUtils from './Stream.utils.js'
+import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/api-types'
 
 export class Stream implements IStream {
   /**
@@ -32,7 +33,7 @@ export class Stream implements IStream {
    * ```
    */
   public static async query(identifier: string): Promise<StreamDetails | null> {
-    return query(identifier)
+    return query(Identifier.getIdentifierKey(identifier, STREAM_PREFIX))
   }
 
   /**
@@ -66,13 +67,19 @@ export class Stream implements IStream {
     content: IMarkContent
     // cid: string
   ): Stream {
+    const linkId = content.link
+      ? Identifier.getIdentifierKey(content.link, STREAM_PREFIX)
+      : null
     return new Stream({
-      streamId: content.contentId,
+      streamId: Identifier.getIdentifierKey(content.contentId, STREAM_PREFIX),
       streamHash: content.contentHash,
       creator: content.content.creator,
       holder: content.content.holder,
-      schemaId: content.content.schemaId,
-      linkId: content.link,
+      schemaId: Identifier.getIdentifierKey(
+        content.content.schemaId,
+        SCHEMA_PREFIX
+      ),
+      linkId,
       signature: content.creatorSignature,
     })
   }
@@ -162,7 +169,7 @@ export class Stream implements IStream {
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = StreamUtils.sign(creator, txHash)
     return setStatus(
-      this.streamId,
+      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
       creator.address,
       status,
       txHash,

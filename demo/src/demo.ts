@@ -250,11 +250,7 @@ async function main() {
 
   let credContentStream = cord.MarkContent.fromContentProperties(
     credStreamContent,
-    employeeIdentity,
-    {
-      link: newStream.streamId,
-      nonceSalt: nonceSaltValue,
-    }
+    employeeIdentity
   )
   console.log(`\n📧 Hashed Stream Details`)
   console.dir(credContentStream, { depth: null, colors: true })
@@ -286,7 +282,6 @@ async function main() {
   const purpose = 'Account Opening Request'
   const validUntil = Date.now() + 864000000
   const relatedData = true
-  // console.dir(newSchema, { depth: null, colors: true })
 
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()

@@ -14,8 +14,7 @@ import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream.js'
-import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/api-types'
-// import { stringToU8a } from '@polkadot/util'
+import { STREAM_PREFIX } from '@cord.network/api-types'
 
 const log = ConfigService.LoggingFactory.getLogger('Mark')
 
@@ -27,16 +26,13 @@ const log = ConfigService.LoggingFactory.getLogger('Mark')
  */
 export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const linkId = stream.linkId
-    ? Identifier.getIdentifierKey(stream.linkId, STREAM_PREFIX)
-    : null
 
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
     stream.creator,
     stream.streamHash,
     stream.holder,
-    Identifier.getIdentifierKey(stream.schemaId, SCHEMA_PREFIX),
-    linkId,
+    stream.schemaId,
+    stream.linkId,
     stream.signature
   )
   return tx
@@ -51,7 +47,7 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
 export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.update(
-    Identifier.getIdentifierKey(stream.streamId, STREAM_PREFIX),
+    stream.streamId,
     stream.creator,
     stream.streamHash,
     stream.signature
@@ -77,7 +73,7 @@ export async function setStatus(
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${streamId}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.status(
-    Identifier.getIdentifierKey(streamId, STREAM_PREFIX),
+    streamId,
     creator,
     status,
     txHash,
@@ -137,9 +133,8 @@ async function queryRaw(
  * @returns Either the retrieved [[StreamDetails]] or null.
  */
 export async function query(streamId: string): Promise<StreamDetails | null> {
-  const stream_Id = Identifier.getIdentifierKey(streamId, STREAM_PREFIX)
-  const encoded = await queryRaw(stream_Id)
-  return decodeStream(encoded, stream_Id)
+  const encoded = await queryRaw(streamId)
+  return decodeStream(encoded, streamId)
 }
 
 /**

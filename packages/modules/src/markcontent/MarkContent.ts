@@ -193,9 +193,9 @@ export class MarkContent implements IMarkContent {
     } else {
       this.proofs = []
     }
-    this.creatorSignature = markContentRequest.creatorSignature
     this.contentHash = markContentRequest.contentHash
     this.link = markContentRequest.link
+    this.creatorSignature = markContentRequest.creatorSignature
     this.verifySignature()
     this.verifyData()
   }

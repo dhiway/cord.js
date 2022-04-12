@@ -52,7 +52,7 @@ async function main() {
   let tx_batch = []
 
   let startTxPrep = moment()
-  let txCount = 525
+  let txCount = 500
   let newStreamContent: cord.MarkContent
   // let link_id: string = '5P4oXCREF8Uw6pJHRMZfhgmoN6DDAtAN72hNuAMgGnCqkJn7'
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
