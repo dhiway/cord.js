@@ -72,7 +72,7 @@ export class Stream implements IStream {
       : null
     return new Stream({
       streamId: Identifier.getIdentifierKey(content.contentId, STREAM_PREFIX),
-      streamHash: content.contentHash,
+      streamHash: content.rootHash,
       issuer: content.content.issuer,
       holder: content.content.holder,
       schemaId: Identifier.getIdentifierKey(

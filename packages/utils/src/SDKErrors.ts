@@ -87,6 +87,7 @@ export enum ErrorCode {
   ERROR_ROOT_HASH_UNVERIFIABLE = 30010,
   ERROR_NESTED_CONTENT_UNVERIFIABLE = 30011,
   ERROR_INVALID_PROOF_FOR_STATEMENT = 30012,
+  ERROR_HOLDER_IDENTITY_MISMATCH = 300013,
 
   // Compression / Decompressions
   ERROR_DECOMPRESSION_ARRAY = 40001,
@@ -565,6 +566,13 @@ export const ERROR_IDENTITY_MISMATCH: (
   }
   return new SDKError(
     ErrorCode.ERROR_IDENTITY_MISMATCH,
+    'Addresses expected to be equal mismatched'
+  )
+}
+
+export const ERROR_HOLDER_IDENTITY_MISMATCH: () => SDKError = () => {
+  return new SDKError(
+    ErrorCode.ERROR_HOLDER_IDENTITY_MISMATCH,
     'Addresses expected to be equal mismatched'
   )
 }

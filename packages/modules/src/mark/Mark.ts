@@ -143,7 +143,7 @@ export class Mark implements IMark {
       : null
     if (schemaId !== markStream.content.schemaId) return false
     return (
-      markStream.request.contentHash === markStream.content.streamHash &&
+      markStream.request.rootHash === markStream.content.streamHash &&
       MarkContent.verifyData(markStream.request)
     )
   }

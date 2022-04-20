@@ -102,7 +102,7 @@ export class Product implements IProduct {
   ): Product {
     return new Product({
       id: ProductUtils.getIdentifier(content.contentId),
-      hash: content.contentHash,
+      hash: content.rootHash,
       cid: cid,
       store_id: store_id,
       schema: content.content.schemaId,

@@ -4,6 +4,7 @@ import * as utils from './utils'
 import * as json from 'multiformats/codecs/json'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
 import { CID } from 'multiformats/cid'
+import * as VCUtils from '@cord.network/credential'
 
 async function main() {
   await cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -321,8 +322,41 @@ async function main() {
       session
     )
 
+    const VC = VCUtils.fromMark(credential, holderIdentity, credSchemaStream)
+    const vcPresentation = await VCUtils.presentation.makePresentation(VC, [
+      'name',
+    ])
+
     console.log(`\n📧 Received Mark `)
     console.dir(presentation, { depth: null, colors: true })
+    console.dir(VC, { depth: null, colors: true })
+    console.dir(vcPresentation, {
+      depth: null,
+      colors: true,
+    })
+
+    console.log(vcPresentation.verifiableCredential)
+
+    let result = vcPresentation.verifiableCredential.proof.forEach(function (
+      proof: any
+    ) {
+      console.log(proof)
+      if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
+        VCUtils.verification.verifyAttestedProof(
+          vcPresentation.verifiableCredential,
+          proof
+        )
+    })
+    console.log(result)
+    if (result && result.verified) {
+      console.log(
+        `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
+      ) // prints 'Billy The Kid'
+      // console.log(
+      //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
+      // ) // undefined
+    }
+
     console.log('🔍 All valid? ', verified)
   } else {
     console.log(`\n❌ Mark not found `)

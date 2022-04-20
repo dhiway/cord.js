@@ -36,7 +36,7 @@ export interface ISchema {
   id: string
   hash: string
   version: string
-  issuer: IPublicIdentity['address']
+  controller: IPublicIdentity['address']
   schema: ISchemaType
   parent?: string
   permissioned: boolean
@@ -56,7 +56,7 @@ export type CompressedSchemaType = [
   ISchema['id'],
   ISchema['hash'],
   ISchema['version'],
-  ISchema['issuer'],
+  ISchema['controller'],
   ISchema['parent'],
   ISchema['permissioned'],
   CompressedSchema
@@ -66,7 +66,7 @@ export interface ISchemaDetails {
   id: ISchema['id']
   hash: ISchema['hash']
   version: ISchema['version']
-  issuer: IPublicIdentity['address']
+  controller: IPublicIdentity['address']
   cid?: string | null
   parent: ISchema['parent'] | null
   permissioned: ISchema['permissioned']

@@ -156,7 +156,7 @@ function decodeSchema(
       parent: anchoredSchema.parent
         ? DecoderUtils.hexToString(anchoredSchema.parent.toString())
         : null,
-      issuer: anchoredSchema.issuer.toString(),
+      controller: anchoredSchema.issuer.toString(),
       permissioned: anchoredSchema.permissioned.valueOf(),
       revoked: anchoredSchema.revoked.valueOf(),
     }
@@ -211,5 +211,5 @@ export async function getOwner(
 ): Promise<IPublicIdentity['address'] | null> {
   const encoded = await queryRawHash(hash)
   const queriedSchemaAccount = decodeSchema(encoded, hash)
-  return queriedSchemaAccount!.issuer
+  return queriedSchemaAccount!.controller
 }

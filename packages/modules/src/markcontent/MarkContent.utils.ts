@@ -27,7 +27,7 @@ export function errorCheck(input: IMarkContent): void {
   } else {
     ContentUtils.errorCheck(input.content)
   }
-  if (!input.proofs && !Array.isArray(input.proofs)) {
+  if (!input.legitimations && !Array.isArray(input.legitimations)) {
     throw SDKErrors.ERROR_PROOFS_NOT_PROVIDED()
   }
   if (!input.contentNonceMap) {
@@ -88,8 +88,8 @@ export function compress(markContent: IMarkContent): CompressedMarkContent {
     markContent.contentNonceMap,
     markContent.issuerSignature,
     markContent.link,
-    compressProof(markContent.proofs),
-    markContent.contentHash,
+    compressProof(markContent.legitimations),
+    markContent.rootHash,
     markContent.contentId,
   ]
 }
@@ -113,8 +113,8 @@ export function decompress(markContent: CompressedMarkContent): IMarkContent {
     contentNonceMap: markContent[2],
     issuerSignature: markContent[3],
     link: markContent[4],
-    proofs: decompressProof(markContent[5]),
-    contentHash: markContent[6],
+    legitimations: decompressProof(markContent[5]),
+    rootHash: markContent[6],
     contentId: markContent[7],
   }
 }

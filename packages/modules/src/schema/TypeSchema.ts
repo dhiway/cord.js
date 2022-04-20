@@ -88,7 +88,7 @@ export const SchemaWrapperModel = {
     hash: {
       type: 'string',
     },
-    issuer: { type: ['string', 'null'] },
+    controller: { type: ['string', 'null'] },
     version: {
       type: 'string',
     },

@@ -71,7 +71,7 @@ export class Schema implements ISchema {
    */
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
-    issuer: ISchema['issuer'],
+    controller: ISchema['controller'],
     version?: ISchema['version'],
     permission?: boolean
   ): Schema {
@@ -89,7 +89,7 @@ export class Schema implements ISchema {
         ...schema,
         $id: schemaId,
       },
-      issuer: issuer,
+      controller: controller,
       permissioned: permission || false,
     })
   }
@@ -112,7 +112,7 @@ export class Schema implements ISchema {
   public id: ISchema['id']
   public hash: ISchema['hash']
   public version: ISchema['version']
-  public issuer: ISchema['issuer']
+  public controller: ISchema['controller']
   public schema: ISchema['schema']
   public parent?: ISchema['parent'] | undefined
   public permissioned: ISchema['permissioned']
@@ -122,7 +122,7 @@ export class Schema implements ISchema {
     this.id = schemaInput.id
     this.hash = schemaInput.hash
     this.version = schemaInput.version
-    this.issuer = schemaInput.issuer
+    this.controller = schemaInput.controller
     this.schema = schemaInput.schema
     this.parent = schemaInput.parent
     this.permissioned = schemaInput.permissioned
@@ -226,7 +226,7 @@ export class SchemaDetails implements ISchemaDetails {
   public id: ISchemaDetails['id']
   public hash: ISchemaDetails['hash']
   public version: ISchemaDetails['version']
-  public issuer: ISchemaDetails['issuer']
+  public controller: ISchemaDetails['controller']
   public parent: ISchemaDetails['parent'] | null | undefined
   public cid: string | null | undefined
   public permissioned: ISchemaDetails['permissioned']
@@ -236,7 +236,7 @@ export class SchemaDetails implements ISchemaDetails {
     this.id = details.id
     this.hash = details.hash
     this.version = details.version
-    this.issuer = details.issuer
+    this.controller = details.controller
     this.parent = details.parent
     this.cid = details.cid
     this.permissioned = details.permissioned

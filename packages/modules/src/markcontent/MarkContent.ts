@@ -27,7 +27,7 @@ function verifyCreatorSignature(content: IMarkContent): boolean {
   // console.log('Hash u8a', stringToU8a(content.contentHash))
   return Crypto.verify(
     // Crypto.hashStr(content.contentHash),
-    content.contentHash,
+    content.rootHash,
     content.issuerSignature,
     content.content.issuer
   )
@@ -39,7 +39,7 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 }
 
 export type Options = {
-  proofs?: Mark[]
+  legitimations?: Mark[]
   link?: IMarkContent['link']
   nonceSalt?: string
 }
@@ -69,7 +69,7 @@ export class MarkContent implements IMarkContent {
   public static fromContentProperties(
     content: IContent,
     issuer: Identity,
-    { proofs, link }: Options = {}
+    { legitimations, link }: Options = {}
   ): MarkContent {
     if (content.issuer !== issuer.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
@@ -78,8 +78,8 @@ export class MarkContent implements IMarkContent {
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content)
 
-    const contentHash = MarkContent.calculateRootHash({
-      proofs,
+    const rootHash = MarkContent.calculateRootHash({
+      legitimations,
       contentHashes,
     })
 
@@ -87,12 +87,12 @@ export class MarkContent implements IMarkContent {
       content,
       contentHashes,
       contentNonceMap,
-      proofs: proofs || [],
+      legitimations: legitimations || [],
       link,
-      issuerSignature: MarkContent.sign(issuer, contentHash),
-      contentHash,
+      issuerSignature: MarkContent.sign(issuer, rootHash),
+      rootHash,
       contentId: Identifier.getIdentifier(
-        contentHash,
+        rootHash,
         STREAM_IDENTIFIER,
         STREAM_PREFIX
       ),
@@ -115,18 +115,18 @@ export class MarkContent implements IMarkContent {
   public static updateMarkContentProperties(
     content: IMarkContent,
     issuer: Identity,
-    { proofs }: Options = {}
+    { legitimations }: Options = {}
   ): MarkContent {
     if (content.content.issuer !== issuer.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
-    let updateProofs = proofs || content.proofs
+    let updateLegitimations = legitimations || content.legitimations
 
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content.content)
 
-    const contentHash = MarkContent.calculateRootHash({
-      proofs: updateProofs,
+    const rootHash = MarkContent.calculateRootHash({
+      legitimations: updateLegitimations,
       contentHashes,
     })
 
@@ -134,10 +134,10 @@ export class MarkContent implements IMarkContent {
       content: content.content,
       contentHashes,
       contentNonceMap,
-      proofs: proofs || content.proofs,
+      legitimations: legitimations || content.legitimations,
       link: content.link,
-      issuerSignature: MarkContent.sign(issuer, contentHash),
-      contentHash,
+      issuerSignature: MarkContent.sign(issuer, rootHash),
+      rootHash,
       contentId: content.contentId,
     })
   }
@@ -161,10 +161,10 @@ export class MarkContent implements IMarkContent {
   public content: IContent
   public contentHashes: string[]
   public contentNonceMap: Record<string, string>
-  public proofs: Mark[]
+  public legitimations: Mark[]
   public link: IMarkContent['link']
   public issuerSignature: string
-  public contentHash: Hash
+  public rootHash: Hash
   public contentId: string
 
   /**
@@ -183,17 +183,17 @@ export class MarkContent implements IMarkContent {
     this.contentHashes = markContentRequest.contentHashes
     this.contentNonceMap = markContentRequest.contentNonceMap
     if (
-      markContentRequest.proofs &&
-      Array.isArray(markContentRequest.proofs) &&
-      markContentRequest.proofs.length
+      markContentRequest.legitimations &&
+      Array.isArray(markContentRequest.legitimations) &&
+      markContentRequest.legitimations.length
     ) {
-      this.proofs = markContentRequest.proofs.map((proof) =>
+      this.legitimations = markContentRequest.legitimations.map((proof) =>
         Mark.fromMark(proof)
       )
     } else {
-      this.proofs = []
+      this.legitimations = []
     }
-    this.contentHash = markContentRequest.contentHash
+    this.rootHash = markContentRequest.rootHash
     this.link = markContentRequest.link
     this.issuerSignature = markContentRequest.issuerSignature
     this.verifySignature()
@@ -265,7 +265,7 @@ export class MarkContent implements IMarkContent {
       )
 
     // check proofs
-    Mark.validateProofs(input.proofs)
+    Mark.validateProofs(input.legitimations)
 
     return true
   }
@@ -296,7 +296,7 @@ export class MarkContent implements IMarkContent {
   }
 
   public static verifyRootHash(input: IMarkContent): boolean {
-    return input.contentHash === MarkContent.calculateRootHash(input)
+    return input.rootHash === MarkContent.calculateRootHash(input)
   }
 
   public verifyRootHash(): boolean {
@@ -310,15 +310,15 @@ export class MarkContent implements IMarkContent {
 
   private static getHashLeaves(
     contentHashes: Hash[],
-    proofs: IMark[]
+    legitimations: IMark[]
   ): Uint8Array[] {
     const result: Uint8Array[] = []
     contentHashes.forEach((item) => {
       result.push(Crypto.coToUInt8(item))
     })
-    if (proofs) {
-      proofs.forEach((proof) => {
-        result.push(Crypto.coToUInt8(proof.content.streamId))
+    if (legitimations) {
+      legitimations.forEach((legitimation) => {
+        result.push(Crypto.coToUInt8(legitimation.content.streamId))
       })
     }
     return result
@@ -350,7 +350,7 @@ export class MarkContent implements IMarkContent {
   private static calculateRootHash(mark: Partial<IMarkContent>): Hash {
     const hashes: Uint8Array[] = MarkContent.getHashLeaves(
       mark.contentHashes || [],
-      mark.proofs || []
+      mark.legitimations || []
     )
     const root: Uint8Array = getHashRoot(hashes)
     // return Crypto.u8aToHex(root)
