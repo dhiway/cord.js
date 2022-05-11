@@ -15,11 +15,11 @@ import type {
   IPublicIdentity,
   CompressedPartialContent,
   PartialContent,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { SDKErrors } from '@cord.network/utils'
-import { Schema as ISchema } from '../schema/Schema'
-import * as SchemaUtils from '../schema/Schema.utils'
-import * as ContentUtils from './Content.utils'
+import { Schema as ISchema } from '../schema/Schema.js'
+import * as SchemaUtils from '../schema/Schema.utils.js'
+import * as ContentUtils from './Content.utils.js'
 
 function verifyContent(
   contents: IContent['contents'],
@@ -30,15 +30,15 @@ function verifyContent(
 
 export class Content implements IContent {
   /**
-   * Instantiates a new Content stream from the given [[IContent]] and [[Schema]].
+   * [STATIC] Instantiates a new [[Content]] stream from [[IContent]] and [[ISchema]].
    *
-   * @param input IContent to instantiate the new stream from.
+   * @param input IContent to create the new stream from.
    * @param schema ISchema['schema'] to verify input's contents.
    * @throws [[ERROR_CONTENT_UNVERIFIABLE]] when input's contents could not be verified with the provided schema.
    *
-   * @returns An instantiated Content stream.
+   * @returns A validated [[Content]] stream.
    */
-  public static fromContent(
+  public static fromContentType(
     input: IContent,
     schema: ISchema['schema']
   ): Content {
@@ -49,20 +49,21 @@ export class Content implements IContent {
   }
 
   /**
-   * [STATIC] Builds a [[Content]] stream from a [[Schema]] which has nested [[Schema]]s within the schema.
+   * [STATIC] Builds a [[Content]] stream from [[IContent]] and nested [[ISchema]]s.
    *
    * @param schema A [[Schema]] object that has nested [[Schema]]s.
    * @param nestedSchemas The array of [[Schema]]s, which are used inside the main [[Schema]].
    * @param contents The data inside the [[Content]].
    *
-   * @returns A [[Content]] stream.
+   * @returns A validated [[Content]] stream.
    */
 
-  public static fromNestedTypeContent(
+  public static fromNestedContentProperties(
     schema: ISchema,
     nestedSchemas: Array<ISchema['schema']>,
     contents: IContent['contents'],
-    creator: IPublicIdentity['address']
+    issuer: IPublicIdentity['address'],
+    holder?: IPublicIdentity['address']
   ): Content {
     if (
       !SchemaUtils.validateNestedSchemas(schema.schema, nestedSchemas, contents)
@@ -70,25 +71,27 @@ export class Content implements IContent {
       throw SDKErrors.ERROR_NESTED_CONTENT_UNVERIFIABLE()
     }
     return new Content({
-      schemaId: SchemaUtils.getSchemaId(schema.id),
+      schemaId: schema.schemaId,
       contents: contents,
-      creator: creator,
+      issuer: issuer,
+      holder: holder,
     })
   }
 
   /**
-   * Instantiates a new Content stream from the given [[ISchema]], IContent['contents'] and IPublicIdentity['address'].
+   * [STATIC] Builds a new [[Content]] stream from [[ISchema]], IContent['contents'] and issuer's [[IPublicIdentity['address']].
    *
    * @param schema [[ISchema]] from which the Content stream will be built.
    * @param contents IContent['contents'] to be used as the data of the instantiated Content stream.
    * @throws [[ERROR_STREAM_UNVERIFIABLE]] when streamInput's contents could not be verified with the schema of the provided mtypeInput.
    *
-   * @returns An instantiated [[Content]] stream.
+   * @returns A validated [[Content]] stream.
    */
-  public static fromSchemaAndContent(
+  public static fromContentProperties(
     schema: ISchema,
     contents: IContent['contents'],
-    creator: IPublicIdentity['address']
+    issuer: IPublicIdentity['address'],
+    holder?: IPublicIdentity['address']
   ): Content {
     if (schema.schema) {
       if (!verifyContent(contents, schema.schema)) {
@@ -96,8 +99,9 @@ export class Content implements IContent {
       }
     }
     return new Content({
-      schemaId: SchemaUtils.getSchemaId(schema.id),
-      creator: creator,
+      schemaId: schema.schemaId,
+      issuer: issuer,
+      holder: holder,
       contents: contents,
     })
   }
@@ -120,13 +124,15 @@ export class Content implements IContent {
 
   public schemaId: IContent['schemaId']
   public contents: IContent['contents']
-  public creator: IContent['creator']
+  public issuer: IContent['issuer']
+  public holder?: IContent['holder']
 
   public constructor(input: IContent) {
     ContentUtils.errorCheck(input)
     this.schemaId = input.schemaId
     this.contents = input.contents
-    this.creator = input.creator
+    this.issuer = input.issuer
+    this.holder = input.holder || input.issuer
   }
 
   /**

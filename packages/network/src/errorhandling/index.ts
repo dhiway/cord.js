@@ -1,2 +1,2 @@
-export * as ErrorHandler from './ErrorHandler'
-export * from './ExtrinsicError'
+export * as ErrorHandler from './ErrorHandler.js'
+export * from './ExtrinsicError.js'

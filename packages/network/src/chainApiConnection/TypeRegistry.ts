@@ -1,4 +1,4 @@
-import { types05 as CORD_TYPES } from '@cord.network/type-definitions'
+import { types2 as CORD_TYPES } from '@cord.network/type-definitions'
 import { TypeRegistry } from '@polkadot/types'
 
 const TYPE_REGISTRY = new TypeRegistry()

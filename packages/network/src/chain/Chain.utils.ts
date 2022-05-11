@@ -12,10 +12,14 @@ import type {
   ReSignOpts,
   SubmittableExtrinsic,
   SubscriptionPromise,
-} from '@cord.network/types'
-import { ErrorHandler, ExtrinsicError, ExtrinsicErrors } from '../errorhandling'
-import { makeSubscriptionPromise } from './SubscriptionPromise'
-import { getConnectionOrConnect } from '../chainApiConnection/ChainApiConnection'
+} from '@cord.network/api-types'
+import {
+  ErrorHandler,
+  ExtrinsicError,
+  ExtrinsicErrors,
+} from '../errorhandling/index.js'
+import { makeSubscriptionPromise } from './SubscriptionPromise.js'
+import { getConnectionOrConnect } from '../chainApiConnection/ChainApiConnection.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 

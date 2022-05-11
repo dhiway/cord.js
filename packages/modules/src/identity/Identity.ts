@@ -32,15 +32,15 @@ import * as u8aUtil from '@polkadot/util/u8a'
 // and not for box keypair, we use TweetNaCl directly
 import nacl from 'tweetnacl'
 import { Crypto, SDKErrors } from '@cord.network/utils'
-import type { IIdentity, SubmittableExtrinsic } from '@cord.network/types'
+import type { IIdentity, SubmittableExtrinsic } from '@cord.network/api-types'
 import { AnyNumber } from '@polkadot/types/types'
-import PublicIdentity from './PublicIdentity'
+import { PublicIdentity } from './PublicIdentity.js'
 
 type BoxPublicKey =
   | PublicIdentity['boxPublicKeyAsHex']
   | Identity['boxKeyPair']['publicKey']
 
-export default class Identity implements IIdentity {
+export class Identity implements IIdentity {
   private static ADDITIONAL_ENTROPY_FOR_HASHING = new Uint8Array([1, 2, 3])
 
   /**

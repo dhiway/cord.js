@@ -5,14 +5,14 @@
 
 import {
   StreamUtils,
-  CredentialUtils,
+  MarkUtils,
   ContentUtils,
   SchemaUtils,
-  ContentStreamUtils,
+  MarkContentUtils,
 } from '@cord.network/modules'
 import type {
-  ICredential,
-  CompressedCredential,
+  IMark,
+  CompressedMark,
   CompressedMessageBody,
   MessageBody,
   CompressedRequestCredentialContent,
@@ -21,16 +21,16 @@ import type {
   IMessage,
   PartialContent,
   IContent,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { isHex } from '@polkadot/util'
 
-import { Message } from './Message'
+import { Message } from './Message.js'
 
 export function errorCheckMessageBody(body: MessageBody): boolean | void {
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
-      ContentStreamUtils.errorCheck(body.content.requestStream)
+      MarkContentUtils.errorCheck(body.content.requestStream)
       if (body.content.prerequisiteStreams) {
         body.content.prerequisiteStreams.map(
           (content: IContent | PartialContent) =>
@@ -52,10 +52,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
     case Message.BodyType.REQUEST_CREDENTIAL: {
       body.content.forEach(
         (requestStreamsForSchema: IRequestStreamForCredential): void => {
-          DataUtils.validateId(
-            requestStreamsForSchema.id,
-            'Invalid Schema Identifier'
-          )
+          DataUtils.validateId(requestStreamsForSchema.id)
           requestStreamsForSchema.acceptedIssuer?.map((address) =>
             DataUtils.validateAddress(address, 'Invalid Schema Owner Address')
           )
@@ -69,22 +66,18 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
-      const creds: ICredential[] = body.content.map((credentials, i) => {
+      const creds: IMark[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
-      creds.map((cred) => CredentialUtils.errorCheck(cred))
+      creds.map((cred) => MarkUtils.errorCheck(cred))
       break
     }
     case Message.BodyType.ACCEPT_CREDENTIAL: {
-      body.content.map((schemaId) =>
-        DataUtils.validateId(schemaId, 'invalid schema hash')
-      )
+      body.content.map((id) => DataUtils.validateId(id))
       break
     }
     case Message.BodyType.REJECT_CREDENTIAL: {
-      body.content.map((schemaId) =>
-        DataUtils.validateId(schemaId, 'rejected streams - invalid schema hash')
-      )
+      body.content.map((id) => DataUtils.validateId(id))
       break
     }
 
@@ -166,7 +159,7 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
       compressedContents = [
-        ContentStreamUtils.compress(body.content.requestStream),
+        MarkContentUtils.compress(body.content.requestStream),
         body.content.prerequisiteStreams
           ? body.content.prerequisiteStreams.map((content) =>
               ContentUtils.compress(content)
@@ -188,14 +181,14 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
-      const cordStreams: ICredential[] = body.content.map((credentials, i) => {
+      const cordStreams: IMark[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
       compressedContents = cordStreams.map(
-        (cordStream: ICredential | CompressedCredential) =>
+        (cordStream: IMark | CompressedMark) =>
           Array.isArray(cordStream)
             ? cordStream
-            : CredentialUtils.compress(cordStream)
+            : MarkUtils.compress(cordStream)
       )
       break
     }
@@ -222,7 +215,7 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
   switch (body[0]) {
     case Message.BodyType.REQUEST_STREAM: {
       decompressedContents = {
-        requestStream: ContentStreamUtils.decompress(body[1][0]),
+        requestStream: MarkContentUtils.decompress(body[1][0]),
         prerequisiteStreams: body[1][1]
           ? body[1][1].map((stream) => ContentUtils.decompress(stream))
           : undefined,
@@ -253,10 +246,10 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     }
     // case Message.BodyType.SUBMIT_STREAM_FOR_SCHEMA: {
     //   decompressedContents = body[1].map(
-    //     (cordStream: ICredential | CompressedCredential) =>
+    //     (cordStream: IMark | CompressedMark) =>
     //       !Array.isArray(cordStream)
     //         ? cordStream
-    //         : CredentialUtils.decompress(cordStream)
+    //         : MarkUtils.decompress(cordStream)
     //   )
 
     //   break

@@ -7,8 +7,8 @@ module.exports = {
   mode: 'production',
   // build two different bundles from the transpiled js
   entry: {
-    'cord-api': './lib/index.js',
-    'cord-api.min': './lib/index.js',
+    'api': './lib/cjs/index.js',
+    'api.min': './lib/cjs/index.js',
   },
   output: {
     filename: '[name].umd.js',
@@ -29,6 +29,8 @@ module.exports = {
       buffer: require.resolve('buffer'),
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
+      url: require.resolve('url'),
+      util: require.resolve('util'),
     },
   },
   stats: {

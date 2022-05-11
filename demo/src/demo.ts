@@ -4,6 +4,7 @@ import * as utils from './utils'
 import * as json from 'multiformats/codecs/json'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
 import { CID } from 'multiformats/cid'
+import * as VCUtils from '@cord.network/credential'
 
 async function main() {
   await cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -15,7 +16,7 @@ async function main() {
     signingKeyPairType: 'sr25519',
   })
   const employeeIdentity = cord.Identity.buildFromURI('//Dave', {
-    signingKeyPairType: 'ed25519',
+    signingKeyPairType: 'sr25519',
   })
   const holderIdentity = cord.Identity.buildFromURI('//Alice', {
     signingKeyPairType: 'sr25519',
@@ -40,19 +41,28 @@ async function main() {
   // Step 2: Create a new Schema
   console.log(`\n\n✉️  Adding a new Schema \n`)
   let newSchemaContent = require('../res/schema.json')
-  let newSchemaName = newSchemaContent.name + ':' + UUID.generate()
-  newSchemaContent.name = newSchemaName
+  let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
+  newSchemaContent.title = newSchemaTitle
 
   let newSchema = cord.Schema.fromSchemaProperties(
     newSchemaContent,
-    employeeIdentity.address
+    employeeIdentity
   )
 
-  let bytes = json.encode(newSchema)
+  let bytes = json.encode(newSchema.schema)
   let encoded_hash = await hasher.digest(bytes)
-  const schemaCid = CID.create(1, 0xb220, encoded_hash)
-
-  let schemaCreationExtrinsic = await newSchema.store(schemaCid.toString())
+  const schemaCid = CID.create(1, 0xb240, encoded_hash)
+  // let spaceId = '15v398htUCyQZv2PQCgGaSGiwr3VpYSJFpcZD8yCCYxNCJZZ'
+  let schemaCreationExtrinsic = await newSchema.create()
+  // let schemaIdentifier = cord.Utils.Identifier.encodeIdentifier(
+  //   newSchema.hash,
+  //   65
+  // )
+  // console.log('SDK', schemaIdentifier)
+  // console.log(
+  //   'SDK',
+  //   cord.Utils.Identifier.decodeIdentifierKey(schemaIdentifier)
+  // )
 
   console.log(`📧 Schema Details `)
   console.dir(newSchema, { depth: null, colors: true })
@@ -60,6 +70,7 @@ async function main() {
   console.log('\n⛓  Anchoring Schema to the chain...')
   console.log(`🔑 Creator: ${employeeIdentity.address} `)
   console.log(`🔑 Controller: ${entityIdentity.address} `)
+  console.dir(schemaCreationExtrinsic, { depth: null, colors: true })
 
   try {
     await cord.ChainUtils.signAndSubmitTx(
@@ -67,6 +78,7 @@ async function main() {
       entityIdentity,
       {
         resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Schema created!')
@@ -83,7 +95,8 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = cord.Content.fromSchemaAndContent(
+  const nonceSaltValue = UUID.generate()
+  let schemaStream = cord.Content.fromContentProperties(
     newSchema,
     content,
     employeeIdentity.address
@@ -91,23 +104,17 @@ async function main() {
   console.log(`📧 Stream Details `)
   console.dir(schemaStream, { depth: null, colors: true })
 
-  let newStreamContent = cord.ContentStream.fromStreamContent(
+  let newStreamContent = cord.MarkContent.fromContentProperties(
     schemaStream,
-    employeeIdentity
+    employeeIdentity,
+    { nonceSalt: nonceSaltValue }
   )
   console.log(`\n📧 Hashed Stream `)
   console.dir(newStreamContent, { depth: null, colors: true })
 
-  bytes = json.encode(newStreamContent)
-  encoded_hash = await hasher.digest(bytes)
-  const streamCid = CID.create(1, 0xb220, encoded_hash)
+  let newStream = cord.Stream.fromMarkContentProperties(newStreamContent)
 
-  let newStream = cord.Stream.fromContentStreamProperties(
-    newStreamContent,
-    streamCid.toString()
-  )
-
-  let streamCreationExtrinsic = await newStream.store()
+  let streamCreationExtrinsic = await newStream.create()
   console.log(`\n📧 Stream On-Chain Details`)
   console.dir(newStream, { depth: null, colors: true })
 
@@ -120,7 +127,8 @@ async function main() {
       streamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Stream created!')
@@ -128,72 +136,126 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 3: Create a new Credential and Link to the Stream
-  console.log(`\n\n✉️  Adding a new Credential Schema \n`)
+  // Step 3: Update a Stream
+  console.log(`\n✉️  Updating a Stream`, '\n')
+  let updateContent = newStreamContent
+  updateContent.content.contents.name = 'Alice Jackson'
+
+  let updateStreamContent = cord.MarkContent.updateMarkContentProperties(
+    updateContent,
+    employeeIdentity
+  )
+  console.log(`\n📧 Updated Stream `)
+  console.dir(updateStreamContent, { depth: null, colors: true })
+
+  let updateStream = cord.Stream.fromMarkContentProperties(updateStreamContent)
+
+  let updateStreamCreationExtrinsic = await updateStream.update()
+  console.log(`\n📧 Updated Stream On-Chain Details`)
+  console.dir(updateStream, { depth: null, colors: true })
+
+  console.log('\n⛓  Anchoring Updated Stream to the chain...')
+  console.log(`🔑 Creator: ${employeeIdentity.address} `)
+  console.log(`🔑 Controller: ${entityIdentity.address} `)
+
+  try {
+    await cord.ChainUtils.signAndSubmitTx(
+      updateStreamCreationExtrinsic,
+      entityIdentity,
+      {
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
+      }
+    )
+    console.log('✅ Stream updated!')
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 3: Revoke a Stream
+  console.log(`\n✉️  Revoking a Stream`, '\n')
+  let revokeStream = updateStream
+
+  let revokeStreamCreationExtrinsic = await revokeStream.revoke(
+    employeeIdentity
+  )
+  console.log(`\n📧 Stream On-Chain Details`)
+  console.dir(updateStream, { depth: null, colors: true })
+
+  console.log('\n⛓  Anchoring Stream to the chain...')
+  console.log(`🔑 Creator: ${employeeIdentity.address} `)
+  console.log(`🔑 Controller: ${entityIdentity.address} `)
+
+  try {
+    await cord.ChainUtils.signAndSubmitTx(
+      revokeStreamCreationExtrinsic,
+      entityIdentity,
+      {
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
+      }
+    )
+    console.log('✅ Stream revoked!')
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 3: Create a new Mark and Link to the Stream
+  console.log(`\n\n✉️  Adding a new Mark Schema \n`)
   let credSchema = require('../res/cred-schema.json')
-  credSchema.name = credSchema.name + ':' + UUID.generate()
+  credSchema.title = credSchema.title + ':' + UUID.generate()
 
   let credSchemaStream = cord.Schema.fromSchemaProperties(
     credSchema,
-    employeeIdentity.address
+    employeeIdentity
   )
 
   bytes = json.encode(credSchemaStream)
   encoded_hash = await hasher.digest(bytes)
-  const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
-
-  let credSchemaCreationExtrinsic = await credSchemaStream.store(
-    credSchemaCid.toString()
-  )
-  console.log('\n⛓  Anchoring Credential Schema to the chain...')
+  // const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
+  let credSchemaCreationExtrinsic = await credSchemaStream.create()
+  console.log('\n⛓  Anchoring Mark Schema to the chain...')
 
   try {
     await cord.ChainUtils.signAndSubmitTx(
       credSchemaCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Schema created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
+  console.log(`📧 Schema Details `)
+  console.dir(credSchemaStream, { depth: null, colors: true })
 
-  console.log(`\n✉️  Adding a new Credential`, '\n')
-  let credStream = {
+  console.log(`\n✉️  Adding a new Mark`, '\n')
+  let markStream = {
     name: newStreamContent.content.contents.name,
     country: newStreamContent.content.contents.country,
   }
 
-  let credStreamContent = cord.Content.fromSchemaAndContent(
+  let credStreamContent = cord.Content.fromContentProperties(
     credSchemaStream,
-    credStream,
-    employeeIdentity.address
+    markStream,
+    employeeIdentity.address,
+    holderIdentity.address
   )
 
-  let credContentStream = cord.ContentStream.fromStreamContent(
+  let credContentStream = cord.MarkContent.fromContentProperties(
     credStreamContent,
-    employeeIdentity,
-    {
-      holder: holderIdentity.address,
-      link: newStream.id,
-    }
+    employeeIdentity
   )
   console.log(`\n📧 Hashed Stream Details`)
   console.dir(credContentStream, { depth: null, colors: true })
 
-  bytes = json.encode(credContentStream)
-  encoded_hash = await hasher.digest(bytes)
-  const credStreamCid = CID.create(1, 0xb220, encoded_hash)
+  let credStreamTx = cord.Stream.fromMarkContentProperties(credContentStream)
 
-  let credStreamTx = cord.Stream.fromContentStreamProperties(
-    credContentStream,
-    credStreamCid.toString()
-  )
-
-  let credStreamCreationExtrinsic = await credStreamTx.store()
-  console.log(`\n📧 Credential On-Chain Details`)
+  let credStreamCreationExtrinsic = await credStreamTx.create()
+  console.log(`\n📧 Mark On-Chain Details`)
   console.dir(credStreamTx, { depth: null, colors: true })
 
   try {
@@ -201,24 +263,27 @@ async function main() {
       credStreamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: cord.ChainUtils.IS_IN_BLOCK,
+        resolveOn: cord.ChainUtils.IS_READY,
+        rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
-    console.log('✅ Credential created!')
+    console.log('✅ Mark created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
+  await utils.waitForEnter('\n⏎ Press Enter to continue..')
 
-  //  Step 7: Credential exchange via messaging
-  console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
+  //  Step 7: Mark exchange via messaging
+  console.log(`\n\n📩 Mark Exchange - Selective Disclosure (Verifier)`)
   console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
   const purpose = 'Account Opening Request'
   const validUntil = Date.now() + 864000000
   const relatedData = true
+
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()
       .requestPresentation({
-        schemaId: newSchema.id,
+        id: credSchemaStream.schemaId,
         properties: ['name'],
       })
       .finalize(
@@ -232,33 +297,66 @@ async function main() {
   console.log(`\n📧 Selective Disclosure Request`)
   console.dir(message, { depth: null, colors: true })
 
-  let credential: cord.Credential
-  credential = cord.Credential.fromStreamProperties(
-    credContentStream,
-    credStreamTx
-  )
-  const presentation = cord.Exchange.Share.createPresentation(
-    holderIdentity,
-    message,
-    verifierIdentity.getPublicIdentity(),
-    [credential],
-    {
-      showAttributes: message.body.content[0].requiredProperties,
-      signer: holderIdentity,
-      request: message.body.request,
-      // purpose: request.body.purpose,
-      // validUntil: request.body.validUntil,
+  const chainStream = await cord.Stream.query(credContentStream.contentId)
+  if (chainStream) {
+    let credential: cord.Mark
+    credential = cord.Mark.fromMarkContentStream(credContentStream, chainStream)
+    const presentation = cord.Exchange.Share.createPresentation(
+      holderIdentity,
+      message,
+      verifierIdentity.getPublicIdentity(),
+      [credential],
+      {
+        showAttributes: message.body.content[0].requiredProperties,
+        signer: holderIdentity,
+        request: message.body.request,
+      }
+    )
+
+    const { verified } = await cord.Exchange.Verify.verifyPresentation(
+      presentation,
+      session
+    )
+
+    const VC = VCUtils.fromMark(credential, holderIdentity, credSchemaStream)
+    const vcPresentation = await VCUtils.presentation.makePresentation(VC, [
+      'name',
+    ])
+
+    console.log(`\n📧 Received Mark `)
+    console.dir(presentation, { depth: null, colors: true })
+    console.dir(VC, { depth: null, colors: true })
+    console.dir(vcPresentation, {
+      depth: null,
+      colors: true,
+    })
+
+    console.log(vcPresentation.verifiableCredential)
+
+    let result = vcPresentation.verifiableCredential.proof.forEach(function (
+      proof: any
+    ) {
+      console.log(proof)
+      if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
+        VCUtils.verification.verifyAttestedProof(
+          vcPresentation.verifiableCredential,
+          proof
+        )
+    })
+    console.log(result)
+    if (result && result.verified) {
+      console.log(
+        `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
+      ) // prints 'Billy The Kid'
+      // console.log(
+      //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
+      // ) // undefined
     }
-  )
 
-  const { verified } = await cord.Exchange.Verify.verifyPresentation(
-    presentation,
-    session
-  )
-
-  console.log(`\n📧 Received Credential `)
-  console.dir(presentation, { depth: null, colors: true })
-  console.log('🔍 All valid? ', verified)
+    console.log('🔍 All valid? ', verified)
+  } else {
+    console.log(`\n❌ Mark not found `)
+  }
 
   await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }

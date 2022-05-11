@@ -23,7 +23,7 @@ import { naclDecrypt } from '@polkadot/util-crypto/nacl/decrypt'
 import { naclEncrypt } from '@polkadot/util-crypto/nacl/encrypt'
 import nacl from 'tweetnacl'
 import { v4 as uuid } from 'uuid'
-import jsonabc from './jsonabc'
+import * as jsonabc from './jsonabc.cjs'
 
 export { encodeAddress, decodeAddress, u8aToHex, u8aConcat }
 
@@ -83,6 +83,7 @@ export function sign(
   signKeyPair: KeyringPair
 ): Uint8Array {
   return signKeyPair.sign(coToUInt8(message), { withType: true })
+  // return signKeyPair.sign(stringToU8a(message), { withType: true })
 }
 
 /**
@@ -195,6 +196,7 @@ export function decryptSymmetricStr(
   return result ? u8aToString(result) : null
 }
 
+export type BitLength = 64 | 128 | 256 | 384 | 512
 /**
  * Create the blake2b and return the result as a u8a with the specified `bitLength`.
  *
@@ -202,7 +204,7 @@ export function decryptSymmetricStr(
  * @param bitLength Bit length of hash.
  * @returns Blake2b hash byte array.
  */
-export function hash(value: CryptoInput, bitLength?: number): Uint8Array {
+export function hash(value: CryptoInput, bitLength?: BitLength): Uint8Array {
   return blake2AsU8a(value, bitLength)
 }
 
@@ -217,6 +219,29 @@ export function hashStr(value: CryptoInput): string {
 }
 
 /**
+ * Stringifies numbers, booleans, and objects. Object keys are sorted to yield consistent hashing.
+ *
+ * @param value Object or value to be hashed.
+ * @returns Stringified representation of the given object.
+ */
+export function encodeObjectAsStr(
+  value: Record<string, any> | string | number | boolean
+): string {
+  const input =
+    // eslint-disable-next-line no-nested-ternary
+    typeof value === 'object' && value !== null
+      ? JSON.stringify(jsonabc.sortObj(value))
+      : // eslint-disable-next-line no-nested-ternary
+      typeof value === 'number' && value !== null
+      ? value.toString()
+      : typeof value === 'boolean' && value !== null
+      ? JSON.stringify(value)
+      : value
+
+  return input
+}
+
+/**
  * Hashes numbers, booleans, and objects by stringifying them. Object keys are sorted to yield consistent hashing.
  *
  * @param value Object or value to be hashed.
@@ -227,20 +252,11 @@ export function hashObjectAsStr(
   value: Record<string, any> | string | number | boolean,
   nonce?: string
 ): string {
-  let input =
-    // eslint-disable-next-line no-nested-ternary
-    typeof value === 'object' && value !== null
-      ? JSON.stringify(jsonabc.sortObj(value))
-      : // eslint-disable-next-line no-nested-ternary
-      typeof value === 'number' && value !== null
-      ? value.toString()
-      : typeof value === 'boolean' && value !== null
-      ? JSON.stringify(value)
-      : value
+  let objectAsStr = encodeObjectAsStr(value)
   if (nonce) {
-    input = nonce + input
+    objectAsStr = nonce + objectAsStr
   }
-  return hashStr(input)
+  return hashStr(objectAsStr)
 }
 
 /**

@@ -9,9 +9,8 @@ import type {
   CompressedContent,
   PartialContent,
   CompressedPartialContent,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { jsonabc, DataUtils, Crypto, SDKErrors } from '@cord.network/utils'
-import { getIdWithPrefix } from '../schema/Schema.utils'
 
 const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
 
@@ -30,10 +29,8 @@ function JsonLDcontents(
 ): Record<string, unknown> {
   const { schemaId, contents } = content
   if (!schemaId) SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
-  const vocabulary = `${getIdWithPrefix(schemaId)}#`
+  const vocabulary = `${schemaId}#`
   const result: Record<string, unknown> = {}
-  //TODO: enable this after adding DID
-  // if (creator) result['@id'] = Did.getIdentifierFromAddress(creator)
   if (!expanded) {
     return {
       ...result,
@@ -57,7 +54,7 @@ export function toJsonLD(
     [`${prefix}credentialSubject`]: credentialSubject,
   }
   result[`${prefix}credentialSchema`] = {
-    '@id': getIdWithPrefix(content.schemaId),
+    '@id': content.schemaId,
   }
   if (!expanded) result['@context'] = { '@vocab': VC_VOCAB }
   return result
@@ -177,8 +174,8 @@ export function errorCheck(input: IContent | PartialContent): void {
   if (!input.schemaId) {
     throw SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
   }
-  if (input.creator) {
-    DataUtils.validateAddress(input.creator, 'Content Creator')
+  if (input.issuer) {
+    DataUtils.validateAddress(input.issuer, 'Content Creator')
   }
   if (input.contents !== undefined) {
     Object.entries(input.contents).forEach(([key, value]) => {
@@ -191,7 +188,7 @@ export function errorCheck(input: IContent | PartialContent): void {
       }
     })
   }
-  DataUtils.validateId(input.schemaId, 'Stream Schema')
+  DataUtils.validateId(input.schemaId)
 }
 
 /**
@@ -218,7 +215,7 @@ export function compress(
   if (content.contents) {
     sortedContents = jsonabc.sortObj(content.contents)
   }
-  return [content.schemaId, content.creator, sortedContents]
+  return [content.schemaId, content.issuer, content.holder, sortedContents]
 }
 
 /**
@@ -241,12 +238,13 @@ export function decompress(content: CompressedPartialContent): PartialContent
 export function decompress(
   content: CompressedContent | CompressedPartialContent
 ): IContent | PartialContent {
-  if (!Array.isArray(content) || content.length !== 3) {
+  if (!Array.isArray(content) || content.length !== 4) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
   }
   return {
     schemaId: content[0],
-    creator: content[1],
-    contents: content[2],
+    issuer: content[1],
+    holder: content[2],
+    contents: content[3],
   }
 }

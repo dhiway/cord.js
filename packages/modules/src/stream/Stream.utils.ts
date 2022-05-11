@@ -3,8 +3,9 @@
  * @module StreamUtils
  */
 
-import type { IStream, CompressedStream } from '@cord.network/types'
-import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
+import type { IStream, CompressedStream, Hash } from '@cord.network/api-types'
+import { DataUtils, SDKErrors } from '@cord.network/utils'
+import { Identity } from '../identity/Identity.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStream]] object.
@@ -14,30 +15,21 @@ import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
  *
  */
 export function errorCheck(input: IStream): void {
-  if (!input.id) {
+  if (!input.streamId) {
     throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.id, 'Stream ID')
+  } else DataUtils.validateId(input.streamId)
 
-  if (!input.hash) {
+  if (!input.streamHash) {
     throw SDKErrors.ERROR_MARK_HASH_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.hash, 'Stream hash')
+  } else DataUtils.validateHash(input.streamHash, 'Stream hash')
 
-  if (!input.schema) {
+  if (!input.schemaId) {
     throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.schema, 'Schema link')
+  } else DataUtils.validateId(input.schemaId)
 
-  //TODO: Fix this
-  // if (!input.link) {
-  //   throw SDKErrors.ERROR_MARK_JOURNAL_ID_NOT_PROVIDED()
-  // } else DataUtils.validateHash(input.link, 'Mark link')
-
-  if (!input.creator) {
+  if (!input.issuer) {
     throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
-  } else DataUtils.validateAddress(input.creator, 'Stream controller')
-
-  if (typeof input.revoked !== 'boolean') {
-    throw SDKErrors.ERROR_MARK_REVOCATION_BIT_MISSING()
-  }
+  } else DataUtils.validateAddress(input.issuer, 'Stream controller')
 }
 
 /**
@@ -51,13 +43,13 @@ export function errorCheck(input: IStream): void {
 export function compress(stream: IStream): CompressedStream {
   errorCheck(stream)
   return [
-    stream.id,
-    stream.hash,
-    stream.cid,
-    stream.schema,
-    stream.link,
-    stream.creator,
-    stream.revoked,
+    stream.streamId,
+    stream.streamHash,
+    stream.issuer,
+    stream.holder,
+    stream.schemaId,
+    stream.linkId,
+    stream.issuerSignature,
   ]
 }
 
@@ -75,33 +67,16 @@ export function decompress(stream: CompressedStream): IStream {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
   }
   return {
-    id: stream[0],
-    hash: stream[1],
-    cid: stream[2],
-    schema: stream[3],
-    link: stream[4],
-    creator: stream[5],
-    revoked: stream[6],
+    streamId: stream[0],
+    streamHash: stream[1],
+    issuer: stream[2],
+    holder: stream[3],
+    schemaId: stream[4],
+    linkId: stream[5],
+    issuerSignature: stream[6],
   }
 }
 
-export function getIdForStream(hash: string): string {
-  return getIdForStream(Crypto.hashObjectAsStr(hash))
-}
-
-export function getIdWithPrefix(hash: string): string {
-  return `cord:stream:${hash}`
-}
-
-export function getStreamId(identifier: string): string {
-  return identifier.split('cord:stream:').join('')
-}
-
-/**
- * Convert from hex to string
- * @param hex Hex string with prefix `0x`
- * @returns With string back
- */
-export function hexToString(hex: string): string {
-  return Buffer.from(hex.substring(2), 'hex').toString()
+export function sign(identity: Identity, txHash: Hash): string {
+  return identity.signStr(txHash)
 }

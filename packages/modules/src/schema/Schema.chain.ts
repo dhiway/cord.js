@@ -4,51 +4,117 @@
  */
 
 import { Option, Struct, Vec, u8 } from '@polkadot/types'
-import type { AccountId, BlockNumber, Hash } from '@polkadot/types/interfaces'
+import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import type {
   ISchema,
   ISchemaDetails,
   IPublicIdentity,
   SubmittableExtrinsic,
-} from '@cord.network/types'
-import { DecoderUtils } from '@cord.network/utils'
+} from '@cord.network/api-types'
+import { SCHEMA_PREFIX } from '@cord.network/api-types'
+import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { SchemaDetails } from './Schema'
-import { hexToString } from '../stream/Stream.utils'
+import { SchemaDetails } from './Schema.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Schema')
 
 /**
- * Generate the extrinsic to store the provided [[ISchema]].
+ * Generate the extrinsic to create the [[ISchema]].
  *
  * @param schema The schema to anchor on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
 
-export async function store(
+export async function create(
   schema: ISchema,
-  cid: string
+  spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
-    schema.schema.$id,
-    schema.creator,
-    schema.hash,
-    cid,
-    schema.permissioned
+    schema.controller,
+    schema.schemaHash,
+    spaceid,
+    schema.controllerSignature
   )
   return tx
 }
+
+/**
+ * TBD
+ */
+export async function revoke(
+  schema_id: string,
+  controller: string,
+  txHash: string,
+  txSignature: string,
+  spaceid?: string | undefined
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Revoking a schema with ID ${schema_id}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.revoke(
+    controller,
+    Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
+    txHash,
+    spaceid,
+    txSignature
+  )
+  return tx
+}
+
+/**
+ * TBD
+ */
+export async function authorise(
+  schema_id: string,
+  controller: string,
+  delegates: [string],
+  txHash: string,
+  txSignature: string,
+  spaceid?: string | undefined
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Adding a delagate to ${schema_id}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.authorise(
+    controller,
+    Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
+    txHash,
+    delegates,
+    spaceid,
+    txSignature
+  )
+  return tx
+}
+
+/**
+ * TBD
+ */
+export async function deauthorise(
+  schema_id: string,
+  controller: string,
+  delegates: [string],
+  txHash: string,
+  txSignature: string,
+  spaceid?: string | undefined
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Removing delagation from ${schema_id}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.deauthorise(
+    controller,
+    Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
+    txHash,
+    delegates,
+    spaceid,
+    txSignature
+  )
+  return tx
+}
+
 export interface AnchoredSchemaDetails extends Struct {
-  readonly schema_hash: Hash
-  readonly cid: Option<Vec<u8>>
-  readonly pcid: Option<Vec<u8>>
-  readonly creator: AccountId
-  readonly block: BlockNumber
-  readonly permissioned: boolean
+  readonly schemaHash: Hash
+  readonly controller: AccountId
+  readonly spaceId: Option<Vec<u8>>
   readonly revoked: boolean
 }
 
@@ -62,17 +128,11 @@ function decodeSchema(
   if (encodedSchema.isSome) {
     const anchoredSchema = encodedSchema.unwrap()
     const schema: ISchemaDetails = {
-      id: schemaId,
-      schema_hash: anchoredSchema.schema_hash.toString(),
-      cid: anchoredSchema.cid
-        ? hexToString(anchoredSchema.cid.toString())
-        : null,
-      pcid: anchoredSchema.pcid
-        ? hexToString(anchoredSchema.pcid.toString())
-        : null,
-      creator: anchoredSchema.creator.toString(),
-      block: anchoredSchema.block.toString(),
-      permissioned: anchoredSchema.permissioned.valueOf(),
+      schemaId: schemaId,
+      schemaHash: anchoredSchema.schemaHash.toString(),
+      controller: anchoredSchema.controller.toString(),
+      spaceid:
+        DecoderUtils.hexToString(anchoredSchema.spaceId.toString()) || null,
       revoked: anchoredSchema.revoked.valueOf(),
     }
     return SchemaDetails.fromSchemaDetails(schema)
@@ -80,13 +140,23 @@ function decodeSchema(
   return null
 }
 
-async function queryRaw(
-  schemaId: string
+async function queryRawHash(
+  schema_hash: string
 ): Promise<Option<AnchoredSchemaDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const result = await blockchain.api.query.schema.schemas<
     Option<AnchoredSchemaDetails>
-  >(schemaId)
+  >(schema_hash)
+  return result
+}
+
+async function queryRaw(
+  schema_id: string
+): Promise<Option<AnchoredSchemaDetails>> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const result = await blockchain.api.query.schema.schemas<
+    Option<AnchoredSchemaDetails>
+  >(schema_id)
   return result
 }
 
@@ -94,28 +164,21 @@ async function queryRaw(
  * @param identifier
  * @internal
  */
-export async function query(schemaId: string): Promise<SchemaDetails | null> {
-  const encoded = await queryRaw(schemaId)
-  return decodeSchema(encoded, schemaId)
+export async function queryhash(
+  schema_hash: string
+): Promise<SchemaDetails | null> {
+  const encoded = await queryRawHash(schema_hash)
+  return decodeSchema(encoded, schema_hash)
 }
 
 /**
  * @param identifier
  * @internal
  */
-export async function set_status(
-  streamId: string,
-  creator: string,
-  status: boolean
-): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking stream with ID ${streamId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.set_status(
-    streamId,
-    creator,
-    status
-  )
-  return tx
+export async function query(schema_id: string): Promise<SchemaDetails | null> {
+  const schemaId: string = Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX)
+  const encoded = await queryRaw(schemaId)
+  return decodeSchema(encoded, schemaId)
 }
 
 /**
@@ -123,9 +186,9 @@ export async function set_status(
  * @internal
  */
 export async function getOwner(
-  id: ISchema['id']
+  schemaId: ISchema['schemaId']
 ): Promise<IPublicIdentity['address'] | null> {
-  const encoded = await queryRaw(id)
-  const queriedSchemaAccount = decodeSchema(encoded, id)
-  return queriedSchemaAccount!.creator
+  const encoded = await queryRaw(schemaId)
+  const queriedSchemaAccount = decodeSchema(encoded, schemaId)
+  return queriedSchemaAccount!.controller
 }

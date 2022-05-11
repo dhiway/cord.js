@@ -4,33 +4,32 @@
  */
 
 import {
-  // Credential,
+  // Mark,
   Schema,
   SDKErrors,
   Identity,
-  SchemaUtils,
 } from '@cord.network/modules'
 // import { ConfigService } from '@cord.network/config'
 import type {
   IPublicIdentity,
   IMessage,
-  // ICredential,
-  // IContentStream,
+  // IMark,
+  // IMarkContent,
   // IMessage,
   IRequestStreamForCredential,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { Message } from '@cord.network/messaging'
 import { UUID, Crypto } from '@cord.network/utils'
 
 export interface IPresentationReq {
   properties: string[]
-  schemaId?: Schema['id']
+  id?: Schema['schemaId']
   proofs?: boolean
   requestUpdatedAfter?: Date
 }
 
 export interface IPartialRequest {
-  schemaId: Schema['id']
+  id: Schema['schemaId']
   properties: string[]
 }
 
@@ -53,28 +52,28 @@ export class PresentationRequestBuilder {
    * Note that you are required to call [[finalize]] on the request to conclude it.
    *
    * @param p The parameter object.
-   * @param p.schemaId The ID of the [[Schema]].
-   * @param p.properties A list of properties of the [[Credential]]s requested.
+   * @param p.id The ID of the [[Schema]].
+   * @param p.properties A list of properties of the [[Mark]]s requested.
    * @param p.proofs An optional boolean representing whether the verifier requests to see the proofs of the issuers which signed the [[Credentials]]s.
    * The default value for this is the current date.
    * @returns A [[PresentationRequestBuilder]] on which you need to call [[finalize]] to complete the presentation request.
    */
   public requestPresentation({
-    schemaId,
+    id,
     properties,
     proofs,
   }: IPresentationReq): PresentationRequestBuilder {
     const rawProperties = properties.map((attr) => `${attr}`)
 
-    if (typeof schemaId !== 'undefined') {
-      rawProperties.push('content.schemaId')
+    if (typeof id !== 'undefined') {
+      rawProperties.push('content.id')
     }
     if (proofs === true) {
       rawProperties.push('proof')
     }
-    if (!schemaId) throw SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+    if (!id) throw SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
     this.partialReq.push({
-      schemaId: SchemaUtils.getSchemaId(schemaId),
+      id: id,
       properties: rawProperties,
     })
     return this
@@ -108,7 +107,7 @@ export class PresentationRequestBuilder {
         type: Message.BodyType.REQUEST_CREDENTIAL,
         content: this.partialReq.map((pr): IRequestStreamForCredential => {
           return {
-            id: pr.schemaId,
+            id: pr.id,
             requiredProperties: pr.properties,
           }
         }),
@@ -120,7 +119,7 @@ export class PresentationRequestBuilder {
       holder
     )
     const hash = Crypto.hashStr(JSON.stringify(message))
-    message.body.signature = requester.signStr(hash)
+    message.body.requestorSignature = requester.signStr(hash)
     return {
       session: session,
       message: message,

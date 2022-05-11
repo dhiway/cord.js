@@ -8,15 +8,24 @@
  */
 
 import { v4 as uuid } from 'uuid'
-import { hashStr } from './Crypto'
+import { hashStr } from './Crypto.js'
 
 /**
  * Generates a H256 compliant UUID.
  *
  * @returns The hashed uuid.
  */
-export function generate(): string {
+export function generateHash(): string {
   return hashStr(uuid())
+}
+
+/**
+ * Generates a v4 UUID.
+ *
+ * @returns The v4 uuid.
+ */
+export function generate(): string {
+  return uuid()
 }
 
 export default {

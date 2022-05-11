@@ -14,10 +14,10 @@ import type {
   Balances,
   IPublicIdentity,
   SubmittableExtrinsic,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { ChainApiConnection } from '@cord.network/network'
 
-import BalanceUtils from './Balance.utils'
+import BalanceUtils from './Balance.utils.js'
 
 /**
  * Fetches the current balances of the account with [accountAddress].
@@ -138,7 +138,7 @@ export async function makeTransfer(
     accountAddressTo,
     cleanExponent === -12
       ? amount
-      : BalanceUtils.convertToTxUnit(amount, cleanExponent)
+      : BalanceUtils.convertToWayUnit(amount, cleanExponent)
   )
   return transfer
 }

@@ -13,8 +13,9 @@
       "@cord.network/modules": ["modules/src"],
       "@cord.network/messaging": ["messaging/src"],
       "@cord.network/api": ["api/src"],
-      "@cord.network/types": ["types/src"],
+      "@cord.network/api-types": ["api-types/src"],
       "@cord.network/utils": ["utils/src"],
+      "@cord.network/credential": ["credential/src"],
     }
   },
   "skipLibCheck": true

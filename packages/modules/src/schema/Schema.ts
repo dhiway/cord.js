@@ -2,7 +2,7 @@
  * Schema.
  *
  * * A Schema is a description of the [[Stream]] data structure, based on [JSON Schema](http://json-schema.org/).
- * * Schemas are published and stored by the creator.
+ * * Schemas are published and stored by the issuer.
  * * Permissioned users can use a Schema to create a new [[Stream]].
  *
  * @packageDocumentation
@@ -17,9 +17,18 @@ import type {
   CompressedSchemaType,
   SchemaWithoutId,
   SubmittableExtrinsic,
-} from '@cord.network/types'
-import { set_status, query, store } from './Schema.chain'
-import * as SchemaUtils from './Schema.utils'
+} from '@cord.network/api-types'
+import { Identifier, Crypto, UUID } from '@cord.network/utils'
+import {
+  query,
+  create,
+  authorise,
+  deauthorise,
+  revoke,
+} from './Schema.chain.js'
+import * as SchemaUtils from './Schema.utils.js'
+import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/api-types'
+import { Identity } from '../identity/Identity.js'
 
 export class Schema implements ISchema {
   /**
@@ -35,26 +44,6 @@ export class Schema implements ISchema {
    */
   public static async query(identifier: string): Promise<SchemaDetails | null> {
     return query(identifier)
-  }
-
-  /**
-   * [STATIC] [ASYNC] Revokes a stream stream Also available as an instance method.
-   * @param identifier - The ID of the stream stream.
-   * @param status - bool value to set the status of the  stream stream.
-   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * Stream.revoke('0xd8024cdc147c4fa9221cd177', true).then(() => {
-   *   // the stream status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
-   */
-  public static async set_status(
-    identifier: string,
-    creator: string,
-    status: boolean
-  ): Promise<SubmittableExtrinsic> {
-    return set_status(identifier, creator, status)
   }
 
   /**
@@ -75,26 +64,29 @@ export class Schema implements ISchema {
    * [[SchemaWithoutId]] will automatically generate it.
    *
    * @param schema The JSON schema from which the [[Schema]] should be generated.
-   * @param creator The public SS58 address of the creator of the [[Schema]].
+   * @param issuer The public SS58 address of the issuer of the [[Schema]].
    * @param schema The identity of the space to which the schema is linked..
    * @returns An instance of [[Schema]].
    */
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
-    creator: ISchema['creator']
+    controller: Identity
   ): Schema {
+    const schemaHash = SchemaUtils.getHashForSchema(schema)
+    const schemaId = Identifier.getIdentifier(
+      schemaHash,
+      SCHEMA_IDENTIFIER,
+      SCHEMA_PREFIX
+    )
     return new Schema({
-      id: SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema)),
-      hash: SchemaUtils.getHashForSchema(schema),
-      creator: creator,
+      schemaId: schemaId,
+      schemaHash: schemaHash,
       schema: {
-        $id: SchemaUtils.getSchemaId(
-          SchemaUtils.getIdForSchema(SchemaUtils.getHashForSchema(schema))
-        ),
         ...schema,
+        $id: schemaId,
       },
-      permissioned: true,
-      revoked: false,
+      controller: controller.address,
+      controllerSignature: controller.signStr(schemaHash),
     })
   }
 
@@ -113,21 +105,19 @@ export class Schema implements ISchema {
     return true
   }
 
-  public id: ISchema['id']
-  public hash: ISchema['hash']
-  public creator: ISchema['creator']
+  public schemaId: ISchema['schemaId']
+  public schemaHash: ISchema['schemaHash']
+  public controller: ISchema['controller']
+  public controllerSignature?: string | null
   public schema: ISchema['schema']
-  public permissioned: ISchema['permissioned']
-  public revoked: ISchema['revoked']
 
   public constructor(schemaInput: ISchema) {
     SchemaUtils.errorCheck(schemaInput)
-    this.id = schemaInput.id
-    this.hash = schemaInput.hash
-    this.creator = schemaInput.creator
+    this.schemaId = schemaInput.schemaId
+    this.schemaHash = schemaInput.schemaHash
+    this.controller = schemaInput.controller
+    this.controllerSignature = schemaInput.controllerSignature
     this.schema = schemaInput.schema
-    this.permissioned = schemaInput.permissioned
-    this.revoked = schemaInput.revoked
   }
 
   /**
@@ -136,24 +126,66 @@ export class Schema implements ISchema {
    * @param schemaCId The IPFS CID of the schema.
    * @returns A promise of a unsigned SubmittableExtrinsic.
    */
-  public async store(cid: string): Promise<SubmittableExtrinsic> {
-    return store(this, cid)
+  public async create(
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    return create(this, spaceid)
   }
 
-  /**
-   * [ASYNC] Set status (active/revoked) a journal stream.
-   *
-   * @param status - bool value to set the status of the  journal stream.
-   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * stream.set_status(false).then((tx) => {
-   *   // the stream entry status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
-   */
-  public async set_status(status: boolean): Promise<SubmittableExtrinsic> {
-    return set_status(this.id, this.creator, status)
+  public async authorise(
+    controller: Identity,
+    delegates: [string],
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    const txId = UUID.generate()
+    const hashVal = { txId, delegates }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = controller.signStr(txHash)
+    return authorise(
+      this.schema.$id,
+      controller.address,
+      delegates,
+      txHash,
+      txSignature,
+      spaceid
+    )
+  }
+
+  public async deauthorise(
+    controller: Identity,
+    delegates: [string],
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    const txId = UUID.generate()
+    const hashVal = { txId, delegates }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = controller.signStr(txHash)
+    return deauthorise(
+      this.schema.$id,
+      controller.address,
+      delegates,
+      txHash,
+      txSignature,
+      spaceid
+    )
+  }
+
+  public async revoke(
+    controller: Identity,
+    spaceid?: string
+  ): Promise<SubmittableExtrinsic> {
+    const txId = UUID.generate()
+    const schemaHash = this.schemaHash
+    const hashVal = { txId, schemaHash }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = controller.signStr(txHash)
+    return revoke(
+      this.schemaId,
+      controller.address,
+      txHash,
+      txSignature,
+      spaceid
+    )
   }
 
   /**
@@ -215,33 +247,21 @@ export class SchemaDetails implements ISchemaDetails {
     return new SchemaDetails(input)
   }
   /**
-   * Builds a new [[Schema]] instance.
+   * Builds a new [[SchemaDetails]] instance.
    *
-   * @param stream - The base object from which to create the stream.
-   * @example ```javascript
-   * // create an stream, e.g. to store it on-chain
-   * const stream = new Schema(stream);
-   * ```
    */
 
-  public id: ISchemaDetails['id']
-  public schema_hash: ISchemaDetails['schema_hash']
-  public cid: ISchemaDetails['cid']
-  public pcid: ISchemaDetails['pcid']
-  public creator: ISchemaDetails['creator']
-  public block: ISchemaDetails['block']
-  public permissioned: ISchemaDetails['permissioned']
+  public schemaId: ISchemaDetails['schemaId']
+  public schemaHash: ISchemaDetails['schemaHash']
+  public controller: ISchemaDetails['controller']
+  public spaceid: string | null | undefined
   public revoked: ISchemaDetails['revoked']
 
   public constructor(details: ISchemaDetails) {
-    // SchemaUtils.errorCheck(details)
-    this.id = details.id
-    this.schema_hash = details.schema_hash
-    this.cid = details.cid
-    this.pcid = details.pcid
-    this.creator = details.creator
-    this.block = details.block
-    this.permissioned = details.permissioned
+    this.schemaId = details.schemaId
+    this.schemaHash = details.schemaHash
+    this.controller = details.controller
+    this.spaceid = details.spaceid
     this.revoked = details.revoked
   }
 }

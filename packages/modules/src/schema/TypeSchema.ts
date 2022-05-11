@@ -3,21 +3,32 @@
  * @module TypeSchema
  */
 
-export const SchemaModel = {
+import { JsonSchema } from '@cord.network/utils'
+
+export const SchemaModel: JsonSchema.Schema = {
   $id: 'http://dway.io/draft-01/schema#',
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
   properties: {
     $id: {
       type: 'string',
+      format: 'uri',
+      pattern: '^schema:cord:4[0-9a-zA-Z]+$',
     },
     $schema: {
       type: 'string',
       format: 'uri',
       const: 'http://json-schema.org/draft-07/schema#',
     },
-    name: {
+    title: {
       type: 'string',
+    },
+    description: {
+      type: 'string',
+    },
+    $metadata: {
+      version: { type: ['string', 'null'] },
+      discoverable: { type: 'boolean' },
     },
     type: {
       type: 'string',
@@ -56,7 +67,7 @@ export const SchemaModel = {
     },
   },
   additionalProperties: false,
-  required: ['$id', 'name', '$schema', 'properties', 'type'],
+  required: ['$id', 'title', '$schema', 'properties', 'type'],
 }
 
 export const SchemaWrapperModel = {
@@ -69,16 +80,22 @@ export const SchemaWrapperModel = {
       properties: SchemaModel.properties,
       required: SchemaModel.required,
     },
-    creator: { type: ['string', 'null'] },
-    id: { type: 'string', format: 'uri', pattern: '^cord:schema:0x[0-9a-f]+$' },
-    hash: {
+    schemaId: {
+      type: 'string',
+      format: 'uri',
+      pattern: '^schema:cord:4[0-9a-zA-Z]+$',
+    },
+    schemaHash: {
       type: 'string',
     },
-    permissioned: { type: 'boolean' },
-    revoked: { type: 'boolean' },
+    controller: { type: ['string', 'null'] },
+    // version: {
+    //   type: 'string',
+    // },
+    controllerSignature: { type: ['string', 'null'] },
   },
   additionalProperties: false,
-  required: ['schema', 'id', 'hash'],
+  required: ['schema', 'schemaId', 'schemaHash'],
 }
 
 export const MetadataModel = {
@@ -89,7 +106,7 @@ export const MetadataModel = {
     metadata: {
       type: 'object',
       properties: {
-        name: {
+        title: {
           type: 'object',
           properties: {
             default: {
@@ -124,7 +141,7 @@ export const MetadataModel = {
             '^.*$': {
               type: 'object',
               properties: {
-                name: {
+                title: {
                   type: 'object',
                   properties: {
                     default: {
@@ -153,20 +170,19 @@ export const MetadataModel = {
                   required: ['default'],
                 },
               },
-              required: ['name'],
+              required: ['title'],
               additionalProperties: false,
             },
           },
         },
       },
-      required: ['name', 'properties'],
+      required: ['title', 'properties'],
       additionalProperties: false,
     },
-    id: { type: 'string', minLength: 1 },
-    hash: { type: 'string', minLength: 1 },
-    permissioned: { type: 'boolean' },
-    revoked: { type: 'boolean' },
+    schemaId: { type: 'string', minLength: 1 },
+    schemaHash: { type: 'string', minLength: 1 },
+    version: { type: 'string', minLength: 1 },
   },
-  required: ['metadata', 'id', 'hash'],
+  required: ['metadata', 'schemaId', 'schemaHash'],
   additionalProperties: false,
 }

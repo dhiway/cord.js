@@ -9,16 +9,23 @@
 
 import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import type {
-  // IPublicIdentity,
   IStream,
   IStreamDetails,
-  IContentStream,
+  IMarkContent,
   CompressedStream,
-} from '@cord.network/types'
-import { set_status, query, store } from './Stream.chain'
-import * as StreamUtils from './Stream.utils'
-// import Storage from '@cord.network/storage'
-// import SchemaUtils from '../schema/Schema.utils'
+} from '@cord.network/api-types'
+import { Identity } from '../identity/Identity.js'
+import { Crypto, UUID, SDKErrors, Identifier } from '@cord.network/utils'
+import {
+  revoke,
+  removeSpaceStream,
+  query,
+  create,
+  update,
+  digest,
+} from './Stream.chain.js'
+import * as StreamUtils from './Stream.utils.js'
+import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/api-types'
 
 export class Stream implements IStream {
   /**
@@ -33,27 +40,7 @@ export class Stream implements IStream {
    * ```
    */
   public static async query(identifier: string): Promise<StreamDetails | null> {
-    return query(identifier)
-  }
-
-  /**
-   * [STATIC] [ASYNC] Revokes a stream stream Also available as an instance method.
-   * @param identifier - The ID of the stream stream.
-   * @param status - bool value to set the status of the  stream stream.
-   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * Stream.revoke('0xd8024cdc147c4fa9221cd177', true).then(() => {
-   *   // the stream status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
-   */
-  public static async set_status(
-    identifier: string,
-    creator: string,
-    status: boolean
-  ): Promise<SubmittableExtrinsic> {
-    return set_status(identifier, creator, status)
+    return query(Identifier.getIdentifierKey(identifier, STREAM_PREFIX))
   }
 
   /**
@@ -76,25 +63,28 @@ export class Stream implements IStream {
    *
    * @param content - The base request for stream.
    * @param link - ID of the [[Space]] this [[Journal]] is linked to.
-   * @param creatorPublicIdentity - Public Identity of the creator, used to anchor the underlying stream.
+   * @param creatorPublicIdentity - Public Identity of the issuer, used to anchor the underlying stream.
    * @returns A new [[Stream]] object.
    * @example ```javascript
    * // create a complete new stream from the `StreamStream` and all other needed properties
    * Stream.fromContentAndPublicIdentity(request, issuerPublicIdentity);
    * ```
    */
-  public static fromContentStreamProperties(
-    content: IContentStream,
-    cid: string
-  ): Stream {
+  public static fromMarkContentProperties(content: IMarkContent): Stream {
+    const linkId = content.link
+      ? Identifier.getIdentifierKey(content.link, STREAM_PREFIX)
+      : null
     return new Stream({
-      id: StreamUtils.getStreamId(content.id),
-      hash: content.contentHash,
-      cid: cid,
-      schema: content.content.schemaId,
-      link: content.link,
-      creator: content.creator,
-      revoked: false,
+      streamId: Identifier.getIdentifierKey(content.contentId, STREAM_PREFIX),
+      streamHash: content.rootHash,
+      issuer: content.content.issuer,
+      holder: content.content.holder,
+      schemaId: Identifier.getIdentifierKey(
+        content.content.schemaId,
+        SCHEMA_PREFIX
+      ),
+      linkId,
+      issuerSignature: content.issuerSignature,
     })
   }
 
@@ -113,14 +103,13 @@ export class Stream implements IStream {
     return true
   }
 
-  public id: IStream['id']
-  public hash: IStream['hash']
-  public cid: IStream['cid']
-  public schema: IStream['schema']
-  public link: IStream['link']
-  public creator: IStream['creator']
-  public revoked: IStream['revoked']
-
+  public streamId: IStream['streamId']
+  public streamHash: IStream['streamHash']
+  public issuer: IStream['issuer']
+  public holder?: IStream['holder'] | null | undefined
+  public schemaId: IStream['schemaId']
+  public linkId?: IStream['linkId'] | null | undefined
+  public issuerSignature: IStream['issuerSignature']
   /**
    * Builds a new [[Stream]] instance.
    *
@@ -132,13 +121,13 @@ export class Stream implements IStream {
    */
   public constructor(stream: IStream) {
     StreamUtils.errorCheck(stream)
-    this.id = stream.id
-    this.hash = stream.hash
-    this.cid = stream.cid
-    this.schema = stream.schema
-    this.link = stream.link
-    this.creator = stream.creator
-    this.revoked = stream.revoked
+    this.streamId = stream.streamId
+    this.streamHash = stream.streamHash
+    this.issuer = stream.issuer
+    this.holder = stream.holder
+    this.schemaId = stream.schemaId
+    this.linkId = stream.linkId
+    this.issuerSignature = stream.issuerSignature
   }
 
   /**
@@ -152,8 +141,16 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async store(): Promise<SubmittableExtrinsic> {
-    return store(this)
+  public async create(
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    return create(this, spaceid)
+  }
+
+  public async update(
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    return update(this, spaceid)
   }
 
   /**
@@ -168,8 +165,61 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async set_status(status: boolean): Promise<SubmittableExtrinsic> {
-    return set_status(this.id, this.creator, status)
+  public async revoke(
+    controller: Identity,
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    const txId = UUID.generate()
+    const hashVal = { txId }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = StreamUtils.sign(controller, txHash)
+    return revoke(
+      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
+      controller.address,
+      txHash,
+      txSignature,
+      spaceid
+    )
+  }
+
+  /**
+   * [ASYNC] Set status (active/revoked) a journal stream.
+   *
+   * @param status - bool value to set the status of the  journal stream.
+   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
+   * @example ```javascript
+   * stream.set_status(false).then((tx) => {
+   *   // the stream entry status tx was created, sign and send it!
+   *   ChainUtils.signAndSendTx(tx, identity);
+   * });
+   * ```
+   */
+  public async removeSpaceStream(
+    spaceid: string
+  ): Promise<SubmittableExtrinsic> {
+    return removeSpaceStream(
+      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
+      spaceid
+    )
+  }
+
+  public async digest(
+    issuer: Identity,
+    digestHash: string
+  ): Promise<SubmittableExtrinsic> {
+    if (this.issuer !== issuer.address) {
+      throw SDKErrors.ERROR_IDENTITY_MISMATCH()
+    }
+    const txId = UUID.generate()
+    const hashVal = { txId, digestHash }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = StreamUtils.sign(issuer, txHash)
+    return digest(
+      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
+      issuer.address,
+      txHash,
+      txSignature
+    )
   }
 
   /**
@@ -186,14 +236,15 @@ export class Stream implements IStream {
    */
   public static async checkValidity(
     stream: IStream,
-    identifier: string = stream.id
+    identifier: string = stream.streamId
   ): Promise<boolean> {
     // Query stream by stream identifier. null if no stream is found on-chain for this hash
     const chainStream: StreamDetails | null = await Stream.query(identifier)
+    //TODO - add holder checks
     return !!(
       chainStream !== null &&
-      chainStream.creator === stream.creator &&
-      chainStream.streamHash === stream.hash &&
+      chainStream.issuer === stream.issuer &&
+      chainStream.streamHash === stream.streamHash &&
       !chainStream.revoked
     )
   }
@@ -227,6 +278,26 @@ export class StreamDetails implements IStreamDetails {
   public static fromStreamDetails(input: IStreamDetails): StreamDetails {
     return new StreamDetails(input)
   }
+
+  public static async checkValidity(
+    stream: IStreamDetails,
+    identifier: string = stream.streamId
+  ): Promise<boolean> {
+    // Query stream by stream identifier. null if no stream is found on-chain for this hash
+    const chainStream: StreamDetails | null = await Stream.query(identifier)
+    //TODO - add holder checks
+    return !!(
+      chainStream !== null &&
+      chainStream.issuer === stream.issuer &&
+      chainStream.streamHash === stream.streamHash &&
+      !chainStream.revoked
+    )
+  }
+
+  public async checkValidity(): Promise<boolean> {
+    return StreamDetails.checkValidity(this)
+  }
+
   /**
    * Builds a new [[Stream]] instance.
    *
@@ -237,26 +308,24 @@ export class StreamDetails implements IStreamDetails {
    * ```
    */
 
-  public id: IStreamDetails['id']
+  public streamId: IStreamDetails['streamId']
   public streamHash: IStreamDetails['streamHash']
-  public cid: IStreamDetails['cid']
-  public parent_cid: IStreamDetails['parent_cid']
-  public schema: IStreamDetails['schema']
-  public link: IStreamDetails['link']
-  public creator: IStreamDetails['creator']
-  public block: IStreamDetails['block']
+  public issuer: IStreamDetails['issuer']
+  public holder: IStreamDetails['holder']
+  public schemaId: IStreamDetails['schemaId']
+  public linkId: IStreamDetails['linkId']
+  public spaceId: IStreamDetails['spaceId']
   public revoked: IStreamDetails['revoked']
 
   public constructor(details: IStreamDetails) {
     // StreamUtils.errorCheck(details)
-    this.id = details.id
+    this.streamId = details.streamId
     this.streamHash = details.streamHash
-    this.cid = details.cid
-    this.parent_cid = details.parent_cid
-    this.schema = details.schema
-    this.link = details.link
-    this.creator = details.creator
-    this.block = details.block
+    this.issuer = details.issuer
+    this.holder = details.holder
+    this.schemaId = details.schemaId
+    this.linkId = details.linkId
+    this.spaceId = details.spaceId
     this.revoked = details.revoked
   }
 }

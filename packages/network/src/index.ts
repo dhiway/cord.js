@@ -1,7 +1,11 @@
-export { ExtrinsicError, ExtrinsicErrors, PalletIndex } from './errorhandling'
+export {
+  ExtrinsicError,
+  ExtrinsicErrors,
+  PalletIndex,
+} from './errorhandling/index.js'
 export {
   ChainApiConnection,
   CORD_TYPES,
   TypeRegistry,
-} from './chainApiConnection'
-export { Chain, ChainUtils, SubscriptionPromise } from './chain'
+} from './chainApiConnection/index.js'
+export { Chain, ChainUtils, SubscriptionPromise } from './chain/index.js'

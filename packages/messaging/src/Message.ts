@@ -19,8 +19,8 @@ import type {
   IEncryptedMessage,
   MessageBody,
   ISchema,
-} from '@cord.network/types'
-import { MessageBodyType } from '@cord.network/types'
+} from '@cord.network/api-types'
+import { MessageBodyType } from '@cord.network/api-types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import {
   compressMessage,
@@ -28,7 +28,7 @@ import {
   errorCheckMessage,
   errorCheckMessageBody,
   verifyRequiredSchemaProperties,
-} from './Message.utils'
+} from './Message.utils.js'
 
 export class Message implements IMessage {
   /**
@@ -50,7 +50,9 @@ export class Message implements IMessage {
       case Message.BodyType.REQUEST_STREAM:
         {
           const requestStream = body
-          if (requestStream.content.requestStream.creator !== senderAddress) {
+          if (
+            requestStream.content.requestStream.content.issuer !== senderAddress
+          ) {
             throw SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Sender')
           }
         }
@@ -59,7 +61,7 @@ export class Message implements IMessage {
         {
           const submitStream = body
           //TODO - Add schema delegation checks
-          if (submitStream.content.stream.creator !== senderAddress) {
+          if (submitStream.content.stream.issuer !== senderAddress) {
             throw SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Creator')
           }
         }
@@ -68,7 +70,7 @@ export class Message implements IMessage {
         {
           const submitStreamsForSchema: ISubmitCredential = body
           submitStreamsForSchema.content.forEach((stream, i) => {
-            if (stream.credentials[i].content.creator !== senderAddress) {
+            if (stream.credentials[i].content.issuer !== senderAddress) {
               throw SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
             }
           })
@@ -102,7 +104,7 @@ export class Message implements IMessage {
     }
     DataUtils.validateSignature(
       encrypted.hash,
-      encrypted.signature,
+      encrypted.requestorSignature,
       senderAddress
     )
   }
@@ -211,14 +213,14 @@ export class Message implements IMessage {
 
     const hashInput: string = encryptedStream + nonce + this.createdAt
     const hash = Crypto.hashStr(hashInput)
-    const signature = sender.signStr(hash)
+    const requestorSignature = sender.signStr(hash)
     return {
       receivedAt: this.receivedAt,
       encryptedStream,
       nonce,
       createdAt: this.createdAt,
       hash,
-      signature,
+      requestorSignature,
       receiverAddress: this.receiverAddress,
       senderAddress: this.senderAddress,
       senderPublicKey: this.senderPublicKey,

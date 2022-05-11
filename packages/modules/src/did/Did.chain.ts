@@ -4,15 +4,18 @@
  */
 
 import { Option } from '@polkadot/types'
-import type { IPublicIdentity, SubmittableExtrinsic } from '@cord.network/types'
+import type {
+  IPublicIdentity,
+  SubmittableExtrinsic,
+} from '@cord.network/api-types'
 import { ChainApiConnection } from '@cord.network/network'
-import type { IDid } from './Did'
+import type { IDid } from './Did.js'
 import {
   decodeDid,
   getAddressFromIdentifier,
   getIdentifierFromAddress,
   IEncodedDidRecord,
-} from './Did.utils'
+} from './Did.utils.js'
 
 /**
  * @param identifier

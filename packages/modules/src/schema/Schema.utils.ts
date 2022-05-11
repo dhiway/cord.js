@@ -3,35 +3,39 @@
  * @module SchemaUtils
  */
 
-import Ajv from 'ajv'
 import type {
   ISchema,
   IContent,
   CompressedSchema,
   CompressedSchemaType,
-} from '@cord.network/types'
-import { jsonabc, Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
-import { getOwner } from './Schema.chain'
-import { SchemaModel, SchemaWrapperModel } from './TypeSchema'
+  SchemaWithoutId,
+} from '@cord.network/api-types'
+import {
+  jsonabc,
+  Crypto,
+  DataUtils,
+  SDKErrors,
+  JsonSchema,
+} from '@cord.network/utils'
+import { getOwner } from './Schema.chain.js'
+import { SchemaModel, SchemaWrapperModel } from './TypeSchema.js'
 
 export function verifySchemaProperties(
   object: Record<string, unknown>,
   schema: Record<string, unknown>,
   messages?: string[]
 ): boolean {
-  const ajv = new Ajv()
-  ajv.addMetaSchema(SchemaModel)
-  const result = ajv.validate(schema, object)
-  if (!result && ajv.errors) {
-    if (messages) {
-      ajv.errors.forEach((error: Ajv.ErrorObject) => {
-        if (typeof error.message === 'string') {
-          messages.push(error.message)
-        }
-      })
-    }
+  const validator = new JsonSchema.Validator(schema, '7', false)
+  if (schema.$id !== SchemaModel.$id) {
+    validator.addSchema(SchemaModel)
   }
-  return !!result
+  const result = validator.validate(object)
+  if (!result.valid && messages) {
+    result.errors.forEach((error: any) => {
+      messages.push(error.error)
+    })
+  }
+  return result.valid
 }
 
 export function verifySchema(
@@ -61,41 +65,31 @@ export function verifyContentProperties(
 }
 
 export async function verifyStored(schema: ISchema): Promise<boolean> {
-  return typeof (await getOwner(schema.id)) === 'string'
+  return typeof (await getOwner(schema.schemaId)) === 'string'
 }
 
 export async function verifyOwner(schema: ISchema): Promise<boolean> {
-  const creator = await getOwner(schema.id)
-  return creator ? creator === schema.creator : false
+  const issuer = await getOwner(schema.schemaId)
+  return issuer ? issuer === schema.controller : false
 }
 
-type schemaPropsForHashing = {
-  $schema: ISchema['schema']['$schema']
-  properties: ISchema['schema']['properties']
-  name: ISchema['schema']['name']
-  type: ISchema['schema']['type']
+export function getSchemaPropertiesForHash(
+  schemaType: SchemaWithoutId | ISchema['schema']
+): Partial<ISchema['schema']> {
+  const schemaWithoutId: Partial<ISchema['schema']> =
+    '$id' in schemaType
+      ? (schemaType as ISchema['schema'])
+      : (schemaType as SchemaWithoutId)
+  const shallowCopy = { ...schemaWithoutId }
+  delete shallowCopy.$id
+  return shallowCopy
 }
 
-export function getHashForSchema(schema: schemaPropsForHashing): string {
-  const hashVal = {
-    $schema: schema.$schema,
-    properties: schema.properties,
-    name: schema.name,
-    type: schema.type,
-  }
-  return Crypto.hashObjectAsStr(hashVal)
-}
-
-export function getIdForSchema(hash: string): string {
-  return getIdWithPrefix(Crypto.hashObjectAsStr(hash))
-}
-
-export function getIdWithPrefix(hash: string): string {
-  return `cord:schema:${hash}`
-}
-
-export function getSchemaId(id: string): string {
-  return id.split('cord:schema:').join('')
+export function getHashForSchema(
+  schema: SchemaWithoutId | ISchema['schema']
+): string {
+  const prepSchema = getSchemaPropertiesForHash(schema)
+  return Crypto.hashObjectAsStr(prepSchema)
 }
 
 /**
@@ -112,19 +106,14 @@ export function errorCheck(input: ISchema): void {
   if (!verifySchema(input, SchemaWrapperModel)) {
     throw SDKErrors.ERROR_OBJECT_MALFORMED()
   }
-  if (!input.schema || getHashForSchema(input.schema) !== input.hash) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(input.hash, 'Schema')
-  }
-  if (getSchemaId(getIdForSchema(input.hash)) !== input.schema.$id) {
-    throw SDKErrors.ERROR_SCHEMA_ID_NOT_MATCHING(
-      getIdForSchema(input.hash),
-      input.schema.$id
-    )
+  console.log(input.schema, getHashForSchema(input.schema))
+  if (!input.schema || getHashForSchema(input.schema) !== input.schemaHash) {
+    throw SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
   }
   if (
-    typeof input.creator === 'string'
-      ? !DataUtils.validateAddress(input.creator, 'Schema creator')
-      : !(input.creator === null)
+    typeof input.controller === 'string'
+      ? !DataUtils.validateAddress(input.controller, 'Schema issuer')
+      : !(input.controller === null)
   ) {
     throw SDKErrors.ERROR_SCHEMA_CONTROLLER_TYPE()
   }
@@ -145,7 +134,9 @@ export function compressSchema(
   if (
     !typeSchema.$id ||
     !typeSchema.$schema ||
-    !typeSchema.name ||
+    !typeSchema.$metadata ||
+    !typeSchema.title ||
+    !typeSchema.description ||
     !typeSchema.properties ||
     !typeSchema.type
   ) {
@@ -155,7 +146,9 @@ export function compressSchema(
   return [
     sortedTypeSchema.$id,
     sortedTypeSchema.$schema,
-    sortedTypeSchema.name,
+    sortedTypeSchema.$metadata,
+    sortedTypeSchema.title,
+    sortedTypeSchema.description,
     sortedTypeSchema.properties,
     sortedTypeSchema.type,
   ]
@@ -173,15 +166,17 @@ export function compressSchema(
 export function decompressSchema(
   typeSchema: CompressedSchema
 ): ISchema['schema'] {
-  if (!Array.isArray(typeSchema) || typeSchema.length !== 5) {
+  if (!Array.isArray(typeSchema) || typeSchema.length !== 7) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('typeSchema')
   }
   return {
     $id: typeSchema[0],
     $schema: typeSchema[1],
-    name: typeSchema[2],
-    properties: typeSchema[3],
-    type: typeSchema[4],
+    $metadata: typeSchema[2],
+    title: typeSchema[3],
+    description: typeSchema[4],
+    properties: typeSchema[5],
+    type: typeSchema[6],
   }
 }
 
@@ -196,11 +191,9 @@ export function decompressSchema(
 export function compress(schema: ISchema): CompressedSchemaType {
   errorCheck(schema)
   return [
-    schema.id,
-    schema.hash,
-    schema.creator,
-    schema.permissioned,
-    schema.revoked,
+    schema.schemaId,
+    schema.schemaHash,
+    schema.controller,
     compressSchema(schema.schema),
   ]
 }
@@ -215,16 +208,14 @@ export function compress(schema: ISchema): CompressedSchemaType {
  */
 
 export function decompress(schema: CompressedSchemaType): ISchema {
-  if (!Array.isArray(schema) || schema.length !== 6) {
+  if (!Array.isArray(schema) || schema.length !== 4) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
-    id: schema[0],
-    hash: schema[1],
-    creator: schema[2],
-    permissioned: schema[3],
-    revoked: schema[4],
-    schema: decompressSchema(schema[5]),
+    schemaId: schema[0],
+    schemaHash: schema[1],
+    controller: schema[2],
+    schema: decompressSchema(schema[3]),
   }
 }
 
@@ -245,18 +236,16 @@ export function validateNestedSchemas(
   streamContents: Record<string, any>,
   messages?: string[]
 ): boolean {
-  const ajv = new Ajv()
-  ajv.addMetaSchema(SchemaModel)
-  const validate = ajv.addSchema(nestedSchemas).compile(schema)
-  const result = validate(streamContents)
-  if (!result && ajv.errors) {
-    if (messages) {
-      ajv.errors.forEach((error: Ajv.ErrorObject) => {
-        if (typeof error.message === 'string') {
-          messages.push(error.message)
-        }
-      })
-    }
+  const validator = new JsonSchema.Validator(schema, '7', false)
+  nestedSchemas.forEach((schema) => {
+    validator.addSchema(schema)
+  })
+  validator.addSchema(SchemaModel)
+  const result = validator.validate(streamContents)
+  if (!result.valid && messages) {
+    result.errors.forEach((error) => {
+      messages.push(error.error)
+    })
   }
-  return !!result
+  return result.valid
 }

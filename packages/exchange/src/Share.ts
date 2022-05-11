@@ -3,15 +3,15 @@
  * @module Share
  */
 
-import { Credential, Identity, SDKErrors } from '@cord.network/modules'
+import { Mark, Identity, SDKErrors } from '@cord.network/modules'
 import type {
   IMessage,
   IPublicIdentity,
   IPresentationOptions,
   IPresentationSigningOptions,
-} from '@cord.network/types'
+} from '@cord.network/api-types'
 import { Message } from '@cord.network/messaging'
-import { Crypto } from '@cord.network/utils'
+// import { Crypto } from '@cord.network/utils'
 
 /**
  * Creates a presentation for an arbitrary amount of [[MarkedStream]]s which can be verified in [[verifyPresentation]].
@@ -29,7 +29,7 @@ export function createPresentation(
   identity: Identity,
   message: IMessage,
   verifier: IPublicIdentity,
-  credentials: Credential[],
+  credentials: Mark[],
   {
     showAttributes,
     hideAttributes = [],
@@ -64,18 +64,12 @@ export function createPresentation(
       content: credentialStreams,
       purpose: message.body.purpose,
       validUntil: message.body.validUntil,
-      signature: message.body.signature,
+      relatedData: message.body.relatedData,
+      requestorSignature: message.body.requestorSignature,
     },
     identity,
     verifier
   )
-  const msgSigner = signer ? { signer } : undefined
-  delete resMessage.body.signature
-  const signature = msgSigner?.signer.sign(
-    Crypto.coToUInt8(JSON.stringify(resMessage))
-  )
-
-  resMessage.body.signature = Crypto.u8aToHex(signature)
 
   return resMessage
 }

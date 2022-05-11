@@ -7,10 +7,12 @@
 /**
  * Dummy comment needed for correct doc display, do not remove.
  */
-import type { IPublicIdentity } from '@cord.network/types'
+import '@polkadot/api-augment'
+import type { IPublicIdentity } from '@cord.network/api-types/src/index.js'
 import { checkAddress } from '@polkadot/util-crypto'
-import { SDKErrors } from '.'
-import { verify } from './Crypto'
+import * as SDKErrors from './SDKErrors.js'
+import { verify } from './Crypto.js'
+import { checkIdentifier } from './Identifier.js'
 
 /**
  *  Validates an given address string against the External Address Format (SS58) with our Prefix of 29.
@@ -64,13 +66,13 @@ export function validateHash(hash: string, name: string): boolean {
  *
  * @returns Boolean whether the given hash string checks out against the Format.
  */
-export function validateId(id: string, name: string): boolean {
+export function validateId(id: string): boolean {
   if (typeof id !== 'string') {
     throw SDKErrors.ERROR_HASH_TYPE()
   }
-  const blake2bPattern = new RegExp('(0x)[A-F0-9]{64}', 'i')
-  if (!id.match(blake2bPattern)) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(id, name)
+  // const blake2bPattern = new RegExp('^[1S][a-km-zA-HJ-NP-Z1-9]${64}', 'i')
+  if (!checkIdentifier(id)) {
+    throw SDKErrors.ERROR_ID_MALFORMED()
   }
   return true
 }

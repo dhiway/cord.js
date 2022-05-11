@@ -1,6 +1,6 @@
-jsonabc.js
-jsonabc.d.ts
+dist
 lib
 *.json
 jest.*
 coverage
+!package.json

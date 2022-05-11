@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "name": "Student Identity Demo",
+    "properties": {
+        "studentId": {
+            "type": "string"
+        },
+        "fullName": {
+            "type": "string"
+        },
+        "gender": {
+            "type": "string"
+        },
+        "dob":{
+            "type": "string"
+        },
+        "batch": {
+           "type": "string"
+        },
+        "email":{
+            "type":"string"
+        },
+        "mobile": {
+            "type":"number"
+        },
+        "address":{
+            "type":"string"
+        },
+        "street":{
+            "type":"string"
+        },
+        "landmark":{
+            "type":"string"
+        },
+        "district":{
+            "type":"string"
+        },
+        "state":{
+            "type":"string"
+        },
+        "pincode":{
+            "type":"number"
+        },
+        "issuerName": {
+          "type": "string"
+        },
+         "validUntil": {
+          "type": "string",
+          "format": "date"
+        } 
+    },
+    "type": "object"
+}
+
