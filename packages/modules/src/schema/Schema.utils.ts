@@ -193,7 +193,6 @@ export function compress(schema: ISchema): CompressedSchemaType {
   return [
     schema.schemaId,
     schema.schemaHash,
-    schema.version,
     schema.controller,
     compressSchema(schema.schema),
   ]
@@ -209,15 +208,14 @@ export function compress(schema: ISchema): CompressedSchemaType {
  */
 
 export function decompress(schema: CompressedSchemaType): ISchema {
-  if (!Array.isArray(schema) || schema.length !== 5) {
+  if (!Array.isArray(schema) || schema.length !== 4) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
     schemaId: schema[0],
     schemaHash: schema[1],
-    version: schema[2],
-    controller: schema[3],
-    schema: decompressSchema(schema[4]),
+    controller: schema[2],
+    schema: decompressSchema(schema[3]),
   }
 }
 

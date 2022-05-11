@@ -35,6 +35,7 @@ export interface IStreamDetails {
   holder: IPublicIdentity['address'] | null
   schemaId: ISchema['schemaId'] | null
   linkId: IStream['streamId'] | null
+  spaceId: string | null
   revoked: boolean
 }
 
@@ -45,5 +46,6 @@ export type CompressedStreamDetails = [
   IStreamDetails['holder'],
   IStreamDetails['schemaId'],
   IStreamDetails['linkId'],
+  IStreamDetails['spaceId'],
   IStreamDetails['revoked']
 ]

@@ -46,15 +46,14 @@ async function main() {
 
   let newSchema = cord.Schema.fromSchemaProperties(
     newSchemaContent,
-    employeeIdentity.address
+    employeeIdentity
   )
 
   let bytes = json.encode(newSchema.schema)
   let encoded_hash = await hasher.digest(bytes)
   const schemaCid = CID.create(1, 0xb240, encoded_hash)
-  console.log('Version', newSchema.version)
-  let spaceId = '15v398htUCyQZv2PQCgGaSGiwr3VpYSJFpcZD8yCCYxNCJZZ'
-  let schemaCreationExtrinsic = await newSchema.create(spaceId)
+  // let spaceId = '15v398htUCyQZv2PQCgGaSGiwr3VpYSJFpcZD8yCCYxNCJZZ'
+  let schemaCreationExtrinsic = await newSchema.create()
   // let schemaIdentifier = cord.Utils.Identifier.encodeIdentifier(
   //   newSchema.hash,
   //   65
@@ -177,8 +176,7 @@ async function main() {
   console.log(`\n✉️  Revoking a Stream`, '\n')
   let revokeStream = updateStream
 
-  let revokeStreamCreationExtrinsic = await revokeStream.setStatus(
-    true,
+  let revokeStreamCreationExtrinsic = await revokeStream.revoke(
     employeeIdentity
   )
   console.log(`\n📧 Stream On-Chain Details`)
@@ -209,15 +207,13 @@ async function main() {
 
   let credSchemaStream = cord.Schema.fromSchemaProperties(
     credSchema,
-    employeeIdentity.address
+    employeeIdentity
   )
 
   bytes = json.encode(credSchemaStream)
   encoded_hash = await hasher.digest(bytes)
-  const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
-  let credSchemaCreationExtrinsic = await credSchemaStream.create(
-    credSchemaCid.toString()
-  )
+  // const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
+  let credSchemaCreationExtrinsic = await credSchemaStream.create()
   console.log('\n⛓  Anchoring Mark Schema to the chain...')
 
   try {

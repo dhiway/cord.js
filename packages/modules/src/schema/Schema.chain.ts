@@ -33,8 +33,10 @@ export async function create(
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
+    schema.controller,
     schema.schemaHash,
-    spaceid
+    spaceid,
+    schema.controllerSignature
   )
   return tx
 }
@@ -44,13 +46,19 @@ export async function create(
  */
 export async function revoke(
   schema_id: string,
+  controller: string,
+  txHash: string,
+  txSignature: string,
   spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema_id}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.status(
+  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.revoke(
+    controller,
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    spaceid
+    txHash,
+    spaceid,
+    txSignature
   )
   return tx
 }
@@ -60,15 +68,21 @@ export async function revoke(
  */
 export async function authorise(
   schema_id: string,
+  controller: string,
   delegates: [string],
+  txHash: string,
+  txSignature: string,
   spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.authorise(
+    controller,
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
+    txHash,
     delegates,
-    spaceid
+    spaceid,
+    txSignature
   )
   return tx
 }
@@ -78,15 +92,21 @@ export async function authorise(
  */
 export async function deauthorise(
   schema_id: string,
+  controller: string,
   delegates: [string],
+  txHash: string,
+  txSignature: string,
   spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.deauthorise(
+    controller,
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
+    txHash,
     delegates,
-    spaceid
+    spaceid,
+    txSignature
   )
   return tx
 }
@@ -94,7 +114,7 @@ export async function deauthorise(
 export interface AnchoredSchemaDetails extends Struct {
   readonly schemaHash: Hash
   readonly controller: AccountId
-  readonly spaceid: Option<Vec<u8>>
+  readonly spaceId: Option<Vec<u8>>
   readonly revoked: boolean
 }
 
@@ -112,7 +132,7 @@ function decodeSchema(
       schemaHash: anchoredSchema.schemaHash.toString(),
       controller: anchoredSchema.controller.toString(),
       spaceid:
-        DecoderUtils.hexToString(anchoredSchema.spaceid.toString()) || null,
+        DecoderUtils.hexToString(anchoredSchema.spaceId.toString()) || null,
       revoked: anchoredSchema.revoked.valueOf(),
     }
     return SchemaDetails.fromSchemaDetails(schema)

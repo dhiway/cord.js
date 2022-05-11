@@ -24,7 +24,10 @@ const log = ConfigService.LoggingFactory.getLogger('Mark')
  * @param stream The stream to anchor on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
-export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
+export async function create(
+  stream: IStream,
+  spaceid?: string | undefined
+): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
 
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
@@ -33,6 +36,7 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
     stream.holder,
     stream.schemaId,
     stream.linkId,
+    spaceid,
     stream.issuerSignature
   )
   return tx
@@ -44,12 +48,16 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
  * @param stream The stream to update on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
-export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
+export async function update(
+  stream: IStream,
+  spaceid?: string | undefined
+): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.update(
     stream.streamId,
     stream.issuer,
     stream.streamHash,
+    spaceid,
     stream.issuerSignature
   )
   return tx
@@ -63,20 +71,66 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
  * @param status The stream status
  * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
  */
-export async function setStatus(
+export async function revoke(
   streamId: string,
   issuer: string,
-  status: boolean,
   txHash: string,
+  txSignature: string,
+  spaceid?: string | undefined
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Revoking stream with ID ${streamId}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.revoke(
+    streamId,
+    issuer,
+    txHash,
+    spaceid,
+    txSignature
+  )
+  return tx
+}
+
+/**
+ * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
+ *
+ * @param streamId The stream Is.
+ * @param issuer The submitter
+ * @param status The stream status
+ * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
+ */
+export async function removeSpaceStream(
+  streamId: string,
+  spaceid: string
+): Promise<SubmittableExtrinsic> {
+  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  log.debug(() => `Revoking stream with ID ${streamId}`)
+  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.removeSpaceStream(
+    streamId,
+    spaceid
+  )
+  return tx
+}
+
+/**
+ * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
+ *
+ * @param streamId The stream Is.
+ * @param issuer The submitter
+ * @param status The stream status
+ * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
+ */
+export async function digest(
+  streamId: string,
+  creator: string,
+  digestHash: string,
   txSignature: string
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${streamId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.status(
+  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.digest(
     streamId,
-    issuer,
-    status,
-    txHash,
+    creator,
+    digestHash,
     txSignature
   )
   return tx
@@ -88,6 +142,7 @@ export interface AnchoredStreamDetails extends Struct {
   readonly holder: Option<AccountId>
   readonly schema: Option<Hash>
   readonly link: Option<Vec<u8>>
+  readonly spaceId: Option<Vec<u8>>
   readonly revoked: boolean
 }
 
@@ -102,13 +157,14 @@ function decodeStream(
     const anchoredStream = encodedStream.unwrap()
     const stream: IStreamDetails = {
       streamId: streamId,
-      // streamId: DecoderUtils.hexToString(anchoredStream.streamId.toString()),
       streamHash: anchoredStream.streamHash.toString(),
       issuer: anchoredStream.controller.toString(),
       holder: anchoredStream.holder.toString() || null,
       schemaId:
         DecoderUtils.hexToString(anchoredStream.schema.toString()) || null,
       linkId: DecoderUtils.hexToString(anchoredStream.link.toString()) || null,
+      spaceId:
+        DecoderUtils.hexToString(anchoredStream.spaceId.toString()) || null,
       revoked: anchoredStream.revoked.valueOf(),
     }
     return StreamDetails.fromStreamDetails(stream)

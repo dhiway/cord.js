@@ -18,7 +18,7 @@ import type {
   SchemaWithoutId,
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
-import { Identifier } from '@cord.network/utils'
+import { Identifier, Crypto, UUID } from '@cord.network/utils'
 import {
   query,
   create,
@@ -28,6 +28,7 @@ import {
 } from './Schema.chain.js'
 import * as SchemaUtils from './Schema.utils.js'
 import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/api-types'
+import { Identity } from '../identity/Identity.js'
 
 export class Schema implements ISchema {
   /**
@@ -69,8 +70,7 @@ export class Schema implements ISchema {
    */
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
-    controller: ISchema['controller'],
-    version?: ISchema['version']
+    controller: Identity
   ): Schema {
     const schemaHash = SchemaUtils.getHashForSchema(schema)
     const schemaId = Identifier.getIdentifier(
@@ -81,12 +81,12 @@ export class Schema implements ISchema {
     return new Schema({
       schemaId: schemaId,
       schemaHash: schemaHash,
-      version: version || '1.0.0',
       schema: {
         ...schema,
         $id: schemaId,
       },
-      controller: controller,
+      controller: controller.address,
+      controllerSignature: controller.signStr(schemaHash),
     })
   }
 
@@ -107,16 +107,16 @@ export class Schema implements ISchema {
 
   public schemaId: ISchema['schemaId']
   public schemaHash: ISchema['schemaHash']
-  public version: ISchema['version']
   public controller: ISchema['controller']
+  public controllerSignature?: string | null
   public schema: ISchema['schema']
 
   public constructor(schemaInput: ISchema) {
     SchemaUtils.errorCheck(schemaInput)
     this.schemaId = schemaInput.schemaId
     this.schemaHash = schemaInput.schemaHash
-    this.version = schemaInput.version
     this.controller = schemaInput.controller
+    this.controllerSignature = schemaInput.controllerSignature
     this.schema = schemaInput.schema
   }
 
@@ -133,21 +133,59 @@ export class Schema implements ISchema {
   }
 
   public async authorise(
+    controller: Identity,
     delegates: [string],
     spaceid?: string | undefined
   ): Promise<SubmittableExtrinsic> {
-    return authorise(this.schema.$id, delegates, spaceid)
+    const txId = UUID.generate()
+    const hashVal = { txId, delegates }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = controller.signStr(txHash)
+    return authorise(
+      this.schema.$id,
+      controller.address,
+      delegates,
+      txHash,
+      txSignature,
+      spaceid
+    )
   }
 
   public async deauthorise(
+    controller: Identity,
     delegates: [string],
     spaceid?: string | undefined
   ): Promise<SubmittableExtrinsic> {
-    return deauthorise(this.schemaId, delegates, spaceid)
+    const txId = UUID.generate()
+    const hashVal = { txId, delegates }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = controller.signStr(txHash)
+    return deauthorise(
+      this.schema.$id,
+      controller.address,
+      delegates,
+      txHash,
+      txSignature,
+      spaceid
+    )
   }
 
-  public async revoke(spaceid?: string): Promise<SubmittableExtrinsic> {
-    return revoke(this.schemaId, spaceid)
+  public async revoke(
+    controller: Identity,
+    spaceid?: string
+  ): Promise<SubmittableExtrinsic> {
+    const txId = UUID.generate()
+    const schemaHash = this.schemaHash
+    const hashVal = { txId, schemaHash }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = controller.signStr(txHash)
+    return revoke(
+      this.schemaId,
+      controller.address,
+      txHash,
+      txSignature,
+      spaceid
+    )
   }
 
   /**

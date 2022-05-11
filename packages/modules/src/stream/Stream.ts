@@ -16,7 +16,14 @@ import type {
 } from '@cord.network/api-types'
 import { Identity } from '../identity/Identity.js'
 import { Crypto, UUID, SDKErrors, Identifier } from '@cord.network/utils'
-import { setStatus, query, create, update } from './Stream.chain.js'
+import {
+  revoke,
+  removeSpaceStream,
+  query,
+  create,
+  update,
+  digest,
+} from './Stream.chain.js'
 import * as StreamUtils from './Stream.utils.js'
 import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/api-types'
 
@@ -63,10 +70,7 @@ export class Stream implements IStream {
    * Stream.fromContentAndPublicIdentity(request, issuerPublicIdentity);
    * ```
    */
-  public static fromMarkContentProperties(
-    content: IMarkContent
-    // cid: string
-  ): Stream {
+  public static fromMarkContentProperties(content: IMarkContent): Stream {
     const linkId = content.link
       ? Identifier.getIdentifierKey(content.link, STREAM_PREFIX)
       : null
@@ -137,12 +141,16 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async create(): Promise<SubmittableExtrinsic> {
-    return create(this)
+  public async create(
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    return create(this, spaceid)
   }
 
-  public async update(): Promise<SubmittableExtrinsic> {
-    return update(this)
+  public async update(
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    return update(this, spaceid)
   }
 
   /**
@@ -157,21 +165,58 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async setStatus(
-    status: boolean,
-    issuer: Identity
+  public async revoke(
+    controller: Identity,
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    const txId = UUID.generate()
+    const hashVal = { txId }
+    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txSignature = StreamUtils.sign(controller, txHash)
+    return revoke(
+      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
+      controller.address,
+      txHash,
+      txSignature,
+      spaceid
+    )
+  }
+
+  /**
+   * [ASYNC] Set status (active/revoked) a journal stream.
+   *
+   * @param status - bool value to set the status of the  journal stream.
+   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
+   * @example ```javascript
+   * stream.set_status(false).then((tx) => {
+   *   // the stream entry status tx was created, sign and send it!
+   *   ChainUtils.signAndSendTx(tx, identity);
+   * });
+   * ```
+   */
+  public async removeSpaceStream(
+    spaceid: string
+  ): Promise<SubmittableExtrinsic> {
+    return removeSpaceStream(
+      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
+      spaceid
+    )
+  }
+
+  public async digest(
+    issuer: Identity,
+    digestHash: string
   ): Promise<SubmittableExtrinsic> {
     if (this.issuer !== issuer.address) {
       throw SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
     const txId = UUID.generate()
-    const hashVal = { txId, status }
+    const hashVal = { txId, digestHash }
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = StreamUtils.sign(issuer, txHash)
-    return setStatus(
+    return digest(
       Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
       issuer.address,
-      status,
       txHash,
       txSignature
     )
@@ -269,6 +314,7 @@ export class StreamDetails implements IStreamDetails {
   public holder: IStreamDetails['holder']
   public schemaId: IStreamDetails['schemaId']
   public linkId: IStreamDetails['linkId']
+  public spaceId: IStreamDetails['spaceId']
   public revoked: IStreamDetails['revoked']
 
   public constructor(details: IStreamDetails) {
@@ -279,6 +325,7 @@ export class StreamDetails implements IStreamDetails {
     this.holder = details.holder
     this.schemaId = details.schemaId
     this.linkId = details.linkId
+    this.spaceId = details.spaceId
     this.revoked = details.revoked
   }
 }

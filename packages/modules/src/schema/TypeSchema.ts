@@ -13,7 +13,7 @@ export const SchemaModel: JsonSchema.Schema = {
     $id: {
       type: 'string',
       format: 'uri',
-      // pattern: '^schema:cord:0x[0-9a-f]+$',
+      pattern: '^schema:cord:4[0-9a-zA-Z]+$',
     },
     $schema: {
       type: 'string',
@@ -83,16 +83,16 @@ export const SchemaWrapperModel = {
     schemaId: {
       type: 'string',
       format: 'uri',
-      // pattern: '^schema:cord:0x[0-9a-f]+$',
+      pattern: '^schema:cord:4[0-9a-zA-Z]+$',
     },
     schemaHash: {
       type: 'string',
     },
     controller: { type: ['string', 'null'] },
-    version: {
-      type: 'string',
-    },
-    permissioned: { type: 'boolean' },
+    // version: {
+    //   type: 'string',
+    // },
+    controllerSignature: { type: ['string', 'null'] },
   },
   additionalProperties: false,
   required: ['schema', 'schemaId', 'schemaHash'],

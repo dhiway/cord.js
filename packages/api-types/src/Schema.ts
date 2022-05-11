@@ -35,8 +35,8 @@ export type SchemaWithoutId = Omit<ISchemaType, '$id'>
 export interface ISchema {
   schemaId: string
   schemaHash: string
-  version: string
   controller: IPublicIdentity['address']
+  controllerSignature?: string | null
   schema: ISchemaType
 }
 
@@ -53,7 +53,6 @@ export type CompressedSchema = [
 export type CompressedSchemaType = [
   ISchema['schemaId'],
   ISchema['schemaHash'],
-  ISchema['version'],
   ISchema['controller'],
   CompressedSchema
 ]

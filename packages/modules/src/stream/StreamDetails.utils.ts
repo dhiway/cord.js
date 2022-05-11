@@ -51,6 +51,7 @@ export function compress(stream: IStreamDetails): CompressedStreamDetails {
     stream.holder,
     stream.schemaId,
     stream.linkId,
+    stream.spaceId,
     stream.revoked,
   ]
 }
@@ -65,7 +66,7 @@ export function compress(stream: IStreamDetails): CompressedStreamDetails {
  */
 
 export function decompress(stream: CompressedStreamDetails): IStreamDetails {
-  if (!Array.isArray(stream) || stream.length !== 7) {
+  if (!Array.isArray(stream) || stream.length !== 8) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
   }
   return {
@@ -75,6 +76,7 @@ export function decompress(stream: CompressedStreamDetails): IStreamDetails {
     holder: stream[3],
     schemaId: stream[4],
     linkId: stream[5],
-    revoked: stream[6],
+    spaceId: stream[6],
+    revoked: stream[7],
   }
 }
