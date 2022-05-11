@@ -10,7 +10,7 @@ export interface IProduct {
   hash: string
   cid: string
   store_id?: string
-  schema?: ISchema['id']
+  schema?: ISchema['schemaId']
   price?: number
   rating?: number
   link?: string
@@ -37,7 +37,7 @@ export interface IProductDetails {
   cid: string | null
   parent_cid: string | null
   store_id: IProduct['id'] | null
-  schema: ISchema['id'] | null
+  schema: ISchema['schemaId'] | null
   link: IProduct['id'] | null
   issuer: IPublicIdentity['address']
   price: IProduct['id'] | null

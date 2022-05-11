@@ -65,11 +65,11 @@ export function verifyContentProperties(
 }
 
 export async function verifyStored(schema: ISchema): Promise<boolean> {
-  return typeof (await getOwner(schema.hash)) === 'string'
+  return typeof (await getOwner(schema.schemaId)) === 'string'
 }
 
 export async function verifyOwner(schema: ISchema): Promise<boolean> {
-  const issuer = await getOwner(schema.hash)
+  const issuer = await getOwner(schema.schemaId)
   return issuer ? issuer === schema.controller : false
 }
 
@@ -107,8 +107,8 @@ export function errorCheck(input: ISchema): void {
     throw SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   console.log(input.schema, getHashForSchema(input.schema))
-  if (!input.schema || getHashForSchema(input.schema) !== input.hash) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(input.hash, 'Schema')
+  if (!input.schema || getHashForSchema(input.schema) !== input.schemaHash) {
+    throw SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
   }
   if (
     typeof input.controller === 'string'
@@ -191,12 +191,10 @@ export function decompressSchema(
 export function compress(schema: ISchema): CompressedSchemaType {
   errorCheck(schema)
   return [
-    schema.id,
-    schema.hash,
+    schema.schemaId,
+    schema.schemaHash,
     schema.version,
     schema.controller,
-    schema.parent,
-    schema.permissioned,
     compressSchema(schema.schema),
   ]
 }
@@ -211,17 +209,15 @@ export function compress(schema: ISchema): CompressedSchemaType {
  */
 
 export function decompress(schema: CompressedSchemaType): ISchema {
-  if (!Array.isArray(schema) || schema.length !== 7) {
+  if (!Array.isArray(schema) || schema.length !== 5) {
     throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
-    id: schema[0],
-    hash: schema[1],
+    schemaId: schema[0],
+    schemaHash: schema[1],
     version: schema[2],
     controller: schema[3],
-    parent: schema[4],
-    permissioned: schema[5],
-    schema: decompressSchema(schema[6]),
+    schema: decompressSchema(schema[4]),
   }
 }
 

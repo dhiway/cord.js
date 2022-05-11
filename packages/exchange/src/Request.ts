@@ -23,13 +23,13 @@ import { UUID, Crypto } from '@cord.network/utils'
 
 export interface IPresentationReq {
   properties: string[]
-  id?: Schema['id']
+  id?: Schema['schemaId']
   proofs?: boolean
   requestUpdatedAfter?: Date
 }
 
 export interface IPartialRequest {
-  id: Schema['id']
+  id: Schema['schemaId']
   properties: string[]
 }
 

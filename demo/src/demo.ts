@@ -53,8 +53,8 @@ async function main() {
   let encoded_hash = await hasher.digest(bytes)
   const schemaCid = CID.create(1, 0xb240, encoded_hash)
   console.log('Version', newSchema.version)
-  let schemaCreationExtrinsic = await newSchema.create(schemaCid.toString())
-
+  let spaceId = '15v398htUCyQZv2PQCgGaSGiwr3VpYSJFpcZD8yCCYxNCJZZ'
+  let schemaCreationExtrinsic = await newSchema.create(spaceId)
   // let schemaIdentifier = cord.Utils.Identifier.encodeIdentifier(
   //   newSchema.hash,
   //   65
@@ -287,7 +287,7 @@ async function main() {
   const { session, message: message } =
     cord.Exchange.Request.newRequestBuilder()
       .requestPresentation({
-        id: credSchemaStream.id,
+        id: credSchemaStream.schemaId,
         properties: ['name'],
       })
       .finalize(

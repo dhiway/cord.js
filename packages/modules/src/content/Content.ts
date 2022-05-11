@@ -71,7 +71,7 @@ export class Content implements IContent {
       throw SDKErrors.ERROR_NESTED_CONTENT_UNVERIFIABLE()
     }
     return new Content({
-      schemaId: schema.id,
+      schemaId: schema.schemaId,
       contents: contents,
       issuer: issuer,
       holder: holder,
@@ -99,7 +99,7 @@ export class Content implements IContent {
       }
     }
     return new Content({
-      schemaId: schema.id,
+      schemaId: schema.schemaId,
       issuer: issuer,
       holder: holder,
       contents: contents,

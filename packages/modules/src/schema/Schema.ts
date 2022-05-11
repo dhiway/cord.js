@@ -22,11 +22,9 @@ import { Identifier } from '@cord.network/utils'
 import {
   query,
   create,
-  update,
   authorise,
   deauthorise,
-  setStatus,
-  setPermission,
+  revoke,
 } from './Schema.chain.js'
 import * as SchemaUtils from './Schema.utils.js'
 import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/api-types'
@@ -72,8 +70,7 @@ export class Schema implements ISchema {
   public static fromSchemaProperties(
     schema: SchemaWithoutId | ISchema['schema'],
     controller: ISchema['controller'],
-    version?: ISchema['version'],
-    permission?: boolean
+    version?: ISchema['version']
   ): Schema {
     const schemaHash = SchemaUtils.getHashForSchema(schema)
     const schemaId = Identifier.getIdentifier(
@@ -82,15 +79,14 @@ export class Schema implements ISchema {
       SCHEMA_PREFIX
     )
     return new Schema({
-      id: schemaId,
-      hash: schemaHash,
+      schemaId: schemaId,
+      schemaHash: schemaHash,
       version: version || '1.0.0',
       schema: {
         ...schema,
         $id: schemaId,
       },
       controller: controller,
-      permissioned: permission || false,
     })
   }
 
@@ -109,23 +105,19 @@ export class Schema implements ISchema {
     return true
   }
 
-  public id: ISchema['id']
-  public hash: ISchema['hash']
+  public schemaId: ISchema['schemaId']
+  public schemaHash: ISchema['schemaHash']
   public version: ISchema['version']
   public controller: ISchema['controller']
   public schema: ISchema['schema']
-  public parent?: ISchema['parent'] | undefined
-  public permissioned: ISchema['permissioned']
 
   public constructor(schemaInput: ISchema) {
     SchemaUtils.errorCheck(schemaInput)
-    this.id = schemaInput.id
-    this.hash = schemaInput.hash
+    this.schemaId = schemaInput.schemaId
+    this.schemaHash = schemaInput.schemaHash
     this.version = schemaInput.version
     this.controller = schemaInput.controller
     this.schema = schemaInput.schema
-    this.parent = schemaInput.parent
-    this.permissioned = schemaInput.permissioned
   }
 
   /**
@@ -134,30 +126,28 @@ export class Schema implements ISchema {
    * @param schemaCId The IPFS CID of the schema.
    * @returns A promise of a unsigned SubmittableExtrinsic.
    */
-  public async create(cid?: string | undefined): Promise<SubmittableExtrinsic> {
-    return create(this, cid)
-  }
-
-  public async authorise(delegates: [string]): Promise<SubmittableExtrinsic> {
-    return authorise(this.schema.$id, delegates)
-  }
-
-  public async deauthorise(delegates: [string]): Promise<SubmittableExtrinsic> {
-    return deauthorise(this.id, delegates)
-  }
-
-  public async setStatus(status: boolean): Promise<SubmittableExtrinsic> {
-    return setStatus(this.id, status)
-  }
-
-  public async setPermission(
-    permission: boolean
+  public async create(
+    spaceid?: string | undefined
   ): Promise<SubmittableExtrinsic> {
-    return setPermission(this.id, permission)
+    return create(this, spaceid)
   }
 
-  public async update(cid?: string | undefined): Promise<SubmittableExtrinsic> {
-    return update(this, cid)
+  public async authorise(
+    delegates: [string],
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    return authorise(this.schema.$id, delegates, spaceid)
+  }
+
+  public async deauthorise(
+    delegates: [string],
+    spaceid?: string | undefined
+  ): Promise<SubmittableExtrinsic> {
+    return deauthorise(this.schemaId, delegates, spaceid)
+  }
+
+  public async revoke(spaceid?: string): Promise<SubmittableExtrinsic> {
+    return revoke(this.schemaId, spaceid)
   }
 
   /**
@@ -223,23 +213,17 @@ export class SchemaDetails implements ISchemaDetails {
    *
    */
 
-  public id: ISchemaDetails['id']
-  public hash: ISchemaDetails['hash']
-  public version: ISchemaDetails['version']
+  public schemaId: ISchemaDetails['schemaId']
+  public schemaHash: ISchemaDetails['schemaHash']
   public controller: ISchemaDetails['controller']
-  public parent: ISchemaDetails['parent'] | null | undefined
-  public cid: string | null | undefined
-  public permissioned: ISchemaDetails['permissioned']
+  public spaceid: string | null | undefined
   public revoked: ISchemaDetails['revoked']
 
   public constructor(details: ISchemaDetails) {
-    this.id = details.id
-    this.hash = details.hash
-    this.version = details.version
+    this.schemaId = details.schemaId
+    this.schemaHash = details.schemaHash
     this.controller = details.controller
-    this.parent = details.parent
-    this.cid = details.cid
-    this.permissioned = details.permissioned
+    this.spaceid = details.spaceid
     this.revoked = details.revoked
   }
 }

@@ -13,7 +13,7 @@ export interface IStream {
   streamHash: string
   issuer: IPublicIdentity['address']
   holder?: IPublicIdentity['address'] | null
-  schemaId: ISchema['id']
+  schemaId: ISchema['schemaId']
   linkId?: string | null
   issuerSignature: string
 }
@@ -33,7 +33,7 @@ export interface IStreamDetails {
   streamHash: IStream['streamHash']
   issuer: IPublicIdentity['address']
   holder: IPublicIdentity['address'] | null
-  schemaId: ISchema['id'] | null
+  schemaId: ISchema['schemaId'] | null
   linkId: IStream['streamId'] | null
   revoked: boolean
 }

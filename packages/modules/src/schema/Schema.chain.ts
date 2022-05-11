@@ -20,7 +20,7 @@ import { SchemaDetails } from './Schema.js'
 const log = ConfigService.LoggingFactory.getLogger('Schema')
 
 /**
- * Generate the extrinsic to create the provided [[ISchema]].
+ * Generate the extrinsic to create the [[ISchema]].
  *
  * @param schema The schema to anchor on the chain.
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
@@ -28,37 +28,13 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
 
 export async function create(
   schema: ISchema,
-  cid?: string | undefined
+  spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
-    schema.version,
-    schema.hash,
-    cid,
-    schema.permissioned
-  )
-  return tx
-}
-
-/**
- * Generate the extrinsic to update the version of the provided [[ISchema]].
- *
- * @param schema The schema to update the version on the chain.
- * @returns The [[SubmittableExtrinsic]] for the `version` call.
- */
-
-export async function update(
-  schema: ISchema,
-  cid?: string | undefined
-): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Create tx for 'schema' version update`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.update(
-    Identifier.getIdentifierKey(schema.id, SCHEMA_PREFIX),
-    schema.version,
-    schema.hash,
-    cid
+    schema.schemaHash,
+    spaceid
   )
   return tx
 }
@@ -66,31 +42,15 @@ export async function update(
 /**
  * TBD
  */
-export async function setStatus(
+export async function revoke(
   schema_id: string,
-  status: boolean
+  spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.status(
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    status
-  )
-  return tx
-}
-
-/**
- * TBD
- */
-export async function setPermission(
-  schema_id: string,
-  permission: boolean
-): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking a schema with ID ${schema_id}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.schema.permission(
-    Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    permission
+    spaceid
   )
   return tx
 }
@@ -100,13 +60,15 @@ export async function setPermission(
  */
 export async function authorise(
   schema_id: string,
-  delegates: [string]
+  delegates: [string],
+  spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.authorise(
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    delegates
+    delegates,
+    spaceid
   )
   return tx
 }
@@ -116,30 +78,29 @@ export async function authorise(
  */
 export async function deauthorise(
   schema_id: string,
-  delegates: [string]
+  delegates: [string],
+  spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema_id}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.deauthorise(
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
-    delegates
+    delegates,
+    spaceid
   )
   return tx
 }
 
 export interface AnchoredSchemaDetails extends Struct {
-  readonly version: Vec<u8>
-  readonly id: Vec<u8>
-  readonly issuer: AccountId
-  readonly cid: Option<Vec<u8>>
-  readonly parent: Option<Hash>
-  readonly permissioned: boolean
+  readonly schemaHash: Hash
+  readonly controller: AccountId
+  readonly spaceid: Option<Vec<u8>>
   readonly revoked: boolean
 }
 
 function decodeSchema(
   encodedSchema: Option<AnchoredSchemaDetails>,
-  schema_hash: string
+  schemaId: string
 ): SchemaDetails | null {
   DecoderUtils.assertCodecIsType(encodedSchema, [
     'Option<PalletSchemaSchemasSchemaDetails>',
@@ -147,17 +108,11 @@ function decodeSchema(
   if (encodedSchema.isSome) {
     const anchoredSchema = encodedSchema.unwrap()
     const schema: ISchemaDetails = {
-      id: DecoderUtils.hexToString(anchoredSchema.id.toString()),
-      hash: schema_hash,
-      version: anchoredSchema.version.toString(),
-      cid: anchoredSchema.cid
-        ? DecoderUtils.hexToString(anchoredSchema.cid.toString())
-        : null,
-      parent: anchoredSchema.parent
-        ? DecoderUtils.hexToString(anchoredSchema.parent.toString())
-        : null,
-      controller: anchoredSchema.issuer.toString(),
-      permissioned: anchoredSchema.permissioned.valueOf(),
+      schemaId: schemaId,
+      schemaHash: anchoredSchema.schemaHash.toString(),
+      controller: anchoredSchema.controller.toString(),
+      spaceid:
+        DecoderUtils.hexToString(anchoredSchema.spaceid.toString()) || null,
       revoked: anchoredSchema.revoked.valueOf(),
     }
     return SchemaDetails.fromSchemaDetails(schema)
@@ -175,11 +130,16 @@ async function queryRawHash(
   return result
 }
 
-async function queryRawId(schema_id: string): Promise<ISchemaDetails['hash']> {
+async function queryRaw(
+  schema_id: string
+): Promise<Option<AnchoredSchemaDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const result = await blockchain.api.query.schema.id<Option<Hash>>(schema_id)
-  return result.toString()
+  const result = await blockchain.api.query.schema.schemas<
+    Option<AnchoredSchemaDetails>
+  >(schema_id)
+  return result
 }
+
 /**
  * @param identifier
  * @internal
@@ -196,10 +156,9 @@ export async function queryhash(
  * @internal
  */
 export async function query(schema_id: string): Promise<SchemaDetails | null> {
-  const id: string = Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX)
-  const hash = await queryRawId(id)
-  const encoded = await queryRawHash(hash)
-  return decodeSchema(encoded, hash)
+  const schemaId: string = Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX)
+  const encoded = await queryRaw(schemaId)
+  return decodeSchema(encoded, schemaId)
 }
 
 /**
@@ -207,9 +166,9 @@ export async function query(schema_id: string): Promise<SchemaDetails | null> {
  * @internal
  */
 export async function getOwner(
-  hash: ISchema['hash']
+  schemaId: ISchema['schemaId']
 ): Promise<IPublicIdentity['address'] | null> {
-  const encoded = await queryRawHash(hash)
-  const queriedSchemaAccount = decodeSchema(encoded, hash)
+  const encoded = await queryRaw(schemaId)
+  const queriedSchemaAccount = decodeSchema(encoded, schemaId)
   return queriedSchemaAccount!.controller
 }

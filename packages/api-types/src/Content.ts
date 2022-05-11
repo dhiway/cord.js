@@ -15,7 +15,7 @@ export type IContents = Record<
   Record<string, unknown> | string | number | boolean
 >
 export interface IContent {
-  schemaId: ISchema['id']
+  schemaId: ISchema['schemaId']
   contents: IContents
   issuer: IPublicIdentity['address']
   holder?: IPublicIdentity['address']
