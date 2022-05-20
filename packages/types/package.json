@@ -30,7 +30,7 @@
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "dependencies": {
     "@polkadot/api": "7.12.1",
-    "@polkadot/keyring": "8.5.1",
+    "@polkadot/keyring": "8.7.1",
     "@polkadot/types": "7.12.1",
     "tweetnacl": "^1.0.3"
   },

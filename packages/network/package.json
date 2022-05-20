@@ -37,9 +37,9 @@
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@polkadot/api": "7.12.1",
-    "@polkadot/keyring": "8.5.1",
+    "@polkadot/keyring": "8.7.1",
     "@polkadot/types": "7.12.1",
-    "@polkadot/util": "8.5.1",
+    "@polkadot/util": "8.7.1",
     "typescript-logging": "^0.6.4"
   }
 }
