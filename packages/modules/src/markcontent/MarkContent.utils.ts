@@ -8,11 +8,13 @@ import type {
   CompressedMark,
   CompressedMarkContent,
   IMarkContent,
+  ISchema,
 } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import * as MarkUtils from '../mark/Mark.utils.js'
 import * as ContentUtils from '../content/Content.utils.js'
 import { MarkContent } from './MarkContent.js'
+import * as SchemaUtils from '../schema/Schema.utils.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an IMarkContent object.
@@ -117,4 +119,24 @@ export function decompress(markContent: CompressedMarkContent): IMarkContent {
     rootHash: markContent[6],
     contentId: markContent[7],
   }
+}
+
+/**
+ *  Checks the [[MarkContent]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
+ *
+ * @param markContent A [[MarkContent]] object of an attested claim used for verification.
+ * @param schema A [[Schema]] to verify the [[Content]] structure.
+ *
+ * @returns A boolean if the [[Content]] structure in the [[Mark]] is valid.
+ */
+
+export function verifyStructure(
+  markContent: IMarkContent,
+  schema: ISchema
+): boolean {
+  errorCheck(markContent)
+  return SchemaUtils.verifyContentProperties(
+    markContent.content.contents,
+    schema.schema
+  )
 }

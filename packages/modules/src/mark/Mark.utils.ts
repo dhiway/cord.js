@@ -3,12 +3,12 @@
  * @module MarkUtils
  */
 
-import type { IMark, CompressedMark } from '@cord.network/types'
+import type { IMark, CompressedMark, ISchema } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import * as StreamDetailUtils from '../stream/StreamDetails.utils.js'
 import * as MarkContentUtils from '../markcontent/MarkContent.utils.js'
 import { Mark } from './Mark.js'
-
+import * as SchemaUtils from '../schema/Schema.utils.js'
 /**
  *  Checks whether the input meets all the required criteria of an IMarkedStream object.
  *  Throws on invalid input.
@@ -66,4 +66,21 @@ export function decompress(stream: CompressedMark): IMark {
     request: MarkContentUtils.decompress(stream[0]),
     content: StreamDetailUtils.decompress(stream[1]),
   }
+}
+
+/**
+ *  Checks the [[Mark]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
+ *
+ * @param mark A [[Mark]] object of an attested claim used for verification.
+ * @param schema A [[Schema]] to verify the [[Content]] structure.
+ *
+ * @returns A boolean if the [[Content]] structure in the [[Mark]] is valid.
+ */
+
+export function verifyStructure(mark: IMark, schema: ISchema): boolean {
+  errorCheck(mark)
+  return SchemaUtils.verifyContentProperties(
+    mark.request.content.contents,
+    schema.schema
+  )
 }

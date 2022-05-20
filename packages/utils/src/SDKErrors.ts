@@ -9,12 +9,6 @@ import '@polkadot/api-augment'
 import type { NonceHash } from '@cord.network/types'
 
 export enum ErrorCode {
-  ERROR_TRANSACTION_RECOVERABLE = 1000,
-  ERROR_TRANSACTION_OUTDATED = 1010,
-  ERROR_TRANSACTION_DUPLICATE = 1013,
-  ERROR_TRANSACTION_PRIORITY = 1014,
-  ERROR_TRANSACTION_USURPED = 1015,
-
   ERROR_UNAUTHORIZED = 1016,
   ERROR_NOT_FOUND = 1017,
 
@@ -117,37 +111,6 @@ export class SDKError extends Error {
     super(message)
     this.errorCode = errorCode
   }
-}
-
-export const ERROR_TRANSACTION_RECOVERABLE: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_TRANSACTION_RECOVERABLE,
-    'Tx failed due to nonce collision, this is recoverable by re-signing!'
-  )
-}
-export const ERROR_TRANSACTION_OUTDATED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_TRANSACTION_OUTDATED,
-    'Tx was signed with outdated Nonce'
-  )
-}
-export const ERROR_TRANSACTION_DUPLICATE: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_TRANSACTION_DUPLICATE,
-    'Identical Tx was already imported to the pool'
-  )
-}
-export const ERROR_TRANSACTION_PRIORITY: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_TRANSACTION_PRIORITY,
-    'Tx Priority too low to replace existing Tx with equal nonce'
-  )
-}
-export const ERROR_TRANSACTION_USURPED: () => SDKError = () => {
-  return new SDKError(
-    ErrorCode.ERROR_TRANSACTION_USURPED,
-    'Tx was replaced by another TX with the same Nonce and higher Priority'
-  )
 }
 
 export const ERROR_UNAUTHORIZED: (msg: string) => SDKError = (msg: string) => {
