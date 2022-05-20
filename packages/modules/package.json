@@ -39,12 +39,12 @@
     "@cord.network/config": "workspace:*",
     "@cord.network/network": "workspace:*",
     "@cord.network/utils": "workspace:*",
-    "@polkadot/api": "^7.8.1",
-    "@polkadot/keyring": "^8.4.0",
-    "@polkadot/types": "^7.8.1",
-    "@polkadot/types-known": "^7.8.1",
-    "@polkadot/util": "^8.4.0",
-    "@polkadot/util-crypto": "^8.4.0",
+    "@polkadot/api": "7.12.1",
+    "@polkadot/keyring": "8.5.1",
+    "@polkadot/types": "7.12.1",
+    "@polkadot/types-known": "7.12.1",
+    "@polkadot/util": "8.5.1",
+    "@polkadot/util-crypto": "8.5.1",
     "tweetnacl": "^1.0.3",
     "typescript-logging": "^0.6.4"
   }
