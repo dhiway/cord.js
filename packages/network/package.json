@@ -34,8 +34,6 @@
   },
   "dependencies": {
     "@cord.network/config": "workspace:*",
-    "@cord.network/known-types": "^0.7.2-2",
-    "@cord.network/type-definitions": "^0.7.2-2",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@polkadot/api": "7.12.1",

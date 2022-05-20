@@ -18,16 +18,17 @@ import type {
 } from '@cord.network/types'
 
 import { getConnectionOrConnect } from '../chainApiConnection/ChainApiConnection'
-import { TYPE_REGISTRY } from '../chainApiConnection/TypeRegistry'
 import { Chain } from './Chain'
 import {
   EXTRINSIC_FAILED,
+  isRecoverableTxError,
   IS_ERROR,
   IS_FINALIZED,
-  IS_USURPED,
   parseSubscriptionOptions,
   submitSignedTx,
 } from './Chain.utils'
+
+let api: any
 
 jest.mock('../blockchainApiConnection/ChainApiConnection')
 
