@@ -14,7 +14,7 @@ import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream.js'
-import { STREAM_PREFIX } from '@cord.network/api-types'
+import { STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/api-types'
 
 const log = ConfigService.LoggingFactory.getLogger('Mark')
 
@@ -29,14 +29,16 @@ export async function create(
   spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-
+  const space_id = spaceid
+    ? Identifier.getIdentifierKey(spaceid, SPACE_PREFIX)
+    : null
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
     stream.issuer,
     stream.streamHash,
     stream.holder,
     stream.schemaId,
     stream.linkId,
-    spaceid,
+    space_id,
     stream.issuerSignature
   )
   return tx

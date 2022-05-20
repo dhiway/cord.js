@@ -6,6 +6,7 @@ export * as SubscriptionPromise from './SubscriptionPromise.js'
 
 export * from './Identity.js'
 export * from './PublicIdentity.js'
+export * from './Space.js'
 export * from './Schema.js'
 export * from './SchemaMetadata.js'
 export * from './Content.js'
