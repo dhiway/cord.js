@@ -14,7 +14,7 @@ import type {
   IProductDetails,
   IMarkContent,
   CompressedProduct,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import {
   set_status,
   query,

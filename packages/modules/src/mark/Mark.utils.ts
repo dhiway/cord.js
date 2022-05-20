@@ -3,7 +3,7 @@
  * @module MarkUtils
  */
 
-import type { IMark, CompressedMark } from '@cord.network/api-types'
+import type { IMark, CompressedMark } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import * as StreamDetailUtils from '../stream/StreamDetails.utils.js'
 import * as MarkContentUtils from '../markcontent/MarkContent.utils.js'

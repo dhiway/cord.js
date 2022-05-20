@@ -3,7 +3,7 @@
  * @module SUtils
  */
 
-import type { ISpace } from '@cord.network/api-types'
+import type { ISpace } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 
 /**

@@ -9,7 +9,7 @@ import type {
   CompressedContent,
   PartialContent,
   CompressedPartialContent,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { jsonabc, DataUtils, Crypto, SDKErrors } from '@cord.network/utils'
 
 const VC_VOCAB = 'https://www.w3.org/2018/credentials#'

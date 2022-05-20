@@ -15,7 +15,7 @@ import type {
   ISubmittableResult,
   SubmittableExtrinsic,
   SubscriptionPromise,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 
 import { getConnectionOrConnect } from '../chainApiConnection/ChainApiConnection'
 import { TYPE_REGISTRY } from '../chainApiConnection/TypeRegistry'

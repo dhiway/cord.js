@@ -3,7 +3,7 @@
  * @module SchemaMetadata
  */
 
-import type { ISchemaMetadata } from '@cord.network/api-types'
+import type { ISchemaMetadata } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import * as SchemaUtils from './Schema.utils.js'
 import { MetadataModel } from './TypeSchema.js'

@@ -34,7 +34,7 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
-    "@cord.network/api-types": "workspace:*",
+    "@cord.network/types": "workspace:*",
     "@polkadot/keyring": "8.5.1",
     "@polkadot/types": "7.12.1",
     "@polkadot/util": "8.5.1",

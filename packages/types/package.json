@@ -1,5 +1,5 @@
 {
-  "name": "@cord.network/api-types",
+  "name": "@cord.network/types",
   "version": "0.5.2-5",
   "description": "",
   "main": "./lib/cjs/index.js",

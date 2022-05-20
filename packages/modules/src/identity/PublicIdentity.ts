@@ -5,7 +5,7 @@
  * @module PublicIdentity
  */
 
-import type { IPublicIdentity } from '@cord.network/api-types'
+import type { IPublicIdentity } from '@cord.network/types'
 import {
   Did,
   IDENTIFIER_PREFIX,

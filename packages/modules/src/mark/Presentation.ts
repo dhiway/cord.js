@@ -5,7 +5,7 @@ import type {
   IIdentity,
   IPresentation,
   IPresentationSigningOptions,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Mark } from './Mark.js'
 
 function ensureCredentialOwnership(

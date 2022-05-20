@@ -3,7 +3,7 @@
  * @module ProductUtils
  */
 
-import type { IProduct, CompressedProduct } from '@cord.network/api-types'
+import type { IProduct, CompressedProduct } from '@cord.network/types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 
 /**

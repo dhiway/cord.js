@@ -10,8 +10,8 @@ import type {
   ISchemaDetails,
   IPublicIdentity,
   SubmittableExtrinsic,
-} from '@cord.network/api-types'
-import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/api-types'
+} from '@cord.network/types'
+import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'

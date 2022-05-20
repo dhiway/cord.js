@@ -3,7 +3,7 @@
  */
 
 import { SDKErrors } from '@cord.network/utils'
-import type { SubscriptionPromise } from '@cord.network/api-types'
+import type { SubscriptionPromise } from '@cord.network/types'
 import { makeSubscriptionPromise } from './SubscriptionPromise'
 
 const RESOLVE = 'resolve'

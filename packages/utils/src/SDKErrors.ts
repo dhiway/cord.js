@@ -6,7 +6,7 @@
  */
 
 import '@polkadot/api-augment'
-import type { NonceHash } from '@cord.network/api-types'
+import type { NonceHash } from '@cord.network/types'
 
 export enum ErrorCode {
   ERROR_TRANSACTION_RECOVERABLE = 1000,

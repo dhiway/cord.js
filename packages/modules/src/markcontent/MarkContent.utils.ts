@@ -8,7 +8,7 @@ import type {
   CompressedMark,
   CompressedMarkContent,
   IMarkContent,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import * as MarkUtils from '../mark/Mark.utils.js'
 import * as ContentUtils from '../content/Content.utils.js'

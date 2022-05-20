@@ -12,7 +12,7 @@ import type {
   ISpace,
   ISpaceDetails,
   SubmittableExtrinsic,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Identifier, Crypto, UUID } from '@cord.network/utils'
 import {
   query,
@@ -24,7 +24,7 @@ import {
   transfer,
 } from './Space.chain.js'
 import * as SpaceUtils from './Space.utils.js'
-import { SPACE_IDENTIFIER, SPACE_PREFIX } from '@cord.network/api-types'
+import { SPACE_IDENTIFIER, SPACE_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 
 export class Space implements ISpace {

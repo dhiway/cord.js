@@ -5,7 +5,7 @@
 
 import { Mark, SDKErrors } from '@cord.network/modules'
 import { ConfigService } from '@cord.network/config'
-import type { IMark, IMarkContent, IMessage } from '@cord.network/api-types'
+import type { IMark, IMarkContent, IMessage } from '@cord.network/types'
 import { Message } from '@cord.network/messaging'
 import { IRequestSession } from './Request'
 

@@ -594,28 +594,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cord.network/api-types@workspace:*, @cord.network/api-types@workspace:packages/api-types":
-  version: 0.0.0-use.local
-  resolution: "@cord.network/api-types@workspace:packages/api-types"
-  dependencies:
-    "@polkadot/api": 7.12.1
-    "@polkadot/keyring": 8.5.1
-    "@polkadot/types": 7.12.1
-    rimraf: ^3.0.2
-    tweetnacl: ^1.0.3
-    typescript: ^4.5.4
-  languageName: unknown
-  linkType: soft
-
 "@cord.network/api@workspace:packages/api":
   version: 0.0.0-use.local
   resolution: "@cord.network/api@workspace:packages/api"
   dependencies:
-    "@cord.network/api-types": "workspace:*"
     "@cord.network/exchange": "workspace:*"
     "@cord.network/messaging": "workspace:*"
     "@cord.network/modules": "workspace:*"
     "@cord.network/network": "workspace:*"
+    "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     buffer: ^6.0.3
     crypto-browserify: ^3.12.0
@@ -646,10 +633,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/credential@workspace:packages/credential"
   dependencies:
-    "@cord.network/api-types": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/modules": "workspace:*"
     "@cord.network/network": "workspace:*"
+    "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     "@polkadot/keyring": 8.5.1
     "@polkadot/types": 7.12.1
@@ -669,11 +656,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/exchange@workspace:packages/exchange"
   dependencies:
-    "@cord.network/api-types": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/messaging": "workspace:*"
     "@cord.network/modules": "workspace:*"
     "@cord.network/network": "workspace:*"
+    "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     rimraf: ^3.0.2
     typescript: ^4.5.4
@@ -701,8 +688,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/messaging@workspace:packages/messaging"
   dependencies:
-    "@cord.network/api-types": "workspace:*"
     "@cord.network/modules": "workspace:*"
+    "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     "@polkadot/util": 8.5.1
     rimraf: ^3.0.2
@@ -714,9 +701,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/modules@workspace:packages/modules"
   dependencies:
-    "@cord.network/api-types": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/network": "workspace:*"
+    "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     "@polkadot/api": 7.12.1
     "@polkadot/keyring": 8.5.1
@@ -737,10 +724,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/network@workspace:packages/network"
   dependencies:
-    "@cord.network/api-types": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/known-types": ^0.7.2-2
     "@cord.network/type-definitions": ^0.7.2-2
+    "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     "@polkadot/api": 7.12.1
     "@polkadot/keyring": 8.5.1
@@ -761,11 +748,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cord.network/types@workspace:*, @cord.network/types@workspace:packages/types":
+  version: 0.0.0-use.local
+  resolution: "@cord.network/types@workspace:packages/types"
+  dependencies:
+    "@polkadot/api": 7.12.1
+    "@polkadot/keyring": 8.5.1
+    "@polkadot/types": 7.12.1
+    rimraf: ^3.0.2
+    tweetnacl: ^1.0.3
+    typescript: ^4.5.4
+  languageName: unknown
+  linkType: soft
+
 "@cord.network/utils@workspace:*, @cord.network/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@cord.network/utils@workspace:packages/utils"
   dependencies:
-    "@cord.network/api-types": "workspace:*"
+    "@cord.network/types": "workspace:*"
     "@polkadot/keyring": 8.5.1
     "@polkadot/types": 7.12.1
     "@polkadot/util": 8.5.1

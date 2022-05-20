@@ -8,13 +8,13 @@ import type {
   IStreamDetails,
   IPublicIdentity,
   SubmittableExtrinsic,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream.js'
-import { STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/api-types'
+import { STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 
 const log = ConfigService.LoggingFactory.getLogger('Mark')
 

@@ -32,7 +32,7 @@ import * as u8aUtil from '@polkadot/util/u8a'
 // and not for box keypair, we use TweetNaCl directly
 import nacl from 'tweetnacl'
 import { Crypto, SDKErrors } from '@cord.network/utils'
-import type { IIdentity, SubmittableExtrinsic } from '@cord.network/api-types'
+import type { IIdentity, SubmittableExtrinsic } from '@cord.network/types'
 import { AnyNumber } from '@polkadot/types/types'
 import { PublicIdentity } from './PublicIdentity.js'
 

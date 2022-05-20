@@ -13,7 +13,7 @@ import type {
   IStreamDetails,
   IMarkContent,
   CompressedStream,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 import { Crypto, UUID, SDKErrors, Identifier } from '@cord.network/utils'
 import {
@@ -25,7 +25,7 @@ import {
   digest,
 } from './Stream.chain.js'
 import * as StreamUtils from './Stream.utils.js'
-import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/api-types'
+import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/types'
 
 export class Stream implements IStream {
   /**

@@ -3,7 +3,7 @@
  * @module SubscriptionPromise
  */
 
-import type { SubscriptionPromise } from '@cord.network/api-types'
+import type { SubscriptionPromise } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 
 /**

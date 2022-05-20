@@ -22,7 +22,7 @@ import type {
   IChainApi,
   ChainStats,
   SubscriptionPromise,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { submitSignedTx } from './Chain.utils.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')

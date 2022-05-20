@@ -9,7 +9,7 @@ import type {
   IPublicIdentity,
   IPresentationOptions,
   IPresentationSigningOptions,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Message } from '@cord.network/messaging'
 // import { Crypto } from '@cord.network/utils'
 

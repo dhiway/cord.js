@@ -6,7 +6,7 @@
 import type {
   IStreamDetails,
   CompressedStreamDetails,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 
 /**

@@ -3,7 +3,7 @@
  * @module StreamUtils
  */
 
-import type { IStream, CompressedStream, Hash } from '@cord.network/api-types'
+import type { IStream, CompressedStream, Hash } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { Identity } from '../identity/Identity.js'
 

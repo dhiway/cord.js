@@ -9,7 +9,7 @@ import type {
   CompressedSchema,
   CompressedSchemaType,
   SchemaWithoutId,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import {
   jsonabc,
   Crypto,

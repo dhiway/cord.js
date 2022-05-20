@@ -44,11 +44,11 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "@cord.network/api-types": "workspace:*",
     "@cord.network/exchange": "workspace:*",
     "@cord.network/messaging": "workspace:*",
     "@cord.network/modules": "workspace:*",
     "@cord.network/network": "workspace:*",
+    "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*"
   }
 }

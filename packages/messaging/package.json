@@ -33,8 +33,8 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
-    "@cord.network/api-types": "workspace:*",
     "@cord.network/modules": "workspace:*",
+    "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@polkadot/util": "8.5.1"
   }

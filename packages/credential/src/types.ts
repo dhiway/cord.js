@@ -4,7 +4,7 @@
  */
 import type { AnyJson } from '@polkadot/types/types'
 import type { IDidDocumentPublicKey } from '@cord.network/modules'
-import type { ISchema } from '@cord.network/api-types'
+import type { ISchema } from '@cord.network/types'
 import type {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLE_CREDENTIAL_TYPE,

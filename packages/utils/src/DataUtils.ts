@@ -8,7 +8,7 @@
  * Dummy comment needed for correct doc display, do not remove.
  */
 import '@polkadot/api-augment'
-import type { IPublicIdentity } from '@cord.network/api-types/src/index.js'
+import type { IPublicIdentity } from '@cord.network/types/src/index.js'
 import { checkAddress } from '@polkadot/util-crypto'
 import * as SDKErrors from './SDKErrors.js'
 import { verify } from './Crypto.js'

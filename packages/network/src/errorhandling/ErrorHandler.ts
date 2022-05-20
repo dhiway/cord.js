@@ -7,7 +7,7 @@
  */
 
 import type { EventRecord } from '@polkadot/types/interfaces'
-import type { ISubmittableResult } from '@cord.network/api-types'
+import type { ISubmittableResult } from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
 import { errorForPallet, ExtrinsicError } from './ExtrinsicError.js'
 

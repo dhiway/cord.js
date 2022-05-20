@@ -12,14 +12,14 @@ import type {
   Hash,
   IContent,
   IMark,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Crypto, SDKErrors } from '@cord.network/utils'
 import * as ContentUtils from '../content/Content.utils.js'
 import { Mark } from '../mark/Mark.js'
 import { Identity } from '../identity/Identity.js'
 import * as MarkContentUtils from './MarkContent.utils.js'
 // import { UUID } from '@cord.network/utils'
-import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/api-types'
+import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
 // import { stringToU8a } from '@polkadot/util'
 

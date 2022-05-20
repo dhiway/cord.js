@@ -16,13 +16,13 @@ import type {
   IPresentationOptions,
   IPresentationSigningOptions,
   IStreamDetails,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { SDKErrors, Identifier } from '@cord.network/utils'
 import { StreamDetails } from '../stream/Stream.js'
 import { MarkContent } from '../markcontent/MarkContent.js'
 import * as MarkUtils from './Mark.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
-import { SCHEMA_PREFIX } from '@cord.network/api-types'
+import { SCHEMA_PREFIX } from '@cord.network/types'
 
 export class Mark implements IMark {
   /**

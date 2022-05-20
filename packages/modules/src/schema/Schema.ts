@@ -17,7 +17,7 @@ import type {
   CompressedSchemaType,
   SchemaWithoutId,
   SubmittableExtrinsic,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Identifier, Crypto, UUID } from '@cord.network/utils'
 import {
   query,
@@ -31,7 +31,7 @@ import {
   SCHEMA_IDENTIFIER,
   SCHEMA_PREFIX,
   SPACE_PREFIX,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 
 export class Schema implements ISchema {

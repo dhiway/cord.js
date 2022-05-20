@@ -7,7 +7,7 @@ import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
 import { Did, ContentUtils, Identity } from '@cord.network/modules'
-import type { IMark, ISchema } from '@cord.network/api-types'
+import type { IMark, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -30,7 +30,7 @@ import type {
   VerifiableCredential,
 } from './types.js'
 import { SDKErrors, Identifier } from '@cord.network/utils'
-import { STREAM_PREFIX } from '@cord.network/api-types'
+import { STREAM_PREFIX } from '@cord.network/types'
 
 export function fromCredentialIRI(credentialId: string): string {
   const idString = credentialId.startsWith(CORD_CREDENTIAL_IRI_PREFIX)
