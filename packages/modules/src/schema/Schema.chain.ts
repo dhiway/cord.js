@@ -11,7 +11,7 @@ import type {
   IPublicIdentity,
   SubmittableExtrinsic,
 } from '@cord.network/api-types'
-import { SCHEMA_PREFIX } from '@cord.network/api-types'
+import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/api-types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
@@ -31,11 +31,14 @@ export async function create(
   spaceid?: string | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const space_id = spaceid
+    ? Identifier.getIdentifierKey(spaceid, SPACE_PREFIX)
+    : null
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
     schema.controller,
     schema.schemaHash,
-    spaceid,
+    space_id,
     schema.controllerSignature
   )
   return tx

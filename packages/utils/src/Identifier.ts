@@ -15,7 +15,7 @@ const defaults = {
   allowedEncodedLengths: [3, 4, 6, 10, 35, 36, 37, 38],
 }
 
-const IDFR_PREFIX = stringToU8a('IDFRPRE')
+const IDFR_PREFIX = stringToU8a('CRDIDFR')
 
 function pphash(key: Uint8Array): Uint8Array {
   return blake2AsU8a(u8aConcat(IDFR_PREFIX, key), 512)

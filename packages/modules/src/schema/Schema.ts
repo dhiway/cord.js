@@ -27,7 +27,11 @@ import {
   revoke,
 } from './Schema.chain.js'
 import * as SchemaUtils from './Schema.utils.js'
-import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/api-types'
+import {
+  SCHEMA_IDENTIFIER,
+  SCHEMA_PREFIX,
+  SPACE_PREFIX,
+} from '@cord.network/api-types'
 import { Identity } from '../identity/Identity.js'
 
 export class Schema implements ISchema {
@@ -43,7 +47,7 @@ export class Schema implements ISchema {
    * ```
    */
   public static async query(identifier: string): Promise<SchemaDetails | null> {
-    return query(identifier)
+    return query(Identifier.getIdentifierKey(identifier, SCHEMA_PREFIX))
   }
 
   /**
@@ -147,7 +151,7 @@ export class Schema implements ISchema {
       delegates,
       txHash,
       txSignature,
-      spaceid
+      Identifier.getIdentifierKey(spaceid, SPACE_PREFIX)
     )
   }
 
@@ -166,7 +170,7 @@ export class Schema implements ISchema {
       delegates,
       txHash,
       txSignature,
-      spaceid
+      Identifier.getIdentifierKey(spaceid, SPACE_PREFIX)
     )
   }
 
@@ -184,7 +188,7 @@ export class Schema implements ISchema {
       controller.address,
       txHash,
       txSignature,
-      spaceid
+      Identifier.getIdentifierKey(spaceid, SPACE_PREFIX)
     )
   }
 
