@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/api",
-  "version": "0.5.2-5",
+  "version": "0.7.2-0",
   "description": "",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
@@ -44,6 +44,7 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
+    "@cord.network/exchange": "workspace:*",
     "@cord.network/messaging": "workspace:*",
     "@cord.network/modules": "workspace:*",
     "@cord.network/network": "workspace:*",
