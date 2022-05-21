@@ -7,7 +7,7 @@ import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
 import { Did, ContentUtils, Identity } from '@cord.network/modules'
-import type { IMark, ISchema } from '@cord.network/api-types'
+import type { IMark, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -30,7 +30,7 @@ import type {
   VerifiableCredential,
 } from './types.js'
 import { SDKErrors, Identifier } from '@cord.network/utils'
-import { STREAM_PREFIX } from '@cord.network/api-types'
+import { STREAM_PREFIX } from '@cord.network/types'
 
 export function fromCredentialIRI(credentialId: string): string {
   const idString = credentialId.startsWith(CORD_CREDENTIAL_IRI_PREFIX)
@@ -57,12 +57,12 @@ export function fromMark(
     rootHash,
     issuerSignature,
     content,
-    contentId,
+    identifier,
   } = input.request
 
   // write root hash to id
   const id = toCredentialIRI(
-    Identifier.getIdentifierKey(contentId, STREAM_PREFIX)
+    Identifier.getIdentifierKey(identifier, STREAM_PREFIX)
   )
 
   // transform & annotate stream to be json-ld and VC conformant
@@ -122,7 +122,7 @@ export function fromMark(
   // add self-signed proof
   // infer key type
   if (input.content.holder !== holder.address) {
-    throw SDKErrors.ERROR_HOLDER_IDENTITY_MISMATCH()
+    throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
   }
 
   const sSProof: SelfSignedProof = {

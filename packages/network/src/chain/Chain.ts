@@ -6,14 +6,12 @@
  * @packageDocumentation
  * @module Chain
  */
-import '@polkadot/api-augment'
 import type { ApiPromise } from '@polkadot/api'
 import type { Header } from '@polkadot/types/interfaces/types'
 import type { AnyJson, AnyNumber, Codec } from '@polkadot/types/types'
 import type { Text } from '@polkadot/types'
 import type { SignerPayloadJSON } from '@polkadot/types/types/extrinsic'
 import { BN } from '@polkadot/util'
-import { SDKErrors } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import type {
   IIdentity,
@@ -22,14 +20,19 @@ import type {
   IChainApi,
   ChainStats,
   SubscriptionPromise,
-} from '@cord.network/api-types'
-import { submitSignedTx } from './Chain.utils.js'
+} from '@cord.network/types'
+import { isRecoverableTxError, submitSignedTx } from './Chain.utils.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 
 // Code taken from
 // https://polkadot.js.org/api/api/classes/_promise_index_.apipromise.html
 
+/**
+ * Blockchain bridges that connects the SDK and the KILT Blockchain.
+ *
+ * Communicates with the chain via WebSockets and can [[listenToBlocks]]. It exposes the [[signTx]] function that performs the necessary tx signing.
+ */
 export class Chain implements IChainApi {
   public static asArray(queryResult: Codec): AnyJson[] {
     const json = queryResult.toJSON()
@@ -64,22 +67,22 @@ export class Chain implements IChainApi {
   /**
    * [ASYNC] Signs the SubmittableExtrinsic with the given identity.
    *
-   * @param identity The [[Identity]] to sign the tx with.
+   * @param signer The [[Identity]] to sign the tx with.
    * @param tx The unsigned SubmittableExtrinsic.
-   * @param tip The amount of Femto-CORD to tip the validator.
-   * @returns Signed SubmittableExtrinsic.
+   * @param tip The amount of tip the validator.
+   * @returns Signed [[SubmittableExtrinsic]].
    *
    */
   public async signTx(
-    identity: IIdentity,
+    signer: IIdentity,
     tx: SubmittableExtrinsic,
     tip?: AnyNumber
   ): Promise<SubmittableExtrinsic> {
-    const nonce = await this.getNonce(identity.address)
-    const signed: SubmittableExtrinsic =
-      await identity.signSubmittableExtrinsic(tx, nonce, tip)
-
-    return signed
+    const nonce = await this.getNonce(signer.address)
+    return tx.signAsync(signer.signKeyringPair, {
+      nonce,
+      tip,
+    })
   }
 
   /**
@@ -90,24 +93,23 @@ export class Chain implements IChainApi {
    * Transaction fees will apply whenever a transaction fee makes it into a block, even if extrinsics fail to execute correctly!
    *
    * @param tx The SubmittableExtrinsic to be submitted. Most transactions need to be signed, this must be done beforehand.
-   * @param identity Optional [[Identity]] to potentially re-sign the tx with.
+   * @param signer Optional [[Identity]] to potentially re-sign the tx with.
    * @param opts Optional partial criteria for resolving/rejecting the promise.
    * @returns A promise which can be used to track transaction status.
    * If resolved, this promise returns the eventually resolved ISubmittableResult.
    */
   async submitSignedTxWithReSign(
     tx: SubmittableExtrinsic,
-    identity: IIdentity,
+    signer?: IIdentity,
     opts?: Partial<SubscriptionPromise.Options>
   ): Promise<ISubmittableResult> {
-    const retry = async (reason: Error): Promise<ISubmittableResult> => {
-      if (
-        reason.message === SDKErrors.ERROR_TRANSACTION_RECOVERABLE().message &&
-        identity
-      ) {
-        return submitSignedTx(await this.reSignTx(identity, tx), opts)
+    const retry = async (
+      reason: Error | ISubmittableResult
+    ): Promise<ISubmittableResult> => {
+      if (isRecoverableTxError(reason) && signer) {
+        return submitSignedTx(await this.reSignTx(signer, tx), opts)
       }
-      throw reason
+      return Promise.reject(reason)
     }
     return submitSignedTx(tx, opts).catch(retry).catch(retry)
   }
@@ -119,7 +121,7 @@ export class Chain implements IChainApi {
    * @returns Representation of the Tx nonce for the identity.
    *
    */
-  public async getNonce(accountAddress: string): Promise<BN> {
+  public async getNonce(accountAddress: IIdentity['address']): Promise<BN> {
     let nonce = this.accountNonces.get(accountAddress)
     if (!nonce) {
       // the account nonce is unknown, we will query it from chain
@@ -142,17 +144,17 @@ export class Chain implements IChainApi {
   /**
    * [ASYNC] Re-signs the given SubmittableExtrinsic with an updated Nonce.
    *
-   * @param identity The [[Identity]] to re-sign the Tx with.
+   * @param signer The [[Identity]] to re-sign the Tx with.
    * @param tx The tx with recoverable Error that failed.
    * @returns Original Tx, injected with signature payload with updated nonce.
    *
    */
   public async reSignTx(
-    identity: IIdentity,
+    signer: IIdentity,
     tx: SubmittableExtrinsic
   ): Promise<SubmittableExtrinsic> {
-    this.accountNonces.delete(identity.address)
-    const nonce: BN = await this.getNonce(identity.address)
+    this.accountNonces.delete(signer.address)
+    const nonce: BN = await this.getNonce(signer.address)
     const signerPayload: SignerPayloadJSON = this.api
       .createType('SignerPayload', {
         method: tx.method.toHex(),
@@ -164,12 +166,12 @@ export class Chain implements IChainApi {
       })
       .toPayload()
     tx.addSignature(
-      identity.address,
+      signer.address,
       this.api
         .createType('ExtrinsicPayload', signerPayload, {
           version: this.api.extrinsicVersion,
         })
-        .sign(identity.signKeyringPair).signature,
+        .sign(signer.signKeyringPair).signature,
       signerPayload
     )
     return tx

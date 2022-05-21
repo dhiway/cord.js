@@ -3,7 +3,7 @@
  * @module SubscriptionPromise
  */
 
-import type { SubscriptionPromise } from '@cord.network/api-types'
+import type { SubscriptionPromise } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 
 /**
@@ -37,18 +37,15 @@ export function makeSubscriptionPromise<SubscriptionType>(
   const subscription: (value: SubscriptionType) => void =
     typeof rejectOn === 'function'
       ? (value) => {
-          const rejectedReason = rejectOn(value)
-          if (rejectedReason) reject(rejectedReason)
-          const resolved = resolveOn(value)
-          if (resolved) resolve(value)
+          if (rejectOn(value)) reject(value)
+          if (resolveOn(value)) resolve(value)
         }
       : (value) => {
-          const resolved = resolveOn(value)
-          if (resolved) resolve(value)
+          if (resolveOn(value)) resolve(value)
         }
   if (timeout)
     setTimeout(() => {
-      reject(SDKErrors.ERROR_TIMEOUT())
+      reject(new SDKErrors.ERROR_TIMEOUT())
     }, timeout)
   return { promise, subscription }
 }

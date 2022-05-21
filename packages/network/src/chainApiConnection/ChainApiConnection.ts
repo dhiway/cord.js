@@ -10,7 +10,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { ConfigService } from '@cord.network/config'
 import { Chain } from '../chain/Chain.js'
-import { TYPE_REGISTRY } from './TypeRegistry.js'
 
 let instance: Promise<Chain> | null
 
@@ -25,7 +24,6 @@ export async function buildConnection(
 ): Promise<Chain> {
   const provider = new WsProvider(host)
   const api: ApiPromise = await ApiPromise.create({
-    registry: TYPE_REGISTRY,
     provider,
   })
   return new Chain(api)

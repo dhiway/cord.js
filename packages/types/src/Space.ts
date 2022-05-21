@@ -13,7 +13,7 @@ export interface ISpaceType {
 }
 
 export interface ISpace {
-  spaceId: string
+  identifier: string
   spaceHash: string
   controller: IPublicIdentity['address']
   controllerSignature: string
@@ -21,7 +21,7 @@ export interface ISpace {
 }
 
 export interface ISpaceDetails {
-  spaceId: ISpace['spaceId']
+  identifier: ISpace['identifier']
   spaceHash: ISpace['spaceHash']
   controller: IPublicIdentity['address']
   archived: boolean

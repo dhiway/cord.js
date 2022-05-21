@@ -32,7 +32,7 @@ import * as u8aUtil from '@polkadot/util/u8a'
 // and not for box keypair, we use TweetNaCl directly
 import nacl from 'tweetnacl'
 import { Crypto, SDKErrors } from '@cord.network/utils'
-import type { IIdentity, SubmittableExtrinsic } from '@cord.network/api-types'
+import type { IIdentity, SubmittableExtrinsic } from '@cord.network/types'
 import { AnyNumber } from '@polkadot/types/types'
 import { PublicIdentity } from './PublicIdentity.js'
 
@@ -98,14 +98,14 @@ export class Identity implements IIdentity {
     if (phrase) {
       if (phrase.trim().split(/\s+/g).length < 12) {
         // https://www.npmjs.com/package/bip39
-        throw SDKErrors.ERROR_MNEMONIC_PHRASE_MALFORMED()
+        throw new SDKErrors.ERROR_MNEMONIC_PHRASE_MALFORMED()
       }
     } else {
       phrase = generate()
     }
 
     if (!validate(phrase)) {
-      throw SDKErrors.ERROR_MNEMONIC_PHRASE_INVALID()
+      throw new SDKErrors.ERROR_MNEMONIC_PHRASE_INVALID()
     }
 
     const seed = mnemonicToMiniSecret(phrase)

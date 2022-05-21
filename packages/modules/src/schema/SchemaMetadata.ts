@@ -3,7 +3,7 @@
  * @module SchemaMetadata
  */
 
-import type { ISchemaMetadata } from '@cord.network/api-types'
+import type { ISchemaMetadata } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import * as SchemaUtils from './Schema.utils.js'
 import { MetadataModel } from './TypeSchema.js'
@@ -22,7 +22,7 @@ export class SchemaMetadata implements ISchemaMetadata {
    */
   public constructor(metadata: ISchemaMetadata) {
     if (!SchemaUtils.verifySchema(metadata, MetadataModel)) {
-      throw SDKErrors.ERROR_OBJECT_MALFORMED()
+      throw new SDKErrors.ERROR_OBJECT_MALFORMED()
     }
     this.metadata = metadata.metadata
     this.id = metadata.id

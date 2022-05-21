@@ -12,10 +12,7 @@
  */
 
 import { AnyJson } from '@polkadot/types/types'
-import type {
-  IPublicIdentity,
-  SubmittableExtrinsic,
-} from '@cord.network/api-types'
+import type { IPublicIdentity, SubmittableExtrinsic } from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
 import { Identity } from '../identity/Identity.js'
 import {

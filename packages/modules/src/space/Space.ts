@@ -12,7 +12,7 @@ import type {
   ISpace,
   ISpaceDetails,
   SubmittableExtrinsic,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Identifier, Crypto, UUID } from '@cord.network/utils'
 import {
   query,
@@ -24,7 +24,7 @@ import {
   transfer,
 } from './Space.chain.js'
 import * as SpaceUtils from './Space.utils.js'
-import { SPACE_IDENTIFIER, SPACE_PREFIX } from '@cord.network/api-types'
+import { SPACE_IDENTIFIER, SPACE_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 
 export class Space implements ISpace {
@@ -57,7 +57,7 @@ export class Space implements ISpace {
       SPACE_PREFIX
     )
     return new Space({
-      spaceId: spaceId,
+      identifier: spaceId,
       spaceHash: spaceHash,
       space: {
         ...space,
@@ -81,7 +81,7 @@ export class Space implements ISpace {
     return true
   }
 
-  public spaceId: ISpace['spaceId']
+  public identifier: ISpace['identifier']
   public spaceHash: ISpace['spaceHash']
   public controller: ISpace['controller']
   public controllerSignature: string
@@ -89,7 +89,7 @@ export class Space implements ISpace {
 
   public constructor(spaceInput: ISpace) {
     SpaceUtils.errorCheck(spaceInput)
-    this.spaceId = spaceInput.spaceId
+    this.identifier = spaceInput.identifier
     this.spaceHash = spaceInput.spaceHash
     this.controller = spaceInput.controller
     this.controllerSignature = spaceInput.controllerSignature
@@ -118,11 +118,12 @@ export class Space implements ISpace {
     delegates: [string]
   ): Promise<SubmittableExtrinsic> {
     const txId = UUID.generate()
-    const hashVal = { txId, delegates }
+    const spaceHash = this.spaceHash
+    const hashVal = { txId, delegates, spaceHash }
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return authorise(
-      this.spaceId,
+      this.identifier,
       controller.address,
       delegates,
       txHash,
@@ -143,11 +144,12 @@ export class Space implements ISpace {
     delegates: [string]
   ): Promise<SubmittableExtrinsic> {
     const txId = UUID.generate()
-    const hashVal = { txId, delegates }
+    const spaceHash = this.spaceHash
+    const hashVal = { txId, delegates, spaceHash }
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return deauthorise(
-      this.spaceId,
+      this.identifier,
       controller.address,
       delegates,
       txHash,
@@ -168,7 +170,7 @@ export class Space implements ISpace {
     const hashVal = { txId, spaceHash }
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = controller.signStr(txHash)
-    return archive(this.spaceId, controller.address, txHash, txSignature)
+    return archive(this.identifier, controller.address, txHash, txSignature)
   }
 
   /**
@@ -184,7 +186,7 @@ export class Space implements ISpace {
     const hashVal = { txId, spaceHash }
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = controller.signStr(txHash)
-    return restore(this.spaceId, controller.address, txHash, txSignature)
+    return restore(this.identifier, controller.address, txHash, txSignature)
   }
 
   /**
@@ -205,7 +207,7 @@ export class Space implements ISpace {
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return transfer(
-      this.spaceId,
+      this.identifier,
       controller.address,
       transfer_to,
       txHash,
@@ -222,13 +224,13 @@ export class SpaceDetails implements ISpaceDetails {
    * Builds a new [[SpaceDetails]] instance.
    */
 
-  public spaceId: ISpaceDetails['spaceId']
+  public identifier: ISpaceDetails['identifier']
   public spaceHash: ISpaceDetails['spaceHash']
   public controller: ISpaceDetails['controller']
   public archived: ISpaceDetails['archived']
 
   public constructor(details: ISpaceDetails) {
-    this.spaceId = details.spaceId
+    this.identifier = details.identifier
     this.spaceHash = details.spaceHash
     this.controller = details.controller
     this.archived = details.archived

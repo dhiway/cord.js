@@ -9,9 +9,8 @@ import type {
   IPublicIdentity,
   IPresentationOptions,
   IPresentationSigningOptions,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Message } from '@cord.network/messaging'
-// import { Crypto } from '@cord.network/utils'
 
 /**
  * Creates a presentation for an arbitrary amount of [[MarkedStream]]s which can be verified in [[verifyPresentation]].
@@ -39,7 +38,7 @@ export function createPresentation(
 ): Message {
   // did we get the right message type?
   if (message.body.type !== Message.BodyType.REQUEST_CREDENTIAL) {
-    throw SDKErrors.ERROR_MESSAGE_TYPE(
+    throw new SDKErrors.ERROR_MESSAGE_TYPE(
       message.body.type,
       Message.BodyType.REQUEST_CREDENTIAL
     )

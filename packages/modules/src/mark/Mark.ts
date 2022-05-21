@@ -12,32 +12,32 @@
 import type {
   IMark,
   CompressedMark,
-  IMarkContent,
+  IContentStream,
+  IStream,
   IPresentationOptions,
   IPresentationSigningOptions,
-  IStreamDetails,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { SDKErrors, Identifier } from '@cord.network/utils'
-import { StreamDetails } from '../stream/Stream.js'
-import { MarkContent } from '../markcontent/MarkContent.js'
+import { Stream } from '../stream/Stream.js'
+import { ContentStream } from '../contentstream/ContentStream.js'
 import * as MarkUtils from './Mark.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
-import { SCHEMA_PREFIX } from '@cord.network/api-types'
+import { SCHEMA_PREFIX } from '@cord.network/types'
 
 export class Mark implements IMark {
   /**
    * [STATIC] Builds an instance of [[Mark]], from a simple object with the same properties.
    * Used for deserialization.
    *
-   * @param markStreamInput - The base object from which to create the Mark.
+   * @param markInput - The base object from which to create the Mark.
    * @returns A new instantiated [[Mark]] object.
    * @example ```javascript
    * // create a Mark object, so we can call methods on it (`serialized` is a serialized Mark object)
    * Mark.fromMark(JSON.parse(serialized));
    * ```
    */
-  public static fromMark(markStream: IMark): Mark {
-    return new Mark(markStream)
+  public static fromMark(markInput: IMark): Mark {
+    return new Mark(markInput)
   }
 
   /**
@@ -51,9 +51,9 @@ export class Mark implements IMark {
    * Mark.fromMarkContentStream(request, content);
    * ```
    */
-  public static fromMarkContentStream(
-    request: IMarkContent,
-    content: IStreamDetails
+  public static fromRequestAndStream(
+    request: IContentStream,
+    content: IStream
   ): Mark {
     return new Mark({
       request,
@@ -77,22 +77,22 @@ export class Mark implements IMark {
     return true
   }
 
-  public request: MarkContent
-  public content: StreamDetails
+  public request: ContentStream
+  public content: Stream
 
   /**
    * Builds a new [[Mark]] instance.
    *
-   * @param markStream - The base object with all required input, from which to create the Mark.
+   * @param markInput - The base object with all required input, from which to create the Mark.
    * @example ```javascript
    * // Create an `Mark` upon successful `Stream` creation:
    * const credential = new MarkedStream(markedStreamInput);
    * ```
    */
-  public constructor(markStream: IMark) {
-    MarkUtils.errorCheck(markStream)
-    this.request = MarkContent.fromMarkContent(markStream.request)
-    this.content = StreamDetails.fromStreamDetails(markStream.content)
+  public constructor(markInput: IMark) {
+    MarkUtils.errorCheck(markInput)
+    this.request = ContentStream.fromRequest(markInput.request)
+    this.content = Stream.fromStream(markInput.content)
   }
 
   /**
@@ -111,14 +111,16 @@ export class Mark implements IMark {
    * });
    * ```
    */
-  public static async verify(markStream: IMark): Promise<boolean> {
+
+  public static async verify(markInput: IMark): Promise<boolean> {
     return (
-      Mark.verifyData(markStream) &&
-      StreamDetails.checkValidity(markStream.content)
+      Mark.verifyData(markInput) &&
+      (await ContentStream.verifySignature(markInput.request)) &&
+      Stream.checkValidity(markInput.content)
     )
   }
 
-  public async verify(): Promise<boolean> {
+  public async verify(challenge?: string): Promise<boolean> {
     return Mark.verify(this)
   }
 
@@ -134,17 +136,17 @@ export class Mark implements IMark {
    * const verificationResult = markedStream.verifyData();
    * ```
    */
-  public static verifyData(markStream: IMark): boolean {
-    const schemaId = markStream.request.content.schemaId
+  public static verifyData(markInput: IMark): boolean {
+    const schemaIdentifier = markInput.request.content.schema
       ? Identifier.getIdentifierKey(
-          markStream.request.content.schemaId,
+          markInput.request.content.schema,
           SCHEMA_PREFIX
         )
       : null
-    if (schemaId !== markStream.content.schemaId) return false
+    if (schemaIdentifier !== markInput.content.schema) return false
     return (
-      markStream.request.rootHash === markStream.content.streamHash &&
-      MarkContent.verifyData(markStream.request)
+      markInput.request.rootHash === markInput.content.streamHash &&
+      ContentStream.verifyData(markInput.request)
     )
   }
 
@@ -160,10 +162,10 @@ export class Mark implements IMark {
    *
    * @returns Boolean whether each element of the given Array of IMarkedStreams is verifiable.
    */
-  public static validateProofs(proofs: IMark[]): boolean {
-    proofs.forEach((proof: IMark) => {
-      if (!Mark.verifyData(proof)) {
-        throw SDKErrors.ERROR_LEGITIMATIONS_UNVERIFIABLE()
+  public static validateLegitimations(legitimations: IMark[]): boolean {
+    legitimations.forEach((legitimation: IMark) => {
+      if (!Mark.verifyData(legitimation)) {
+        throw new SDKErrors.ERROR_LEGITIMATIONS_UNVERIFIABLE()
       }
     })
     return true
@@ -182,7 +184,7 @@ export class Mark implements IMark {
   }
 
   public getId(): string {
-    return this.content.streamId
+    return this.content.identifier
   }
 
   public getAttributes(): Set<string> {
@@ -234,8 +236,8 @@ export class Mark implements IMark {
    * @param markedStream The [[CompressedMarkedStream]] that should get decompressed.
    * @returns A new [[MarkedStream]] object.
    */
-  public static decompress(markStream: CompressedMark): Mark {
-    const decompressedCredential = MarkUtils.decompress(markStream)
+  public static decompress(markInput: CompressedMark): Mark {
+    const decompressedCredential = MarkUtils.decompress(markInput)
     return Mark.fromMark(decompressedCredential)
   }
 }

@@ -5,7 +5,7 @@
 
 import { Mark, SDKErrors } from '@cord.network/modules'
 import { ConfigService } from '@cord.network/config'
-import type { IMark, IMarkContent, IMessage } from '@cord.network/api-types'
+import type { IMark, IContentStream, IMessage } from '@cord.network/types'
 import { Message } from '@cord.network/messaging'
 import { IRequestSession } from './Request'
 
@@ -79,15 +79,15 @@ export async function verifyPresentation(
   session: IRequestSession
 ): Promise<{
   verified: boolean
-  streams: Array<Partial<IMarkContent | IMark>>
+  streams: Array<Partial<IContentStream | IMark>>
 }> {
   if (message.body.type !== Message.BodyType.SUBMIT_CREDENTIAL)
-    throw SDKErrors.ERROR_MESSAGE_TYPE(
+    throw new SDKErrors.ERROR_MESSAGE_TYPE(
       message.body.type,
       Message.BodyType.SUBMIT_CREDENTIAL
     )
   const credentialStreams: IMark[] = message.body.content.map(
-    (credentials, i) => {
+    (credentials: any, i: any) => {
       return credentials.credentials[i]
     }
   )

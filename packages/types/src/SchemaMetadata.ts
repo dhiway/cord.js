@@ -2,10 +2,13 @@
  * @packageDocumentation
  * @module ISchemaMetadata
  */
+
+import type { ISchema } from './Schema'
+
 export interface ISchemaMetadata {
   metadata: IMetadata
-  id: string | null
-  hash: string | null
+  id: ISchema['identifier'] | null
+  hash: ISchema['schemaHash'] | null
 }
 
 export interface IMetadata {

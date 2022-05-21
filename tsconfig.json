@@ -7,14 +7,14 @@
     "baseUrl": "./packages",
     "sourceMap": true,
     "paths": {
-      "@cord.network/exchange": ["exchange/src"],
       "@cord.network/network": ["network/src"],
       "@cord.network/config": ["config/src"],
       "@cord.network/modules": ["modules/src"],
       "@cord.network/messaging": ["messaging/src"],
       "@cord.network/api": ["api/src"],
-      "@cord.network/api-types": ["api-types/src"],
+      "@cord.network/types": ["types/src"],
       "@cord.network/utils": ["utils/src"],
+      "@cord.network/exchange": ["exchange/src"],
       "@cord.network/credential": ["credential/src"],
     }
   },

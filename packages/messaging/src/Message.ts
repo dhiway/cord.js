@@ -19,8 +19,8 @@ import type {
   IEncryptedMessage,
   MessageBody,
   ISchema,
-} from '@cord.network/api-types'
-import { MessageBodyType } from '@cord.network/api-types'
+} from '@cord.network/types'
+import { MessageBodyType } from '@cord.network/types'
 import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import {
   compressMessage,
@@ -53,7 +53,7 @@ export class Message implements IMessage {
           if (
             requestStream.content.requestStream.content.issuer !== senderAddress
           ) {
-            throw SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Sender')
+            throw new SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Sender')
           }
         }
         break
@@ -62,7 +62,7 @@ export class Message implements IMessage {
           const submitStream = body
           //TODO - Add schema delegation checks
           if (submitStream.content.stream.issuer !== senderAddress) {
-            throw SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Creator')
+            throw new SDKErrors.ERROR_IDENTITY_MISMATCH('Stream', 'Creator')
           }
         }
         break
@@ -71,7 +71,7 @@ export class Message implements IMessage {
           const submitStreamsForSchema: ISubmitCredential = body
           submitStreamsForSchema.content.forEach((stream, i) => {
             if (stream.credentials[i].content.issuer !== senderAddress) {
-              throw SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
+              throw new SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
             }
           })
         }
@@ -97,8 +97,8 @@ export class Message implements IMessage {
         encrypted.encryptedStream + encrypted.nonce + encrypted.createdAt
       ) !== encrypted.hash
     ) {
-      throw SDKErrors.ERROR_NONCE_HASH_INVALID(
-        { hash: encrypted.hash, nonce: encrypted.nonce },
+      throw new SDKErrors.ERROR_CONTENT_NONCE_MAP_MALFORMED(
+        // { hash: encrypted.hash, nonce: encrypted.nonce },
         'Message'
       )
     }
@@ -136,7 +136,7 @@ export class Message implements IMessage {
       encrypted.senderPublicKey
     )
     if (!decoded) {
-      throw SDKErrors.ERROR_DECODING_MESSAGE()
+      throw new SDKErrors.ERROR_DECODING_MESSAGE()
     }
 
     try {
@@ -156,7 +156,7 @@ export class Message implements IMessage {
 
       return decrypted
     } catch (error) {
-      throw SDKErrors.ERROR_PARSING_MESSAGE()
+      throw new SDKErrors.ERROR_PARSING_MESSAGE()
     }
   }
 

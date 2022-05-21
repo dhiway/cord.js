@@ -12,7 +12,7 @@ services:
 
   platform-sdk:
     build: .
-    image: local/platform-sdk
+    image: local/cord.js
     volumes:
       - ./src:/app/src
     environment:

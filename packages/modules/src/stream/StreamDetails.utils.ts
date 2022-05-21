@@ -6,7 +6,7 @@
 import type {
   IStreamDetails,
   CompressedStreamDetails,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 
 /**
@@ -17,20 +17,20 @@ import { DataUtils, SDKErrors } from '@cord.network/utils'
  *
  */
 export function errorCheck(input: IStreamDetails): void {
-  if (!input.streamId) {
-    throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
-  } else DataUtils.validateId(input.streamId)
+  if (!input.identifier) {
+    throw new SDKErrors.ERROR_STREAM_ID_NOT_PROVIDED()
+  } else DataUtils.validateId(input.identifier)
 
   if (!input.streamHash) {
-    throw SDKErrors.ERROR_MARK_HASH_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_HASH_NOT_PROVIDED()
   } else DataUtils.validateHash(input.streamHash, 'Stream hash')
 
-  if (!input.schemaId) {
-    throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
-  } else DataUtils.validateId(input.schemaId)
+  if (!input.schema) {
+    throw new SDKErrors.ERROR_STREAM_SCHEMA_ID_NOT_PROVIDED()
+  } else DataUtils.validateId(input.schema)
 
   if (!input.issuer) {
-    throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_OWNER_NOT_PROVIDED()
   } else DataUtils.validateAddress(input.issuer, 'Stream controller')
 }
 
@@ -45,13 +45,13 @@ export function errorCheck(input: IStreamDetails): void {
 export function compress(stream: IStreamDetails): CompressedStreamDetails {
   errorCheck(stream)
   return [
-    stream.streamId,
+    stream.identifier,
     stream.streamHash,
     stream.issuer,
     stream.holder,
-    stream.schemaId,
-    stream.linkId,
-    stream.spaceId,
+    stream.schema,
+    stream.link,
+    stream.space,
     stream.revoked,
   ]
 }
@@ -67,16 +67,16 @@ export function compress(stream: IStreamDetails): CompressedStreamDetails {
 
 export function decompress(stream: CompressedStreamDetails): IStreamDetails {
   if (!Array.isArray(stream) || stream.length !== 8) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
   }
   return {
-    streamId: stream[0],
+    identifier: stream[0],
     streamHash: stream[1],
     issuer: stream[2],
     holder: stream[3],
-    schemaId: stream[4],
-    linkId: stream[5],
-    spaceId: stream[6],
+    schema: stream[4],
+    link: stream[5],
+    space: stream[6],
     revoked: stream[7],
   }
 }

@@ -8,7 +8,7 @@
  * Dummy comment needed for correct doc display, do not remove.
  */
 import '@polkadot/api-augment'
-import type { IPublicIdentity } from '@cord.network/api-types/src/index.js'
+import type { IPublicIdentity } from '@cord.network/types/src/index.js'
 import { checkAddress } from '@polkadot/util-crypto'
 import * as SDKErrors from './SDKErrors.js'
 import { verify } from './Crypto.js'
@@ -28,11 +28,11 @@ export function validateAddress(
   name: string
 ): boolean {
   if (typeof address !== 'string') {
-    throw SDKErrors.ERROR_ADDRESS_TYPE()
+    throw new SDKErrors.ERROR_ADDRESS_TYPE()
   }
   // CORD has registered ss58 prefix 29
   if (!checkAddress(address, 29)[0]) {
-    throw SDKErrors.ERROR_ADDRESS_INVALID(address, name)
+    throw new SDKErrors.ERROR_ADDRESS_INVALID(address, name)
   }
   return true
 }
@@ -48,11 +48,11 @@ export function validateAddress(
  */
 export function validateHash(hash: string, name: string): boolean {
   if (typeof hash !== 'string') {
-    throw SDKErrors.ERROR_HASH_TYPE()
+    throw new SDKErrors.ERROR_HASH_TYPE()
   }
   const blake2bPattern = new RegExp('(0x)[A-F0-9]{64}', 'i')
   if (!hash.match(blake2bPattern)) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(hash, name)
+    throw new SDKErrors.ERROR_HASH_MALFORMED(hash, name)
   }
   return true
 }
@@ -68,11 +68,11 @@ export function validateHash(hash: string, name: string): boolean {
  */
 export function validateId(id: string): boolean {
   if (typeof id !== 'string') {
-    throw SDKErrors.ERROR_HASH_TYPE()
+    throw new SDKErrors.ERROR_HASH_TYPE()
   }
   // const blake2bPattern = new RegExp('^[1S][a-km-zA-HJ-NP-Z1-9]${64}', 'i')
   if (!checkIdentifier(id)) {
-    throw SDKErrors.ERROR_ID_MALFORMED()
+    throw new SDKErrors.ERROR_ID_MALFORMED()
   }
   return true
 }
@@ -98,10 +98,10 @@ export function validateSignature(
     typeof signature !== 'string' ||
     typeof signer !== 'string'
   ) {
-    throw SDKErrors.ERROR_SIGNATURE_DATA_TYPE()
+    throw new SDKErrors.ERROR_SIGNATURE_DATA_TYPE()
   }
   if (!verify(data, signature, signer)) {
-    throw SDKErrors.ERROR_SIGNATURE_UNVERIFIABLE()
+    throw new SDKErrors.ERROR_SIGNATURE_UNVERIFIABLE()
   }
   return true
 }

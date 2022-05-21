@@ -17,19 +17,19 @@ import type {
   // IMarkContent,
   // IMessage,
   IRequestStreamForCredential,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import { Message } from '@cord.network/messaging'
 import { UUID, Crypto } from '@cord.network/utils'
 
 export interface IPresentationReq {
   properties: string[]
-  id?: Schema['schemaId']
+  id?: Schema['identifier']
   proofs?: boolean
   requestUpdatedAfter?: Date
 }
 
 export interface IPartialRequest {
-  id: Schema['schemaId']
+  id: Schema['identifier']
   properties: string[]
 }
 
@@ -71,7 +71,7 @@ export class PresentationRequestBuilder {
     if (proofs === true) {
       rawProperties.push('proof')
     }
-    if (!id) throw SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+    if (!id) throw new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
     this.partialReq.push({
       id: id,
       properties: rawProperties,

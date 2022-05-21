@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/network",
-  "version": "0.5.2-5",
+  "version": "0.7.2-0",
   "description": "",
   "main": "./lib/index.js",
   "module": "./lib/esm/index.js",
@@ -33,15 +33,13 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
-    "@cord.network/api-types": "workspace:*",
     "@cord.network/config": "workspace:*",
-    "@cord.network/type-definitions": "0.6.1-3",
-    "@cord.network/types": "0.6.1-3",
+    "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
-    "@polkadot/api": "^7.8.1",
-    "@polkadot/keyring": "^8.4.0",
-    "@polkadot/types": "^7.8.1",
-    "@polkadot/util": "^8.4.0",
+    "@polkadot/api": "7.12.1",
+    "@polkadot/keyring": "8.7.1",
+    "@polkadot/types": "7.12.1",
+    "@polkadot/util": "8.7.1",
     "typescript-logging": "^0.6.4"
   }
 }

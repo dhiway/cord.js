@@ -3,12 +3,12 @@
  * @module MarkUtils
  */
 
-import type { IMark, CompressedMark } from '@cord.network/api-types'
+import type { IMark, CompressedMark, ISchema } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
-import * as StreamDetailUtils from '../stream/StreamDetails.utils.js'
-import * as MarkContentUtils from '../markcontent/MarkContent.utils.js'
+import * as StreamUtils from '../stream/Stream.utils.js'
+import * as MarkContentUtils from '../contentstream/ContentStream.utils.js'
 import { Mark } from './Mark.js'
-
+import * as SchemaUtils from '../schema/Schema.utils.js'
 /**
  *  Checks whether the input meets all the required criteria of an IMarkedStream object.
  *  Throws on invalid input.
@@ -20,15 +20,15 @@ import { Mark } from './Mark.js'
  */
 export function errorCheck(input: IMark): void {
   if (input.content) {
-    StreamDetailUtils.errorCheck(input.content)
-  } else throw SDKErrors.ERROR_MARK_NOT_PROVIDED()
+    StreamUtils.errorCheck(input.content)
+  } else throw new SDKErrors.ERROR_CONTENT_NOT_PROVIDED()
 
   if (input.request) {
     MarkContentUtils.errorCheck(input.request)
-  } else throw SDKErrors.ERROR_RFA_NOT_PROVIDED()
+  } else throw new SDKErrors.ERROR_MC_NOT_PROVIDED()
 
   if (!Mark.verifyData(input as IMark)) {
-    throw SDKErrors.ERROR_STREAM_UNVERIFIABLE()
+    throw new SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
   }
 }
 
@@ -45,7 +45,7 @@ export function compress(stream: IMark): CompressedMark {
 
   return [
     MarkContentUtils.compress(stream.request),
-    StreamDetailUtils.compress(stream.content),
+    StreamUtils.compress(stream.content),
   ]
 }
 
@@ -60,10 +60,27 @@ export function compress(stream: IMark): CompressedMark {
 
 export function decompress(stream: CompressedMark): IMark {
   if (!Array.isArray(stream) || stream.length !== 2) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Cord Mark')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Cord Mark')
   }
   return {
     request: MarkContentUtils.decompress(stream[0]),
-    content: StreamDetailUtils.decompress(stream[1]),
+    content: StreamUtils.decompress(stream[1]),
   }
+}
+
+/**
+ *  Checks the [[Mark]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
+ *
+ * @param mark A [[Mark]] object of an attested claim used for verification.
+ * @param schema A [[Schema]] to verify the [[Content]] structure.
+ *
+ * @returns A boolean if the [[Content]] structure in the [[Mark]] is valid.
+ */
+
+export function verifyStructure(mark: IMark, schema: ISchema): boolean {
+  errorCheck(mark)
+  return SchemaUtils.verifyContentProperties(
+    mark.request.content.contents,
+    schema.schema
+  )
 }

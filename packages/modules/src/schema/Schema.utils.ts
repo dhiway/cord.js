@@ -9,7 +9,7 @@ import type {
   CompressedSchema,
   CompressedSchemaType,
   SchemaWithoutId,
-} from '@cord.network/api-types'
+} from '@cord.network/types'
 import {
   jsonabc,
   Crypto,
@@ -59,17 +59,17 @@ export function verifyContentProperties(
   schema: ISchema['schema']
 ): boolean {
   if (!verifySchema(schema, SchemaModel)) {
-    throw SDKErrors.ERROR_OBJECT_MALFORMED()
+    throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   return verifySchema(contents, schema)
 }
 
 export async function verifyStored(schema: ISchema): Promise<boolean> {
-  return typeof (await getOwner(schema.schemaId)) === 'string'
+  return typeof (await getOwner(schema.identifier)) === 'string'
 }
 
 export async function verifyOwner(schema: ISchema): Promise<boolean> {
-  const issuer = await getOwner(schema.schemaId)
+  const issuer = await getOwner(schema.identifier)
   return issuer ? issuer === schema.controller : false
 }
 
@@ -104,18 +104,18 @@ export function getHashForSchema(
  */
 export function errorCheck(input: ISchema): void {
   if (!verifySchema(input, SchemaWrapperModel)) {
-    throw SDKErrors.ERROR_OBJECT_MALFORMED()
+    throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   console.log(input.schema, getHashForSchema(input.schema))
   if (!input.schema || getHashForSchema(input.schema) !== input.schemaHash) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
+    throw new SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
   }
   if (
     typeof input.controller === 'string'
       ? !DataUtils.validateAddress(input.controller, 'Schema issuer')
       : !(input.controller === null)
   ) {
-    throw SDKErrors.ERROR_SCHEMA_CONTROLLER_TYPE()
+    throw new SDKErrors.ERROR_SCHEMA_OWNER_TYPE()
   }
 }
 
@@ -140,7 +140,7 @@ export function compressSchema(
     !typeSchema.properties ||
     !typeSchema.type
   ) {
-    throw SDKErrors.ERROR_COMPRESS_OBJECT(typeSchema, 'TypeSchema')
+    throw new SDKErrors.ERROR_COMPRESS_OBJECT(typeSchema, 'TypeSchema')
   }
   const sortedTypeSchema = jsonabc.sortObj(typeSchema)
   return [
@@ -167,7 +167,7 @@ export function decompressSchema(
   typeSchema: CompressedSchema
 ): ISchema['schema'] {
   if (!Array.isArray(typeSchema) || typeSchema.length !== 7) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('typeSchema')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('typeSchema')
   }
   return {
     $id: typeSchema[0],
@@ -191,9 +191,11 @@ export function decompressSchema(
 export function compress(schema: ISchema): CompressedSchemaType {
   errorCheck(schema)
   return [
-    schema.schemaId,
+    schema.identifier,
     schema.schemaHash,
     schema.controller,
+    schema.controllerSignature,
+    schema.space,
     compressSchema(schema.schema),
   ]
 }
@@ -208,14 +210,16 @@ export function compress(schema: ISchema): CompressedSchemaType {
  */
 
 export function decompress(schema: CompressedSchemaType): ISchema {
-  if (!Array.isArray(schema) || schema.length !== 4) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
+  if (!Array.isArray(schema) || schema.length !== 6) {
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
-    schemaId: schema[0],
+    identifier: schema[0],
     schemaHash: schema[1],
     controller: schema[2],
-    schema: decompressSchema(schema[3]),
+    controllerSignature: schema[3],
+    space: schema[4],
+    schema: decompressSchema(schema[5]),
   }
 }
 

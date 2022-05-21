@@ -80,7 +80,7 @@ export const SchemaWrapperModel = {
       properties: SchemaModel.properties,
       required: SchemaModel.required,
     },
-    schemaId: {
+    identifier: {
       type: 'string',
       format: 'uri',
       pattern: '^schema:cord:4[0-9a-zA-Z]+$',
@@ -89,13 +89,11 @@ export const SchemaWrapperModel = {
       type: 'string',
     },
     controller: { type: ['string', 'null'] },
-    // version: {
-    //   type: 'string',
-    // },
+    space: { type: ['string', 'null'] },
     controllerSignature: { type: ['string', 'null'] },
   },
   additionalProperties: false,
-  required: ['schema', 'schemaId', 'schemaHash'],
+  required: ['schema', 'identifier', 'schemaHash'],
 }
 
 export const MetadataModel = {
@@ -179,10 +177,11 @@ export const MetadataModel = {
       required: ['title', 'properties'],
       additionalProperties: false,
     },
-    schemaId: { type: 'string', minLength: 1 },
+    identifier: { type: 'string', minLength: 1 },
     schemaHash: { type: 'string', minLength: 1 },
     version: { type: 'string', minLength: 1 },
+    space: { type: 'string', minLength: 1 },
   },
-  required: ['metadata', 'schemaId', 'schemaHash'],
+  required: ['metadata', 'identifier', 'schemaHash'],
   additionalProperties: false,
 }

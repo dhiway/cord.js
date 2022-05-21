@@ -3,7 +3,7 @@
  */
 
 import { SDKErrors } from '@cord.network/utils'
-import type { SubscriptionPromise } from '@cord.network/api-types'
+import type { SubscriptionPromise } from '@cord.network/types'
 import { makeSubscriptionPromise } from './SubscriptionPromise'
 
 const RESOLVE = 'resolve'
@@ -22,7 +22,7 @@ it('rejects promise on timeout', async () => {
     timeout: 500,
   })
   subscription('something else')
-  await expect(promise).rejects.toThrow(SDKErrors.ERROR_TIMEOUT())
+  await expect(promise).rejects.toThrow(new SDKErrors.ERROR_TIMEOUT())
 })
 
 it('resolves the promise', async () => {
@@ -40,5 +40,5 @@ it('rejects the promise', async () => {
     rejectOn: REJECT_ON,
   })
   subscription(REJECT)
-  await expect(promise).rejects.toEqual('error')
+  await expect(promise).rejects.toEqual('reject')
 })
