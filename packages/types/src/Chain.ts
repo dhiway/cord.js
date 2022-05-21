@@ -7,7 +7,7 @@ import '@polkadot/api-augment'
 import type { ApiPromise } from '@polkadot/api'
 import type { Header } from '@polkadot/types/interfaces/types'
 import { AnyNumber } from '@polkadot/types/types'
-import type BN from 'bn.js'
+import type { BN } from '@polkadot/util'
 import type {
   IIdentity,
   ISubmittableResult,

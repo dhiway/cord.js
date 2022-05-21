@@ -14,9 +14,9 @@ import { DataUtils, SDKErrors } from '@cord.network/utils'
  *
  */
 export function errorCheck(input: ISpace): void {
-  if (!input.spaceId) {
+  if (!input.identifier) {
     throw new SDKErrors.ERROR_SPACE_ID_NOT_PROVIDED()
-  } else DataUtils.validateId(input.spaceId)
+  } else DataUtils.validateId(input.identifier)
 
   if (!input.spaceHash) {
     throw new SDKErrors.ERROR_SPACE_HASH_NOT_PROVIDED()

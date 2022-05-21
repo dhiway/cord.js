@@ -11,7 +11,7 @@ import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import type {
   IStream,
   IStreamDetails,
-  IMarkContent,
+  IContentStream,
   CompressedStream,
 } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
@@ -25,7 +25,7 @@ import {
   digest,
 } from './Stream.chain.js'
 import * as StreamUtils from './Stream.utils.js'
-import { SCHEMA_PREFIX, STREAM_PREFIX } from '@cord.network/types'
+import { SCHEMA_PREFIX, STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 
 export class Stream implements IStream {
   /**
@@ -70,20 +70,27 @@ export class Stream implements IStream {
    * Stream.fromContentAndPublicIdentity(request, issuerPublicIdentity);
    * ```
    */
-  public static fromMarkContentProperties(content: IMarkContent): Stream {
-    const linkId = content.link
+  public static fromContentStreamProperties(content: IContentStream): Stream {
+    const link = content.link
       ? Identifier.getIdentifierKey(content.link, STREAM_PREFIX)
       : null
+    const space = content.space
+      ? Identifier.getIdentifierKey(content.space, SPACE_PREFIX)
+      : null
     return new Stream({
-      streamId: Identifier.getIdentifierKey(content.contentId, STREAM_PREFIX),
+      identifier: Identifier.getIdentifierKey(
+        content.identifier,
+        STREAM_PREFIX
+      ),
       streamHash: content.rootHash,
       issuer: content.content.issuer,
       holder: content.content.holder,
-      schemaId: Identifier.getIdentifierKey(
-        content.content.schemaId,
+      schema: Identifier.getIdentifierKey(
+        content.content.schema,
         SCHEMA_PREFIX
       ),
-      linkId,
+      link,
+      space,
       issuerSignature: content.issuerSignature,
     })
   }
@@ -103,12 +110,13 @@ export class Stream implements IStream {
     return true
   }
 
-  public streamId: IStream['streamId']
+  public identifier: IStream['identifier']
   public streamHash: IStream['streamHash']
   public issuer: IStream['issuer']
   public holder?: IStream['holder'] | null | undefined
-  public schemaId: IStream['schemaId']
-  public linkId?: IStream['linkId'] | null | undefined
+  public schema: IStream['schema']
+  public link?: IStream['link'] | null | undefined
+  public space?: IStream['space'] | null | undefined
   public issuerSignature: IStream['issuerSignature']
   /**
    * Builds a new [[Stream]] instance.
@@ -121,12 +129,13 @@ export class Stream implements IStream {
    */
   public constructor(stream: IStream) {
     StreamUtils.errorCheck(stream)
-    this.streamId = stream.streamId
+    this.identifier = stream.identifier
     this.streamHash = stream.streamHash
     this.issuer = stream.issuer
     this.holder = stream.holder
-    this.schemaId = stream.schemaId
-    this.linkId = stream.linkId
+    this.schema = stream.schema
+    this.link = stream.link
+    this.space = stream.space
     this.issuerSignature = stream.issuerSignature
   }
 
@@ -141,16 +150,12 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async create(
-    spaceid?: string | undefined
-  ): Promise<SubmittableExtrinsic> {
-    return create(this, spaceid)
+  public async create(): Promise<SubmittableExtrinsic> {
+    return create(this)
   }
 
-  public async update(
-    spaceid?: string | undefined
-  ): Promise<SubmittableExtrinsic> {
-    return update(this, spaceid)
+  public async update(): Promise<SubmittableExtrinsic> {
+    return update(this)
   }
 
   /**
@@ -165,20 +170,18 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async revoke(
-    controller: Identity,
-    spaceid?: string | undefined
-  ): Promise<SubmittableExtrinsic> {
+  public async revoke(controller: Identity): Promise<SubmittableExtrinsic> {
     const txId = UUID.generate()
-    const hashVal = { txId }
+    const streamHash = this.streamHash
+    const hashVal = { txId, streamHash }
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = StreamUtils.sign(controller, txHash)
     return revoke(
-      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
+      this.identifier,
       controller.address,
       txHash,
       txSignature,
-      spaceid
+      this.space
     )
   }
 
@@ -194,13 +197,10 @@ export class Stream implements IStream {
    * });
    * ```
    */
-  public async removeSpaceStream(
-    spaceid: string
-  ): Promise<SubmittableExtrinsic> {
-    return removeSpaceStream(
-      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
-      spaceid
-    )
+  public async removeSpaceStream(): Promise<SubmittableExtrinsic> {
+    if (!this.space) {
+      throw new SDKErrors.ERROR_SPACE_ID_NOT_PROVIDED()
+    } else return removeSpaceStream(this.identifier, this.space)
   }
 
   public async digest(
@@ -215,7 +215,7 @@ export class Stream implements IStream {
     const txHash = Crypto.hashObjectAsStr(hashVal)
     const txSignature = StreamUtils.sign(issuer, txHash)
     return digest(
-      Identifier.getIdentifierKey(this.streamId, STREAM_PREFIX),
+      Identifier.getIdentifierKey(this.identifier, STREAM_PREFIX),
       issuer.address,
       txHash,
       txSignature
@@ -236,7 +236,7 @@ export class Stream implements IStream {
    */
   public static async checkValidity(
     stream: IStream,
-    identifier: string = stream.streamId
+    identifier: string = stream.identifier
   ): Promise<boolean> {
     // Query stream by stream identifier. null if no stream is found on-chain for this hash
     const chainStream: StreamDetails | null = await Stream.query(identifier)
@@ -281,7 +281,7 @@ export class StreamDetails implements IStreamDetails {
 
   public static async checkValidity(
     stream: IStreamDetails,
-    identifier: string = stream.streamId
+    identifier: string = stream.identifier
   ): Promise<boolean> {
     // Query stream by stream identifier. null if no stream is found on-chain for this hash
     const chainStream: StreamDetails | null = await Stream.query(identifier)
@@ -302,30 +302,27 @@ export class StreamDetails implements IStreamDetails {
    * Builds a new [[Stream]] instance.
    *
    * @param stream - The base object from which to create the stream.
-   * @example ```javascript
-   * // create an stream, e.g. to store it on-chain
-   * const stream = new Stream(stream);
-   * ```
+   *
    */
 
-  public streamId: IStreamDetails['streamId']
+  public identifier: IStreamDetails['identifier']
   public streamHash: IStreamDetails['streamHash']
   public issuer: IStreamDetails['issuer']
   public holder: IStreamDetails['holder']
-  public schemaId: IStreamDetails['schemaId']
-  public linkId: IStreamDetails['linkId']
-  public spaceId: IStreamDetails['spaceId']
+  public schema: IStreamDetails['schema']
+  public link: IStreamDetails['link']
+  public space: IStreamDetails['space']
   public revoked: IStreamDetails['revoked']
 
   public constructor(details: IStreamDetails) {
     // StreamUtils.errorCheck(details)
-    this.streamId = details.streamId
+    this.identifier = details.identifier
     this.streamHash = details.streamHash
     this.issuer = details.issuer
     this.holder = details.holder
-    this.schemaId = details.schemaId
-    this.linkId = details.linkId
-    this.spaceId = details.spaceId
+    this.schema = details.schema
+    this.link = details.link
+    this.space = details.space
     this.revoked = details.revoked
   }
 }

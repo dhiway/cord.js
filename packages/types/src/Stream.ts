@@ -4,48 +4,51 @@
  */
 import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
+import type { IContentStream } from './ContentStream.js'
 
 export const STREAM_IDENTIFIER: number = 43
 export const STREAM_PREFIX: string = 'stream:cord:'
 
 export interface IStream {
-  streamId: string
-  streamHash: string
+  identifier: IContentStream['identifier']
+  streamHash: IContentStream['rootHash']
   issuer: IPublicIdentity['address']
   holder?: IPublicIdentity['address'] | null
-  schemaId: ISchema['schemaId']
-  linkId?: string | null
-  issuerSignature: string
+  schema: ISchema['identifier']
+  link?: IContentStream['link'] | null
+  space?: IContentStream['space'] | null
+  issuerSignature?: IContentStream['issuerSignature'] | null
 }
 
 export type CompressedStream = [
-  IStream['streamId'],
+  IStream['identifier'],
   IStream['streamHash'],
   IStream['issuer'],
   IStream['holder'],
-  IStream['schemaId'],
-  IStream['linkId'],
+  IStream['schema'],
+  IStream['link'],
+  IStream['space'],
   IStream['issuerSignature']
 ]
 
 export interface IStreamDetails {
-  streamId: IStream['streamId']
+  identifier: IStream['identifier']
   streamHash: IStream['streamHash']
   issuer: IPublicIdentity['address']
   holder: IPublicIdentity['address'] | null
-  schemaId: ISchema['schemaId'] | null
-  linkId: IStream['streamId'] | null
-  spaceId: string | null
+  schema: string | null
+  link: IStream['link'] | null
+  space: IStream['space'] | null
   revoked: boolean
 }
 
 export type CompressedStreamDetails = [
-  IStreamDetails['streamId'],
+  IStreamDetails['identifier'],
   IStreamDetails['streamHash'],
   IStreamDetails['issuer'],
   IStreamDetails['holder'],
-  IStreamDetails['schemaId'],
-  IStreamDetails['linkId'],
-  IStreamDetails['spaceId'],
+  IStreamDetails['schema'],
+  IStreamDetails['link'],
+  IStreamDetails['space'],
   IStreamDetails['revoked']
 ]

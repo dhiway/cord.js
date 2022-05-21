@@ -1,8 +1,8 @@
 /**
- * Content streams are the core building block of CORD SDK. Once created, a content stream can be used to create a [[JournalStream]] or [[MarkStream]] or [[LinkStream]].
+ * Content is the core building block of CORD SDK. The content will be transformed to create a [[ContentStream]].
  *
- * A content stream object has:
- * * contents - among others, the pure content of a stream, for example `"isOver18": yes`;
+ * A content object has:
+ * * contents - details of the content to be transformed;
  * * a [[Schema]] that represents its data structure.
  *
  * @packageDocumentation
@@ -12,9 +12,9 @@
 import type {
   IContent,
   CompressedContent,
-  IPublicIdentity,
   CompressedPartialContent,
   PartialContent,
+  IPublicIdentity,
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import { Schema as ISchema } from '../schema/Schema.js'
@@ -30,7 +30,7 @@ function verifyContent(
 
 export class Content implements IContent {
   /**
-   * [STATIC] Instantiates a new [[Content]] stream from [[IContent]] and [[ISchema]].
+   * [STATIC] Instantiates a new [[Content]] transformation from [[IContent]] and [[ISchema]].
    *
    * @param input IContent to create the new stream from.
    * @param schema ISchema['schema'] to verify input's contents.
@@ -54,11 +54,13 @@ export class Content implements IContent {
    * @param schema A [[Schema]] object that has nested [[Schema]]s.
    * @param nestedSchemas The array of [[Schema]]s, which are used inside the main [[Schema]].
    * @param contents The data inside the [[Content]].
+   * @param issuer The owner of the [[Content]].
+   * @param holder The holder of the [[Content]].
    *
    * @returns A validated [[Content]] stream.
    */
 
-  public static fromNestedContentProperties(
+  public static fromNestedContentStructure(
     schema: ISchema,
     nestedSchemas: Array<ISchema['schema']>,
     contents: IContent['contents'],
@@ -71,7 +73,7 @@ export class Content implements IContent {
       throw new SDKErrors.ERROR_NESTED_CONTENT_UNVERIFIABLE()
     }
     return new Content({
-      schemaId: schema.schemaId,
+      schema: schema.identifier,
       contents: contents,
       issuer: issuer,
       holder: holder,
@@ -87,7 +89,7 @@ export class Content implements IContent {
    *
    * @returns A validated [[Content]] stream.
    */
-  public static fromContentProperties(
+  public static fromContentStructure(
     schema: ISchema,
     contents: IContent['contents'],
     issuer: IPublicIdentity['address'],
@@ -99,7 +101,7 @@ export class Content implements IContent {
       }
     }
     return new Content({
-      schemaId: schema.schemaId,
+      schema: schema.identifier,
       issuer: issuer,
       holder: holder,
       contents: contents,
@@ -122,14 +124,14 @@ export class Content implements IContent {
     return true
   }
 
-  public schemaId: IContent['schemaId']
+  public schema: IContent['schema']
   public contents: IContent['contents']
   public issuer: IContent['issuer']
   public holder?: IContent['holder']
 
   public constructor(input: IContent) {
     ContentUtils.errorCheck(input)
-    this.schemaId = input.schemaId
+    this.schema = input.schema
     this.contents = input.contents
     this.issuer = input.issuer
     this.holder = input.holder || input.issuer

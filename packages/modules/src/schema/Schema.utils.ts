@@ -65,11 +65,11 @@ export function verifyContentProperties(
 }
 
 export async function verifyStored(schema: ISchema): Promise<boolean> {
-  return typeof (await getOwner(schema.schemaId)) === 'string'
+  return typeof (await getOwner(schema.identifier)) === 'string'
 }
 
 export async function verifyOwner(schema: ISchema): Promise<boolean> {
-  const issuer = await getOwner(schema.schemaId)
+  const issuer = await getOwner(schema.identifier)
   return issuer ? issuer === schema.controller : false
 }
 
@@ -191,9 +191,11 @@ export function decompressSchema(
 export function compress(schema: ISchema): CompressedSchemaType {
   errorCheck(schema)
   return [
-    schema.schemaId,
+    schema.identifier,
     schema.schemaHash,
     schema.controller,
+    schema.controllerSignature,
+    schema.space,
     compressSchema(schema.schema),
   ]
 }
@@ -208,14 +210,16 @@ export function compress(schema: ISchema): CompressedSchemaType {
  */
 
 export function decompress(schema: CompressedSchemaType): ISchema {
-  if (!Array.isArray(schema) || schema.length !== 4) {
+  if (!Array.isArray(schema) || schema.length !== 6) {
     throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
-    schemaId: schema[0],
+    identifier: schema[0],
     schemaHash: schema[1],
     controller: schema[2],
-    schema: decompressSchema(schema[3]),
+    controllerSignature: schema[3],
+    space: schema[4],
+    schema: decompressSchema(schema[5]),
   }
 }
 

@@ -14,7 +14,7 @@ import type {
 } from './Content.js'
 import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
-import type { CompressedMarkContent, IMarkContent } from './MarkContent.js'
+import type { CompressedMarkContent, IMarkContent } from './ContentStream.js'
 import { IPresentation } from './Presentation.js'
 
 export enum MessageBodyType {

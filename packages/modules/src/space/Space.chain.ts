@@ -160,7 +160,7 @@ function decodeSpace(
   if (encodedSpace.isSome) {
     const anchoredSpace = encodedSpace.unwrap()
     const space: ISpaceDetails = {
-      spaceId: spaceId,
+      identifier: spaceId,
       spaceHash: anchoredSpace.spaceHash.toString(),
       controller: anchoredSpace.controller.toString(),
       archived: anchoredSpace.archived.valueOf(),
@@ -216,7 +216,7 @@ export async function query(space_id: string): Promise<SpaceDetails | null> {
  * @internal
  */
 export async function getOwner(
-  spaceId: ISpace['spaceId']
+  spaceId: ISpace['identifier']
 ): Promise<IPublicIdentity['address'] | null> {
   const encoded = await queryRaw(spaceId)
   const queriedSpaceAccount = decodeSpace(encoded, spaceId)

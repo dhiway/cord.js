@@ -3,12 +3,15 @@
  * @module IMark
  */
 
-import type { IStreamDetails, CompressedStreamDetails } from './Stream.js'
-import type { IMarkContent, CompressedMarkContent } from './MarkContent.js'
+import type { IStream, CompressedStream } from './Stream.js'
+import type {
+  IContentStream,
+  CompressedContentStream,
+} from './ContentStream.js'
 
 export interface IMark {
-  content: IStreamDetails
-  request: IMarkContent
+  content: IStream
+  request: IContentStream
 }
 
-export type CompressedMark = [CompressedMarkContent, CompressedStreamDetails]
+export type CompressedMark = [CompressedContentStream, CompressedStream]

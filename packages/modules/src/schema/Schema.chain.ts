@@ -26,19 +26,13 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
 
-export async function create(
-  schema: ISchema,
-  spaceid?: string | undefined
-): Promise<SubmittableExtrinsic> {
+export async function create(schema: ISchema): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const space_id = spaceid
-    ? Identifier.getIdentifierKey(spaceid, SPACE_PREFIX)
-    : null
   log.debug(() => `Create tx for 'schema'`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
     schema.controller,
     schema.schemaHash,
-    space_id,
+    schema.space,
     schema.controllerSignature
   )
   return tx
@@ -52,15 +46,18 @@ export async function revoke(
   controller: string,
   txHash: string,
   txSignature: string,
-  spaceid?: string | undefined
+  spaceIdentifier?: string | null | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema_id}`)
+  const space = spaceIdentifier
+    ? Identifier.getIdentifierKey(spaceIdentifier, SPACE_PREFIX)
+    : null
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.revoke(
     controller,
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
     txHash,
-    spaceid,
+    space,
     txSignature
   )
   return tx
@@ -70,21 +67,24 @@ export async function revoke(
  * TBD
  */
 export async function authorise(
-  schema_id: string,
+  identifier: string,
   controller: string,
   delegates: [string],
   txHash: string,
   txSignature: string,
-  spaceid?: string | undefined
+  spaceIdentifier?: string | null | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Adding a delagate to ${schema_id}`)
+  log.debug(() => `Adding a delagate to ${identifier}`)
+  const space = spaceIdentifier
+    ? Identifier.getIdentifierKey(spaceIdentifier, SPACE_PREFIX)
+    : null
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.authorise(
     controller,
-    Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
+    Identifier.getIdentifierKey(identifier, SCHEMA_PREFIX),
     txHash,
     delegates,
-    spaceid,
+    space,
     txSignature
   )
   return tx
@@ -99,16 +99,19 @@ export async function deauthorise(
   delegates: [string],
   txHash: string,
   txSignature: string,
-  spaceid?: string | undefined
+  spaceIdentifier?: string | null | undefined
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema_id}`)
+  const space = spaceIdentifier
+    ? Identifier.getIdentifierKey(spaceIdentifier, SPACE_PREFIX)
+    : null
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.deauthorise(
     controller,
     Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX),
     txHash,
     delegates,
-    spaceid,
+    space,
     txSignature
   )
   return tx
@@ -117,7 +120,7 @@ export async function deauthorise(
 export interface AnchoredSchemaDetails extends Struct {
   readonly schemaHash: Hash
   readonly controller: AccountId
-  readonly spaceId: Option<Vec<u8>>
+  readonly space: Option<Vec<u8>>
   readonly revoked: boolean
 }
 
@@ -131,11 +134,10 @@ function decodeSchema(
   if (encodedSchema.isSome) {
     const anchoredSchema = encodedSchema.unwrap()
     const schema: ISchemaDetails = {
-      schemaId: schemaId,
+      identifier: schemaId,
       schemaHash: anchoredSchema.schemaHash.toString(),
       controller: anchoredSchema.controller.toString(),
-      spaceid:
-        DecoderUtils.hexToString(anchoredSchema.spaceId.toString()) || null,
+      space: DecoderUtils.hexToString(anchoredSchema.space.toString()) || null,
       revoked: anchoredSchema.revoked.valueOf(),
     }
     return SchemaDetails.fromSchemaDetails(schema)
@@ -189,7 +191,7 @@ export async function query(schema_id: string): Promise<SchemaDetails | null> {
  * @internal
  */
 export async function getOwner(
-  schemaId: ISchema['schemaId']
+  schemaId: ISchema['identifier']
 ): Promise<IPublicIdentity['address'] | null> {
   const encoded = await queryRaw(schemaId)
   const queriedSchemaAccount = decodeSchema(encoded, schemaId)

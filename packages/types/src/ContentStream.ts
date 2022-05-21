@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module IMarkContent
+ * @module IContentStream
  */
 
 import type { IMark, CompressedMark } from './Mark.js'
@@ -13,24 +13,26 @@ export type NonceHash = {
   nonce?: string
 }
 
-export interface IMarkContent {
+export interface IContentStream {
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
   legitimations: IMark[]
   link?: string
+  space?: string
   issuerSignature: string
   rootHash: Hash
-  contentId: string
+  identifier: string
 }
 
-export type CompressedMarkContent = [
+export type CompressedContentStream = [
   CompressedContent,
-  IMarkContent['contentHashes'],
-  IMarkContent['contentNonceMap'],
-  IMarkContent['issuerSignature'],
-  IMarkContent['link'],
+  IContentStream['contentHashes'],
+  IContentStream['contentNonceMap'],
+  IContentStream['issuerSignature'],
+  IContentStream['link'] | undefined,
+  IContentStream['space'] | undefined,
   CompressedMark[],
-  IMarkContent['rootHash'],
-  IMarkContent['contentId']
+  IContentStream['rootHash'],
+  IContentStream['identifier']
 ]

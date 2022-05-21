@@ -27,9 +27,9 @@ function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const { schemaId, contents } = content
-  if (!schemaId) new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
-  const vocabulary = `${schemaId}#`
+  const { schema, contents } = content
+  if (!schema) new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+  const vocabulary = `${schema}#`
   const result: Record<string, unknown> = {}
   if (!expanded) {
     return {
@@ -54,7 +54,7 @@ export function toJsonLD(
     [`${prefix}credentialSubject`]: credentialSubject,
   }
   result[`${prefix}credentialSchema`] = {
-    '@id': content.schemaId,
+    '@id': content.schema,
   }
   if (!expanded) result['@context'] = { '@vocab': VC_VOCAB }
   return result
@@ -173,7 +173,7 @@ export function verifyDisclosedAttributes(
  *
  */
 export function errorCheck(input: IContent | PartialContent): void {
-  if (!input.schemaId) {
+  if (!input.schema) {
     throw new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
   }
   if (input.issuer) {
@@ -190,7 +190,7 @@ export function errorCheck(input: IContent | PartialContent): void {
       }
     })
   }
-  DataUtils.validateId(input.schemaId)
+  DataUtils.validateId(input.schema)
 }
 
 /**
@@ -217,7 +217,7 @@ export function compress(
   if (content.contents) {
     sortedContents = jsonabc.sortObj(content.contents)
   }
-  return [content.schemaId, content.issuer, content.holder, sortedContents]
+  return [content.schema, content.issuer, content.holder, sortedContents]
 }
 
 /**
@@ -244,7 +244,7 @@ export function decompress(
     throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
   }
   return {
-    schemaId: content[0],
+    schema: content[0],
     issuer: content[1],
     holder: content[2],
     contents: content[3],
