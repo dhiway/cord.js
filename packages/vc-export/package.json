@@ -1,5 +1,5 @@
 {
-  "name": "@cord.network/credential",
+  "name": "@cord.network/vc-export",
   "version": "0.5.0",
   "description": "Verifiable Credentials",
   "main": "./lib/cjs/index.js",

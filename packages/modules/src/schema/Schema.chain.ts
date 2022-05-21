@@ -32,7 +32,7 @@ export async function create(schema: ISchema): Promise<SubmittableExtrinsic> {
   const tx: SubmittableExtrinsic = blockchain.api.tx.schema.create(
     schema.controller,
     schema.schemaHash,
-    Identifier.getIdentifierKey(schema.identifier, SPACE_PREFIX),
+    Identifier.getIdentifierKey(schema.space, SPACE_PREFIX),
     schema.controllerSignature
   )
   return tx

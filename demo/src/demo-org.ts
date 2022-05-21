@@ -4,7 +4,7 @@ import * as utils from './utils'
 import * as json from 'multiformats/codecs/json'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
 import { CID } from 'multiformats/cid'
-import * as VCUtils from '@cord.network/credential'
+import * as VCUtils from 'vc-export/src'
 
 async function main() {
   await cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -78,7 +78,7 @@ async function main() {
       entityIdentity,
       {
         resolveOn: cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: cord.ChainUtils.IS_ERROR,
+        // rejectOn: cord.ChainUtils.IS_ERROR,
       }
     )
     console.log('✅ Schema created!')
