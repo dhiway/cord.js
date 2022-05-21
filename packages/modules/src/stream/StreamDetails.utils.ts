@@ -18,19 +18,19 @@ import { DataUtils, SDKErrors } from '@cord.network/utils'
  */
 export function errorCheck(input: IStreamDetails): void {
   if (!input.streamId) {
-    throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_ID_NOT_PROVIDED()
   } else DataUtils.validateId(input.streamId)
 
   if (!input.streamHash) {
-    throw SDKErrors.ERROR_MARK_HASH_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_HASH_NOT_PROVIDED()
   } else DataUtils.validateHash(input.streamHash, 'Stream hash')
 
   if (!input.schemaId) {
-    throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_SCHEMA_ID_NOT_PROVIDED()
   } else DataUtils.validateId(input.schemaId)
 
   if (!input.issuer) {
-    throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_OWNER_NOT_PROVIDED()
   } else DataUtils.validateAddress(input.issuer, 'Stream controller')
 }
 
@@ -67,7 +67,7 @@ export function compress(stream: IStreamDetails): CompressedStreamDetails {
 
 export function decompress(stream: CompressedStreamDetails): IStreamDetails {
   if (!Array.isArray(stream) || stream.length !== 8) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
   }
   return {
     streamId: stream[0],

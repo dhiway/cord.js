@@ -25,15 +25,15 @@ import * as SchemaUtils from '../schema/Schema.utils.js'
  */
 export function errorCheck(input: IMarkContent): void {
   if (!input.content) {
-    throw SDKErrors.ERROR_MARK_STREAM_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_CONTENT_NOT_PROVIDED()
   } else {
     ContentUtils.errorCheck(input.content)
   }
   if (!input.legitimations && !Array.isArray(input.legitimations)) {
-    throw SDKErrors.ERROR_PROOFS_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_LEGITIMATIONS_NOT_PROVIDED()
   }
   if (!input.contentNonceMap) {
-    throw SDKErrors.ERROR_STREAM_NONCE_MAP_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_CONTENT_NONCE_MAP_NOT_PROVIDED()
   }
   if (
     typeof input.contentNonceMap !== 'object' ||
@@ -45,7 +45,7 @@ export function errorCheck(input: IMarkContent): void {
         !nonce
     )
   ) {
-    throw SDKErrors.ERROR_STREAM_NONCE_MAP_MALFORMED()
+    throw new SDKErrors.ERROR_CONTENT_NONCE_MAP_MALFORMED()
   }
   MarkContent.verifyData(input as IMarkContent)
 }
@@ -107,7 +107,7 @@ export function compress(markContent: IMarkContent): CompressedMarkContent {
 
 export function decompress(markContent: CompressedMarkContent): IMarkContent {
   if (!Array.isArray(markContent) || markContent.length !== 8) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Request for Stream Content')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Request for Stream Content')
   }
   return {
     content: ContentUtils.decompress(markContent[0]),
@@ -134,7 +134,11 @@ export function verifyStructure(
   markContent: IMarkContent,
   schema: ISchema
 ): boolean {
-  errorCheck(markContent)
+  try {
+    errorCheck(markContent)
+  } catch {
+    return false
+  }
   return SchemaUtils.verifyContentProperties(
     markContent.content.contents,
     schema.schema

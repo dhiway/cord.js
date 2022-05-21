@@ -81,13 +81,13 @@ export async function verifyPresentation(
   verified: boolean
   streams: Array<Partial<IMarkContent | IMark>>
 }> {
-  if (message.body.type !== Message.BodyType.SUBMIT_CREDENTIAL)
-    throw SDKErrors.ERROR_MESSAGE_TYPE(
-      message.body.type,
-      Message.BodyType.SUBMIT_CREDENTIAL
-    )
+  // if (message.body.type !== Message.BodyType.SUBMIT_CREDENTIAL)
+  //   throw new SDKErrors.ERROR_MESSAGE_TYPE(
+  //     message.body.type,
+  //     Message.BodyType.SUBMIT_CREDENTIAL
+  //   )
   const credentialStreams: IMark[] = message.body.content.map(
-    (credentials, i) => {
+    (credentials: any, i: any) => {
       return credentials.credentials[i]
     }
   )

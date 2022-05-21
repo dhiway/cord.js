@@ -163,7 +163,7 @@ export class Mark implements IMark {
   public static validateProofs(proofs: IMark[]): boolean {
     proofs.forEach((proof: IMark) => {
       if (!Mark.verifyData(proof)) {
-        throw SDKErrors.ERROR_LEGITIMATIONS_UNVERIFIABLE()
+        throw new SDKErrors.ERROR_LEGITIMATIONS_UNVERIFIABLE()
       }
     })
     return true

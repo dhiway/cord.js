@@ -122,7 +122,7 @@ export function fromMark(
   // add self-signed proof
   // infer key type
   if (input.content.holder !== holder.address) {
-    throw SDKErrors.ERROR_HOLDER_IDENTITY_MISMATCH()
+    throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
   }
 
   const sSProof: SelfSignedProof = {

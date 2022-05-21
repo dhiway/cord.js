@@ -18,15 +18,11 @@ import * as ContentUtils from '../content/Content.utils.js'
 import { Mark } from '../mark/Mark.js'
 import { Identity } from '../identity/Identity.js'
 import * as MarkContentUtils from './MarkContent.utils.js'
-// import { UUID } from '@cord.network/utils'
 import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
-// import { stringToU8a } from '@polkadot/util'
 
 function verifyCreatorSignature(content: IMarkContent): boolean {
-  // console.log('Hash u8a', stringToU8a(content.contentHash))
   return Crypto.verify(
-    // Crypto.hashStr(content.contentHash),
     content.rootHash,
     content.issuerSignature,
     content.content.issuer
@@ -72,7 +68,7 @@ export class MarkContent implements IMarkContent {
     { legitimations, link }: Options = {}
   ): MarkContent {
     if (content.issuer !== issuer.address) {
-      throw SDKErrors.ERROR_IDENTITY_MISMATCH()
+      throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
 
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
@@ -118,7 +114,7 @@ export class MarkContent implements IMarkContent {
     { legitimations }: Options = {}
   ): MarkContent {
     if (content.content.issuer !== issuer.address) {
-      throw SDKErrors.ERROR_IDENTITY_MISMATCH()
+      throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
     let updateLegitimations = legitimations || content.legitimations
 
@@ -243,11 +239,11 @@ export class MarkContent implements IMarkContent {
   public static verifyData(input: IMarkContent): boolean {
     // check stream hash
     if (!MarkContent.verifyRootHash(input)) {
-      throw SDKErrors.ERROR_ROOT_HASH_UNVERIFIABLE()
+      throw new SDKErrors.ERROR_ROOT_HASH_UNVERIFIABLE()
     }
     // check signature
     if (!MarkContent.verifySignature(input)) {
-      throw SDKErrors.ERROR_SIGNATURE_UNVERIFIABLE()
+      throw new SDKErrors.ERROR_SIGNATURE_UNVERIFIABLE()
     }
 
     // verify properties against selective disclosure proof
@@ -261,7 +257,8 @@ export class MarkContent implements IMarkContent {
     // TODO: how do we want to deal with multiple errors during stream verification?
     if (!verificationResult.verified)
       throw (
-        verificationResult.errors[0] || SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
+        verificationResult.errors[0] ||
+        new SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
       )
 
     // check proofs

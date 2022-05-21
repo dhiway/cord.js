@@ -23,12 +23,12 @@ const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
  * @returns An object which can be serialized into valid JSON-LD representing an [[IContent]]'s ['contents'].
  * @throws [[ERROR_SCHEMA_ID_NOT_PROVIDED]] in case the stream's ['id'] property is undefined.
  */
-function JsonLDcontents(
+function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
   const { schemaId, contents } = content
-  if (!schemaId) SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+  if (!schemaId) new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
   const vocabulary = `${schemaId}#`
   const result: Record<string, unknown> = {}
   if (!expanded) {
@@ -48,7 +48,7 @@ export function toJsonLD(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const credentialSubject = JsonLDcontents(content, expanded)
+  const credentialSubject = jsonLDcontents(content, expanded)
   const prefix = expanded ? VC_VOCAB : ''
   const result = {
     [`${prefix}credentialSubject`]: credentialSubject,
@@ -61,7 +61,7 @@ export function toJsonLD(
 }
 
 function makeStatementsJsonLD(content: PartialContent): string[] {
-  const normalized = JsonLDcontents(content, true)
+  const normalized = jsonLDcontents(content, true)
   return Object.entries(normalized).map(([key, value]) =>
     JSON.stringify({ [key]: value })
   )
@@ -103,7 +103,7 @@ export function hashContents(
   const nonceMap = {}
   processed.forEach(({ digest, nonce, statement }) => {
     // throw if we can't map a digest to a nonce - this should not happen if the nonce map is complete and the credential has not been tampered with
-    if (!nonce) throw SDKErrors.ERROR_CONTENT_NONCE_MAP_MALFORMED(statement)
+    if (!nonce) throw new SDKErrors.ERROR_CONTENT_NONCE_MAP_MALFORMED(statement)
     nonceMap[digest] = nonce
   }, {})
   return { hashes, nonceMap }
@@ -145,13 +145,15 @@ export function verifyDisclosedAttributes(
     (status, { saltedHash, statement, digest, nonce }) => {
       // check if the statement digest was contained in the proof and mapped it to a nonce
       if (!digestsInProof.includes(digest) || !nonce) {
-        status.errors.push(SDKErrors.ERROR_NO_PROOF_FOR_STATEMENT(statement))
+        status.errors.push(
+          new SDKErrors.ERROR_NO_PROOF_FOR_STATEMENT(statement)
+        )
         return { ...status, verified: false }
       }
       // check if the hash is whitelisted in the proof
       if (!proof.hashes.includes(saltedHash)) {
         status.errors.push(
-          SDKErrors.ERROR_INVALID_PROOF_FOR_STATEMENT(statement)
+          new SDKErrors.ERROR_INVALID_PROOF_FOR_STATEMENT(statement)
         )
         return { ...status, verified: false }
       }
@@ -172,7 +174,7 @@ export function verifyDisclosedAttributes(
  */
 export function errorCheck(input: IContent | PartialContent): void {
   if (!input.schemaId) {
-    throw SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
   }
   if (input.issuer) {
     DataUtils.validateAddress(input.issuer, 'Content Creator')
@@ -184,7 +186,7 @@ export function errorCheck(input: IContent | PartialContent): void {
         typeof key !== 'string' ||
         !['string', 'number', 'boolean', 'object'].includes(typeof value)
       ) {
-        throw SDKErrors.ERROR_CONTENT_STREAM_MALFORMED()
+        throw new SDKErrors.ERROR_CONTENT_STREAM_MALFORMED()
       }
     })
   }
@@ -239,7 +241,7 @@ export function decompress(
   content: CompressedContent | CompressedPartialContent
 ): IContent | PartialContent {
   if (!Array.isArray(content) || content.length !== 4) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
   }
   return {
     schemaId: content[0],

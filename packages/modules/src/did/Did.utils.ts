@@ -69,7 +69,7 @@ export function getAddressFromIdentifier(
   identifier: IDid['identifier']
 ): IPublicIdentity['address'] {
   if (!identifier.startsWith(IDENTIFIER_PREFIX)) {
-    throw SDKErrors.ERROR_INVALID_DID_PREFIX(identifier)
+    throw new SDKErrors.ERROR_INVALID_DID_PREFIX(identifier)
   }
   return identifier.substr(IDENTIFIER_PREFIX.length)
 }
@@ -143,7 +143,7 @@ export function verifyDidDocumentSignature(
   }
   const { id } = didDocument
   if (identifier !== id) {
-    throw SDKErrors.ERROR_DID_IDENTIFIER_MISMATCH(identifier, id)
+    throw new SDKErrors.ERROR_DID_IDENTIFIER_MISMATCH(identifier, id)
   }
   const { signature, ...unsignedDidDocument } = didDocument
   return Crypto.verify(

@@ -22,7 +22,7 @@ export class SchemaMetadata implements ISchemaMetadata {
    */
   public constructor(metadata: ISchemaMetadata) {
     if (!SchemaUtils.verifySchema(metadata, MetadataModel)) {
-      throw SDKErrors.ERROR_OBJECT_MALFORMED()
+      throw new SDKErrors.ERROR_OBJECT_MALFORMED()
     }
     this.metadata = metadata.metadata
     this.id = metadata.id

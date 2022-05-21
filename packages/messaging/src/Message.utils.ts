@@ -45,7 +45,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
     }
     case Message.BodyType.REJECT_STREAM: {
       if (!isHex(body.content)) {
-        throw SDKErrors.ERROR_HASH_MALFORMED()
+        throw new SDKErrors.ERROR_HASH_MALFORMED()
       }
       break
     }
@@ -82,7 +82,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
     }
 
     default:
-      throw SDKErrors.ERROR_MESSAGE_BODY_MALFORMED()
+      throw new SDKErrors.ERROR_MESSAGE_BODY_MALFORMED()
   }
 
   return true
@@ -111,7 +111,7 @@ export function errorCheckMessage(message: IMessage): boolean | void {
   DataUtils.validateAddress(receiverAddress, 'receiver address')
   DataUtils.validateAddress(senderAddress, 'sender address')
   if (!isHex(senderPublicKey)) {
-    throw SDKErrors.ERROR_ADDRESS_INVALID()
+    throw new SDKErrors.ERROR_ADDRESS_INVALID()
   }
   if (inReplyTo && typeof inReplyTo !== 'string') {
     throw new TypeError('in reply to is expected to be a string')
@@ -140,7 +140,7 @@ export function verifyRequiredSchemaProperties(
     (property) => !(property in schema.schema.properties)
   )
   if (validProperties) {
-    throw SDKErrors.ERROR_SCHEMA_PROPERTIES_NOT_MATCHING()
+    throw new SDKErrors.ERROR_SCHEMA_PROPERTIES_NOT_MATCHING()
   }
 
   return true
@@ -194,7 +194,7 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
     }
 
     default:
-      throw SDKErrors.ERROR_MESSAGE_BODY_MALFORMED()
+      throw new SDKErrors.ERROR_MESSAGE_BODY_MALFORMED()
   }
   return [body.type, compressedContents] as CompressedMessageBody
 }
@@ -256,7 +256,7 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     // }
 
     default:
-      throw SDKErrors.ERROR_MESSAGE_BODY_MALFORMED()
+      throw new SDKErrors.ERROR_MESSAGE_BODY_MALFORMED()
   }
 
   return { type: body[0], content: decompressedContents } as MessageBody

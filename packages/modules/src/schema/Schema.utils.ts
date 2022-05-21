@@ -59,7 +59,7 @@ export function verifyContentProperties(
   schema: ISchema['schema']
 ): boolean {
   if (!verifySchema(schema, SchemaModel)) {
-    throw SDKErrors.ERROR_OBJECT_MALFORMED()
+    throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   return verifySchema(contents, schema)
 }
@@ -104,18 +104,18 @@ export function getHashForSchema(
  */
 export function errorCheck(input: ISchema): void {
   if (!verifySchema(input, SchemaWrapperModel)) {
-    throw SDKErrors.ERROR_OBJECT_MALFORMED()
+    throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   console.log(input.schema, getHashForSchema(input.schema))
   if (!input.schema || getHashForSchema(input.schema) !== input.schemaHash) {
-    throw SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
+    throw new SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
   }
   if (
     typeof input.controller === 'string'
       ? !DataUtils.validateAddress(input.controller, 'Schema issuer')
       : !(input.controller === null)
   ) {
-    throw SDKErrors.ERROR_SCHEMA_CONTROLLER_TYPE()
+    throw new SDKErrors.ERROR_SCHEMA_OWNER_TYPE()
   }
 }
 
@@ -140,7 +140,7 @@ export function compressSchema(
     !typeSchema.properties ||
     !typeSchema.type
   ) {
-    throw SDKErrors.ERROR_COMPRESS_OBJECT(typeSchema, 'TypeSchema')
+    throw new SDKErrors.ERROR_COMPRESS_OBJECT(typeSchema, 'TypeSchema')
   }
   const sortedTypeSchema = jsonabc.sortObj(typeSchema)
   return [
@@ -167,7 +167,7 @@ export function decompressSchema(
   typeSchema: CompressedSchema
 ): ISchema['schema'] {
   if (!Array.isArray(typeSchema) || typeSchema.length !== 7) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('typeSchema')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('typeSchema')
   }
   return {
     $id: typeSchema[0],
@@ -209,7 +209,7 @@ export function compress(schema: ISchema): CompressedSchemaType {
 
 export function decompress(schema: CompressedSchemaType): ISchema {
   if (!Array.isArray(schema) || schema.length !== 4) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   return {
     schemaId: schema[0],

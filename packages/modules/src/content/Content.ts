@@ -43,7 +43,7 @@ export class Content implements IContent {
     schema: ISchema['schema']
   ): Content {
     if (!verifyContent(input.contents, schema)) {
-      throw SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
+      throw new SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
     }
     return new Content(input)
   }
@@ -68,7 +68,7 @@ export class Content implements IContent {
     if (
       !SchemaUtils.validateNestedSchemas(schema.schema, nestedSchemas, contents)
     ) {
-      throw SDKErrors.ERROR_NESTED_CONTENT_UNVERIFIABLE()
+      throw new SDKErrors.ERROR_NESTED_CONTENT_UNVERIFIABLE()
     }
     return new Content({
       schemaId: schema.schemaId,
@@ -95,7 +95,7 @@ export class Content implements IContent {
   ): Content {
     if (schema.schema) {
       if (!verifyContent(contents, schema.schema)) {
-        throw SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
+        throw new SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
       }
     }
     return new Content({

@@ -16,19 +16,27 @@ import { Identity } from '../identity/Identity.js'
  */
 export function errorCheck(input: IStream): void {
   if (!input.streamId) {
-    throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_ID_NOT_PROVIDED()
   } else DataUtils.validateId(input.streamId)
 
   if (!input.streamHash) {
-    throw SDKErrors.ERROR_MARK_HASH_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_HASH_NOT_PROVIDED()
   } else DataUtils.validateHash(input.streamHash, 'Stream hash')
 
   if (!input.schemaId) {
-    throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_SCHEMA_ID_NOT_PROVIDED()
   } else DataUtils.validateId(input.schemaId)
 
+  if (input.linkId) {
+    DataUtils.validateHash(input.linkId, 'Stream link')
+  }
+
+  // if (input.space) {
+  //   DataUtils.validateHash(input.space, 'Stream Space')
+  // }
+
   if (!input.issuer) {
-    throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_OWNER_NOT_PROVIDED()
   } else DataUtils.validateAddress(input.issuer, 'Stream controller')
 }
 
@@ -64,7 +72,7 @@ export function compress(stream: IStream): CompressedStream {
 
 export function decompress(stream: CompressedStream): IStream {
   if (!Array.isArray(stream) || stream.length !== 7) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
   }
   return {
     streamId: stream[0],

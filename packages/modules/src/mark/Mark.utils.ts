@@ -21,14 +21,14 @@ import * as SchemaUtils from '../schema/Schema.utils.js'
 export function errorCheck(input: IMark): void {
   if (input.content) {
     StreamDetailUtils.errorCheck(input.content)
-  } else throw SDKErrors.ERROR_MARK_NOT_PROVIDED()
+  } else throw new SDKErrors.ERROR_CONTENT_NOT_PROVIDED()
 
   if (input.request) {
     MarkContentUtils.errorCheck(input.request)
-  } else throw SDKErrors.ERROR_RFA_NOT_PROVIDED()
+  } else throw new SDKErrors.ERROR_MC_NOT_PROVIDED()
 
   if (!Mark.verifyData(input as IMark)) {
-    throw SDKErrors.ERROR_STREAM_UNVERIFIABLE()
+    throw new SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
   }
 }
 
@@ -60,7 +60,7 @@ export function compress(stream: IMark): CompressedMark {
 
 export function decompress(stream: CompressedMark): IMark {
   if (!Array.isArray(stream) || stream.length !== 2) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Cord Mark')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Cord Mark')
   }
   return {
     request: MarkContentUtils.decompress(stream[0]),

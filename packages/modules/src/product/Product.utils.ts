@@ -15,15 +15,15 @@ import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
  */
 export function errorCheck(input: IProduct): void {
   if (!input.id) {
-    throw SDKErrors.ERROR_MARK_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_ID_NOT_PROVIDED()
   } else DataUtils.validateHash(input.id, 'Product ID')
 
   if (!input.hash) {
-    throw SDKErrors.ERROR_MARK_HASH_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_HASH_NOT_PROVIDED()
   } else DataUtils.validateHash(input.hash, 'Product hash')
 
   if (!input.schema) {
-    throw SDKErrors.ERROR_MARK_SCHEMA_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_SCHEMA_ID_NOT_PROVIDED()
   } else DataUtils.validateHash(input.schema, 'Schema link')
 
   //TODO: Fix this
@@ -32,11 +32,11 @@ export function errorCheck(input: IProduct): void {
   // } else DataUtils.validateHash(input.link, 'Mark link')
 
   if (!input.issuer) {
-    throw SDKErrors.ERROR_MARK_CREATOR_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_STREAM_OWNER_NOT_PROVIDED()
   } else DataUtils.validateAddress(input.issuer, 'Product controller')
 
   if (typeof input.status !== 'boolean') {
-    throw SDKErrors.ERROR_MARK_REVOCATION_BIT_MISSING()
+    throw new SDKErrors.ERROR_REVOCATION_BIT_MISSING()
   }
 }
 
@@ -75,7 +75,7 @@ export function compress(stream: IProduct): CompressedProduct {
 
 export function decompress(stream: CompressedProduct): IProduct {
   if (!Array.isArray(stream) || stream.length !== 10) {
-    throw SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
   }
   return {
     id: stream[0],

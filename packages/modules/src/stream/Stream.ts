@@ -208,7 +208,7 @@ export class Stream implements IStream {
     digestHash: string
   ): Promise<SubmittableExtrinsic> {
     if (this.issuer !== issuer.address) {
-      throw SDKErrors.ERROR_IDENTITY_MISMATCH()
+      throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
     const txId = UUID.generate()
     const hashVal = { txId, digestHash }

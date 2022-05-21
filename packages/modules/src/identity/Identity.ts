@@ -98,14 +98,14 @@ export class Identity implements IIdentity {
     if (phrase) {
       if (phrase.trim().split(/\s+/g).length < 12) {
         // https://www.npmjs.com/package/bip39
-        throw SDKErrors.ERROR_MNEMONIC_PHRASE_MALFORMED()
+        throw new SDKErrors.ERROR_MNEMONIC_PHRASE_MALFORMED()
       }
     } else {
       phrase = generate()
     }
 
     if (!validate(phrase)) {
-      throw SDKErrors.ERROR_MNEMONIC_PHRASE_INVALID()
+      throw new SDKErrors.ERROR_MNEMONIC_PHRASE_INVALID()
     }
 
     const seed = mnemonicToMiniSecret(phrase)

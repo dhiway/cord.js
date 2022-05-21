@@ -38,12 +38,12 @@ export function createPresentation(
   }: IPresentationOptions & Partial<IPresentationSigningOptions> = {}
 ): Message {
   // did we get the right message type?
-  if (message.body.type !== Message.BodyType.REQUEST_CREDENTIAL) {
-    throw SDKErrors.ERROR_MESSAGE_TYPE(
-      message.body.type,
-      Message.BodyType.REQUEST_CREDENTIAL
-    )
-  }
+  // if (message.body.type !== Message.BodyType.REQUEST_CREDENTIAL) {
+  //   throw new SDKErrors.ERROR_MESSAGE_TYPE(
+  //     message.body.type,
+  //     Message.BodyType.REQUEST_CREDENTIAL
+  //   )
+  // }
 
   // create presentation for each credential
   const credentialStreams = credentials.map((cred, i) => {
