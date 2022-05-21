@@ -57,12 +57,12 @@ export function fromMark(
     rootHash,
     issuerSignature,
     content,
-    contentId,
+    identifier,
   } = input.request
 
   // write root hash to id
   const id = toCredentialIRI(
-    Identifier.getIdentifierKey(contentId, STREAM_PREFIX)
+    Identifier.getIdentifierKey(identifier, STREAM_PREFIX)
   )
 
   // transform & annotate stream to be json-ld and VC conformant

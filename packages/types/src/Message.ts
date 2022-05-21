@@ -14,7 +14,10 @@ import type {
 } from './Content.js'
 import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
-import type { CompressedMarkContent, IMarkContent } from './ContentStream.js'
+import type {
+  CompressedContentStream,
+  IContentStream,
+} from './ContentStream.js'
 import { IPresentation } from './Presentation.js'
 
 export enum MessageBodyType {
@@ -92,7 +95,7 @@ export interface IAnchorStream extends IMessageBodyBase {
   type: MessageBodyType.ANCHOR_STREAM
 }
 export interface IRejectStream extends IMessageBodyBase {
-  content: IMarkContent['contentId']
+  content: IContentStream['identifier']
   type: MessageBodyType.REJECT_STREAM
 }
 
@@ -105,11 +108,11 @@ export interface ISubmitCredential extends IMessageBodyBase {
   type: MessageBodyType.SUBMIT_CREDENTIAL
 }
 export interface IAcceptCredential extends IMessageBodyBase {
-  content: Array<ISchema['schemaId']>
+  content: Array<ISchema['identifier']>
   type: MessageBodyType.ACCEPT_CREDENTIAL
 }
 export interface IRejectCredential extends IMessageBodyBase {
-  content: Array<ISchema['schemaId']>
+  content: Array<ISchema['identifier']>
   type: MessageBodyType.REJECT_CREDENTIAL
 }
 
@@ -123,7 +126,7 @@ export type CompressedAnchorStream = [
 ]
 export type CompressedRejectStream = [
   MessageBodyType.REJECT_STREAM,
-  IMarkContent['contentId']
+  IContentStream['identifier']
 ]
 
 export type CompressedRequestCredential = [
@@ -136,15 +139,15 @@ export type CompressedSubmitCredential = [
 ]
 export type CompressedAcceptCredential = [
   MessageBodyType.ACCEPT_CREDENTIAL,
-  Array<ISchema['schemaId']>
+  Array<ISchema['identifier']>
 ]
 export type CompressedRejectCredential = [
   MessageBodyType.REJECT_CREDENTIAL,
-  Array<ISchema['schemaId']>
+  Array<ISchema['identifier']>
 ]
 
 export interface IRequestStreamContent {
-  requestStream: IMarkContent
+  requestStream: IContentStream
   prerequisiteStreams?: Array<IContent | PartialContent>
 }
 // Seems this can be removed
@@ -152,26 +155,26 @@ export interface IAnchorStreamContent {
   stream: IStream
 }
 export interface IRequestStreamForCredential {
-  id: ISchema['schemaId']
+  id: ISchema['identifier']
   acceptedIssuer?: Array<IPublicIdentity['address']>
   requiredProperties?: string[]
 }
 
 export type CompressedPartialContentStream = [
-  IContent['schemaId'],
+  IContent['schema'],
   IContent['issuer'] | undefined,
   IContent['holder'] | undefined,
   IContents | undefined
 ]
 
 export type CompressedRequestCredentialContent = [
-  ISchema['schemaId'],
+  ISchema['identifier'],
   Array<IPublicIdentity['address']> | undefined,
   string[] | undefined
 ]
 
 export type CompressedRequestStreamContent = [
-  CompressedMarkContent,
+  CompressedContentStream,
   Array<CompressedPartialContentStream | CompressedContent> | undefined
 ]
 

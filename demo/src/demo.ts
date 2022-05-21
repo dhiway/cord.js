@@ -73,10 +73,10 @@ async function main() {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
-  console.log('SDK', newSpace.spaceId)
+  console.log('SDK', newSpace.identifier)
   console.log(
     'SDK',
-    Cord.Utils.Identifier.getIdentifierHash(newSpace.spaceId, 'space:cord:')
+    Cord.Utils.Identifier.getIdentifierHash(newSpace.identifier, 'space:cord:')
   )
   // Step 2: Create a new Schema
   console.log(`\n\n✉️  Adding a new Schema \n`)
@@ -86,10 +86,11 @@ async function main() {
 
   let newSchema = Cord.Schema.fromSchemaProperties(
     newSchemaContent,
-    employeeIdentity
+    employeeIdentity,
+    newSpace.identifier
   )
 
-  let schemaCreationExtrinsic = await newSchema.create(newSpace.spaceId)
+  let schemaCreationExtrinsic = await newSchema.create()
 
   console.log(`📧 Schema Details `)
   console.dir(newSchema, { depth: null, colors: true })
@@ -121,7 +122,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromContentProperties(
+  let schemaStream = Cord.Content.fromContentStructure(
     newSchema,
     content,
     employeeIdentity.address
@@ -129,16 +130,17 @@ async function main() {
   console.log(`📧 Stream Details `)
   console.dir(schemaStream, { depth: null, colors: true })
 
-  let newStreamContent = Cord.MarkContent.fromContentProperties(
+  let newStreamContent = Cord.ContentStream.fromContentProperties(
     schemaStream,
-    employeeIdentity
+    employeeIdentity,
+    { space: newSpace.identifier }
   )
   console.log(`\n📧 Hashed Stream `)
   console.dir(newStreamContent, { depth: null, colors: true })
 
-  let newStream = Cord.Stream.fromMarkContentProperties(newStreamContent)
+  let newStream = Cord.Stream.fromContentStreamProperties(newStreamContent)
 
-  let streamCreationExtrinsic = await newStream.create(newSpace.spaceId)
+  let streamCreationExtrinsic = await newStream.create()
   console.log(`\n📧 Stream On-Chain Details`)
   console.dir(newStream, { depth: null, colors: true })
 

@@ -7,7 +7,6 @@
     "baseUrl": "./packages",
     "sourceMap": true,
     "paths": {
-      "@cord.network/exchange": ["exchange/src"],
       "@cord.network/network": ["network/src"],
       "@cord.network/config": ["config/src"],
       "@cord.network/modules": ["modules/src"],
