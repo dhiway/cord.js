@@ -71,7 +71,7 @@ export class PresentationRequestBuilder {
     if (proofs === true) {
       rawProperties.push('proof')
     }
-    if (!id) throw new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+    if (!id) throw new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
     this.partialReq.push({
       id: id,
       properties: rawProperties,

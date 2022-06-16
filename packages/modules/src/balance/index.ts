@@ -1,5 +1,2 @@
-import BalanceUtils from './Balance.utils.js'
-import * as Balance from './Balance.chain.js'
-
-export { Balance, BalanceUtils }
-export default Balance
+export * as BalanceUtils from './Balance.utils.js'
+export * as Balance from './Balance.chain.js'

@@ -1,14 +1,3 @@
-/**
- * Content is the core building block of CORD SDK. The content will be transformed to create a [[ContentStream]].
- *
- * A content object has:
- * * contents - details of the content to be transformed;
- * * a [[Schema]] that represents its data structure.
- *
- * @packageDocumentation
- * @module Content
- */
-
 import type {
   IContent,
   CompressedContent,
@@ -27,7 +16,15 @@ function verifyContent(
 ): boolean {
   return SchemaUtils.verifyContentProperties(contents, schema)
 }
-
+/**
+ * Input streams (content) are the core building block of the SDK. The input streams will be transformed to create a [[ContentStream]].
+ *
+ * A content object has:
+ * * contents - details of the content to be transformed;
+ * * a [[Schema]] that represents its data structure.
+ *
+ * A content object's owner is (should be) the same entity as the issuer or delegator.
+ */
 export class Content implements IContent {
   /**
    * [STATIC] Instantiates a new [[Content]] transformation from [[IContent]] and [[ISchema]].
@@ -60,7 +57,7 @@ export class Content implements IContent {
    * @returns A validated [[Content]] stream.
    */
 
-  public static fromNestedContentStructure(
+  public static fromNestedProperties(
     schema: ISchema,
     nestedSchemas: Array<ISchema['schema']>,
     contents: IContent['contents'],
@@ -76,20 +73,20 @@ export class Content implements IContent {
       schema: schema.identifier,
       contents: contents,
       issuer: issuer,
-      holder: holder,
+      holder: holder || null,
     })
   }
 
   /**
    * [STATIC] Builds a new [[Content]] stream from [[ISchema]], IContent['contents'] and issuer's [[IPublicIdentity['address']].
    *
-   * @param schema [[ISchema]] from which the Content stream will be built.
+   * @param schema [[ISchema]] on which the content is based on.
    * @param contents IContent['contents'] to be used as the data of the instantiated Content stream.
-   * @throws [[ERROR_STREAM_UNVERIFIABLE]] when streamInput's contents could not be verified with the schema of the provided mtypeInput.
+   * @throws [[ERROR_CONTENT_UNVERIFIABLE]] when the input stream could not be verified with the schema provided.
    *
-   * @returns A validated [[Content]] stream.
+   * @returns An instantiated Content.
    */
-  public static fromContentStructure(
+  public static fromProperties(
     schema: ISchema,
     contents: IContent['contents'],
     issuer: IPublicIdentity['address'],
@@ -103,7 +100,7 @@ export class Content implements IContent {
     return new Content({
       schema: schema.identifier,
       issuer: issuer,
-      holder: holder,
+      holder: holder || null,
       contents: contents,
     })
   }
@@ -127,14 +124,14 @@ export class Content implements IContent {
   public schema: IContent['schema']
   public contents: IContent['contents']
   public issuer: IContent['issuer']
-  public holder?: IContent['holder']
+  public holder: IContent['holder']
 
   public constructor(input: IContent) {
     ContentUtils.errorCheck(input)
     this.schema = input.schema
     this.contents = input.contents
     this.issuer = input.issuer
-    this.holder = input.holder || input.issuer
+    this.holder = input.holder
   }
 
   /**

@@ -32,6 +32,7 @@ export type configOpts = {
  *
  * @param level The intended LogLevel. LogLevel has a range of 0 to 5.
  * @returns The new set level.
+ *
  */
 export function modifyLogLevel(level: LogLevel): LogLevel {
   // eslint-disable-next-line no-nested-ternary
@@ -56,6 +57,13 @@ function checkAddress(): void {
   }
 }
 
+/**
+ * Get the value set for a configuration.
+ *
+ * @param configOpt Key of the configuration.
+ * @returns Value for this key.
+ *
+ */
 export function get<K extends keyof configOpts>(configOpt: K): configOpts[K] {
   switch (configOpt) {
     case 'address':
@@ -74,6 +82,12 @@ function setLogLevel(logLevel: LogLevel | undefined): void {
   }
 }
 
+/**
+ * Set values for one or multiple configurations.
+ *
+ * @param opts Object of configurations as key-value pairs.
+ *
+ */
 export function set<K extends Partial<configOpts>>(opts: K): void {
   configuration = { ...configuration, ...opts }
   setLogLevel(configuration.logLevel)
@@ -86,7 +100,6 @@ const options = new LoggerFactoryOptions().addLogGroupRule(
 )
 // Create a named loggerfactory and pass in the options and export the factory.
 // Named is since version 0.2.+ (it's recommended for future usage)
-// eslint-disable-next-line import/prefer-default-export
 export const LoggingFactory = LFService.createNamedLoggerFactory(
   'LoggerFactory',
   options

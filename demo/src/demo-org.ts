@@ -96,7 +96,7 @@ async function main() {
     credit: 1000,
   }
   const nonceSaltValue = UUID.generate()
-  let schemaStream = cord.Content.fromContentProperties(
+  let schemaStream = cord.Content.fromContent(
     newSchema,
     content,
     employeeIdentity.address
@@ -104,7 +104,7 @@ async function main() {
   console.log(`📧 Stream Details `)
   console.dir(schemaStream, { depth: null, colors: true })
 
-  let newStreamContent = cord.MarkContent.fromContentProperties(
+  let newStreamContent = cord.MarkContent.fromContent(
     schemaStream,
     employeeIdentity,
     { nonceSalt: nonceSaltValue }
@@ -238,14 +238,14 @@ async function main() {
     country: newStreamContent.content.contents.country,
   }
 
-  let credStreamContent = cord.Content.fromContentProperties(
+  let credStreamContent = cord.Content.fromContent(
     credSchemaStream,
     markStream,
     employeeIdentity.address,
     holderIdentity.address
   )
 
-  let credContentStream = cord.MarkContent.fromContentProperties(
+  let credContentStream = cord.MarkContent.fromContent(
     credStreamContent,
     employeeIdentity
   )

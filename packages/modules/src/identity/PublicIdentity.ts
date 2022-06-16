@@ -55,38 +55,7 @@ export class PublicIdentity implements IPublicIdentity {
    *
    * @param didDocument - Contains the public key, external ID and service endpoint.
    * @returns A new [[PublicIdentity]] object.
-   * @example ```javascript
-   * const didDocument = {
-   *   id: 'did:cord:1234567',
-   *   authentication: [
-   *     {
-   *       type: 'Ed25519SignatureAuthentication2018',
-   *       publicKey: ['did:cord:1234567#key-1'],
-   *     },
-   *   ],
-   *   publicKey: [
-   *     {
-   *       id: 'did:cord:1234567#key-1',
-   *       type: 'Ed25519VerificationKey2018',
-   *       controller: 'did:cord:1234567',
-   *       publicKeyHex: '0x25346245...',
-   *     },
-   *     {
-   *       id: 'did:cord:1234567#key-2',
-   *       type: 'X25519Salsa20Poly1305Key2018',
-   *       controller: 'did:cord:1234567',
-   *       publicKeyHex: '0x98765456...',
-   *     },
-   *   ],
-   *   service: [
-   *     {
-   *       type: 'DwayMessagingService',
-   *       serviceEndpoint: 'http://services.dway.io/messaging',
-   *     },
-   *   ],
-   * };
-   * PublicIdentity.fromDidDocument(didDocument);
-   * ```
+   *
    */
   public static fromDidDocument(
     didDocument: Record<string, unknown>
@@ -126,15 +95,7 @@ export class PublicIdentity implements IPublicIdentity {
    * @param identifier - The Decentralized Identifier to be resolved.
    * @param urlResolver  - A URL resolver, which is used to query the did document.
    * @returns A new [[PublicIdentity]] object.
-   * @example ```javascript
-   * const urlResolver = {
-   *   resolve: (url: string) => {
-   *     return fetch(url).then((response) => response.json());
-   *   },
-   * };
-   * const identifier = 'did:cord:1234567';
-   * PublicIdentity.resolveFromDid(identifier, urlResolver);
-   * ```
+   *
    */
   public static async resolveFromDid(
     identifier: string,
@@ -189,9 +150,7 @@ export class PublicIdentity implements IPublicIdentity {
    * @param address - A public address.
    * @param boxPublicKeyAsHex - The public encryption key.
    * @param serviceAddress - The address of the service used to retrieve the DID.
-   * @example ```javascript
-   * const identity = new PublicIdentity(address, boxPublicKeyAsHex, serviceAddress);
-   * ```
+   *
    */
   public constructor(
     address: IPublicIdentity['address'],

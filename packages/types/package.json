@@ -29,9 +29,10 @@
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "dependencies": {
-    "@polkadot/api": "7.12.1",
-    "@polkadot/keyring": "8.7.1",
-    "@polkadot/types": "7.12.1",
+    "@polkadot/api": "^8.0.0",
+    "@polkadot/api-augment": "^8.0.0",
+    "@polkadot/keyring": "^9.0.0",
+    "@polkadot/types": "^8.0.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {

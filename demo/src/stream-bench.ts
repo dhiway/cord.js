@@ -66,19 +66,19 @@ async function main() {
       credit: 1000,
     }
     // const nonceSaltValue = UUID.generate()
-    let schemaStream = cord.Content.fromContentProperties(
+    let schemaStream = cord.Content.fromContent(
       newSchema,
       content,
       Alice.address
     )
 
-    newStreamContent = cord.MarkContent.fromContentProperties(
+    newStreamContent = cord.MarkContent.fromContent(
       schemaStream,
       Alice
       // { nonceSalt: nonceSaltValue }
     )
 
-    // newStreamContent = cord.MarkContent.fromContentProperties(
+    // newStreamContent = cord.MarkContent.fromContent(
     //   schemaStream,
     //   Alice,
     //   { link: link_id, nonceSalt: nonceSaltValue }
@@ -146,13 +146,13 @@ async function main() {
       credit: 1000,
     }
     // const nonceSaltValue = UUID.generate()
-    let schemaStream = cord.Content.fromContentProperties(
+    let schemaStream = cord.Content.fromContent(
       newSchema,
       content,
       Alice.address
     )
 
-    let newStreamContent = cord.MarkContent.fromContentProperties(
+    let newStreamContent = cord.MarkContent.fromContent(
       schemaStream,
       Alice
       // { nonceSalt: nonceSaltValue }

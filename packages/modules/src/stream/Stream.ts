@@ -1,12 +1,3 @@
-/**
- * A [[Stream]] creates a sharable stream. [[Stream]]s are **written on the CORD chain** and are **revocable**.
- * The [[Stream]] streams can be used as the base for [[Link]] streams.
- *
- * @packageDocumentation
- * @module Stream
- * @preferred
- */
-
 import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import type {
   IStream,
@@ -29,48 +20,39 @@ import { SCHEMA_PREFIX, STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 
 export class Stream implements IStream {
   /**
-   * [STATIC] [ASYNC] Queries the chain for a given stream entry, by `identifier`.
+   * [STATIC] [ASYNC] Queries the chain for a given stream entry, by `streamIdentifier`.
    *
-   * @param identifier - The identifier of the stream.
-   * @returns A promise containing the [[StreamStream] or null.
-   * @example ```javascript
-   * Stream.query('0xd8024cdc147c4fa9221cd177').then((stream) => {
-   *   // now we can for example revoke `stream`
-   * });
-   * ```
+   * @param streamIdentifier - The identifier of the stream.
+   * @returns A promise containing the [[Stream] or null.
+   *
    */
-  public static async query(identifier: string): Promise<StreamDetails | null> {
-    return query(Identifier.getIdentifierKey(identifier, STREAM_PREFIX))
+  public static async query(
+    streamIdentifier: string
+  ): Promise<StreamDetails | null> {
+    return query(Identifier.getIdentifierKey(streamIdentifier, STREAM_PREFIX))
   }
 
   /**
-   * [STATIC] Builds an instance of [[StreamStream]], from a simple object with the same properties.
+   * [STATIC] Builds an instance of [[Stream]], from a simple object with the same properties.
    * Used for deserialization.
    *
-   * @param input - The base object from which to create the stream stream.
+   * @param streamInput - The base object from which to create the stream stream.
    * @returns A new [[Stream]] object.
-   * @example ```javascript
-   * // create a Stream stream object, so we can call methods on it (`serialized` is a serialized Stream object )
-   * Stream.fromStream(JSON.parse(serialized));
-   * ```
+   *
    */
-  public static fromStream(input: IStream): Stream {
-    return new Stream(input)
+  public static fromStream(streamInput: IStream): Stream {
+    return new Stream(streamInput)
   }
 
   /**
    * [STATIC] Builds a new instance of an [[Stream]], from a complete set of input required for an stream.
    *
    * @param content - The base request for stream.
-   * @param link - ID of the [[Space]] this [[Journal]] is linked to.
    * @param creatorPublicIdentity - Public Identity of the issuer, used to anchor the underlying stream.
    * @returns A new [[Stream]] object.
-   * @example ```javascript
-   * // create a complete new stream from the `StreamStream` and all other needed properties
-   * Stream.fromContentAndPublicIdentity(request, issuerPublicIdentity);
-   * ```
+   *
    */
-  public static fromContentStreamProperties(content: IContentStream): Stream {
+  public static fromContentStream(content: IContentStream): Stream {
     const link = content.link
       ? Identifier.getIdentifierKey(content.link, STREAM_PREFIX)
       : null
@@ -122,10 +104,7 @@ export class Stream implements IStream {
    * Builds a new [[Stream]] instance.
    *
    * @param stream - The base object from which to create the stream.
-   * @example ```javascript
-   * // create an stream, e.g. to store it on-chain
-   * const stream = new Stream(stream);
-   * ```
+   *
    */
   public constructor(stream: IStream) {
     StreamUtils.errorCheck(stream)
@@ -140,35 +119,29 @@ export class Stream implements IStream {
   }
 
   /**
-   * [ASYNC] Stores the stream on chain.
-   * @param cid - The IPFS CID of the stream stream.
+   * [ASYNC]  Prepares an extrinsic to store a stream on chain.
    * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * // Use `store` to store an stream on chain, and to create an `StreamedStream` upon success:
-   * stream.store(cid).then(() => {
-   *   // the stream store tx was successfully prepared, so now we can sign and send it and subsequently create an `StreamedStream`.
-   * });
-   * ```
+   *
    */
   public async create(): Promise<SubmittableExtrinsic> {
     return create(this)
   }
 
+  /**
+   * [ASYNC]  Prepares an extrinsic to update a stream on chain.
+   * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
+   *
+   */
   public async update(): Promise<SubmittableExtrinsic> {
     return update(this)
   }
 
   /**
-   * [ASYNC] Set status (active/revoked) a journal stream.
+   * [ASYNC] Prepares an extrinsic to revoked a stream on chain.
    *
-   * @param status - bool value to set the status of the  journal stream.
+   * @param controller - Identity of the transaction creator.
    * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * stream.set_status(false).then((tx) => {
-   *   // the stream entry status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
+   *
    */
   public async revoke(controller: Identity): Promise<SubmittableExtrinsic> {
     const txId = UUID.generate()
@@ -186,16 +159,12 @@ export class Stream implements IStream {
   }
 
   /**
-   * [ASYNC] Set status (active/revoked) a journal stream.
+   * [ASYNC] Prepares an extrinsic to remove a stream anchored on the  chain.
+   * Note: This transaction can only be submitted by an owner of delegator of the space
+   * this stream is linked to.
    *
-   * @param status - bool value to set the status of the  journal stream.
    * @returns A promise containing the unsigned SubmittableExtrinsic (submittable transaction).
-   * @example ```javascript
-   * stream.set_status(false).then((tx) => {
-   *   // the stream entry status tx was created, sign and send it!
-   *   ChainUtils.signAndSendTx(tx, identity);
-   * });
-   * ```
+   *
    */
   public async removeSpaceStream(): Promise<SubmittableExtrinsic> {
     if (!this.space) {
@@ -223,27 +192,27 @@ export class Stream implements IStream {
   }
 
   /**
-   * [STATIC] [ASYNC] Queries an stream from the chain and checks its validity.
+   * [STATIC] [ASYNC] Queries a stream from the chain and checks its validity.
    *
    * @param stream - The Stream to verify.
-   * @param identifier - The ID that corresponds to the stream to check. Defaults to the streamHash for the stream onto which "verify" is called.
+   * @param streamIdentifier - The Identifier that corresponds to the stream. Defaults to the
+   * identifier for the stream onto which "verify" is called.
    * @returns A promise containing whether the stream is valid.
-   * @example ```javascript
-   * Stream.checkValidity(stream).then((isVerified) => {
-   *   // `isVerified` is true if the stream is verified, false otherwise
-   * });
-   * ```
+   *
    */
   public static async checkValidity(
     stream: IStream,
-    identifier: string = stream.identifier
+    streamIdentifier: IStream['identifier'] = stream.identifier
   ): Promise<boolean> {
-    // Query stream by stream identifier. null if no stream is found on-chain for this hash
-    const chainStream: StreamDetails | null = await Stream.query(identifier)
+    // Query stream by identifier. null if no stream is found on-chain for this identifier
+    const chainStream: StreamDetails | null = await Stream.query(
+      streamIdentifier
+    )
     //TODO - add holder checks
     return !!(
       chainStream !== null &&
       chainStream.issuer === stream.issuer &&
+      chainStream.holder === stream.holder &&
       chainStream.streamHash === stream.streamHash &&
       !chainStream.revoked
     )

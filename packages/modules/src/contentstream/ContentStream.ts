@@ -59,11 +59,8 @@ export class ContentStream implements IContentStream {
    * @param option.proofs Array of [[Mark]] objects.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
    * @returns A new [[ContentStream]] object.
-   * @example ```javascript
-   * const input = ContentStream.fromStreamAndIdentity(content, alice);
-   * ```
    */
-  public static fromContentProperties(
+  public static fromContent(
     content: IContent,
     issuer: Identity,
     { legitimations, link, space }: Options = {}
@@ -106,9 +103,6 @@ export class ContentStream implements IContentStream {
    * @param option.proofs Array of [[Mark]] objects.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
    * @returns A new [[ContentStream]] object.
-   * @example ```javascript
-   * const input = ContentStream.fromStreamAndIdentity(content, alice);
-   * ```
    */
   public static updateContentProperties(
     content: IContentStream,
@@ -170,10 +164,7 @@ export class ContentStream implements IContentStream {
    * Builds a new [[ContentStream]] instance.
    *
    * @param requestForMarkInput - The base object from which to create the input.
-   * @example ```javascript
-   * // create a new request for mark
-   * const reqForAtt = new ContentStream(requestForMarkInput);
-   * ```
+   *
    */
   public constructor(contentStreamRequest: IContentStream) {
     ContentStreamUtils.errorCheck(contentStreamRequest)
@@ -205,19 +196,7 @@ export class ContentStream implements IContentStream {
    *
    * @param properties - Properties to remove from the [[Stream]] object.
    * @throws [[ERROR_STREAM_HASHTREE_MISMATCH]] when a property which should be deleted wasn't found.
-   * @example ```javascript
-   * const rawStream = {
-   *   name: 'Alice',
-   *   age: 29,
-   * };
-   * const stream = Stream.fromMTypeAndStreamContents(mtype, rawStream, alice);
-   * const reqForAtt = ContentStream.fromStreamAndIdentity({
-   *   stream,
-   *   identity: alice,
-   * });
-   * reqForAtt.removeStreamProperties(['name']);
-   * // reqForAtt does not contain `name` in its streamHashTree and its stream marks anymore.
-   * ```
+   *
    */
   public removeContentProperties(properties: string[]): void {
     properties.forEach((key) => {
@@ -235,10 +214,7 @@ export class ContentStream implements IContentStream {
    * @returns Whether the data is valid.
    * @throws [[ERROR_STREAM_NONCE_MAP_MALFORMED]] when any key of the stream marks could not be found in the streamHashTree.
    * @throws [[ERROR_ROOT_HASH_UNVERIFIABLE]] or [[ERROR_SIGNATURE_UNVERIFIABLE]] when either the rootHash or the signature are not verifiable respectively.
-   * @example ```javascript
-   * const reqForAtt = ContentStream.fromStreamAndIdentity(stream, alice);
-   * ContentStream.verifyData(reqForAtt); // returns true if the data is correct
-   * ```
+   *
    */
   public static verifyData(input: IContentStream): boolean {
     // check stream hash
@@ -280,13 +256,7 @@ export class ContentStream implements IContentStream {
    *
    * @param input - [[ContentStream]] .
    * @returns Whether the signature is correct.
-   * @example ```javascript
-   * const reqForAtt = ContentStream.fromStreamAndIdentity({
-   *   stream,
-   *   identity: alice,
-   * });
-   * ContentStream.verifySignature(reqForAtt); // returns `true` if the signature is correct
-   * ```
+   *
    */
   public static verifySignature(input: IContentStream): boolean {
     return verifyCreatorSignature(input)

@@ -122,7 +122,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromContentStructure(
+  let schemaStream = Cord.Content.fromProperties(
     newSchema,
     content,
     employeeIdentity.address
@@ -130,7 +130,7 @@ async function main() {
   console.log(`📧 Stream Details `)
   console.dir(schemaStream, { depth: null, colors: true })
 
-  let newStreamContent = Cord.ContentStream.fromContentProperties(
+  let newStreamContent = Cord.ContentStream.fromContent(
     schemaStream,
     employeeIdentity,
     { space: newSpace.identifier }
@@ -138,7 +138,7 @@ async function main() {
   console.log(`\n📧 Hashed Stream `)
   console.dir(newStreamContent, { depth: null, colors: true })
 
-  let newStream = Cord.Stream.fromContentStreamProperties(newStreamContent)
+  let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
   let streamCreationExtrinsic = await newStream.create()
   console.log(`\n📧 Stream On-Chain Details`)

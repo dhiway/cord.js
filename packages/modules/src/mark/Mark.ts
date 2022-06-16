@@ -31,10 +31,7 @@ export class Mark implements IMark {
    *
    * @param markInput - The base object from which to create the Mark.
    * @returns A new instantiated [[Mark]] object.
-   * @example ```javascript
-   * // create a Mark object, so we can call methods on it (`serialized` is a serialized Mark object)
-   * Mark.fromMark(JSON.parse(serialized));
-   * ```
+   *
    */
   public static fromMark(markInput: IMark): Mark {
     return new Mark(markInput)
@@ -46,10 +43,7 @@ export class Mark implements IMark {
    * @param request - The request for mark for the stream that was anchored.
    * @param content - The mark stream from the issuer.
    * @returns A new [[Mark]] object.
-   * @example ```javascript
-   * // create an Mark object after receiving the mark from the issuer
-   * Mark.fromMarkContentStream(request, content);
-   * ```
+   *
    */
   public static fromRequestAndStream(
     request: IContentStream,
@@ -84,10 +78,7 @@ export class Mark implements IMark {
    * Builds a new [[Mark]] instance.
    *
    * @param markInput - The base object with all required input, from which to create the Mark.
-   * @example ```javascript
-   * // Create an `Mark` upon successful `Stream` creation:
-   * const credential = new MarkedStream(markedStreamInput);
-   * ```
+   *
    */
   public constructor(markInput: IMark) {
     MarkUtils.errorCheck(markInput)
@@ -105,11 +96,7 @@ export class Mark implements IMark {
    *
    * @param markedStream - The stream to check for validity.
    * @returns A promise containing whether this attested stream is valid.
-   * @example ```javascript
-   * markedStream.verify().then((isVerified) => {
-   *   // `isVerified` is true if the mark is verified, false otherwise
-   * });
-   * ```
+   *
    */
 
   public static async verify(markInput: IMark): Promise<boolean> {
@@ -132,9 +119,7 @@ export class Mark implements IMark {
    *
    * @param markedStream - The attested stream to verify.
    * @returns Whether the attested stream's data is valid.
-   * @example ```javascript
-   * const verificationResult = markedStream.verifyData();
-   * ```
+   *
    */
   public static verifyData(markInput: IMark): boolean {
     const schemaIdentifier = markInput.request.content.schema
@@ -175,9 +160,7 @@ export class Mark implements IMark {
    * Gets the hash of the stream that corresponds to this mark.
    *
    * @returns The hash of the stream for this mark (streamHash).
-   * @example ```javascript
-   * mark.getHash();
-   * ```
+   *
    */
   public getHash(): string {
     return this.content.streamHash

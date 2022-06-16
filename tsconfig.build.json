@@ -21,6 +21,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "outDir": "./dist",
+    "skipLibCheck": true,
   },
   "exclude": [
     "node_modules/**/*",
