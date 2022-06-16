@@ -7475,6 +7475,7 @@ __metadata:
     moment: ^2.29.1
     multiformats: ^9.4.7
     prettier: ^2.4.1
+    rimraf: ^3.0.2
     ts-jest: ^27.1.2
     ts-jest-resolver: ^2.0.0
     ts-node: ^10.4.0
