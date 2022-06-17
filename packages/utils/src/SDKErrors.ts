@@ -39,7 +39,7 @@ export class ERROR_SPACE_OWNER_NOT_PROVIDED extends SDKError {
   }
 }
 
-export class ERROR_SCHEMA_ID_NOT_PROVIDED extends SDKError {
+export class ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED extends SDKError {
   constructor() {
     super('Schema identifier missing')
   }
@@ -161,7 +161,7 @@ export class ERROR_HASH_MALFORMED extends SDKError {
   }
 }
 
-export class ERROR_CONTENT_STREAM_MALFORMED extends SDKError {
+export class ERROR_CONTENT_PROPERTIES_MALFORMED extends SDKError {
   constructor() {
     super('Content stream malformed')
   }

@@ -3,19 +3,27 @@
  *
  * To connect to the blockchain:
  * ```Cord.connect('ws://localhost:9944');```.
- *
- * @packageDocumentation
- * @module CordConfig
  */
 
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection, Chain } from '@cord.network/network'
 import { Identity } from '../identity/index.js'
 
+/**
+ * Connects to the CORD Blockchain and caches the connection.
+ * When used again, the cached instance is returned.
+ *
+ * @returns An instance of [[Blockchain]].
+ */
 export function connect(): Promise<Chain> {
   return ChainApiConnection.getConnectionOrConnect()
 }
 
+/**
+ * Allows setting global configuration such as the blockchain endpoint and log level.
+ *
+ * @param configs Config options object.
+ */
 export function config<K extends Partial<ConfigService.configOpts>>(
   configs: K
 ): void {

@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @module ContentUtils
- */
-
 import { hexToBn } from '@polkadot/util'
 import type {
   IContent,
@@ -16,19 +11,19 @@ const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
 
 /**
  * Produces JSON-LD readable representations of [[IContent]]['contents']. This is done by implicitly or explicitely transforming property keys to globally unique predicates.
- * Where possible these predicates are taken directly from the Verifiable Credentials vocabulary. Properties that are unique to a [[MType]] are transformed to predicates by prepending the [[MType]][schema][$id].
+ * Where possible these predicates are taken directly from the Verifiable Credentials vocabulary. Properties that are unique to a [[Schema]] are transformed to predicates by prepending the [[Schema]][schema][$id].
  *
- * @param content A (partial) [[IContent]] from to build a JSON-LD representation from. The `id` property is required.
+ * @param content A (partial) [[IContent]] from to build a JSON-LD representation from. The `identifier` property is required.
  * @param expanded Return an expanded instead of a compacted represenation. While property transformation is done explicitely in the expanded format, it is otherwise done implicitly via adding JSON-LD's reserved `@context` properties while leaving [[IContent]][contents] property keys untouched.
  * @returns An object which can be serialized into valid JSON-LD representing an [[IContent]]'s ['contents'].
- * @throws [[ERROR_SCHEMA_ID_NOT_PROVIDED]] in case the stream's ['id'] property is undefined.
+ * @throws [[ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED]] in case the content's ['identifier'] property is undefined.
  */
 function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
   const { schema, contents } = content
-  if (!schema) new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+  if (!schema) new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
   const vocabulary = `${schema}#`
   const result: Record<string, unknown> = {}
   if (!expanded) {
@@ -44,6 +39,15 @@ function jsonLDcontents(
   return result
 }
 
+/**
+ * Produces JSON-LD readable representations of the content. This is done by implicitly or explicitly transforming property keys to globally unique predicates.
+ * Where possible these predicates are taken directly from the Verifiable Credentials vocabulary. Properties that are unique to a [[Schema]] are transformed to predicates by prepending the [[Schema]][schema][$id].
+ *
+ * @param claim A (partial) [[IContent]] from to build a JSON-LD representation from. The `identifier` property is required.
+ * @param expanded Return an expanded instead of a compacted representation. While property transformation is done explicitly in the expanded format, it is otherwise done implicitly via adding JSON-LD's reserved `@context` properties while leaving [[IContent]][contents] property keys untouched.
+ * @returns An object which can be serialized into valid JSON-LD representing an [[IContent]].
+ * @throws [[ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED]] in case the content's ['identifier'] property is undefined.
+ */
 export function toJsonLD(
   content: PartialContent,
   expanded = true
@@ -77,7 +81,7 @@ function makeStatementsJsonLD(content: PartialContent): string[] {
  * @param options.nonceGenerator Nonce generator as defined by [[hashStatements]] to be used if no `nonces` are given. Default produces random UUIDs (v4).
  * @param options.hasher The hasher to be used. Required but defaults to 256 bit blake2 over `${nonce}${statement}`.
  * @returns An array of salted `hashes` and a `nonceMap` where keys correspond to unsalted statement hashes.
- * @throws [[ERROR_STREAM_NONCE_MAP_MALFORMED]] if the nonceMap or the nonceGenerator was non-exhaustive for any statement.
+ * @throws [[ERROR_CONTENT_NONCE_MAP_MALFORMED]] if the nonceMap or the nonceGenerator was non-exhaustive for any statement.
  */
 export function hashContents(
   content: PartialContent,
@@ -168,13 +172,13 @@ export function verifyDisclosedAttributes(
  *  Throws on invalid input.
  *
  * @param input The potentially only partial IContent.
- * @throws [[ERROR_SCHEMA_ID_NOT_PROVIDED]] when input's id do not exist.
- * @throws [[ERROR_CONTENT_STREAM_MALFORMED]] when any of the input's contents[key] is not of type 'number', 'boolean' or 'string'.
+ * @throws [[ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED]] when input's id do not exist.
+ * @throws [[ERROR_CONTENT_PROPERTIES_MALFORMED]] when any of the input's contents[key] is not of type 'number', 'boolean' or 'string'.
  *
  */
 export function errorCheck(input: IContent | PartialContent): void {
   if (!input.schema) {
-    throw new SDKErrors.ERROR_SCHEMA_ID_NOT_PROVIDED()
+    throw new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
   }
   if (input.issuer) {
     DataUtils.validateAddress(input.issuer, 'Content Creator')
@@ -186,7 +190,7 @@ export function errorCheck(input: IContent | PartialContent): void {
         typeof key !== 'string' ||
         !['string', 'number', 'boolean', 'object'].includes(typeof value)
       ) {
-        throw new SDKErrors.ERROR_CONTENT_STREAM_MALFORMED()
+        throw new SDKErrors.ERROR_CONTENT_PROPERTIES_MALFORMED()
       }
     })
   }
@@ -198,17 +202,24 @@ export function errorCheck(input: IContent | PartialContent): void {
  *
  * @param content An [[IContent]] object that will be sorted and stripped for messaging or storage.
  *
- * @returns An ordered array of a [[CompressedStream]].
+ * @returns An ordered array of a [[CompressedContent]].
  */
 export function compress(content: IContent): CompressedContent
 /**
- *  Compresses the [[PartialStream]] for storage and/or messaging.
+ *  Compresses the [[PartialContent]] for storage and/or messaging.
  *
- * @param stream A [[PartialStream]] object that will be sorted and stripped for messaging or storage.
+ * @param content A [[PartialContent]] object that will be sorted and stripped for messaging or storage.
  *
- * @returns An ordered array of a [[CompressedPartialStream]].
+ * @returns An ordered array of a [[CompressedPartialContent]].
  */
 export function compress(content: PartialContent): CompressedPartialContent
+/**
+ *  Compresses a content object for storage and/or messaging.
+ *
+ * @param content A (partial) content object that will be sorted and stripped for messaging or storage.
+ *
+ * @returns An ordered array of that represents the underlying data in a more compact form.
+ */
 export function compress(
   content: IContent | PartialContent
 ): CompressedContent | CompressedPartialContent {
@@ -219,22 +230,21 @@ export function compress(
   }
   return [content.schema, content.issuer, content.holder, sortedContents]
 }
-
 /**
- *  Decompresses the [[IContent]] from storage and/or message.
+ *  Decompresses an [[IContent]] from storage and/or message.
  *
  * @param content A [[CompressedContent]] array that is reverted back into an object.
  * @throws [[ERROR_DECOMPRESSION_ARRAY]] when a [[CompressedContent]] is not an Array or it's length is unequal 3.
- * @returns An [[IContent]] object that has the same properties as the [[CompressedStream]].
+ * @returns An [[IContent]] object that has the same properties compressed representation.
  */
 export function decompress(content: CompressedContent): IContent
 /**
- *  Decompresses the Partial [[IContent]] from storage and/or message.
+ *  Decompresses compressed representation of a (partial) [[IContent]] from storage and/or message.
  *
- * @param content A [[CompressedPartialContent]] array that is reverted back into an object.
- * @throws When a [[CompressedPartialContent]] is not an Array or it's length is unequal 3.
- * @throws [[ERROR_DECOMPRESSION_ARRAY]].
- * @returns A [[PartialContent]] object that has the same properties as the [[CompressedPartialStream]].
+ * @param content A [[CompressedContent]] or [[CompressedPartialContent]] array that is reverted back into an object.
+ * @throws
+ * @throws [[ERROR_DECOMPRESSION_ARRAY]] if the  `content` is not an Array or it's length is unequal 3.
+ * @returns An [[IContent]] or [[PartialContent]] object that has the same properties compressed representation.
  */
 export function decompress(content: CompressedPartialContent): PartialContent
 export function decompress(

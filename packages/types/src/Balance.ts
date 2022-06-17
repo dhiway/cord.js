@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @module IBalance
- */
-
 import type { BN } from '@polkadot/util'
 import { AnyNumber } from '@polkadot/types/types'
 
@@ -26,7 +21,6 @@ export interface BalanceOptions {
 export type BalanceNumber = Exclude<AnyNumber, Uint8Array>
 
 export type MetricPrefix =
-  | 'femto'
   | 'pico'
   | 'nano'
   | 'micro'

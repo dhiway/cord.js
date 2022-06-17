@@ -106,7 +106,6 @@ export function errorCheck(input: ISchema): void {
   if (!verifySchema(input, SchemaWrapperModel)) {
     throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
-  console.log(input.schema, getHashForSchema(input.schema))
   if (!input.schema || getHashForSchema(input.schema) !== input.schemaHash) {
     throw new SDKErrors.ERROR_HASH_MALFORMED(input.schemaHash, 'Schema')
   }

@@ -45,10 +45,10 @@ const PROOF_MALFORMED_ERROR = (reason: string): Error =>
   new Error(`Proof malformed: ${reason}`)
 
 /**
- * Verifies a CORD self signed proof (holder signature) against a CORD style Verifiable Credential.
+ * Verifies a self signed proof (holder signature) against a CORD Verifiable Credential.
  * This entails computing the root hash from the hashes contained in the `protected` section of the credentialSubject.
  * The resulting hash is then verified against the signature and public key contained in the proof (the latter
- * could be a DID reference in the future). It is also expected to by identical to the credential id.
+ * could be a DID URI in the future). It is also expected to by identical to the credential id.
  *
  * @param credential Verifiable Credential to verify proof against.
  * @param proof CORD self signed proof object.

@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @module Stream
- */
 import { Option, Struct, Vec, u8 } from '@polkadot/types'
 import type {
   IStream,
@@ -42,7 +38,7 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
  * Generate the extrinsic to update the provided [[IStream]].
  *
  * @param stream The stream to update on the chain.
- * @returns The [[SubmittableExtrinsic]] for the `create` call.
+ * @returns The [[SubmittableExtrinsic]] for the `update` call.
  */
 export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
@@ -50,23 +46,26 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
     stream.identifier,
     stream.issuer,
     stream.streamHash,
-    stream.space,
-    stream.issuerSignature
+    stream.issuerSignature,
+    stream.space
   )
   return tx
 }
 
 /**
- * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
+ * Generate the extrinsic to set the status of a given stream. The submitter can
+ * be the owner of the stream or an authorized delegator of the linked schema.
  *
  * @param streamIdentifier The stream Identifier.
- * @param issuer The submitter
- * @param status The stream status
- * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
+ * @param updater TThe transaction creator
+ * @param txHash  Transaction Hash
+ * @param txSignature Transaction signature of the transaction creator
+ * @param [spaceIdentifier] Linked Space Identifier
+ * @returns The [[SubmittableExtrinsic]] for the `revoke` call.
  */
 export async function revoke(
   streamIdentifier: string,
-  issuer: string,
+  updater: string,
   txHash: string,
   txSignature: string,
   spaceIdentifier?: string | null | undefined
@@ -76,21 +75,21 @@ export async function revoke(
   const space = spaceIdentifier ? spaceIdentifier : null
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.revoke(
     streamIdentifier,
-    issuer,
+    updater,
     txHash,
-    space,
-    txSignature
+    txSignature,
+    space
   )
   return tx
 }
 
 /**
- * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
+ * Generate the extrinsic to remove an anchored stream data. The submitter should
+ * be the owner of the space or an authorized delegator of the linked space.
  *
  * @param streamIdentifier The stream Identifier.
- * @param issuer The submitter
- * @param status The stream status
- * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
+ * @param spaceIdentifier Linked Space Identifier
+ * @returns The [[SubmittableExtrinsic]] for the `removeSpaceStream` call.
  */
 export async function removeSpaceStream(
   streamIdentifier: string,
@@ -106,23 +105,25 @@ export async function removeSpaceStream(
 }
 
 /**
- * Generate the extrinsic to set the status of a given stream. The submitter can be the owner of the stream or an authorized delegator of the schema.
+ * Generate the extrinsic to anchore the digest of a stream presentation. The submitter
+ * can be the owner of the stream or an authorized delegator of the schema.
  *
- * @param streamId The stream Is.
- * @param issuer The submitter
- * @param status The stream status
- * @returns The [[SubmittableExtrinsic]] for the `set_status` call.
+ * @param streamIdentifier The stream Identifier.
+ * @param creator The transaction creator
+ * @param digestHash Hash of the presentation
+ * @param txSignature Transaction signature of the submitter
+ * @returns The [[SubmittableExtrinsic]] for the `digest` call.
  */
 export async function digest(
-  streamId: string,
+  streamIdentifier: string,
   creator: string,
   digestHash: string,
   txSignature: string
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking stream with ID ${streamId}`)
+  log.debug(() => `Revoking stream with ID ${streamIdentifier}`)
   const tx: SubmittableExtrinsic = blockchain.api.tx.stream.digest(
-    streamId,
+    streamIdentifier,
     creator,
     digestHash,
     txSignature
@@ -165,35 +166,45 @@ function decodeStream(
   return null
 }
 
-async function queryRaw(
-  streamId: string
+/**
+ * Query a stream from the chain, returning the SCALE encoded value.
+ *
+ * @param streamIdentifier The Identifier of the stream anchored.
+ * @returns An Option wrapping scale encoded stream data.
+ */
+export async function queryRaw(
+  streamIdentifier: string
 ): Promise<Option<AnchoredStreamDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const result = await blockchain.api.query.stream.streams<
     Option<AnchoredStreamDetails>
-  >(streamId)
+  >(streamIdentifier)
   return result
 }
 
 /**
- * Query a stream from the chain given the stream Id.
+ * Query a stream from the chain.
  *
- * @param streamId The Id of the stream anchored.
- * @returns Either the retrieved [[StreamDetails]] or null.
+ * @param streamIdentifier The Identifier of the stream anchored.
+ * @returns Either the retrieved [[Stream]] or null.
  */
-export async function query(streamId: string): Promise<StreamDetails | null> {
-  const encoded = await queryRaw(streamId)
-  return decodeStream(encoded, streamId)
+export async function query(
+  streamIdentifier: string
+): Promise<StreamDetails | null> {
+  const encoded = await queryRaw(streamIdentifier)
+  return decodeStream(encoded, streamIdentifier)
 }
 
 /**
- * @param id
- * @internal
+ * Queries the chain and returns the stream owner.
+ *
+ * @param streamIdentifier The Identifier of the stream anchored.
+ * @returns Either the retrieved owner or null.
  */
 export async function getOwner(
-  streamId: string
+  streamIdentifier: string
 ): Promise<IPublicIdentity['address'] | null> {
-  const stream_Id = Identifier.getIdentifierKey(streamId, STREAM_PREFIX)
+  const stream_Id = Identifier.getIdentifierKey(streamIdentifier, STREAM_PREFIX)
 
   const encoded = await queryRaw(stream_Id)
   const queriedStreamAccount = decodeStream(encoded, stream_Id)

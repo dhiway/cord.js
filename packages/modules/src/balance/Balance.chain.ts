@@ -1,11 +1,9 @@
 /**
- * Balance provides the accounts and balances of the CORD protocol.
+ * Balance provides the accounts and balances.
  *
  *  * Checking Balances between accounts
  *  * Transfer of assets between accounts.
  *
- * @packageDocumentation
- * @module Balance
  */
 
 import type { UnsubscribePromise } from '@polkadot/api/types'
@@ -17,26 +15,15 @@ import type {
 } from '@cord.network/types'
 import { ChainApiConnection } from '@cord.network/network'
 
-import BalanceUtils from './Balance.utils.js'
+import * as BalanceUtils from './Balance.utils.js'
 
 /**
  * Fetches the current balances of the account with [accountAddress].
- * <B>Note that the balance amounts are in Femto-Cord (1e-15)and must be translated to Cord-Coin</B>.
+ * <B>Note that the balance amounts are in Pico-Way (1e-12)and must be translated to Cord-Credits</B>.
  *
  * @param accountAddress Address of the account for which to get the balances.
  * @returns A promise containing the current balances of the account.
  *
- * @example
- * <BR>
- *
- * ```javascript
- *
- * const address = ...
- * sdk.Balance.getBalances(address)
- *   .then((balanceData: AccountData) => {
- *     console.log(`free balances is ${balanceData.free.toNumber()}`)
- *   })
- * ```
  */
 export async function getBalances(
   accountAddress: IPublicIdentity['address']
@@ -48,24 +35,12 @@ export async function getBalances(
 
 /**
  * Attaches the given [listener] for balance changes on the account with [accountAddress].
- * <B>Note that the balance amounts are in Femto-Cord (1e-15) and must be translated to Cord-Coin</B>.
+ * <B>Note that the balance amounts are in Pico-Way (1e-12)and must be translated to Cord-Credits</B>.
  *
  * @param accountAddress Address of the account on which to listen for all balance changes.
  * @param listener Listener to receive all balance change updates.
  * @returns A promise containing a function that let's you unsubscribe from all balance changes.
  *
- * @example
- * <BR>
- *
- * ```javascript
- * const address = ...
- * const unsubscribe = await sdk.Balance.listenToBalanceChanges(address,
- *   (account: IPublicIdentity['address'], balances: Balances, changes: Balances) => {
- *     console.log(`Balance has changed by ${changes.free.toNumber()} to ${balances.free.toNumber()}`)
- *   });
- * // later
- * unsubscribe();
- * ```
  */
 export async function listenToBalanceChanges(
   accountAddress: IPublicIdentity['address'],
@@ -103,28 +78,13 @@ export async function listenToBalanceChanges(
 
 /**
  * Transfer Cord [amount] tokens to [toAccountAddress].
- * <B>Note that the value of the transferred currency and the balance amount reported by the chain is in Femto-Cord (1e-15), and must be translated to Cord-Coin</B>.
+ * <B>Note that the value of the transferred currency and the balance amount reported by the chain is in Pico-Way (1e-12), and must be translated to Cord-Credits</B>.
  *
  * @param accountAddressTo Address of the receiver account.
  * @param amount Amount of Units to transfer.
- * @param exponent Magnitude of the amount. Default magnitude of Femto-Cord.
+ * @param exponent Magnitude of the amount. Default magnitude of Pico-Way.
  * @returns Promise containing unsigned SubmittableExtrinsic.
  *
- * @example
- * <BR>
- *
- * ```javascript
- * const identity = ...
- * const address = ...
- * const amount: BN = new BN(42)
- * const blockchain = await sdk.getConnectionOrConnect()
- * sdk.Balance.makeTransfer(address, amount, 0) //
- *   .then(tx => ChainUtils.signAndSendTx(tx, identity))
- *   .then(() => console.log('Successfully transferred ${amount.toNumber()} tokens'))
- *   .catch(err => {
- *     console.log('Transfer failed')
- *   })
- * ```
  */
 export async function makeTransfer(
   accountAddressTo: IPublicIdentity['address'],
@@ -138,7 +98,7 @@ export async function makeTransfer(
     accountAddressTo,
     cleanExponent === -12
       ? amount
-      : BalanceUtils.convertToWayUnit(amount, cleanExponent)
+      : BalanceUtils.convertToTxUnit(amount, cleanExponent)
   )
   return transfer
 }

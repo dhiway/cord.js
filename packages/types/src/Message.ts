@@ -160,7 +160,7 @@ export interface IRequestStreamForCredential {
   requiredProperties?: string[]
 }
 
-export type CompressedPartialContentStream = [
+export type CompressedPartialContent = [
   IContent['schema'],
   IContent['issuer'] | undefined,
   IContent['holder'] | undefined,
@@ -175,7 +175,7 @@ export type CompressedRequestCredentialContent = [
 
 export type CompressedRequestStreamContent = [
   CompressedContentStream,
-  Array<CompressedPartialContentStream | CompressedContent> | undefined
+  Array<CompressedPartialContent | CompressedContent> | undefined
 ]
 
 export type MessageBody =

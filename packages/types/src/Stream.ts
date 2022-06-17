@@ -13,10 +13,10 @@ export interface IStream {
   identifier: IContentStream['identifier']
   streamHash: IContentStream['rootHash']
   issuer: IPublicIdentity['address']
-  holder?: IPublicIdentity['address'] | null
-  schema: ISchema['identifier']
-  link?: IContentStream['link'] | null
-  space?: IContentStream['space'] | null
+  holder: IPublicIdentity['address'] | null
+  schema: ISchema['identifier'] | null
+  link: IContentStream['link'] | null
+  space: IContentStream['space'] | null
   issuerSignature?: IContentStream['issuerSignature'] | null
 }
 

@@ -6,9 +6,6 @@
  *
  * The [[Did]] class exposes methods to build, store and query decentralized identifiers.
  *
- * @packageDocumentation
- * @module DID
- * @preferred
  */
 
 import { AnyJson } from '@polkadot/types/types'

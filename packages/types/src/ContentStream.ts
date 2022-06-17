@@ -18,8 +18,8 @@ export interface IContentStream {
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
   legitimations: IMark[]
-  link?: string
-  space?: string
+  link: string | null
+  space: string | null
   issuerSignature: string
   rootHash: Hash
   identifier: string
@@ -30,8 +30,8 @@ export type CompressedContentStream = [
   IContentStream['contentHashes'],
   IContentStream['contentNonceMap'],
   IContentStream['issuerSignature'],
-  IContentStream['link'] | undefined,
-  IContentStream['space'] | undefined,
+  IContentStream['link'] | null,
+  IContentStream['space'] | null,
   CompressedMark[],
   IContentStream['rootHash'],
   IContentStream['identifier']

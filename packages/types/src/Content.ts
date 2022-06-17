@@ -18,19 +18,12 @@ export interface IContent {
   schema: ISchema['identifier']
   contents: IContents
   issuer: IPublicIdentity['address']
-  holder?: IPublicIdentity['address']
+  holder: IPublicIdentity['address'] | null
 }
 
 export type CompressedContent = [
   IContent['schema'],
   IContent['issuer'],
-  IContent['holder'],
+  IContent['holder'] | null,
   IContents
-]
-
-export type CompressedPartialContent = [
-  IContent['schema'],
-  IContent['issuer'] | undefined,
-  IContent['holder'] | undefined,
-  IContents | undefined
 ]

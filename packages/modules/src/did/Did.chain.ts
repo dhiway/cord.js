@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @module DID
- */
-
 import { Option } from '@polkadot/types'
 import type { IPublicIdentity, SubmittableExtrinsic } from '@cord.network/types'
 import { ChainApiConnection } from '@cord.network/network'

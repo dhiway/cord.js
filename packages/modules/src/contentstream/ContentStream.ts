@@ -1,11 +1,3 @@
-/**
- * A ContentStream represents [[Content]] which needs to be validated
- * and transformed.
- *
- * @packageDocumentation
- * @module ContentStream
- */
-
 import type {
   IContentStream,
   CompressedContentStream,
@@ -45,6 +37,8 @@ export class ContentStream implements IContentStream {
    * [STATIC] Builds an instance of [[ContentStream]], from a simple object with the same properties.
    * Used for deserialization.
    *
+   * @param content - An object adhering to the [[IContentStream]] interface.
+   * @returns  A new [[ContentStream]] `object`.
    */
   public static fromRequest(content: IContentStream): ContentStream {
     return new ContentStream(content)
@@ -54,16 +48,15 @@ export class ContentStream implements IContentStream {
    * [STATIC] Builds a new instance of [[ContentStream]], from a complete set of required parameters.
    *
    * @param content An `IContentStream` object the request for mark is built for.
-   * @param identity The Holder's [[Identity]].
+   * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.proofs Array of [[Mark]] objects.
-   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
+   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
+   * @param option.link Identifier of the stream this mark is linked to.
+   * @param option.space Identifier of the space this mark is linked to.
+   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns A new [[ContentStream]] object.
-   * @example ```javascript
-   * const input = ContentStream.fromStreamAndIdentity(content, alice);
-   * ```
    */
-  public static fromContentProperties(
+  public static fromContent(
     content: IContent,
     issuer: Identity,
     { legitimations, link, space }: Options = {}
@@ -85,8 +78,8 @@ export class ContentStream implements IContentStream {
       contentHashes,
       contentNonceMap,
       legitimations: legitimations || [],
-      link,
-      space,
+      link: link || null,
+      space: space || null,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
       identifier: Identifier.getIdentifier(
@@ -101,14 +94,11 @@ export class ContentStream implements IContentStream {
    * [STATIC] Update instance of [[ContentStream]], from a complete set of required parameters.
    *
    * @param content An `IContentStream` object the request for mark is built for.
-   * @param identity The Holder's [[Identity]].
+   * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.proofs Array of [[Mark]] objects.
-   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
-   * @returns A new [[ContentStream]] object.
-   * @example ```javascript
-   * const input = ContentStream.fromStreamAndIdentity(content, alice);
-   * ```
+   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
+   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
+   * @returns An updated [[ContentStream]] object.
    */
   public static updateContentProperties(
     content: IContentStream,
@@ -132,8 +122,9 @@ export class ContentStream implements IContentStream {
       content: content.content,
       contentHashes,
       contentNonceMap,
-      legitimations: legitimations || content.legitimations,
+      legitimations: updateLegitimations || content.legitimations,
       link: content.link,
+      space: content.space,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
       identifier: content.identifier,
@@ -143,7 +134,7 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Custom Type Guard to determine input being of type IContentStream..
    *
-   * @param input - A potentially only partial [[]].
+   * @param input - A potentially only partial [[IContentStream]].
    *
    * @returns  Boolean whether input is of type IContentStream.
    */
@@ -160,8 +151,8 @@ export class ContentStream implements IContentStream {
   public contentHashes: string[]
   public contentNonceMap: Record<string, string>
   public legitimations: Mark[]
-  public link: IContentStream['link']
-  public space: IContentStream['space']
+  public link: IContentStream['link'] | null
+  public space: IContentStream['space'] | null
   public issuerSignature: string
   public rootHash: Hash
   public identifier: string
@@ -169,11 +160,8 @@ export class ContentStream implements IContentStream {
   /**
    * Builds a new [[ContentStream]] instance.
    *
-   * @param requestForMarkInput - The base object from which to create the input.
-   * @example ```javascript
-   * // create a new request for mark
-   * const reqForAtt = new ContentStream(requestForMarkInput);
-   * ```
+   * @param contentStreamRequest - The base object from which to create the input.
+   *
    */
   public constructor(contentStreamRequest: IContentStream) {
     ContentStreamUtils.errorCheck(contentStreamRequest)
@@ -204,20 +192,8 @@ export class ContentStream implements IContentStream {
    * Removes [[Content] properties from the [[ContentStream]] object, provides anonymity and security when building the [[createPresentation]] method.
    *
    * @param properties - Properties to remove from the [[Stream]] object.
-   * @throws [[ERROR_STREAM_HASHTREE_MISMATCH]] when a property which should be deleted wasn't found.
-   * @example ```javascript
-   * const rawStream = {
-   *   name: 'Alice',
-   *   age: 29,
-   * };
-   * const stream = Stream.fromMTypeAndStreamContents(mtype, rawStream, alice);
-   * const reqForAtt = ContentStream.fromStreamAndIdentity({
-   *   stream,
-   *   identity: alice,
-   * });
-   * reqForAtt.removeStreamProperties(['name']);
-   * // reqForAtt does not contain `name` in its streamHashTree and its stream marks anymore.
-   * ```
+   * @throws [[ERROR_CONTENT_HASHTREE_MISMATCH]] when a property which should be deleted wasn't found.
+   *
    */
   public removeContentProperties(properties: string[]): void {
     properties.forEach((key) => {
@@ -233,12 +209,9 @@ export class ContentStream implements IContentStream {
    *
    * @param input - The [[ContentStream]] for which to verify data.
    * @returns Whether the data is valid.
-   * @throws [[ERROR_STREAM_NONCE_MAP_MALFORMED]] when any key of the stream marks could not be found in the streamHashTree.
+   * @throws [[ERROR_CONTENT_NONCE_MAP_MALFORMED]] when any key of the stream marks could not be found in the streamHashTree.
    * @throws [[ERROR_ROOT_HASH_UNVERIFIABLE]] or [[ERROR_SIGNATURE_UNVERIFIABLE]] when either the rootHash or the signature are not verifiable respectively.
-   * @example ```javascript
-   * const reqForAtt = ContentStream.fromStreamAndIdentity(stream, alice);
-   * ContentStream.verifyData(reqForAtt); // returns true if the data is correct
-   * ```
+   *
    */
   public static verifyData(input: IContentStream): boolean {
     // check stream hash
@@ -280,13 +253,7 @@ export class ContentStream implements IContentStream {
    *
    * @param input - [[ContentStream]] .
    * @returns Whether the signature is correct.
-   * @example ```javascript
-   * const reqForAtt = ContentStream.fromStreamAndIdentity({
-   *   stream,
-   *   identity: alice,
-   * });
-   * ContentStream.verifySignature(reqForAtt); // returns `true` if the signature is correct
-   * ```
+   *
    */
   public static verifySignature(input: IContentStream): boolean {
     return verifyCreatorSignature(input)
@@ -328,7 +295,7 @@ export class ContentStream implements IContentStream {
   /**
    * Compresses an [[ContentStream]] object.
    *
-   * @returns An array that contains the same properties of an [[ContentStream]].
+   * @returns An array that contains the same properties of a [[ContentStream]].
    */
   public compress(): CompressedContentStream {
     return ContentStreamUtils.compress(this)
@@ -337,7 +304,7 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Builds an [[ContentStream]] from the decompressed array.
    *
-   * @param reqForAtt The [[CompressedMarkContent]] that should get decompressed.
+   * @param requestForStream The [[CompressedContentStream]] that should get decompressed.
    * @returns A new [[ContentStream]] object.
    */
   public static decompress(

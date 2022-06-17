@@ -1,5 +1,4 @@
 /**
- * Identities are a core building block of the CORD SDK.
  * An Identity object represent an **entity** - be it a person, an organization, a machine or some other entity.
  *
  * An Identity object can be built via a seed phrase or other. It has a signature keypair, an associated public address, and an encryption ("boxing") keypair. These are needed to:
@@ -8,8 +7,6 @@
  *
  * Note: A [[PublicIdentity]] object exposes only public information such as the public address, but doesn't expose any secrets such as private keys.
  *
- * @packageDocumentation
- * @module Identity
  */
 
 import { Keyring } from '@polkadot/keyring'
@@ -65,10 +62,7 @@ export class Identity implements IIdentity {
    * [STATIC] Generates Mnemonic phrase used to create identities from phrase seed.
    *
    * @returns Randomly generated [BIP39](https://www.npmjs.com/package/bip39) mnemonic phrase (Secret phrase).
-   * @example ```javascript
-   * Identity.generateMnemonic();
-   * // returns: "coast ugly state lunch repeat step armed goose together pottery bind mention"
-   * ```
+   *
    */
   public static generateMnemonic(): string {
     return generate()
@@ -83,12 +77,7 @@ export class Identity implements IIdentity {
    * @throws [[ERROR_MNEMONIC_PHRASE_MALFORMED]] when phraseArg contains fewer than 12 correctly separated mnemonic words.
    * @throws [[ERROR_MNEMONIC_PHRASE_INVALID]] when phraseArg could not be validated.
    * @returns An [[Identity]].
-   * @example ```javascript
-   * const mnemonic = Identity.generateMnemonic();
-   * // mnemonic: "coast ugly state lunch repeat step armed goose together pottery bind mention"
    *
-   * Identity.buildFromMnemonic(mnemonic);
-   * ```
    */
   public static buildFromMnemonic(
     phraseArg: string,
@@ -119,11 +108,7 @@ export class Identity implements IIdentity {
    * @param options Optional parameters.
    * @param options.signingKeyPairType The signature key type to be used for this identity. Default is `sr25519`.
    * @returns  An [[Identity]].
-   * @example ```javascript
-   * const seed =
-   *   '0x6ce9fd060c70165c0fc8da25810d249106d5df100aa980e0d9a11409d6b35261';
-   * Identity.buildFromSeedString(seed);
-   * ```
+   *
    */
   public static buildFromSeedString(
     seedArg: string,
@@ -148,15 +133,7 @@ export class Identity implements IIdentity {
    * @param options Optional parameters.
    * @param options.signingKeyPairType The signature key type to be used for this identity. Default is `sr25519`.
    * @returns An [[Identity]].
-   * @example ```javascript
-   * // prettier-ignore
-   * const seed = new Uint8Array([108, 233, 253,  6,  12, 112,  22,  92,
-   * 15, 200, 218, 37, 129,  13,  36, 145,
-   * 6, 213, 223, 16,  10, 169, 128, 224,
-   * 217, 161,  20,  9, 214, 179,  82,  97
-   * ]);
-   * Identity.buildFromSeed(seed);
-   * ```
+   *
    */
   public static buildFromSeed(
     seed: Uint8Array,
@@ -174,9 +151,7 @@ export class Identity implements IIdentity {
    * @param options Optional parameters.
    * @param options.signingKeyPairType The signature key type to be used for this identity. Default is `sr25519`.
    * @returns  An [[Identity]].
-   * @example ```javascript
-   * Identity.buildFromURI('//Bob');
-   * ```
+   *
    */
   public static buildFromURI(
     uri: string,
@@ -221,11 +196,7 @@ export class Identity implements IIdentity {
    * Can be given to third-parties to communicate and process signatures.
    *
    * @returns The [[PublicIdentity]], corresponding to the [[Identity]].
-   * @example ```javascript
-   * const mnemonic = Identity.generateMnemonic();
-   * const alice = Cord.Identity.buildFromMnemonic(mnemonic);
-   * alice.getPublicIdentity();
-   * ```
+   *
    */
   public getPublicIdentity(): PublicIdentity {
     return new PublicIdentity(
@@ -258,15 +229,7 @@ export class Identity implements IIdentity {
    *
    * @param cryptoInput - The data to be signed.
    * @returns The signed data.
-   * @example  ```javascript
-   * const mnemonic = Identity.generateMnemonic();
-   * const alice = Identity.buildFromMnemonic(mnemonic);
-   * const data = 'This is a test';
-   * alice.sign(data);
-   * // (output) Uint8Array [
-   * //           205, 120,  29, 236, 152, 144, 114, 133,  65, ...
-   * //          ]
-   * ```
+   *
    */
   public sign(cryptoInput: Crypto.CryptoInput): Uint8Array {
     return Crypto.sign(cryptoInput, this.signKeyringPair)
@@ -277,9 +240,7 @@ export class Identity implements IIdentity {
    *
    * @param cryptoInput - The data to be signed.
    * @returns The signed data.
-   * @example ```javascript
-   * identity.signStr(data);
-   * ```
+   *
    */
   public signStr(cryptoInput: Crypto.CryptoInput): string {
     return Crypto.signStr(cryptoInput, this.signKeyringPair)
@@ -291,17 +252,7 @@ export class Identity implements IIdentity {
    * @param cryptoInput - The data to be encrypted.
    * @param boxPublicKey - The public key of the receiver of the encrypted data.
    * @returns The encrypted data.
-   * @example ```javascript
-   * const alice = Identity.buildFromMnemonic('car dog ...');
-   * const bob = new PublicIdentity('523....', '0xab1234...');
    *
-   * const messageStr = 'This is a test';
-   * alice.encryptAsymmetricAsStr(messageStr, bob.boxPublicKeyAsHex);
-   * // (output) EncryptedAsymmetricString {
-   * //           box: '0xd0b556c4438270901662ff2d3e9359f244f211a225d66dcf74b64f814a92',
-   * //           nonce: '0xe4c82d261d1f8fc8a0cf0bbd524530afcc5b201541827580'
-   * //          }
-   * ```
    */
   public encryptAsymmetricAsStr(
     cryptoInput: Crypto.CryptoInput,
@@ -320,18 +271,7 @@ export class Identity implements IIdentity {
    * @param encrypted - The encrypted data.
    * @param boxPublicKey - The public key of the sender of the encrypted data.
    * @returns The decrypted data.
-   * @example  ```javascript
-   * const alice = new PublicIdentity('74be...', '0xeb98765...');
-   * const bob = Identity.buildFromMnemonic('house cat ...');
    *
-   * const encryptedData = {
-   *   box: '0xd0b556c4438270901662ff2d3e9359f244f211a225d66dcf74b64f814a92',
-   *   nonce: '0xe4c82d261d1f8fc8a0cf0bbd524530afcc5b201541827580',
-   * };
-   *
-   * bob.decryptAsymmetricAsStr(encryptedData, alice.boxPublicKeyAsHex);
-   * // (output) "This is a test"
-   * ```
    */
   public decryptAsymmetricAsStr(
     encrypted: Crypto.EncryptedAsymmetric | Crypto.EncryptedAsymmetricString,
@@ -350,18 +290,7 @@ export class Identity implements IIdentity {
    * @param input - The data to be encrypted.
    * @param boxPublicKey - The public key of the receiver of the encrypted data.
    * @returns The encrypted data.
-   * @example ```javascript
-   * const alice = Identity.buildFromMnemonic('car dog ...');
-   * const bob = new PublicIdentity('523....', '0xab1234...');
    *
-   * const message = 'This is a test';
-   * const data = stringToU8a(message);
-   * alice.encryptAsymmetric(data, bob.boxPublicKeyAsHex);
-   * // (output) EncryptedAsymmetric {
-   * //           box: Uint8Array [ 56,  27,   2, 254, ... ],
-   * //           nonce: Uint8Array [ 76, 23, 145, 216, ...]
-   * //         }
-   * ```
    */
   public encryptAsymmetric(
     input: Crypto.CryptoInput,
@@ -380,18 +309,7 @@ export class Identity implements IIdentity {
    * @param encrypted - The encrypted data.
    * @param boxPublicKey - The public key of the sender of the encrypted data.
    * @returns The decrypted data.
-   * @example ```javascript
-   * const alice = new PublicIdentity('74be...', '0xeb98765...');
-   * const bob = Identity.buildFromMnemonic('house cat ...');
    *
-   * const encryptedData = {
-   *   box: '0xd0b556c4438270901662ff2d3e9359f244f211a225d66dcf74b64f814a92',
-   *   nonce: '0xe4c82d261d1f8fc8a0cf0bbd524530afcc5b201541827580',
-   * };
-   *
-   * bob.decryptAsymmetric(encryptedData, alice.boxPublicKeyAsHex);
-   * // (output) "This is a test"
-   * ```
    */
   public decryptAsymmetric(
     encrypted: Crypto.EncryptedAsymmetric | Crypto.EncryptedAsymmetricString,
@@ -411,11 +329,7 @@ export class Identity implements IIdentity {
    * @param nonce - The nonce of the address operating the transaction.
    * @param tip - (Optional) The amount of Femto-CORD to tip the validator.
    * @returns The signed SubmittableExtrinsic.
-   * @example ```javascript
-   * const alice = Identity.buildFromMnemonic('car dog ...');
-   * const tx = await blockchain.api.tx.mtype.anchor(mtype.hash);
-   * await blockchain.signTx(alice, tx); // calls signSubmittableExtrinsic internally
-   * ```
+   *
    */
   public async signSubmittableExtrinsic(
     submittableExtrinsic: SubmittableExtrinsic,
