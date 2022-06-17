@@ -29,7 +29,7 @@ const log = ConfigService.LoggingFactory.getLogger('Chain')
 // https://polkadot.js.org/api/api/classes/_promise_index_.apipromise.html
 
 /**
- * Blockchain bridges that connects the SDK and the KILT Blockchain.
+ * Blockchain bridges that connects the SDK and the CORD Blockchain.
  *
  * Communicates with the chain via WebSockets and can [[listenToBlocks]]. It exposes the [[signTx]] function that performs the necessary tx signing.
  */

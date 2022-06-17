@@ -1,11 +1,3 @@
-/**
- * A ContentStream represents [[Content]] which needs to be validated
- * and transformed.
- *
- * @packageDocumentation
- * @module ContentStream
- */
-
 import type {
   IContentStream,
   CompressedContentStream,
@@ -45,6 +37,8 @@ export class ContentStream implements IContentStream {
    * [STATIC] Builds an instance of [[ContentStream]], from a simple object with the same properties.
    * Used for deserialization.
    *
+   * @param content - An object adhering to the [[IContentStream]] interface.
+   * @returns  A new [[ContentStream]] `object`.
    */
   public static fromRequest(content: IContentStream): ContentStream {
     return new ContentStream(content)
@@ -54,10 +48,12 @@ export class ContentStream implements IContentStream {
    * [STATIC] Builds a new instance of [[ContentStream]], from a complete set of required parameters.
    *
    * @param content An `IContentStream` object the request for mark is built for.
-   * @param identity The Holder's [[Identity]].
+   * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.proofs Array of [[Mark]] objects.
-   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
+   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
+   * @param option.link Identifier of the stream this mark is linked to.
+   * @param option.space Identifier of the space this mark is linked to.
+   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns A new [[ContentStream]] object.
    */
   public static fromContent(
@@ -98,11 +94,13 @@ export class ContentStream implements IContentStream {
    * [STATIC] Update instance of [[ContentStream]], from a complete set of required parameters.
    *
    * @param content An `IContentStream` object the request for mark is built for.
-   * @param identity The Holder's [[Identity]].
+   * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.proofs Array of [[Mark]] objects.
-   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's holder address does not match the supplied identity's address.
-   * @returns A new [[ContentStream]] object.
+   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
+   * @param option.link Identifier of the stream this mark is linked to.
+   * @param option.space Identifier of the space this mark is linked to.
+   * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
+   * @returns An updated [[ContentStream]] object.
    */
   public static updateContentProperties(
     content: IContentStream,
@@ -137,7 +135,7 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Custom Type Guard to determine input being of type IContentStream..
    *
-   * @param input - A potentially only partial [[]].
+   * @param input - A potentially only partial [[IContentStream]].
    *
    * @returns  Boolean whether input is of type IContentStream.
    */
@@ -163,7 +161,7 @@ export class ContentStream implements IContentStream {
   /**
    * Builds a new [[ContentStream]] instance.
    *
-   * @param requestForMarkInput - The base object from which to create the input.
+   * @param contentStreamRequest - The base object from which to create the input.
    *
    */
   public constructor(contentStreamRequest: IContentStream) {
@@ -195,7 +193,7 @@ export class ContentStream implements IContentStream {
    * Removes [[Content] properties from the [[ContentStream]] object, provides anonymity and security when building the [[createPresentation]] method.
    *
    * @param properties - Properties to remove from the [[Stream]] object.
-   * @throws [[ERROR_STREAM_HASHTREE_MISMATCH]] when a property which should be deleted wasn't found.
+   * @throws [[ERROR_CONTENT_HASHTREE_MISMATCH]] when a property which should be deleted wasn't found.
    *
    */
   public removeContentProperties(properties: string[]): void {
@@ -212,7 +210,7 @@ export class ContentStream implements IContentStream {
    *
    * @param input - The [[ContentStream]] for which to verify data.
    * @returns Whether the data is valid.
-   * @throws [[ERROR_STREAM_NONCE_MAP_MALFORMED]] when any key of the stream marks could not be found in the streamHashTree.
+   * @throws [[ERROR_CONTENT_NONCE_MAP_MALFORMED]] when any key of the stream marks could not be found in the streamHashTree.
    * @throws [[ERROR_ROOT_HASH_UNVERIFIABLE]] or [[ERROR_SIGNATURE_UNVERIFIABLE]] when either the rootHash or the signature are not verifiable respectively.
    *
    */
@@ -298,7 +296,7 @@ export class ContentStream implements IContentStream {
   /**
    * Compresses an [[ContentStream]] object.
    *
-   * @returns An array that contains the same properties of an [[ContentStream]].
+   * @returns An array that contains the same properties of a [[ContentStream]].
    */
   public compress(): CompressedContentStream {
     return ContentStreamUtils.compress(this)
@@ -307,7 +305,7 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Builds an [[ContentStream]] from the decompressed array.
    *
-   * @param reqForAtt The [[CompressedMarkContent]] that should get decompressed.
+   * @param requestForStream The [[CompressedContentStream]] that should get decompressed.
    * @returns A new [[ContentStream]] object.
    */
   public static decompress(

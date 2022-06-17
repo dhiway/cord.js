@@ -31,7 +31,7 @@ export const Prefixes = new Map<MetricPrefix, number>([
  * Uses the polkadot.js balance formatter, to convert given BN to a human readable prefixed number.
  *
  * @param amount BN to format.
- * @param additionalOptions Optional formatting settings, these are defaulted to KILT specific settings.
+ * @param additionalOptions Optional formatting settings, these are defaulted to CORD specific settings.
  * @returns String representation of the given BN with prefix and unit ('WAY' as default).
  */
 export function formatWayBalance(
@@ -87,7 +87,7 @@ export function balanceNumberToString(input: BalanceNumber): string {
 }
 
 /**
- * Converts the given [[BalanceNumber]] to the femto KILT equivalent.
+ * Converts the given [[BalanceNumber]] to the pico WAY equivalent.
  *
  * @param input [[BalanceNumber]] to convert.
  * @param unit Metric prefix of the given [[BalanceNumber]].
@@ -130,12 +130,12 @@ export function toPicoWay(
  * This function uses the polkadot formatBalance function,
  * it's output can therefore be formatted via the polkadot formatting options.
  *
- * @param input [[BalanceNumber]] to convert from Femto Kilt.
+ * @param input [[BalanceNumber]] to convert from Pico WAY.
  * @param decimals Set the minimum decimal places in the formatted localized output, default is 4.
  * @param options [[BalanceOptions]] for internationalization and formatting.
  * @returns String representation of the given [[BalanceNumber]] with unit und metric prefix.
  */
-export function fromFemtoKilt(
+export function fromPicoWay(
   input: BalanceNumber,
   decimals = 4,
   options?: BalanceOptions

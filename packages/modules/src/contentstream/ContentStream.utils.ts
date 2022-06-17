@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @module MarkContentUtils
- */
-
 import type {
   IMark,
   CompressedMark,
@@ -79,7 +74,7 @@ function decompressProof(leg: CompressedMark[]): IMark[] {
  *
  * @param contentStream A [[ContentStream]] object that will be sorted and stripped for messaging or storage.
  *
- * @returns An ordered array of a [[ContentStream]].
+ * @returns An ordered array of a [[CompressedContentStream]].
  */
 
 export function compress(
@@ -103,7 +98,7 @@ export function compress(
  *  Decompresses a [[ContentStream]] from storage and/or message.
  *
  * @param contentStream A compressed [[ContentStream]] array that is reverted back into an object.
- * @throws [[ERROR_DECOMPRESSION_ARRAY]] when reqForAtt is not an Array and it's length is not equal to the defined length of 8.
+ * @throws [[ERROR_DECOMPRESSION_ARRAY]] when contentStream is not an Array and it's length is not equal to the defined length of 9.
  *
  * @returns An object that has the same properties as a [[ContentStream]].
  */
