@@ -78,8 +78,8 @@ export class ContentStream implements IContentStream {
       contentHashes,
       contentNonceMap,
       legitimations: legitimations || [],
-      link,
-      space,
+      link: link || null,
+      space: space || null,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
       identifier: Identifier.getIdentifier(
@@ -97,8 +97,6 @@ export class ContentStream implements IContentStream {
    * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
    * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
-   * @param option.link Identifier of the stream this mark is linked to.
-   * @param option.space Identifier of the space this mark is linked to.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns An updated [[ContentStream]] object.
    */
@@ -124,8 +122,9 @@ export class ContentStream implements IContentStream {
       content: content.content,
       contentHashes,
       contentNonceMap,
-      legitimations: legitimations || content.legitimations,
+      legitimations: updateLegitimations || content.legitimations,
       link: content.link,
+      space: content.space,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
       identifier: content.identifier,
@@ -152,8 +151,8 @@ export class ContentStream implements IContentStream {
   public contentHashes: string[]
   public contentNonceMap: Record<string, string>
   public legitimations: Mark[]
-  public link: IContentStream['link']
-  public space: IContentStream['space']
+  public link: IContentStream['link'] | null
+  public space: IContentStream['space'] | null
   public issuerSignature: string
   public rootHash: Hash
   public identifier: string

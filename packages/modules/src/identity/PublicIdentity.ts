@@ -1,8 +1,7 @@
 /**
- * A [[PublicIdentity]] object exposes only public information such as the public address, but doesn't expose any secrets such as private keys.
  *
- * @packageDocumentation
- * @module PublicIdentity
+ *  A [[PublicIdentity]] object exposes only public information such as the public address, but doesn't expose any secrets such as private keys.
+ *
  */
 
 import type { IPublicIdentity } from '@cord.network/types'

@@ -37,7 +37,7 @@ export interface ISchema {
   schemaHash: string
   controller: IPublicIdentity['address']
   controllerSignature: string
-  space?: string | null
+  space: string | null
   schema: ISchemaType
 }
 
@@ -64,6 +64,6 @@ export interface ISchemaDetails {
   identifier: ISchema['identifier']
   schemaHash: ISchema['schemaHash']
   controller: IPublicIdentity['address']
-  space?: string | null
+  space: string | null
   revoked: boolean
 }

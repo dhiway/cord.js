@@ -1,5 +1,4 @@
 /**
- * Identities are a core building block of the CORD SDK.
  * An Identity object represent an **entity** - be it a person, an organization, a machine or some other entity.
  *
  * An Identity object can be built via a seed phrase or other. It has a signature keypair, an associated public address, and an encryption ("boxing") keypair. These are needed to:
@@ -8,8 +7,6 @@
  *
  * Note: A [[PublicIdentity]] object exposes only public information such as the public address, but doesn't expose any secrets such as private keys.
  *
- * @packageDocumentation
- * @module Identity
  */
 
 import { Keyring } from '@polkadot/keyring'

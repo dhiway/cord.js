@@ -95,11 +95,11 @@ export class Stream implements IStream {
   public identifier: IStream['identifier']
   public streamHash: IStream['streamHash']
   public issuer: IStream['issuer']
-  public holder?: IStream['holder'] | null | undefined
-  public schema: IStream['schema']
-  public link?: IStream['link'] | null | undefined
-  public space?: IStream['space'] | null | undefined
-  public issuerSignature: IStream['issuerSignature']
+  public holder: IStream['holder'] | null
+  public schema: IStream['schema'] | null
+  public link: IStream['link'] | null
+  public space: IStream['space'] | null
+  public issuerSignature: IStream['issuerSignature'] | null
   /**
    * Builds a new [[Stream]] instance.
    *

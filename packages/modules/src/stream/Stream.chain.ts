@@ -46,8 +46,8 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
     stream.identifier,
     stream.issuer,
     stream.streamHash,
-    stream.space,
-    stream.issuerSignature
+    stream.issuerSignature,
+    stream.space
   )
   return tx
 }
@@ -77,8 +77,8 @@ export async function revoke(
     streamIdentifier,
     updater,
     txHash,
-    space,
-    txSignature
+    txSignature,
+    space
   )
   return tx
 }

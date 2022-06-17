@@ -64,7 +64,7 @@ export class Schema implements ISchema {
   public static fromSchemaProperties(
     schema: ISchema['schema'],
     controller: Identity,
-    spaceId?: string | null
+    spaceId?: string
   ): Schema {
     const schemaHash = SchemaUtils.getHashForSchema(schema)
     const schemaIdentifier = Identifier.getIdentifier(
@@ -79,7 +79,7 @@ export class Schema implements ISchema {
         ...schema,
         $id: schemaIdentifier,
       },
-      space: spaceId,
+      space: spaceId || null,
       controller: controller.address,
       controllerSignature: controller.signStr(schemaHash),
     })
@@ -104,7 +104,7 @@ export class Schema implements ISchema {
   public schemaHash: ISchema['schemaHash']
   public controller: ISchema['controller']
   public controllerSignature: string
-  public space: ISpace['identifier'] | null | undefined
+  public space: ISpace['identifier'] | null
   public schema: ISchema['schema']
 
   public constructor(schemaInput: ISchema) {
@@ -247,7 +247,7 @@ export class SchemaDetails implements ISchemaDetails {
   public identifier: ISchemaDetails['identifier']
   public schemaHash: ISchemaDetails['schemaHash']
   public controller: ISchemaDetails['controller']
-  public space: string | null | undefined
+  public space: string | null
   public revoked: ISchemaDetails['revoked']
 
   public constructor(details: ISchemaDetails) {

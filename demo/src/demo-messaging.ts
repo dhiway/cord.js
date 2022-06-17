@@ -1,5 +1,6 @@
 import * as Cord from '@cord.network/api'
 import { UUID } from '@cord.network/utils'
+// import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -62,7 +63,7 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 3: Create a new Schema
+  // Step 2: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
   console.log(`🔗 ${newSpace.identifier}`)
   let newSchemaContent = require('../res/schema.json')
@@ -93,7 +94,7 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 4: Create a new Stream
+  // Step 2: Create a new Stream
   console.log(`\n❄️  Stream Creation `)
   console.log(`🔗  ${newSpace.identifier} `)
   console.log(`🔗  ${newSchema.identifier} `)
@@ -139,9 +140,10 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 5: Update a Stream
+  // Step 4: Update a Stream
   console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
   const updateContent = JSON.parse(JSON.stringify(newStreamContent))
+  // { ...newStreamContent }
   updateContent.content.contents.name = 'Alice Jackson'
 
   let updateStreamContent = Cord.ContentStream.updateContentProperties(
@@ -168,7 +170,7 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 6: Validate a Credential
+  // Step 3: Validate a Credential
   console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
   const stream = await Cord.Stream.query(updateStream.identifier)
   if (!stream) {
@@ -182,7 +184,7 @@ async function main() {
     console.log(`Is Alices's credential valid? ${isCredentialValid}`)
   }
 
-  // Step 7: Validate a modified Credential
+  // Step 3: Validate a modified Credential
   // TODO: fix error handling
   // console.log(`\n❄️  Validate Credential - ${updateStream.identifier} `)
   // const chainStream = await Cord.Stream.query(updateStream.identifier)
@@ -199,7 +201,7 @@ async function main() {
   //   console.log(`Is Alices's modified credential valid? ${isCredentialValid}`)
   // }
 
-  // Step 8: Revoke a Stream
+  // Step 3: Revoke a Stream
   console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
   let revokeStream = updateStream
 
@@ -220,6 +222,82 @@ async function main() {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
+
+  // await utils.waitForEnter('\n⏎ Press Enter to continue..')
+
+  // //  Step 7: Mark exchange via messaging
+  // console.log(`\n\n📩 Mark Exchange - Selective Disclosure (Verifier)`)
+  // console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
+  // const purpose = 'Account Opening Request'
+  // const validUntil = Date.now() + 864000000
+  // const relatedData = true
+
+  // const { session, message: message } =
+  //   cord.Exchange.Request.newRequestBuilder()
+  //     .requestPresentation({
+  //       id: schemaStream.schemaId,
+  //       properties: ['name', 'age'],
+  //     })
+  //     .finalize(
+  //       purpose,
+  //       verifierIdentity,
+  //       holderIdentity.getPublicIdentity(),
+  //       validUntil,
+  //       relatedData
+  //     )
+
+  // console.log(`\n📧 Selective Disclosure Request`)
+  // console.dir(message, { depth: null, colors: true })
+
+  // const chainStream = await cord.Stream.query(newStream.streamId)
+  // if (chainStream) {
+  //   let credential: cord.Mark
+  //   credential = cord.Mark.fromMarkContentStream(newStreamContent, chainStream)
+  //   const presentation = cord.Exchange.Share.createPresentation(
+  //     holderIdentity,
+  //     message,
+  //     verifierIdentity.getPublicIdentity(),
+  //     [credential],
+  //     {
+  //       showAttributes: message.body.content[0].requiredProperties,
+  //       signer: holderIdentity,
+  //       request: message.body.request,
+  //     }
+  //   )
+
+  //   const { verified } = await cord.Exchange.Verify.verifyPresentation(
+  //     presentation,
+  //     session
+  //   )
+  //   console.log(`\n📧 Received Mark `)
+  //   console.dir(presentation, { depth: null, colors: true })
+
+  //   let result = vcPresentation.verifiableCredential.proof.forEach(function (
+  //     proof: any
+  //   ) {
+  //     console.log(proof)
+  //     if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
+  //       VCUtils.verification.verifyAttestedProof(
+  //         vcPresentation.verifiableCredential,
+  //         proof
+  //       )
+  //   })
+  //   console.log(result)
+  //   if (result && result.verified) {
+  //     console.log(
+  //       `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
+  //     ) // prints 'Billy The Kid'
+  //     // console.log(
+  //     //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
+  //     // ) // undefined
+  //   }
+
+  //   console.log('🔍 All valid? ', verified)
+  // } else {
+  //   console.log(`\n❌ Mark not found `)
+  // }
+
+  // await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
