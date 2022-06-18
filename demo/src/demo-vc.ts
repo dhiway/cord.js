@@ -158,8 +158,8 @@
 //     console.log(e.errorCode, '-', e.message)
 //   }
 
-//   // Step 3: Create a new Mark and Link to the Stream
-//   console.log(`\n\n✉️  Adding a new Mark Schema \n`)
+//   // Step 3: Create a new Credential and Link to the Stream
+//   console.log(`\n\n✉️  Adding a new Credential Schema \n`)
 //   let credSchema = require('../res/cred-schema.json')
 //   credSchema.title = credSchema.title + ':' + UUID.generate()
 
@@ -172,7 +172,7 @@
 //   encoded_hash = await hasher.digest(bytes)
 //   // const credSchemaCid = CID.create(1, 0xb220, encoded_hash)
 //   let credSchemaCreationExtrinsic = await credSchemaStream.create()
-//   console.log('\n⛓  Anchoring Mark Schema to the chain...')
+//   console.log('\n⛓  Anchoring Credential Schema to the chain...')
 
 //   try {
 //     await cord.ChainUtils.signAndSubmitTx(
@@ -190,7 +190,7 @@
 //   console.log(`📧 Schema Details `)
 //   console.dir(credSchemaStream, { depth: null, colors: true })
 
-//   console.log(`\n✉️  Adding a new Mark`, '\n')
+//   console.log(`\n✉️  Adding a new Credential`, '\n')
 //   let markStream = {
 //     name: newStreamContent.content.contents.name,
 //     country: newStreamContent.content.contents.country,
@@ -213,7 +213,7 @@
 //   let credStreamTx = cord.Stream.fromMarkContentProperties(credContentStream)
 
 //   let credStreamCreationExtrinsic = await credStreamTx.create()
-//   console.log(`\n📧 Mark On-Chain Details`)
+//   console.log(`\n📧 Credential On-Chain Details`)
 //   console.dir(credStreamTx, { depth: null, colors: true })
 
 //   try {
@@ -225,14 +225,14 @@
 //         rejectOn: cord.ChainUtils.IS_ERROR,
 //       }
 //     )
-//     console.log('✅ Mark created!')
+//     console.log('✅ Credential created!')
 //   } catch (e: any) {
 //     console.log(e.errorCode, '-', e.message)
 //   }
 //   await utils.waitForEnter('\n⏎ Press Enter to continue..')
 
-//   //  Step 7: Mark exchange via messaging
-//   console.log(`\n\n📩 Mark Exchange - Selective Disclosure (Verifier)`)
+//   //  Step 7: Credential exchange via messaging
+//   console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
 //   console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
 //   const purpose = 'Account Opening Request'
 //   const validUntil = Date.now() + 864000000
@@ -257,8 +257,8 @@
 
 //   const chainStream = await cord.Stream.query(credContentStream.contentId)
 //   if (chainStream) {
-//     let credential: cord.Mark
-//     credential = cord.Mark.fromMarkContentStream(credContentStream, chainStream)
+//     let credential: cord.Credential
+//     credential = cord.Credential.fromMarkContentStream(credContentStream, chainStream)
 //     const presentation = cord.Exchange.Share.createPresentation(
 //       holderIdentity,
 //       message,
@@ -281,7 +281,7 @@
 //       'name',
 //     ])
 
-//     console.log(`\n📧 Received Mark `)
+//     console.log(`\n📧 Received Credential `)
 //     console.dir(presentation, { depth: null, colors: true })
 //     console.dir(VC, { depth: null, colors: true })
 //     console.dir(vcPresentation, {
@@ -313,7 +313,7 @@
 
 //     console.log('🔍 All valid? ', verified)
 //   } else {
-//     console.log(`\n❌ Mark not found `)
+//     console.log(`\n❌ Credential not found `)
 //   }
 
 //   await utils.waitForEnter('\n⏎ Press Enter to continue..')

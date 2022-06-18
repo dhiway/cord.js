@@ -107,8 +107,8 @@ export function verifySelfSignedProof(
 }
 
 /**
- * Verifies a CORD mark proof by querying data from the CORD blockchain.
- * This includes querying the CORD blockchain with the credential id, which returns an mark record if attested.
+ * Verifies a CORD credential proof by querying data from the CORD blockchain.
+ * This includes querying the CORD blockchain with the credential id, which returns an credential record if attested.
  * This record is then compared against issuer address and delegation id (the latter of which is taken directly from the credential).
  *
  * @param credential Verifiable Credential to verify proof against.
@@ -143,7 +143,7 @@ export async function verifyAttestedProof(
     // if not found, credential has not been attested, proof is invalid
     if (!onChain) {
       status = MarkStatus.invalid
-      throw new Error(`mark for credential with id ${streamId} not found`)
+      throw new Error(`credential for credential with id ${streamId} not found`)
     }
     // if data on proof does not correspond to data on chain, proof is incorrect
     if (onChain.issuer !== issuerAddress) {
@@ -154,10 +154,10 @@ export async function verifyAttestedProof(
         }}`
       )
     }
-    // if proof data is valid but mark is flagged as revoked, credential is no longer valid
+    // if proof data is valid but credential is flagged as revoked, credential is no longer valid
     if (onChain.revoked) {
       status = MarkStatus.revoked
-      throw new Error('mark revoked')
+      throw new Error('credential revoked')
     }
   } catch (e) {
     return {

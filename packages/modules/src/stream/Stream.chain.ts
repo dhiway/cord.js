@@ -13,7 +13,7 @@ import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream.js'
 import { STREAM_PREFIX } from '@cord.network/types'
 
-const log = ConfigService.LoggingFactory.getLogger('Mark')
+const log = ConfigService.LoggingFactory.getLogger('Credential')
 
 /**
  * Generate the extrinsic to store the provided [[IStream]].

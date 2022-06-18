@@ -32,7 +32,7 @@
             "signature": "0x00c374b5314d7192224bd620047f740c029af118eb5645a4662f76a2e3d70a877290f9a96cb9ee9ccc6c6bce24a0cf132a07edb603d0d0632f84210d528d2a7701"
         },
         {
-            "type": "Mark",
+            "type": "Credential",
             "proofPurpose": "assertionMethod",
             "issuerAddress": "4sejigvu6STHdYmmYf2SuN92aNp8TbrsnBBDUj7tMrJ9Z3cG"
         },

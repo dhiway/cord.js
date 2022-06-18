@@ -1,12 +1,12 @@
 import type {
-  IMark,
-  CompressedMark,
+  ICredential,
+  CompressedCredential,
   CompressedContentStream,
   IContentStream,
   ISchema,
 } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
-import * as MarkUtils from '../mark/Mark.utils.js'
+import * as CredentialUtils from '../credential/Credential.utils.js'
 import * as ContentUtils from '../content/Content.utils.js'
 import { ContentStream } from './ContentStream.js'
 import * as SchemaUtils from '../schema/Schema.utils.js'
@@ -46,27 +46,27 @@ export function errorCheck(input: IContentStream): void {
 }
 
 /**
- *  Compresses [[CordMark]]s which are made up from an [[Mark]] and [[ContentStream]] for storage and/or message.
+ *  Compresses [[CordMark]]s which are made up from an [[Credential]] and [[ContentStream]] for storage and/or message.
  *
- * @param leg An array of [[Mark]] and [[ContentStream]] objects.
+ * @param leg An array of [[Credential]] and [[ContentStream]] objects.
  *
  * @returns An ordered array of [[CordMark]]s.
  */
 
-export function compressProof(leg: IMark[]): CompressedMark[] {
-  return leg.map(MarkUtils.compress)
+export function compressProof(leg: ICredential[]): CompressedCredential[] {
+  return leg.map(CredentialUtils.compress)
 }
 
 /**
- *  Decompresses [[CordMark]]s which are an [[Mark]] and [[ContentStream]] from storage and/or message.
+ *  Decompresses [[CordMark]]s which are an [[Credential]] and [[ContentStream]] from storage and/or message.
  *
- * @param leg A compressed [[Mark]] and [[ContentStream]] array that is reverted back into an object.
+ * @param leg A compressed [[Credential]] and [[ContentStream]] array that is reverted back into an object.
  *
  * @returns An object that has the same properties as an [[CordMark]].
  */
 
-function decompressProof(leg: CompressedMark[]): IMark[] {
-  return leg.map(MarkUtils.decompress)
+function decompressProof(leg: CompressedCredential[]): ICredential[] {
+  return leg.map(CredentialUtils.decompress)
 }
 
 /**
@@ -128,7 +128,7 @@ export function decompress(
  * @param contentStream A [[ContentStream]] object of an attested claim used for verification.
  * @param schema A [[Schema]] to verify the [[Content]] structure.
  *
- * @returns A boolean if the [[Content]] structure in the [[Mark]] is valid.
+ * @returns A boolean if the [[Content]] structure in the [[Credential]] is valid.
  */
 
 export function verifyStructure(

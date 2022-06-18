@@ -5,14 +5,14 @@
 
 import {
   StreamUtils,
-  MarkUtils,
+  CredentialUtils,
   ContentUtils,
   SchemaUtils,
   ContentStreamUtils,
 } from '@cord.network/modules'
 import type {
-  IMark,
-  CompressedMark,
+  ICredential,
+  CompressedCredential,
   CompressedMessageBody,
   MessageBody,
   CompressedRequestCredentialContent,
@@ -66,10 +66,10 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
-      const creds: IMark[] = body.content.map((credentials, i) => {
+      const creds: ICredential[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
-      creds.map((cred) => MarkUtils.errorCheck(cred))
+      creds.map((cred) => CredentialUtils.errorCheck(cred))
       break
     }
     case Message.BodyType.ACCEPT_CREDENTIAL: {
@@ -181,14 +181,14 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
-      const cordStreams: IMark[] = body.content.map((credentials, i) => {
+      const cordStreams: ICredential[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
       compressedContents = cordStreams.map(
-        (cordStream: IMark | CompressedMark) =>
+        (cordStream: ICredential | CompressedCredential) =>
           Array.isArray(cordStream)
             ? cordStream
-            : MarkUtils.compress(cordStream)
+            : CredentialUtils.compress(cordStream)
       )
       break
     }
@@ -246,10 +246,10 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     }
     // case Message.BodyType.SUBMIT_STREAM_FOR_SCHEMA: {
     //   decompressedContents = body[1].map(
-    //     (cordStream: IMark | CompressedMark) =>
+    //     (cordStream: ICredential | CompressedCredential) =>
     //       !Array.isArray(cordStream)
     //         ? cordStream
-    //         : MarkUtils.decompress(cordStream)
+    //         : CredentialUtils.decompress(cordStream)
     //   )
 
     //   break

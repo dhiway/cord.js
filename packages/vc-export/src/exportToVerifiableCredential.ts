@@ -7,7 +7,7 @@ import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
 import { Did, ContentUtils, Identity } from '@cord.network/modules'
-import type { IMark, ISchema } from '@cord.network/types'
+import type { ICredential, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -46,8 +46,8 @@ export function toCredentialIRI(streamId: string): string {
   return CORD_CREDENTIAL_IRI_PREFIX + streamId
 }
 
-export function fromMark(
-  input: IMark,
+export function fromCredential(
+  input: ICredential,
   holder: Identity,
   schemaType?: ISchema
 ): VerifiableCredential {
@@ -71,7 +71,7 @@ export function fromMark(
     Record<string, AnyJson>
   >
 
-  const issuer = Did.getIdentifierFromAddress(input.content.issuer)
+  const issuer = Did.getIdentifierFromAddress(input.stream.issuer)
 
   // add current date bc we have no issuance date on credential
   // TODO: could we get this from block time or something?
@@ -121,7 +121,7 @@ export function fromMark(
 
   // add self-signed proof
   // infer key type
-  if (input.content.holder !== holder.address) {
+  if (input.stream.holder !== holder.address) {
     throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
   }
 
@@ -136,11 +136,11 @@ export function fromMark(
   }
   VC.proof.push(sSProof)
 
-  // add mark proof
+  // add credential proof
   const attProof: AttestedProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
-    issuerAddress: input.content.issuer,
+    issuerAddress: input.stream.issuer,
   }
   VC.proof.push(attProof)
 
@@ -155,6 +155,3 @@ export function fromMark(
 
   return VC
 }
-
-// export default { fromJournalStream }
-// holder.signStr(rootHash)

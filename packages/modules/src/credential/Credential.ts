@@ -1,17 +1,17 @@
 /**
- * In CORD, a [[Mark]] is a **stream**, which a Holder can store locally and share with Verifiers as they wish.
+ * A[[Credential]] is a **stream**, which a Holder can store locally and share with Verifiers as they wish.
  *
- * Once a request for Mark has been made, the [[Stream]] can be built and the Issuer submits it wrapped in a [[Mark]] object.
- * This [[Mark]] also contains the original request.
- * Mark also exposes a [[createPresentation]] method, that can be used by the holder to hide some specific information from the verifier for more privacy.
+ * Once a content for Credential has been made, the [[Stream]] can be built and the Issuer submits it wrapped in a [[Credential]] object.
+ * This [[Credential]] also contains the original content.
+ * Credential also exposes a [[createPresentation]] method, that can be used by the holder to hide some specific information from the verifier for more privacy.
  *
  * @packageDocumentation
- * @module Mark
+ * @module Credential
  */
 
 import type {
-  IMark,
-  CompressedMark,
+  ICredential,
+  CompressedCredential,
   IContentStream,
   IStream,
   IPresentationOptions,
@@ -20,51 +20,51 @@ import type {
 import { SDKErrors, Identifier } from '@cord.network/utils'
 import { Stream } from '../stream/Stream.js'
 import { ContentStream } from '../contentstream/ContentStream.js'
-import * as MarkUtils from './Mark.utils.js'
+import * as CredentialUtils from './Credential.utils.js'
 import { Presentation, SignedPresentation } from './Presentation'
 import { SCHEMA_PREFIX } from '@cord.network/types'
 
-export class Mark implements IMark {
+export class Credential implements ICredential {
   /**
-   * [STATIC] Builds an instance of [[Mark]], from a simple object with the same properties.
+   * [STATIC] Builds an instance of [[Credential]], from a simple object with the same properties.
    * Used for deserialization.
    *
-   * @param markInput - The base object from which to create the Mark.
-   * @returns A new instantiated [[Mark]] object.
+   * @param cred - The base object from which to create the Credential.
+   * @returns A new instantiated [[Credential]] object.
    *
    */
-  public static fromMark(markInput: IMark): Mark {
-    return new Mark(markInput)
+  public static fromCredential(cred: ICredential): Credential {
+    return new Credential(cred)
   }
 
   /**
-   * [STATIC] Builds a new instance of [[Mark]], from all required properties.
+   * [STATIC] Builds a new instance of [[Credential]], from all required properties.
    *
-   * @param request - The request for mark for the stream that was anchored.
-   * @param content - The mark stream from the issuer.
-   * @returns A new [[Mark]] object.
+   * @param content - The content stream.
+   * @param stream - The credential stream.
+   * @returns A new [[Credential]] object.
    *
    */
   public static fromRequestAndStream(
     request: IContentStream,
-    content: IStream
-  ): Mark {
-    return new Mark({
+    stream: IStream
+  ): Credential {
+    return new Credential({
       request,
-      content,
+      stream,
     })
   }
 
   /**
-   *  [STATIC] Custom Type Guard to determine input being of type IMark using the MarkUtils errorCheck.
+   *  [STATIC] Custom Type Guard to determine input being of type ICredential using the CredentialUtils errorCheck.
    *
-   * @param input The potentially only partial IMark.
+   * @param input The potentially only partial ICredential.
    *
-   * @returns Boolean whether input is of type IMark.
+   * @returns Boolean whether input is of type ICredential.
    */
-  public static isIMark(input: unknown): input is IMark {
+  public static isICredential(input: unknown): input is ICredential {
     try {
-      MarkUtils.errorCheck(input as IMark)
+      CredentialUtils.errorCheck(input as ICredential)
     } catch (error) {
       return false
     }
@@ -72,22 +72,22 @@ export class Mark implements IMark {
   }
 
   public request: ContentStream
-  public content: Stream
+  public stream: Stream
 
   /**
-   * Builds a new [[Mark]] instance.
+   * Builds a new [[Credential]] instance.
    *
-   * @param markInput - The base object with all required input, from which to create the Mark.
+   * @param cred - The base object with all required input, from which to create the Credential.
    *
    */
-  public constructor(markInput: IMark) {
-    MarkUtils.errorCheck(markInput)
-    this.request = ContentStream.fromRequest(markInput.request)
-    this.content = Stream.fromStream(markInput.content)
+  public constructor(cred: ICredential) {
+    CredentialUtils.errorCheck(cred)
+    this.request = ContentStream.fromRequest(cred.request)
+    this.stream = Stream.fromStream(cred.stream)
   }
 
   /**
-   * (ASYNC) Verifies whether the mark stream is valid. It is valid if:
+   * (ASYNC) Verifies whether the credential stream is valid. It is valid if:
    * * the data is valid (see [[verifyData]]);
    * and
    * * the [[Stream]] object for this stream is valid (see [[Stream.checkValidity]], where the **chain** is queried).
@@ -99,44 +99,41 @@ export class Mark implements IMark {
    *
    */
 
-  public static async verify(markInput: IMark): Promise<boolean> {
+  public static async verify(cred: ICredential): Promise<boolean> {
     return (
-      Mark.verifyData(markInput) &&
-      (await ContentStream.verifySignature(markInput.request)) &&
-      Stream.checkValidity(markInput.content)
+      Credential.verifyData(cred) &&
+      (await ContentStream.verifySignature(cred.request)) &&
+      Stream.checkValidity(cred.stream)
     )
   }
 
   public async verify(challenge?: string): Promise<boolean> {
-    return Mark.verify(this)
+    return Credential.verify(this)
   }
 
   /**
-   * Verifies whether the data of the given attested stream is valid. It is valid if:
+   * Verifies whether the data of the given anchored stream is valid. It is valid if:
    * * the [[RequestForMark]] object associated with this attested stream has valid data (see [[RequestForMark.verifyData]]);
    * and
    * * the hash of the [[RequestForMark]] object for the attested stream, and the hash of the [[Stream]] for the attested stream are the same.
    *
-   * @param markedStream - The attested stream to verify.
+   * @param cred - The credential to verify.
    * @returns Whether the attested stream's data is valid.
    *
    */
-  public static verifyData(markInput: IMark): boolean {
-    const schemaIdentifier = markInput.request.content.schema
-      ? Identifier.getIdentifierKey(
-          markInput.request.content.schema,
-          SCHEMA_PREFIX
-        )
+  public static verifyData(cred: ICredential): boolean {
+    const schemaIdentifier = cred.request.content.schema
+      ? Identifier.getIdentifierKey(cred.request.content.schema, SCHEMA_PREFIX)
       : null
-    if (schemaIdentifier !== markInput.content.schema) return false
+    if (schemaIdentifier !== cred.stream.schema) return false
     return (
-      markInput.request.rootHash === markInput.content.streamHash &&
-      ContentStream.verifyData(markInput.request)
+      cred.request.rootHash === cred.stream.streamHash &&
+      ContentStream.verifyData(cred.request)
     )
   }
 
   public verifyData(): boolean {
-    return Mark.verifyData(this)
+    return Credential.verifyData(this)
   }
 
   /**
@@ -147,9 +144,9 @@ export class Mark implements IMark {
    *
    * @returns Boolean whether each element of the given Array of IMarkedStreams is verifiable.
    */
-  public static validateLegitimations(legitimations: IMark[]): boolean {
-    legitimations.forEach((legitimation: IMark) => {
-      if (!Mark.verifyData(legitimation)) {
+  public static validateLegitimations(legitimations: ICredential[]): boolean {
+    legitimations.forEach((legitimation: ICredential) => {
+      if (!Credential.verifyData(legitimation)) {
         throw new SDKErrors.ERROR_LEGITIMATIONS_UNVERIFIABLE()
       }
     })
@@ -157,17 +154,17 @@ export class Mark implements IMark {
   }
 
   /**
-   * Gets the hash of the stream that corresponds to this mark.
+   * Gets the hash of the stream that corresponds to this credential.
    *
-   * @returns The hash of the stream for this mark (streamHash).
+   * @returns The hash of the stream for this credential (streamHash).
    *
    */
   public getHash(): IStream['streamHash'] {
-    return this.content.streamHash
+    return this.stream.streamHash
   }
 
-  public getId(): string {
-    return this.content.identifier
+  public getId(): IStream['identifier'] {
+    return this.stream.identifier
   }
 
   public getAttributes(): Set<string> {
@@ -197,7 +194,7 @@ export class Mark implements IMark {
       ? allAttributes.filter((i) => !showAttributes.includes(i))
       : []
     excludedProperties.push(...hideAttributes)
-    const deepCopy = new Mark(JSON.parse(JSON.stringify(this)))
+    const deepCopy = new Credential(JSON.parse(JSON.stringify(this)))
 
     deepCopy.request.removeContentProperties(excludedProperties)
     const signingOpts = request && signer ? { request, signer } : undefined
@@ -209,8 +206,8 @@ export class Mark implements IMark {
    *
    * @returns An array that contains the same properties of an [[MarkedStream]].
    */
-  public compress(): CompressedMark {
-    return MarkUtils.compress(this)
+  public compress(): CompressedCredential {
+    return CredentialUtils.compress(this)
   }
 
   /**
@@ -219,8 +216,8 @@ export class Mark implements IMark {
    * @param markedStream The [[CompressedMarkedStream]] that should get decompressed.
    * @returns A new [[MarkedStream]] object.
    */
-  public static decompress(markInput: CompressedMark): Mark {
-    const decompressedCredential = MarkUtils.decompress(markInput)
-    return Mark.fromMark(decompressedCredential)
+  public static decompress(cred: CompressedCredential): Credential {
+    const decompressedCredential = CredentialUtils.decompress(cred)
+    return Credential.fromCredential(decompressedCredential)
   }
 }

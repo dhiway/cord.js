@@ -3,11 +3,11 @@ import type {
   CompressedContentStream,
   Hash,
   IContent,
-  IMark,
+  ICredential,
 } from '@cord.network/types'
 import { Crypto, SDKErrors } from '@cord.network/utils'
 import * as ContentUtils from '../content/Content.utils.js'
-import { Mark } from '../mark/Mark.js'
+import { Credential } from '../credential/Credential.js'
 import { Identity } from '../identity/Identity.js'
 import * as ContentStreamUtils from './ContentStream.utils.js'
 import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/types'
@@ -27,7 +27,7 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 }
 
 export type Options = {
-  legitimations?: Mark[]
+  legitimations?: Credential[]
   link?: IContentStream['link']
   space?: IContentStream['space']
 }
@@ -47,12 +47,12 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Builds a new instance of [[ContentStream]], from a complete set of required parameters.
    *
-   * @param content An `IContentStream` object the request for mark is built for.
+   * @param content An `IContentStream` object the request for credential is built for.
    * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
-   * @param option.link Identifier of the stream this mark is linked to.
-   * @param option.space Identifier of the space this mark is linked to.
+   * @param option.legitimations Array of [[Credential]] objects the Issuer include as legitimations.
+   * @param option.link Identifier of the stream this credential is linked to.
+   * @param option.space Identifier of the space this credential is linked to.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns A new [[ContentStream]] object.
    */
@@ -93,10 +93,10 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Update instance of [[ContentStream]], from a complete set of required parameters.
    *
-   * @param content An `IContentStream` object the request for mark is built for.
+   * @param content An `IContentStream` object the request for credential is built for.
    * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
+   * @param option.legitimations Array of [[Credential]] objects the Issuer include as legitimations.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns An updated [[ContentStream]] object.
    */
@@ -175,7 +175,7 @@ export class ContentStream implements IContentStream {
       contentStreamRequest.legitimations.length
     ) {
       this.legitimations = contentStreamRequest.legitimations.map((proof) =>
-        Mark.fromMark(proof)
+        Credential.fromCredential(proof)
       )
     } else {
       this.legitimations = []
@@ -239,7 +239,7 @@ export class ContentStream implements IContentStream {
       )
 
     // check proofs
-    Mark.validateLegitimations(input.legitimations)
+    Credential.validateLegitimations(input.legitimations)
 
     return true
   }
@@ -278,7 +278,7 @@ export class ContentStream implements IContentStream {
 
   private static getHashLeaves(
     contentHashes: Hash[],
-    legitimations: IMark[]
+    legitimations: ICredential[]
   ): Uint8Array[] {
     const result: Uint8Array[] = []
     contentHashes.forEach((item) => {
@@ -286,7 +286,7 @@ export class ContentStream implements IContentStream {
     })
     if (legitimations) {
       legitimations.forEach((legitimation) => {
-        result.push(Crypto.coToUInt8(legitimation.content.identifier))
+        result.push(Crypto.coToUInt8(legitimation.request.identifier))
       })
     }
     return result
@@ -315,10 +315,10 @@ export class ContentStream implements IContentStream {
     return ContentStream.fromRequest(decompressedContentStream)
   }
 
-  private static calculateRootHash(mark: Partial<IContentStream>): Hash {
+  private static calculateRootHash(credential: Partial<IContentStream>): Hash {
     const hashes: Uint8Array[] = ContentStream.getHashLeaves(
-      mark.contentHashes || [],
-      mark.legitimations || []
+      credential.contentHashes || [],
+      credential.legitimations || []
     )
     const root: Uint8Array = getHashRoot(hashes)
     // return Crypto.u8aToHex(root)

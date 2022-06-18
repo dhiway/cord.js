@@ -176,7 +176,7 @@ async function main() {
   if (!stream) {
     console.log(`Stream not anchored on CORD`)
   } else {
-    const credential = Cord.Mark.fromRequestAndStream(
+    const credential = Cord.Credential.fromRequestAndStream(
       updateStreamContent,
       stream
     )
@@ -192,7 +192,7 @@ async function main() {
   //   console.log(`Stream not anchored on CORD`)
   // } else {
   //   console.dir(newStreamContent, { depth: null, colors: true })
-  //   const credential = Cord.Mark.fromRequestAndStream(
+  //   const credential = Cord.Credential.fromRequestAndStream(
   //     newStreamContent,
   //     chainStream
   //   )
@@ -225,8 +225,8 @@ async function main() {
 
   // await utils.waitForEnter('\n⏎ Press Enter to continue..')
 
-  // //  Step 7: Mark exchange via messaging
-  // console.log(`\n\n📩 Mark Exchange - Selective Disclosure (Verifier)`)
+  // //  Step 7: Credential exchange via messaging
+  // console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
   // console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
   // const purpose = 'Account Opening Request'
   // const validUntil = Date.now() + 864000000
@@ -251,8 +251,8 @@ async function main() {
 
   // const chainStream = await cord.Stream.query(newStream.streamId)
   // if (chainStream) {
-  //   let credential: cord.Mark
-  //   credential = cord.Mark.fromMarkContentStream(newStreamContent, chainStream)
+  //   let credential: cord.Credential
+  //   credential = cord.Credential.fromMarkContentStream(newStreamContent, chainStream)
   //   const presentation = cord.Exchange.Share.createPresentation(
   //     holderIdentity,
   //     message,
@@ -269,7 +269,7 @@ async function main() {
   //     presentation,
   //     session
   //   )
-  //   console.log(`\n📧 Received Mark `)
+  //   console.log(`\n📧 Received Credential `)
   //   console.dir(presentation, { depth: null, colors: true })
 
   //   let result = vcPresentation.verifiableCredential.proof.forEach(function (
@@ -294,7 +294,7 @@ async function main() {
 
   //   console.log('🔍 All valid? ', verified)
   // } else {
-  //   console.log(`\n❌ Mark not found `)
+  //   console.log(`\n❌ Credential not found `)
   // }
 
   // await utils.waitForEnter('\n⏎ Press Enter to continue..')

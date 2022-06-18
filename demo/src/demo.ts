@@ -174,7 +174,7 @@ async function main() {
   if (!stream) {
     console.log(`Stream not anchored on CORD`)
   } else {
-    const credential = Cord.Mark.fromRequestAndStream(
+    const credential = Cord.Credential.fromRequestAndStream(
       updateStreamContent,
       stream
     )
@@ -190,7 +190,7 @@ async function main() {
   //   console.log(`Stream not anchored on CORD`)
   // } else {
   //   console.dir(newStreamContent, { depth: null, colors: true })
-  //   const credential = Cord.Mark.fromRequestAndStream(
+  //   const credential = Cord.Credential.fromRequestAndStream(
   //     newStreamContent,
   //     chainStream
   //   )

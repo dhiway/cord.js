@@ -4,7 +4,7 @@
  */
 
 import type { HexString } from '@polkadot/util/types'
-import type { IMark, CompressedMark } from './Mark.js'
+import type { ICredential, CompressedCredential } from './Credential.js'
 import type { IContent, CompressedContent } from './Content.js'
 
 export type Hash = HexString
@@ -18,7 +18,7 @@ export interface IContentStream {
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
-  legitimations: IMark[]
+  legitimations: ICredential[]
   link: string | null
   space: string | null
   issuerSignature: string
@@ -33,7 +33,7 @@ export type CompressedContentStream = [
   IContentStream['issuerSignature'],
   IContentStream['link'] | null,
   IContentStream['space'] | null,
-  CompressedMark[],
+  CompressedCredential[],
   IContentStream['rootHash'],
   IContentStream['identifier']
 ]
