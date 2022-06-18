@@ -9,6 +9,7 @@
 
 import { decodeAddress, encodeAddress } from '@polkadot/keyring'
 import type { KeyringPair } from '@polkadot/keyring/types'
+import type { HexString } from '@polkadot/util/types'
 import {
   isString,
   stringToU8a,
@@ -213,7 +214,7 @@ export function hash(value: CryptoInput, bitLength?: BitLength): Uint8Array {
  * @param value Value to be hashed.
  * @returns Blake2b hash as hex string.
  */
-export function hashStr(value: CryptoInput): string {
+export function hashStr(value: CryptoInput): HexString {
   return u8aToHex(hash(value))
 }
 
@@ -247,10 +248,10 @@ export function encodeObjectAsStr(
  * @param nonce Optional nonce to obscure hashed values that could be guessed.
  * @returns Blake2b hash as hex string.
  */
-export function hashObjectAsStr(
+export function hashObjectAsHexStr(
   value: Record<string, any> | string | number | boolean,
   nonce?: string
-): string {
+): HexString {
   let objectAsStr = encodeObjectAsStr(value)
   if (nonce) {
     objectAsStr = nonce + objectAsStr
@@ -351,7 +352,7 @@ export function decryptAsymmetricAsStr(
  * @returns String representation of hash.
  */
 export interface Hasher {
-  (value: string, nonce?: string): string
+  (value: string, nonce?: string): HexString
 }
 
 /**
@@ -388,9 +389,9 @@ export function hashStatements(
   statements: string[],
   options: HashingOptions = {}
 ): Array<{
-  digest: string
+  digest: HexString
   statement: string
-  saltedHash: string
+  saltedHash: HexString
   nonce: string
 }> {
   // apply defaults

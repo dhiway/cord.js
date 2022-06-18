@@ -3,10 +3,11 @@
  * @module IContentStream
  */
 
+import type { HexString } from '@polkadot/util/types'
 import type { IMark, CompressedMark } from './Mark.js'
 import type { IContent, CompressedContent } from './Content.js'
 
-export type Hash = string
+export type Hash = HexString
 
 export type NonceHash = {
   hash: Hash

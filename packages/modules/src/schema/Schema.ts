@@ -134,7 +134,7 @@ export class Schema implements ISchema {
     const txId = UUID.generate()
     const schemaHash = this.schemaHash
     const hashVal = { txId, delegates, schemaHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return authorise(
       this.schema.$id,
@@ -154,7 +154,7 @@ export class Schema implements ISchema {
     const txId = UUID.generate()
     const schemaHash = this.schemaHash
     const hashVal = { txId, delegates, schemaHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return deauthorise(
       this.schema.$id,
@@ -170,7 +170,7 @@ export class Schema implements ISchema {
     const txId = UUID.generate()
     const schemaHash = this.schemaHash
     const hashVal = { txId, schemaHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return revoke(
       this.identifier,

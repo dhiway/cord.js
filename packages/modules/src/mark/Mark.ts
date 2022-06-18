@@ -162,7 +162,7 @@ export class Mark implements IMark {
    * @returns The hash of the stream for this mark (streamHash).
    *
    */
-  public getHash(): string {
+  public getHash(): IStream['streamHash'] {
     return this.content.streamHash
   }
 

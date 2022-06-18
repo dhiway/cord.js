@@ -3,6 +3,7 @@
  * @module SchemaUtils
  */
 
+import type { HexString } from '@polkadot/util/types'
 import type {
   ISchema,
   IContent,
@@ -87,9 +88,9 @@ export function getSchemaPropertiesForHash(
 
 export function getHashForSchema(
   schema: SchemaWithoutId | ISchema['schema']
-): string {
+): HexString {
   const prepSchema = getSchemaPropertiesForHash(schema)
-  return Crypto.hashObjectAsStr(prepSchema)
+  return Crypto.hashObjectAsHexStr(prepSchema)
 }
 
 /**

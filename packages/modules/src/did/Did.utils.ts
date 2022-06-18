@@ -147,7 +147,7 @@ export function verifyDidDocumentSignature(
   }
   const { signature, ...unsignedDidDocument } = didDocument
   return Crypto.verify(
-    Crypto.hashObjectAsStr(unsignedDidDocument),
+    Crypto.hashObjectAsHexStr(unsignedDidDocument),
     signature,
     getAddressFromIdentifier(identifier)
   )
@@ -157,7 +157,7 @@ export function signDidDocument(
   didDocument: IDidDocument,
   identity: Identity
 ): IDidDocumentSigned {
-  const didDocumentHash = Crypto.hashObjectAsStr(didDocument)
+  const didDocumentHash = Crypto.hashObjectAsHexStr(didDocument)
   return {
     ...didDocument,
     signature: identity.signStr(didDocumentHash),

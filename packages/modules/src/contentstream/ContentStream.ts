@@ -147,15 +147,15 @@ export class ContentStream implements IContentStream {
     return true
   }
 
-  public content: IContent
-  public contentHashes: string[]
-  public contentNonceMap: Record<string, string>
-  public legitimations: Mark[]
+  public content: IContentStream['content']
+  public contentHashes: IContentStream['contentHashes']
+  public contentNonceMap: IContentStream['contentNonceMap']
+  public legitimations: IContentStream['legitimations']
   public link: IContentStream['link'] | null
   public space: IContentStream['space'] | null
   public issuerSignature: string
-  public rootHash: Hash
-  public identifier: string
+  public rootHash: IContentStream['rootHash']
+  public identifier: IContentStream['identifier']
 
   /**
    * Builds a new [[ContentStream]] instance.

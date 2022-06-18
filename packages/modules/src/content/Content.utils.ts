@@ -1,4 +1,5 @@
 import { hexToBn } from '@polkadot/util'
+import type { HexString } from '@polkadot/util/types'
 import type {
   IContent,
   CompressedContent,
@@ -89,7 +90,7 @@ export function hashContents(
     canonicalisation?: (content: PartialContent) => string[]
   } = {}
 ): {
-  hashes: string[]
+  hashes: HexString[]
   nonceMap: Record<string, string>
 } {
   // apply defaults
