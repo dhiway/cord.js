@@ -30,9 +30,10 @@ export interface SelfSignedProof extends Proof {
   verificationMethod: string | IPublicKeyRecord
   signature: string
 }
-export interface AttestedProof extends Proof {
+export interface CordStreamProof extends Proof {
   type: typeof CORD_ANCHORED_PROOF_TYPE
   issuerAddress: string
+  holderAddress?: string
 }
 export interface CredentialDigestProof extends Proof {
   type: typeof CORD_CREDENTIAL_DIGEST_PROOF_TYPE

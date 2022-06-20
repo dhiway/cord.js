@@ -160,32 +160,41 @@ async function main() {
 
     console.log(`\n❄️  Verifiy Presentation`)
 
-    // const signatureResult = await VCUtils.verification.verifySelfSignedProof(
-    //   vcPresentation.verifiableCredential,
-    //   vcPresentation.verifiableCredential.proof[0]
-    // )
+    const signatureResult = await VCUtils.verification.verifySelfSignedProof(
+      vcPresentation.verifiableCredential,
+      vcPresentation.verifiableCredential.proof[0]
+    )
     const streamResult = await VCUtils.verification.verifyStreamProof(
       vcPresentation.verifiableCredential,
       vcPresentation.verifiableCredential.proof[1]
     )
+
     const digestResult = await VCUtils.verification.verifyCredentialDigestProof(
       vcPresentation.verifiableCredential,
       vcPresentation.verifiableCredential.proof[2]
     )
-    console.log(digestResult)
     if (
       (!streamResult && !streamResult['verified']) ||
-      (!digestResult && !digestResult['verified'])
+      (!digestResult && !digestResult['verified']) ||
+      (!signatureResult && !signatureResult['verified'])
     ) {
       console.log(
         `❌  Verification failed `,
+        'Signature Proof',
+        signatureResult['verified'],
+        'Stream Proof',
         streamResult['verified'],
+        'Digest Proof',
         digestResult['verified']
       )
     } else {
       console.log(
         '✅  All valid? ',
+        'Signature Proof',
+        signatureResult['verified'],
+        'Stream Proof',
         streamResult['verified'],
+        'Digest Proof',
         digestResult['verified']
       )
     }

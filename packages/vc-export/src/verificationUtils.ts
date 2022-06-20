@@ -6,7 +6,7 @@
 // import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
-import { Stream, TypeSchema, Did } from '@cord.network/modules'
+import { Stream, TypeSchema, DidUtils } from '@cord.network/modules'
 import { Crypto, JsonSchema } from '@cord.network/utils'
 import {
   CORD_SELF_SIGNED_PROOF_TYPE,
@@ -17,7 +17,7 @@ import {
 import type {
   VerifiableCredential,
   SelfSignedProof,
-  AttestedProof,
+  CordStreamProof,
   CredentialDigestProof,
 } from './types.js'
 import { Hash } from '@cord.network/types'
@@ -87,7 +87,7 @@ export function verifySelfSignedProof(
       )
     const signerPubKey = verificationMethod.publicKeyHex
 
-    const rootHash = fromCredentialIRI(credential.id)
+    const rootHash = fromCredentialIRI(credential.credentialHash)
     // validate signature over root hash
     // signatureVerify can handle all required signature types out of the box
     const verification = signatureVerify(
@@ -119,7 +119,7 @@ export function verifySelfSignedProof(
  */
 export async function verifyStreamProof(
   credential: VerifiableCredential,
-  proof: AttestedProof
+  proof: CordStreamProof
 ): Promise<StreamVerificationResult> {
   let status: StreamStatus = StreamStatus.unknown
   try {
@@ -127,13 +127,22 @@ export async function verifyStreamProof(
     const type = proof['@type'] || proof.type
     if (type !== CORD_ANCHORED_PROOF_TYPE)
       throw new Error('Proof type mismatch')
-    const { issuerAddress } = proof
+    const { issuerAddress, holderAddress } = proof
     if (typeof issuerAddress !== 'string' || !issuerAddress)
       throw PROOF_MALFORMED_ERROR('issuer address not understood')
-    if (issuerAddress !== Did.getAddressFromIdentifier(credential.issuer))
-      throw PROOF_MALFORMED_ERROR(
-        'issuer address not matching credential issuer'
-      )
+    if (
+      issuerAddress !==
+      DidUtils.getAccountAddressFromIdentifier(credential.issuer)
+    )
+      throw PROOF_MALFORMED_ERROR('credential issuer address is not matching')
+
+    if (holderAddress) {
+      if (typeof holderAddress !== 'string')
+        throw PROOF_MALFORMED_ERROR('holder address not understood')
+      if (credential.credentialSubject['@id'] !== holderAddress)
+        throw PROOF_MALFORMED_ERROR('credential holder address is not matching')
+    }
+
     if (typeof credential.id !== 'string' || !credential.id)
       throw CREDENTIAL_MALFORMED_ERROR(
         'stream id (=stream hash) missing / invalid'
@@ -147,7 +156,7 @@ export async function verifyStreamProof(
       status = StreamStatus.invalid
       throw new Error(`credential for credential with id ${streamId} not found`)
     }
-    // if data on proof does not correspond to data on chain, proof is incorrect
+    // if issuer data on proof does not correspond to data on chain, proof is incorrect
     if (onChain.issuer !== issuerAddress) {
       status = StreamStatus.invalid
       throw new Error(
@@ -156,6 +165,26 @@ export async function verifyStreamProof(
         }}`
       )
     }
+    // if holder data on proof does not correspond to data on chain, proof is incorrect
+    if (holderAddress) {
+      if (typeof holderAddress !== 'string')
+        throw PROOF_MALFORMED_ERROR('holder address not understood')
+      if (onChain.holder !== holderAddress)
+        throw new Error(
+          `proof not matching on-chain data: proof ${{
+            holder: holderAddress,
+          }}`
+        )
+    }
+
+    // if rootHash on credential does not correspond to data on chain, proof is incorrect
+    if (onChain.streamHash !== credential.credentialHash)
+      throw new Error(
+        `credential hash is not matching on-chain data: proof ${{
+          hash: credential.credentialHash,
+        }}`
+      )
+
     // if proof data is valid but credential is flagged as revoked, credential is no longer valid
     if (onChain.revoked) {
       status = StreamStatus.revoked

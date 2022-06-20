@@ -22,7 +22,7 @@ import {
   CORD_CREDENTIAL_IRI_PREFIX,
 } from './constants.js'
 import type {
-  AttestedProof,
+  CordStreamProof,
   CredentialDigestProof,
   CredentialSchema,
   Proof,
@@ -139,12 +139,13 @@ export function fromCredential(
   VC.proof.push(sSProof)
 
   // add credential proof
-  const attProof: AttestedProof = {
+  const streamProof: CordStreamProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
     issuerAddress: input.stream.issuer,
+    holderAddress: holder ? input.stream.holder : undefined,
   }
-  VC.proof.push(attProof)
+  VC.proof.push(streamProof)
 
   // add hashed properties proof
   const cDProof: CredentialDigestProof = {

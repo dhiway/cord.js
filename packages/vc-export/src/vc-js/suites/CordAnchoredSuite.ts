@@ -8,7 +8,7 @@ import type {
   VerificationResult,
 } from 'jsonld-signatures'
 import type { JsonLdObj } from 'jsonld/jsonld-spec'
-import type { AttestedProof } from '../../types.js'
+import type { CordStreamProof } from '../../types.js'
 import { verifyStreamProof, StreamStatus } from '../../verificationUtils.js'
 import { CORD_ANCHORED_PROOF_TYPE } from '../../constants.js'
 import CordAbstractSuite from './CordAbstractSuite.js'
@@ -52,7 +52,7 @@ export default class CordAnchoredSuite extends CordAbstractSuite {
       if (!proof || typeof proof !== 'object')
         throw new TypeError('proof must be a JsonLd object')
       const compactedDoc = await this.compactDoc(document, options)
-      const compactedProof = await this.compactProof<AttestedProof>(
+      const compactedProof = await this.compactProof<CordStreamProof>(
         proof,
         options
       )

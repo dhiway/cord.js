@@ -83,6 +83,15 @@ export function getAddressFromIdentifier(
   return identifier.substr(IDENTIFIER_PREFIX.length)
 }
 
+export function getAccountAddressFromIdentifier(
+  address: IDid['identifier']
+): IPublicIdentity['address'] {
+  if (!address.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
+    throw new SDKErrors.ERROR_INVALID_DID_PREFIX(address)
+  }
+  return address.substr(ACCOUNT_IDENTIFIER_PREFIX.length)
+}
+
 export function createDefaultDidDocument(
   identifier: string,
   publicBoxKey: string,
