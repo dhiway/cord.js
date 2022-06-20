@@ -56,7 +56,7 @@ A verifier can now check the proofs attached to the VerifiableCredential but can
 let result
 presentation.verifiableCredential.proof.foreach((proof) => {
   if (proof.type === VCUtils.types.CORD_ANCHORED_PROOF_TYPE)
-    VCUtils.verification.verifyAttestedProof(proof)
+    VCUtils.verification.verifyStreamProof(proof)
 })
 
 if (result && result.verified) {
@@ -85,7 +85,7 @@ const { CordIntegritySuite, CordSignatureSuite, CordAttestedSuite } =
 const signatureSuite = new CordSignatureSuite()
 const integritySuite = new CordIntegritySuite()
 // the CordAttestedSuite requires a connection object that allows access to the CORD blockchain, which we can obtain via the CORD sdk
-await cord.init({ address: 'wss://full-nodes.dway.io:443' })
+await cord.init({ address: 'wss://full-nodes.cord.network:443' })
 const CordConnection = await cord.connect()
 const attestedSuite = new CordAttestedSuite({ CordConnection })
 

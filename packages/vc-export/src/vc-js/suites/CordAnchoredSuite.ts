@@ -9,14 +9,14 @@ import type {
 } from 'jsonld-signatures'
 import type { JsonLdObj } from 'jsonld/jsonld-spec'
 import type { AttestedProof } from '../../types.js'
-import { verifyAttestedProof, MarkStatus } from '../../verificationUtils.js'
+import { verifyStreamProof, StreamStatus } from '../../verificationUtils.js'
 import { CORD_ANCHORED_PROOF_TYPE } from '../../constants.js'
 import CordAbstractSuite from './CordAbstractSuite.js'
 
 class MarkError extends Error {
-  public readonly journalStatus: MarkStatus
+  public readonly journalStatus: StreamStatus
 
-  constructor(message: string, journalStatus: MarkStatus) {
+  constructor(message: string, journalStatus: StreamStatus) {
     super(message)
     this.name = 'JournalError'
     this.journalStatus = journalStatus
@@ -57,7 +57,7 @@ export default class CordAnchoredSuite extends CordAbstractSuite {
         options
       )
       this.setConnection()
-      const { verified, errors, status } = await verifyAttestedProof(
+      const { verified, errors, status } = await verifyStreamProof(
         compactedDoc,
         compactedProof
       )

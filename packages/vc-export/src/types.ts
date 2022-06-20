@@ -56,21 +56,24 @@ export interface CredentialSchema {
 export interface VerifiableCredential {
   '@context': [typeof DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT, ...string[]]
   // the credential types, which declare what data to expect in the credential
-  type: [typeof DEFAULT_VERIFIABLE_CREDENTIAL_TYPE, ...string[]]
   id: string
-  // streams about the subjects of the credential
-  credentialSubject: Record<string, AnyJson>
+  type: [typeof DEFAULT_VERIFIABLE_CREDENTIAL_TYPE, ...string[]]
   // the entity that issued the credential
   issuer: string
   // when the credential was issued
   issuanceDate: string
+  // when the credential will expire
+  expirationDate: string
+  // streams about the subjects of the credential
+  credentialSubject: Record<string, AnyJson>
+  // rootHash  of the credential
+  credentialHash: string
   // Ids / digests of streams that empower the issuer to provide judegment
   legitimationIds: string[]
   // digital proof that makes the credential tamper-evident
   proof: Proof | Proof[]
   nonTransferable?: boolean
   credentialSchema?: CredentialSchema
-  expirationDate?: string
 }
 
 export interface VerifiablePresentation {
@@ -80,5 +83,3 @@ export interface VerifiablePresentation {
   holder?: string
   proof: Proof | Proof[]
 }
-
-// | VerifiableCredential[]

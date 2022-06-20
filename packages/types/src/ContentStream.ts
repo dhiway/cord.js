@@ -24,6 +24,8 @@ export interface IContentStream {
   issuerSignature: string
   rootHash: Hash
   identifier: string
+  issuanceDate: string
+  expirationDate: string
 }
 
 export type CompressedContentStream = [
@@ -35,5 +37,7 @@ export type CompressedContentStream = [
   IContentStream['space'] | null,
   CompressedCredential[],
   IContentStream['rootHash'],
-  IContentStream['identifier']
+  IContentStream['identifier'],
+  IContentStream['issuanceDate'],
+  IContentStream['expirationDate']
 ]

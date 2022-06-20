@@ -12,6 +12,7 @@ import { Identity } from '../identity/Identity.js'
 import {
   CONTEXT,
   IDENTIFIER_PREFIX,
+  ACCOUNT_IDENTIFIER_PREFIX,
   IDid,
   IDidDocument,
   IDidDocumentSigned,
@@ -54,6 +55,14 @@ export function getIdentifierFromAddress(
   return address.startsWith(IDENTIFIER_PREFIX)
     ? address
     : IDENTIFIER_PREFIX + address
+}
+
+export function getAccountIdentifierFromAddress(
+  address: IPublicIdentity['address']
+): IDid['identifier'] {
+  return address.startsWith(ACCOUNT_IDENTIFIER_PREFIX)
+    ? address
+    : ACCOUNT_IDENTIFIER_PREFIX + address
 }
 
 /**

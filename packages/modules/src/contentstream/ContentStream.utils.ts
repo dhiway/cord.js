@@ -5,7 +5,7 @@ import type {
   IContentStream,
   ISchema,
 } from '@cord.network/types'
-import { DataUtils, SDKErrors } from '@cord.network/utils'
+import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import * as CredentialUtils from '../credential/Credential.utils.js'
 import * as ContentUtils from '../content/Content.utils.js'
 import { ContentStream } from './ContentStream.js'
@@ -42,7 +42,11 @@ export function errorCheck(input: IContentStream): void {
   ) {
     throw new SDKErrors.ERROR_CONTENT_NONCE_MAP_MALFORMED()
   }
-  ContentStream.verifyData(input as IContentStream)
+  ContentStream.verifyData(
+    input as IContentStream,
+    Crypto.hashObjectAsHexStr(input.issuanceDate),
+    Crypto.hashObjectAsHexStr(input.expirationDate)
+  )
 }
 
 /**
@@ -91,6 +95,8 @@ export function compress(
     compressProof(contentStream.legitimations),
     contentStream.rootHash,
     contentStream.identifier,
+    contentStream.issuanceDate,
+    contentStream.expirationDate,
   ]
 }
 
@@ -106,7 +112,7 @@ export function compress(
 export function decompress(
   contentStream: CompressedContentStream
 ): IContentStream {
-  if (!Array.isArray(contentStream) || contentStream.length !== 9) {
+  if (!Array.isArray(contentStream) || contentStream.length !== 11) {
     throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Request for Stream Content')
   }
   return {
@@ -119,6 +125,8 @@ export function decompress(
     legitimations: decompressProof(contentStream[6]),
     rootHash: contentStream[7],
     identifier: contentStream[8],
+    issuanceDate: contentStream[9],
+    expirationDate: contentStream[10],
   }
 }
 

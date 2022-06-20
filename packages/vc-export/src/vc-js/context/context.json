@@ -3,7 +3,7 @@
     "@version": 1.1,
     "@protected": true,
     "cred": "https://www.w3.org/2018/credentials#",
-    "dwayCred": "https://dway.io/contexts/credentials#",
+    "dwayCred": "https://cord.network/contexts/credentials#",
     "sec": "https://w3id.org/security#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "verificationMethod": {
@@ -46,7 +46,7 @@
     },
     "Ed25519VerificationKey2018": "sec:Ed25519VerificationKey2018",
     "Credential": {
-      "@id": "cordCred:CordMark2020",
+      "@id": "cordCred:CordCredential2020",
       "@context": {
         "@version": 1.1,
         "@protected": true,

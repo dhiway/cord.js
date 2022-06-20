@@ -17,7 +17,7 @@ import type {
   IPresentationOptions,
   IPresentationSigningOptions,
 } from '@cord.network/types'
-import { SDKErrors, Identifier } from '@cord.network/utils'
+import { Crypto, SDKErrors, Identifier } from '@cord.network/utils'
 import { Stream } from '../stream/Stream.js'
 import { ContentStream } from '../contentstream/ContentStream.js'
 import * as CredentialUtils from './Credential.utils.js'
@@ -128,7 +128,11 @@ export class Credential implements ICredential {
     if (schemaIdentifier !== cred.stream.schema) return false
     return (
       cred.request.rootHash === cred.stream.streamHash &&
-      ContentStream.verifyData(cred.request)
+      ContentStream.verifyData(
+        cred.request,
+        Crypto.hashObjectAsHexStr(cred.request.issuanceDate),
+        Crypto.hashObjectAsHexStr(cred.request.expirationDate)
+      )
     )
   }
 

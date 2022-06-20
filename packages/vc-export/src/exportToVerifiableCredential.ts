@@ -6,7 +6,7 @@
 import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
-import { Did, ContentUtils, Identity } from '@cord.network/modules'
+import { DidUtils, ContentUtils, Identity } from '@cord.network/modules'
 import type { ICredential, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
@@ -71,12 +71,10 @@ export function fromCredential(
     Record<string, AnyJson>
   >
 
-  const issuer = Did.getIdentifierFromAddress(input.stream.issuer)
+  const issuer = DidUtils.getAccountIdentifierFromAddress(input.stream.issuer)
 
-  // add current date bc we have no issuance date on credential
-  // TODO: could we get this from block time or something?
-  const issuanceDate = new Date().toISOString()
-
+  const issuanceDate = input.request.issuanceDate
+  const expirationDate = input.request.expirationDate
   // if schema is given, add as credential schema
   let credentialSchema: CredentialSchema | undefined
   if (schemaType) {
@@ -86,7 +84,9 @@ export function fromCredential(
       '@type': JSON_SCHEMA_TYPE,
       name: schema.title,
       schema,
-      author: controller ? Did.getIdentifierFromAddress(controller) : undefined,
+      author: controller
+        ? DidUtils.getAccountIdentifierFromAddress(controller)
+        : undefined,
     }
   }
 
@@ -99,12 +99,14 @@ export function fromCredential(
       DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
       CORD_CREDENTIAL_CONTEXT_URL,
     ],
-    type: [DEFAULT_VERIFIABLE_CREDENTIAL_TYPE, CORD_VERIFIABLE_CREDENTIAL_TYPE],
     id,
-    credentialSubject,
-    legitimationIds,
+    type: [DEFAULT_VERIFIABLE_CREDENTIAL_TYPE, CORD_VERIFIABLE_CREDENTIAL_TYPE],
     issuer,
     issuanceDate,
+    expirationDate,
+    credentialSubject,
+    credentialHash: rootHash,
+    legitimationIds,
     nonTransferable: true,
     proof,
     credentialSchema,

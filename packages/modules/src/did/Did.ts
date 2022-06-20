@@ -29,7 +29,8 @@ import {
 const log = ConfigService.LoggingFactory.getLogger('DID')
 
 export const IDENTIFIER_PREFIX = 'did:cord:'
-export const SERVICE_DWAY_MESSAGING = 'DwayMessagingService'
+export const ACCOUNT_IDENTIFIER_PREFIX = 'id:cord:'
+export const SERVICE_DWAY_MESSAGING = 'CordMessagingService'
 export const KEY_TYPE_SIGNATURE = 'Ed25519VerificationKey2018'
 export const KEY_TYPE_ENCRYPTION = 'X25519Salsa20Poly1305Key2018'
 export const KEY_TYPE_AUTHENTICATION = 'Ed25519SignatureAuthentication2018'

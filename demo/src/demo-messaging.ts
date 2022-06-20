@@ -277,7 +277,7 @@ async function main() {
   //   ) {
   //     console.log(proof)
   //     if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
-  //       VCUtils.verification.verifyAttestedProof(
+  //       VCUtils.verification.verifyStreamProof(
   //         vcPresentation.verifiableCredential,
   //         proof
   //       )

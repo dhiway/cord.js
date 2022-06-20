@@ -17,6 +17,7 @@ export {
   IDidDocument,
   IDidDocumentPublicKey,
   IDidDocumentSigned,
+  DidUtils,
 } from './did/index.js'
 
 export { connect, disconnect, config, init } from './cordconfig/index.js'

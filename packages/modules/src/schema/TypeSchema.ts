@@ -6,7 +6,7 @@
 import { JsonSchema } from '@cord.network/utils'
 
 export const SchemaModel: JsonSchema.Schema = {
-  $id: 'http://dway.io/draft-01/schema#',
+  $id: 'http://cord.network/draft-01/schema#',
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
   properties: {
@@ -71,7 +71,7 @@ export const SchemaModel: JsonSchema.Schema = {
 }
 
 export const SchemaWrapperModel = {
-  $id: 'http://dway.io/draft-01/schema-wrapper#',
+  $id: 'http://cord.network/draft-01/schema-wrapper#',
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
   properties: {
@@ -97,7 +97,7 @@ export const SchemaWrapperModel = {
 }
 
 export const MetadataModel = {
-  $id: 'http://dway.io/draft-01/schema-metadata',
+  $id: 'http://cord.network/draft-01/schema-metadata',
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
   properties: {
