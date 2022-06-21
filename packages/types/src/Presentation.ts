@@ -1,7 +1,7 @@
-import { IMark } from './Mark.js'
+import { ICredential } from './Credential.js'
 
 export interface IPresentation {
-  credentials: IMark[]
+  credentials: ICredential[]
   holderSignature?: string
 }
 

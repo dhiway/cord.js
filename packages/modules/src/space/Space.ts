@@ -50,7 +50,7 @@ export class Space implements ISpace {
     space: ISpace['space'],
     controller: Identity
   ): Space {
-    const spaceHash = Crypto.hashObjectAsStr(space)
+    const spaceHash = Crypto.hashObjectAsHexStr(space)
     const spaceId = Identifier.getIdentifier(
       spaceHash,
       SPACE_IDENTIFIER,
@@ -120,7 +120,7 @@ export class Space implements ISpace {
     const txId = UUID.generate()
     const spaceHash = this.spaceHash
     const hashVal = { txId, delegates, spaceHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return authorise(
       this.identifier,
@@ -146,7 +146,7 @@ export class Space implements ISpace {
     const txId = UUID.generate()
     const spaceHash = this.spaceHash
     const hashVal = { txId, delegates, spaceHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return deauthorise(
       this.identifier,
@@ -168,7 +168,7 @@ export class Space implements ISpace {
     const txId = UUID.generate()
     const spaceHash = this.spaceHash
     const hashVal = { txId, spaceHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return archive(this.identifier, controller.address, txHash, txSignature)
   }
@@ -184,7 +184,7 @@ export class Space implements ISpace {
     const txId = UUID.generate()
     const spaceHash = this.spaceHash
     const hashVal = { txId, spaceHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return restore(this.identifier, controller.address, txHash, txSignature)
   }
@@ -204,7 +204,7 @@ export class Space implements ISpace {
     const txId = UUID.generate()
     const spaceHash = this.spaceHash
     const hashVal = { txId, spaceHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = controller.signStr(txHash)
     return transfer(
       this.identifier,

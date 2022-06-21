@@ -3,10 +3,10 @@
  * @module VerificationUtils
  */
 
-import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
+// import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
-import { Stream, TypeSchema, Did } from '@cord.network/modules'
+import { Stream, TypeSchema, DidUtils } from '@cord.network/modules'
 import { Crypto, JsonSchema } from '@cord.network/utils'
 import {
   CORD_SELF_SIGNED_PROOF_TYPE,
@@ -17,25 +17,27 @@ import {
 import type {
   VerifiableCredential,
   SelfSignedProof,
-  AttestedProof,
+  CordStreamProof,
   CredentialDigestProof,
 } from './types.js'
+import { Hash } from '@cord.network/types'
 import { fromCredentialIRI } from './exportToVerifiableCredential.js'
+import { HexString } from '@polkadot/util/types.js'
 
 export interface VerificationResult {
   verified: boolean
   errors: Error[]
 }
 
-export enum MarkStatus {
+export enum StreamStatus {
   valid = 'valid',
   invalid = 'invalid',
   revoked = 'revoked',
   unknown = 'unknown',
 }
 
-export interface MarkVerificationResult extends VerificationResult {
-  status: MarkStatus
+export interface StreamVerificationResult extends VerificationResult {
+  status: StreamStatus
 }
 
 const CREDENTIAL_MALFORMED_ERROR = (reason: string): Error =>
@@ -85,7 +87,7 @@ export function verifySelfSignedProof(
       )
     const signerPubKey = verificationMethod.publicKeyHex
 
-    const rootHash = fromCredentialIRI(credential.id)
+    const rootHash = fromCredentialIRI(credential.credentialHash)
     // validate signature over root hash
     // signatureVerify can handle all required signature types out of the box
     const verification = signatureVerify(
@@ -107,31 +109,40 @@ export function verifySelfSignedProof(
 }
 
 /**
- * Verifies a CORD mark proof by querying data from the CORD blockchain.
- * This includes querying the CORD blockchain with the credential id, which returns an mark record if attested.
+ * Verifies a CORD credential proof by querying data from the CORD blockchain.
+ * This includes querying the CORD blockchain with the credential id, which returns an credential record if attested.
  * This record is then compared against issuer address and delegation id (the latter of which is taken directly from the credential).
  *
  * @param credential Verifiable Credential to verify proof against.
  * @param proof CORD self signed proof object.
  * @returns Object indicating whether proof could be verified.
  */
-export async function verifyAttestedProof(
+export async function verifyStreamProof(
   credential: VerifiableCredential,
-  proof: AttestedProof
-): Promise<MarkVerificationResult> {
-  let status: MarkStatus = MarkStatus.unknown
+  proof: CordStreamProof
+): Promise<StreamVerificationResult> {
+  let status: StreamStatus = StreamStatus.unknown
   try {
     // check proof
     const type = proof['@type'] || proof.type
     if (type !== CORD_ANCHORED_PROOF_TYPE)
       throw new Error('Proof type mismatch')
-    const { issuerAddress } = proof
+    const { issuerAddress, holderAddress } = proof
     if (typeof issuerAddress !== 'string' || !issuerAddress)
       throw PROOF_MALFORMED_ERROR('issuer address not understood')
-    if (issuerAddress !== Did.getAddressFromIdentifier(credential.issuer))
-      throw PROOF_MALFORMED_ERROR(
-        'issuer address not matching credential issuer'
-      )
+    if (
+      issuerAddress !==
+      DidUtils.getAccountAddressFromIdentifier(credential.issuer)
+    )
+      throw PROOF_MALFORMED_ERROR('credential issuer address is not matching')
+
+    if (holderAddress) {
+      if (typeof holderAddress !== 'string')
+        throw PROOF_MALFORMED_ERROR('holder address not understood')
+      if (credential.credentialSubject['@id'] !== holderAddress)
+        throw PROOF_MALFORMED_ERROR('credential holder address is not matching')
+    }
+
     if (typeof credential.id !== 'string' || !credential.id)
       throw CREDENTIAL_MALFORMED_ERROR(
         'stream id (=stream hash) missing / invalid'
@@ -142,22 +153,42 @@ export async function verifyAttestedProof(
     const onChain = await Stream.query(streamId)
     // if not found, credential has not been attested, proof is invalid
     if (!onChain) {
-      status = MarkStatus.invalid
-      throw new Error(`mark for credential with id ${streamId} not found`)
+      status = StreamStatus.invalid
+      throw new Error(`credential for credential with id ${streamId} not found`)
     }
-    // if data on proof does not correspond to data on chain, proof is incorrect
+    // if issuer data on proof does not correspond to data on chain, proof is incorrect
     if (onChain.issuer !== issuerAddress) {
-      status = MarkStatus.invalid
+      status = StreamStatus.invalid
       throw new Error(
         `proof not matching on-chain data: proof ${{
           issuer: issuerAddress,
         }}`
       )
     }
-    // if proof data is valid but mark is flagged as revoked, credential is no longer valid
+    // if holder data on proof does not correspond to data on chain, proof is incorrect
+    if (holderAddress) {
+      if (typeof holderAddress !== 'string')
+        throw PROOF_MALFORMED_ERROR('holder address not understood')
+      if (onChain.holder !== holderAddress)
+        throw new Error(
+          `proof not matching on-chain data: proof ${{
+            holder: holderAddress,
+          }}`
+        )
+    }
+
+    // if rootHash on credential does not correspond to data on chain, proof is incorrect
+    if (onChain.streamHash !== credential.credentialHash)
+      throw new Error(
+        `credential hash is not matching on-chain data: proof ${{
+          hash: credential.credentialHash,
+        }}`
+      )
+
+    // if proof data is valid but credential is flagged as revoked, credential is no longer valid
     if (onChain.revoked) {
-      status = MarkStatus.revoked
-      throw new Error('mark revoked')
+      status = StreamStatus.revoked
+      throw new Error('credential revoked')
     }
   } catch (e) {
     return {
@@ -166,7 +197,7 @@ export async function verifyAttestedProof(
       status,
     }
   }
-  return { verified: true, errors: [], status: MarkStatus.valid }
+  return { verified: true, errors: [], status: StreamStatus.valid }
 }
 
 /**
@@ -198,21 +229,10 @@ export async function verifyCredentialDigestProof(
     }
     if (typeof credential.credentialSubject !== 'object')
       throw CREDENTIAL_MALFORMED_ERROR('credential subject missing')
-
-    // 1: check credential digest against credential contents & stream property hashes in proof
-    // collect hashes from hash array, legitimations & delegationId
-    const hashes: string[] = proof.streamHashes.concat(
-      credential.legitimationIds
-    )
-    // convert hex hashes to byte arrays & concatenate
-    const concatenated = u8aConcat(
-      ...hashes.map((hexHash) => hexToU8a(hexHash))
-    )
-    const rootHash = Crypto.hash(concatenated)
-
+    const rootHash = verifyRootHash(credential, proof)
     // throw if root hash does not match expected (=id)
-    const expectedRootHash = fromCredentialIRI(credential.id)
-    if (expectedRootHash !== u8aToHex(rootHash))
+    const expectedRootHash = credential.credentialHash
+    if (expectedRootHash !== rootHash)
       throw new Error('computed root hash does not match expected')
 
     // 2: check individual properties against stream hashes in proof
@@ -237,7 +257,7 @@ export async function verifyCredentialDigestProof(
             ],
           }
         const nonce = proof.nonces[unsalted]
-        if (!proof.streamHashes.includes(hasher(unsalted, nonce)))
+        if (!proof.contentHashes.includes(hasher(unsalted, nonce)))
           return {
             verified: false,
             errors: [
@@ -275,4 +295,54 @@ export function validateSchema(
     }
   }
   return { verified: false, errors: [] }
+}
+
+function verifyRootHash(
+  input: VerifiableCredential,
+  proof: CredentialDigestProof
+): Hash {
+  const issuanceDateHash = Crypto.hashObjectAsHexStr(input.issuanceDate)
+  const expirationDateHash = Crypto.hashObjectAsHexStr(input.expirationDate)
+  return calculateRootHash(input, proof, issuanceDateHash, expirationDateHash)
+}
+
+function calculateRootHash(
+  credential: Partial<VerifiableCredential>,
+  proof: CredentialDigestProof,
+  issuanceDate: HexString,
+  expirationDate: HexString
+): Hash {
+  const hashes: Uint8Array[] = getHashLeaves(
+    proof.contentHashes || [],
+    credential.legitimationIds || [],
+    issuanceDate,
+    expirationDate
+  )
+  const root: Uint8Array = getHashRoot(hashes)
+  return Crypto.u8aToHex(root)
+}
+
+function getHashLeaves(
+  contentHashes: string[],
+  legitimations: string[],
+  issueDate: HexString,
+  expiryDate: HexString
+): Uint8Array[] {
+  const result: Uint8Array[] = []
+  contentHashes.forEach((item) => {
+    result.push(Crypto.coToUInt8(item))
+  })
+  if (legitimations) {
+    legitimations.forEach((legitimation) => {
+      result.push(Crypto.coToUInt8(legitimation))
+    })
+  }
+  result.push(Crypto.coToUInt8(issueDate))
+  result.push(Crypto.coToUInt8(expiryDate))
+  return result
+}
+
+function getHashRoot(leaves: Uint8Array[]): Uint8Array {
+  const result = Crypto.u8aConcat(...leaves)
+  return Crypto.hash(result)
 }

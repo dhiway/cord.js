@@ -16,7 +16,7 @@ It provides you with tools to export your existing CORD credentials to the widel
   - functions that verify three proof types:
     - holder's self-signed proof over the credential digest
     - credential digest proof that assures the integrity of disclosed attributes, holder identity, legitimations and delegations
-    - mark proof that assures the credential is attested by the identity disclosed as the `issuer` and not revoked
+    - credential proof that assures the credential is attested by the identity disclosed as the `issuer` and not revoked
   - a function to validate the disclosed stream properties against the schema of a CORD MType, which is a prescriptive schema detailing fields and their data types.
 - vc-js suites: tooling to integrate CORD VCs with `vc-js` and `jsonld-signatures^5.0.0`
   - `suites`: contains suites to verify the three CORD proof types that secure a CORD VC.
@@ -52,11 +52,11 @@ const presentation = VCUtils.presentation.makePresentation(VC, ['name'])
 A verifier can now check the proofs attached to the VerifiableCredential but can only see the disclosed attributes:
 
 ```typescript
-// Here's an example for verifying the mark proof
+// Here's an example for verifying the credential proof
 let result
 presentation.verifiableCredential.proof.foreach((proof) => {
   if (proof.type === VCUtils.types.CORD_ANCHORED_PROOF_TYPE)
-    VCUtils.verification.verifyAttestedProof(proof)
+    VCUtils.verification.verifyStreamProof(proof)
 })
 
 if (result && result.verified) {
@@ -85,7 +85,7 @@ const { CordIntegritySuite, CordSignatureSuite, CordAttestedSuite } =
 const signatureSuite = new CordSignatureSuite()
 const integritySuite = new CordIntegritySuite()
 // the CordAttestedSuite requires a connection object that allows access to the CORD blockchain, which we can obtain via the CORD sdk
-await cord.init({ address: 'wss://full-nodes.dway.io:443' })
+await cord.init({ address: 'wss://full-nodes.cord.network:443' })
 const CordConnection = await cord.connect()
 const attestedSuite = new CordAttestedSuite({ CordConnection })
 

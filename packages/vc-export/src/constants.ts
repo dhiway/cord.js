@@ -18,7 +18,7 @@ export const DEFAULT_VERIFIABLEPRESENTATION_TYPE = 'VerifiablePresentation'
 export const CORD_VERIFIABLE_CREDENTIAL_TYPE = 'CordCredential2020'
 
 export const CORD_SELF_SIGNED_PROOF_TYPE = 'CordSelfSigned2020'
-export const CORD_ANCHORED_PROOF_TYPE = 'CordMark2020'
+export const CORD_ANCHORED_PROOF_TYPE = 'CordCredential2020'
 export const CORD_CREDENTIAL_DIGEST_PROOF_TYPE = 'CordCredentialDigest2020'
 
 export const JSON_SCHEMA_TYPE = 'JsonSchemaValidator2018'

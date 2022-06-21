@@ -27,7 +27,7 @@ export class Stream implements IStream {
    *
    */
   public static async query(
-    streamIdentifier: string
+    streamIdentifier: IContentStream['identifier']
   ): Promise<StreamDetails | null> {
     return query(Identifier.getIdentifierKey(streamIdentifier, STREAM_PREFIX))
   }
@@ -147,7 +147,7 @@ export class Stream implements IStream {
     const txId = UUID.generate()
     const streamHash = this.streamHash
     const hashVal = { txId, streamHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = StreamUtils.sign(controller, txHash)
     return revoke(
       this.identifier,
@@ -181,7 +181,7 @@ export class Stream implements IStream {
     }
     const txId = UUID.generate()
     const hashVal = { txId, digestHash }
-    const txHash = Crypto.hashObjectAsStr(hashVal)
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
     const txSignature = StreamUtils.sign(issuer, txHash)
     return digest(
       Identifier.getIdentifierKey(this.identifier, STREAM_PREFIX),
@@ -250,7 +250,7 @@ export class StreamDetails implements IStreamDetails {
 
   public static async checkValidity(
     stream: IStreamDetails,
-    identifier: string = stream.identifier
+    identifier: IStream['identifier'] = stream.identifier
   ): Promise<boolean> {
     // Query stream by stream identifier. null if no stream is found on-chain for this hash
     const chainStream: StreamDetails | null = await Stream.query(identifier)

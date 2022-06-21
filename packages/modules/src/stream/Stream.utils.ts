@@ -41,11 +41,11 @@ export function errorCheck(input: IStream): void {
 }
 
 /**
- *  Compresses an [[Mark]] object into an array for storage and/or messaging.
+ *  Compresses an [[Credential]] object into an array for storage and/or messaging.
  *
- * @param stream An [[Mark]] object that will be sorted and stripped for messaging or storage.
+ * @param stream An [[Credential]] object that will be sorted and stripped for messaging or storage.
  *
- * @returns An ordered array of an [[Mark]].
+ * @returns An ordered array of an [[Credential]].
  */
 
 export function compress(stream: IStream): CompressedStream {
@@ -63,17 +63,17 @@ export function compress(stream: IStream): CompressedStream {
 }
 
 /**
- *  Decompresses an [[Mark]] from storage and/or message into an object.
+ *  Decompresses an [[Credential]] from storage and/or message into an object.
  *
- * @param stream A compressed [[Mark]] array that is decompressed back into an object.
+ * @param stream A compressed [[Credential]] array that is decompressed back into an object.
  * @throws [[ERROR_DECOMPRESSION_ARRAY]] when the stream is not an array or its length is not equal to 5.
  *
- * @returns An object that has the same properties as an [[Mark]].
+ * @returns An object that has the same properties as an [[Credential]].
  */
 
 export function decompress(stream: CompressedStream): IStream {
   if (!Array.isArray(stream) || stream.length !== 8) {
-    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Mark')
+    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Credential')
   }
   return {
     identifier: stream[0],

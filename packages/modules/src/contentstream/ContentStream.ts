@@ -3,15 +3,16 @@ import type {
   CompressedContentStream,
   Hash,
   IContent,
-  IMark,
+  ICredential,
 } from '@cord.network/types'
 import { Crypto, SDKErrors } from '@cord.network/utils'
 import * as ContentUtils from '../content/Content.utils.js'
-import { Mark } from '../mark/Mark.js'
+import { Credential } from '../credential/Credential.js'
 import { Identity } from '../identity/Identity.js'
 import * as ContentStreamUtils from './ContentStream.utils.js'
 import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
+import { HexString } from '@polkadot/util/types.js'
 
 function verifyCreatorSignature(content: IContentStream): boolean {
   return Crypto.verify(
@@ -27,9 +28,10 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 }
 
 export type Options = {
-  legitimations?: Mark[]
+  legitimations?: Credential[]
   link?: IContentStream['link']
   space?: IContentStream['space']
+  expiry?: IContentStream['expirationDate']
 }
 
 export class ContentStream implements IContentStream {
@@ -47,19 +49,19 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Builds a new instance of [[ContentStream]], from a complete set of required parameters.
    *
-   * @param content An `IContentStream` object the request for mark is built for.
+   * @param content An `IContentStream` object the request for credential is built for.
    * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
-   * @param option.link Identifier of the stream this mark is linked to.
-   * @param option.space Identifier of the space this mark is linked to.
+   * @param option.legitimations Array of [[Credential]] objects the Issuer include as legitimations.
+   * @param option.link Identifier of the stream this credential is linked to.
+   * @param option.space Identifier of the space this credential is linked to.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns A new [[ContentStream]] object.
    */
   public static fromContent(
     content: IContent,
     issuer: Identity,
-    { legitimations, link, space }: Options = {}
+    { legitimations, link, space, expiry }: Options = {}
   ): ContentStream {
     if (content.issuer !== issuer.address) {
       throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
@@ -68,10 +70,19 @@ export class ContentStream implements IContentStream {
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content)
 
-    const rootHash = ContentStream.calculateRootHash({
-      legitimations,
-      contentHashes,
-    })
+    const issuanceDate = new Date().toISOString()
+    const issuanceDateHash = Crypto.hashObjectAsHexStr(issuanceDate)
+    const expirationDate = expiry || 'Not Set'
+    const expirationDateHash = Crypto.hashObjectAsHexStr(expirationDate)
+
+    const rootHash = ContentStream.calculateRootHash(
+      {
+        legitimations,
+        contentHashes,
+      },
+      issuanceDateHash,
+      expirationDateHash
+    )
 
     return new ContentStream({
       content,
@@ -82,6 +93,8 @@ export class ContentStream implements IContentStream {
       space: space || null,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
+      issuanceDate,
+      expirationDate,
       identifier: Identifier.getIdentifier(
         rootHash,
         STREAM_IDENTIFIER,
@@ -93,17 +106,17 @@ export class ContentStream implements IContentStream {
   /**
    * [STATIC] Update instance of [[ContentStream]], from a complete set of required parameters.
    *
-   * @param content An `IContentStream` object the request for mark is built for.
+   * @param content An `IContentStream` object the request for credential is built for.
    * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.legitimations Array of [[Mark]] objects the Issuer include as legitimations.
+   * @param option.legitimations Array of [[Credential]] objects the Issuer include as legitimations.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns An updated [[ContentStream]] object.
    */
   public static updateContentProperties(
     content: IContentStream,
     issuer: Identity,
-    { legitimations }: Options = {}
+    { legitimations, expiry }: Options = {}
   ): ContentStream {
     if (content.content.issuer !== issuer.address) {
       throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
@@ -113,10 +126,19 @@ export class ContentStream implements IContentStream {
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content.content)
 
-    const rootHash = ContentStream.calculateRootHash({
-      legitimations: updateLegitimations,
-      contentHashes,
-    })
+    const issuanceDate = new Date().toISOString()
+    const issuanceDateHash = Crypto.hashObjectAsHexStr(issuanceDate)
+    const expirationDate = expiry || 'Not Set'
+    const expirationDateHash = Crypto.hashObjectAsHexStr(expirationDate)
+
+    const rootHash = ContentStream.calculateRootHash(
+      {
+        legitimations: updateLegitimations,
+        contentHashes,
+      },
+      issuanceDateHash,
+      expirationDateHash
+    )
 
     return new ContentStream({
       content: content.content,
@@ -127,6 +149,8 @@ export class ContentStream implements IContentStream {
       space: content.space,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
+      issuanceDate,
+      expirationDate,
       identifier: content.identifier,
     })
   }
@@ -147,15 +171,17 @@ export class ContentStream implements IContentStream {
     return true
   }
 
-  public content: IContent
-  public contentHashes: string[]
-  public contentNonceMap: Record<string, string>
-  public legitimations: Mark[]
+  public content: IContentStream['content']
+  public contentHashes: IContentStream['contentHashes']
+  public contentNonceMap: IContentStream['contentNonceMap']
+  public legitimations: IContentStream['legitimations']
   public link: IContentStream['link'] | null
   public space: IContentStream['space'] | null
   public issuerSignature: string
-  public rootHash: Hash
-  public identifier: string
+  public rootHash: IContentStream['rootHash']
+  public identifier: IContentStream['identifier']
+  public issuanceDate: string
+  public expirationDate: string
 
   /**
    * Builds a new [[ContentStream]] instance.
@@ -175,17 +201,22 @@ export class ContentStream implements IContentStream {
       contentStreamRequest.legitimations.length
     ) {
       this.legitimations = contentStreamRequest.legitimations.map((proof) =>
-        Mark.fromMark(proof)
+        Credential.fromCredential(proof)
       )
     } else {
       this.legitimations = []
     }
-    this.rootHash = contentStreamRequest.rootHash
     this.link = contentStreamRequest.link
     this.space = contentStreamRequest.space
+    this.issuanceDate = contentStreamRequest.issuanceDate
+    this.expirationDate = contentStreamRequest.expirationDate
+    this.rootHash = contentStreamRequest.rootHash
     this.issuerSignature = contentStreamRequest.issuerSignature
     this.verifySignature()
-    this.verifyData()
+    this.verifyData(
+      Crypto.hashObjectAsHexStr(contentStreamRequest.issuanceDate),
+      Crypto.hashObjectAsHexStr(contentStreamRequest.expirationDate)
+    )
   }
 
   /**
@@ -213,9 +244,13 @@ export class ContentStream implements IContentStream {
    * @throws [[ERROR_ROOT_HASH_UNVERIFIABLE]] or [[ERROR_SIGNATURE_UNVERIFIABLE]] when either the rootHash or the signature are not verifiable respectively.
    *
    */
-  public static verifyData(input: IContentStream): boolean {
+  public static verifyData(
+    input: IContentStream,
+    issuanceDate: HexString,
+    expirationDate: HexString
+  ): boolean {
     // check stream hash
-    if (!ContentStream.verifyRootHash(input)) {
+    if (!ContentStream.verifyRootHash(input, issuanceDate, expirationDate)) {
       throw new SDKErrors.ERROR_ROOT_HASH_UNVERIFIABLE()
     }
     // check signature
@@ -239,13 +274,16 @@ export class ContentStream implements IContentStream {
       )
 
     // check proofs
-    Mark.validateLegitimations(input.legitimations)
+    Credential.validateLegitimations(input.legitimations)
 
     return true
   }
 
-  public verifyData(): boolean {
-    return ContentStream.verifyData(this)
+  public verifyData(
+    issuanceDate: HexString,
+    expirationDate: HexString
+  ): boolean {
+    return ContentStream.verifyData(this, issuanceDate, expirationDate)
   }
 
   /**
@@ -263,22 +301,33 @@ export class ContentStream implements IContentStream {
     return ContentStream.verifySignature(this)
   }
 
-  public static verifyRootHash(input: IContentStream): boolean {
-    return input.rootHash === ContentStream.calculateRootHash(input)
+  public static verifyRootHash(
+    input: IContentStream,
+    issuanceDate: HexString,
+    expirationDate: HexString
+  ): boolean {
+    return (
+      input.rootHash ===
+      ContentStream.calculateRootHash(input, issuanceDate, expirationDate)
+    )
   }
 
-  public verifyRootHash(): boolean {
-    return ContentStream.verifyRootHash(this)
+  public verifyRootHash(
+    issuanceDate: HexString,
+    expirationDate: HexString
+  ): boolean {
+    return ContentStream.verifyRootHash(this, issuanceDate, expirationDate)
   }
 
   private static sign(identity: Identity, rootHash: Hash): string {
-    // return identity.signStr(Crypto.hashStr(rootHash))
     return identity.signStr(rootHash)
   }
 
   private static getHashLeaves(
     contentHashes: Hash[],
-    legitimations: IMark[]
+    legitimations: ICredential[],
+    issueDate: HexString,
+    expiryDate: HexString
   ): Uint8Array[] {
     const result: Uint8Array[] = []
     contentHashes.forEach((item) => {
@@ -286,9 +335,11 @@ export class ContentStream implements IContentStream {
     })
     if (legitimations) {
       legitimations.forEach((legitimation) => {
-        result.push(Crypto.coToUInt8(legitimation.content.identifier))
+        result.push(Crypto.coToUInt8(legitimation.request.identifier))
       })
     }
+    result.push(Crypto.coToUInt8(issueDate))
+    result.push(Crypto.coToUInt8(expiryDate))
     return result
   }
 
@@ -315,13 +366,18 @@ export class ContentStream implements IContentStream {
     return ContentStream.fromRequest(decompressedContentStream)
   }
 
-  private static calculateRootHash(mark: Partial<IContentStream>): Hash {
+  private static calculateRootHash(
+    credential: Partial<IContentStream>,
+    issuanceDate: HexString,
+    expirationDate: HexString
+  ): Hash {
     const hashes: Uint8Array[] = ContentStream.getHashLeaves(
-      mark.contentHashes || [],
-      mark.legitimations || []
+      credential.contentHashes || [],
+      credential.legitimations || [],
+      issuanceDate,
+      expirationDate
     )
     const root: Uint8Array = getHashRoot(hashes)
-    // return Crypto.u8aToHex(root)
-    return Crypto.hashStr(root)
+    return Crypto.u8aToHex(root)
   }
 }

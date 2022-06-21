@@ -42,7 +42,7 @@ export class Message implements IMessage {
    * @param message The [[Message]] object which needs to be decrypted.
    * @param message.body The body of the [[Message]] which depends on the [[BodyType]].
    * @param message.senderAddress The sender's public SS58 address of the [[Message]].
-   * @throws [[ERROR_IDENTITY_MISMATCH]] when the sender does not match the holder of the content embedded in the message, e.g. A request for mark or an mark.
+   * @throws [[ERROR_IDENTITY_MISMATCH]] when the sender does not match the holder of the content embedded in the message, e.g. A request for credential or an credential.
    *
    */
   public static ensureOwnerIsSender({ body, senderAddress }: IMessage): void {
@@ -70,7 +70,7 @@ export class Message implements IMessage {
         {
           const submitStreamsForSchema: ISubmitCredential = body
           submitStreamsForSchema.content.forEach((stream, i) => {
-            if (stream.credentials[i].content.issuer !== senderAddress) {
+            if (stream.credentials[i].stream.issuer !== senderAddress) {
               throw new SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
             }
           })

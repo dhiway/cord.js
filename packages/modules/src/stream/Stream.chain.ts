@@ -3,6 +3,7 @@ import type {
   IStream,
   IStreamDetails,
   IPublicIdentity,
+  IContentStream,
   SubmittableExtrinsic,
 } from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
@@ -12,7 +13,7 @@ import { ChainApiConnection } from '@cord.network/network'
 import { StreamDetails } from './Stream.js'
 import { STREAM_PREFIX } from '@cord.network/types'
 
-const log = ConfigService.LoggingFactory.getLogger('Mark')
+const log = ConfigService.LoggingFactory.getLogger('Credential')
 
 /**
  * Generate the extrinsic to store the provided [[IStream]].
@@ -143,7 +144,7 @@ export interface AnchoredStreamDetails extends Struct {
 
 function decodeStream(
   encodedStream: Option<AnchoredStreamDetails>,
-  streamIdentifier: string
+  streamIdentifier: IContentStream['identifier']
 ): StreamDetails | null {
   DecoderUtils.assertCodecIsType(encodedStream, [
     'Option<PalletStreamStreamsStreamDetails>',
@@ -152,7 +153,7 @@ function decodeStream(
     const anchoredStream = encodedStream.unwrap()
     const stream: IStreamDetails = {
       identifier: streamIdentifier,
-      streamHash: anchoredStream.streamHash.toString(),
+      streamHash: anchoredStream.streamHash.toHex(),
       issuer: anchoredStream.controller.toString(),
       holder: anchoredStream.holder.toString() || null,
       schema:
@@ -173,7 +174,7 @@ function decodeStream(
  * @returns An Option wrapping scale encoded stream data.
  */
 export async function queryRaw(
-  streamIdentifier: string
+  streamIdentifier: IContentStream['identifier']
 ): Promise<Option<AnchoredStreamDetails>> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   const result = await blockchain.api.query.stream.streams<
@@ -189,7 +190,7 @@ export async function queryRaw(
  * @returns Either the retrieved [[Stream]] or null.
  */
 export async function query(
-  streamIdentifier: string
+  streamIdentifier: IContentStream['identifier']
 ): Promise<StreamDetails | null> {
   const encoded = await queryRaw(streamIdentifier)
   return decodeStream(encoded, streamIdentifier)
@@ -202,7 +203,7 @@ export async function query(
  * @returns Either the retrieved owner or null.
  */
 export async function getOwner(
-  streamIdentifier: string
+  streamIdentifier: IContentStream['identifier']
 ): Promise<IPublicIdentity['address'] | null> {
   const stream_Id = Identifier.getIdentifierKey(streamIdentifier, STREAM_PREFIX)
 

@@ -135,7 +135,7 @@ function decodeSchema(
     const anchoredSchema = encodedSchema.unwrap()
     const schema: ISchemaDetails = {
       identifier: schemaId,
-      schemaHash: anchoredSchema.schemaHash.toString(),
+      schemaHash: anchoredSchema.schemaHash.toHex(),
       controller: anchoredSchema.controller.toString(),
       space: DecoderUtils.hexToString(anchoredSchema.space.toString()) || null,
       revoked: anchoredSchema.revoked.valueOf(),

@@ -3,9 +3,9 @@
  * @module Request
  */
 
-import { Mark, SDKErrors } from '@cord.network/modules'
+import { Credential, SDKErrors } from '@cord.network/modules'
 import { ConfigService } from '@cord.network/config'
-import type { IMark, IContentStream, IMessage } from '@cord.network/types'
+import type { ICredential, IContentStream, IMessage } from '@cord.network/types'
 import { Message } from '@cord.network/messaging'
 import { IRequestSession } from './Request'
 
@@ -28,11 +28,11 @@ const log = ConfigService.LoggingFactory.getLogger('Request')
  * @returns An object describing whether the verification was successful.
  */
 async function verifySharedPresentation(
-  credStreams: Mark[],
+  credStreams: Credential[],
   session: IRequestSession
 ): Promise<{
   verified: boolean
-  streams: Array<Partial<IMark>>
+  streams: Array<Partial<ICredential>>
 }> {
   if (credStreams.length !== session.requestedProperties.length) {
     log.info(
@@ -79,19 +79,19 @@ export async function verifyPresentation(
   session: IRequestSession
 ): Promise<{
   verified: boolean
-  streams: Array<Partial<IContentStream | IMark>>
+  streams: Array<Partial<IContentStream | ICredential>>
 }> {
   if (message.body.type !== Message.BodyType.SUBMIT_CREDENTIAL)
     throw new SDKErrors.ERROR_MESSAGE_TYPE(
       message.body.type,
       Message.BodyType.SUBMIT_CREDENTIAL
     )
-  const credentialStreams: IMark[] = message.body.content.map(
+  const credentialStreams: ICredential[] = message.body.content.map(
     (credentials: any, i: any) => {
       return credentials.credentials[i]
     }
   )
-  const credStreams = credentialStreams.map(Mark.fromMark)
+  const credStreams = credentialStreams.map(Credential.fromCredential)
 
   // currently only supporting id-ed credentials
   return verifySharedPresentation(credStreams, session)

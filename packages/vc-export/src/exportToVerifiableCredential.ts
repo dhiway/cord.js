@@ -6,8 +6,8 @@
 import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
-import { Did, ContentUtils, Identity } from '@cord.network/modules'
-import type { IMark, ISchema } from '@cord.network/types'
+import { DidUtils, ContentUtils, Identity } from '@cord.network/modules'
+import type { ICredential, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -22,7 +22,7 @@ import {
   CORD_CREDENTIAL_IRI_PREFIX,
 } from './constants.js'
 import type {
-  AttestedProof,
+  CordStreamProof,
   CredentialDigestProof,
   CredentialSchema,
   Proof,
@@ -46,8 +46,8 @@ export function toCredentialIRI(streamId: string): string {
   return CORD_CREDENTIAL_IRI_PREFIX + streamId
 }
 
-export function fromMark(
-  input: IMark,
+export function fromCredential(
+  input: ICredential,
   holder: Identity,
   schemaType?: ISchema
 ): VerifiableCredential {
@@ -71,12 +71,10 @@ export function fromMark(
     Record<string, AnyJson>
   >
 
-  const issuer = Did.getIdentifierFromAddress(input.content.issuer)
+  const issuer = DidUtils.getAccountIdentifierFromAddress(input.stream.issuer)
 
-  // add current date bc we have no issuance date on credential
-  // TODO: could we get this from block time or something?
-  const issuanceDate = new Date().toISOString()
-
+  const issuanceDate = input.request.issuanceDate
+  const expirationDate = input.request.expirationDate
   // if schema is given, add as credential schema
   let credentialSchema: CredentialSchema | undefined
   if (schemaType) {
@@ -86,7 +84,9 @@ export function fromMark(
       '@type': JSON_SCHEMA_TYPE,
       name: schema.title,
       schema,
-      author: controller ? Did.getIdentifierFromAddress(controller) : undefined,
+      author: controller
+        ? DidUtils.getAccountIdentifierFromAddress(controller)
+        : undefined,
     }
   }
 
@@ -99,12 +99,14 @@ export function fromMark(
       DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
       CORD_CREDENTIAL_CONTEXT_URL,
     ],
-    type: [DEFAULT_VERIFIABLE_CREDENTIAL_TYPE, CORD_VERIFIABLE_CREDENTIAL_TYPE],
     id,
-    credentialSubject,
-    legitimationIds,
+    type: [DEFAULT_VERIFIABLE_CREDENTIAL_TYPE, CORD_VERIFIABLE_CREDENTIAL_TYPE],
     issuer,
     issuanceDate,
+    expirationDate,
+    credentialSubject,
+    credentialHash: rootHash,
+    legitimationIds,
     nonTransferable: true,
     proof,
     credentialSchema,
@@ -121,7 +123,7 @@ export function fromMark(
 
   // add self-signed proof
   // infer key type
-  if (input.content.holder !== holder.address) {
+  if (input.stream.holder !== holder.address) {
     throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
   }
 
@@ -136,13 +138,14 @@ export function fromMark(
   }
   VC.proof.push(sSProof)
 
-  // add mark proof
-  const attProof: AttestedProof = {
+  // add credential proof
+  const streamProof: CordStreamProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
-    issuerAddress: input.content.issuer,
+    issuerAddress: input.stream.issuer,
+    holderAddress: holder ? input.stream.holder : undefined,
   }
-  VC.proof.push(attProof)
+  VC.proof.push(streamProof)
 
   // add hashed properties proof
   const cDProof: CredentialDigestProof = {
@@ -155,6 +158,3 @@ export function fromMark(
 
   return VC
 }
-
-// export default { fromJournalStream }
-// holder.signStr(rootHash)

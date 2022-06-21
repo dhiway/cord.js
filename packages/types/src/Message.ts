@@ -4,7 +4,7 @@
  */
 
 import type { CompressedStream, IStream } from './Stream.js'
-import type { CompressedMark } from './Mark.js'
+import type { CompressedCredential } from './Credential.js'
 
 import type {
   CompressedContent,
@@ -135,7 +135,7 @@ export type CompressedRequestCredential = [
 ]
 export type CompressedSubmitCredential = [
   MessageBodyType.SUBMIT_CREDENTIAL,
-  CompressedMark[]
+  CompressedCredential[]
 ]
 export type CompressedAcceptCredential = [
   MessageBodyType.ACCEPT_CREDENTIAL,

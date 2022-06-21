@@ -113,7 +113,7 @@ export class ERROR_STREAM_NOT_PROVIDED extends SDKError {
 
 export class ERROR_MC_NOT_PROVIDED extends SDKError {
   constructor() {
-    super('Mark content missing')
+    super('Credential content missing')
   }
 }
 

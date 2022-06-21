@@ -1,4 +1,5 @@
 import { hexToBn } from '@polkadot/util'
+import type { HexString } from '@polkadot/util/types'
 import type {
   IContent,
   CompressedContent,
@@ -22,10 +23,12 @@ function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const { schema, contents } = content
+  const { schema, contents, holder } = content
   if (!schema) new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
   const vocabulary = `${schema}#`
   const result: Record<string, unknown> = {}
+  if (holder) result['@id'] = holder
+
   if (!expanded) {
     return {
       ...result,
@@ -89,7 +92,7 @@ export function hashContents(
     canonicalisation?: (content: PartialContent) => string[]
   } = {}
 ): {
-  hashes: string[]
+  hashes: HexString[]
   nonceMap: Record<string, string>
 } {
   // apply defaults
