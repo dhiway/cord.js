@@ -8,6 +8,8 @@ import type { BoxKeyPair } from 'tweetnacl'
 import type { Index } from '@polkadot/types/interfaces'
 import { AnyNumber } from '@polkadot/types/types'
 
+export const ACCOUNT_IDENTIFIER_PREFIX: string = 'id:cord:'
+
 export interface IIdentity {
   readonly signKeyringPair: KeyringPair
   readonly seed: Uint8Array

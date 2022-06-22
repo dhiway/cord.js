@@ -33,7 +33,6 @@ export interface CordSignatureProof extends Proof {
 export interface CordStreamProof extends Proof {
   type: typeof CORD_ANCHORED_PROOF_TYPE
   issuerAddress: string
-  holderAddress?: string
 }
 export interface CredentialDigestProof extends Proof {
   type: typeof CORD_CREDENTIAL_DIGEST_PROOF_TYPE

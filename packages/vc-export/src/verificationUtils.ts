@@ -6,8 +6,8 @@
 // import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
-import { Stream, TypeSchema, DidUtils } from '@cord.network/modules'
-import { Crypto, JsonSchema } from '@cord.network/utils'
+import { Stream, TypeSchema } from '@cord.network/modules'
+import { Crypto, JsonSchema, Identifier } from '@cord.network/utils'
 import {
   CORD_SIGNATURE_PROOF_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
@@ -87,7 +87,9 @@ export function verifyCordSignatureProof(
       )
     const signerPubKey = verificationMethod.publicKeyHex
 
-    const rootHash = fromCredentialIRI(credential.credentialHash)
+    const rootHash = Identifier.getIdentifierHash(
+      fromCredentialIRI(credential.credentialHash)
+    )
     // validate signature over root hash
     // signatureVerify can handle all required signature types out of the box
     const verification = signatureVerify(
@@ -127,21 +129,14 @@ export async function verifyStreamProof(
     const type = proof['@type'] || proof.type
     if (type !== CORD_ANCHORED_PROOF_TYPE)
       throw new Error('Proof type mismatch')
-    const { issuerAddress, holderAddress } = proof
+    const { issuerAddress } = proof
     if (typeof issuerAddress !== 'string' || !issuerAddress)
       throw PROOF_MALFORMED_ERROR('issuer address not understood')
     if (
       issuerAddress !==
-      DidUtils.getAccountAddressFromIdentifier(credential.issuer)
+      Identifier.getAccountAddressFromIdentifier(credential.issuer)
     )
       throw PROOF_MALFORMED_ERROR('credential issuer address is not matching')
-
-    if (holderAddress) {
-      if (typeof holderAddress !== 'string')
-        throw PROOF_MALFORMED_ERROR('holder address not understood')
-      if (credential.credentialSubject['@id'] !== holderAddress)
-        throw PROOF_MALFORMED_ERROR('credential holder address is not matching')
-    }
 
     if (typeof credential.id !== 'string' || !credential.id)
       throw CREDENTIAL_MALFORMED_ERROR(
@@ -166,10 +161,14 @@ export async function verifyStreamProof(
       )
     }
     // if holder data on proof does not correspond to data on chain, proof is incorrect
+    const holderAddress = credential.credentialSubject['@id']
     if (holderAddress) {
       if (typeof holderAddress !== 'string')
         throw PROOF_MALFORMED_ERROR('holder address not understood')
-      if (onChain.holder !== holderAddress)
+      if (
+        onChain.holder !==
+        Identifier.getAccountAddressFromIdentifier(holderAddress)
+      )
         throw new Error(
           `proof not matching on-chain data: proof ${{
             holder: holderAddress,
@@ -178,7 +177,10 @@ export async function verifyStreamProof(
     }
 
     // if rootHash on credential does not correspond to data on chain, proof is incorrect
-    if (onChain.streamHash !== credential.credentialHash)
+    if (
+      onChain.streamHash !==
+      Identifier.getIdentifierHash(credential.credentialHash)
+    )
       throw new Error(
         `credential hash is not matching on-chain data: proof ${{
           hash: credential.credentialHash,
@@ -231,7 +233,9 @@ export async function verifyCredentialDigestProof(
       throw CREDENTIAL_MALFORMED_ERROR('credential subject missing')
     const rootHash = verifyRootHash(credential, proof)
     // throw if root hash does not match expected (=id)
-    const expectedRootHash = credential.credentialHash
+    const expectedRootHash = Identifier.getIdentifierHash(
+      credential.credentialHash
+    )
     if (expectedRootHash !== rootHash)
       throw new Error('computed root hash does not match expected')
 

@@ -152,7 +152,6 @@ async function main() {
 
     console.log(`\n❄️  Verifiable Presentation - Selective Disclosure `)
     const sharedCredential = JSON.parse(JSON.stringify(VC))
-    console.log(JSON.stringify(VC))
     const vcPresentation = await VCUtils.presentation.makePresentation(
       sharedCredential,
       ['name', 'country']

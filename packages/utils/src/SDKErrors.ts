@@ -364,6 +364,12 @@ export class ERROR_DID_IDENTIFIER_MISMATCH extends SDKError {
   }
 }
 
+export class ERROR_INVALID_ID_PREFIX extends SDKError {
+  constructor(identifier: string) {
+    super(`Not a Cord ID\n${identifier}`)
+  }
+}
+
 export class ERROR_MESSAGE_TYPE extends SDKError {
   constructor(message: string, expected: string) {
     super(`Unexpected message type. Received ${message}, expected ${expected}`)
