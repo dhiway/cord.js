@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/exchange",
-  "version": "0.7.2-0",
+  "version": "0.7.3-0",
   "description": "Exchange API",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
