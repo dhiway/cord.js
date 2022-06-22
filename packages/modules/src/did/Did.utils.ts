@@ -12,7 +12,7 @@ import { Identity } from '../identity/Identity.js'
 import {
   CONTEXT,
   IDENTIFIER_PREFIX,
-  ACCOUNT_IDENTIFIER_PREFIX,
+  // ACCOUNT_IDENTIFIER_PREFIX,
   IDid,
   IDidDocument,
   IDidDocumentSigned,
@@ -57,14 +57,6 @@ export function getIdentifierFromAddress(
     : IDENTIFIER_PREFIX + address
 }
 
-export function getAccountIdentifierFromAddress(
-  address: IPublicIdentity['address']
-): IDid['identifier'] {
-  return address.startsWith(ACCOUNT_IDENTIFIER_PREFIX)
-    ? address
-    : ACCOUNT_IDENTIFIER_PREFIX + address
-}
-
 /**
  * Fetches the root of this delegation node.
  *
@@ -81,15 +73,6 @@ export function getAddressFromIdentifier(
     throw new SDKErrors.ERROR_INVALID_DID_PREFIX(identifier)
   }
   return identifier.substr(IDENTIFIER_PREFIX.length)
-}
-
-export function getAccountAddressFromIdentifier(
-  address: IDid['identifier']
-): IPublicIdentity['address'] {
-  if (!address.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
-    throw new SDKErrors.ERROR_INVALID_DID_PREFIX(address)
-  }
-  return address.substr(ACCOUNT_IDENTIFIER_PREFIX.length)
 }
 
 export function createDefaultDidDocument(
