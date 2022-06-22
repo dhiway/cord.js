@@ -10,7 +10,11 @@ import * as ContentUtils from '../content/Content.utils.js'
 import { Credential } from '../credential/Credential.js'
 import { Identity } from '../identity/Identity.js'
 import * as ContentStreamUtils from './ContentStream.utils.js'
-import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/types'
+import {
+  STREAM_IDENTIFIER,
+  STREAM_PREFIX,
+  DEFAULT_STREAM_VALIDITY,
+} from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
 import { HexString } from '@polkadot/util/types.js'
 
@@ -31,7 +35,7 @@ export type Options = {
   legitimations?: Credential[]
   link?: IContentStream['link']
   space?: IContentStream['space']
-  expiry?: IContentStream['expirationDate']
+  expiry?: Date
 }
 
 export class ContentStream implements IContentStream {
@@ -70,10 +74,18 @@ export class ContentStream implements IContentStream {
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content)
 
-    const issuanceDate = new Date().toISOString()
-    const issuanceDateHash = Crypto.hashObjectAsHexStr(issuanceDate)
-    const expirationDate = expiry || 'Not Set'
-    const expirationDateHash = Crypto.hashObjectAsHexStr(expirationDate)
+    const issuanceDate = new Date()
+    const issuanceDateString = issuanceDate.toISOString()
+    const issuanceDateHash = Crypto.hashObjectAsHexStr(issuanceDateString)
+    const expirationDate =
+      expiry ||
+      new Date(
+        issuanceDate.setFullYear(
+          issuanceDate.getFullYear() + DEFAULT_STREAM_VALIDITY
+        )
+      )
+    const expirationDateString = expirationDate.toISOString()
+    const expirationDateHash = Crypto.hashObjectAsHexStr(expirationDateString)
 
     const rootHash = ContentStream.calculateRootHash(
       {
@@ -93,8 +105,8 @@ export class ContentStream implements IContentStream {
       space: space || null,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
-      issuanceDate,
-      expirationDate,
+      issuanceDate: issuanceDateString,
+      expirationDate: expirationDateString,
       identifier: Identifier.getIdentifier(
         rootHash,
         STREAM_IDENTIFIER,
@@ -125,11 +137,18 @@ export class ContentStream implements IContentStream {
 
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content.content)
-
-    const issuanceDate = new Date().toISOString()
-    const issuanceDateHash = Crypto.hashObjectAsHexStr(issuanceDate)
-    const expirationDate = expiry || 'Not Set'
-    const expirationDateHash = Crypto.hashObjectAsHexStr(expirationDate)
+    const issuanceDate = new Date()
+    const issuanceDateString = issuanceDate.toISOString()
+    const issuanceDateHash = Crypto.hashObjectAsHexStr(issuanceDateString)
+    const expirationDate =
+      expiry ||
+      new Date(
+        issuanceDate.setFullYear(
+          issuanceDate.getFullYear() + DEFAULT_STREAM_VALIDITY
+        )
+      )
+    const expirationDateString = expirationDate.toISOString()
+    const expirationDateHash = Crypto.hashObjectAsHexStr(expirationDateString)
 
     const rootHash = ContentStream.calculateRootHash(
       {
@@ -149,8 +168,8 @@ export class ContentStream implements IContentStream {
       space: content.space,
       issuerSignature: ContentStream.sign(issuer, rootHash),
       rootHash,
-      issuanceDate,
-      expirationDate,
+      issuanceDate: issuanceDateString,
+      expirationDate: expirationDateString,
       identifier: content.identifier,
     })
   }

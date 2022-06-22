@@ -80,7 +80,7 @@ export interface VerifiableCredential {
 export interface VerifiablePresentation {
   '@context': [typeof DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT, ...string[]]
   type: [typeof DEFAULT_VERIFIABLEPRESENTATION_TYPE, ...string[]]
-  verifiableCredential: VerifiableCredential
+  verifiableCredential: VerifiableCredential | VerifiableCredential[]
   holder?: string
   proof: Proof | Proof[]
 }
