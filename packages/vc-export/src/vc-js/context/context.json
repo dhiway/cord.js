@@ -36,8 +36,8 @@
         }
       }
     },
-    "CordSelfSigned2020": {
-      "@id": "cordCred:CordSelfSigned2020",
+    "CordSignature2020": {
+      "@id": "cordCred:CordSignature2020",
       "@context": {
         "@version": 1.1,
         "@protected": true,

@@ -9,14 +9,14 @@ import jsonld from 'jsonld'
 import { Stream, TypeSchema, DidUtils } from '@cord.network/modules'
 import { Crypto, JsonSchema } from '@cord.network/utils'
 import {
-  CORD_SELF_SIGNED_PROOF_TYPE,
+  CORD_SIGNATURE_PROOF_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   KeyTypesMap,
 } from './constants.js'
 import type {
   VerifiableCredential,
-  SelfSignedProof,
+  CordSignatureProof,
   CordStreamProof,
   CredentialDigestProof,
 } from './types.js'
@@ -56,15 +56,15 @@ const PROOF_MALFORMED_ERROR = (reason: string): Error =>
  * @param proof CORD self signed proof object.
  * @returns Object indicating whether proof could be verified.
  */
-export function verifySelfSignedProof(
+export function verifyCordSignatureProof(
   credential: VerifiableCredential,
-  proof: SelfSignedProof
+  proof: CordSignatureProof
 ): VerificationResult {
   const result: VerificationResult = { verified: true, errors: [] }
   try {
     // check proof
     const type = proof['@type'] || proof.type
-    if (type !== CORD_SELF_SIGNED_PROOF_TYPE)
+    if (type !== CORD_SIGNATURE_PROOF_TYPE)
       throw new Error('Proof type mismatch')
     if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
     const { verificationMethod } = proof
