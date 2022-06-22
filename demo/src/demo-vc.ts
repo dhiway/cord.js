@@ -152,6 +152,7 @@ async function main() {
 
     console.log(`\n❄️  Verifiable Presentation - Selective Disclosure `)
     const sharedCredential = JSON.parse(JSON.stringify(VC))
+    console.log(JSON.stringify(VC))
     const vcPresentation = await VCUtils.presentation.makePresentation(
       sharedCredential,
       ['name', 'country']
@@ -164,7 +165,7 @@ async function main() {
     const VCfromPresentation =
       vcPresentation.verifiableCredential as VerifiableCredential
 
-    const signatureResult = await VCUtils.verification.verifySelfSignedProof(
+    const signatureResult = await VCUtils.verification.verifyCordSignatureProof(
       VCfromPresentation,
       VCfromPresentation.proof[0]
     )

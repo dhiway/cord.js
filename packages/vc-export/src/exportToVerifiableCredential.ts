@@ -16,7 +16,7 @@ import {
   KeyTypesMap,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SELF_SIGNED_PROOF_TYPE,
+  CORD_SIGNATURE_PROOF_TYPE,
   CORD_CREDENTIAL_CONTEXT_URL,
   CORD_VERIFIABLE_CREDENTIAL_TYPE,
   CORD_CREDENTIAL_IRI_PREFIX,
@@ -26,7 +26,7 @@ import type {
   CredentialDigestProof,
   CredentialSchema,
   Proof,
-  SelfSignedProof,
+  CordSignatureProof,
   VerifiableCredential,
 } from './types.js'
 import { SDKErrors, Identifier } from '@cord.network/utils'
@@ -127,8 +127,8 @@ export function fromCredential(
     throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
   }
 
-  const sSProof: SelfSignedProof = {
-    type: CORD_SELF_SIGNED_PROOF_TYPE,
+  const sSProof: CordSignatureProof = {
+    type: CORD_SIGNATURE_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
     verificationMethod: {
       type: keyType,

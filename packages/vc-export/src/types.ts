@@ -12,7 +12,7 @@ import type {
   JSON_SCHEMA_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SELF_SIGNED_PROOF_TYPE,
+  CORD_SIGNATURE_PROOF_TYPE,
 } from './constants.js'
 
 export interface Proof {
@@ -25,8 +25,8 @@ export interface Proof {
 export type IPublicKeyRecord = Partial<IDidDocumentPublicKey> &
   Pick<IDidDocumentPublicKey, 'publicKeyHex' | 'type'>
 
-export interface SelfSignedProof extends Proof {
-  type: typeof CORD_SELF_SIGNED_PROOF_TYPE
+export interface CordSignatureProof extends Proof {
+  type: typeof CORD_SIGNATURE_PROOF_TYPE
   verificationMethod: string | IPublicKeyRecord
   signature: string
 }
