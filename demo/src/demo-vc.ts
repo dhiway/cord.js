@@ -1,5 +1,6 @@
 import * as Cord from '@cord.network/api'
 import { UUID } from '@cord.network/utils'
+import type { VerifiableCredential } from 'vc-export/src/types'
 import * as VCUtils from 'vc-export/src'
 
 async function main() {
@@ -160,18 +161,21 @@ async function main() {
 
     console.log(`\n❄️  Verifiy Presentation`)
 
+    const VCfromPresentation =
+      vcPresentation.verifiableCredential as VerifiableCredential
+
     const signatureResult = await VCUtils.verification.verifySelfSignedProof(
-      vcPresentation.verifiableCredential,
-      vcPresentation.verifiableCredential.proof[0]
+      VCfromPresentation,
+      VCfromPresentation.proof[0]
     )
     const streamResult = await VCUtils.verification.verifyStreamProof(
-      vcPresentation.verifiableCredential,
-      vcPresentation.verifiableCredential.proof[1]
+      VCfromPresentation,
+      VCfromPresentation.proof[1]
     )
 
     const digestResult = await VCUtils.verification.verifyCredentialDigestProof(
-      vcPresentation.verifiableCredential,
-      vcPresentation.verifiableCredential.proof[2]
+      VCfromPresentation,
+      VCfromPresentation.proof[2]
     )
     if (
       (!streamResult && !streamResult['verified']) ||
@@ -180,21 +184,21 @@ async function main() {
     ) {
       console.log(
         `❌  Verification failed `,
-        'Signature Proof',
+        'Signature-Proof',
         signatureResult['verified'],
-        'Stream Proof',
+        ', Stream-Proof',
         streamResult['verified'],
-        'Digest Proof',
+        ', Digest-Proof',
         digestResult['verified']
       )
     } else {
       console.log(
         '✅  All valid? ',
-        'Signature Proof',
+        'Signature-Proof',
         signatureResult['verified'],
-        'Stream Proof',
+        ', Stream-Proof',
         streamResult['verified'],
-        'Digest Proof',
+        ', Digest-Proof',
         digestResult['verified']
       )
     }
