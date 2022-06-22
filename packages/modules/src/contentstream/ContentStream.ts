@@ -32,7 +32,7 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 }
 
 export type Options = {
-  legitimations?: Credential[]
+  evidenceIds?: Credential[]
   link?: IContentStream['link']
   space?: IContentStream['space']
   expiry?: Date
@@ -56,7 +56,7 @@ export class ContentStream implements IContentStream {
    * @param content An `IContentStream` object the request for credential is built for.
    * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.legitimations Array of [[Credential]] objects the Issuer include as legitimations.
+   * @param option.evidenceIds Array of [[Credential]] objects the Issuer include as evidenceIds.
    * @param option.link Identifier of the stream this credential is linked to.
    * @param option.space Identifier of the space this credential is linked to.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
@@ -65,7 +65,7 @@ export class ContentStream implements IContentStream {
   public static fromContent(
     content: IContent,
     issuer: Identity,
-    { legitimations, link, space, expiry }: Options = {}
+    { evidenceIds, link, space, expiry }: Options = {}
   ): ContentStream {
     if (content.issuer !== issuer.address) {
       throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
@@ -89,7 +89,7 @@ export class ContentStream implements IContentStream {
 
     const rootHash = ContentStream.calculateRootHash(
       {
-        legitimations,
+        evidenceIds,
         contentHashes,
       },
       issuanceDateHash,
@@ -100,7 +100,7 @@ export class ContentStream implements IContentStream {
       content,
       contentHashes,
       contentNonceMap,
-      legitimations: legitimations || [],
+      evidenceIds: evidenceIds || [],
       link: link || null,
       space: space || null,
       issuerSignature: ContentStream.sign(issuer, rootHash),
@@ -121,19 +121,19 @@ export class ContentStream implements IContentStream {
    * @param content An `IContentStream` object the request for credential is built for.
    * @param issuer The Issuer's [[Identity]].
    * @param option Container for different options that can be passed to this method.
-   * @param option.legitimations Array of [[Credential]] objects the Issuer include as legitimations.
+   * @param option.evidenceIds Array of [[Credential]] objects the Issuer include as evidenceIds.
    * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
    * @returns An updated [[ContentStream]] object.
    */
   public static updateContentProperties(
     content: IContentStream,
     issuer: Identity,
-    { legitimations, expiry }: Options = {}
+    { evidenceIds, expiry }: Options = {}
   ): ContentStream {
     if (content.content.issuer !== issuer.address) {
       throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
     }
-    let updateLegitimations = legitimations || content.legitimations
+    let updateEvidenceIds = evidenceIds || content.evidenceIds
 
     const { hashes: contentHashes, nonceMap: contentNonceMap } =
       ContentUtils.hashContents(content.content)
@@ -152,7 +152,7 @@ export class ContentStream implements IContentStream {
 
     const rootHash = ContentStream.calculateRootHash(
       {
-        legitimations: updateLegitimations,
+        evidenceIds: updateEvidenceIds,
         contentHashes,
       },
       issuanceDateHash,
@@ -163,7 +163,7 @@ export class ContentStream implements IContentStream {
       content: content.content,
       contentHashes,
       contentNonceMap,
-      legitimations: updateLegitimations || content.legitimations,
+      evidenceIds: updateEvidenceIds || content.evidenceIds,
       link: content.link,
       space: content.space,
       issuerSignature: ContentStream.sign(issuer, rootHash),
@@ -193,7 +193,7 @@ export class ContentStream implements IContentStream {
   public content: IContentStream['content']
   public contentHashes: IContentStream['contentHashes']
   public contentNonceMap: IContentStream['contentNonceMap']
-  public legitimations: IContentStream['legitimations']
+  public evidenceIds: IContentStream['evidenceIds']
   public link: IContentStream['link'] | null
   public space: IContentStream['space'] | null
   public issuerSignature: string
@@ -215,15 +215,15 @@ export class ContentStream implements IContentStream {
     this.contentHashes = contentStreamRequest.contentHashes
     this.contentNonceMap = contentStreamRequest.contentNonceMap
     if (
-      contentStreamRequest.legitimations &&
-      Array.isArray(contentStreamRequest.legitimations) &&
-      contentStreamRequest.legitimations.length
+      contentStreamRequest.evidenceIds &&
+      Array.isArray(contentStreamRequest.evidenceIds) &&
+      contentStreamRequest.evidenceIds.length
     ) {
-      this.legitimations = contentStreamRequest.legitimations.map((proof) =>
+      this.evidenceIds = contentStreamRequest.evidenceIds.map((proof) =>
         Credential.fromCredential(proof)
       )
     } else {
-      this.legitimations = []
+      this.evidenceIds = []
     }
     this.link = contentStreamRequest.link
     this.space = contentStreamRequest.space
@@ -293,7 +293,7 @@ export class ContentStream implements IContentStream {
       )
 
     // check proofs
-    Credential.validateLegitimations(input.legitimations)
+    Credential.validateEvidenceIds(input.evidenceIds)
 
     return true
   }
@@ -344,7 +344,7 @@ export class ContentStream implements IContentStream {
 
   private static getHashLeaves(
     contentHashes: Hash[],
-    legitimations: ICredential[],
+    evidenceIds: ICredential[],
     issueDate: HexString,
     expiryDate: HexString
   ): Uint8Array[] {
@@ -352,9 +352,9 @@ export class ContentStream implements IContentStream {
     contentHashes.forEach((item) => {
       result.push(Crypto.coToUInt8(item))
     })
-    if (legitimations) {
-      legitimations.forEach((legitimation) => {
-        result.push(Crypto.coToUInt8(legitimation.request.identifier))
+    if (evidenceIds) {
+      evidenceIds.forEach((evidence) => {
+        result.push(Crypto.coToUInt8(evidence.request.identifier))
       })
     }
     result.push(Crypto.coToUInt8(issueDate))
@@ -392,7 +392,7 @@ export class ContentStream implements IContentStream {
   ): Hash {
     const hashes: Uint8Array[] = ContentStream.getHashLeaves(
       credential.contentHashes || [],
-      credential.legitimations || [],
+      credential.evidenceIds || [],
       issuanceDate,
       expirationDate
     )

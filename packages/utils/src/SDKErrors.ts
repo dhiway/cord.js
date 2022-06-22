@@ -117,9 +117,9 @@ export class ERROR_MC_NOT_PROVIDED extends SDKError {
   }
 }
 
-export class ERROR_LEGITIMATIONS_NOT_PROVIDED extends SDKError {
+export class ERROR_EVIDENCE_ID_NOT_PROVIDED extends SDKError {
   constructor() {
-    super('Legitimations missing')
+    super('Evidence ID missing')
   }
 }
 
@@ -217,9 +217,9 @@ export class ERROR_ADDRESS_INVALID extends SDKError {
   }
 }
 
-export class ERROR_LEGITIMATIONS_UNVERIFIABLE extends SDKError {
+export class ERROR_EVIDENCE_ID_UNVERIFIABLE extends SDKError {
   constructor() {
-    super('Legitimations could not be verified')
+    super('Evidence ID could not be verified')
   }
 }
 export class ERROR_SIGNATURE_UNVERIFIABLE extends SDKError {

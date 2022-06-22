@@ -24,8 +24,8 @@ export function errorCheck(input: IContentStream): void {
   } else {
     ContentUtils.errorCheck(input.content)
   }
-  if (!input.legitimations && !Array.isArray(input.legitimations)) {
-    throw new SDKErrors.ERROR_LEGITIMATIONS_NOT_PROVIDED()
+  if (!input.evidenceIds && !Array.isArray(input.evidenceIds)) {
+    throw new SDKErrors.ERROR_EVIDENCE_ID_NOT_PROVIDED()
   }
   if (!input.contentNonceMap) {
     throw new SDKErrors.ERROR_CONTENT_NONCE_MAP_NOT_PROVIDED()
@@ -92,7 +92,7 @@ export function compress(
     contentStream.issuerSignature,
     contentStream.link,
     contentStream.space,
-    compressProof(contentStream.legitimations),
+    compressProof(contentStream.evidenceIds),
     contentStream.rootHash,
     contentStream.identifier,
     contentStream.issuanceDate,
@@ -122,7 +122,7 @@ export function decompress(
     issuerSignature: contentStream[3],
     link: contentStream[4],
     space: contentStream[5],
-    legitimations: decompressProof(contentStream[6]),
+    evidenceIds: decompressProof(contentStream[6]),
     rootHash: contentStream[7],
     identifier: contentStream[8],
     issuanceDate: contentStream[9],

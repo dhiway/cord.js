@@ -25,8 +25,8 @@
       "@context": {
         "@version": 1.1,
         "@protected": true,
-        "legitimationIds": {
-          "@id": "cordCred:legitimationIds",
+        "evidence": {
+          "@id": "cordCred:evidence",
           "@type": "@id",
           "@container": "@set"
         },

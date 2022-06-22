@@ -314,7 +314,7 @@ function calculateRootHash(
 ): Hash {
   const hashes: Uint8Array[] = getHashLeaves(
     proof.contentHashes || [],
-    credential.legitimationIds || [],
+    credential.evidence || [],
     issuanceDate,
     expirationDate
   )
@@ -324,7 +324,7 @@ function calculateRootHash(
 
 function getHashLeaves(
   contentHashes: string[],
-  legitimations: string[],
+  evidenceIds: string[],
   issueDate: HexString,
   expiryDate: HexString
 ): Uint8Array[] {
@@ -332,9 +332,9 @@ function getHashLeaves(
   contentHashes.forEach((item) => {
     result.push(Crypto.coToUInt8(item))
   })
-  if (legitimations) {
-    legitimations.forEach((legitimation) => {
-      result.push(Crypto.coToUInt8(legitimation))
+  if (evidenceIds) {
+    evidenceIds.forEach((evidence) => {
+      result.push(Crypto.coToUInt8(evidence))
     })
   }
   result.push(Crypto.coToUInt8(issueDate))
