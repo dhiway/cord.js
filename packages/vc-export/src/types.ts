@@ -70,7 +70,7 @@ export interface VerifiableCredential {
   // rootHash  of the credential
   credentialHash: string
   // Ids / digests of streams that empower the issuer to provide judegment
-  legitimationIds: string[]
+  evidence: string[]
   // digital proof that makes the credential tamper-evident
   proof: Proof | Proof[]
   nonTransferable?: boolean

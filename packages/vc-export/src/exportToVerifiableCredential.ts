@@ -53,7 +53,7 @@ export function fromCredential(
 ): VerifiableCredential {
   const {
     contentHashes,
-    legitimations,
+    evidenceIds,
     rootHash,
     issuerSignature,
     content,
@@ -90,7 +90,7 @@ export function fromCredential(
     }
   }
 
-  const legitimationIds = legitimations.map((leg) => leg.request.rootHash)
+  const evidence = evidenceIds.map((leg) => leg.request.rootHash)
 
   const proof: Proof[] = []
 
@@ -106,7 +106,7 @@ export function fromCredential(
     expirationDate,
     credentialSubject,
     credentialHash: rootHash,
-    legitimationIds,
+    evidence,
     nonTransferable: true,
     proof,
     credentialSchema,

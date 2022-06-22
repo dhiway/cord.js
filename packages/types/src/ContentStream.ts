@@ -20,7 +20,7 @@ export interface IContentStream {
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
-  legitimations: ICredential[]
+  evidenceIds: ICredential[]
   link: string | null
   space: string | null
   issuerSignature: string

@@ -143,15 +143,15 @@ export class Credential implements ICredential {
   /**
    *  [STATIC] Verifies the data of each element of the given Array of IMarkedStreams.
    *
-   * @param legitimations Array of IMarkedStreams to validate.
-   * @throws [[ERROR_LEGITIMATIONS_UNVERIFIABLE]] when one of the IMarkedStreams data is unable to be verified.
+   * @param evidenceIds Array of IMarkedStreams to validate.
+   * @throws [[ERROR_EVIDENCE_ID_UNVERIFIABLE]] when one of the IMarkedStreams data is unable to be verified.
    *
    * @returns Boolean whether each element of the given Array of IMarkedStreams is verifiable.
    */
-  public static validateLegitimations(legitimations: ICredential[]): boolean {
-    legitimations.forEach((legitimation: ICredential) => {
-      if (!Credential.verifyData(legitimation)) {
-        throw new SDKErrors.ERROR_LEGITIMATIONS_UNVERIFIABLE()
+  public static validateEvidenceIds(evidenceIds: ICredential[]): boolean {
+    evidenceIds.forEach((evidence: ICredential) => {
+      if (!Credential.verifyData(evidence)) {
+        throw new SDKErrors.ERROR_EVIDENCE_ID_UNVERIFIABLE()
       }
     })
     return true
