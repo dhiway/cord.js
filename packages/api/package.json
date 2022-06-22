@@ -44,7 +44,6 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "@cord.network/exchange": "workspace:*",
     "@cord.network/messaging": "workspace:*",
     "@cord.network/modules": "workspace:*",
     "@cord.network/network": "workspace:*",
