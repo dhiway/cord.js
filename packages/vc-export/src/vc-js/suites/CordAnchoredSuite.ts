@@ -13,13 +13,13 @@ import { verifyStreamProof, StreamStatus } from '../../verificationUtils.js'
 import { CORD_ANCHORED_PROOF_TYPE } from '../../constants.js'
 import CordAbstractSuite from './CordAbstractSuite.js'
 
-class MarkError extends Error {
-  public readonly journalStatus: StreamStatus
+class StreamError extends Error {
+  public readonly streamStatus: StreamStatus
 
-  constructor(message: string, journalStatus: StreamStatus) {
+  constructor(message: string, streamStatus: StreamStatus) {
     super(message)
-    this.name = 'JournalError'
-    this.journalStatus = journalStatus
+    this.name = 'StreamError'
+    this.streamStatus = streamStatus
   }
 }
 
@@ -64,7 +64,7 @@ export default class CordAnchoredSuite extends CordAbstractSuite {
       if (errors.length > 0)
         return {
           verified,
-          error: new MarkError(errors[0].message, status),
+          error: new StreamError(errors[0].message, status),
         }
       return { verified }
     } catch (e: any) {

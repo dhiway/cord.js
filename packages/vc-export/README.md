@@ -15,7 +15,7 @@ It provides you with tools to export your existing CORD credentials to the widel
 - verification utils
   - functions that verify three proof types:
     - holder's self-signed proof over the credential digest
-    - credential digest proof that assures the integrity of disclosed attributes, holder identity, legitimations and delegations
+    - credential digest proof that assures the integrity of disclosed attributes, holder identity, evidenceIds and delegations
     - credential proof that assures the credential is attested by the identity disclosed as the `issuer` and not revoked
   - a function to validate the disclosed stream properties against the schema of a CORD MType, which is a prescriptive schema detailing fields and their data types.
 - vc-js suites: tooling to integrate CORD VCs with `vc-js` and `jsonld-signatures^5.0.0`

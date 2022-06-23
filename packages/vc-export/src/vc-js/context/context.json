@@ -3,7 +3,7 @@
     "@version": 1.1,
     "@protected": true,
     "cred": "https://www.w3.org/2018/credentials#",
-    "dwayCred": "https://cord.network/contexts/credentials#",
+    "cordCred": "https://cord.network/contexts/credentials#",
     "sec": "https://w3id.org/security#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "verificationMethod": {
@@ -21,12 +21,12 @@
       }
     },
     "CordCredential2020": {
-      "@id": "dwayCred:CordCredential",
+      "@id": "cordCred:CordCredential",
       "@context": {
         "@version": 1.1,
         "@protected": true,
-        "legitimationIds": {
-          "@id": "dwayCred:legitimationIds",
+        "evidence": {
+          "@id": "cordCred:evidence",
           "@type": "@id",
           "@container": "@set"
         },
@@ -36,8 +36,8 @@
         }
       }
     },
-    "CordSelfSigned2020": {
-      "@id": "dwayCred:CordSelfSigned2020",
+    "CordSignature2020": {
+      "@id": "cordCred:CordSignature2020",
       "@context": {
         "@version": 1.1,
         "@protected": true,

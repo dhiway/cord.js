@@ -7,6 +7,8 @@ import type { HexString } from '@polkadot/util/types'
 import type { ICredential, CompressedCredential } from './Credential.js'
 import type { IContent, CompressedContent } from './Content.js'
 
+export const DEFAULT_STREAM_VALIDITY: number = 99
+
 export type Hash = HexString
 
 export type NonceHash = {
@@ -18,7 +20,7 @@ export interface IContentStream {
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
-  legitimations: ICredential[]
+  evidenceIds: ICredential[]
   link: string | null
   space: string | null
   issuerSignature: string

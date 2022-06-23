@@ -12,7 +12,7 @@ import type {
   JSON_SCHEMA_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SELF_SIGNED_PROOF_TYPE,
+  CORD_SIGNATURE_PROOF_TYPE,
 } from './constants.js'
 
 export interface Proof {
@@ -25,15 +25,14 @@ export interface Proof {
 export type IPublicKeyRecord = Partial<IDidDocumentPublicKey> &
   Pick<IDidDocumentPublicKey, 'publicKeyHex' | 'type'>
 
-export interface SelfSignedProof extends Proof {
-  type: typeof CORD_SELF_SIGNED_PROOF_TYPE
+export interface CordSignatureProof extends Proof {
+  type: typeof CORD_SIGNATURE_PROOF_TYPE
   verificationMethod: string | IPublicKeyRecord
   signature: string
 }
 export interface CordStreamProof extends Proof {
   type: typeof CORD_ANCHORED_PROOF_TYPE
   issuerAddress: string
-  holderAddress?: string
 }
 export interface CredentialDigestProof extends Proof {
   type: typeof CORD_CREDENTIAL_DIGEST_PROOF_TYPE
@@ -70,7 +69,7 @@ export interface VerifiableCredential {
   // rootHash  of the credential
   credentialHash: string
   // Ids / digests of streams that empower the issuer to provide judegment
-  legitimationIds: string[]
+  evidence: string[]
   // digital proof that makes the credential tamper-evident
   proof: Proof | Proof[]
   nonTransferable?: boolean
@@ -80,7 +79,7 @@ export interface VerifiableCredential {
 export interface VerifiablePresentation {
   '@context': [typeof DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT, ...string[]]
   type: [typeof DEFAULT_VERIFIABLEPRESENTATION_TYPE, ...string[]]
-  verifiableCredential: VerifiableCredential
+  verifiableCredential: VerifiableCredential | VerifiableCredential[]
   holder?: string
   proof: Proof | Proof[]
 }

@@ -117,9 +117,9 @@ export class ERROR_MC_NOT_PROVIDED extends SDKError {
   }
 }
 
-export class ERROR_LEGITIMATIONS_NOT_PROVIDED extends SDKError {
+export class ERROR_EVIDENCE_ID_NOT_PROVIDED extends SDKError {
   constructor() {
-    super('Legitimations missing')
+    super('Evidence ID missing')
   }
 }
 
@@ -217,9 +217,9 @@ export class ERROR_ADDRESS_INVALID extends SDKError {
   }
 }
 
-export class ERROR_LEGITIMATIONS_UNVERIFIABLE extends SDKError {
+export class ERROR_EVIDENCE_ID_UNVERIFIABLE extends SDKError {
   constructor() {
-    super('Legitimations could not be verified')
+    super('Evidence ID could not be verified')
   }
 }
 export class ERROR_SIGNATURE_UNVERIFIABLE extends SDKError {
@@ -361,6 +361,12 @@ export class ERROR_DID_IDENTIFIER_MISMATCH extends SDKError {
     super(
       `This identifier ${identifier} does not match the DID Document identifier ${id}`
     )
+  }
+}
+
+export class ERROR_INVALID_ID_PREFIX extends SDKError {
+  constructor(identifier: string) {
+    super(`Not a Cord ID\n${identifier}`)
   }
 }
 

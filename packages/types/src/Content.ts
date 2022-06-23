@@ -9,6 +9,7 @@ import type { IPublicIdentity } from './PublicIdentity'
  * The minimal partial stream from which a JSON-LD representation can be built.
  */
 export type PartialContent = Partial<IContent> & Pick<IContent, 'schema'>
+export const HASH_PREFIX: string = 'hash:cord:'
 
 export type IContents = Record<
   string,

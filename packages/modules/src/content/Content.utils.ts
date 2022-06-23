@@ -6,7 +6,13 @@ import type {
   PartialContent,
   CompressedPartialContent,
 } from '@cord.network/types'
-import { jsonabc, DataUtils, Crypto, SDKErrors } from '@cord.network/utils'
+import {
+  jsonabc,
+  DataUtils,
+  Crypto,
+  SDKErrors,
+  Identifier,
+} from '@cord.network/utils'
 
 const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
 
@@ -27,7 +33,7 @@ function jsonLDcontents(
   if (!schema) new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
   const vocabulary = `${schema}#`
   const result: Record<string, unknown> = {}
-  if (holder) result['@id'] = holder
+  if (holder) result['@id'] = Identifier.getAccountIdentifierFromAddress(holder)
 
   if (!expanded) {
     return {

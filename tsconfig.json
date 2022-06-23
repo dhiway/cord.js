@@ -14,7 +14,6 @@
       "@cord.network/api": ["api/src"],
       "@cord.network/types": ["types/src"],
       "@cord.network/utils": ["utils/src"],
-      "@cord.network/exchange": ["exchange/src"],
       "@cord.network/credential": ["credential/src"],
     }
   },

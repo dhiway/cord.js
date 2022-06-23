@@ -6,7 +6,7 @@
 import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
-import { DidUtils, ContentUtils, Identity } from '@cord.network/modules'
+import { ContentUtils, Identity } from '@cord.network/modules'
 import type { ICredential, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
@@ -16,7 +16,7 @@ import {
   KeyTypesMap,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SELF_SIGNED_PROOF_TYPE,
+  CORD_SIGNATURE_PROOF_TYPE,
   CORD_CREDENTIAL_CONTEXT_URL,
   CORD_VERIFIABLE_CREDENTIAL_TYPE,
   CORD_CREDENTIAL_IRI_PREFIX,
@@ -26,7 +26,7 @@ import type {
   CredentialDigestProof,
   CredentialSchema,
   Proof,
-  SelfSignedProof,
+  CordSignatureProof,
   VerifiableCredential,
 } from './types.js'
 import { SDKErrors, Identifier } from '@cord.network/utils'
@@ -53,7 +53,7 @@ export function fromCredential(
 ): VerifiableCredential {
   const {
     contentHashes,
-    legitimations,
+    evidenceIds,
     rootHash,
     issuerSignature,
     content,
@@ -71,7 +71,7 @@ export function fromCredential(
     Record<string, AnyJson>
   >
 
-  const issuer = DidUtils.getAccountIdentifierFromAddress(input.stream.issuer)
+  const issuer = Identifier.getAccountIdentifierFromAddress(input.stream.issuer)
 
   const issuanceDate = input.request.issuanceDate
   const expirationDate = input.request.expirationDate
@@ -85,12 +85,12 @@ export function fromCredential(
       name: schema.title,
       schema,
       author: controller
-        ? DidUtils.getAccountIdentifierFromAddress(controller)
+        ? Identifier.getAccountIdentifierFromAddress(controller)
         : undefined,
     }
   }
 
-  const legitimationIds = legitimations.map((leg) => leg.request.rootHash)
+  const evidence = evidenceIds.map((leg) => leg.request.rootHash)
 
   const proof: Proof[] = []
 
@@ -105,8 +105,8 @@ export function fromCredential(
     issuanceDate,
     expirationDate,
     credentialSubject,
-    credentialHash: rootHash,
-    legitimationIds,
+    credentialHash: Identifier.getHashIdentifier(rootHash),
+    evidence,
     nonTransferable: true,
     proof,
     credentialSchema,
@@ -121,14 +121,14 @@ export function fromCredential(
       )}\nReceived: ${keyType}`
     )
 
-  // add self-signed proof
+  // add cord signature proof (issuer)
   // infer key type
   if (input.stream.holder !== holder.address) {
     throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
   }
 
-  const sSProof: SelfSignedProof = {
-    type: CORD_SELF_SIGNED_PROOF_TYPE,
+  const sSProof: CordSignatureProof = {
+    type: CORD_SIGNATURE_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
     verificationMethod: {
       type: keyType,
@@ -143,7 +143,6 @@ export function fromCredential(
     type: CORD_ANCHORED_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
     issuerAddress: input.stream.issuer,
-    holderAddress: holder ? input.stream.holder : undefined,
   }
   VC.proof.push(streamProof)
 
