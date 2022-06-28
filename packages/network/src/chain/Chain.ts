@@ -65,7 +65,7 @@ export class Chain implements IChainApi {
     return this.api.rpc.chain.subscribeNewHeads(listener)
   }
   /**
-   * [ASYNC] Signs the SubmittableExtrinsic with the given identity.
+   * Signs the SubmittableExtrinsic with the given identity.
    *
    * @param signer The [[Identity]] to sign the tx with.
    * @param tx The unsigned SubmittableExtrinsic.
@@ -86,7 +86,7 @@ export class Chain implements IChainApi {
   }
 
   /**
-   * [ASYNC] Submits a signed SubmittableExtrinsic with imported function [[submitSignedTx]].
+   * Submits a signed SubmittableExtrinsic with imported function [[submitSignedTx]].
    * Handles recoverable errors if identity is provided by re-signing and re-sending the tx up to two times.
    * Uses [[parseSubscriptionOptions]] to provide complete potentially defaulted options to the called [[submitSignedTx]].
    *
@@ -115,7 +115,7 @@ export class Chain implements IChainApi {
   }
 
   /**
-   * [ASYNC] Retrieves the Nonce for Transaction signing for the specified account and increments the in accountNonces mapped Index.
+   * Retrieves the Nonce for Transaction signing for the specified account and increments the in accountNonces mapped Index.
    *
    * @param accountAddress The address of the identity that we retrieve the nonce for.
    * @returns Representation of the Tx nonce for the identity.
@@ -142,7 +142,7 @@ export class Chain implements IChainApi {
   }
 
   /**
-   * [ASYNC] Re-signs the given SubmittableExtrinsic with an updated Nonce.
+   * Re-signs the given SubmittableExtrinsic with an updated Nonce.
    *
    * @param signer The [[Identity]] to re-sign the Tx with.
    * @param tx The tx with recoverable Error that failed.

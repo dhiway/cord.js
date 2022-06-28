@@ -66,11 +66,10 @@ export function validateHash(hash: string, name: string): boolean {
  *
  * @returns Boolean whether the given hash string checks out against the Format.
  */
-export function validateId(id: string): boolean {
+export function validateId(id: string, name: string): boolean {
   if (typeof id !== 'string') {
-    throw new SDKErrors.ERROR_HASH_TYPE()
+    throw new SDKErrors.ERROR_IDENTIFIER_TYPE()
   }
-  // const blake2bPattern = new RegExp('^[1S][a-km-zA-HJ-NP-Z1-9]${64}', 'i')
   if (!checkIdentifier(id)) {
     throw new SDKErrors.ERROR_ID_MALFORMED()
   }

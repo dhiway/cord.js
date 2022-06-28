@@ -61,7 +61,9 @@ export class ERROR_SCHEMA_PROPERTIES_NOT_MATCHING extends SDKError {
 
 export class ERROR_UNSUPPORTED_KEY extends SDKError {
   constructor(keyType: string) {
-    super(`The provided key type "${keyType}" is currently not supported.`)
+    super(
+      `The provided key tyERROR_HASH_TYPEpe "${keyType}" is currently not supported.`
+    )
   }
 }
 
@@ -147,6 +149,11 @@ export class ERROR_HASH_TYPE extends SDKError {
   }
 }
 
+export class ERROR_IDENTIFIER_TYPE extends SDKError {
+  constructor() {
+    super('Identifier of wrong type')
+  }
+}
 export class ERROR_HASH_MALFORMED extends SDKError {
   constructor(hash?: string, type?: string) {
     let message = ''
