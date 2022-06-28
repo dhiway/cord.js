@@ -17,7 +17,7 @@
             "type": "string"
         },
         "credit": {
-        "type": "integer"
+            "type": "integer"
         }
     },
     "type": "object"
