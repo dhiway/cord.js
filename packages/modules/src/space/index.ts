@@ -1,2 +1,1 @@
-export { Space } from './Space.js'
-export * as SpaceUtils from './Space.utils.js'
+export * as Space from './Space.js'

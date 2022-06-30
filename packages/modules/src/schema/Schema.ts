@@ -15,31 +15,18 @@ import type {
   ISchema,
   SchemaWithoutId,
   ISchemaMetadata,
-  // ISchemaDetails,
   CompressedSchemaType,
   CompressedSchema,
-  // SubmittableExtrinsic,
-  // ISpace,
 } from '@cord.network/types'
 import {
   Identifier,
   Crypto,
-  // UUID,
   JsonSchema,
   SDKErrors,
   DataUtils,
   jsonabc,
 } from '@cord.network/utils'
-import {
-  // query,
-  // create,
-  // authorise,
-  // deauthorise,
-  // revoke,
-  isStored,
-  getOwner,
-} from './Schema.chain.js'
-// import * as SchemaUtils from './Schema.utils.js'
+import { isStored, getOwner } from './Schema.chain.js'
 import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 import { HexString } from '@polkadot/util/types'
