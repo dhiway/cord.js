@@ -137,6 +137,12 @@ export class ERROR_CONTENT_NOT_PROVIDED extends SDKError {
   }
 }
 
+export class ERROR_CONTENT_STREAM_NOT_PROVIDED extends SDKError {
+  constructor() {
+    super('Content stream missing')
+  }
+}
+
 export class ERROR_ADDRESS_TYPE extends SDKError {
   constructor() {
     super('Address of wrong type')

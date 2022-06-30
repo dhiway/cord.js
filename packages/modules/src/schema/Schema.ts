@@ -85,7 +85,7 @@ export function getHashForSchema(
  * @param messages Optional empty array. If passed, this receives all verification errors.
  * @returns Whether or not verification was successful.
  */
-export function verifyObjectAgainstSchema(
+export function verifyObjectWithSchema(
   object: Record<string, any>,
   schema: Record<string, any>,
   messages?: string[]
@@ -112,15 +112,15 @@ export function verifyObjectAgainstSchema(
  *
  * @returns Boolean whether both streamContents and schema could be verified.
  */
-export function verifyContentAgainistSchema(
+export function verifyContentWithSchema(
   contents: IContent['contents'],
   schema: ISchema['schema'],
   messages?: string[]
 ): boolean {
-  if (!verifyObjectAgainstSchema(schema, SchemaModel)) {
+  if (!verifyObjectWithSchema(schema, SchemaModel)) {
     throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
-  return verifyObjectAgainstSchema(contents, schema, messages)
+  return verifyObjectWithSchema(contents, schema, messages)
 }
 
 export async function verifyStored(schema: ISchema): Promise<boolean> {
@@ -143,7 +143,7 @@ export async function verifyOwner(schema: ISchema): Promise<boolean> {
  *
  */
 export function verifyDataStructure(input: ISchema): void {
-  if (!verifyObjectAgainstSchema(input, SchemaWrapperModel)) {
+  if (!verifyObjectWithSchema(input, SchemaWrapperModel)) {
     throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
   if (!input.schema || getHashForSchema(input.schema) !== input.schemaHash) {
@@ -185,7 +185,7 @@ export function verifyDataStructure(input: ISchema): void {
  * @returns Whether the contents is valid.
  */
 
-export function validateContentAganistNestedSchemas(
+export function verifyContentWithNestedSchemas(
   schema: ISchema['schema'],
   nestedSchemas: Array<ISchema['schema']>,
   streamContents: Record<string, any>,
@@ -212,7 +212,7 @@ export function validateContentAganistNestedSchemas(
  * @throws [[ERROR_OBJECT_MALFORMED]] when metadata is not verifiable with the MetadataModel.
  */
 export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
-  if (!verifyObjectAgainstSchema(metadata, MetadataModel)) {
+  if (!verifyObjectWithSchema(metadata, MetadataModel)) {
     throw new SDKErrors.ERROR_OBJECT_MALFORMED()
   }
 }

@@ -15,8 +15,7 @@ import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-// import { SchemaDetails } from './Schema.js'
-import { Identity } from 'modules/lib/cjs/index.js'
+import { Identity } from '../identity/Identity.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Schema')
 
