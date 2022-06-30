@@ -68,9 +68,10 @@ export async function revoke(
 
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${stream.identifier}`)
-  const space = stream.identifier || null
+  const space =
+    Identifier.getIdentifierKey(stream.identifier, STREAM_PREFIX) || null
   return blockchain.api.tx.stream.revoke(
-    stream.identifier,
+    Identifier.getIdentifierKey(stream.identifier, STREAM_PREFIX),
     updater.address,
     txHash,
     txSignature,
