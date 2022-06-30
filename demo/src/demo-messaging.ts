@@ -45,7 +45,7 @@ async function main() {
 
   let newSpace = Cord.Space.fromSpaceProperties(spaceContent, employeeIdentity)
 
-  let spaceCreationExtrinsic = await newSpace.create()
+  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
 
   console.dir(newSpace, { depth: null, colors: true })
 
@@ -76,7 +76,7 @@ async function main() {
     newSpace.identifier
   )
 
-  let schemaCreationExtrinsic = await newSchema.create()
+  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
   console.dir(newSchema, { depth: null, colors: true })
 
@@ -106,7 +106,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromProperties(
+  let schemaStream = Cord.Content.fromSchemaAndContent(
     newSchema,
     content,
     employeeIdentity.address,
@@ -123,7 +123,7 @@ async function main() {
 
   let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-  let streamCreationExtrinsic = await newStream.create()
+  let streamCreationExtrinsic = await Cord.Stream.create(newStream)
   console.dir(newStream, { depth: null, colors: true })
 
   try {
@@ -140,162 +140,92 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 4: Update a Stream
-  console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
-  const updateContent = JSON.parse(JSON.stringify(newStreamContent))
-  // { ...newStreamContent }
-  updateContent.content.contents.name = 'Alice Jackson'
-
-  let updateStreamContent = Cord.ContentStream.updateContentProperties(
-    updateContent,
-    employeeIdentity
-  )
-  console.dir(updateStreamContent, { depth: null, colors: true })
-
-  let updateStream = Cord.Stream.fromContentStream(updateStreamContent)
-  let updateStreamCreationExtrinsic = await updateStream.update()
-  console.dir(updateStream, { depth: null, colors: true })
-
-  try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      updateStreamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
-    console.log('✅ Stream updated!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
-
-  // Step 3: Validate a Credential
-  console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
-  const stream = await Cord.Stream.query(updateStream.identifier)
-  if (!stream) {
-    console.log(`Stream not anchored on CORD`)
-  } else {
-    const credential = Cord.Credential.fromRequestAndStream(
-      updateStreamContent,
-      stream
-    )
-    const isCredentialValid = await credential.verify()
-    console.log(`Is Alices's credential valid? ${isCredentialValid}`)
-  }
-
-  // Step 3: Validate a modified Credential
-  // TODO: fix error handling
-  // console.log(`\n❄️  Validate Credential - ${updateStream.identifier} `)
-  // const chainStream = await Cord.Stream.query(updateStream.identifier)
-  // if (!chainStream) {
-  //   console.log(`Stream not anchored on CORD`)
-  // } else {
-  //   console.dir(newStreamContent, { depth: null, colors: true })
-  //   const credential = Cord.Credential.fromRequestAndStream(
-  //     newStreamContent,
-  //     chainStream
-  //   )
-
-  //   const isCredentialValid = await credential.verify()
-  //   console.log(`Is Alices's modified credential valid? ${isCredentialValid}`)
-  // }
-
-  // Step 3: Revoke a Stream
-  console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
-  let revokeStream = updateStream
-
-  let revokeStreamCreationExtrinsic = await revokeStream.revoke(
-    employeeIdentity
-  )
-
-  try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      revokeStreamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_READY,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
-    console.log('✅ Stream revoked!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
-
   // await utils.waitForEnter('\n⏎ Press Enter to continue..')
 
-  // //  Step 7: Credential exchange via messaging
-  // console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
-  // console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
-  // const purpose = 'Account Opening Request'
-  // const validUntil = Date.now() + 864000000
-  // const relatedData = true
+  //  Step 7: Credential exchange via messaging
+  console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
+  console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
+  const purpose = 'Account Opening Request'
+  const validUntil = Date.now() + 864000000
+  const relatedData = true
 
-  // const { session, message: message } =
-  //   cord.Exchange.Request.newRequestBuilder()
-  //     .requestPresentation({
-  //       id: schemaStream.schemaId,
-  //       properties: ['name', 'age'],
-  //     })
-  //     .finalize(
-  //       purpose,
-  //       verifierIdentity,
-  //       holderIdentity.getPublicIdentity(),
-  //       validUntil,
-  //       relatedData
-  //     )
+  const messageBodyForClaimer: Cord.MessageBody = {
+    type: Cord.Message.BodyType.REQUEST_CREDENTIAL,
+    content: { schemas: [{ schemaIdentifier: schemaStream.schema }] },
+  }
+  const messageForClaimer = new Kilt.Message(
+    messageBodyForClaimer,
+    verifierLightDID.did,
+    claimerLightDid.did
+  )
 
-  // console.log(`\n📧 Selective Disclosure Request`)
-  // console.dir(message, { depth: null, colors: true })
+  const { session, message: message } =
+    cord.Exchange.Request.newRequestBuilder()
+      .requestPresentation({
+        id: schemaStream.schemaId,
+        properties: ['name', 'age'],
+      })
+      .finalize(
+        purpose,
+        verifierIdentity,
+        holderIdentity.getPublicIdentity(),
+        validUntil,
+        relatedData
+      )
 
-  // const chainStream = await cord.Stream.query(newStream.streamId)
-  // if (chainStream) {
-  //   let credential: cord.Credential
-  //   credential = cord.Credential.fromMarkContentStream(newStreamContent, chainStream)
-  //   const presentation = cord.Exchange.Share.createPresentation(
-  //     holderIdentity,
-  //     message,
-  //     verifierIdentity.getPublicIdentity(),
-  //     [credential],
-  //     {
-  //       showAttributes: message.body.content[0].requiredProperties,
-  //       signer: holderIdentity,
-  //       request: message.body.request,
-  //     }
-  //   )
+  console.log(`\n📧 Selective Disclosure Request`)
+  console.dir(message, { depth: null, colors: true })
 
-  //   const { verified } = await cord.Exchange.Verify.verifyPresentation(
-  //     presentation,
-  //     session
-  //   )
-  //   console.log(`\n📧 Received Credential `)
-  //   console.dir(presentation, { depth: null, colors: true })
+  const chainStream = await cord.Stream.query(newStream.streamId)
+  if (chainStream) {
+    let credential: cord.Credential
+    credential = cord.Credential.fromMarkContentStream(
+      newStreamContent,
+      chainStream
+    )
+    const presentation = cord.Exchange.Share.createPresentation(
+      holderIdentity,
+      message,
+      verifierIdentity.getPublicIdentity(),
+      [credential],
+      {
+        showAttributes: message.body.content[0].requiredProperties,
+        signer: holderIdentity,
+        request: message.body.request,
+      }
+    )
 
-  //   let result = vcPresentation.verifiableCredential.proof.forEach(function (
-  //     proof: any
-  //   ) {
-  //     console.log(proof)
-  //     if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
-  //       VCUtils.verification.verifyStreamProof(
-  //         vcPresentation.verifiableCredential,
-  //         proof
-  //       )
-  //   })
-  //   console.log(result)
-  //   if (result && result.verified) {
-  //     console.log(
-  //       `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
-  //     ) // prints 'Billy The Kid'
-  //     // console.log(
-  //     //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
-  //     // ) // undefined
-  //   }
+    const { verified } = await cord.Exchange.Verify.verifyPresentation(
+      presentation,
+      session
+    )
+    console.log(`\n📧 Received Credential `)
+    console.dir(presentation, { depth: null, colors: true })
 
-  //   console.log('🔍 All valid? ', verified)
-  // } else {
-  //   console.log(`\n❌ Credential not found `)
-  // }
+    let result = vcPresentation.verifiableCredential.proof.forEach(function (
+      proof: any
+    ) {
+      console.log(proof)
+      if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
+        VCUtils.verification.verifyStreamProof(
+          vcPresentation.verifiableCredential,
+          proof
+        )
+    })
+    console.log(result)
+    if (result && result.verified) {
+      console.log(
+        `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
+      ) // prints 'Billy The Kid'
+      // console.log(
+      //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
+      // ) // undefined
+    }
+
+    console.log('🔍 All valid? ', verified)
+  } else {
+    console.log(`\n❌ Credential not found `)
+  }
 
   // await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
