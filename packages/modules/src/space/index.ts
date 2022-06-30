@@ -1,1 +1,2 @@
-export * as Space from './Space.js'
+export * from './Space.js'
+export * from './Space.chain.js'

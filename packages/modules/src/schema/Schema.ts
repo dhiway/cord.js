@@ -30,7 +30,11 @@ import { isStored, getOwner } from './Schema.chain.js'
 import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 import { HexString } from '@polkadot/util/types'
-import { SchemaModel, SchemaWrapperModel, MetadataModel } from './TypeSchema.js'
+import {
+  SchemaModel,
+  SchemaWrapperModel,
+  MetadataModel,
+} from './Schema.types.js'
 /**
  * Utility for (re)creating schema hashes. For this, the $id property needs to be stripped from the schemaType.
  *

@@ -16,11 +16,12 @@ import type {
   IStream,
   ISchema,
 } from '@cord.network/types'
-import { SDKErrors } from '@cord.network/utils'
+import { SDKErrors, Identifier } from '@cord.network/utils'
 import * as Stream from '../stream/Stream.js'
 import * as ContentStream from '../contentstream/ContentStream.js'
 import { verifyContentWithSchema } from '../schema/index.js'
 import { Identity } from '../identity/Identity.js'
+import { SCHEMA_PREFIX } from '@cord.network/types'
 
 /**
  * Verifies whether the data of the given credential is valid. It is valid if:
@@ -32,7 +33,12 @@ import { Identity } from '../identity/Identity.js'
  * @returns Whether the credential's data is valid.
  */
 export function verifyDataIntegrity(credential: ICredential): boolean {
-  if (credential.request.content.schema !== credential.stream.schema)
+  if (
+    Identifier.getIdentifierKey(
+      credential.request.content.schema,
+      SCHEMA_PREFIX
+    ) !== credential.stream.schema
+  )
     return false
   return (
     credential.request.rootHash === credential.stream.streamHash &&

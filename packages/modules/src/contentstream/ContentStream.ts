@@ -18,6 +18,7 @@ import {
 } from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
 import { verifyContentWithSchema } from '../schema/Schema.js'
+import { HexString } from '@polkadot/util/types'
 
 export function makeSigningData(
   input: IContentStream,
@@ -66,8 +67,8 @@ function getHashLeaves(
 
 export function calculateRootHash(
   credential: Partial<IContentStream>,
-  issuanceDate: string,
-  expirationDate: string
+  issuanceDate: HexString,
+  expirationDate: HexString
 ): Hash {
   const hashes: Uint8Array[] = getHashLeaves(
     credential.contentHashes || [],
@@ -123,9 +124,11 @@ export function removeContentProperties(
 }
 
 export function verifyRootHash(input: IContentStream): boolean {
+  const issuanceDateHash = Crypto.hashObjectAsHexStr(input.issuanceDate)
+  const expirationDateHash = Crypto.hashObjectAsHexStr(input.expirationDate)
   return (
     input.rootHash ===
-    calculateRootHash(input, input.issuanceDate, input.expirationDate)
+    calculateRootHash(input, issuanceDateHash, expirationDateHash)
   )
 }
 
@@ -291,6 +294,60 @@ export function fromContent(
       STREAM_IDENTIFIER,
       STREAM_PREFIX
     ),
+  }
+  verifyDataStructure(contentStream)
+  return contentStream
+}
+
+/**
+ * Update instance of [[ContentStream]], from a complete set of required parameters.
+ *
+ * @param content An `IContentStream` object the request for credential is built for.
+ * @param issuer The Issuer's [[Identity]].
+ * @param option Container for different options that can be passed to this method.
+ * @param option.legitimations Array of [[Credential]] objects the Issuer include as legitimations.
+ * @throws [[ERROR_IDENTITY_MISMATCH]] when streamInput's issuer address does not match the supplied identity's address.
+ * @returns An updated [[ContentStream]] object.
+ */
+export function updateContent(
+  content: IContentStream,
+  issuer: Identity,
+  { evidenceIds, expiry }: Options = {}
+): IContentStream {
+  if (content.content.issuer !== issuer.address) {
+    throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
+  }
+  let updateEvidenceIds = evidenceIds || content.evidenceIds
+
+  const { hashes: contentHashes, nonceMap: contentNonceMap } =
+    Content.hashContents(content.content)
+
+  const issuanceDate = new Date().toISOString()
+  const issuanceDateHash = Crypto.hashObjectAsHexStr(issuanceDate)
+  const expirationDate = expiry?.toISOString() || content.expirationDate
+  const expirationDateHash = Crypto.hashObjectAsHexStr(expirationDate)
+
+  const rootHash = calculateRootHash(
+    {
+      evidenceIds: updateEvidenceIds,
+      contentHashes,
+    },
+    issuanceDateHash,
+    expirationDateHash
+  )
+
+  const contentStream = {
+    content: content.content,
+    contentHashes,
+    contentNonceMap,
+    evidenceIds: updateEvidenceIds || content.evidenceIds,
+    link: content.link,
+    space: content.space,
+    issuerSignature: sign(issuer, rootHash),
+    rootHash,
+    issuanceDate,
+    expirationDate,
+    identifier: content.identifier,
   }
   verifyDataStructure(contentStream)
   return contentStream

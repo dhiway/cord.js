@@ -10,7 +10,7 @@ import { DecoderUtils, Identifier } from '@cord.network/utils'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { STREAM_PREFIX } from '@cord.network/types'
+import { STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 import { HexString } from '@polkadot/util/types.js'
 
@@ -68,8 +68,7 @@ export async function revoke(
 
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${stream.identifier}`)
-  const space =
-    Identifier.getIdentifierKey(stream.identifier, STREAM_PREFIX) || null
+  const space = Identifier.getIdentifierKey(stream.space, SPACE_PREFIX) || null
   return blockchain.api.tx.stream.revoke(
     Identifier.getIdentifierKey(stream.identifier, STREAM_PREFIX),
     updater.address,

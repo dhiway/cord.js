@@ -6,7 +6,7 @@
 // import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
-import { Stream, TypeSchema } from '@cord.network/modules'
+import { Stream, Schema } from '@cord.network/modules'
 import { Crypto, JsonSchema, Identifier } from '@cord.network/utils'
 import {
   CORD_SIGNATURE_PROOF_TYPE,
@@ -291,7 +291,7 @@ export function validateSchema(
     // there's no rule against additional properties, so we can just validate the ones that are there
 
     const validator = new JsonSchema.Validator(schema)
-    validator.addSchema(TypeSchema.SchemaModel)
+    validator.addSchema(Schema.TypeSchema.SchemaModel)
     const result = validator.validate(credential.credentialSubject)
     return {
       verified: result.valid,

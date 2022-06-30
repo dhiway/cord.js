@@ -4,11 +4,11 @@
  */
 
 import {
-  StreamUtils,
-  CredentialUtils,
-  ContentUtils,
-  SchemaUtils,
-  ContentStreamUtils,
+  Stream,
+  Credential,
+  Content,
+  Schema,
+  ContentStream,
 } from '@cord.network/modules'
 import type {
   ICredential,
@@ -30,17 +30,17 @@ import { Message } from './Message.js'
 export function errorCheckMessageBody(body: MessageBody): boolean | void {
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
-      ContentStreamUtils.errorCheck(body.content.requestStream)
+      ContentStream.verifyDataStructure(body.content.requestStream)
       if (body.content.prerequisiteStreams) {
         body.content.prerequisiteStreams.map(
           (content: IContent | PartialContent) =>
-            ContentUtils.errorCheck(content)
+            Content.verifyDataStructure(content)
         )
       }
       break
     }
     case Message.BodyType.ANCHOR_STREAM: {
-      StreamUtils.errorCheck(body.content.stream)
+      Stream.verifyDataStructure(body.content.stream)
       break
     }
     case Message.BodyType.REJECT_STREAM: {
@@ -52,7 +52,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
     case Message.BodyType.REQUEST_CREDENTIAL: {
       body.content.forEach(
         (requestStreamsForSchema: IRequestStreamForCredential): void => {
-          DataUtils.validateId(requestStreamsForSchema.id)
+          DataUtils.validateId(requestStreamsForSchema.id, 'Identifier')
           requestStreamsForSchema.acceptedIssuer?.map((address) =>
             DataUtils.validateAddress(address, 'Invalid Schema Owner Address')
           )
@@ -69,15 +69,15 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       const creds: ICredential[] = body.content.map((credentials, i) => {
         return credentials[i].credentials
       })
-      creds.map((cred) => CredentialUtils.errorCheck(cred))
+      creds.map((cred) => Credential.verifyDataStructure(cred))
       break
     }
     case Message.BodyType.ACCEPT_CREDENTIAL: {
-      body.content.map((id) => DataUtils.validateId(id))
+      body.content.map((id) => DataUtils.validateId(id, 'Identifier'))
       break
     }
     case Message.BodyType.REJECT_CREDENTIAL: {
-      body.content.map((id) => DataUtils.validateId(id))
+      body.content.map((id) => DataUtils.validateId(id, 'Identifier'))
       break
     }
 
@@ -134,7 +134,7 @@ export function verifyRequiredSchemaProperties(
   requiredProperties: string[],
   schema: ISchema
 ): boolean {
-  SchemaUtils.errorCheck(schema as ISchema)
+  Schema.verifyDataStructure(schema as ISchema)
 
   const validProperties = requiredProperties.find(
     (property) => !(property in schema.schema.properties)
@@ -159,17 +159,17 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
       compressedContents = [
-        ContentStreamUtils.compress(body.content.requestStream),
+        ContentStream.compress(body.content.requestStream),
         body.content.prerequisiteStreams
           ? body.content.prerequisiteStreams.map((content) =>
-              ContentUtils.compress(content)
+              Content.compress(content)
             )
           : undefined,
       ]
       break
     }
     case Message.BodyType.ANCHOR_STREAM: {
-      compressedContents = StreamUtils.compress(body.content.stream)
+      compressedContents = Stream.compress(body.content.stream)
       break
     }
     case Message.BodyType.REQUEST_CREDENTIAL: {
@@ -188,7 +188,7 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
         (cordStream: ICredential | CompressedCredential) =>
           Array.isArray(cordStream)
             ? cordStream
-            : CredentialUtils.compress(cordStream)
+            : Credential.compress(cordStream)
       )
       break
     }
@@ -215,9 +215,9 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
   switch (body[0]) {
     case Message.BodyType.REQUEST_STREAM: {
       decompressedContents = {
-        requestStream: ContentStreamUtils.decompress(body[1][0]),
+        requestStream: ContentStream.decompress(body[1][0]),
         prerequisiteStreams: body[1][1]
-          ? body[1][1].map((stream) => ContentUtils.decompress(stream))
+          ? body[1][1].map((stream) => Content.decompress(stream))
           : undefined,
       }
 
@@ -225,7 +225,7 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     }
     case Message.BodyType.ANCHOR_STREAM: {
       decompressedContents = {
-        stream: StreamUtils.decompress(body[1]),
+        stream: Stream.decompress(body[1]),
       }
       break
     }
@@ -249,7 +249,7 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     //     (cordStream: ICredential | CompressedCredential) =>
     //       !Array.isArray(cordStream)
     //         ? cordStream
-    //         : CredentialUtils.decompress(cordStream)
+    //         :  Credential.decompress(cordStream)
     //   )
 
     //   break
