@@ -25,8 +25,12 @@
       "@context": {
         "@version": 1.1,
         "@protected": true,
+        "credentialStatus": {
+          "@id": "cordCred:credentialHash",
+          "@type": "@id"
+        },
         "evidence": {
-          "@id": "cordCred:evidence",
+          "@id": "cred:evidence",
           "@type": "@id",
           "@container": "@set"
         },

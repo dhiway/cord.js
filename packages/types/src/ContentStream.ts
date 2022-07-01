@@ -23,7 +23,7 @@ export interface IContentStream {
   evidenceIds: ICredential[]
   link: string | null
   space: string | null
-  issuerSignature: string
+  issuerSignature: string & { challenge?: string }
   rootHash: Hash
   identifier: string
   issuanceDate: string

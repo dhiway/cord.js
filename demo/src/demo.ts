@@ -44,7 +44,7 @@ async function main() {
 
   let newSpace = Cord.Space.fromSpaceProperties(spaceContent, employeeIdentity)
 
-  let spaceCreationExtrinsic = await newSpace.create()
+  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
 
   console.dir(newSpace, { depth: null, colors: true })
 
@@ -75,9 +75,12 @@ async function main() {
     newSpace.identifier
   )
 
-  let schemaCreationExtrinsic = await newSchema.create()
+  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
-  console.dir(newSchema, { depth: null, colors: true })
+  console.dir(newSchema, {
+    depth: null,
+    colors: true,
+  })
 
   try {
     await Cord.ChainUtils.signAndSubmitTx(
@@ -105,7 +108,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromProperties(
+  let schemaStream = Cord.Content.fromSchemaAndContent(
     newSchema,
     content,
     employeeIdentity.address,
@@ -122,7 +125,7 @@ async function main() {
 
   let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-  let streamCreationExtrinsic = await newStream.create()
+  let streamCreationExtrinsic = await Cord.Stream.create(newStream)
   console.dir(newStream, { depth: null, colors: true })
 
   try {
@@ -144,14 +147,14 @@ async function main() {
   const updateContent = JSON.parse(JSON.stringify(newStreamContent))
   updateContent.content.contents.name = 'Alice Jackson'
 
-  let updateStreamContent = Cord.ContentStream.updateContentProperties(
+  let updateStreamContent = Cord.ContentStream.updateContent(
     updateContent,
     employeeIdentity
   )
   console.dir(updateStreamContent, { depth: null, colors: true })
 
   let updateStream = Cord.Stream.fromContentStream(updateStreamContent)
-  let updateStreamCreationExtrinsic = await updateStream.update()
+  let updateStreamCreationExtrinsic = await Cord.Stream.update(updateStream)
   console.dir(updateStream, { depth: null, colors: true })
 
   try {
@@ -178,32 +181,16 @@ async function main() {
       updateStreamContent,
       stream
     )
-    const isCredentialValid = await credential.verify()
+    const isCredentialValid = await Cord.Credential.verify(credential)
     console.log(`Is Alices's credential valid? ${isCredentialValid}`)
   }
-
-  // Step 7: Validate a modified Credential
-  // TODO: fix error handling
-  // console.log(`\n❄️  Validate Credential - ${updateStream.identifier} `)
-  // const chainStream = await Cord.Stream.query(updateStream.identifier)
-  // if (!chainStream) {
-  //   console.log(`Stream not anchored on CORD`)
-  // } else {
-  //   console.dir(newStreamContent, { depth: null, colors: true })
-  //   const credential = Cord.Credential.fromRequestAndStream(
-  //     newStreamContent,
-  //     chainStream
-  //   )
-
-  //   const isCredentialValid = await credential.verify()
-  //   console.log(`Is Alices's modified credential valid? ${isCredentialValid}`)
-  // }
 
   // Step 8: Revoke a Stream
   console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
   let revokeStream = updateStream
 
-  let revokeStreamCreationExtrinsic = await revokeStream.revoke(
+  let revokeStreamCreationExtrinsic = await Cord.Stream.revoke(
+    revokeStream,
     employeeIdentity
   )
 
@@ -212,13 +199,27 @@ async function main() {
       revokeStreamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: Cord.ChainUtils.IS_READY,
+        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
         rejectOn: Cord.ChainUtils.IS_ERROR,
       }
     )
-    console.log('✅ Stream revoked!')
+    console.log(`✅ Alices's credential revoked!`)
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 9: Re-verify a revoked Credential
+  console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
+  const revstream = await Cord.Stream.query(updateStream.identifier)
+  if (!revstream) {
+    console.log(`Stream not anchored on CORD`)
+  } else {
+    const credential = Cord.Credential.fromRequestAndStream(
+      updateStreamContent,
+      revstream
+    )
+    const isCredentialValid = await Cord.Credential.verify(credential)
+    console.log(`Is Alices's credential valid? ${isCredentialValid}`)
   }
 }
 main()

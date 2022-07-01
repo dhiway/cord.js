@@ -1,23 +1,17 @@
-import * as cord from '@cord.network/api'
+import * as Cord from '@Cord.network/api'
 import * as utils from './utils'
-import { UUID } from '@cord.network/utils'
-// import BN from 'bn.js'
+import { UUID } from '@Cord.network/utils'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
-import * as json from 'multiformats/codecs/json'
-import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
-import { CID } from 'multiformats/cid'
-
-// const amount: BN = new BN('1')
 
 async function main() {
-  await cord.init({ address: 'ws://127.0.0.1:9944' })
+  await Cord.init({ address: 'ws://127.0.0.1:9944' })
 
   // Step 1: Setup Identities
-  const Alice = cord.Identity.buildFromURI('//Alice', {
+  const Alice = Cord.Identity.buildFromURI('//Alice', {
     signingKeyPairType: 'sr25519',
   })
-  const Bob = cord.Identity.buildFromURI('//Bob', {
+  const Bob = Cord.Identity.buildFromURI('//Bob', {
     signingKeyPairType: 'sr25519',
   })
 
@@ -27,20 +21,13 @@ async function main() {
   let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
   newSchemaContent.title = newSchemaTitle
 
-  let newSchema = cord.Schema.fromSchemaProperties(
-    newSchemaContent,
-    Bob.address
-  )
-
-  let bytes = json.encode(newSchema.schema)
-  let encoded_hash = await hasher.digest(bytes)
-  const schemaCid = CID.create(1, 0xb240, encoded_hash)
-  let schemaCreationExtrinsic = await newSchema.create(schemaCid.toString())
+  let newSchema = Cord.Schema.fromSchemaProperties(newSchemaContent, Bob)
+  let schemaCreationExtrinsic = await await Cord.Schema.create(newSchema)
 
   try {
-    await cord.ChainUtils.signAndSubmitTx(schemaCreationExtrinsic, Bob, {
-      resolveOn: cord.ChainUtils.IS_IN_BLOCK,
-      rejectOn: cord.ChainUtils.IS_ERROR,
+    await Cord.ChainUtils.signAndSubmitTx(schemaCreationExtrinsic, Bob, {
+      resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
+      rejectOn: Cord.ChainUtils.IS_ERROR,
     })
     console.log('✅ Schema created!')
   } catch (e: any) {
@@ -53,8 +40,7 @@ async function main() {
 
   let startTxPrep = moment()
   let txCount = 500
-  let newStreamContent: cord.MarkContent
-  // let link_id: string = '5P4oXCREF8Uw6pJHRMZfhgmoN6DDAtAN72hNuAMgGnCqkJn7'
+  let newStreamContent: Cord.IContentStream
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
   for (let j = 0; j < txCount; j++) {
@@ -65,40 +51,22 @@ async function main() {
       country: 'India',
       credit: 1000,
     }
-    // const nonceSaltValue = UUID.generate()
-    let schemaStream = cord.Content.fromContent(
+    let schemaStream = Cord.Content.fromSchemaAndContent(
       newSchema,
       content,
       Alice.address
     )
 
-    newStreamContent = cord.MarkContent.fromContent(
-      schemaStream,
-      Alice
-      // { nonceSalt: nonceSaltValue }
-    )
+    newStreamContent = Cord.ContentStream.fromContent(schemaStream, Alice)
+    let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-    // newStreamContent = cord.MarkContent.fromContent(
-    //   schemaStream,
-    //   Alice,
-    //   { link: link_id, nonceSalt: nonceSaltValue }
-    // )
-
-    // bytes = json.encode(newStreamContent)
-    // encoded_hash = await hasher.digest(bytes)
-    // const streamCid = CID.create(1, 0xb220, encoded_hash)
-
-    let newStream = cord.Stream.fromMarkContentProperties(
-      newStreamContent
-      // streamCid.toString()
-    )
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
         moment.duration(moment().diff(startTxPrep)).as('seconds').toFixed(3) +
         's\r'
     )
     try {
-      let txStream = await newStream.create()
+      let txStream = await Cord.Stream.create(newStream)
       tx_batch.push(txStream)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
@@ -116,9 +84,9 @@ async function main() {
         's\r'
     )
     try {
-      await cord.ChainUtils.signAndSubmitTx(tx_batch[i], Bob, {
-        resolveOn: cord.ChainUtils.IS_READY,
-        rejectOn: cord.ChainUtils.IS_ERROR,
+      await Cord.ChainUtils.signAndSubmitTx(tx_batch[i], Bob, {
+        resolveOn: Cord.ChainUtils.IS_READY,
+        rejectOn: Cord.ChainUtils.IS_ERROR,
       })
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
@@ -145,34 +113,22 @@ async function main() {
       country: 'India',
       credit: 1000,
     }
-    // const nonceSaltValue = UUID.generate()
-    let schemaStream = cord.Content.fromContent(
+    let schemaStream = Cord.Content.fromSchemaAndContent(
       newSchema,
       content,
       Alice.address
     )
 
-    let newStreamContent = cord.MarkContent.fromContent(
-      schemaStream,
-      Alice
-      // { nonceSalt: nonceSaltValue }
-    )
+    let newStreamContent = Cord.ContentStream.fromContent(schemaStream, Alice)
+    let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-    // bytes = json.encode(newStreamContent)
-    // encoded_hash = await hasher.digest(bytes)
-    // const streamCid = CID.create(1, 0xb220, encoded_hash)
-
-    let newStream = cord.Stream.fromMarkContentProperties(
-      newStreamContent
-      // streamCid.toString()
-    )
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
         moment.duration(moment().diff(startTxPrep2)).as('seconds').toFixed(3) +
         's\r'
     )
     try {
-      let txStream = await newStream.create()
+      let txStream = await Cord.Stream.create(newStream)
       tx_new_batch.push(txStream)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
@@ -180,7 +136,7 @@ async function main() {
   }
 
   const { api } =
-    await cord.ChainHelpers.ChainApiConnection.getConnectionOrConnect()
+    await Cord.ChainHelpers.ChainApiConnection.getConnectionOrConnect()
   let keyring = new Keyring({ type: 'sr25519' })
   let BatchAuthor = keyring.addFromUri('//Charlie')
   let batchAncStartTime = moment()
@@ -209,10 +165,10 @@ async function main() {
 
 main()
   .then(() => console.log('Bye! 👋 👋 👋 \n'))
-  .finally(cord.disconnect)
+  .finally(Cord.disconnect)
 
 process.on('SIGINT', async () => {
   console.log('Bye! 👋 👋 👋 \n')
-  cord.disconnect()
+  Cord.disconnect()
   process.exit(0)
 })

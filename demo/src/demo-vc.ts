@@ -1,7 +1,7 @@
 import * as Cord from '@cord.network/api'
 import { UUID } from '@cord.network/utils'
-import type { VerifiableCredential } from 'vc-export/src/types'
-import * as VCUtils from 'vc-export/src'
+import type { VerifiableCredential } from '@cord.network/vc-export/src/types.js'
+import * as VCUtils from '@cord.network/vc-export'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -45,7 +45,7 @@ async function main() {
   spaceContent.title = spaceTitle
 
   let newSpace = Cord.Space.fromSpaceProperties(spaceContent, employeeIdentity)
-  let spaceCreationExtrinsic = await newSpace.create()
+  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
 
   try {
     await Cord.ChainUtils.signAndSubmitTx(
@@ -74,7 +74,7 @@ async function main() {
     newSpace.identifier
   )
 
-  let schemaCreationExtrinsic = await newSchema.create()
+  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
   try {
     await Cord.ChainUtils.signAndSubmitTx(
@@ -102,7 +102,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromProperties(
+  let schemaStream = Cord.Content.fromSchemaAndContent(
     newSchema,
     content,
     employeeIdentity.address,
@@ -119,7 +119,7 @@ async function main() {
 
   let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-  let streamCreationExtrinsic = await newStream.create()
+  let streamCreationExtrinsic = await Cord.Stream.create(newStream)
   console.dir(newStream, { depth: null, colors: true })
 
   try {
@@ -141,7 +141,7 @@ async function main() {
   console.log(`🔗  ${newStream.identifier} `)
   const stream = await Cord.Stream.query(newStream.identifier)
 
-  let credential: Cord.Credential
+  let credential: Cord.ICredential
   if (!stream) {
     console.log(`Stream not anchored on CORD`)
   } else {
