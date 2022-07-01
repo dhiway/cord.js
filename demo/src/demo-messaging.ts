@@ -145,84 +145,86 @@ async function main() {
   //  Step 7: Credential exchange via messaging
   console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
   console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
-  const purpose = 'Account Opening Request'
-  const validUntil = Date.now() + 864000000
-  const relatedData = true
+  // const purpose = 'Account Opening Request'
+  // const validUntil = Date.now() + 864000000
+  // const relatedData = true
 
-  const messageBodyForClaimer: Cord.MessageBody = {
+  const messageBodyForHolder: Cord.MessageBody = {
     type: Cord.Message.BodyType.REQUEST_CREDENTIAL,
-    content: { schemas: [{ schemaIdentifier: schemaStream.schema }] },
+    content: {
+      schemas: [
+        {
+          schemaIdentifier: schemaStream.schema,
+          trustedIssuers: [schemaStream.issuer],
+          requiredProperties: ['name', 'age'],
+        },
+      ],
+      challenge: UUID.generate(),
+    },
   }
-  const messageForClaimer = new Kilt.Message(
-    messageBodyForClaimer,
-    verifierLightDID.did,
-    claimerLightDid.did
+  const messageForHolder = new Cord.Message(
+    messageBodyForHolder,
+    verifierIdentity,
+    holderIdentity.getPublicIdentity()
   )
 
-  const { session, message: message } =
-    cord.Exchange.Request.newRequestBuilder()
-      .requestPresentation({
-        id: schemaStream.schemaId,
-        properties: ['name', 'age'],
-      })
-      .finalize(
-        purpose,
-        verifierIdentity,
-        holderIdentity.getPublicIdentity(),
-        validUntil,
-        relatedData
-      )
-
   console.log(`\n📧 Selective Disclosure Request`)
-  console.dir(message, { depth: null, colors: true })
+  console.dir(messageForHolder, { depth: null, colors: true })
 
-  const chainStream = await cord.Stream.query(newStream.streamId)
+  const chainStream = await Cord.Stream.query(newStream.identifier)
   if (chainStream) {
-    let credential: cord.Credential
-    credential = cord.Credential.fromMarkContentStream(
+    let credential: Cord.ICredential
+    credential = await Cord.Credential.fromRequestAndStream(
       newStreamContent,
       chainStream
     )
-    const presentation = cord.Exchange.Share.createPresentation(
-      holderIdentity,
-      message,
-      verifierIdentity.getPublicIdentity(),
-      [credential],
-      {
-        showAttributes: message.body.content[0].requiredProperties,
-        signer: holderIdentity,
-        request: message.body.request,
-      }
-    )
-
-    const { verified } = await cord.Exchange.Verify.verifyPresentation(
-      presentation,
-      session
-    )
-    console.log(`\n📧 Received Credential `)
-    console.dir(presentation, { depth: null, colors: true })
-
-    let result = vcPresentation.verifiableCredential.proof.forEach(function (
-      proof: any
-    ) {
-      console.log(proof)
-      if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
-        VCUtils.verification.verifyStreamProof(
-          vcPresentation.verifiableCredential,
-          proof
-        )
+    const presentation = await Cord.Credential.createPresentation({
+      credential,
+      selectedAttributes:
+        messageForHolder.body.content['schemas'][0]['requiredProperties'],
+      signer: holderIdentity,
     })
-    console.log(result)
-    if (result && result.verified) {
-      console.log(
-        `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
-      ) // prints 'Billy The Kid'
-      // console.log(
-      //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
-      // ) // undefined
+
+    const messageBodyForRequestor: Cord.MessageBody = {
+      type: Cord.Message.BodyType.SUBMIT_CREDENTIAL,
+      content: [presentation],
     }
 
-    console.log('🔍 All valid? ', verified)
+    const messageForRequestor = new Cord.Message(
+      messageBodyForRequestor,
+      verifierIdentity,
+      holderIdentity.getPublicIdentity()
+    )
+    console.log(`\n📧 Selective Disclosure Response`)
+    console.dir(messageForRequestor, { depth: null, colors: true })
+    // const { verified } = await cord.Exchange.Verify.verifyPresentation(
+    //   presentation,
+    //   session
+    // )
+    // console.log(`\n📧 Received Credential `)
+    // console.dir(presentation, { depth: null, colors: true })
+
+    // let result = vcPresentation.verifiableCredential.proof.forEach(function (
+    //   proof: any
+    // ) {
+    //   console.log(proof)
+    //   if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
+    //     VCUtils.verification.verifyStreamProof(
+    //       vcPresentation.verifiableCredential,
+    //       proof
+    //     )
+    // })
+    // console.log(result)
+    // if (result && result.verified) {
+    //   console.log(
+    //     `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
+    //   ) // prints 'Billy The Kid'
+    //   // console.log(
+    //   //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
+    //   // ) // undefined
+    // }
+
+    // console.log('🔍 All valid? ', verified)
   } else {
     console.log(`\n❌ Credential not found `)
   }

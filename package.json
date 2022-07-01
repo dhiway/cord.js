@@ -13,6 +13,7 @@
     "clean:docs": "rimraf docs/api",
     "demo": "tsx demo/src/demo.ts",
     "demo-vc": "tsx --no-cache demo/src/demo-vc.ts",
+    "demo-messaging": "tsx --no-cache demo/src/demo-messaging.ts",
     "bench": "tsx demo/src/bench.ts",
     "set:version": "yarn workspaces foreach -pt exec npm version --no-git-tag-version",
     "prepublish": "yarn workspaces foreach -p --no-private exec cp -f ../../LICENSE .",

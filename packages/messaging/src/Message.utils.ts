@@ -6,7 +6,7 @@
 import {
   Stream,
   Credential,
-  Content,
+  // Content,
   Schema,
   ContentStream,
 } from '@cord.network/modules'
@@ -16,11 +16,11 @@ import type {
   CompressedMessageBody,
   MessageBody,
   CompressedRequestCredentialContent,
-  IRequestStreamForCredential,
+  // IRequestCredentialContent,
   ISchema,
   IMessage,
-  PartialContent,
-  IContent,
+  // PartialContent,
+  // IContent,
 } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { isHex } from '@polkadot/util'
@@ -31,15 +31,15 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
       ContentStream.verifyDataStructure(body.content.requestStream)
-      if (body.content.prerequisiteStreams) {
-        body.content.prerequisiteStreams.map(
-          (content: IContent | PartialContent) =>
-            Content.verifyDataStructure(content)
-        )
-      }
+      // if (body.content.prerequisiteStreams) {
+      //   body.content.prerequisiteStreams.map(
+      //     (content: IContent | PartialContent) =>
+      //       Content.verifyDataStructure(content)
+      //   )
+      // }
       break
     }
-    case Message.BodyType.ANCHOR_STREAM: {
+    case Message.BodyType.SUBMIT_STREAM: {
       Stream.verifyDataStructure(body.content.stream)
       break
     }
@@ -50,13 +50,13 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       break
     }
     case Message.BodyType.REQUEST_CREDENTIAL: {
-      body.content.forEach(
-        (requestStreamsForSchema: IRequestStreamForCredential): void => {
-          DataUtils.validateId(requestStreamsForSchema.id, 'Identifier')
-          requestStreamsForSchema.acceptedIssuer?.map((address) =>
+      body.content.schemas.forEach(
+        ({ schemaIdentifier, trustedIssuers, requiredProperties }): void => {
+          DataUtils.validateId(schemaIdentifier, 'Identifier')
+          trustedIssuers?.map((address) =>
             DataUtils.validateAddress(address, 'Invalid Schema Owner Address')
           )
-          requestStreamsForSchema.requiredProperties?.forEach(
+          requiredProperties?.forEach(
             (requiredProps) =>
               typeof requiredProps !== 'string' &&
               new TypeError('Required properties is expected to be a string')
@@ -66,10 +66,9 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
-      const creds: ICredential[] = body.content.map((credentials, i) => {
-        return credentials[i].credentials
-      })
-      creds.map((cred) => Credential.verifyDataStructure(cred))
+      body.content.map((credential) =>
+        Credential.verifyDataStructure(credential)
+      )
       break
     }
     case Message.BodyType.ACCEPT_CREDENTIAL: {
@@ -91,7 +90,7 @@ export function errorCheckMessageBody(body: MessageBody): boolean | void {
 export function errorCheckMessage(message: IMessage): boolean | void {
   const {
     body,
-    request,
+    messageId,
     createdAt,
     receiverAddress,
     senderAddress,
@@ -99,7 +98,7 @@ export function errorCheckMessage(message: IMessage): boolean | void {
     senderPublicKey,
     inReplyTo,
   } = message
-  if (request && typeof request !== 'string') {
+  if (messageId && typeof messageId !== 'string') {
     throw new TypeError('message id is expected to be a string')
   }
   if (createdAt && typeof createdAt !== 'number') {
@@ -160,24 +159,29 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
     case Message.BodyType.REQUEST_STREAM: {
       compressedContents = [
         ContentStream.compress(body.content.requestStream),
-        body.content.prerequisiteStreams
-          ? body.content.prerequisiteStreams.map((content) =>
-              Content.compress(content)
-            )
-          : undefined,
+        // body.content.prerequisiteStreams
+        //   ? body.content.prerequisiteStreams.map((content) =>
+        //       Content.compress(content)
+        //     )
+        //   : undefined,
       ]
       break
     }
-    case Message.BodyType.ANCHOR_STREAM: {
+    case Message.BodyType.SUBMIT_STREAM: {
       compressedContents = Stream.compress(body.content.stream)
       break
     }
     case Message.BodyType.REQUEST_CREDENTIAL: {
-      compressedContents = body.content.map(
-        (val): CompressedRequestCredentialContent => {
-          return [val.id, val.acceptedIssuer, val.requiredProperties]
-        }
-      )
+      const compressedSchemas: CompressedRequestCredentialContent[0] =
+        body.content.schemas.map(
+          ({ schemaIdentifier, trustedIssuers, requiredProperties }) => [
+            schemaIdentifier,
+            trustedIssuers,
+            requiredProperties,
+          ]
+        )
+      compressedContents = [compressedSchemas, body.content.challenge]
+
       break
     }
     case Message.BodyType.SUBMIT_CREDENTIAL: {
@@ -216,31 +220,28 @@ export function decompressMessage(body: CompressedMessageBody): MessageBody {
     case Message.BodyType.REQUEST_STREAM: {
       decompressedContents = {
         requestStream: ContentStream.decompress(body[1][0]),
-        prerequisiteStreams: body[1][1]
-          ? body[1][1].map((stream) => Content.decompress(stream))
-          : undefined,
+        // prerequisiteStreams: body[1][1]
+        //   ? body[1][1].map((stream) => Content.decompress(stream))
+        //   : undefined,
       }
 
       break
     }
-    case Message.BodyType.ANCHOR_STREAM: {
+    case Message.BodyType.SUBMIT_STREAM: {
       decompressedContents = {
         stream: Stream.decompress(body[1]),
       }
       break
     }
     case Message.BodyType.REQUEST_CREDENTIAL: {
-      decompressedContents = body[1].map(
-        (
-          val: CompressedRequestCredentialContent
-        ): IRequestStreamForCredential => {
-          return {
-            id: val[0],
-            acceptedIssuer: val[1],
-            requiredProperties: val[2],
-          }
-        }
-      )
+      decompressedContents = {
+        schemas: body[1][0].map((val) => ({
+          schemaIdentifier: val[0],
+          trustedIssuers: val[1],
+          requiredProperties: val[2],
+        })),
+        challenge: body[1][1],
+      }
 
       break
     }

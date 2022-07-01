@@ -21,7 +21,7 @@ import type {
   ISchema,
 } from '@cord.network/types'
 import { MessageBodyType } from '@cord.network/types'
-import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
+import { Crypto, DataUtils, SDKErrors, UUID } from '@cord.network/utils'
 import {
   compressMessage,
   decompressMessage,
@@ -57,7 +57,7 @@ export class Message implements IMessage {
           }
         }
         break
-      case Message.BodyType.ANCHOR_STREAM:
+      case Message.BodyType.SUBMIT_STREAM:
         {
           const submitStream = body
           //TODO - Add schema delegation checks
@@ -69,8 +69,8 @@ export class Message implements IMessage {
       case Message.BodyType.SUBMIT_CREDENTIAL:
         {
           const submitStreamsForSchema: ISubmitCredential = body
-          submitStreamsForSchema.content.forEach((stream, i) => {
-            if (stream.credentials[i].stream.issuer !== senderAddress) {
+          submitStreamsForSchema.content.forEach((stream) => {
+            if (stream.request.content.issuer !== senderAddress) {
               throw new SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
             }
           })
@@ -104,7 +104,7 @@ export class Message implements IMessage {
     }
     DataUtils.validateSignature(
       encrypted.hash,
-      encrypted.requestorSignature,
+      encrypted.signature,
       senderAddress
     )
   }
@@ -163,7 +163,7 @@ export class Message implements IMessage {
   public messageId?: string
   public receivedAt?: number
   public body: MessageBody
-  public createdAt: number
+  public createdAt: string
   public validUntil?: number
   public receiverAddress: IMessage['receiverAddress']
   public senderAddress: IMessage['senderAddress']
@@ -186,10 +186,11 @@ export class Message implements IMessage {
     } else {
       this.body = body
     }
-    this.createdAt = Date.now()
+    this.messageId = UUID.generate()
     this.receiverAddress = receiver.address
     this.senderAddress = sender.address
     this.senderPublicKey = sender.getBoxPublicKey()
+    this.createdAt = new Date().toString()
   }
 
   /**
@@ -213,14 +214,14 @@ export class Message implements IMessage {
 
     const hashInput: string = encryptedStream + nonce + this.createdAt
     const hash = Crypto.hashStr(hashInput)
-    const requestorSignature = sender.signStr(hash)
+    const signature = sender.signStr(hash)
     return {
       receivedAt: this.receivedAt,
       encryptedStream,
       nonce,
       createdAt: this.createdAt,
       hash,
-      requestorSignature,
+      signature,
       receiverAddress: this.receiverAddress,
       senderAddress: this.senderAddress,
       senderPublicKey: this.senderPublicKey,
