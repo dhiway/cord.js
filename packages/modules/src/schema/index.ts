@@ -1,4 +1,3 @@
-export { Schema } from './Schema.js'
-export * as SchemaUtils from './Schema.utils.js'
-export { SchemaMetadata } from './SchemaMetadata.js'
-export * as TypeSchema from './TypeSchema.js'
+export * from './Schema.js'
+export * from './Schema.chain.js'
+export * as TypeSchema from './Schema.types.js'

@@ -28,10 +28,15 @@ import * as u8aUtil from '@polkadot/util/u8a'
 // as util-crypto is providing a wrapper only for signing keypair
 // and not for box keypair, we use TweetNaCl directly
 import nacl from 'tweetnacl'
-import { Crypto, SDKErrors } from '@cord.network/utils'
-import type { IIdentity, SubmittableExtrinsic } from '@cord.network/types'
+import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
+import type {
+  IIdentity,
+  SubmittableExtrinsic,
+  SignProps,
+} from '@cord.network/types'
 import { AnyNumber } from '@polkadot/types/types'
 import { PublicIdentity } from './PublicIdentity.js'
+import { HexString } from '@polkadot/util/types.js'
 
 type BoxPublicKey =
   | PublicIdentity['boxPublicKeyAsHex']
@@ -244,6 +249,21 @@ export class Identity implements IIdentity {
    */
   public signStr(cryptoInput: Crypto.CryptoInput): string {
     return Crypto.signStr(cryptoInput, this.signKeyringPair)
+  }
+
+  /**
+   * Signs data with an [[Identity]] object's key and returns it as string.
+   *
+   * @param cryptoInput - The data to be signed.
+   * @returns The signed data.
+   *
+   */
+  public signTx(cryptoInput: HexString): SignProps {
+    const txId = UUID.generate()
+    const hashVal = { txId, cryptoInput }
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
+    const txSignature = Crypto.signStr(txHash, this.signKeyringPair)
+    return { txSignature, txHash }
   }
 
   /**

@@ -10,10 +10,11 @@ import { DecoderUtils, Identifier } from '@cord.network/utils'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { StreamDetails } from './Stream.js'
-import { STREAM_PREFIX } from '@cord.network/types'
+import { STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/types'
+import { Identity } from '../identity/Identity.js'
+import { HexString } from '@polkadot/util/types.js'
 
-const log = ConfigService.LoggingFactory.getLogger('Credential')
+const log = ConfigService.LoggingFactory.getLogger('Stream')
 
 /**
  * Generate the extrinsic to store the provided [[IStream]].
@@ -23,7 +24,7 @@ const log = ConfigService.LoggingFactory.getLogger('Credential')
  */
 export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.create(
+  return blockchain.api.tx.stream.create(
     stream.issuer,
     stream.streamHash,
     stream.holder,
@@ -32,7 +33,6 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
     stream.space,
     stream.issuerSignature
   )
-  return tx
 }
 
 /**
@@ -43,45 +43,39 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
  */
 export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.update(
+  return blockchain.api.tx.stream.update(
     stream.identifier,
     stream.issuer,
     stream.streamHash,
     stream.issuerSignature,
     stream.space
   )
-  return tx
 }
 
 /**
  * Generate the extrinsic to set the status of a given stream. The submitter can
  * be the owner of the stream or an authorized delegator of the linked schema.
  *
- * @param streamIdentifier The stream Identifier.
+ * @param stream The stream to revoke
  * @param updater TThe transaction creator
- * @param txHash  Transaction Hash
- * @param txSignature Transaction signature of the transaction creator
- * @param [spaceIdentifier] Linked Space Identifier
  * @returns The [[SubmittableExtrinsic]] for the `revoke` call.
  */
 export async function revoke(
-  streamIdentifier: string,
-  updater: string,
-  txHash: string,
-  txSignature: string,
-  spaceIdentifier?: string | null | undefined
+  stream: IStream,
+  updater: Identity
 ): Promise<SubmittableExtrinsic> {
+  const { txSignature, txHash } = updater.signTx(stream.streamHash)
+
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking stream with ID ${streamIdentifier}`)
-  const space = spaceIdentifier ? spaceIdentifier : null
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.revoke(
-    streamIdentifier,
-    updater,
+  log.debug(() => `Revoking stream with ID ${stream.identifier}`)
+  const space = Identifier.getIdentifierKey(stream.space, SPACE_PREFIX) || null
+  return blockchain.api.tx.stream.revoke(
+    Identifier.getIdentifierKey(stream.identifier, STREAM_PREFIX),
+    updater.address,
     txHash,
     txSignature,
     space
   )
-  return tx
 }
 
 /**
@@ -98,11 +92,10 @@ export async function removeSpaceStream(
 ): Promise<SubmittableExtrinsic> {
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${streamIdentifier}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.removeSpaceStream(
+  return blockchain.api.tx.stream.removeSpaceStream(
     streamIdentifier,
     spaceIdentifier
   )
-  return tx
 }
 
 /**
@@ -112,24 +105,23 @@ export async function removeSpaceStream(
  * @param streamIdentifier The stream Identifier.
  * @param creator The transaction creator
  * @param digestHash Hash of the presentation
- * @param txSignature Transaction signature of the submitter
  * @returns The [[SubmittableExtrinsic]] for the `digest` call.
  */
 export async function digest(
   streamIdentifier: string,
-  creator: string,
-  digestHash: string,
-  txSignature: string
+  creator: Identity,
+  digestHash: HexString
 ): Promise<SubmittableExtrinsic> {
+  const txSignature = creator.signStr(digestHash)
+
   const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking stream with ID ${streamIdentifier}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.stream.digest(
+  log.debug(() => `Adding a stream Digest ${streamIdentifier}`)
+  return blockchain.api.tx.stream.digest(
     streamIdentifier,
     creator,
     digestHash,
     txSignature
   )
-  return tx
 }
 
 export interface AnchoredStreamDetails extends Struct {
@@ -145,7 +137,7 @@ export interface AnchoredStreamDetails extends Struct {
 function decodeStream(
   encodedStream: Option<AnchoredStreamDetails>,
   streamIdentifier: IContentStream['identifier']
-): StreamDetails | null {
+): IStreamDetails | null {
   DecoderUtils.assertCodecIsType(encodedStream, [
     'Option<PalletStreamStreamsStreamDetails>',
   ])
@@ -162,7 +154,7 @@ function decodeStream(
       space: DecoderUtils.hexToString(anchoredStream.space.toString()) || null,
       revoked: anchoredStream.revoked.valueOf(),
     }
-    return StreamDetails.fromStreamDetails(stream)
+    return stream
   }
   return null
 }
@@ -191,7 +183,7 @@ export async function queryRaw(
  */
 export async function query(
   streamIdentifier: IContentStream['identifier']
-): Promise<StreamDetails | null> {
+): Promise<IStreamDetails | null> {
   const encoded = await queryRaw(streamIdentifier)
   return decodeStream(encoded, streamIdentifier)
 }

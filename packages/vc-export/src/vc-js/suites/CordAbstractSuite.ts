@@ -77,6 +77,7 @@ export default abstract class CordAbstractSuite extends suites.LinkedDataProof {
     return type instanceof Array ? type.includes(this.type) : type === this.type
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async createProof(options: {
     document: JsonLdObj
     purpose?: purposes.ProofPurpose

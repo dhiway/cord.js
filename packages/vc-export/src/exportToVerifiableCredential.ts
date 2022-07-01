@@ -6,7 +6,7 @@
 import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
-import { ContentUtils, Identity } from '@cord.network/modules'
+import { Content, Identity } from '@cord.network/modules'
 import type { ICredential, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
@@ -66,7 +66,7 @@ export function fromCredential(
   )
 
   // transform & annotate stream to be json-ld and VC conformant
-  const { credentialSubject } = ContentUtils.toJsonLD(content, false) as Record<
+  const { credentialSubject } = Content.toJsonLD(content, false) as Record<
     string,
     Record<string, AnyJson>
   >

@@ -2,6 +2,7 @@
  * @packageDocumentation
  * @module ISpace
  */
+import { HexString } from '@polkadot/util/types.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 
 export const SPACE_IDENTIFIER: number = 13
@@ -14,7 +15,7 @@ export interface ISpaceType {
 
 export interface ISpace {
   identifier: string
-  spaceHash: string
+  spaceHash: HexString
   controller: IPublicIdentity['address']
   controllerSignature: string
   space: ISpaceType

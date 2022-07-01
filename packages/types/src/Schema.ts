@@ -42,7 +42,7 @@ export interface ISchema {
   schema: ISchemaType
 }
 
-export type CompressedSchema = [
+export type CompressedSchemaType = [
   ISchemaType['$id'],
   ISchemaType['$schema'],
   ISchemaType['$metadata'],
@@ -52,13 +52,13 @@ export type CompressedSchema = [
   ISchemaType['type']
 ]
 
-export type CompressedSchemaType = [
+export type CompressedSchema = [
   ISchema['identifier'],
   ISchema['schemaHash'],
   ISchema['controller'],
   ISchema['controllerSignature'],
   ISchema['space'],
-  CompressedSchema
+  CompressedSchemaType
 ]
 
 export interface ISchemaDetails {
