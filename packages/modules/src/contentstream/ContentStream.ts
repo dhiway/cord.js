@@ -6,6 +6,7 @@ import type {
   ISchema,
   ICredential,
   CompressedCredential,
+  IPublicIdentity,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/Content.js'
@@ -22,7 +23,7 @@ import { HexString } from '@polkadot/util/types'
 
 export function makeSigningData(
   input: IContentStream,
-  challenge?: string
+  challenge?: string | null
 ): Uint8Array {
   return new Uint8Array([
     ...Crypto.coToUInt8(input.rootHash),
@@ -31,13 +32,23 @@ export function makeSigningData(
 }
 
 export async function verifySignature(
-  content: IContentStream
+  content: IContentStream,
+  {
+    challenge,
+  }: {
+    challenge?: string
+  } = {}
 ): Promise<boolean> {
-  return Crypto.verify(
-    content.rootHash,
-    content.issuerSignature,
-    content.content.issuer
+  const { signatureProof } = content
+  if (!signatureProof) return false
+  if (challenge && challenge !== signatureProof.challenge) return false
+  const signingData = makeSigningData(content, signatureProof.challenge)
+  const verified = Crypto.verify(
+    signingData,
+    signatureProof.signature,
+    signatureProof.keyId
   )
+  return verified
 }
 
 function getHashRoot(leaves: Uint8Array[]): Uint8Array {
@@ -80,27 +91,32 @@ export function calculateRootHash(
   return Crypto.u8aToHex(root)
 }
 
-export async function addSignature(
+export function addSignature(
   request: IContentStream,
   sig: string | Uint8Array,
-  challenge?: string
-): Promise<void> {
+  keyId: IPublicIdentity['address'],
+  {
+    challenge,
+  }: {
+    challenge?: string
+  } = {}
+): void {
   const signature = typeof sig === 'string' ? sig : Crypto.u8aToHex(sig)
   // eslint-disable-next-line no-param-reassign
-  ;(request.issuerSignature = signature), challenge
+  if (challenge) {
+    request.signatureProof = { keyId, signature, challenge }
+  } else {
+    request.signatureProof = { keyId, signature }
+  }
 }
 
-function sign(identity: Identity, rootHash: Hash): string {
-  return identity.signStr(rootHash)
-}
-
-export async function signWithKey(
+export function signWithKey(
   request: IContentStream,
   signer: Identity,
   challenge?: string
-): Promise<void> {
-  const signature = await signer.signStr(makeSigningData(request, challenge))
-  addSignature(request, signature, challenge)
+): void {
+  const signature = signer.signStr(makeSigningData(request, challenge))
+  addSignature(request, signature, signer.address, { challenge })
 }
 
 /**
@@ -285,7 +301,6 @@ export function fromContent(
     evidenceIds: evidenceIds || [],
     link: link || null,
     space: space || null,
-    issuerSignature: sign(issuer, rootHash),
     rootHash,
     issuanceDate: issuanceDateString,
     expirationDate: expirationDateString,
@@ -295,6 +310,8 @@ export function fromContent(
       STREAM_PREFIX
     ),
   }
+  signWithKey(contentStream, issuer)
+
   verifyDataStructure(contentStream)
   return contentStream
 }
@@ -343,12 +360,12 @@ export function updateContent(
     evidenceIds: updateEvidenceIds || content.evidenceIds,
     link: content.link,
     space: content.space,
-    issuerSignature: sign(issuer, rootHash),
     rootHash,
     issuanceDate,
     expirationDate,
     identifier: content.identifier,
   }
+  signWithKey(contentStream, issuer)
   verifyDataStructure(contentStream)
   return contentStream
 }
@@ -434,7 +451,7 @@ export function compress(
     Content.compress(contentStream.content),
     contentStream.contentHashes,
     contentStream.contentNonceMap,
-    contentStream.issuerSignature,
+    contentStream.signatureProof,
     contentStream.link,
     contentStream.space,
     compressProof(contentStream.evidenceIds),
@@ -463,7 +480,7 @@ export function decompress(
     content: Content.decompress(contentStream[0]),
     contentHashes: contentStream[1],
     contentNonceMap: contentStream[2],
-    issuerSignature: contentStream[3],
+    signatureProof: contentStream[3],
     link: contentStream[4],
     space: contentStream[5],
     evidenceIds: decompressProof(contentStream[6]),

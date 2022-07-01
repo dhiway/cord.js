@@ -56,7 +56,7 @@ export function fromContentStream(content: IContentStream): IStream {
     schema: Identifier.getIdentifierKey(content.content.schema, SCHEMA_PREFIX),
     link,
     space,
-    issuerSignature: content.issuerSignature,
+    signatureProof: content.signatureProof,
   }
   verifyDataStructure(stream)
   return stream
@@ -118,7 +118,7 @@ export function compress(stream: IStream): CompressedStream {
     stream.schema,
     stream.link,
     stream.space,
-    stream.issuerSignature,
+    stream.signatureProof,
   ]
 }
 
@@ -142,7 +142,7 @@ export function decompress(stream: CompressedStream): IStream {
     schema: stream[4],
     link: stream[5],
     space: stream[6],
-    issuerSignature: stream[7],
+    signature: stream[7],
   }
   verifyDataStructure(decompressedStream)
   return decompressedStream

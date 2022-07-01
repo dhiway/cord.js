@@ -190,7 +190,7 @@ export class Message implements IMessage {
     this.receiverAddress = receiver.address
     this.senderAddress = sender.address
     this.senderPublicKey = sender.getBoxPublicKey()
-    this.createdAt = new Date().toString()
+    this.createdAt = new Date().toISOString()
   }
 
   /**

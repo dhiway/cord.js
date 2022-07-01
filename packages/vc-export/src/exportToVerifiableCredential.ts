@@ -55,7 +55,7 @@ export function fromCredential(
     contentHashes,
     evidenceIds,
     rootHash,
-    issuerSignature,
+    signatureProof,
     content,
     identifier,
   } = input.request
@@ -112,8 +112,14 @@ export function fromCredential(
     credentialSchema,
   }
 
-  const keyType: string | undefined =
-    KeyTypesMap[signatureVerify('', issuerSignature, content.issuer).crypto]
+  let keyType: string | undefined
+  if (signatureProof) {
+    keyType =
+      KeyTypesMap[
+        signatureVerify('', signatureProof?.signature, content.issuer).crypto
+      ]
+  }
+
   if (!keyType)
     throw new TypeError(
       `Unknown signature type on credential.\nCurrently this handles ${JSON.stringify(

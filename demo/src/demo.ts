@@ -143,6 +143,7 @@ async function main() {
   }
 
   // Step 5: Update a Stream
+
   console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
   const updateContent = JSON.parse(JSON.stringify(newStreamContent))
   updateContent.content.contents.name = 'Alice Jackson'

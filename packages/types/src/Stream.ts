@@ -17,7 +17,7 @@ export interface IStream {
   schema: ISchema['identifier'] | null
   link: IContentStream['link'] | null
   space: IContentStream['space'] | null
-  issuerSignature?: IContentStream['issuerSignature'] | null
+  signatureProof?: IContentStream['signatureProof'] | null
 }
 
 export type CompressedStream = [
@@ -28,7 +28,7 @@ export type CompressedStream = [
   IStream['schema'],
   IStream['link'],
   IStream['space'],
-  IStream['issuerSignature']
+  IStream['signatureProof']
 ]
 
 export interface IStreamDetails {

@@ -11,7 +11,7 @@
     "bundle": "yarn workspace @cord.network/api run bundle",
     "clean": "rimraf tests/dist && yarn workspaces foreach -p --exclude '{root-workspace}' run clean",
     "clean:docs": "rimraf docs/api",
-    "demo": "tsx demo/src/demo.ts",
+    "demo": "tsx --no-cache demo/src/demo.ts",
     "demo-vc": "tsx --no-cache demo/src/demo-vc.ts",
     "demo-messaging": "tsx --no-cache demo/src/demo-messaging.ts",
     "bench": "tsx demo/src/bench.ts",

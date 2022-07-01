@@ -183,6 +183,7 @@ async function main() {
       selectedAttributes:
         messageForHolder.body.content['schemas'][0]['requiredProperties'],
       signer: holderIdentity,
+      challenge: messageForHolder.body.content['challenge'],
     })
 
     const messageBodyForRequestor: Cord.MessageBody = {
@@ -197,34 +198,19 @@ async function main() {
     )
     console.log(`\n📧 Selective Disclosure Response`)
     console.dir(messageForRequestor, { depth: null, colors: true })
-    // const { verified } = await cord.Exchange.Verify.verifyPresentation(
-    //   presentation,
-    //   session
-    // )
-    // console.log(`\n📧 Received Credential `)
-    // console.dir(presentation, { depth: null, colors: true })
 
-    // let result = vcPresentation.verifiableCredential.proof.forEach(function (
-    //   proof: any
-    // ) {
-    //   console.log(proof)
-    //   if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
-    //     VCUtils.verification.verifyStreamProof(
-    //       vcPresentation.verifiableCredential,
-    //       proof
-    //     )
-    // })
-    // console.log(result)
-    // if (result && result.verified) {
-    //   console.log(
-    //     `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
-    //   ) // prints 'Billy The Kid'
-    //   // console.log(
-    //   //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
-    //   // ) // undefined
-    // }
+    if (
+      messageForRequestor.body.type === Cord.Message.BodyType.SUBMIT_CREDENTIAL
+    ) {
+      const claims = messageForRequestor.body.content
 
-    // console.log('🔍 All valid? ', verified)
+      const isValid = await Cord.Credential.verify(claims[0])
+      if (isValid) {
+        console.log('✅  Valid Presentation')
+      } else {
+        console.log(`❌  Presentation Verification failed`)
+      }
+    }
   } else {
     console.log(`\n❌ Credential not found `)
   }

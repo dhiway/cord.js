@@ -101,8 +101,8 @@ export function errorCheckMessage(message: IMessage): boolean | void {
   if (messageId && typeof messageId !== 'string') {
     throw new TypeError('message id is expected to be a string')
   }
-  if (createdAt && typeof createdAt !== 'number') {
-    throw new TypeError('created at is expected to be a number')
+  if (createdAt && typeof createdAt !== 'string') {
+    throw new TypeError('created at is expected to be a string')
   }
   if (receivedAt && typeof receivedAt !== 'number') {
     throw new TypeError('received at is expected to be a number')

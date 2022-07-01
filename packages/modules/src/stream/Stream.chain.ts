@@ -31,7 +31,7 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
     stream.schema,
     stream.link,
     stream.space,
-    stream.issuerSignature
+    stream.signatureProof?.signature
   )
 }
 
@@ -47,7 +47,7 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
     stream.identifier,
     stream.issuer,
     stream.streamHash,
-    stream.issuerSignature,
+    stream.signatureProof?.signature,
     stream.space
   )
 }
