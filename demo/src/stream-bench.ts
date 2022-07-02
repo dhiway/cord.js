@@ -1,6 +1,5 @@
-import * as Cord from '@Cord.network/api'
-import * as utils from './utils'
-import { UUID } from '@Cord.network/utils'
+import * as Cord from '@cord.network/api'
+import { UUID } from '@cord.network/utils'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
 
@@ -160,7 +159,6 @@ async function main() {
       txCount / batchAncDuration.as('seconds')
     ).toFixed(0)} `
   )
-  await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
 
 main()

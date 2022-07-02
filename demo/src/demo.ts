@@ -143,7 +143,6 @@ async function main() {
   }
 
   // Step 5: Update a Stream
-
   console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
   const updateContent = JSON.parse(JSON.stringify(newStreamContent))
   updateContent.content.contents.name = 'Alice Jackson'
@@ -186,7 +185,7 @@ async function main() {
     console.log(`Is Alices's credential valid? ${isCredentialValid}`)
   }
 
-  // Step 8: Revoke a Stream
+  // Step 7: Revoke a Stream
   console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
   let revokeStream = updateStream
 
@@ -209,7 +208,7 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 9: Re-verify a revoked Credential
+  // Step 8: Re-verify a revoked Credential
   console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
   const revstream = await Cord.Stream.query(updateStream.identifier)
   if (!revstream) {

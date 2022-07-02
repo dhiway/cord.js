@@ -1109,16 +1109,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@multiformats/blake2@npm:^1.0.5":
-  version: 1.0.9
-  resolution: "@multiformats/blake2@npm:1.0.9"
-  dependencies:
-    blakejs: ^1.1.1
-    multiformats: ^9.5.4
-  checksum: 8d134570efde89acd7fb60ca766ddc45e37ad152559b8cc7158c2ffeed137105303cd1ff3507ff50f24f222f4a36925af35da1f4f7756b5cf09243c9c5514ce3
-  languageName: node
-  linkType: hard
-
 "@noble/hashes@npm:1.0.0":
   version: 1.0.0
   resolution: "@noble/hashes@npm:1.0.0"
@@ -2665,13 +2655,6 @@ __metadata:
   dependencies:
     tweetnacl: ^0.14.3
   checksum: 4edfc9fe7d07019609ccf797a2af28351736e9d012c8402a07120c4453a3b789a15f2ee1530dc49eee8f7eb9379331a8dd4b3766042b9e502f74a68e7f662291
-  languageName: node
-  linkType: hard
-
-"blakejs@npm:^1.1.1":
-  version: 1.2.1
-  resolution: "blakejs@npm:1.2.1"
-  checksum: d699ba116cfa21d0b01d12014a03e484dd76d483133e6dc9eb415aa70a119f08beb3bcefb8c71840106a00b542cba77383f8be60cd1f0d4589cb8afb922eefbe
   languageName: node
   linkType: hard
 
@@ -6878,13 +6861,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"multiformats@npm:^9.4.7, multiformats@npm:^9.5.4":
-  version: 9.6.5
-  resolution: "multiformats@npm:9.6.5"
-  checksum: f4fce459bf19e1c38e4daa0e6de3aeea55ab000620d23ef599943495ab65d1c0351c5aa53d15eb365181d30a4b0629785a0d8901d17b5d153c48f4f1a683cd47
-  languageName: node
-  linkType: hard
-
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -7824,7 +7800,6 @@ __metadata:
   dependencies:
     "@commitlint/cli": ^9.0.1
     "@commitlint/config-conventional": ^9.0.1
-    "@multiformats/blake2": ^1.0.5
     "@types/jest": ^27.4.0
     "@types/node": ^17.0.35
     "@typescript-eslint/eslint-plugin": ^5.7.0
@@ -7843,7 +7818,6 @@ __metadata:
     jest-runner: ^27.4.6
     jest-runner-groups: ^2.1.0
     moment: ^2.29.1
-    multiformats: ^9.4.7
     prettier: ^2.4.1
     rimraf: ^3.0.2
     ts-jest: ^27.1.2
@@ -7851,7 +7825,6 @@ __metadata:
     tsx: ^3.4.3
     typedoc: ^0.22.7
     typescript: ^4.5.4
-    wait-for-enter: ^1.0.0
   languageName: unknown
   linkType: soft
 
@@ -9124,13 +9097,6 @@ __metadata:
   dependencies:
     xml-name-validator: ^3.0.0
   checksum: ae25c51cf71f1fb2516df1ab33a481f83461a117565b95e3d0927432522323f93b1b2846cbb60196d337970c421adb604fc2d0d180c6a47a839da01db5b9973b
-  languageName: node
-  linkType: hard
-
-"wait-for-enter@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "wait-for-enter@npm:1.0.0"
-  checksum: 1e12977a6abe5d8d8e4d523f9f4daafde4f8fc43468e280c9d83ca430606d3b02871d78d2d1255c6899a104bd62c1ae38fae5bd5c11093f1c4bd0de1ffee79cb
   languageName: node
   linkType: hard
 

@@ -1,5 +1,5 @@
-import * as Cord from '@Cord.network/api'
-import { UUID } from '@Cord.network/utils'
+import * as Cord from '@cord.network/api'
+import { UUID } from '@cord.network/utils'
 import type { HexString } from '@polkadot/util/types'
 
 import { base58Decode, base58Encode, blake2AsU8a } from '@polkadot/util-crypto'

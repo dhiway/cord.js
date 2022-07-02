@@ -1,6 +1,5 @@
 import * as Cord from '@cord.network/api'
 import { UUID } from '@cord.network/utils'
-// import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -140,8 +139,6 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // await utils.waitForEnter('\n⏎ Press Enter to continue..')
-
   //  Step 7: Credential exchange via messaging
   console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
   console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
@@ -237,8 +234,6 @@ async function main() {
   } else {
     console.log(`\n❌ Credential not found `)
   }
-
-  // await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))

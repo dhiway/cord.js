@@ -136,7 +136,7 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 4: Verifiable Credentials & Presentation
+  // Step 5: Verifiable Credential & Presentation
   console.log(`\n❄️  Verifiable Credentials & Presentation `)
   console.log(`🔗  ${newStream.identifier} `)
   const stream = await Cord.Stream.query(newStream.identifier)
@@ -223,8 +223,6 @@ async function main() {
       )
     }
   }
-
-  //   await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
