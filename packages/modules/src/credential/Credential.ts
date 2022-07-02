@@ -132,10 +132,13 @@ export function isICredential(input: unknown): input is ICredential {
  *
  */
 
-export async function verify(cred: ICredential): Promise<boolean> {
+export async function verify(
+  cred: ICredential,
+  challenge?: string
+): Promise<boolean> {
   return (
     verifyDataIntegrity(cred) &&
-    (await ContentStream.verifySignature(cred.request)) &&
+    (await ContentStream.verifySignature(cred.request, { challenge })) &&
     Stream.checkValidity(cred.stream)
   )
 }

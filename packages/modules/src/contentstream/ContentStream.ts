@@ -41,8 +41,7 @@ export async function verifySignature(
 ): Promise<boolean> {
   const { signatureProof } = content
   if (!signatureProof) return false
-  if (challenge && challenge !== signatureProof.challenge) return false
-  const signingData = makeSigningData(content, signatureProof.challenge)
+  const signingData = makeSigningData(content, challenge)
   const verified = Crypto.verify(
     signingData,
     signatureProof.signature,
@@ -102,12 +101,7 @@ export function addSignature(
   } = {}
 ): void {
   const signature = typeof sig === 'string' ? sig : Crypto.u8aToHex(sig)
-  // eslint-disable-next-line no-param-reassign
-  if (challenge) {
-    request.signatureProof = { keyId, signature, challenge }
-  } else {
-    request.signatureProof = { keyId, signature }
-  }
+  request.signatureProof = { keyId, signature }
 }
 
 export function signWithKey(
@@ -382,11 +376,12 @@ export function updateContent(
  */
 export async function verify(
   contentStream: IContentStream,
-  schema?: ISchema
+  schema?: ISchema,
+  challenge?: string
 ): Promise<void> {
   verifyDataStructure(contentStream)
   verifyDataIntegrity(contentStream)
-  const isSignatureCorrect = verifySignature(contentStream)
+  const isSignatureCorrect = verifySignature(contentStream, { challenge })
   if (!isSignatureCorrect) throw new SDKErrors.ERROR_SIGNATURE_UNVERIFIABLE()
 
   if (schema) {

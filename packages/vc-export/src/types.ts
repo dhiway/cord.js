@@ -12,7 +12,8 @@ import type {
   JSON_SCHEMA_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SIGNATURE_PROOF_TYPE,
+  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_SELF_SIGNATURE_PROOF_TYPE,
 } from './constants.js'
 
 export interface Proof {
@@ -25,8 +26,8 @@ export interface Proof {
 export type IPublicKeyRecord = Partial<IDidDocumentPublicKey> &
   Pick<IDidDocumentPublicKey, 'publicKeyHex' | 'type'>
 
-export interface CordSignatureProof extends Proof {
-  type: typeof CORD_SIGNATURE_PROOF_TYPE
+export interface CordStreamSignatureProof extends Proof {
+  type: typeof CORD_STREAM_SIGNATURE_PROOF_TYPE
   verificationMethod: string | IPublicKeyRecord
   signature: string
 }
@@ -40,6 +41,13 @@ export interface CredentialDigestProof extends Proof {
   nonces: Record<string, string>
   // salted hashes of statements in credentialSubject to allow selective disclosure.
   contentHashes: string[]
+}
+export interface CordSelfSignatureProof extends Proof {
+  created: string
+  type: typeof CORD_SELF_SIGNATURE_PROOF_TYPE
+  verificationMethod: string | IPublicKeyRecord
+  signature: string
+  challenge?: string
 }
 
 export interface CredentialSchema {

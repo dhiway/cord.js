@@ -146,15 +146,18 @@ async function main() {
     console.log(`Stream not anchored on CORD`)
   } else {
     credential = Cord.Credential.fromRequestAndStream(newStreamContent, stream)
-    const VC = VCUtils.fromCredential(credential, holderIdentity, newSchema)
+    const VC = VCUtils.fromCredential(credential, newSchema)
     console.dir(VC, { depth: null, colors: true })
     console.log('✅ Verifiable Credential created!')
 
     console.log(`\n❄️  Verifiable Presentation - Selective Disclosure `)
     const sharedCredential = JSON.parse(JSON.stringify(VC))
+    const vcChallenge = UUID.generate()
     const vcPresentation = await VCUtils.presentation.makePresentation(
       sharedCredential,
-      ['name', 'country']
+      ['name', 'country'],
+      holderIdentity,
+      vcChallenge
     )
     console.dir(vcPresentation, { depth: null, colors: true })
     console.log('✅ Verifiable Presentation created!')
@@ -164,10 +167,11 @@ async function main() {
     const VCfromPresentation =
       vcPresentation.verifiableCredential as VerifiableCredential
 
-    const signatureResult = await VCUtils.verification.verifyCordSignatureProof(
-      VCfromPresentation,
-      VCfromPresentation.proof[0]
-    )
+    const streamSignatureResult =
+      await VCUtils.verification.verifyStreamSignatureProof(
+        VCfromPresentation,
+        VCfromPresentation.proof[0]
+      )
     const streamResult = await VCUtils.verification.verifyStreamProof(
       VCfromPresentation,
       VCfromPresentation.proof[1]
@@ -177,29 +181,45 @@ async function main() {
       VCfromPresentation,
       VCfromPresentation.proof[2]
     )
+    const selfSignatureResult =
+      await VCUtils.verification.verifySelfSignatureProof(
+        VCfromPresentation,
+        vcPresentation.proof[0],
+        vcChallenge
+      )
+
     if (
-      (!streamResult && !streamResult['verified']) ||
-      (!digestResult && !digestResult['verified']) ||
-      (!signatureResult && !signatureResult['verified'])
+      streamResult &&
+      streamResult['verified'] &&
+      digestResult &&
+      digestResult['verified'] &&
+      streamSignatureResult &&
+      streamSignatureResult['verified'] &&
+      selfSignatureResult &&
+      selfSignatureResult['verified']
     ) {
       console.log(
-        `❌  Verification failed `,
-        'Signature-Proof',
-        signatureResult['verified'],
-        ', Stream-Proof',
+        '✅',
+        'Stream-Signature-Proof',
+        streamSignatureResult['verified'],
+        '✧ Stream-Proof',
         streamResult['verified'],
-        ', Digest-Proof',
-        digestResult['verified']
+        '✧ Digest-Proof',
+        digestResult['verified'],
+        '✧ Self-Signature-Proof',
+        selfSignatureResult['verified']
       )
     } else {
       console.log(
-        '✅  All valid? ',
-        'Signature-Proof',
-        signatureResult['verified'],
-        ', Stream-Proof',
+        `❌`,
+        'Stream-Signature-Proof',
+        streamSignatureResult['verified'],
+        '✧ Stream-Proof',
         streamResult['verified'],
-        ', Digest-Proof',
-        digestResult['verified']
+        '✧ Digest-Proof',
+        digestResult['verified'],
+        '✧ Self-Signature-Proof',
+        selfSignatureResult['verified']
       )
     }
   }

@@ -145,10 +145,8 @@ async function main() {
   //  Step 7: Credential exchange via messaging
   console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
   console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
-  // const purpose = 'Account Opening Request'
-  // const validUntil = Date.now() + 864000000
-  // const relatedData = true
 
+  const msgChallenge = UUID.generate()
   const messageBodyForHolder: Cord.MessageBody = {
     type: Cord.Message.BodyType.REQUEST_CREDENTIAL,
     content: {
@@ -159,7 +157,7 @@ async function main() {
           requiredProperties: ['name', 'age'],
         },
       ],
-      challenge: UUID.generate(),
+      challenge: msgChallenge,
     },
   }
   const messageForHolder = new Cord.Message(
@@ -198,17 +196,42 @@ async function main() {
     )
     console.log(`\n📧 Selective Disclosure Response`)
     console.dir(messageForRequestor, { depth: null, colors: true })
+    console.log(`\n❄️  Verifiy Presentation`)
 
     if (
       messageForRequestor.body.type === Cord.Message.BodyType.SUBMIT_CREDENTIAL
     ) {
       const claims = messageForRequestor.body.content
 
-      const isValid = await Cord.Credential.verify(claims[0])
-      if (isValid) {
-        console.log('✅  Valid Presentation')
+      // Using detail verification model to capture results seperately
+      // await Cord.Credential.verify(claims[0], msgChallenge)
+      // is the one - line alternative
+      const credIntegrity = await Cord.Credential.verifyDataIntegrity(claims[0])
+      const credSignature = await Cord.ContentStream.verifySignature(
+        claims[0].request,
+        { challenge: msgChallenge }
+      )
+      const credValidity = await Cord.Stream.checkValidity(claims[0].stream)
+      if (credIntegrity && credSignature && credValidity) {
+        console.log(
+          '✅',
+          'Credential-Integity',
+          credIntegrity,
+          '✧ Credential-Signature',
+          credSignature,
+          '✧ Credential-Validity',
+          credValidity
+        )
       } else {
-        console.log(`❌  Presentation Verification failed`)
+        console.log(
+          `❌`,
+          'Credential-Integity',
+          credIntegrity,
+          '| Credential-Signature',
+          credSignature,
+          '| Credential-Validity',
+          credValidity
+        )
       }
     }
   } else {
