@@ -6,6 +6,7 @@ export const DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT =
 
 export const CORD_CREDENTIAL_CONTEXT_URL =
   'https://cord.network/contexts/credentials'
+
 /**
  * Constant for default type.
  */
