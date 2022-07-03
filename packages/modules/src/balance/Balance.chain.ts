@@ -28,9 +28,9 @@ import * as BalanceUtils from './Balance.utils.js'
 export async function getBalances(
   accountAddress: IPublicIdentity['address']
 ): Promise<Balances> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
 
-  return (await blockchain.api.query.system.account(accountAddress)).data
+  return (await api.query.system.account(accountAddress)).data
 }
 
 /**
@@ -50,10 +50,10 @@ export async function listenToBalanceChanges(
     changes: Balances
   ) => void
 ): Promise<UnsubscribePromise> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   let previousBalances = await getBalances(accountAddress)
 
-  return blockchain.api.query.system.account(
+  return api.query.system.account(
     accountAddress,
     ({ data: { free, reserved, miscFrozen, feeFrozen } }) => {
       const balancesChange = {
@@ -91,10 +91,10 @@ export async function makeTransfer(
   amount: BN,
   exponent = -12
 ): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   const cleanExponent =
     (exponent >= 0 ? 1 : -1) * Math.floor(Math.abs(exponent))
-  const transfer = blockchain.api.tx.balances.transfer(
+  const transfer = api.tx.balances.transfer(
     accountAddressTo,
     cleanExponent === -12
       ? amount

@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import { Chain, ChainApiConnection } from '@cord.network/network'
+import { ApiPromise } from '@polkadot/api'
+import { ChainApiConnection } from '@cord.network/network'
 import type {
   DocumentLoader,
   ExpansionMap,
@@ -24,12 +25,15 @@ class StreamError extends Error {
 }
 
 export default class CordAnchoredSuite extends CordAbstractSuite {
-  private readonly provider: Chain
+  private readonly provider: ApiPromise
 
-  constructor(options: { CordConnection: Chain }) {
+  constructor(options: { CordConnection: ApiPromise }) {
     // vc-js complains when there is no verificationMethod
     super({ type: CORD_ANCHORED_PROOF_TYPE, verificationMethod: '<none>' })
-    if (!options.CordConnection || !(options.CordConnection instanceof Chain))
+    if (
+      !options.CordConnection ||
+      !(options.CordConnection instanceof ApiPromise)
+    )
       throw new TypeError('CordConnection must be a Cord blockchain connection')
     this.provider = options.CordConnection
   }

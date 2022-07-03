@@ -49,14 +49,10 @@ async function main() {
   console.dir(newSpace, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      spaceCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Space created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -83,14 +79,10 @@ async function main() {
   })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      schemaCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Schema created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -129,14 +121,10 @@ async function main() {
   console.dir(newStream, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      streamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(streamCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Stream created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -158,12 +146,12 @@ async function main() {
   console.dir(updateStream, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
+    await Cord.Chain.signAndSubmitTx(
       updateStreamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
+        resolveOn: Cord.Chain.IS_IN_BLOCK,
+        rejectOn: Cord.Chain.IS_ERROR,
       }
     )
     console.log('✅ Stream updated!')
@@ -195,12 +183,12 @@ async function main() {
   )
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
+    await Cord.Chain.signAndSubmitTx(
       revokeStreamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
+        resolveOn: Cord.Chain.IS_IN_BLOCK,
+        rejectOn: Cord.Chain.IS_ERROR,
       }
     )
     console.log(`✅ Alices's credential revoked!`)

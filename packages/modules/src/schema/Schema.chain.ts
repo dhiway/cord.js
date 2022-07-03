@@ -27,9 +27,9 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
  */
 
 export async function create(schema: ISchema): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
-  return blockchain.api.tx.schema.create(
+  return api.tx.schema.create(
     schema.controller,
     schema.schemaHash,
     Identifier.getIdentifierKey(schema.space, SPACE_PREFIX),
@@ -46,11 +46,11 @@ export async function revoke(
 ): Promise<SubmittableExtrinsic> {
   const { txSignature, txHash } = controller.signTx(schema.schemaHash)
 
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema.identifier}`)
   const space = Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
 
-  return blockchain.api.tx.schema.revoke(
+  return api.tx.schema.revoke(
     controller,
     Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
     txHash,
@@ -69,11 +69,11 @@ export async function authorise(
 ): Promise<SubmittableExtrinsic> {
   const { txSignature, txHash } = controller.signTx(schema.schemaHash)
 
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema.identifier}`)
   const space = Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
 
-  return blockchain.api.tx.schema.authorise(
+  return api.tx.schema.authorise(
     controller,
     Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
     txHash,
@@ -93,11 +93,11 @@ export async function deauthorise(
 ): Promise<SubmittableExtrinsic> {
   const { txSignature, txHash } = controller.signTx(schema.schemaHash)
 
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema.identifier}`)
   const space = Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
 
-  return blockchain.api.tx.schema.deauthorise(
+  return api.tx.schema.deauthorise(
     controller,
     Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
     txHash,
@@ -138,20 +138,20 @@ function decodeSchema(
 async function queryRawHash(
   schema_hash: string
 ): Promise<Option<AnchoredSchemaDetails>> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const result = await blockchain.api.query.schema.schemas<
-    Option<AnchoredSchemaDetails>
-  >(schema_hash)
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  const result = await api.query.schema.schemas<Option<AnchoredSchemaDetails>>(
+    schema_hash
+  )
   return result
 }
 
 async function queryRaw(
   schema_id: string
 ): Promise<Option<AnchoredSchemaDetails>> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const result = await blockchain.api.query.schema.schemas<
-    Option<AnchoredSchemaDetails>
-  >(schema_id)
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  const result = await api.query.schema.schemas<Option<AnchoredSchemaDetails>>(
+    schema_id
+  )
   return result
 }
 

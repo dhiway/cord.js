@@ -23,8 +23,8 @@ const log = ConfigService.LoggingFactory.getLogger('Stream')
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
 export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  return blockchain.api.tx.stream.create(
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  return api.tx.stream.create(
     stream.issuer,
     stream.streamHash,
     stream.holder,
@@ -42,8 +42,8 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
  * @returns The [[SubmittableExtrinsic]] for the `update` call.
  */
 export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  return blockchain.api.tx.stream.update(
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  return api.tx.stream.update(
     stream.identifier,
     stream.issuer,
     stream.streamHash,
@@ -66,10 +66,10 @@ export async function revoke(
 ): Promise<SubmittableExtrinsic> {
   const { txSignature, txHash } = updater.signTx(stream.streamHash)
 
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${stream.identifier}`)
   const space = Identifier.getIdentifierKey(stream.space, SPACE_PREFIX) || null
-  return blockchain.api.tx.stream.revoke(
+  return api.tx.stream.revoke(
     Identifier.getIdentifierKey(stream.identifier, STREAM_PREFIX),
     updater.address,
     txHash,
@@ -90,12 +90,9 @@ export async function removeSpaceStream(
   streamIdentifier: string,
   spaceIdentifier: string
 ): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${streamIdentifier}`)
-  return blockchain.api.tx.stream.removeSpaceStream(
-    streamIdentifier,
-    spaceIdentifier
-  )
+  return api.tx.stream.removeSpaceStream(streamIdentifier, spaceIdentifier)
 }
 
 /**
@@ -114,9 +111,9 @@ export async function digest(
 ): Promise<SubmittableExtrinsic> {
   const txSignature = creator.signStr(digestHash)
 
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a stream Digest ${streamIdentifier}`)
-  return blockchain.api.tx.stream.digest(
+  return api.tx.stream.digest(
     streamIdentifier,
     creator,
     digestHash,
@@ -168,10 +165,10 @@ function decodeStream(
 export async function queryRaw(
   streamIdentifier: IContentStream['identifier']
 ): Promise<Option<AnchoredStreamDetails>> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const result = await blockchain.api.query.stream.streams<
-    Option<AnchoredStreamDetails>
-  >(streamIdentifier)
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  const result = await api.query.stream.streams<Option<AnchoredStreamDetails>>(
+    streamIdentifier
+  )
   return result
 }
 
