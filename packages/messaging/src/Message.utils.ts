@@ -157,14 +157,7 @@ export function compressMessage(body: MessageBody): CompressedMessageBody {
   let compressedContents: CompressedMessageBody[1]
   switch (body.type) {
     case Message.BodyType.REQUEST_STREAM: {
-      compressedContents = [
-        ContentStream.compress(body.content.requestStream),
-        // body.content.prerequisiteStreams
-        //   ? body.content.prerequisiteStreams.map((content) =>
-        //       Content.compress(content)
-        //     )
-        //   : undefined,
-      ]
+      compressedContents = [ContentStream.compress(body.content.requestStream)]
       break
     }
     case Message.BodyType.SUBMIT_STREAM: {
