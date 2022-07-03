@@ -29,14 +29,14 @@ import * as u8aUtil from '@polkadot/util/u8a'
 // and not for box keypair, we use TweetNaCl directly
 import nacl from 'tweetnacl'
 import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
-import type {
+import {
   IIdentity,
   SubmittableExtrinsic,
   SignProps,
   IPublicIdentity,
+  ss58Format,
 } from '@cord.network/types'
 import { AnyNumber } from '@polkadot/types/types'
-// import { PublicIdentity } from './PublicIdentity.js'
 import { HexString } from '@polkadot/util/types.js'
 
 type BoxPublicKey =
@@ -128,7 +128,7 @@ export class Identity implements IIdentity {
     return new Keyring({
       type,
       // CORD has registered the ss58 prefix 29
-      ss58Format: 29,
+      ss58Format: ss58Format,
     })
   }
 
