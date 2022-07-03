@@ -15,7 +15,6 @@ import type {
   IPublicIdentity,
   CompressedMessageBody,
   IMessage,
-  ISubmitCredential,
   IEncryptedMessage,
   MessageBody,
   ISchema,
@@ -68,7 +67,7 @@ export class Message implements IMessage {
         break
       case Message.BodyType.SUBMIT_CREDENTIAL:
         {
-          const submitStreamsForSchema: ISubmitCredential = body
+          const submitStreamsForSchema = body
           submitStreamsForSchema.content.forEach((stream) => {
             if (stream.request.content.issuer !== senderAddress) {
               throw new SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')

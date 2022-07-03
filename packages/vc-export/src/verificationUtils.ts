@@ -3,7 +3,6 @@
  * @module VerificationUtils
  */
 
-// import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
 import { Stream, Schema } from '@cord.network/modules'
@@ -234,6 +233,7 @@ export async function verifyCredentialDigestProof(
     }
     if (typeof credential.credentialSubject !== 'object')
       throw CREDENTIAL_MALFORMED_ERROR('credential subject missing')
+
     const rootHash = verifyRootHash(credential, proof)
     // throw if root hash does not match expected (=id)
     const expectedRootHash = Identifier.getIdentifierHash(

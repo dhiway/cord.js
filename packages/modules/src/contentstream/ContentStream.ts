@@ -61,10 +61,8 @@ function getHashLeaves(
   issueDate: string,
   expiryDate: string
 ): Uint8Array[] {
-  const result: Uint8Array[] = []
-  contentHashes.forEach((item) => {
-    result.push(Crypto.coToUInt8(item))
-  })
+  const result = contentHashes.map((item) => Crypto.coToUInt8(item))
+
   if (evidenceIds) {
     evidenceIds.forEach((evidence) => {
       result.push(Crypto.coToUInt8(evidence.request.identifier))
@@ -80,13 +78,13 @@ export function calculateRootHash(
   issuanceDate: HexString,
   expirationDate: HexString
 ): Hash {
-  const hashes: Uint8Array[] = getHashLeaves(
+  const hashes = getHashLeaves(
     credential.contentHashes || [],
     credential.evidenceIds || [],
     issuanceDate,
     expirationDate
   )
-  const root: Uint8Array = getHashRoot(hashes)
+  const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
 }
 
