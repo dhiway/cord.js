@@ -5,10 +5,11 @@
     "packages/*"
   ],
   "scripts": {
+    "analyze": "yarn clean && BUILD_ANALYZE=1 yarn run build:code && yarn source-map-explorer packages/apps/build/main.*.js",
     "check": "tsc -p tsconfig.json --noEmit",
     "build": "yarn workspaces foreach -p --topological-dev --exclude '{root-workspace}' run build",
     "build:docs": "typedoc --theme default --out docs/api --tsconfig tsconfig.docs.json && touch docs/.nojekyll",
-    "bundle": "yarn workspace @cord.network/api run bundle",
+    "bundle": "yarn workspace @cord.network/sdk run bundle",
     "clean": "rimraf tests/dist && yarn workspaces foreach -p --exclude '{root-workspace}' run clean",
     "clean:docs": "rimraf docs/api",
     "demo": "tsx --no-cache demo/src/demo.ts",

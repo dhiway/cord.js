@@ -1,4 +1,4 @@
-import * as Cord from '@cord.network/api'
+import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
 
 async function main() {

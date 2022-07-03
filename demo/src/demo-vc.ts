@@ -1,4 +1,4 @@
-import * as Cord from '@cord.network/api'
+import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
 import type { VerifiableCredential } from '@cord.network/vc-export/src/types.js'
 import * as VCUtils from '@cord.network/vc-export'

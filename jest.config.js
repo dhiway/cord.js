@@ -34,9 +34,5 @@ module.exports = {
   moduleDirectories: [
     "node_modules",
     "packages/*/src",
-    "packages/**"
-  ],
-  "modulePathIgnorePatterns": [
-    "<rootDir>/cord-utils/src/chainApiConnection/__mocks__/"
   ],
 }

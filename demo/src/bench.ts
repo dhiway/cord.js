@@ -1,4 +1,4 @@
-import * as cord from '@cord.network/api'
+import * as cord from '@cord.network/sdk'
 import BN from 'bn.js'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'

@@ -1,3 +1,5 @@
+import '@polkadot/api-augment'
+
 export * from '@cord.network/modules'
 export { Message } from '@cord.network/messaging'
 export * as Messaging from '@cord.network/messaging'
