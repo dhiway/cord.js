@@ -95,8 +95,8 @@ async function main() {
 
   // Step 2: Create a new Stream
   console.log(`\n❄️  Stream Creation `)
-  console.log(`🔗  ${newSpace.identifier} `)
-  console.log(`🔗  ${newSchema.identifier} `)
+  console.log(`🔗 ${newSpace.identifier} `)
+  console.log(`🔗 ${newSchema.identifier} `)
 
   const content = {
     name: 'Alice',

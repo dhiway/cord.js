@@ -33,9 +33,10 @@ import type {
   IIdentity,
   SubmittableExtrinsic,
   SignProps,
+  IPublicIdentity,
 } from '@cord.network/types'
 import { AnyNumber } from '@polkadot/types/types'
-import { PublicIdentity } from './PublicIdentity.js'
+// import { PublicIdentity } from './PublicIdentity.js'
 import { HexString } from '@polkadot/util/types.js'
 
 type BoxPublicKey =
@@ -373,5 +374,40 @@ export class Identity implements IIdentity {
 
     const hash = Crypto.hash(paddedSeed)
     return nacl.box.keyPair.fromSecretKey(hash)
+  }
+}
+
+export class PublicIdentity implements IPublicIdentity {
+  /**
+   * The SS58 account address of the identity on the CORD blockchain.
+   */
+  public readonly address: IPublicIdentity['address']
+
+  /**
+   * The public encryption key, encoded as a hexadecimal string.
+   */
+  public readonly boxPublicKeyAsHex: IPublicIdentity['boxPublicKeyAsHex']
+
+  /**
+   * The URL where the identity can be reached at.
+   */
+  public readonly serviceAddress?: IPublicIdentity['serviceAddress']
+
+  /**
+   * Builds a new [[PublicIdentity]] instance.
+   *
+   * @param address - A public address.
+   * @param boxPublicKeyAsHex - The public encryption key.
+   * @param serviceAddress - The address of the service used to retrieve the DID.
+   *
+   */
+  public constructor(
+    address: IPublicIdentity['address'],
+    boxPublicKeyAsHex: IPublicIdentity['boxPublicKeyAsHex'],
+    serviceAddress?: IPublicIdentity['serviceAddress']
+  ) {
+    this.address = address
+    this.boxPublicKeyAsHex = boxPublicKeyAsHex
+    this.serviceAddress = serviceAddress
   }
 }

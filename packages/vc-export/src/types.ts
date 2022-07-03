@@ -3,8 +3,8 @@
  * @module VCExportTypes
  */
 import type { AnyJson } from '@polkadot/types/types'
-import type { IDidDocumentPublicKey } from '@cord.network/modules'
-import type { ISchema } from '@cord.network/types'
+// import type { IDidDocumentPublicKey } from '@cord.network/modules'
+import type { ISchema, IIdentityPublicKey } from '@cord.network/types'
 import type {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLE_CREDENTIAL_TYPE,
@@ -23,8 +23,8 @@ export interface Proof {
   [key: string]: any
 }
 
-export type IPublicKeyRecord = Partial<IDidDocumentPublicKey> &
-  Pick<IDidDocumentPublicKey, 'publicKeyHex' | 'type'>
+export type IPublicKeyRecord = Partial<IIdentityPublicKey> &
+  Pick<IIdentityPublicKey, 'publicKeyHex' | 'type'>
 
 export interface CordStreamSignatureProof extends Proof {
   type: typeof CORD_STREAM_SIGNATURE_PROOF_TYPE

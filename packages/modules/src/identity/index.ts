@@ -1,2 +1,1 @@
-export { Identity } from './Identity.js'
-export { PublicIdentity, IURLResolver } from './PublicIdentity.js'
+export { Identity, PublicIdentity } from './Identity.js'
