@@ -1,10 +1,13 @@
-import * as cord from '@cord.network/api'
-import * as utils from './utils'
+import * as cord from '@cord.network/sdk'
 import BN from 'bn.js'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
 
 const amount: BN = new BN('1')
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 async function main() {
   await cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -58,6 +61,7 @@ async function main() {
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
     }
+    delay(4000)
   }
 
   let ancEndTime = moment()
@@ -93,7 +97,7 @@ async function main() {
       txCount / batchAncDuration.as('seconds')
     ).toFixed(0)} `
   )
-  await utils.waitForEnter('\n⏎ Press Enter to continue..')
+  delay(4000)
 }
 
 main()

@@ -10,13 +10,13 @@ Provides a collection of classes and methods to interact with the Cord network.
 Install the SDK by running the following commands:
 
 ```bash
-npm install @cord.network/api
+npm install @cord.network/sdk
 ```
 
 Or with `yarn`:
 
 ```bash
-yarn add @cord.network/api
+yarn add @cord.network/sdk
 ```
 
 ## Build to see changes

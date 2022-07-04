@@ -7,6 +7,9 @@ import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import type { BoxKeyPair } from 'tweetnacl'
 import type { Index } from '@polkadot/types/interfaces'
 import { AnyNumber } from '@polkadot/types/types'
+import { HexString } from '@polkadot/util/types.js'
+
+export const ACCOUNT_IDENTIFIER_PREFIX: string = 'id:cord:'
 
 export interface IIdentity {
   readonly signKeyringPair: KeyringPair
@@ -21,4 +24,9 @@ export interface IIdentity {
     nonce: AnyNumber | Index,
     tip?: AnyNumber
   ): Promise<SubmittableExtrinsic>
+}
+
+export interface SignProps {
+  txSignature: string
+  txHash: HexString
 }

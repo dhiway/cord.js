@@ -3,25 +3,27 @@
  * @module VerificationUtils
  */
 
-// import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
-import { Stream, TypeSchema, DidUtils } from '@cord.network/modules'
-import { Crypto, JsonSchema } from '@cord.network/utils'
+import { Stream, Schema } from '@cord.network/modules'
+import { Crypto, JsonSchema, Identifier } from '@cord.network/utils'
 import {
-  CORD_SELF_SIGNED_PROOF_TYPE,
+  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_SELF_SIGNATURE_PROOF_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   KeyTypesMap,
 } from './constants.js'
 import type {
   VerifiableCredential,
-  SelfSignedProof,
+  CordStreamSignatureProof,
+  CordSelfSignatureProof,
   CordStreamProof,
   CredentialDigestProof,
 } from './types.js'
 import { Hash } from '@cord.network/types'
 import { fromCredentialIRI } from './exportToVerifiableCredential.js'
+import { makeSigningData } from './presentationUtils.js'
 import { HexString } from '@polkadot/util/types.js'
 
 export interface VerificationResult {
@@ -47,7 +49,7 @@ const PROOF_MALFORMED_ERROR = (reason: string): Error =>
   new Error(`Proof malformed: ${reason}`)
 
 /**
- * Verifies a self signed proof (holder signature) against a CORD Verifiable Credential.
+ * Verifies a stream signed proof (holder signature) against a CORD Verifiable Credential.
  * This entails computing the root hash from the hashes contained in the `protected` section of the credentialSubject.
  * The resulting hash is then verified against the signature and public key contained in the proof (the latter
  * could be a DID URI in the future). It is also expected to by identical to the credential id.
@@ -56,15 +58,15 @@ const PROOF_MALFORMED_ERROR = (reason: string): Error =>
  * @param proof CORD self signed proof object.
  * @returns Object indicating whether proof could be verified.
  */
-export function verifySelfSignedProof(
+export function verifyStreamSignatureProof(
   credential: VerifiableCredential,
-  proof: SelfSignedProof
+  proof: CordStreamSignatureProof
 ): VerificationResult {
   const result: VerificationResult = { verified: true, errors: [] }
   try {
     // check proof
     const type = proof['@type'] || proof.type
-    if (type !== CORD_SELF_SIGNED_PROOF_TYPE)
+    if (type !== CORD_STREAM_SIGNATURE_PROOF_TYPE)
       throw new Error('Proof type mismatch')
     if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
     const { verificationMethod } = proof
@@ -87,7 +89,9 @@ export function verifySelfSignedProof(
       )
     const signerPubKey = verificationMethod.publicKeyHex
 
-    const rootHash = fromCredentialIRI(credential.credentialHash)
+    const rootHash = Identifier.getIdentifierHash(
+      fromCredentialIRI(credential.credentialHash)
+    )
     // validate signature over root hash
     // signatureVerify can handle all required signature types out of the box
     const verification = signatureVerify(
@@ -127,21 +131,14 @@ export async function verifyStreamProof(
     const type = proof['@type'] || proof.type
     if (type !== CORD_ANCHORED_PROOF_TYPE)
       throw new Error('Proof type mismatch')
-    const { issuerAddress, holderAddress } = proof
+    const { issuerAddress } = proof
     if (typeof issuerAddress !== 'string' || !issuerAddress)
       throw PROOF_MALFORMED_ERROR('issuer address not understood')
     if (
       issuerAddress !==
-      DidUtils.getAccountAddressFromIdentifier(credential.issuer)
+      Identifier.getAccountAddressFromIdentifier(credential.issuer)
     )
       throw PROOF_MALFORMED_ERROR('credential issuer address is not matching')
-
-    if (holderAddress) {
-      if (typeof holderAddress !== 'string')
-        throw PROOF_MALFORMED_ERROR('holder address not understood')
-      if (credential.credentialSubject['@id'] !== holderAddress)
-        throw PROOF_MALFORMED_ERROR('credential holder address is not matching')
-    }
 
     if (typeof credential.id !== 'string' || !credential.id)
       throw CREDENTIAL_MALFORMED_ERROR(
@@ -166,10 +163,14 @@ export async function verifyStreamProof(
       )
     }
     // if holder data on proof does not correspond to data on chain, proof is incorrect
+    const holderAddress = credential.credentialSubject['@id']
     if (holderAddress) {
       if (typeof holderAddress !== 'string')
         throw PROOF_MALFORMED_ERROR('holder address not understood')
-      if (onChain.holder !== holderAddress)
+      if (
+        onChain.holder !==
+        Identifier.getAccountAddressFromIdentifier(holderAddress)
+      )
         throw new Error(
           `proof not matching on-chain data: proof ${{
             holder: holderAddress,
@@ -178,7 +179,10 @@ export async function verifyStreamProof(
     }
 
     // if rootHash on credential does not correspond to data on chain, proof is incorrect
-    if (onChain.streamHash !== credential.credentialHash)
+    if (
+      onChain.streamHash !==
+      Identifier.getIdentifierHash(credential.credentialHash)
+    )
       throw new Error(
         `credential hash is not matching on-chain data: proof ${{
           hash: credential.credentialHash,
@@ -229,9 +233,12 @@ export async function verifyCredentialDigestProof(
     }
     if (typeof credential.credentialSubject !== 'object')
       throw CREDENTIAL_MALFORMED_ERROR('credential subject missing')
+
     const rootHash = verifyRootHash(credential, proof)
     // throw if root hash does not match expected (=id)
-    const expectedRootHash = credential.credentialHash
+    const expectedRootHash = Identifier.getIdentifierHash(
+      credential.credentialHash
+    )
     if (expectedRootHash !== rootHash)
       throw new Error('computed root hash does not match expected')
 
@@ -278,6 +285,74 @@ export async function verifyCredentialDigestProof(
   }
 }
 
+/**
+ * Verifies a self signed proof (holder signature)
+ * This entails computing the root hash from the hashes contained in the `protected` section of the credentialSubject.
+ * The resulting hash is then verified against the signature, created date,
+ * challenge and thepublic key contained in the proof.
+ *
+ * @param credential Verifiable Credential to verify proof against.
+ * @param proof CORD self signed proof object.
+ * @returns Object indicating whether proof could be verified.
+ */
+export function verifySelfSignatureProof(
+  credential: VerifiableCredential,
+  proof: CordSelfSignatureProof,
+  challenge?: string
+): VerificationResult {
+  const result: VerificationResult = { verified: true, errors: [] }
+  try {
+    // check proof
+    const type = proof['@type'] || proof.type
+    if (type !== CORD_SELF_SIGNATURE_PROOF_TYPE)
+      throw new Error('Proof type mismatch')
+    if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
+    if (!proof.created) throw PROOF_MALFORMED_ERROR('creattion time missing')
+    const { verificationMethod } = proof
+    if (
+      !(
+        typeof verificationMethod === 'object' &&
+        verificationMethod.publicKeyHex
+      )
+    ) {
+      throw PROOF_MALFORMED_ERROR(
+        'proof must contain public key; resolve did key references beforehand'
+      )
+    }
+    const keyType = verificationMethod.type || verificationMethod['@type']
+    if (!Object.values(KeyTypesMap).includes(keyType))
+      throw PROOF_MALFORMED_ERROR(
+        `signature type unknown; expected one of ${JSON.stringify(
+          Object.values(KeyTypesMap)
+        )}, got "${verificationMethod.type}"`
+      )
+    const signerPubKey = verificationMethod.publicKeyHex
+
+    const rootHash = Identifier.getIdentifierHash(
+      fromCredentialIRI(credential.credentialHash)
+    )
+    const proofData = makeSigningData(rootHash, proof.created, challenge)
+
+    // validate signature over calculated proofData
+    // signatureVerify can handle all required signature types out of the box
+    const verification = signatureVerify(
+      proofData,
+      proof.signature,
+      signerPubKey
+    )
+    if (
+      !(verification.isValid && KeyTypesMap[verification.crypto] === keyType)
+    ) {
+      throw new Error('signature could not be verified')
+    }
+    return result
+  } catch (e) {
+    result.verified = false
+    result.errors = [e as Error]
+    return result
+  }
+}
+
 export function validateSchema(
   credential: VerifiableCredential
 ): VerificationResult {
@@ -287,7 +362,7 @@ export function validateSchema(
     // there's no rule against additional properties, so we can just validate the ones that are there
 
     const validator = new JsonSchema.Validator(schema)
-    validator.addSchema(TypeSchema.SchemaModel)
+    validator.addSchema(Schema.TypeSchema.SchemaModel)
     const result = validator.validate(credential.credentialSubject)
     return {
       verified: result.valid,
@@ -314,7 +389,7 @@ function calculateRootHash(
 ): Hash {
   const hashes: Uint8Array[] = getHashLeaves(
     proof.contentHashes || [],
-    credential.legitimationIds || [],
+    credential.evidence || [],
     issuanceDate,
     expirationDate
   )
@@ -324,7 +399,7 @@ function calculateRootHash(
 
 function getHashLeaves(
   contentHashes: string[],
-  legitimations: string[],
+  evidenceIds: string[],
   issueDate: HexString,
   expiryDate: HexString
 ): Uint8Array[] {
@@ -332,9 +407,9 @@ function getHashLeaves(
   contentHashes.forEach((item) => {
     result.push(Crypto.coToUInt8(item))
   })
-  if (legitimations) {
-    legitimations.forEach((legitimation) => {
-      result.push(Crypto.coToUInt8(legitimation))
+  if (evidenceIds) {
+    evidenceIds.forEach((evidence) => {
+      result.push(Crypto.coToUInt8(evidence))
     })
   }
   result.push(Crypto.coToUInt8(issueDate))

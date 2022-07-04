@@ -1,2 +1,2 @@
-export { Space } from './Space.js'
-export * as SpaceUtils from './Space.utils.js'
+export * from './Space.js'
+export * from './Space.chain.js'

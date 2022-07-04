@@ -15,7 +15,7 @@ import { SPACE_PREFIX } from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { SpaceDetails } from './Space.js'
+import { Identity } from '../identity/Identity.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Schema')
 
@@ -27,120 +27,109 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
  */
 
 export async function create(space: ISpace): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
+  const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'space'`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.space.create(
+  return api.tx.space.create(
     space.controller,
     space.spaceHash,
     space.controllerSignature
   )
-  return tx
 }
 
 /**
  * TBD
  */
 export async function archive(
-  spaceId: string,
-  controller: string,
-  txHash: string,
-  txSignature: string
+  space: ISpace,
+  controller: Identity
 ): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking a schema with ID ${spaceId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.space.archive(
+  const { txSignature, txHash } = controller.signTx(space.spaceHash)
+
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  return api.tx.space.archive(
     controller,
-    Identifier.getIdentifierKey(spaceId, SPACE_PREFIX),
+    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
     txHash,
     txSignature
   )
-  return tx
 }
 
 /**
  * TBD
  */
 export async function restore(
-  spaceId: string,
-  controller: string,
-  txHash: string,
-  txSignature: string
+  space: ISpace,
+  controller: Identity
 ): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking a schema with ID ${spaceId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.space.restore(
+  const { txSignature, txHash } = controller.signTx(space.spaceHash)
+
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  return api.tx.space.restore(
     controller,
-    Identifier.getIdentifierKey(spaceId, SPACE_PREFIX),
+    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
     txHash,
     txSignature
   )
-  return tx
 }
 
 /**
  * TBD
  */
 export async function authorise(
-  spaceId: string,
-  controller: string,
-  delegates: [string],
-  txHash: string,
-  txSignature: string
+  space: ISpace,
+  controller: Identity,
+  delegates: [string]
 ): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Adding a delagate to ${spaceId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.space.authorise(
+  const { txSignature, txHash } = controller.signTx(space.spaceHash)
+
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  return api.tx.space.authorise(
     controller,
-    Identifier.getIdentifierKey(spaceId, SPACE_PREFIX),
+    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
     txHash,
     delegates,
     txSignature
   )
-  return tx
 }
 
 /**
  * TBD
  */
 export async function deauthorise(
-  spaceId: string,
-  controller: string,
-  delegates: [string],
-  txHash: string,
-  txSignature: string
+  space: ISpace,
+  controller: Identity,
+  delegates: [string]
 ): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Removing delagation from ${spaceId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.space.deauthorise(
+  const { txSignature, txHash } = controller.signTx(space.spaceHash)
+
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  return api.tx.space.deauthorise(
     controller,
-    Identifier.getIdentifierKey(spaceId, SPACE_PREFIX),
+    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
     txHash,
     delegates,
     txSignature
   )
-  return tx
 }
 
 /**
  * TBD
  */
 export async function transfer(
-  spaceId: string,
-  controller: string,
-  transfer: string,
-  txHash: string,
-  txSignature: string
+  space: ISpace,
+  controller: Identity,
+  transfer: Identity['address']
 ): Promise<SubmittableExtrinsic> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking a schema with ID ${spaceId}`)
-  const tx: SubmittableExtrinsic = blockchain.api.tx.space.transfer(
+  const { txSignature, txHash } = controller.signTx(space.spaceHash)
+
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  return api.tx.space.transfer(
     controller,
-    Identifier.getIdentifierKey(spaceId, SPACE_PREFIX),
+    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
     transfer,
     txHash,
     txSignature
   )
-  return tx
 }
 
 export interface AnchoredSpaceDetails extends Struct {
@@ -153,7 +142,7 @@ export interface AnchoredSpaceDetails extends Struct {
 function decodeSpace(
   encodedSpace: Option<AnchoredSpaceDetails>,
   spaceId: string
-): SpaceDetails | null {
+): ISpaceDetails | null {
   DecoderUtils.assertCodecIsType(encodedSpace, [
     'Option<PalletSpaceSpacessSpaceDetails>',
   ])
@@ -161,11 +150,11 @@ function decodeSpace(
     const anchoredSpace = encodedSpace.unwrap()
     const space: ISpaceDetails = {
       identifier: spaceId,
-      spaceHash: anchoredSpace.spaceHash.toString(),
+      spaceHash: anchoredSpace.spaceHash.toHex(),
       controller: anchoredSpace.controller.toString(),
       archived: anchoredSpace.archived.valueOf(),
     }
-    return SpaceDetails.fromSpaceDetails(space)
+    return space
   }
   return null
 }
@@ -173,20 +162,20 @@ function decodeSpace(
 async function queryRawHash(
   spaceId: string
 ): Promise<Option<AnchoredSpaceDetails>> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const result = await blockchain.api.query.space.spaces<
-    Option<AnchoredSpaceDetails>
-  >(spaceId)
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  const result = await api.query.space.spaces<Option<AnchoredSpaceDetails>>(
+    spaceId
+  )
   return result
 }
 
 async function queryRaw(
   spaceId: string
 ): Promise<Option<AnchoredSpaceDetails>> {
-  const blockchain = await ChainApiConnection.getConnectionOrConnect()
-  const result = await blockchain.api.query.space.spaces<
-    Option<AnchoredSpaceDetails>
-  >(spaceId)
+  const api = await ChainApiConnection.getConnectionOrConnect()
+  const result = await api.query.space.spaces<Option<AnchoredSpaceDetails>>(
+    spaceId
+  )
   return result
 }
 
@@ -196,7 +185,7 @@ async function queryRaw(
  */
 export async function queryhash(
   space_hash: string
-): Promise<SpaceDetails | null> {
+): Promise<ISpaceDetails | null> {
   const encoded = await queryRawHash(space_hash)
   return decodeSpace(encoded, space_hash)
 }
@@ -205,7 +194,7 @@ export async function queryhash(
  * @param identifier
  * @internal
  */
-export async function query(space_id: string): Promise<SpaceDetails | null> {
+export async function query(space_id: string): Promise<ISpaceDetails | null> {
   const spaceId: string = Identifier.getIdentifierKey(space_id, SPACE_PREFIX)
   const encoded = await queryRaw(spaceId)
   return decodeSpace(encoded, spaceId)

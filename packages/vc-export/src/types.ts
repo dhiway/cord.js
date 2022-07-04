@@ -3,8 +3,8 @@
  * @module VCExportTypes
  */
 import type { AnyJson } from '@polkadot/types/types'
-import type { IDidDocumentPublicKey } from '@cord.network/modules'
-import type { ISchema } from '@cord.network/types'
+// import type { IDidDocumentPublicKey } from '@cord.network/modules'
+import type { ISchema, IIdentityPublicKey } from '@cord.network/types'
 import type {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLE_CREDENTIAL_TYPE,
@@ -12,7 +12,8 @@ import type {
   JSON_SCHEMA_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SELF_SIGNED_PROOF_TYPE,
+  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_SELF_SIGNATURE_PROOF_TYPE,
 } from './constants.js'
 
 export interface Proof {
@@ -22,18 +23,17 @@ export interface Proof {
   [key: string]: any
 }
 
-export type IPublicKeyRecord = Partial<IDidDocumentPublicKey> &
-  Pick<IDidDocumentPublicKey, 'publicKeyHex' | 'type'>
+export type IPublicKeyRecord = Partial<IIdentityPublicKey> &
+  Pick<IIdentityPublicKey, 'publicKeyHex' | 'type'>
 
-export interface SelfSignedProof extends Proof {
-  type: typeof CORD_SELF_SIGNED_PROOF_TYPE
+export interface CordStreamSignatureProof extends Proof {
+  type: typeof CORD_STREAM_SIGNATURE_PROOF_TYPE
   verificationMethod: string | IPublicKeyRecord
   signature: string
 }
 export interface CordStreamProof extends Proof {
   type: typeof CORD_ANCHORED_PROOF_TYPE
   issuerAddress: string
-  holderAddress?: string
 }
 export interface CredentialDigestProof extends Proof {
   type: typeof CORD_CREDENTIAL_DIGEST_PROOF_TYPE
@@ -41,6 +41,13 @@ export interface CredentialDigestProof extends Proof {
   nonces: Record<string, string>
   // salted hashes of statements in credentialSubject to allow selective disclosure.
   contentHashes: string[]
+}
+export interface CordSelfSignatureProof extends Proof {
+  created: string
+  type: typeof CORD_SELF_SIGNATURE_PROOF_TYPE
+  verificationMethod: string | IPublicKeyRecord
+  signature: string
+  challenge?: string
 }
 
 export interface CredentialSchema {
@@ -70,7 +77,7 @@ export interface VerifiableCredential {
   // rootHash  of the credential
   credentialHash: string
   // Ids / digests of streams that empower the issuer to provide judegment
-  legitimationIds: string[]
+  evidence: string[]
   // digital proof that makes the credential tamper-evident
   proof: Proof | Proof[]
   nonTransferable?: boolean
@@ -80,7 +87,7 @@ export interface VerifiableCredential {
 export interface VerifiablePresentation {
   '@context': [typeof DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT, ...string[]]
   type: [typeof DEFAULT_VERIFIABLEPRESENTATION_TYPE, ...string[]]
-  verifiableCredential: VerifiableCredential
+  verifiableCredential: VerifiableCredential | VerifiableCredential[]
   holder?: string
   proof: Proof | Proof[]
 }

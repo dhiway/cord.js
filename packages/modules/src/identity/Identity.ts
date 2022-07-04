@@ -28,10 +28,16 @@ import * as u8aUtil from '@polkadot/util/u8a'
 // as util-crypto is providing a wrapper only for signing keypair
 // and not for box keypair, we use TweetNaCl directly
 import nacl from 'tweetnacl'
-import { Crypto, SDKErrors } from '@cord.network/utils'
-import type { IIdentity, SubmittableExtrinsic } from '@cord.network/types'
+import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
+import {
+  IIdentity,
+  SubmittableExtrinsic,
+  SignProps,
+  IPublicIdentity,
+  ss58Format,
+} from '@cord.network/types'
 import { AnyNumber } from '@polkadot/types/types'
-import { PublicIdentity } from './PublicIdentity.js'
+import { HexString } from '@polkadot/util/types.js'
 
 type BoxPublicKey =
   | PublicIdentity['boxPublicKeyAsHex']
@@ -122,7 +128,7 @@ export class Identity implements IIdentity {
     return new Keyring({
       type,
       // CORD has registered the ss58 prefix 29
-      ss58Format: 29,
+      ss58Format: ss58Format,
     })
   }
 
@@ -247,6 +253,21 @@ export class Identity implements IIdentity {
   }
 
   /**
+   * Signs data with an [[Identity]] object's key and returns it as string.
+   *
+   * @param cryptoInput - The data to be signed.
+   * @returns The signed data.
+   *
+   */
+  public signTx(cryptoInput: HexString): SignProps {
+    const txId = UUID.generate()
+    const hashVal = { txId, cryptoInput }
+    const txHash = Crypto.hashObjectAsHexStr(hashVal)
+    const txSignature = Crypto.signStr(txHash, this.signKeyringPair)
+    return { txSignature, txHash }
+  }
+
+  /**
    * Encrypts data asymmetrically and returns it as string.
    *
    * @param cryptoInput - The data to be encrypted.
@@ -353,5 +374,40 @@ export class Identity implements IIdentity {
 
     const hash = Crypto.hash(paddedSeed)
     return nacl.box.keyPair.fromSecretKey(hash)
+  }
+}
+
+export class PublicIdentity implements IPublicIdentity {
+  /**
+   * The SS58 account address of the identity on the CORD blockchain.
+   */
+  public readonly address: IPublicIdentity['address']
+
+  /**
+   * The public encryption key, encoded as a hexadecimal string.
+   */
+  public readonly boxPublicKeyAsHex: IPublicIdentity['boxPublicKeyAsHex']
+
+  /**
+   * The URL where the identity can be reached at.
+   */
+  public readonly serviceAddress?: IPublicIdentity['serviceAddress']
+
+  /**
+   * Builds a new [[PublicIdentity]] instance.
+   *
+   * @param address - A public address.
+   * @param boxPublicKeyAsHex - The public encryption key.
+   * @param serviceAddress - The address of the service used to retrieve the DID.
+   *
+   */
+  public constructor(
+    address: IPublicIdentity['address'],
+    boxPublicKeyAsHex: IPublicIdentity['boxPublicKeyAsHex'],
+    serviceAddress?: IPublicIdentity['serviceAddress']
+  ) {
+    this.address = address
+    this.boxPublicKeyAsHex = boxPublicKeyAsHex
+    this.serviceAddress = serviceAddress
   }
 }

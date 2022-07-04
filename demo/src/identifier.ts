@@ -1,8 +1,5 @@
-import * as cord from '@cord.network/api'
+import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
-import * as json from 'multiformats/codecs/json'
-import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
-import { CID } from 'multiformats/cid'
 import type { HexString } from '@polkadot/util/types'
 
 import { base58Decode, base58Encode, blake2AsU8a } from '@polkadot/util-crypto'
@@ -129,21 +126,21 @@ export function decodeIdentifier(
 }
 
 async function main() {
-  await cord.init({ address: 'ws://127.0.0.1:9944' })
+  await Cord.init({ address: 'ws://127.0.0.1:9944' })
 
   // Step 1: Setup Org Identity
   console.log(`\n🏛  Creating Identities\n`)
   //3x4DHc1rxVAEqKWSx1DAAA8wZxLB4VhiRbMV997niBckUwSi
-  const entityIdentity = cord.Identity.buildFromURI('//Bob', {
+  const entityIdentity = Cord.Identity.buildFromURI('//Bob', {
     signingKeyPairType: 'sr25519',
   })
-  const employeeIdentity = cord.Identity.buildFromURI('//Dave', {
+  const employeeIdentity = Cord.Identity.buildFromURI('//Dave', {
     signingKeyPairType: 'ed25519',
   })
-  const holderIdentity = cord.Identity.buildFromURI('//Alice', {
+  const holderIdentity = Cord.Identity.buildFromURI('//Alice', {
     signingKeyPairType: 'sr25519',
   })
-  const verifierIdentity = cord.Identity.buildFromURI('//Charlie', {
+  const verifierIdentity = Cord.Identity.buildFromURI('//Charlie', {
     signingKeyPairType: 'ed25519',
   })
   console.log(
@@ -166,16 +163,12 @@ async function main() {
   let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
   newSchemaContent.title = newSchemaTitle
 
-  let newSchema = cord.Schema.fromSchemaProperties(
+  let newSchema = Cord.Schema.fromSchemaProperties(
     newSchemaContent,
-    employeeIdentity.address
+    employeeIdentity
   )
 
-  let bytes = json.encode(newSchema.schema)
-  let encoded_hash = await hasher.digest(bytes)
-  const schemaCid = CID.create(1, 0xb240, encoded_hash)
-  console.log('Version', newSchema.version)
-  let schemaCreationExtrinsic = await newSchema.create(schemaCid.toString())
+  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
   // console.log('DerivED ', encodeIdentifier(newSchema.hash, 29))
   // console.log(
@@ -187,14 +180,13 @@ async function main() {
   // console.log('base58:', schemaEncodedHash)
   // console.log(
   //   'base58 Decode:',
-  //   cord.StreamUtils.hexToString(schemaEncodedHash),
+  //   Cord.StreamUtils.hexToString(schemaEncodedHash),
   //   schemaEncodedHash
   // )
   // // console.log(encodeDerivedAddress(newSchema.hash, 1031))
 
   console.log(`📧 Schema Details `)
   console.dir(newSchema, { depth: null, colors: true })
-  console.log(`CID: `, schemaCid.toString())
   console.log('\n⛓  Anchoring Schema to the chain...')
   console.log(`🔑 Creator: ${employeeIdentity.address} `)
   console.log(`🔑 Controller: ${entityIdentity.address} `)
@@ -202,10 +194,10 @@ async function main() {
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
-  .finally(cord.disconnect)
+  .finally(Cord.disconnect)
 
 // process.on('SIGINT', async () => {
 //   console.log('\nBye! 👋 👋 👋 \n')
-//   cord.disconnect()
+//   Cord.disconnect()
 //   process.exit(0)
 // })

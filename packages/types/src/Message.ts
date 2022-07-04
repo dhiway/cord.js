@@ -4,13 +4,13 @@
  */
 
 import type { CompressedStream, IStream } from './Stream.js'
-import type { CompressedCredential } from './Credential.js'
+import type { CompressedCredential, ICredential } from './Credential.js'
 
 import type {
-  CompressedContent,
+  // CompressedContent,
   IContent,
   IContents,
-  PartialContent,
+  // PartialContent,
 } from './Content.js'
 import type { ISchema } from './Schema.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
@@ -18,11 +18,13 @@ import type {
   CompressedContentStream,
   IContentStream,
 } from './ContentStream.js'
-import { IPresentation } from './Presentation.js'
 
 export enum MessageBodyType {
+  ERROR = 'error',
+  REJECT = 'reject',
+
   REQUEST_STREAM = 'request-stream',
-  ANCHOR_STREAM = 'anchor-stream',
+  SUBMIT_STREAM = 'anchor-stream',
   REJECT_STREAM = 'reject-stream',
 
   REQUEST_CREDENTIAL = 'request-credential',
@@ -43,15 +45,15 @@ export enum MessageBodyType {
  */
 export interface IMessage {
   body: MessageBody
-  createdAt: number
+  createdAt: string
   purpose?: string
   receiverAddress: IPublicIdentity['address']
   senderAddress: IPublicIdentity['address']
   senderPublicKey: IPublicIdentity['boxPublicKeyAsHex']
-  request?: string
+  messageId?: string
   receivedAt?: number
-  inReplyTo?: IMessage['request']
-  references?: Array<IMessage['request']>
+  inReplyTo?: IMessage['messageId']
+  references?: Array<IMessage['messageId']>
 }
 
 /**
@@ -68,31 +70,46 @@ export type IEncryptedMessage = Pick<
   | 'receiverAddress'
   | 'senderAddress'
   | 'senderPublicKey'
-  | 'request'
+  | 'messageId'
   | 'receivedAt'
 > & {
   encryptedStream: string
   nonce: string
   hash: string
-  requestorSignature: string
+  signature: string
 }
 interface IMessageBodyBase {
   content: any
   type: MessageBodyType
-  request: string
-  purpose?: string
-  validUntil?: number
-  relatedData?: boolean
-  requestorSignature?: string
+}
+
+export interface IError extends IMessageBodyBase {
+  content: {
+    /** Optional machine-readable type of the error. */
+    name?: string
+    /** Optional human-readable description of the error. */
+    message?: string
+  }
+  type: MessageBodyType.ERROR
+}
+
+export interface IReject extends IMessageBodyBase {
+  content: {
+    /** Optional machine-readable type of the rejection. */
+    name?: string
+    /** Optional human-readable description of the rejection. */
+    message?: string
+  }
+  type: MessageBodyType.REJECT
 }
 
 export interface IRequestStream extends IMessageBodyBase {
   content: IRequestStreamContent
   type: MessageBodyType.REQUEST_STREAM
 }
-export interface IAnchorStream extends IMessageBodyBase {
-  content: IAnchorStreamContent
-  type: MessageBodyType.ANCHOR_STREAM
+export interface ISubmitStream extends IMessageBodyBase {
+  content: ISubmitStreamContent
+  type: MessageBodyType.SUBMIT_STREAM
 }
 export interface IRejectStream extends IMessageBodyBase {
   content: IContentStream['identifier']
@@ -100,11 +117,11 @@ export interface IRejectStream extends IMessageBodyBase {
 }
 
 export interface IRequestCredential extends IMessageBodyBase {
-  content: IRequestStreamForCredential[]
+  content: IRequestCredentialContent
   type: MessageBodyType.REQUEST_CREDENTIAL
 }
 export interface ISubmitCredential extends IMessageBodyBase {
-  content: IPresentation[]
+  content: ICredential[]
   type: MessageBodyType.SUBMIT_CREDENTIAL
 }
 export interface IAcceptCredential extends IMessageBodyBase {
@@ -120,8 +137,8 @@ export type CompressedRequestStream = [
   MessageBodyType.REQUEST_STREAM,
   CompressedRequestStreamContent
 ]
-export type CompressedAnchorStream = [
-  MessageBodyType.ANCHOR_STREAM,
+export type CompressedSubmitStream = [
+  MessageBodyType.SUBMIT_STREAM,
   CompressedStream
 ]
 export type CompressedRejectStream = [
@@ -131,7 +148,7 @@ export type CompressedRejectStream = [
 
 export type CompressedRequestCredential = [
   MessageBodyType.REQUEST_CREDENTIAL,
-  CompressedRequestCredentialContent[]
+  CompressedRequestCredentialContent
 ]
 export type CompressedSubmitCredential = [
   MessageBodyType.SUBMIT_CREDENTIAL,
@@ -148,16 +165,19 @@ export type CompressedRejectCredential = [
 
 export interface IRequestStreamContent {
   requestStream: IContentStream
-  prerequisiteStreams?: Array<IContent | PartialContent>
+  // prerequisiteStreams?: Array<IContent | PartialContent>
 }
 // Seems this can be removed
-export interface IAnchorStreamContent {
+export interface ISubmitStreamContent {
   stream: IStream
 }
-export interface IRequestStreamForCredential {
-  id: ISchema['identifier']
-  acceptedIssuer?: Array<IPublicIdentity['address']>
-  requiredProperties?: string[]
+export interface IRequestCredentialContent {
+  schemas: Array<{
+    schemaIdentifier: ISchema['identifier']
+    trustedIssuers?: Array<IPublicIdentity['address']>
+    requiredProperties?: string[]
+  }>
+  challenge?: string
 }
 
 export type CompressedPartialContent = [
@@ -168,20 +188,25 @@ export type CompressedPartialContent = [
 ]
 
 export type CompressedRequestCredentialContent = [
-  ISchema['identifier'],
-  Array<IPublicIdentity['address']> | undefined,
-  string[] | undefined
+  Array<
+    [
+      ISchema['identifier'],
+      Array<IPublicIdentity['address']> | undefined,
+      string[] | undefined
+    ]
+  >,
+  string?
 ]
 
 export type CompressedRequestStreamContent = [
-  CompressedContentStream,
-  Array<CompressedPartialContent | CompressedContent> | undefined
+  CompressedContentStream
+  // Array<CompressedPartialContent | CompressedContent> | undefined
 ]
 
 export type MessageBody =
   //
   | IRequestStream
-  | IAnchorStream
+  | ISubmitStream
   | IRejectStream
   //
   | IRequestCredential
@@ -191,7 +216,7 @@ export type MessageBody =
 
 export type CompressedMessageBody =
   | CompressedRequestStream
-  | CompressedAnchorStream
+  | CompressedSubmitStream
   | CompressedRejectStream
   //
   | CompressedRequestCredential

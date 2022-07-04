@@ -15,6 +15,8 @@ import type {
   SubscriptionPromise,
 } from './index.js'
 
+export const ss58Format = 29
+
 export type ReSignOpts = { reSign: boolean; tip: AnyNumber }
 export type ChainStats = {
   chain: string

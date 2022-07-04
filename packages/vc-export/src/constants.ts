@@ -6,6 +6,7 @@ export const DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT =
 
 export const CORD_CREDENTIAL_CONTEXT_URL =
   'https://cord.network/contexts/credentials'
+
 /**
  * Constant for default type.
  */
@@ -17,7 +18,8 @@ export const DEFAULT_VERIFIABLEPRESENTATION_TYPE = 'VerifiablePresentation'
 
 export const CORD_VERIFIABLE_CREDENTIAL_TYPE = 'CordCredential2020'
 
-export const CORD_SELF_SIGNED_PROOF_TYPE = 'CordSelfSigned2020'
+export const CORD_STREAM_SIGNATURE_PROOF_TYPE = 'CordStreamSignature2020'
+export const CORD_SELF_SIGNATURE_PROOF_TYPE = 'CordSelfSignature2020'
 export const CORD_ANCHORED_PROOF_TYPE = 'CordCredential2020'
 export const CORD_CREDENTIAL_DIGEST_PROOF_TYPE = 'CordCredentialDigest2020'
 

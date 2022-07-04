@@ -15,13 +15,12 @@ import type {
   IPublicIdentity,
   CompressedMessageBody,
   IMessage,
-  ISubmitCredential,
   IEncryptedMessage,
   MessageBody,
   ISchema,
 } from '@cord.network/types'
 import { MessageBodyType } from '@cord.network/types'
-import { Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
+import { Crypto, DataUtils, SDKErrors, UUID } from '@cord.network/utils'
 import {
   compressMessage,
   decompressMessage,
@@ -32,12 +31,12 @@ import {
 
 export class Message implements IMessage {
   /**
-   * [STATIC] Lists all possible body types of [[Message]].
+   * Lists all possible body types of [[Message]].
    */
   public static readonly BodyType = MessageBodyType
 
   /**
-   * [STATIC] Verifies that the sender of a [[Message]] is also the owner of it, e.g the holder's and sender's public keys match.
+   * Verifies that the sender of a [[Message]] is also the owner of it, e.g the holder's and sender's public keys match.
    *
    * @param message The [[Message]] object which needs to be decrypted.
    * @param message.body The body of the [[Message]] which depends on the [[BodyType]].
@@ -57,7 +56,7 @@ export class Message implements IMessage {
           }
         }
         break
-      case Message.BodyType.ANCHOR_STREAM:
+      case Message.BodyType.SUBMIT_STREAM:
         {
           const submitStream = body
           //TODO - Add schema delegation checks
@@ -68,9 +67,9 @@ export class Message implements IMessage {
         break
       case Message.BodyType.SUBMIT_CREDENTIAL:
         {
-          const submitStreamsForSchema: ISubmitCredential = body
-          submitStreamsForSchema.content.forEach((stream, i) => {
-            if (stream.credentials[i].stream.issuer !== senderAddress) {
+          const submitStreamsForSchema = body
+          submitStreamsForSchema.content.forEach((stream) => {
+            if (stream.request.content.issuer !== senderAddress) {
               throw new SDKErrors.ERROR_IDENTITY_MISMATCH('Schema', 'Holder')
             }
           })
@@ -81,7 +80,7 @@ export class Message implements IMessage {
   }
 
   /**
-   * [STATIC] Verifies that neither the hash of [[Message]] nor the sender's signature on the hash have been tampered with.
+   * Verifies that neither the hash of [[Message]] nor the sender's signature on the hash have been tampered with.
    *
    * @param encrypted The encrypted [[Message]] object which needs to be decrypted.
    * @param senderAddress The sender's public SS58 address of the [[Message]].
@@ -104,13 +103,13 @@ export class Message implements IMessage {
     }
     DataUtils.validateSignature(
       encrypted.hash,
-      encrypted.requestorSignature,
+      encrypted.signature,
       senderAddress
     )
   }
 
   /**
-   * [STATIC] Symmetrically decrypts the result of [[Message.encrypt]].
+   * Symmetrically decrypts the result of [[Message.encrypt]].
    *
    * Uses [[Message.ensureHashAndSignature]] and [[Message.ensureOwnerIsSender]] internally.
    *
@@ -163,7 +162,7 @@ export class Message implements IMessage {
   public messageId?: string
   public receivedAt?: number
   public body: MessageBody
-  public createdAt: number
+  public createdAt: string
   public validUntil?: number
   public receiverAddress: IMessage['receiverAddress']
   public senderAddress: IMessage['senderAddress']
@@ -186,10 +185,11 @@ export class Message implements IMessage {
     } else {
       this.body = body
     }
-    this.createdAt = Date.now()
+    this.messageId = UUID.generate()
     this.receiverAddress = receiver.address
     this.senderAddress = sender.address
     this.senderPublicKey = sender.getBoxPublicKey()
+    this.createdAt = new Date().toISOString()
   }
 
   /**
@@ -213,14 +213,14 @@ export class Message implements IMessage {
 
     const hashInput: string = encryptedStream + nonce + this.createdAt
     const hash = Crypto.hashStr(hashInput)
-    const requestorSignature = sender.signStr(hash)
+    const signature = sender.signStr(hash)
     return {
       receivedAt: this.receivedAt,
       encryptedStream,
       nonce,
       createdAt: this.createdAt,
       hash,
-      requestorSignature,
+      signature,
       receiverAddress: this.receiverAddress,
       senderAddress: this.senderAddress,
       senderPublicKey: this.senderPublicKey,

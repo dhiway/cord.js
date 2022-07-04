@@ -1,6 +1,5 @@
-import * as Cord from '@cord.network/api'
+import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
-// import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -45,19 +44,15 @@ async function main() {
 
   let newSpace = Cord.Space.fromSpaceProperties(spaceContent, employeeIdentity)
 
-  let spaceCreationExtrinsic = await newSpace.create()
+  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
 
   console.dir(newSpace, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      spaceCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Space created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -76,19 +71,15 @@ async function main() {
     newSpace.identifier
   )
 
-  let schemaCreationExtrinsic = await newSchema.create()
+  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
   console.dir(newSchema, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      schemaCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Schema created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -96,8 +87,8 @@ async function main() {
 
   // Step 2: Create a new Stream
   console.log(`\n❄️  Stream Creation `)
-  console.log(`🔗  ${newSpace.identifier} `)
-  console.log(`🔗  ${newSchema.identifier} `)
+  console.log(`🔗 ${newSpace.identifier} `)
+  console.log(`🔗 ${newSchema.identifier} `)
 
   const content = {
     name: 'Alice',
@@ -106,7 +97,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromProperties(
+  let schemaStream = Cord.Content.fromSchemaAndContent(
     newSchema,
     content,
     employeeIdentity.address,
@@ -123,181 +114,114 @@ async function main() {
 
   let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-  let streamCreationExtrinsic = await newStream.create()
+  let streamCreationExtrinsic = await Cord.Stream.create(newStream)
   console.dir(newStream, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      streamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(streamCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Stream created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 4: Update a Stream
-  console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
-  const updateContent = JSON.parse(JSON.stringify(newStreamContent))
-  // { ...newStreamContent }
-  updateContent.content.contents.name = 'Alice Jackson'
+  //  Step 7: Credential exchange via messaging
+  console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
+  console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
 
-  let updateStreamContent = Cord.ContentStream.updateContentProperties(
-    updateContent,
-    employeeIdentity
-  )
-  console.dir(updateStreamContent, { depth: null, colors: true })
-
-  let updateStream = Cord.Stream.fromContentStream(updateStreamContent)
-  let updateStreamCreationExtrinsic = await updateStream.update()
-  console.dir(updateStream, { depth: null, colors: true })
-
-  try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      updateStreamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
-    console.log('✅ Stream updated!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
+  const msgChallenge = UUID.generate()
+  const messageBodyForHolder: Cord.MessageBody = {
+    type: Cord.Message.BodyType.REQUEST_CREDENTIAL,
+    content: {
+      schemas: [
+        {
+          schemaIdentifier: schemaStream.schema,
+          trustedIssuers: [schemaStream.issuer],
+          requiredProperties: ['name', 'age'],
+        },
+      ],
+      challenge: msgChallenge,
+    },
   }
+  const messageForHolder = new Cord.Message(
+    messageBodyForHolder,
+    verifierIdentity,
+    holderIdentity.getPublicIdentity()
+  )
 
-  // Step 3: Validate a Credential
-  console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
-  const stream = await Cord.Stream.query(updateStream.identifier)
-  if (!stream) {
-    console.log(`Stream not anchored on CORD`)
+  console.log(`\n📧 Selective Disclosure Request`)
+  console.dir(messageForHolder, { depth: null, colors: true })
+
+  const chainStream = await Cord.Stream.query(newStream.identifier)
+  if (chainStream) {
+    let credential: Cord.ICredential
+    credential = await Cord.Credential.fromRequestAndStream(
+      newStreamContent,
+      chainStream
+    )
+    const presentation = await Cord.Credential.createPresentation({
+      credential,
+      selectedAttributes:
+        messageForHolder.body.content['schemas'][0]['requiredProperties'],
+      signer: holderIdentity,
+      challenge: messageForHolder.body.content['challenge'],
+    })
+
+    const messageBodyForRequestor: Cord.MessageBody = {
+      type: Cord.Message.BodyType.SUBMIT_CREDENTIAL,
+      content: [presentation],
+    }
+
+    const messageForRequestor = new Cord.Message(
+      messageBodyForRequestor,
+      verifierIdentity,
+      holderIdentity.getPublicIdentity()
+    )
+    console.log(`\n📧 Selective Disclosure Response`)
+    console.dir(messageForRequestor, { depth: null, colors: true })
+    console.log(`\n❄️  Verifiy Presentation`)
+
+    if (
+      messageForRequestor.body.type === Cord.Message.BodyType.SUBMIT_CREDENTIAL
+    ) {
+      const claims = messageForRequestor.body.content
+
+      // Using detail verification model to capture results seperately
+      // await Cord.Credential.verify(claims[0], msgChallenge)
+      // is the one - line alternative
+      const credIntegrity = await Cord.Credential.verifyDataIntegrity(claims[0])
+      const credSignature = await Cord.ContentStream.verifySignature(
+        claims[0].request,
+        { challenge: msgChallenge }
+      )
+      const credValidity = await Cord.Stream.checkValidity(claims[0].stream)
+      if (credIntegrity && credSignature && credValidity) {
+        console.log(
+          '✅',
+          'Credential-Integity',
+          credIntegrity,
+          '✧ Credential-Signature',
+          credSignature,
+          '✧ Credential-Validity',
+          credValidity
+        )
+      } else {
+        console.log(
+          `❌`,
+          'Credential-Integity',
+          credIntegrity,
+          '| Credential-Signature',
+          credSignature,
+          '| Credential-Validity',
+          credValidity
+        )
+      }
+    }
   } else {
-    const credential = Cord.Credential.fromRequestAndStream(
-      updateStreamContent,
-      stream
-    )
-    const isCredentialValid = await credential.verify()
-    console.log(`Is Alices's credential valid? ${isCredentialValid}`)
+    console.log(`\n❌ Credential not found `)
   }
-
-  // Step 3: Validate a modified Credential
-  // TODO: fix error handling
-  // console.log(`\n❄️  Validate Credential - ${updateStream.identifier} `)
-  // const chainStream = await Cord.Stream.query(updateStream.identifier)
-  // if (!chainStream) {
-  //   console.log(`Stream not anchored on CORD`)
-  // } else {
-  //   console.dir(newStreamContent, { depth: null, colors: true })
-  //   const credential = Cord.Credential.fromRequestAndStream(
-  //     newStreamContent,
-  //     chainStream
-  //   )
-
-  //   const isCredentialValid = await credential.verify()
-  //   console.log(`Is Alices's modified credential valid? ${isCredentialValid}`)
-  // }
-
-  // Step 3: Revoke a Stream
-  console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
-  let revokeStream = updateStream
-
-  let revokeStreamCreationExtrinsic = await revokeStream.revoke(
-    employeeIdentity
-  )
-
-  try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      revokeStreamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_READY,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
-    console.log('✅ Stream revoked!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
-
-  // await utils.waitForEnter('\n⏎ Press Enter to continue..')
-
-  // //  Step 7: Credential exchange via messaging
-  // console.log(`\n\n📩 Credential Exchange - Selective Disclosure (Verifier)`)
-  // console.log(`🔑 Verifier Address: ${verifierIdentity.address}`)
-  // const purpose = 'Account Opening Request'
-  // const validUntil = Date.now() + 864000000
-  // const relatedData = true
-
-  // const { session, message: message } =
-  //   cord.Exchange.Request.newRequestBuilder()
-  //     .requestPresentation({
-  //       id: schemaStream.schemaId,
-  //       properties: ['name', 'age'],
-  //     })
-  //     .finalize(
-  //       purpose,
-  //       verifierIdentity,
-  //       holderIdentity.getPublicIdentity(),
-  //       validUntil,
-  //       relatedData
-  //     )
-
-  // console.log(`\n📧 Selective Disclosure Request`)
-  // console.dir(message, { depth: null, colors: true })
-
-  // const chainStream = await cord.Stream.query(newStream.streamId)
-  // if (chainStream) {
-  //   let credential: cord.Credential
-  //   credential = cord.Credential.fromMarkContentStream(newStreamContent, chainStream)
-  //   const presentation = cord.Exchange.Share.createPresentation(
-  //     holderIdentity,
-  //     message,
-  //     verifierIdentity.getPublicIdentity(),
-  //     [credential],
-  //     {
-  //       showAttributes: message.body.content[0].requiredProperties,
-  //       signer: holderIdentity,
-  //       request: message.body.request,
-  //     }
-  //   )
-
-  //   const { verified } = await cord.Exchange.Verify.verifyPresentation(
-  //     presentation,
-  //     session
-  //   )
-  //   console.log(`\n📧 Received Credential `)
-  //   console.dir(presentation, { depth: null, colors: true })
-
-  //   let result = vcPresentation.verifiableCredential.proof.forEach(function (
-  //     proof: any
-  //   ) {
-  //     console.log(proof)
-  //     if (proof.type === VCUtils.constants.CORD_ANCHORED_PROOF_TYPE)
-  //       VCUtils.verification.verifyStreamProof(
-  //         vcPresentation.verifiableCredential,
-  //         proof
-  //       )
-  //   })
-  //   console.log(result)
-  //   if (result && result.verified) {
-  //     console.log(
-  //       `Name of the crook: ${vcPresentation.verifiableCredential.credentialSubject.name}`
-  //     ) // prints 'Billy The Kid'
-  //     // console.log(
-  //     //   `Reward: ${vcPresentation.verifiableCredential.credentialSubject.}`
-  //     // ) // undefined
-  //   }
-
-  //   console.log('🔍 All valid? ', verified)
-  // } else {
-  //   console.log(`\n❌ Credential not found `)
-  // }
-
-  // await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))

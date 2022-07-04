@@ -1,6 +1,7 @@
-import * as Cord from '@cord.network/api'
+import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
-import * as VCUtils from 'vc-export/src'
+import type { VerifiableCredential } from '@cord.network/vc-export/src/types.js'
+import * as VCUtils from '@cord.network/vc-export'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -44,17 +45,13 @@ async function main() {
   spaceContent.title = spaceTitle
 
   let newSpace = Cord.Space.fromSpaceProperties(spaceContent, employeeIdentity)
-  let spaceCreationExtrinsic = await newSpace.create()
+  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      spaceCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log(`✅ ${newSpace.identifier} created!`)
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -73,17 +70,13 @@ async function main() {
     newSpace.identifier
   )
 
-  let schemaCreationExtrinsic = await newSchema.create()
+  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      schemaCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log(`✅ ${newSchema.identifier} created!`)
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -91,8 +84,8 @@ async function main() {
 
   // Step 4: Create a new Stream
   console.log(`\n❄️  Stream Creation `)
-  console.log(`🔗  ${newSpace.identifier} `)
-  console.log(`🔗  ${newSchema.identifier} `)
+  console.log(`🔗 ${newSpace.identifier} `)
+  console.log(`🔗 ${newSchema.identifier} `)
 
   const content = {
     name: 'Alice',
@@ -101,7 +94,7 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromProperties(
+  let schemaStream = Cord.Content.fromSchemaAndContent(
     newSchema,
     content,
     employeeIdentity.address,
@@ -118,89 +111,106 @@ async function main() {
 
   let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-  let streamCreationExtrinsic = await newStream.create()
+  let streamCreationExtrinsic = await Cord.Stream.create(newStream)
   console.dir(newStream, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      streamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(streamCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Stream created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 4: Verifiable Credentials & Presentation
+  // Step 5: Verifiable Credential & Presentation
   console.log(`\n❄️  Verifiable Credentials & Presentation `)
   console.log(`🔗  ${newStream.identifier} `)
   const stream = await Cord.Stream.query(newStream.identifier)
 
-  let credential: Cord.Credential
+  let credential: Cord.ICredential
   if (!stream) {
     console.log(`Stream not anchored on CORD`)
   } else {
     credential = Cord.Credential.fromRequestAndStream(newStreamContent, stream)
-    const VC = VCUtils.fromCredential(credential, holderIdentity, newSchema)
+    const VC = VCUtils.fromCredential(credential, newSchema)
     console.dir(VC, { depth: null, colors: true })
     console.log('✅ Verifiable Credential created!')
 
     console.log(`\n❄️  Verifiable Presentation - Selective Disclosure `)
     const sharedCredential = JSON.parse(JSON.stringify(VC))
+    const vcChallenge = UUID.generate()
     const vcPresentation = await VCUtils.presentation.makePresentation(
       sharedCredential,
-      ['name', 'country']
+      ['name', 'country'],
+      holderIdentity,
+      vcChallenge
     )
     console.dir(vcPresentation, { depth: null, colors: true })
     console.log('✅ Verifiable Presentation created!')
 
     console.log(`\n❄️  Verifiy Presentation`)
 
-    const signatureResult = await VCUtils.verification.verifySelfSignedProof(
-      vcPresentation.verifiableCredential,
-      vcPresentation.verifiableCredential.proof[0]
-    )
+    const VCfromPresentation =
+      vcPresentation.verifiableCredential as VerifiableCredential
+
+    const streamSignatureResult =
+      await VCUtils.verification.verifyStreamSignatureProof(
+        VCfromPresentation,
+        VCfromPresentation.proof[0]
+      )
     const streamResult = await VCUtils.verification.verifyStreamProof(
-      vcPresentation.verifiableCredential,
-      vcPresentation.verifiableCredential.proof[1]
+      VCfromPresentation,
+      VCfromPresentation.proof[1]
     )
 
     const digestResult = await VCUtils.verification.verifyCredentialDigestProof(
-      vcPresentation.verifiableCredential,
-      vcPresentation.verifiableCredential.proof[2]
+      VCfromPresentation,
+      VCfromPresentation.proof[2]
     )
+    const selfSignatureResult =
+      await VCUtils.verification.verifySelfSignatureProof(
+        VCfromPresentation,
+        vcPresentation.proof[0],
+        vcChallenge
+      )
+
     if (
-      (!streamResult && !streamResult['verified']) ||
-      (!digestResult && !digestResult['verified']) ||
-      (!signatureResult && !signatureResult['verified'])
+      streamResult &&
+      streamResult['verified'] &&
+      digestResult &&
+      digestResult['verified'] &&
+      streamSignatureResult &&
+      streamSignatureResult['verified'] &&
+      selfSignatureResult &&
+      selfSignatureResult['verified']
     ) {
       console.log(
-        `❌  Verification failed `,
-        'Signature Proof',
-        signatureResult['verified'],
-        'Stream Proof',
+        '✅',
+        'Stream-Signature-Proof',
+        streamSignatureResult['verified'],
+        '✧ Stream-Proof',
         streamResult['verified'],
-        'Digest Proof',
-        digestResult['verified']
+        '✧ Digest-Proof',
+        digestResult['verified'],
+        '✧ Self-Signature-Proof',
+        selfSignatureResult['verified']
       )
     } else {
       console.log(
-        '✅  All valid? ',
-        'Signature Proof',
-        signatureResult['verified'],
-        'Stream Proof',
+        `❌`,
+        'Stream-Signature-Proof',
+        streamSignatureResult['verified'],
+        '✧ Stream-Proof',
         streamResult['verified'],
-        'Digest Proof',
-        digestResult['verified']
+        '✧ Digest-Proof',
+        digestResult['verified'],
+        '✧ Self-Signature-Proof',
+        selfSignatureResult['verified']
       )
     }
   }
-
-  //   await utils.waitForEnter('\n⏎ Press Enter to continue..')
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))

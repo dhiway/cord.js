@@ -9,6 +9,8 @@ import {
   isHex,
   u8aToHex,
 } from '@polkadot/util'
+import type { IPublicIdentity } from '@cord.network/types'
+import { ACCOUNT_IDENTIFIER_PREFIX, HASH_PREFIX } from '@cord.network/types'
 
 const defaults = {
   allowedDecodedLengths: [1, 2, 4, 8, 32, 33],
@@ -147,8 +149,15 @@ export function getIdentifierKey(
   return identifier.split(prefix).join('')
 }
 
-export function getIdentifierHash(identifier: string, prefix: string): string {
-  const id = identifier.split(prefix).join('')
+export function getHashIdentifier(
+  identifier: HexString | Uint8Array | string
+): string {
+  assert(identifier, 'Invalid key string passed')
+  return `${HASH_PREFIX}${identifier}`
+}
+
+export function getIdentifierHash(identifier: string): string {
+  const id = identifier.split(HASH_PREFIX).join('')
   return decodeIdentifierHash(id)
 }
 
@@ -178,4 +187,34 @@ export function checkIdentifier(
   }
 
   return [isValid, isValid ? null : 'Invalid decoded identifier checksum']
+}
+
+/**
+ * Creates Account Identifier from Fetches Account Address.
+ *
+ * @param address Account address to derive it's identifier.
+ *
+ * @returns The Address identifier from the Account Address.
+ */
+export function getAccountIdentifierFromAddress(
+  address: IPublicIdentity['address']
+): string {
+  return address.startsWith(ACCOUNT_IDENTIFIER_PREFIX)
+    ? address
+    : ACCOUNT_IDENTIFIER_PREFIX + address
+}
+
+/**
+ * Fetches Account Address from Identifier.
+ *
+ * @param address Account identifier to derive it's address from.
+ * @throws When the identifier is not prefixed with the defined ACCOUNT_IDENTIFIER_PREFIX.
+ * @throws [[ERROR_INVALID_ID_PREFIX]].
+ *
+ * @returns The Address derived from the Account Identifier.
+ */
+export function getAccountAddressFromIdentifier(
+  address: string
+): IPublicIdentity['address'] {
+  return address.split(ACCOUNT_IDENTIFIER_PREFIX).join('')
 }
