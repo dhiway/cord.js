@@ -6,7 +6,7 @@
 import { decodeAddress } from '@polkadot/keyring'
 import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
-import { Content, Identity } from '@cord.network/modules'
+import { Content } from '@cord.network/modules'
 import type { ICredential, ISchema } from '@cord.network/types'
 import { signatureVerify } from '@polkadot/util-crypto'
 import {
@@ -16,7 +16,7 @@ import {
   KeyTypesMap,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SIGNATURE_PROOF_TYPE,
+  CORD_STREAM_SIGNATURE_PROOF_TYPE,
   CORD_CREDENTIAL_CONTEXT_URL,
   CORD_VERIFIABLE_CREDENTIAL_TYPE,
   CORD_CREDENTIAL_IRI_PREFIX,
@@ -26,10 +26,10 @@ import type {
   CredentialDigestProof,
   CredentialSchema,
   Proof,
-  CordSignatureProof,
+  CordStreamSignatureProof,
   VerifiableCredential,
 } from './types.js'
-import { SDKErrors, Identifier } from '@cord.network/utils'
+import { Identifier } from '@cord.network/utils'
 import { STREAM_PREFIX } from '@cord.network/types'
 
 export function fromCredentialIRI(credentialId: string): string {
@@ -48,14 +48,13 @@ export function toCredentialIRI(streamId: string): string {
 
 export function fromCredential(
   input: ICredential,
-  holder: Identity,
   schemaType?: ISchema
 ): VerifiableCredential {
   const {
     contentHashes,
     evidenceIds,
     rootHash,
-    issuerSignature,
+    signatureProof,
     content,
     identifier,
   } = input.request
@@ -112,8 +111,14 @@ export function fromCredential(
     credentialSchema,
   }
 
-  const keyType: string | undefined =
-    KeyTypesMap[signatureVerify('', issuerSignature, content.issuer).crypto]
+  let keyType: string | undefined
+  if (signatureProof) {
+    keyType =
+      KeyTypesMap[
+        signatureVerify('', signatureProof?.signature, content.issuer).crypto
+      ]
+  }
+
   if (!keyType)
     throw new TypeError(
       `Unknown signature type on credential.\nCurrently this handles ${JSON.stringify(
@@ -121,23 +126,18 @@ export function fromCredential(
       )}\nReceived: ${keyType}`
     )
 
-  // add cord signature proof (issuer)
-  // infer key type
-  if (input.stream.holder !== holder.address) {
-    throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
+  if (signatureProof) {
+    const sSProof: CordStreamSignatureProof = {
+      type: CORD_STREAM_SIGNATURE_PROOF_TYPE,
+      proofPurpose: 'assertionMethod',
+      verificationMethod: {
+        type: keyType,
+        publicKeyHex: u8aToHex(decodeAddress(signatureProof.keyId)),
+      },
+      signature: signatureProof.signature,
+    }
+    VC.proof.push(sSProof)
   }
-
-  const sSProof: CordSignatureProof = {
-    type: CORD_SIGNATURE_PROOF_TYPE,
-    proofPurpose: 'assertionMethod',
-    verificationMethod: {
-      type: keyType,
-      publicKeyHex: u8aToHex(decodeAddress(content.holder)),
-    },
-    signature: holder.signStr(rootHash),
-  }
-  VC.proof.push(sSProof)
-
   // add credential proof
   const streamProof: CordStreamProof = {
     type: CORD_ANCHORED_PROOF_TYPE,

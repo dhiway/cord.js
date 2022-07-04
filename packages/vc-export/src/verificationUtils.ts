@@ -3,25 +3,27 @@
  * @module VerificationUtils
  */
 
-// import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
 import { Stream, Schema } from '@cord.network/modules'
 import { Crypto, JsonSchema, Identifier } from '@cord.network/utils'
 import {
-  CORD_SIGNATURE_PROOF_TYPE,
+  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_SELF_SIGNATURE_PROOF_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   KeyTypesMap,
 } from './constants.js'
 import type {
   VerifiableCredential,
-  CordSignatureProof,
+  CordStreamSignatureProof,
+  CordSelfSignatureProof,
   CordStreamProof,
   CredentialDigestProof,
 } from './types.js'
 import { Hash } from '@cord.network/types'
 import { fromCredentialIRI } from './exportToVerifiableCredential.js'
+import { makeSigningData } from './presentationUtils.js'
 import { HexString } from '@polkadot/util/types.js'
 
 export interface VerificationResult {
@@ -47,7 +49,7 @@ const PROOF_MALFORMED_ERROR = (reason: string): Error =>
   new Error(`Proof malformed: ${reason}`)
 
 /**
- * Verifies a self signed proof (holder signature) against a CORD Verifiable Credential.
+ * Verifies a stream signed proof (holder signature) against a CORD Verifiable Credential.
  * This entails computing the root hash from the hashes contained in the `protected` section of the credentialSubject.
  * The resulting hash is then verified against the signature and public key contained in the proof (the latter
  * could be a DID URI in the future). It is also expected to by identical to the credential id.
@@ -56,15 +58,15 @@ const PROOF_MALFORMED_ERROR = (reason: string): Error =>
  * @param proof CORD self signed proof object.
  * @returns Object indicating whether proof could be verified.
  */
-export function verifyCordSignatureProof(
+export function verifyStreamSignatureProof(
   credential: VerifiableCredential,
-  proof: CordSignatureProof
+  proof: CordStreamSignatureProof
 ): VerificationResult {
   const result: VerificationResult = { verified: true, errors: [] }
   try {
     // check proof
     const type = proof['@type'] || proof.type
-    if (type !== CORD_SIGNATURE_PROOF_TYPE)
+    if (type !== CORD_STREAM_SIGNATURE_PROOF_TYPE)
       throw new Error('Proof type mismatch')
     if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
     const { verificationMethod } = proof
@@ -231,6 +233,7 @@ export async function verifyCredentialDigestProof(
     }
     if (typeof credential.credentialSubject !== 'object')
       throw CREDENTIAL_MALFORMED_ERROR('credential subject missing')
+
     const rootHash = verifyRootHash(credential, proof)
     // throw if root hash does not match expected (=id)
     const expectedRootHash = Identifier.getIdentifierHash(
@@ -275,6 +278,74 @@ export async function verifyCredentialDigestProof(
       },
       { verified: true, errors: [] }
     )
+  } catch (e) {
+    result.verified = false
+    result.errors = [e as Error]
+    return result
+  }
+}
+
+/**
+ * Verifies a self signed proof (holder signature)
+ * This entails computing the root hash from the hashes contained in the `protected` section of the credentialSubject.
+ * The resulting hash is then verified against the signature, created date,
+ * challenge and thepublic key contained in the proof.
+ *
+ * @param credential Verifiable Credential to verify proof against.
+ * @param proof CORD self signed proof object.
+ * @returns Object indicating whether proof could be verified.
+ */
+export function verifySelfSignatureProof(
+  credential: VerifiableCredential,
+  proof: CordSelfSignatureProof,
+  challenge?: string
+): VerificationResult {
+  const result: VerificationResult = { verified: true, errors: [] }
+  try {
+    // check proof
+    const type = proof['@type'] || proof.type
+    if (type !== CORD_SELF_SIGNATURE_PROOF_TYPE)
+      throw new Error('Proof type mismatch')
+    if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
+    if (!proof.created) throw PROOF_MALFORMED_ERROR('creattion time missing')
+    const { verificationMethod } = proof
+    if (
+      !(
+        typeof verificationMethod === 'object' &&
+        verificationMethod.publicKeyHex
+      )
+    ) {
+      throw PROOF_MALFORMED_ERROR(
+        'proof must contain public key; resolve did key references beforehand'
+      )
+    }
+    const keyType = verificationMethod.type || verificationMethod['@type']
+    if (!Object.values(KeyTypesMap).includes(keyType))
+      throw PROOF_MALFORMED_ERROR(
+        `signature type unknown; expected one of ${JSON.stringify(
+          Object.values(KeyTypesMap)
+        )}, got "${verificationMethod.type}"`
+      )
+    const signerPubKey = verificationMethod.publicKeyHex
+
+    const rootHash = Identifier.getIdentifierHash(
+      fromCredentialIRI(credential.credentialHash)
+    )
+    const proofData = makeSigningData(rootHash, proof.created, challenge)
+
+    // validate signature over calculated proofData
+    // signatureVerify can handle all required signature types out of the box
+    const verification = signatureVerify(
+      proofData,
+      proof.signature,
+      signerPubKey
+    )
+    if (
+      !(verification.isValid && KeyTypesMap[verification.crypto] === keyType)
+    ) {
+      throw new Error('signature could not be verified')
+    }
+    return result
   } catch (e) {
     result.verified = false
     result.errors = [e as Error]

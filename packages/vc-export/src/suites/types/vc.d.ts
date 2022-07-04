@@ -1,4 +1,4 @@
-declare module 'vc-js' {
+declare module '@digitalbazaar/vc' {
   import type {
     DocumentLoader,
     ExpansionMap,

@@ -2,20 +2,38 @@
  * @packageDocumentation
  * @module PresentationUtils
  */
-
-import { blake2AsHex } from '@polkadot/util-crypto'
+import { decodeAddress } from '@polkadot/keyring'
+import { blake2AsHex, signatureVerify } from '@polkadot/util-crypto'
+import { u8aToHex } from '@polkadot/util'
 import jsonld from 'jsonld'
-import { Crypto } from '@cord.network/utils'
+import { SDKErrors, Identifier, Crypto } from '@cord.network/utils'
+import { Identity } from '@cord.network/modules'
 import {
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLEPRESENTATION_TYPE,
+  CORD_SELF_SIGNATURE_PROOF_TYPE,
+  KeyTypesMap,
 } from './constants.js'
 import type {
   VerifiableCredential,
   VerifiablePresentation,
   CredentialDigestProof,
+  CordSelfSignatureProof,
 } from './types.js'
+import { ACCOUNT_IDENTIFIER_PREFIX } from '@cord.network/types'
+
+export function makeSigningData(
+  rootHash: string,
+  createdAt: string,
+  challenge?: string | null
+): Uint8Array {
+  return new Uint8Array([
+    ...Crypto.coToUInt8(rootHash),
+    ...Crypto.coToUInt8(createdAt),
+    ...Crypto.coToUInt8(challenge),
+  ])
+}
 
 /**
  * This proof is added to a credential to prove that revealed properties were attested in the original credential.
@@ -115,14 +133,55 @@ export async function removeProperties(
  */
 export async function makePresentation(
   VC: VerifiableCredential,
-  showProperties: string[]
+  showProperties: string[],
+  creator: Identity,
+  challenge?: string
 ): Promise<VerifiablePresentation> {
   const copied = await removeProperties(VC, showProperties)
+
+  if (
+    creator?.address !==
+    Identifier.getIdentifierKey(
+      VC.credentialSubject['@id']?.toString(),
+      ACCOUNT_IDENTIFIER_PREFIX
+    )
+  ) {
+    throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
+  }
+  const createdAt = new Date().toISOString()
+  const selfSignature = creator.signStr(
+    makeSigningData(
+      Identifier.getIdentifierHash(VC.credentialHash),
+      createdAt,
+      challenge
+    )
+  )
+
+  const keyType: string | undefined =
+    KeyTypesMap[signatureVerify('', selfSignature, creator.address).crypto]
+  if (!keyType)
+    throw new TypeError(
+      `Unknown signature type on credential.\nCurrently this handles ${JSON.stringify(
+        Object.keys(KeyTypesMap)
+      )}\nReceived: ${keyType}`
+    )
+
+  const selfSProof: CordSelfSignatureProof = {
+    created: createdAt,
+    type: CORD_SELF_SIGNATURE_PROOF_TYPE,
+    proofPurpose: 'assertionMethod',
+    verificationMethod: {
+      type: keyType,
+      publicKeyHex: u8aToHex(decodeAddress(creator.address)),
+    },
+    signature: selfSignature,
+  }
+
   return {
     '@context': [DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT],
     type: [DEFAULT_VERIFIABLEPRESENTATION_TYPE],
     verifiableCredential: copied,
     holder: copied.credentialSubject['@id'] as string,
-    proof: [],
+    proof: [selfSProof],
   }
 }

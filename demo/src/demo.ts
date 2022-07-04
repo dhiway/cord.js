@@ -1,4 +1,4 @@
-import * as Cord from '@cord.network/api'
+import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
 
 async function main() {
@@ -49,14 +49,10 @@ async function main() {
   console.dir(newSpace, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      spaceCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Space created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -83,14 +79,10 @@ async function main() {
   })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      schemaCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Schema created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -98,8 +90,8 @@ async function main() {
 
   // Step 4: Create a new Stream
   console.log(`\n❄️  Stream Creation `)
-  console.log(`🔗  ${newSpace.identifier} `)
-  console.log(`🔗  ${newSchema.identifier} `)
+  console.log(`🔗 ${newSpace.identifier} `)
+  console.log(`🔗 ${newSchema.identifier} `)
 
   const content = {
     name: 'Alice',
@@ -129,14 +121,10 @@ async function main() {
   console.dir(newStream, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
-      streamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
-      }
-    )
+    await Cord.Chain.signAndSubmitTx(streamCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
     console.log('✅ Stream created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
@@ -158,12 +146,12 @@ async function main() {
   console.dir(updateStream, { depth: null, colors: true })
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
+    await Cord.Chain.signAndSubmitTx(
       updateStreamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
+        resolveOn: Cord.Chain.IS_IN_BLOCK,
+        rejectOn: Cord.Chain.IS_ERROR,
       }
     )
     console.log('✅ Stream updated!')
@@ -185,7 +173,7 @@ async function main() {
     console.log(`Is Alices's credential valid? ${isCredentialValid}`)
   }
 
-  // Step 8: Revoke a Stream
+  // Step 7: Revoke a Stream
   console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
   let revokeStream = updateStream
 
@@ -195,12 +183,12 @@ async function main() {
   )
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(
+    await Cord.Chain.signAndSubmitTx(
       revokeStreamCreationExtrinsic,
       entityIdentity,
       {
-        resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
+        resolveOn: Cord.Chain.IS_IN_BLOCK,
+        rejectOn: Cord.Chain.IS_ERROR,
       }
     )
     console.log(`✅ Alices's credential revoked!`)
@@ -208,7 +196,7 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 9: Re-verify a revoked Credential
+  // Step 8: Re-verify a revoked Credential
   console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
   const revstream = await Cord.Stream.query(updateStream.identifier)
   if (!revstream) {
