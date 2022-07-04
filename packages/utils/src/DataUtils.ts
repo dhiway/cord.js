@@ -8,12 +8,12 @@
  * Dummy comment needed for correct doc display, do not remove.
  */
 import '@polkadot/api-augment'
-import type { IPublicIdentity } from '@cord.network/types/src/index.js'
+import type { IPublicIdentity } from '@cord.network/types'
 import { checkAddress } from '@polkadot/util-crypto'
 import * as SDKErrors from './SDKErrors.js'
 import { verify } from './Crypto.js'
 import { checkIdentifier } from './Identifier.js'
-
+import { ss58Format } from '@cord.network/types'
 /**
  *  Validates an given address string against the External Address Format (SS58) with our Prefix of 29.
  *
@@ -31,7 +31,7 @@ export function validateAddress(
     throw new SDKErrors.ERROR_ADDRESS_TYPE()
   }
   // CORD has registered ss58 prefix 29
-  if (!checkAddress(address, 29)[0]) {
+  if (!checkAddress(address, ss58Format)[0]) {
     throw new SDKErrors.ERROR_ADDRESS_INVALID(address, name)
   }
   return true

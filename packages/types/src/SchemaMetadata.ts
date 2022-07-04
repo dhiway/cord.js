@@ -5,22 +5,6 @@
 
 import type { ISchema } from './Schema'
 
-export interface ISchemaMetadata {
-  metadata: IMetadata
-  id: ISchema['identifier'] | null
-  hash: ISchema['schemaHash'] | null
-}
-
-export interface IMetadata {
-  title: IMultilangLabel
-  description?: IMultilangLabel
-  properties: IMetadataProperties
-}
-
-export type IMetadataProperties = {
-  [key: string]: { title: IMultilangLabel; description?: IMultilangLabel }
-}
-
 /**
  * String struct with string keys and a mandatory `default` field.
  * Meant to contain a default label/description and an arbitrary number of translations,
@@ -31,4 +15,20 @@ export interface IMultilangLabel {
   default: string
   /** An arbitrary number of translations where the key indicates the language. */
   [key: string]: string
+}
+
+export type IMetadataProperties = {
+  [key: string]: { title: IMultilangLabel; description?: IMultilangLabel }
+}
+
+export interface IMetadata {
+  title: IMultilangLabel
+  description?: IMultilangLabel
+  properties: IMetadataProperties
+}
+
+export interface ISchemaMetadata {
+  metadata: IMetadata
+  id: ISchema['identifier'] | null
+  hash: ISchema['schemaHash'] | null
 }

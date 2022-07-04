@@ -17,14 +17,10 @@ module.exports = {
     library: 'cord',
     umdNamedDefine: true,
   },
-  resolve: {
+resolve: {
     extensions: ['.ts', '.js', '.d.ts', '.mjs', '.json'],
     symlinks: false,
     // Explicit fallbacks to include these in bundle
-    alias: {
-      buffer: 'buffer',
-      process: 'process',
-    },
     fallback: {
       buffer: require.resolve('buffer'),
       crypto: require.resolve('crypto-browserify'),
@@ -39,11 +35,8 @@ module.exports = {
   optimization: {
     minimize: true,
     // only minimize the *.min* bundle output
-    minimizer: [new TerserPlugin({ extractComments: false, terserOptions: {
-        format: {
-          comments: false,
-        },
-      },include: /\.min\.umd\.js$/ })],
+    // only minimize the *.min* bundle output
+    minimizer: [new TerserPlugin({ include: /\.min\.umd\.js$/ })],
   },
   plugins: [
     new webpack.ProvidePlugin({

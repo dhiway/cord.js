@@ -6,16 +6,17 @@
  */
 
 import { ConfigService } from '@cord.network/config'
-import { ChainApiConnection, Chain } from '@cord.network/network'
+import { ChainApiConnection } from '@cord.network/network'
 import { Identity } from '../identity/index.js'
+import { ApiPromise } from '@polkadot/api'
 
 /**
  * Connects to the CORD Blockchain and caches the connection.
  * When used again, the cached instance is returned.
  *
- * @returns An instance of [[Blockchain]].
+ * @returns An instance of [[ApiPromise]].
  */
-export function connect(): Promise<Chain> {
+export function connect(): Promise<ApiPromise> {
   return ChainApiConnection.getConnectionOrConnect()
 }
 

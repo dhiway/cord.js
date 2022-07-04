@@ -9,9 +9,8 @@
 
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { ConfigService } from '@cord.network/config'
-import { Chain } from '../chain/Chain.js'
 
-let instance: Promise<Chain> | null
+let instance: Promise<ApiPromise> | null
 
 /**
  * Builds a new blockchain connection instance.
@@ -21,12 +20,11 @@ let instance: Promise<Chain> | null
  */
 export async function buildConnection(
   host: string = ConfigService.get('address')
-): Promise<Chain> {
+): Promise<ApiPromise> {
   const provider = new WsProvider(host)
-  const api: ApiPromise = await ApiPromise.create({
+  return ApiPromise.create({
     provider,
   })
-  return new Chain(api)
 }
 
 /**
@@ -37,7 +35,7 @@ export async function buildConnection(
  *
  * @param connectionInstance The Chain instance, which should be cached.
  */
-export function setConnection(connectionInstance: Promise<Chain>): void {
+export function setConnection(connectionInstance: Promise<ApiPromise>): void {
   instance = connectionInstance
 }
 
@@ -46,7 +44,7 @@ export function setConnection(connectionInstance: Promise<Chain>): void {
  *
  * @returns Cached blockchain connection.
  */
-export function getConnection(): Promise<Chain> | null {
+export function getConnection(): Promise<ApiPromise> | null {
   return instance
 }
 
@@ -55,7 +53,7 @@ export function getConnection(): Promise<Chain> | null {
  *
  * @returns The cached or newly built blockchain connection instance.
  */
-export async function getConnectionOrConnect(): Promise<Chain> {
+export async function getConnectionOrConnect(): Promise<ApiPromise> {
   if (!instance) {
     instance = buildConnection()
   }
@@ -78,7 +76,7 @@ export function clearCache(): void {
 export async function connected(): Promise<boolean> {
   if (!instance) return false
   const resolved = await instance
-  return resolved.api.isConnected
+  return resolved.isConnected
 }
 
 /**
@@ -93,8 +91,8 @@ export async function disconnect(): Promise<boolean> {
   if (!oldInstance) return false
 
   const resolved = await oldInstance
-  const { isConnected } = resolved.api
-  await resolved.api.disconnect()
+  const { isConnected } = resolved
+  await resolved.disconnect()
 
   return isConnected
 }

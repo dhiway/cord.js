@@ -3,8 +3,8 @@
  * @module VCExportTypes
  */
 import type { AnyJson } from '@polkadot/types/types'
-import type { IDidDocumentPublicKey } from '@cord.network/modules'
-import type { ISchema } from '@cord.network/types'
+// import type { IDidDocumentPublicKey } from '@cord.network/modules'
+import type { ISchema, IIdentityPublicKey } from '@cord.network/types'
 import type {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLE_CREDENTIAL_TYPE,
@@ -12,7 +12,8 @@ import type {
   JSON_SCHEMA_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_SIGNATURE_PROOF_TYPE,
+  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_SELF_SIGNATURE_PROOF_TYPE,
 } from './constants.js'
 
 export interface Proof {
@@ -22,11 +23,11 @@ export interface Proof {
   [key: string]: any
 }
 
-export type IPublicKeyRecord = Partial<IDidDocumentPublicKey> &
-  Pick<IDidDocumentPublicKey, 'publicKeyHex' | 'type'>
+export type IPublicKeyRecord = Partial<IIdentityPublicKey> &
+  Pick<IIdentityPublicKey, 'publicKeyHex' | 'type'>
 
-export interface CordSignatureProof extends Proof {
-  type: typeof CORD_SIGNATURE_PROOF_TYPE
+export interface CordStreamSignatureProof extends Proof {
+  type: typeof CORD_STREAM_SIGNATURE_PROOF_TYPE
   verificationMethod: string | IPublicKeyRecord
   signature: string
 }
@@ -40,6 +41,13 @@ export interface CredentialDigestProof extends Proof {
   nonces: Record<string, string>
   // salted hashes of statements in credentialSubject to allow selective disclosure.
   contentHashes: string[]
+}
+export interface CordSelfSignatureProof extends Proof {
+  created: string
+  type: typeof CORD_SELF_SIGNATURE_PROOF_TYPE
+  verificationMethod: string | IPublicKeyRecord
+  signature: string
+  challenge?: string
 }
 
 export interface CredentialSchema {
