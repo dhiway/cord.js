@@ -29,12 +29,14 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
 export async function create(schema: ISchema): Promise<SubmittableExtrinsic> {
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
-  return api.tx.schema.create(
-    schema.controller,
-    schema.schemaHash,
-    Identifier.getIdentifierKey(schema.space, SPACE_PREFIX),
-    schema.controllerSignature
-  )
+
+  const schemaParams = {
+    digest: schema.schemaHash,
+    author: schema.controller,
+    space: Identifier.getIdentifierKey(schema.space, SPACE_PREFIX),
+  }
+
+  return api.tx.schema.create(schemaParams, schema.controllerSignature)
 }
 
 /**
@@ -48,15 +50,17 @@ export async function revoke(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema.identifier}`)
-  const space = Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
 
-  return api.tx.schema.revoke(
-    controller,
-    Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
-    txHash,
-    space,
-    txSignature
-  )
+  const schemaParams = {
+    identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
+    schema: {
+      digest: txHash,
+      author: controller.address,
+      space: Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
+    }
+  }
+
+  return api.tx.schema.revoke(schemaParams, txSignature)
 }
 
 /**
@@ -71,16 +75,17 @@ export async function authorise(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema.identifier}`)
-  const space = Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
 
-  return api.tx.schema.authorise(
-    controller,
-    Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
-    txHash,
-    delegates,
-    space,
-    txSignature
-  )
+  const schemaParams = {
+    identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
+    schema: {
+      digest: txHash,
+      author: controller.address,
+      space: Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
+    }
+  }
+
+  return api.tx.schema.authorise(schemaParams, txSignature)
 }
 
 /**
