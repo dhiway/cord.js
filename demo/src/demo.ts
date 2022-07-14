@@ -79,7 +79,7 @@ async function main() {
 
   try {
     await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {
-      resolveOn: Cord.Chain.IS_FINALIZED,
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
       rejectOn: Cord.Chain.IS_ERROR,
     })
     console.log('✅ Schema created!')

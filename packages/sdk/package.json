@@ -49,6 +49,6 @@
     "@cord.network/network": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
-    "@polkadot/api-augment": "^8.0.0"
+    "@polkadot/api-augment": "^8.12.0"
   }
 }
