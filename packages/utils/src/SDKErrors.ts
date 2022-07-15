@@ -22,6 +22,12 @@ export class ERROR_ID_MALFORMED extends SDKError {
   }
 }
 
+export class ERROR_CONTROLLER_MISMATCH extends SDKError {
+  constructor() {
+    super('Contoller details invalid or malformed')
+  }
+}
+
 export class ERROR_SPACE_ID_NOT_PROVIDED extends SDKError {
   constructor() {
     super('Space identifier missing')

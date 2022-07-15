@@ -5,7 +5,7 @@
 import { HexString } from '@polkadot/util/types.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 
-export const SPACE_IDENTIFIER: number = 13
+export const SPACE_IDENTIFIER: number = 31
 export const SPACE_PREFIX: string = 'space:cord:'
 
 export interface ISpaceType {

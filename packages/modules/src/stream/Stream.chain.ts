@@ -10,7 +10,7 @@ import { DecoderUtils, Identifier } from '@cord.network/utils'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/types'
+import { STREAM_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 import { HexString } from '@polkadot/util/types.js'
 
@@ -23,16 +23,16 @@ const log = ConfigService.LoggingFactory.getLogger('Stream')
  * @returns The [[SubmittableExtrinsic]] for the `create` call.
  */
 export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
+  const streamParams = {
+    digest: stream.streamHash,
+    author: stream.issuer,
+    holder: stream.holder,
+    schema: stream.schema,
+    link: stream.link,
+    space: stream.space,
+  }
   const api = await ChainApiConnection.getConnectionOrConnect()
-  return api.tx.stream.create(
-    stream.issuer,
-    stream.streamHash,
-    stream.holder,
-    stream.schema,
-    stream.link,
-    stream.space,
-    stream.signatureProof?.signature
-  )
+  return api.tx.stream.create(streamParams, stream.signatureProof?.signature)
 }
 
 /**
@@ -42,14 +42,19 @@ export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
  * @returns The [[SubmittableExtrinsic]] for the `update` call.
  */
 export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
+  const streamParams = {
+    identifier: stream.identifier,
+    stream: {
+      digest: stream.streamHash,
+      author: stream.issuer,
+      holder: stream.holder,
+      schema: stream.schema,
+      link: stream.link,
+      space: stream.space,
+    },
+  }
   const api = await ChainApiConnection.getConnectionOrConnect()
-  return api.tx.stream.update(
-    stream.identifier,
-    stream.issuer,
-    stream.streamHash,
-    stream.signatureProof?.signature,
-    stream.space
-  )
+  return api.tx.stream.update(streamParams, stream.signatureProof?.signature)
 }
 
 /**
@@ -66,16 +71,20 @@ export async function revoke(
 ): Promise<SubmittableExtrinsic> {
   const { txSignature, txHash } = updater.signTx(stream.streamHash)
 
+  const streamParams = {
+    identifier: stream.identifier,
+    stream: {
+      digest: txHash,
+      author: stream.issuer,
+      holder: stream.holder,
+      schema: stream.schema,
+      link: stream.link,
+      space: stream.space,
+    },
+  }
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking stream with ID ${stream.identifier}`)
-  const space = Identifier.getIdentifierKey(stream.space, SPACE_PREFIX) || null
-  return api.tx.stream.revoke(
-    Identifier.getIdentifierKey(stream.identifier, STREAM_PREFIX),
-    updater.address,
-    txHash,
-    txSignature,
-    space
-  )
+  return api.tx.stream.revoke(streamParams, txSignature)
 }
 
 /**
@@ -122,12 +131,14 @@ export async function digest(
 }
 
 export interface AnchoredStreamDetails extends Struct {
-  readonly streamHash: Hash
-  readonly controller: AccountId
-  readonly holder: Option<AccountId>
-  readonly schema: Option<Vec<u8>>
-  readonly link: Option<Vec<u8>>
-  readonly space: Option<Vec<u8>>
+  stream: {
+    readonly digest: Hash
+    readonly author: AccountId
+    readonly holder: Option<AccountId>
+    readonly schema: Option<Vec<u8>>
+    readonly link: Option<Vec<u8>>
+    readonly space: Option<Vec<u8>>
+  }
   readonly revoked: boolean
 }
 
@@ -142,13 +153,17 @@ function decodeStream(
     const anchoredStream = encodedStream.unwrap()
     const stream: IStreamDetails = {
       identifier: streamIdentifier,
-      streamHash: anchoredStream.streamHash.toHex(),
-      issuer: anchoredStream.controller.toString(),
-      holder: anchoredStream.holder.toString() || null,
+      streamHash: anchoredStream.stream.digest.toHex(),
+      issuer: anchoredStream.stream.author.toString(),
+      holder: anchoredStream.stream.holder.toString() || null,
       schema:
-        DecoderUtils.hexToString(anchoredStream.schema.toString()) || null,
-      link: DecoderUtils.hexToString(anchoredStream.link.toString()) || null,
-      space: DecoderUtils.hexToString(anchoredStream.space.toString()) || null,
+        DecoderUtils.hexToString(anchoredStream.stream.schema.toString()) ||
+        null,
+      link:
+        DecoderUtils.hexToString(anchoredStream.stream.link.toString()) || null,
+      space:
+        DecoderUtils.hexToString(anchoredStream.stream.space.toString()) ||
+        null,
       revoked: anchoredStream.revoked.valueOf(),
     }
     return stream
@@ -166,9 +181,9 @@ export async function queryRaw(
   streamIdentifier: IContentStream['identifier']
 ): Promise<Option<AnchoredStreamDetails>> {
   const api = await ChainApiConnection.getConnectionOrConnect()
-  const result = await api.query.stream.streams<Option<AnchoredStreamDetails>>(
-    streamIdentifier
-  )
+  const result = await api.query.stream.identifiers<
+    Option<AnchoredStreamDetails>
+  >(streamIdentifier)
   return result
 }
 

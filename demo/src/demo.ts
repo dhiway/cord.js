@@ -70,13 +70,12 @@ async function main() {
     employeeIdentity,
     newSpace.identifier
   )
-
-  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
-
   console.dir(newSchema, {
     depth: null,
     colors: true,
   })
+
+  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
   try {
     await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {

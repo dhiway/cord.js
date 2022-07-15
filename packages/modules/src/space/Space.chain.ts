@@ -29,11 +29,8 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
 export async function create(space: ISpace): Promise<SubmittableExtrinsic> {
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'space'`)
-  return api.tx.space.create(
-    space.controller,
-    space.spaceHash,
-    space.controllerSignature
-  )
+  const spaceParams = { digest: space.spaceHash, controller: space.controller }
+  return api.tx.space.create(spaceParams, space.controllerSignature)
 }
 
 /**
@@ -44,14 +41,13 @@ export async function archive(
   controller: Identity
 ): Promise<SubmittableExtrinsic> {
   const { txSignature, txHash } = controller.signTx(space.spaceHash)
-
   const api = await ChainApiConnection.getConnectionOrConnect()
-  return api.tx.space.archive(
-    controller,
-    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
-    txHash,
-    txSignature
-  )
+  const spaceParams = {
+    identifier: Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
+    digest: txHash,
+    controller: controller.address,
+  }
+  return api.tx.space.archive(spaceParams, txSignature)
 }
 
 /**
@@ -64,12 +60,12 @@ export async function restore(
   const { txSignature, txHash } = controller.signTx(space.spaceHash)
 
   const api = await ChainApiConnection.getConnectionOrConnect()
-  return api.tx.space.restore(
-    controller,
-    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
-    txHash,
-    txSignature
-  )
+  const spaceParams = {
+    identifier: Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
+    digest: txHash,
+    controller: controller.address,
+  }
+  return api.tx.space.restore(spaceParams, txSignature)
 }
 
 /**
@@ -83,13 +79,12 @@ export async function authorise(
   const { txSignature, txHash } = controller.signTx(space.spaceHash)
 
   const api = await ChainApiConnection.getConnectionOrConnect()
-  return api.tx.space.authorise(
-    controller,
-    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
-    txHash,
-    delegates,
-    txSignature
-  )
+  const spaceParams = {
+    identifier: Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
+    digest: txHash,
+    controller: controller.address,
+  }
+  return api.tx.space.authorise(spaceParams, delegates, txSignature)
 }
 
 /**
@@ -103,13 +98,12 @@ export async function deauthorise(
   const { txSignature, txHash } = controller.signTx(space.spaceHash)
 
   const api = await ChainApiConnection.getConnectionOrConnect()
-  return api.tx.space.deauthorise(
-    controller,
-    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
-    txHash,
-    delegates,
-    txSignature
-  )
+  const spaceParams = {
+    identifier: Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
+    digest: txHash,
+    controller: controller.address,
+  }
+  return api.tx.space.deauthorise(spaceParams, delegates, txSignature)
 }
 
 /**
@@ -123,13 +117,12 @@ export async function transfer(
   const { txSignature, txHash } = controller.signTx(space.spaceHash)
 
   const api = await ChainApiConnection.getConnectionOrConnect()
-  return api.tx.space.transfer(
-    controller,
-    Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
-    transfer,
-    txHash,
-    txSignature
-  )
+  const spaceParams = {
+    identifier: Identifier.getIdentifierKey(space.identifier, SPACE_PREFIX),
+    digest: txHash,
+    controller: space.controller,
+  }
+  return api.tx.space.transfer(spaceParams, transfer, txSignature)
 }
 
 export interface AnchoredSpaceDetails extends Struct {

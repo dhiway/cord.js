@@ -5,7 +5,7 @@
 import type { IPublicIdentity } from './PublicIdentity.js'
 import type { HexString } from '@polkadot/util/types'
 
-export const SCHEMA_IDENTIFIER: number = 33
+export const SCHEMA_IDENTIFIER: number = 41
 export const SCHEMA_PREFIX: string = 'schema:cord:'
 
 export type InstanceType =
