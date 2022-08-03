@@ -29,11 +29,13 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
 export async function create(schema: ISchema): Promise<SubmittableExtrinsic> {
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
-
+  const space_id = schema.space
+    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
+    : null
   const schemaParams = {
     digest: schema.schemaHash,
     author: schema.controller,
-    space: Identifier.getIdentifierKey(schema.space, SPACE_PREFIX),
+    space: space_id,
   }
 
   return api.tx.schema.create(schemaParams, schema.controllerSignature)
@@ -50,14 +52,16 @@ export async function revoke(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema.identifier}`)
-
+  const space_id = schema.space
+    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
+    : null
   const schemaParams = {
     identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
     schema: {
       digest: txHash,
       author: controller.address,
-      space: Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
-    }
+      space: space_id,
+    },
   }
 
   return api.tx.schema.revoke(schemaParams, txSignature)
@@ -75,14 +79,16 @@ export async function authorise(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema.identifier}`)
-
+  const space_id = schema.space
+    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
+    : null
   const schemaParams = {
     identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
     schema: {
       digest: txHash,
       author: controller.address,
-      space: Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
-    }
+      space: space_id,
+    },
   }
 
   return api.tx.schema.authorise(schemaParams, txSignature)
@@ -100,7 +106,9 @@ export async function deauthorise(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema.identifier}`)
-  const space = Identifier.getIdentifierKey(schema.space, SPACE_PREFIX) || null
+  const space = schema.space
+    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
+    : null
 
   return api.tx.schema.deauthorise(
     controller,
