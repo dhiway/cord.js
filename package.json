@@ -50,6 +50,7 @@
     "jest-docblock": "^27.4.0",
     "jest-runner": "^27.4.6",
     "jest-runner-groups": "^2.1.0",
+    "moment": "^2.29.1",
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2",
     "testcontainers": "^8.6.1",

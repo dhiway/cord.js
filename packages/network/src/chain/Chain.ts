@@ -159,6 +159,6 @@ export async function signAndSubmitTx(
   }: Partial<SubscriptionPromise.Options> & Partial<{ tip: AnyNumber }> = {}
 ): Promise<ISubmittableResult> {
   const signKeyringPair = (signer as IIdentity).signKeyringPair || signer
-  const signedTx = await tx.signAsync(signKeyringPair, { tip })
+  const signedTx = await tx.signAsync(signKeyringPair, { nonce: -1, tip })
   return submitSignedTx(signedTx, opts)
 }

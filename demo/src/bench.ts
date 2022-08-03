@@ -1,28 +1,33 @@
-import * as cord from '@cord.network/sdk'
+import * as Cord from '@cord.network/sdk'
 import BN from 'bn.js'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
+import { ApiPromise, WsProvider } from '@polkadot/api'
 
 const amount: BN = new BN('1')
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+export const sleep = (ms: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(), ms)
+  })
 }
 
 async function main() {
-  await cord.init({ address: 'ws://127.0.0.1:9944' })
+  await Cord.init({ address: 'ws://127.0.0.1:9944' })
+  const wsProvider = new WsProvider('ws://127.0.0.1:9944')
+  const api = await ApiPromise.create({ provider: wsProvider })
 
   // Step 1: Setup Identities
-  const Alice = cord.Identity.buildFromURI('//Alice', {
+  const Alice = Cord.Identity.buildFromURI('//Alice', {
     signingKeyPairType: 'sr25519',
   })
-  const Bob = cord.Identity.buildFromURI('//Bob', {
+  const Bob = Cord.Identity.buildFromURI('//Bob', {
     signingKeyPairType: 'sr25519',
   })
-  let tx_batch = []
+  let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 6000
+  let txCount = 800
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
   for (let j = 0; j < txCount; j++) {
@@ -32,7 +37,7 @@ async function main() {
         's\r'
     )
     try {
-      let txTransfer = await cord.Balance.makeTransfer(
+      let txTransfer = await Cord.Balance.makeTransfer(
         Alice.address,
         amount,
         -6
@@ -54,14 +59,13 @@ async function main() {
         's\r'
     )
     try {
-      await cord.ChainUtils.signAndSubmitTx(tx_batch[i], Bob, {
-        resolveOn: cord.ChainUtils.IS_READY,
-        rejectOn: cord.ChainUtils.IS_ERROR,
+      await Cord.Chain.signAndSubmitTx(tx_batch[i], Bob, {
+        resolveOn: Cord.Chain.IS_READY,
+        rejectOn: Cord.Chain.IS_ERROR,
       })
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
     }
-    delay(4000)
   }
 
   let ancEndTime = moment()
@@ -72,8 +76,6 @@ async function main() {
     ).toFixed(0)} `
   )
 
-  const { api } =
-    await cord.ChainHelpers.ChainApiConnection.getConnectionOrConnect()
   let keyring = new Keyring({ type: 'sr25519' })
   let BatchAuthor = keyring.addFromUri('//Charlie')
   let batchAncStartTime = moment()
@@ -97,15 +99,16 @@ async function main() {
       txCount / batchAncDuration.as('seconds')
     ).toFixed(0)} `
   )
-  delay(4000)
+  await sleep(2000)
+  await api.disconnect()
 }
 
 main()
   .then(() => console.log('Bye! 👋 👋 👋 \n'))
-  .finally(cord.disconnect)
+  .finally(Cord.disconnect)
 
 process.on('SIGINT', async () => {
   console.log('Bye! 👋 👋 👋 \n')
-  cord.disconnect()
+  Cord.disconnect()
   process.exit(0)
 })

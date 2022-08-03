@@ -2,9 +2,19 @@ import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
+import { ApiPromise, WsProvider } from '@polkadot/api'
+
+export const sleep = (ms: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(), ms)
+  })
+}
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
+  // await Cord.ChainHelpers.ChainApiConnection.getConnectionOrConnect()
+  const wsProvider = new WsProvider('ws://127.0.0.1:9944')
+  const api = await ApiPromise.create({ provider: wsProvider })
 
   // Step 1: Setup Identities
   const Alice = Cord.Identity.buildFromURI('//Alice', {
@@ -24,9 +34,9 @@ async function main() {
   let schemaCreationExtrinsic = await await Cord.Schema.create(newSchema)
 
   try {
-    await Cord.ChainUtils.signAndSubmitTx(schemaCreationExtrinsic, Bob, {
-      resolveOn: Cord.ChainUtils.IS_IN_BLOCK,
-      rejectOn: Cord.ChainUtils.IS_ERROR,
+    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, Bob, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
     })
     console.log('✅ Schema created!')
   } catch (e: any) {
@@ -35,10 +45,10 @@ async function main() {
 
   // Step 2: Create a new Stream
   console.log(`\n✉️  Adding a new Stream`, '\n')
-  let tx_batch = []
+  let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 500
+  let txCount = 805
   let newStreamContent: Cord.IContentStream
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
@@ -53,10 +63,10 @@ async function main() {
     let schemaStream = Cord.Content.fromSchemaAndContent(
       newSchema,
       content,
-      Alice.address
+      Bob.address
     )
 
-    newStreamContent = Cord.ContentStream.fromContent(schemaStream, Alice)
+    newStreamContent = Cord.ContentStream.fromContent(schemaStream, Bob)
     let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
     process.stdout.write(
@@ -82,10 +92,11 @@ async function main() {
         moment.duration(moment().diff(ancStartTime)).as('seconds').toFixed(3) +
         's\r'
     )
+
     try {
-      await Cord.ChainUtils.signAndSubmitTx(tx_batch[i], Bob, {
-        resolveOn: Cord.ChainUtils.IS_READY,
-        rejectOn: Cord.ChainUtils.IS_ERROR,
+      await Cord.Chain.signAndSubmitTx(tx_batch[i], Bob, {
+        resolveOn: Cord.Chain.IS_READY,
+        rejectOn: Cord.Chain.IS_ERROR,
       })
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
@@ -100,7 +111,7 @@ async function main() {
     ).toFixed(0)} `
   )
 
-  let tx_new_batch = []
+  let tx_new_batch: any = []
 
   let startTxPrep2 = moment()
 
@@ -115,10 +126,10 @@ async function main() {
     let schemaStream = Cord.Content.fromSchemaAndContent(
       newSchema,
       content,
-      Alice.address
+      Bob.address
     )
 
-    let newStreamContent = Cord.ContentStream.fromContent(schemaStream, Alice)
+    let newStreamContent = Cord.ContentStream.fromContent(schemaStream, Bob)
     let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
     process.stdout.write(
@@ -134,13 +145,12 @@ async function main() {
     }
   }
 
-  const { api } =
-    await Cord.ChainHelpers.ChainApiConnection.getConnectionOrConnect()
   let keyring = new Keyring({ type: 'sr25519' })
   let BatchAuthor = keyring.addFromUri('//Charlie')
   let batchAncStartTime = moment()
+
   try {
-    api.tx.utility.batchAll(tx_new_batch).signAndSend(BatchAuthor)
+    api.tx.utility.batch(tx_new_batch).signAndSend(BatchAuthor)
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
@@ -159,6 +169,8 @@ async function main() {
       txCount / batchAncDuration.as('seconds')
     ).toFixed(0)} `
   )
+  await sleep(2000)
+  await api.disconnect()
 }
 
 main()
