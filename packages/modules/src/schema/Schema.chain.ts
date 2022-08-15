@@ -11,7 +11,6 @@ import type {
   IPublicIdentity,
   SubmittableExtrinsic,
 } from '@cord.network/types'
-import { SCHEMA_PREFIX } from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
@@ -50,7 +49,7 @@ export async function revoke(
   log.debug(() => `Revoking a schema with ID ${schema.identifier}`)
 
   const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
+    identifier: Identifier.getIdentifierKey(schema.identifier),
     schema: {
       digest: txHash,
       controller: controller.address,
@@ -73,7 +72,7 @@ export async function delegate(
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema.identifier}`)
   const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
+    identifier: Identifier.getIdentifierKey(schema.identifier),
     schema: {
       digest: txHash,
       controller: controller.address,
@@ -96,7 +95,7 @@ export async function undelegate(
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema.identifier}`)
   const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
+    identifier: Identifier.getIdentifierKey(schema.identifier),
     schema: {
       digest: txHash,
       controller: controller.address,
@@ -169,7 +168,7 @@ export async function queryhash(
  * @internal
  */
 export async function query(schema_id: string): Promise<ISchemaDetails | null> {
-  const schemaId: string = Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX)
+  const schemaId: string = Identifier.getIdentifierKey(schema_id)
   const encoded = await queryRaw(schemaId)
   return decodeSchema(encoded, schemaId)
 }
@@ -195,7 +194,7 @@ export async function getOwner(
 export async function isStored(
   schema_id: ISchema['identifier']
 ): Promise<boolean> {
-  const schemaId: string = Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX)
+  const schemaId: string = Identifier.getIdentifierKey(schema_id)
   const encoded = await queryRaw(schemaId)
   return encoded.isSome
 }

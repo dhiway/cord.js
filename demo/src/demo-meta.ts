@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { UUID } from '@cord.network/utils'
+import { UUID, Crypto, SDKErrors } from '@cord.network/utils'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -89,21 +89,16 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 2: Create a new Space
+  // Step 4: Create a new Space
   console.log(`\n❄️  Space Creation `)
-  console.log(`🔗 ${newSchema.identifier}`)
   let spaceContent = {
-    title: 'Demo Space',
-    description: 'Space for demo',
+    title: 'Demo Registry Space',
+    description: 'Space for registy demo',
   }
   let spaceTitle = spaceContent.title + ':' + UUID.generate()
   spaceContent.title = spaceTitle
 
-  let newSpace = Cord.Space.fromSpaceProperties(
-    spaceContent,
-    employeeIdentity,
-    newSchema.identifier
-  )
+  let newSpace = Cord.Space.fromSpaceProperties(spaceContent, employeeIdentity)
 
   let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
 
@@ -119,7 +114,36 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 4: Create a new Stream
+  // Step 5: Add Space Metadata
+  console.log(`\n❄️  Space Metadata addition `)
+  console.log(`🔗 ${newSpace.identifier}`)
+
+  let spaceMeta = Cord.Meta.fromMetaProperties(
+    newSpace.identifier,
+    JSON.stringify(newSpace.details),
+    employeeIdentity
+  )
+  let spaceMetaCreationExtrinsic = await Cord.Meta.setMetadata(spaceMeta)
+  console.dir(spaceMeta, {
+    depth: null,
+    colors: true,
+  })
+
+  try {
+    await Cord.Chain.signAndSubmitTx(
+      spaceMetaCreationExtrinsic,
+      entityIdentity,
+      {
+        resolveOn: Cord.Chain.IS_IN_BLOCK,
+        rejectOn: Cord.Chain.IS_ERROR,
+      }
+    )
+    console.log('✅ Space metadata added!')
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 6: Create a new Stream
   console.log(`\n❄️  Stream Creation `)
   console.log(`🔗 ${newSpace.identifier} `)
   console.log(`🔗 ${newSchema.identifier} `)
@@ -161,84 +185,88 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 5: Update a Stream
-  console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
-  const updateContent = JSON.parse(JSON.stringify(newStreamContent))
-  updateContent.content.contents.name = 'Alice Jackson'
+  // Step 7: Add Stream Metadata
+  console.log(`\n❄️  Stream Metadata addition `)
+  console.log(`🔗 ${newStreamContent.identifier}`)
 
-  let updateStreamContent = Cord.ContentStream.updateContent(
-    updateContent,
+  let streamMeta = Cord.Meta.fromMetaProperties(
+    newStreamContent.identifier,
+    JSON.stringify(newStreamContent),
     employeeIdentity
   )
-  console.dir(updateStreamContent, { depth: null, colors: true })
-
-  let updateStream = Cord.Stream.fromContentStream(updateStreamContent)
-  let updateStreamCreationExtrinsic = await Cord.Stream.update(updateStream)
-  console.dir(updateStream, { depth: null, colors: true })
+  let streamMetaCreationExtrinsic = await Cord.Meta.setMetadata(streamMeta)
+  console.dir(streamMeta, {
+    depth: null,
+    colors: true,
+  })
 
   try {
     await Cord.Chain.signAndSubmitTx(
-      updateStreamCreationExtrinsic,
+      streamMetaCreationExtrinsic,
       entityIdentity,
       {
         resolveOn: Cord.Chain.IS_IN_BLOCK,
         rejectOn: Cord.Chain.IS_ERROR,
       }
     )
-    console.log('✅ Stream updated!')
+    console.log('✅ Stream metadata added!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 6: Validate a Credential
-  console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
-  const stream = await Cord.Stream.query(updateStream.identifier)
-  if (!stream) {
-    console.log(`Stream not anchored on CORD`)
+  // Step 8: Retrieve Metadata
+  console.log(`\n❄️  Schema Metadata `)
+  console.log(`🔗 ${newSchema.identifier}`)
+  const schemaMetaData = await Cord.Meta.query(newSchema.identifier)
+  if (!schemaMetaData) {
+    console.log(`Schema metadata not anchored on CORD`)
   } else {
-    const credential = Cord.Credential.fromRequestAndStream(
-      updateStreamContent,
-      stream
-    )
-    const isCredentialValid = await Cord.Credential.verify(credential)
-    console.log(`Is Alices's credential valid? ${isCredentialValid}`)
+    console.dir(schemaMetaData, { depth: null, colors: true })
   }
 
-  // Step 7: Revoke a Stream
-  console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
-  let revokeStream = updateStream
+  console.log(`\n❄️  Space Metadata `)
+  console.log(`🔗 ${newSpace.identifier}`)
+  const spaceMetaData = await Cord.Meta.query(newSpace.identifier)
+  if (!spaceMetaData) {
+    console.log(`Space metadata not anchored on CORD`)
+  } else {
+    console.dir(spaceMetaData, { depth: null, colors: true })
+  }
 
-  let revokeStreamCreationExtrinsic = await Cord.Stream.revoke(
-    revokeStream,
+  console.log(`\n❄️  Stream Metadata `)
+  console.log(`🔗 ${newStreamContent.identifier}`)
+  const streamMetaData = await Cord.Meta.query(newStreamContent.identifier)
+  if (!streamMetaData) {
+    console.log(`Space metadata not anchored on CORD`)
+  } else {
+    console.dir(streamMetaData, { depth: null, colors: true })
+  }
+
+  // Step 9: Clear Space metadata
+  console.log(`\n❄️  Clear Metadata - ${newSpace.identifier} `)
+  let clearSpaceMeta = spaceMeta
+
+  let clearSpaceMetaExtrinsic = await Cord.Meta.clearMetadata(
+    clearSpaceMeta,
     employeeIdentity
   )
 
   try {
-    await Cord.Chain.signAndSubmitTx(
-      revokeStreamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.Chain.IS_IN_BLOCK,
-        rejectOn: Cord.Chain.IS_ERROR,
-      }
-    )
-    console.log(`✅ Alices's credential revoked!`)
+    await Cord.Chain.signAndSubmitTx(clearSpaceMetaExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
+    console.log(`✅ Space Metadata cleared!`)
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
-
-  // Step 8: Re-verify a revoked Credential
-  console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
-  const revstream = await Cord.Stream.query(updateStream.identifier)
-  if (!revstream) {
-    console.log(`Stream not anchored on CORD`)
+  // Step 6: Reverify Space Metadata
+  console.log(`\n❄️  Space Metadata - ${newSpace.identifier} `)
+  const spaceMetaDataQuery = await Cord.Meta.query(newSpace.identifier)
+  if (!spaceMetaDataQuery) {
+    console.log(`Space metadata not anchored on CORD`)
   } else {
-    const credential = Cord.Credential.fromRequestAndStream(
-      updateStreamContent,
-      revstream
-    )
-    const isCredentialValid = await Cord.Credential.verify(credential)
-    console.log(`Is Alices's credential valid? ${isCredentialValid}`)
+    console.dir(spaceMetaDataQuery, { depth: null, colors: true })
   }
 }
 main()

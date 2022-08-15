@@ -21,7 +21,6 @@ import type {
   CredentialDigestProof,
   CordSelfSignatureProof,
 } from './types.js'
-import { ACCOUNT_IDENTIFIER_PREFIX } from '@cord.network/types'
 
 export function makeSigningData(
   rootHash: string,
@@ -141,10 +140,7 @@ export async function makePresentation(
 
   if (
     creator?.address !==
-    Identifier.getIdentifierKey(
-      VC.credentialSubject['@id']?.toString(),
-      ACCOUNT_IDENTIFIER_PREFIX
-    )
+    Identifier.getIdentifierKey(VC.credentialSubject['@id']?.toString())
   ) {
     throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
   }

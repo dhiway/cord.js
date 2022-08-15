@@ -147,6 +147,13 @@ export function verifyDataStructure(input: ISchema): void {
   ) {
     throw new SDKErrors.ERROR_SCHEMA_OWNER_TYPE()
   }
+  if (!input.identifier) {
+    throw new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
+  }
+  DataUtils.validateId(
+    Identifier.getIdentifierKey(input.identifier),
+    'Identifier'
+  )
   if (
     Identifier.getIdentifier(
       input.schemaHash,

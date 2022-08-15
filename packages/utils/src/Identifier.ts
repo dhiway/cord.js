@@ -9,8 +9,19 @@ import {
   isHex,
   u8aToHex,
 } from '@polkadot/util'
-import type { IPublicIdentity } from '@cord.network/types'
-import { ACCOUNT_IDENTIFIER_PREFIX, HASH_PREFIX } from '@cord.network/types'
+import {
+  IPublicIdentity,
+  SCHEMA_PREFIX,
+  SPACE_PREFIX,
+  STREAM_PREFIX,
+} from '@cord.network/types'
+import {
+  ACCOUNT_IDENTIFIER_PREFIX,
+  HASH_PREFIX,
+  SPACE_IDENTIFIER,
+  SCHEMA_IDENTIFIER,
+  STREAM_IDENTIFIER,
+} from '@cord.network/types'
 
 const defaults = {
   allowedDecodedLengths: [1, 2, 4, 8, 32, 33],
@@ -142,11 +153,20 @@ export function getIdentifier(
 }
 
 export function getIdentifierKey(
-  identifier: string | null | undefined,
-  prefix: string
+  identifier: string | null | undefined
 ): string {
   assert(identifier, 'Invalid key string passed')
-  return identifier.split(prefix).join('')
+  if (identifier.startsWith(SCHEMA_PREFIX)) {
+    return identifier.split(SCHEMA_PREFIX).join('')
+  } else if (identifier.startsWith(SPACE_PREFIX)) {
+    return identifier.split(SPACE_PREFIX).join('')
+  } else if (identifier.startsWith(STREAM_PREFIX)) {
+    return identifier.split(STREAM_PREFIX).join('')
+  } else if (identifier.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
+    return identifier.split(ACCOUNT_IDENTIFIER_PREFIX).join('')
+  } else {
+    throw new Error(`Invalid Identifier ${identifier}`)
+  }
 }
 
 export function getHashIdentifier(
@@ -180,7 +200,11 @@ export function checkIdentifier(
 
   const [isValid, , , idfrDecoded] = checkAddressChecksum(decoded)
 
-  if (idfrDecoded === 33 || idfrDecoded === 43) {
+  if (
+    idfrDecoded !== SPACE_IDENTIFIER ||
+    idfrDecoded !== SCHEMA_IDENTIFIER ||
+    idfrDecoded !== STREAM_IDENTIFIER
+  ) {
     return [false, `Prefix mismatch, found ${idfrDecoded}`]
   } else if (!defaults.allowedEncodedLengths.includes(decoded.length)) {
     return [false, 'Invalid decoded idenfirer length']

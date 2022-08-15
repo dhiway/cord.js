@@ -21,7 +21,6 @@ import * as Stream from '../stream/Stream.js'
 import * as ContentStream from '../contentstream/ContentStream.js'
 import { verifyContentWithSchema } from '../schema/index.js'
 import { Identity } from '../identity/Identity.js'
-import { SCHEMA_PREFIX } from '@cord.network/types'
 
 /**
  * Verifies whether the data of the given credential is valid. It is valid if:
@@ -34,10 +33,8 @@ import { SCHEMA_PREFIX } from '@cord.network/types'
  */
 export function verifyDataIntegrity(credential: ICredential): boolean {
   if (
-    Identifier.getIdentifierKey(
-      credential.request.content.schema,
-      SCHEMA_PREFIX
-    ) !== credential.stream.schema
+    Identifier.getIdentifierKey(credential.request.content.schema) !==
+    credential.stream.schema
   )
     return false
   return (

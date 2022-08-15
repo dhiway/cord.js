@@ -10,7 +10,6 @@ import { DecoderUtils, Identifier } from '@cord.network/utils'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
-import { STREAM_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
 import { HexString } from '@polkadot/util/types.js'
 
@@ -140,7 +139,7 @@ export interface AnchoredStreamDetails extends Struct {
     readonly space: Option<Vec<u8>>
   }
   readonly revoked: boolean
-  readonly metadata: boolean
+  readonly meta: boolean
   readonly delegates: boolean
 }
 
@@ -167,7 +166,7 @@ function decodeStream(
         DecoderUtils.hexToString(anchoredStream.stream.space.toString()) ||
         null,
       revoked: anchoredStream.revoked.valueOf(),
-      meta: anchoredStream.metadata.valueOf(),
+      meta: anchoredStream.meta.valueOf(),
       delegates: anchoredStream.delegates.valueOf(),
     }
     return stream
@@ -213,7 +212,7 @@ export async function query(
 export async function getOwner(
   streamIdentifier: IContentStream['identifier']
 ): Promise<IPublicIdentity['address'] | null> {
-  const stream_Id = Identifier.getIdentifierKey(streamIdentifier, STREAM_PREFIX)
+  const stream_Id = Identifier.getIdentifierKey(streamIdentifier)
 
   const encoded = await queryRaw(stream_Id)
   const queriedStreamAccount = decodeStream(encoded, stream_Id)

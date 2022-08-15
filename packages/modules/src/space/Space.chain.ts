@@ -11,7 +11,6 @@ import type {
   IPublicIdentity,
   SubmittableExtrinsic,
 } from '@cord.network/types'
-import { SPACE_PREFIX } from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
@@ -47,7 +46,7 @@ export async function archive(
   const { txSignature, txHash } = controller.signTx(entry.spaceHash)
   const api = await ChainApiConnection.getConnectionOrConnect()
   const spaceParams = {
-    identifier: Identifier.getIdentifierKey(entry.identifier, SPACE_PREFIX),
+    identifier: Identifier.getIdentifierKey(entry.identifier),
     digest: txHash,
     controller: controller.address,
   }
@@ -65,7 +64,7 @@ export async function restore(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   const spaceParams = {
-    identifier: Identifier.getIdentifierKey(entry.identifier, SPACE_PREFIX),
+    identifier: Identifier.getIdentifierKey(entry.identifier),
     digest: txHash,
     controller: controller.address,
   }
@@ -84,7 +83,7 @@ export async function delegate(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   const spaceParams = {
-    identifier: Identifier.getIdentifierKey(entry.identifier, SPACE_PREFIX),
+    identifier: Identifier.getIdentifierKey(entry.identifier),
     digest: txHash,
     controller: controller.address,
   }
@@ -103,7 +102,7 @@ export async function undelegate(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   const spaceParams = {
-    identifier: Identifier.getIdentifierKey(entry.identifier, SPACE_PREFIX),
+    identifier: Identifier.getIdentifierKey(entry.identifier),
     digest: txHash,
     controller: controller.address,
   }
@@ -122,7 +121,7 @@ export async function transfer(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   const spaceParams = {
-    identifier: Identifier.getIdentifierKey(entry.identifier, SPACE_PREFIX),
+    identifier: Identifier.getIdentifierKey(entry.identifier),
     digest: txHash,
     controller: entry.controller,
   }
@@ -137,7 +136,7 @@ export interface AnchoredSpaceDetails extends Struct {
   readonly meta: boolean
 }
 
-function decodeRegistry(
+function decodeSpace(
   encodedRegistry: Option<AnchoredSpaceDetails>,
   spaceId: string
 ): ISpaceDetails | null {
@@ -187,7 +186,7 @@ export async function queryhash(
   space_hash: string
 ): Promise<ISpaceDetails | null> {
   const encoded = await queryRawHash(space_hash)
-  return decodeRegistry(encoded, space_hash)
+  return decodeSpace(encoded, space_hash)
 }
 
 /**
@@ -195,9 +194,9 @@ export async function queryhash(
  * @internal
  */
 export async function query(space_id: string): Promise<ISpaceDetails | null> {
-  const spaceId: string = Identifier.getIdentifierKey(space_id, SPACE_PREFIX)
+  const spaceId: string = Identifier.getIdentifierKey(space_id)
   const encoded = await queryRaw(spaceId)
-  return decodeRegistry(encoded, spaceId)
+  return decodeSpace(encoded, spaceId)
 }
 
 /**
@@ -208,6 +207,6 @@ export async function getOwner(
   spaceId: ISpace['identifier']
 ): Promise<IPublicIdentity['address'] | null> {
   const encoded = await queryRaw(spaceId)
-  const queriedSpaceAccount = decodeRegistry(encoded, spaceId)
+  const queriedSpaceAccount = decodeSpace(encoded, spaceId)
   return queriedSpaceAccount!.controller
 }
