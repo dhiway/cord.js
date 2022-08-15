@@ -25,7 +25,7 @@ const log = ConfigService.LoggingFactory.getLogger('Stream')
 export async function create(stream: IStream): Promise<SubmittableExtrinsic> {
   const streamParams = {
     digest: stream.streamHash,
-    author: stream.issuer,
+    controller: stream.issuer,
     holder: stream.holder,
     schema: stream.schema,
     link: stream.link,
@@ -46,7 +46,7 @@ export async function update(stream: IStream): Promise<SubmittableExtrinsic> {
     identifier: stream.identifier,
     stream: {
       digest: stream.streamHash,
-      author: stream.issuer,
+      controller: stream.issuer,
       holder: stream.holder,
       schema: stream.schema,
       link: stream.link,
@@ -75,7 +75,7 @@ export async function revoke(
     identifier: stream.identifier,
     stream: {
       digest: txHash,
-      author: stream.issuer,
+      controller: stream.issuer,
       holder: stream.holder,
       schema: stream.schema,
       link: stream.link,
@@ -133,13 +133,15 @@ export async function digest(
 export interface AnchoredStreamDetails extends Struct {
   stream: {
     readonly digest: Hash
-    readonly author: AccountId
+    readonly controller: AccountId
     readonly holder: Option<AccountId>
     readonly schema: Option<Vec<u8>>
     readonly link: Option<Vec<u8>>
     readonly space: Option<Vec<u8>>
   }
   readonly revoked: boolean
+  readonly metadata: boolean
+  readonly delegates: boolean
 }
 
 function decodeStream(
@@ -154,7 +156,7 @@ function decodeStream(
     const stream: IStreamDetails = {
       identifier: streamIdentifier,
       streamHash: anchoredStream.stream.digest.toHex(),
-      issuer: anchoredStream.stream.author.toString(),
+      issuer: anchoredStream.stream.controller.toString(),
       holder: anchoredStream.stream.holder.toString() || null,
       schema:
         DecoderUtils.hexToString(anchoredStream.stream.schema.toString()) ||
@@ -165,6 +167,8 @@ function decodeStream(
         DecoderUtils.hexToString(anchoredStream.stream.space.toString()) ||
         null,
       revoked: anchoredStream.revoked.valueOf(),
+      meta: anchoredStream.metadata.valueOf(),
+      delegates: anchoredStream.delegates.valueOf(),
     }
     return stream
   }

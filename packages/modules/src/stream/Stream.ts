@@ -48,12 +48,15 @@ export function fromContentStream(content: IContentStream): IStream {
   const space = content.space
     ? Identifier.getIdentifierKey(content.space, SPACE_PREFIX)
     : null
+  const schema = content.content.schema
+    ? Identifier.getIdentifierKey(content.content.schema, SCHEMA_PREFIX)
+    : null
   const stream = {
     identifier: Identifier.getIdentifierKey(content.identifier, STREAM_PREFIX),
     streamHash: content.rootHash,
     issuer: content.content.issuer,
     holder: content.content.holder,
-    schema: Identifier.getIdentifierKey(content.content.schema, SCHEMA_PREFIX),
+    schema,
     link,
     space,
     signatureProof: content.signatureProof,

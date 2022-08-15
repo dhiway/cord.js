@@ -213,13 +213,11 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  *
  * @param schema The JSON schema from which the [[Schema]] should be generated.
  * @param controller The public SS58 address of the issuer of the [[Schema]].
- * @param schema The identity of the space to which the schema is linked..
  * @returns An instance of [[Schema]].
  */
 export function fromSchemaProperties(
   schema: ISchema['schema'],
-  controller: Identity,
-  spaceId?: string
+  controller: Identity
 ): ISchema {
   const schemaHash = getHashForSchema(schema)
   const schemaIdentifier = Identifier.getIdentifier(
@@ -234,7 +232,6 @@ export function fromSchemaProperties(
       ...schema,
       $id: schemaIdentifier,
     },
-    space: spaceId || null,
     controller: controller.address,
     controllerSignature: controller.signStr(schemaHash),
   }
@@ -327,7 +324,6 @@ export function compress(schema: ISchema): CompressedSchema {
     schema.schemaHash,
     schema.controller,
     schema.controllerSignature,
-    schema.controllerSignature,
     compressSchema(schema.schema),
   ]
 }
@@ -341,7 +337,7 @@ export function compress(schema: ISchema): CompressedSchema {
  * @returns  An object that has the same properties as a [[Schema]].
  */
 export function decompress(schema: CompressedSchema): ISchema {
-  if (!Array.isArray(schema) || schema.length !== 6) {
+  if (!Array.isArray(schema) || schema.length !== 5) {
     throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Schema')
   }
   const decompressedSchema = {
@@ -349,8 +345,7 @@ export function decompress(schema: CompressedSchema): ISchema {
     schemaHash: schema[1],
     controller: schema[2],
     controllerSignature: schema[3],
-    space: schema[4],
-    schema: decompressSchema(schema[5]),
+    schema: decompressSchema(schema[4]),
   }
   verifyDataStructure(decompressedSchema)
   return decompressedSchema

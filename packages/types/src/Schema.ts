@@ -38,7 +38,6 @@ export interface ISchema {
   schemaHash: HexString
   controller: IPublicIdentity['address']
   controllerSignature: string
-  space: string | null
   schema: ISchemaType
 }
 
@@ -57,7 +56,6 @@ export type CompressedSchema = [
   ISchema['schemaHash'],
   ISchema['controller'],
   ISchema['controllerSignature'],
-  ISchema['space'],
   CompressedSchemaType
 ]
 
@@ -65,6 +63,6 @@ export interface ISchemaDetails {
   identifier: ISchema['identifier']
   schemaHash: ISchema['schemaHash']
   controller: IPublicIdentity['address']
-  space: string | null
   revoked: boolean
+  meta: boolean
 }

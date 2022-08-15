@@ -33,42 +33,15 @@ async function main() {
   )
   console.log('✅ Identities created!')
 
-  // Step 2: Create a new Space
-  console.log(`\n❄️  Space Creation `)
-  let spaceContent = {
-    title: 'Demo Space',
-    description: 'Space for demo',
-  }
-  let spaceTitle = spaceContent.title + ':' + UUID.generate()
-  spaceContent.title = spaceTitle
-
-  let newSpace = Cord.Space.fromSpaceProperties(spaceContent, employeeIdentity)
-
-  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
-
-  console.dir(newSpace, { depth: null, colors: true })
-
-  try {
-    await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
-      resolveOn: Cord.Chain.IS_IN_BLOCK,
-      rejectOn: Cord.Chain.IS_ERROR,
-    })
-    console.log('✅ Space created!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
-
-  // Step 3: Create a new Schema
+  // Step 2: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
-  console.log(`🔗 ${newSpace.identifier}`)
   let newSchemaContent = require('../res/schema.json')
   let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
   newSchemaContent.title = newSchemaTitle
 
   let newSchema = Cord.Schema.fromSchemaProperties(
     newSchemaContent,
-    employeeIdentity,
-    newSpace.identifier
+    employeeIdentity
   )
   console.dir(newSchema, {
     depth: null,
@@ -83,6 +56,36 @@ async function main() {
       rejectOn: Cord.Chain.IS_ERROR,
     })
     console.log('✅ Schema created!')
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  // Step 2: Create a new Space
+  console.log(`\n❄️  Space Creation `)
+  console.log(`🔗 ${newSchema.identifier}`)
+  let spaceContent = {
+    title: 'Demo Space',
+    description: 'Space for demo',
+  }
+  let spaceTitle = spaceContent.title + ':' + UUID.generate()
+  spaceContent.title = spaceTitle
+
+  let newSpace = Cord.Space.fromSpaceProperties(
+    spaceContent,
+    employeeIdentity,
+    newSchema.identifier
+  )
+
+  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
+
+  console.dir(newSpace, { depth: null, colors: true })
+
+  try {
+    await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
+      resolveOn: Cord.Chain.IS_IN_BLOCK,
+      rejectOn: Cord.Chain.IS_ERROR,
+    })
+    console.log('✅ Space created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
