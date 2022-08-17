@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { UUID } from '@cord.network/utils'
+import { UUID, Crypto } from '@cord.network/utils'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -66,7 +66,7 @@ async function main() {
 
   let schemaMeta = Cord.Meta.fromMetaProperties(
     newSchema.identifier,
-    JSON.stringify(newSchema.schema),
+    Crypto.encodeObjectAsStr(newSchema.schema),
     employeeIdentity
   )
   let schemaMetaCreationExtrinsic = await Cord.Meta.setMetadata(schemaMeta)

@@ -29,7 +29,7 @@ export async function setMetadata(
   metaDetails: IMetaDetails
 ): Promise<SubmittableExtrinsic> {
   const api = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Create tx for 'registry'`)
+  log.debug(() => `Create tx for 'space'`)
   const metaParams = {
     identifier: Identifier.getIdentifierKey(metaDetails.identifier),
     digest: metaDetails.metaHash,

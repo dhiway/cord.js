@@ -11,12 +11,13 @@
 import type { IMetaDetails } from '@cord.network/types'
 import { Identifier, Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import { Identity } from '../identity/Identity.js'
+import { HexString } from '@polkadot/util/types'
 
 /**
- *  Checks whether the input meets all the required criteria of an [[ISpace]] object.
+ *  Checks whether the input meets all the required criteria of an [[IMetaDetails]] object.
  *  Throws on invalid input.
  *
- * @param input The potentially only partial [[IStream]].
+ * @param input The potentially only partial [[IMetaDetails]].
  *
  */
 export function verifyDataStructure(input: IMetaDetails): void {
@@ -38,12 +39,13 @@ export function verifyDataStructure(input: IMetaDetails): void {
 }
 
 /**
-   * Creates a new [[Space]] from an [[ISpaceType]].
+   * Creates a new [[IMetaDetails]] from associated params.
 
    *
-   * @param space The request from which the [[Space]] should be generated.
-   * @param controller The identity of the [[Space]] controller.
-   * @returns An instance of [[Space]].
+   * @param identifier The identifier to attach metadata.
+   * @param metaEntry The metadata 
+   * @param controller The identity of the identifier controller.
+   * @returns An instance of [[IMetaDetails]].
    */
 export function fromMetaProperties(
   identifier: string,
@@ -51,10 +53,12 @@ export function fromMetaProperties(
   controller: Identity
 ): IMetaDetails {
   const entryHash = Crypto.hashObjectAsHexStr(metaEntry)
+  const metaHexUInt8 = Crypto.coToUInt8(metaEntry, true)
+  const metaHex: HexString = Crypto.u8aToHex(metaHexUInt8)
 
   const entryDetails = {
     identifier: identifier,
-    meta: metaEntry,
+    meta: metaHex,
     metaHash: entryHash,
     controller: controller.address,
     controllerSignature: controller.signStr(entryHash),
@@ -64,10 +68,10 @@ export function fromMetaProperties(
 }
 
 /**
- *  Custom Type Guard to determine input being of type ISpace using the SpaceUtils errorCheck.
+ *  Custom Type Guard to determine input being of type IMetaDetails.
  *
- * @param input The potentially only partial ISpace.
- * @returns Boolean whether input is of type ISpace.
+ * @param input The potentially only partial IMetaDetails.
+ * @returns Boolean whether input is of type IMetaDetails.
  */
 export function isMetaEntry(input: unknown): input is IMetaDetails {
   try {

@@ -13,7 +13,7 @@ import type { IPublicIdentity } from './PublicIdentity.js'
 
 export interface IMetaDetails {
   identifier: string
-  meta: string
+  meta: HexString
   metaHash: HexString
   controller: IPublicIdentity['address']
   controllerSignature: string
