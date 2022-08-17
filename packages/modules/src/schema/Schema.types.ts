@@ -42,7 +42,7 @@ export const SchemaModel: JsonSchema.Schema = {
           properties: {
             type: {
               type: 'string',
-              enum: ['string', 'integer', 'number', 'boolean'],
+              enum: ['string', 'integer', 'number', 'boolean', 'array', 'object'],
             },
             $ref: {
               type: 'string',
@@ -66,7 +66,7 @@ export const SchemaModel: JsonSchema.Schema = {
       },
     },
   },
-  additionalProperties: false,
+  additionalProperties: true,
   required: ['$id', 'title', '$schema', 'properties', 'type'],
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/vc-export",
-  "version": "0.7.7-0",
+  "version": "0.7.7-3",
   "description": "Verifiable Credentials",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
