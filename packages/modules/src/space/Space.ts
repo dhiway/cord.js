@@ -8,7 +8,7 @@
  * @preferred
  */
 
-import type { ISpace, ISpaceType } from '@cord.network/types'
+import type { ISpace, ISpaceType, ISchema } from '@cord.network/types'
 import { Identifier, Crypto, DataUtils, SDKErrors } from '@cord.network/utils'
 import { SPACE_IDENTIFIER, SPACE_PREFIX } from '@cord.network/types'
 import { Identity } from '../identity/Identity.js'
@@ -17,21 +17,26 @@ import { Identity } from '../identity/Identity.js'
  *  Checks whether the input meets all the required criteria of an [[ISpace]] object.
  *  Throws on invalid input.
  *
- * @param input The potentially only partial [[IStream]].
+ * @param input The potentially only partial [[ISpace]].
  *
  */
 export function verifyDataStructure(input: ISpace): void {
   if (!input.identifier) {
     throw new SDKErrors.ERROR_SPACE_ID_NOT_PROVIDED()
-  } else DataUtils.validateId(input.identifier, 'Identifier')
-
+  }
+  DataUtils.validateId(
+    Identifier.getIdentifierKey(input.identifier),
+    'Identifier'
+  )
   if (!input.spaceHash) {
     throw new SDKErrors.ERROR_SPACE_HASH_NOT_PROVIDED()
-  } else DataUtils.validateHash(input.spaceHash, 'Space hash')
+  }
+  DataUtils.validateHash(input.spaceHash, 'Space hash')
 
   if (!input.controller) {
     throw new SDKErrors.ERROR_SPACE_OWNER_NOT_PROVIDED()
-  } else DataUtils.validateAddress(input.controller, 'Space controller')
+  }
+  DataUtils.validateAddress(input.controller, 'Space controller')
 }
 
 /**
@@ -44,7 +49,8 @@ export function verifyDataStructure(input: ISpace): void {
    */
 export function fromSpaceProperties(
   spaceProperties: ISpaceType,
-  controller: Identity
+  controller: Identity,
+  schemaId?: ISchema['identifier']
 ): ISpace {
   const spaceHash = Crypto.hashObjectAsHexStr(spaceProperties)
   const spaceId = Identifier.getIdentifier(
@@ -52,12 +58,14 @@ export function fromSpaceProperties(
     SPACE_IDENTIFIER,
     SPACE_PREFIX
   )
+  const schema = schemaId ? Identifier.getIdentifierKey(schemaId) : null
   const space = {
     identifier: spaceId,
     spaceHash: spaceHash,
-    space: {
+    details: {
       ...spaceProperties,
     },
+    schema,
     controller: controller.address,
     controllerSignature: controller.signStr(spaceHash),
   }

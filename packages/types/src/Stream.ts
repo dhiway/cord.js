@@ -40,6 +40,8 @@ export interface IStreamDetails {
   link: IStream['link'] | null
   space: IStream['space'] | null
   revoked: boolean
+  meta: boolean
+  delegates: boolean
 }
 
 export type CompressedStreamDetails = [
@@ -50,5 +52,7 @@ export type CompressedStreamDetails = [
   IStreamDetails['schema'],
   IStreamDetails['link'],
   IStreamDetails['space'],
-  IStreamDetails['revoked']
+  IStreamDetails['revoked'],
+  IStreamDetails['meta'],
+  IStreamDetails['delegates']
 ]

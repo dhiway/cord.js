@@ -5,7 +5,6 @@ import type {
 } from '@cord.network/types'
 import { DataUtils, SDKErrors, Identifier } from '@cord.network/utils'
 import { query } from './Stream.chain.js'
-import { SCHEMA_PREFIX, STREAM_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStream]] object.
@@ -42,18 +41,19 @@ export function verifyDataStructure(input: IStream): void {
  *
  */
 export function fromContentStream(content: IContentStream): IStream {
-  const link = content.link
-    ? Identifier.getIdentifierKey(content.link, STREAM_PREFIX)
-    : null
+  const link = content.link ? Identifier.getIdentifierKey(content.link) : null
   const space = content.space
-    ? Identifier.getIdentifierKey(content.space, SPACE_PREFIX)
+    ? Identifier.getIdentifierKey(content.space)
+    : null
+  const schema = content.content.schema
+    ? Identifier.getIdentifierKey(content.content.schema)
     : null
   const stream = {
-    identifier: Identifier.getIdentifierKey(content.identifier, STREAM_PREFIX),
+    identifier: Identifier.getIdentifierKey(content.identifier),
     streamHash: content.rootHash,
     issuer: content.content.issuer,
     holder: content.content.holder,
-    schema: Identifier.getIdentifierKey(content.content.schema, SCHEMA_PREFIX),
+    schema,
     link,
     space,
     signatureProof: content.signatureProof,

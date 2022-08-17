@@ -3,7 +3,7 @@
  * @module Schema
  */
 
-import { Option, Struct, Vec, u8 } from '@polkadot/types'
+import { Option, Struct } from '@polkadot/types'
 import type { AccountId, Hash } from '@polkadot/types/interfaces'
 import type {
   ISchema,
@@ -11,7 +11,6 @@ import type {
   IPublicIdentity,
   SubmittableExtrinsic,
 } from '@cord.network/types'
-import { SCHEMA_PREFIX, SPACE_PREFIX } from '@cord.network/types'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import { ChainApiConnection } from '@cord.network/network'
@@ -29,13 +28,9 @@ const log = ConfigService.LoggingFactory.getLogger('Schema')
 export async function create(schema: ISchema): Promise<SubmittableExtrinsic> {
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Create tx for 'schema'`)
-  const space_id = schema.space
-    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
-    : null
   const schemaParams = {
     digest: schema.schemaHash,
-    author: schema.controller,
-    space: space_id,
+    controller: schema.controller,
   }
 
   return api.tx.schema.create(schemaParams, schema.controllerSignature)
@@ -52,15 +47,12 @@ export async function revoke(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Revoking a schema with ID ${schema.identifier}`)
-  const space_id = schema.space
-    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
-    : null
+
   const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
+    identifier: Identifier.getIdentifierKey(schema.identifier),
     schema: {
       digest: txHash,
-      author: controller.address,
-      space: space_id,
+      controller: controller.address,
     },
   }
 
@@ -70,7 +62,7 @@ export async function revoke(
 /**
  * TBD
  */
-export async function authorise(
+export async function delegate(
   schema: ISchema,
   controller: Identity,
   delegates: [string]
@@ -79,25 +71,21 @@ export async function authorise(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Adding a delagate to ${schema.identifier}`)
-  const space_id = schema.space
-    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
-    : null
   const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
+    identifier: Identifier.getIdentifierKey(schema.identifier),
     schema: {
       digest: txHash,
-      author: controller.address,
-      space: space_id,
+      controller: controller.address,
     },
   }
 
-  return api.tx.schema.authorise(schemaParams, txSignature)
+  return api.tx.schema.delegate(schemaParams, delegates, txSignature)
 }
 
 /**
  * TBD
  */
-export async function deauthorise(
+export async function undelegate(
   schema: ISchema,
   controller: Identity,
   delegates: [string]
@@ -106,25 +94,21 @@ export async function deauthorise(
 
   const api = await ChainApiConnection.getConnectionOrConnect()
   log.debug(() => `Removing delagation from ${schema.identifier}`)
-  const space = schema.space
-    ? Identifier.getIdentifierKey(schema.space, SPACE_PREFIX)
-    : null
-
-  return api.tx.schema.deauthorise(
-    controller,
-    Identifier.getIdentifierKey(schema.identifier, SCHEMA_PREFIX),
-    txHash,
-    delegates,
-    space,
-    txSignature
-  )
+  const schemaParams = {
+    identifier: Identifier.getIdentifierKey(schema.identifier),
+    schema: {
+      digest: txHash,
+      controller: controller.address,
+    },
+  }
+  return api.tx.schema.undelegate(schemaParams, delegates, txSignature)
 }
 
 export interface AnchoredSchemaDetails extends Struct {
   readonly schemaHash: Hash
   readonly controller: AccountId
-  readonly space: Option<Vec<u8>>
   readonly revoked: boolean
+  readonly meta: boolean
 }
 
 function decodeSchema(
@@ -140,8 +124,8 @@ function decodeSchema(
       identifier: schemaId,
       schemaHash: anchoredSchema.schemaHash.toHex(),
       controller: anchoredSchema.controller.toString(),
-      space: DecoderUtils.hexToString(anchoredSchema.space.toString()) || null,
       revoked: anchoredSchema.revoked.valueOf(),
+      meta: anchoredSchema.meta.valueOf(),
     }
     return schema
   }
@@ -184,7 +168,7 @@ export async function queryhash(
  * @internal
  */
 export async function query(schema_id: string): Promise<ISchemaDetails | null> {
-  const schemaId: string = Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX)
+  const schemaId: string = Identifier.getIdentifierKey(schema_id)
   const encoded = await queryRaw(schemaId)
   return decodeSchema(encoded, schemaId)
 }
@@ -210,7 +194,7 @@ export async function getOwner(
 export async function isStored(
   schema_id: ISchema['identifier']
 ): Promise<boolean> {
-  const schemaId: string = Identifier.getIdentifierKey(schema_id, SCHEMA_PREFIX)
+  const schemaId: string = Identifier.getIdentifierKey(schema_id)
   const encoded = await queryRaw(schemaId)
   return encoded.isSome
 }

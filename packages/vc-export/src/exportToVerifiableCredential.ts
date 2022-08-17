@@ -30,7 +30,6 @@ import type {
   VerifiableCredential,
 } from './types.js'
 import { Identifier } from '@cord.network/utils'
-import { STREAM_PREFIX } from '@cord.network/types'
 
 export function fromCredentialIRI(credentialId: string): string {
   const idString = credentialId.startsWith(CORD_CREDENTIAL_IRI_PREFIX)
@@ -60,9 +59,7 @@ export function fromCredential(
   } = input.request
 
   // write root hash to id
-  const id = toCredentialIRI(
-    Identifier.getIdentifierKey(identifier, STREAM_PREFIX)
-  )
+  const id = toCredentialIRI(Identifier.getIdentifierKey(identifier))
 
   // transform & annotate stream to be json-ld and VC conformant
   const { credentialSubject } = Content.toJsonLD(content, false) as Record<

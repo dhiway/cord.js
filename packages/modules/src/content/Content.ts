@@ -209,7 +209,7 @@ export function verifyDataStructure(input: IContent | PartialContent): void {
       }
     })
   }
-  DataUtils.validateId(input.schema, 'Identifier')
+  DataUtils.validateId(Identifier.getIdentifierKey(input.schema), 'Identifier')
 }
 
 function verifyWithSchema(
