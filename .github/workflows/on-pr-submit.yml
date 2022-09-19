@@ -32,3 +32,5 @@ jobs:
       # Build --- TODO: add yarn build:docs once this succeeds
       - run: |
             yarn && yarn build
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
