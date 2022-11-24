@@ -1,2 +1,2 @@
-export * from './Rating.js'
-export * from './Rating.chain.js'
+export * from './Rating'
+export * from './Rating.chain'

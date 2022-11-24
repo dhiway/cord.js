@@ -14,6 +14,7 @@ import {
   SCHEMA_PREFIX,
   SPACE_PREFIX,
   STREAM_PREFIX,
+  RATING_PREFIX,
 } from '@cord.network/types'
 import {
   ACCOUNT_IDENTIFIER_PREFIX,
@@ -162,6 +163,8 @@ export function getIdentifierKey(
     return identifier.split(SPACE_PREFIX).join('')
   } else if (identifier.startsWith(STREAM_PREFIX)) {
     return identifier.split(STREAM_PREFIX).join('')
+  } else if (identifier.startsWith(RATING_PREFIX)) {
+    return identifier.split(RATING_PREFIX).join('')
   } else if (identifier.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
     return identifier.split(ACCOUNT_IDENTIFIER_PREFIX).join('')
   } else {
