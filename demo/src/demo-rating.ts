@@ -36,8 +36,8 @@ async function main() {
   // Step 2: Create a Rating
   console.log(`\n❄️  Rating Creation `)
   let ratingContent = {
-    title: 'Demo Space',
-    description: 'Space for demo',
+    title: `Demo Rating ${UUID.generate()}` ,
+    description: 'Rating for ONDC',
     rating: 39,
     count: 10,
     entity: 'testSeller-paytm-phonepe',
