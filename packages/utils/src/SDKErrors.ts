@@ -394,3 +394,21 @@ export class ERROR_MESSAGE_TYPE extends SDKError {
     super(`Unexpected message type. Received ${message}, expected ${expected}`)
   }
 }
+
+export class ERROR_RATING_ID_NOT_PROVIDED extends SDKError {
+  constructor() {
+    super('Rating identifier missing')
+  }
+}
+export class ERROR_RATING_HASH_NOT_PROVIDED extends SDKError {
+  constructor() {
+    super('Rating hash missing')
+  }
+}
+
+export class ERROR_RATING_OWNER_NOT_PROVIDED extends SDKError {
+  constructor() {
+    super('Rating Owner missing')
+  }
+}
+
