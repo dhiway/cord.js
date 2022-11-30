@@ -30,9 +30,11 @@ export async function create(entry: IRating): Promise<SubmittableExtrinsic> {
   const ratingParams = {
     digest: entry.ratingHash,
     controller: entry.controller,
-    rating: entry.rating,
-    count: entry.count,
-    entity: entry.entity,
+    rating: { rating: entry.details.rating.rating, count: entry.details.rating.count },
+    entity: entry.details.entity,
+    seller_app: entry.details.seller_app,
+    buyer_app: entry.details.buyer_app,
+    
   }
   return api.tx.rating.create(ratingParams, entry.controllerSignature)
 }
@@ -49,12 +51,18 @@ function decodeRating(
     const rating: IRatingDetails = {
       identifier: ratingId,
       ratingHash: anchoredRating.ratingHash.toHex(),
-      entity: DecoderUtils.hexToString(anchoredRating.entity.toString()) || '-',
-      rating: parseInt(anchoredRating.rating.toString()) || 0,
-      count: parseInt(anchoredRating.count.toString()) || 0,
       controller: anchoredRating.controller.toString(),
+      details: {
+	  rating: {
+	      rating: parseInt(anchoredRating.rating.rating.toString()) || 0,
+	      count: parseInt(anchoredRating.rating.count.toString()) || 0
+	  },
+	  entity: DecoderUtils.hexToString(anchoredRating.entity.toString()) || '-',
+	  seller_app: DecoderUtils.hexToString(anchoredRating.seller_app.toString()) || '-',
+	  buyer_app: DecoderUtils.hexToString(anchoredRating.buyer_app.toString()) || '-',
+      }
     }
-    return rating
+    return rating;
   }
   return null
 }
@@ -115,7 +123,11 @@ export async function getOwner(
 export interface AnchoredRatingDetails extends Struct {
   readonly ratingHash: Hash
   readonly controller: AccountId
+  readonly rating: {
+	    readonly rating: number
+	    readonly count: number
+  }
   readonly entity: Vec<u8>
-  readonly rating: number
-  readonly count: number
+  readonly seller_app: Vec<u8>
+  readonly buyer_app: Vec<u8>
 }

@@ -33,14 +33,14 @@ async function main() {
   )
   console.log('✅ Identities created!')
 
+  let entity = UUID.generate();
   // Step 2: Create a Rating
   console.log(`\n❄️  Rating Creation `)
   let ratingContent = {
-    title: `Demo Rating ${UUID.generate()}` ,
-    description: 'Rating for ONDC',
-    rating: 39,
-    count: 10,
-    entity: 'testSeller-paytm-phonepe',
+    rating: { rating: 39, count: 10},
+    entity: entity,
+    seller_app: UUID.generate(),
+    buyer_app: UUID.generate(),
   }
 
   let newRating = Cord.Rating.fromRatingProperties(

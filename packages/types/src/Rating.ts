@@ -8,12 +8,16 @@ import type { IPublicIdentity } from './PublicIdentity.js'
 export const RATING_IDENTIFIER: number = 101
 export const RATING_PREFIX: string = 'rating:cord:'
 
-export interface IRatingType {
-  title: string
-  description: string
+export interface IRatingCore {
   rating: number
   count: number
+}
+
+export interface IRatingType {
+  rating: IRatingCore
   entity: string
+  seller_app: string
+  buyer_app: string
 }
 
 export interface IRating {
@@ -22,16 +26,11 @@ export interface IRating {
   controller: IPublicIdentity['address']
   controllerSignature: string
   details: IRatingType
-  rating: number
-  count: number
-  entity: string
 }
 
 export interface IRatingDetails {
   identifier: IRating['identifier']
   ratingHash: IRating['ratingHash']
   controller: IPublicIdentity['address']
-  entity: IRating['entity']
-  rating: IRating['rating']
-  count: IRating['count']
+  details: IRating['details']
 }

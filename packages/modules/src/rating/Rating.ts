@@ -60,14 +60,11 @@ export function fromRatingProperties(
   const rating = {
     identifier: ratingId,
     ratingHash: ratingHash,
+    controller: controller.address,
+    controllerSignature: controller.signStr(ratingHash),
     details: {
       ...ratingProperties,
     },
-    controller: controller.address,
-    controllerSignature: controller.signStr(ratingHash),
-    rating: ratingProperties.rating,
-    count: ratingProperties.count,
-    entity: ratingProperties.entity,
   }
   verifyDataStructure(rating)
   return rating
