@@ -4,7 +4,6 @@
  */
 import { HexString } from '@polkadot/util/types.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
-// import type { BN } from '@polkadot/util'
 
 export const SCORE_IDENTIFIER: number = 101
 export const SCORE_PREFIX: string = 'score:cord:'
@@ -23,16 +22,6 @@ export interface IJournalContent {
   scoreType: ScoreType
   score: number
 }
-
-// export interface IJournalEntry {
-//   entity: IPublicIdentity['address']
-//   uid: string
-//   collector: IPublicIdentity['address']
-//   requestor: IPublicIdentity['address']
-//   scoreType: ScoreType
-//   score: number
-//   digest: HexString
-// }
 
 export interface IJournal {
   identifier: string
@@ -63,8 +52,3 @@ export interface IScoreAverageDetails {
     score: number
   }
 }
-// export interface IJournal {
-//   identifier: string
-//   entry: IJournalEntry
-//   entitySignature: string
-// }

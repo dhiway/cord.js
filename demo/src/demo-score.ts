@@ -1,6 +1,6 @@
 import * as Cord from '@cord.network/sdk'
 import { ScoreType } from '@cord.network/types'
-import { UUID, Crypto } from '@cord.network/utils'
+import { UUID } from '@cord.network/utils'
 
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
@@ -40,9 +40,8 @@ async function main() {
   )
   console.log('✅ Identities created!')
 
-  let entity = UUID.generate()
-  // Step 2: Create a Rating
-  console.log(`\n❄️  Rating Creation `)
+  // Step 2: Create a jounal entry
+  console.log(`\n❄️  Journal Entry `)
   let journalContent = {
     entity: sellerIdentity.address,
     uid: UUID.generate().toString(),
@@ -50,8 +49,9 @@ async function main() {
     collector: collectorIdentity.address,
     requestor: requestorIdentity.address,
     scoreType: ScoreType.overall,
-    score: 4.3,
+    score: 3.7,
   }
+  console.dir(journalContent, { depth: null, colors: true })
 
   let newJournalEntry = Cord.Score.fromJournalProperties(
     journalContent,
@@ -59,7 +59,7 @@ async function main() {
   )
 
   let journalCreationExtrinsic = await Cord.Score.entries(newJournalEntry)
-
+  console.log(`\n❄️  Transformed Journal Entry `)
   console.dir(newJournalEntry, { depth: null, colors: true })
 
   try {
@@ -75,17 +75,19 @@ async function main() {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
-  console.log(journalContent.entity, journalContent.scoreType)
+
+  console.log(`\n❄️  Query Chain Scores `)
   const chainScore = await Cord.Score.query(
     journalContent.entity,
     journalContent.scoreType
   )
-  console.log(chainScore)
+  console.dir(chainScore, { depth: null, colors: true })
+
   const chainAvgScore = await Cord.Score.queryAverage(
     journalContent.entity,
     journalContent.scoreType
   )
-  console.log(chainAvgScore)
+  console.dir(chainAvgScore, { depth: null, colors: true })
 }
 
 main()

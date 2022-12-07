@@ -37,7 +37,6 @@ export async function entries(
     digest: journalEntry.digest,
     signature: journalEntry.entitySignature,
   }
-  console.dir(scoreParams, { depth: null, colors: true })
   return api.tx.score.entries(scoreParams)
 }
 
@@ -90,8 +89,6 @@ function decodeAverageScore(
     let averageScore = parseFloat(
       (encodedScoreBase / encodedScoreCount).toFixed(2)
     )
-
-    // parseFloat((737 / 1070).toFixed(2))
 
     const score: IScoreAverageDetails = {
       entity: entityIdentifier,

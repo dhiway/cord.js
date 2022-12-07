@@ -16,5 +16,5 @@
       "@cord.network/docs": ["docs/src"],
     }
   },
-  "skipLibCheck": true
+  // "skipLibCheck": true
 }

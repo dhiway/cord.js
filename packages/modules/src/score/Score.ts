@@ -55,7 +55,6 @@ export function fromJournalProperties(
   let journalScore = Number(journalProperties.score.toFixed(1)) * 10
   journalProperties.score = journalScore
   const journalHash = Crypto.hashObjectAsHexStr(journalProperties)
-  // const encodedEntity = journalProperties.entity.toU8a()
 
   const journalId = Identifier.getIdentifier(
     journalHash,
