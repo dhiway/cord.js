@@ -37,7 +37,7 @@
     "rimraf": "^3.0.2",
     "stream-browserify": "^3.0.0",
     "terser-webpack-plugin": "^5.1.1",
-    "typescript": "^4.5.4",
+    "typescript": "^4.8.3",
     "url": "^0.11.0",
     "util": "^0.12.4",
     "webpack": "^5.70.0",
@@ -49,6 +49,6 @@
     "@cord.network/network": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
-    "@polkadot/api-augment": "^8.12.0"
+    "@polkadot/api-augment": "^9.4.1"
   }
 }

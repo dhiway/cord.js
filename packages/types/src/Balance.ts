@@ -1,5 +1,5 @@
 import type { BN } from '@polkadot/util'
-import { AnyNumber } from '@polkadot/types/types'
+import { AnyNumber } from '@polkadot/types/types/codec'
 
 export type Balances = {
   free: BN

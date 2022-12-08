@@ -15,6 +15,7 @@ import {
   SPACE_PREFIX,
   STREAM_PREFIX,
   RATING_PREFIX,
+  SCORE_PREFIX,
 } from '@cord.network/types'
 import {
   ACCOUNT_IDENTIFIER_PREFIX,
@@ -22,6 +23,7 @@ import {
   SPACE_IDENTIFIER,
   SCHEMA_IDENTIFIER,
   STREAM_IDENTIFIER,
+  SCORE_IDENTIFIER,
 } from '@cord.network/types'
 
 const defaults = {
@@ -165,6 +167,8 @@ export function getIdentifierKey(
     return identifier.split(STREAM_PREFIX).join('')
   } else if (identifier.startsWith(RATING_PREFIX)) {
     return identifier.split(RATING_PREFIX).join('')
+  } else if (identifier.startsWith(SCORE_PREFIX)) {
+    return identifier.split(SCORE_PREFIX).join('')
   } else if (identifier.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
     return identifier.split(ACCOUNT_IDENTIFIER_PREFIX).join('')
   } else {
@@ -206,7 +210,8 @@ export function checkIdentifier(
   if (
     idfrDecoded !== SPACE_IDENTIFIER ||
     idfrDecoded !== SCHEMA_IDENTIFIER ||
-    idfrDecoded !== STREAM_IDENTIFIER
+    idfrDecoded !== STREAM_IDENTIFIER ||
+    idfrDecoded !== SCORE_IDENTIFIER
   ) {
     return [false, `Prefix mismatch, found ${idfrDecoded}`]
   } else if (!defaults.allowedEncodedLengths.includes(decoded.length)) {

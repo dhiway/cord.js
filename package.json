@@ -17,6 +17,8 @@
     "demo-messaging": "tsx --no-cache --no-warnings demo/src/demo-messaging.ts",
     "demo-meta": "tsx --no-cache --no-warnings demo/src/demo-meta.ts",
     "demo-rating": "tsx --no-cache --no-warnings demo/src/demo-rating.ts",
+    "demo-score": "tsx --no-cache --no-warnings demo/src/demo-score.ts",
+    "demo-score-batch": "tsx --no-cache --no-warnings demo/src/demo-score-batch.ts",
     "bench": "tsx demo/src/bench.ts",
     "set:version": "yarn workspaces foreach -pt exec npm version --no-git-tag-version",
     "prepublish": "yarn workspaces foreach -p --no-private exec cp -f ../../LICENSE .",
@@ -59,8 +61,8 @@
     "ts-jest": "^27.1.2",
     "ts-jest-resolver": "^2.0.0",
     "tsx": "^3.4.3",
-    "typedoc": "^0.22.7",
-    "typescript": "^4.5.4"
+    "typedoc": "^0.22.15",
+    "typescript": "^4.8.3"
   },
   "version": "0.7.7-3",
   "packageManager": "yarn@3.2.1"
