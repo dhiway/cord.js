@@ -47,7 +47,7 @@ async function main() {
   console.log(
     `📱 Score Requestor (${requestorIdentity.signingKeyType}): ${requestorIdentity.address}`
   )
-  const poolTransactionAuthor = Cord.Identity.buildFromURI('//Alice', {
+  const poolTransactionAuthor = Cord.Identity.buildFromURI('//Bob', {
     signingKeyPairType: 'sr25519',
   })
   console.log(
@@ -63,7 +63,7 @@ async function main() {
   let txPoolBatch: any = []
 
   let startTxPrep = moment()
-  let txPoolCount = 20
+  let txPoolCount = 125
 
   console.log(`\n❄️  Pool Submission `)
   for (let j = 0; j < txPoolCount; j++) {
@@ -138,7 +138,7 @@ async function main() {
   console.log(`\n❄️  Batch Anchoring `)
   let txBatch: any = []
   let startBatchPrep = moment()
-  let txBatchCount = 10
+  let txBatchCount = 125
   for (let j = 0; j < txBatchCount; j++) {
     let tidUid = UUID.generate().toString()
     let overallEntryContent = {
@@ -183,7 +183,6 @@ async function main() {
       console.log(e.errorCode, '-', e.message)
     }
   }
-  let batchAncStartTime = moment()
   try {
     api.tx.utility.batchAll(txBatch).signAndSend(batchTransactionAuthor)
   } catch (e: any) {

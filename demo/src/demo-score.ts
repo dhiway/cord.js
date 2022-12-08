@@ -32,7 +32,7 @@ async function main() {
   console.log(
     `👩‍⚕️ Score Requestor (${requestorIdentity.signingKeyType}): ${requestorIdentity.address}`
   )
-  const transactionAuthor = Cord.Identity.buildFromURI('//Alice', {
+  const transactionAuthor = Cord.Identity.buildFromURI('//Bob', {
     signingKeyPairType: 'sr25519',
   })
   console.log(
