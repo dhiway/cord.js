@@ -16,7 +16,6 @@
     "demo-vc": "tsx --no-cache --no-warnings demo/src/demo-vc.ts",
     "demo-messaging": "tsx --no-cache --no-warnings demo/src/demo-messaging.ts",
     "demo-meta": "tsx --no-cache --no-warnings demo/src/demo-meta.ts",
-    "demo-rating": "tsx --no-cache --no-warnings demo/src/demo-rating.ts",
     "demo-score": "tsx --no-cache --no-warnings demo/src/demo-score.ts",
     "demo-score-batch": "tsx --no-cache --no-warnings demo/src/demo-score-batch.ts",
     "bench": "tsx demo/src/bench.ts",
