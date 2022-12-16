@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/modules",
-  "version": "0.7.8-1",
+  "version": "0.7.8-6",
   "description": "Core Modules",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
