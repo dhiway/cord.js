@@ -6,7 +6,7 @@ name: Publish prerelease package to npm
 on:
   push:
     branches:
-      - develop
+      - publish
 
 jobs:
   build:
