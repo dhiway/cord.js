@@ -214,8 +214,8 @@ export function hash(value: CryptoInput, bitLength?: BitLength): Uint8Array {
  * @param value Value to be hashed.
  * @returns Blake2b hash as hex string.
  */
-export function hashStr(value: CryptoInput): HexString {
-  return u8aToHex(hash(value))
+export function hashStr(value: CryptoInput, bitLength?: BitLength ): HexString {
+  return u8aToHex(hash(value, bitLength))
 }
 
 /**
@@ -250,13 +250,14 @@ export function encodeObjectAsStr(
  */
 export function hashObjectAsHexStr(
   value: Record<string, any> | string | number | boolean,
-  nonce?: string
+  bitLength?: BitLength,
+  nonce?: string,
 ): HexString {
   let objectAsStr = encodeObjectAsStr(value)
   if (nonce) {
     objectAsStr = nonce + objectAsStr
   }
-  return hashStr(objectAsStr)
+  return hashStr(objectAsStr, bitLength)
 }
 
 /**

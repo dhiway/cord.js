@@ -10,7 +10,6 @@ import type {
   IJournalContent,
   IScoreAggregateDetails,
   IScoreAverageDetails,
-  // IPublicIdentity,
   SubmittableExtrinsic,
 } from '@cord.network/types'
 import { DecoderUtils } from '@cord.network/utils'
