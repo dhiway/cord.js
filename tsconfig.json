@@ -14,7 +14,8 @@
       "@cord.network/utils": ["utils/src"],
       "@cord.network/vc-export": ["vc-export/src"],
       "@cord.network/docs": ["docs/src"],
+      "@cord.network/augment-api": ["augment-api/src"],
+      "@cord.network/type-definitions": ["type-definitions/src"],
     }
   },
-  // "skipLibCheck": true
 }
