@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "ES2015",
-    "lib": ["es5", "es6", "dom"],
+    "target": "ESNext",
+    "lib": ["ESNext"],
     "sourceMap": false,
     "strict": true,
     "allowJs": true,
