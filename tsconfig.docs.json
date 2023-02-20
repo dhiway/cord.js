@@ -10,9 +10,11 @@
     "entryPointStrategy": "resolve",
     "entryPoints": [
       "packages/types/src/index.ts",
+      "packages/augment-api/src/index.ts",
       "packages/utils/src/index.ts",
       "packages/config/src/index.ts",
       "packages/network/src/index.ts",
+      "packages/type-definitions/src/index.ts",
       "packages/modules/src/index.ts",
       "packages/messaging/src/index.ts",
       "packages/vc-export/src/index.ts",
