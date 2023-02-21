@@ -48,8 +48,22 @@ function jsonLDcontents(
       ...jsonabc.sortObj(contents ?? {}),
     }
   }
+
+
   Object.entries(contents || {}).forEach(([key, value]) => {
-      result[vocabulary + key] = (typeof value === 'object') ?  jsonabc.sortObj(value) : value;
+      let val = value;
+      if (typeof value === 'object') {
+          /* FIXME: GH-issue #40 */
+          /* Supporting object inside is tricky, and jsonld expansion is even more harder */
+	  /* for now, we got things under control with this check but need more work here */
+
+          let newObj = {};
+          Object.entries(jsonabc.sortObj(value)).forEach(([k,v]) => {
+	     newObj[vocabulary + k] = v;
+	  })
+	  val = newObj;
+      }
+      result[vocabulary + key] = val;
   })
   return result
 }
