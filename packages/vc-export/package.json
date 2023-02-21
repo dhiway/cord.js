@@ -39,7 +39,7 @@
     "@cord.network/network": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
-    "@digitalbazaar/vc": "^5.0.0",
+    "@digitalbazaar/vc": "^6.0.0",
     "@polkadot/api": "^9.4.1",
     "@polkadot/api-augment": "^9.4.1",
     "@polkadot/types": "^9.4.1",

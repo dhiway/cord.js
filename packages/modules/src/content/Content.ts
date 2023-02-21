@@ -43,13 +43,13 @@ function jsonLDcontents(
 
   if (!expanded) {
     return {
-      ...result,
+      ...jsonabc.sortObj(result),
       '@context': { '@vocab': vocabulary },
-      ...contents,
+      ...jsonabc.sortObj(contents ?? {}),
     }
   }
   Object.entries(contents || {}).forEach(([key, value]) => {
-    result[vocabulary + key] = value
+      result[vocabulary + key] = (typeof value === 'object') ?  jsonabc.sortObj(value) : value;
   })
   return result
 }
@@ -293,7 +293,7 @@ export function fromSchemaAndContent(
     schema: schema.identifier,
     issuer: issuer,
     holder: holder || null,
-    contents: contents,
+    contents: jsonabc.sortObj(contents),
   }
   verifyDataStructure(content)
   return content
