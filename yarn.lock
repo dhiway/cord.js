@@ -438,7 +438,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cord.network/augment-api@workspace:packages/augment-api":
+"@cord.network/augment-api@workspace:*, @cord.network/augment-api@workspace:packages/augment-api":
   version: 0.0.0-use.local
   resolution: "@cord.network/augment-api@workspace:packages/augment-api"
   dependencies:
@@ -465,6 +465,26 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.8.3
     typescript-logging: ^0.6.4
+  languageName: unknown
+  linkType: soft
+
+"@cord.network/did@workspace:packages/did":
+  version: 0.0.0-use.local
+  resolution: "@cord.network/did@workspace:packages/did"
+  dependencies:
+    "@cord.network/augment-api": "workspace:*"
+    "@cord.network/config": "workspace:*"
+    "@cord.network/types": "workspace:*"
+    "@cord.network/utils": "workspace:*"
+    "@polkadot/api": ^9.10.2
+    "@polkadot/keyring": ^10.2.1
+    "@polkadot/types": ^9.10.2
+    "@polkadot/types-codec": ^9.10.2
+    "@polkadot/util": ^10.2.1
+    "@polkadot/util-crypto": ^10.2.1
+    cbor: ^8.1.0
+    rimraf: ^3.0.2
+    typescript: ^4.8.3
   languageName: unknown
   linkType: soft
 
@@ -1434,7 +1454,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types-codec@npm:9.14.2":
+"@polkadot/types-codec@npm:9.14.2, @polkadot/types-codec@npm:^9.10.2":
   version: 9.14.2
   resolution: "@polkadot/types-codec@npm:9.14.2"
   dependencies:

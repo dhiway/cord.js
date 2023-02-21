@@ -7,13 +7,14 @@
 /**
  * Dummy comment needed for correct doc display, do not remove.
  */
+import { isHex } from '@polkadot/util'
 import '@polkadot/api-augment'
-import type { IPublicIdentity } from '@cord.network/types'
+import type { IPublicIdentity, CordAddress } from '@cord.network/types'
 import { checkAddress } from '@polkadot/util-crypto'
 import * as SDKErrors from './SDKErrors.js'
 import { verify } from './Crypto.js'
 import { checkIdentifier } from './Identifier.js'
-import { ss58Format } from '@cord.network/types'
+import { ss58Format } from './ss58Format.js'
 /**
  *  Validates an given address string against the External Address Format (SS58) with our Prefix of 29.
  *
@@ -103,4 +104,50 @@ export function validateSignature(
     throw new SDKErrors.ERROR_SIGNATURE_UNVERIFIABLE()
   }
   return true
+}
+
+/**
+ * Verifies a given address string against the External Address Format (SS58) with our Prefix of 29.
+ *
+ * @param input Address string to validate for correct Format.
+ */
+export function verifyCordAddress(input: unknown): void {
+  if (typeof input !== 'string') {
+    throw new SDKErrors.AddressTypeError()
+  }
+  if (!checkAddress(input, ss58Format)[0]) {
+    throw new SDKErrors.AddressInvalidError(input)
+  }
+}
+
+/**
+ * Type guard to check whether input is an SS58 address with our prefix of 29.
+ *
+ * @param input Address string to validate for correct format.
+ * @returns True if input is a KiltAddress, false otherwise.
+ */
+export function isCordAddress(input: unknown): input is CordAddress {
+  try {
+    verifyCordAddress(input)
+    return true
+  } catch {
+    return false
+  }
+}
+
+// re-exporting isHex
+export { isHex } from '@polkadot/util'
+
+/**
+ * Validates the format of a hex string via regex.
+ *
+ * @param input Hex string to validate for correct format.
+ * @param bitLength Expected length of hex in bits.
+ */
+export function verifyIsHex(input: unknown, bitLength?: number): void {
+  if (!isHex(input, bitLength)) {
+    throw new SDKErrors.HashMalformedError(
+      typeof input === 'string' ? input : undefined
+    )
+  }
 }

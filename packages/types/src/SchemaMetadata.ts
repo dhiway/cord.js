@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @module ISchemaMetadata
- */
-
 import type { ISchema } from './Schema'
 
 /**
