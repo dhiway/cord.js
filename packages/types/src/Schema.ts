@@ -1,9 +1,5 @@
-/**
- * @packageDocumentation
- * @module ISchema
- */
-import type { IPublicIdentity } from './PublicIdentity.js'
 import type { HexString } from '@polkadot/util/types'
+import type { DidUri } from './DidDocument'
 
 export const SCHEMA_IDENTIFIER: number = 41
 export const SCHEMA_PREFIX: string = 'schema:cord:'
@@ -24,7 +20,6 @@ export interface ISchemaType {
   description: string
   $metadata: {
     version?: string
-    discoverable?: boolean
   }
   properties: {
     [key: string]: { $ref?: string; type?: InstanceType; format?: string }
@@ -32,37 +27,12 @@ export interface ISchemaType {
   type: 'object'
 }
 
-export type SchemaWithoutId = Omit<ISchemaType, '$id'>
+export type SchemaId = string
+
 export interface ISchema {
   identifier: string
   schemaHash: HexString
-  controller: IPublicIdentity['address']
+  controller: DidUri
   controllerSignature: string
   schema: ISchemaType
-}
-
-export type CompressedSchemaType = [
-  ISchemaType['$id'],
-  ISchemaType['$schema'],
-  ISchemaType['$metadata'],
-  ISchemaType['title'],
-  ISchemaType['description'],
-  ISchemaType['properties'],
-  ISchemaType['type']
-]
-
-export type CompressedSchema = [
-  ISchema['identifier'],
-  ISchema['schemaHash'],
-  ISchema['controller'],
-  ISchema['controllerSignature'],
-  CompressedSchemaType
-]
-
-export interface ISchemaDetails {
-  identifier: ISchema['identifier']
-  schemaHash: ISchema['schemaHash']
-  controller: IPublicIdentity['address']
-  revoked: boolean
-  meta: boolean
 }

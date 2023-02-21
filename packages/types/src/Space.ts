@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @module ISpace
- */
 import { HexString } from '@polkadot/util/types.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 import type { ISchema } from './Schema.js'

@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @module IScore
- */
 import { HexString } from '@polkadot/util/types.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 

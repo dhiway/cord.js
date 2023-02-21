@@ -1,58 +1,39 @@
-/**
- * @packageDocumentation
- * @module IStream
- */
-import type { ISchema } from './Schema.js'
-import type { IPublicIdentity } from './PublicIdentity.js'
-import type { IContentStream } from './ContentStream.js'
+import type { HexString } from '@polkadot/util/types'
+import type { DidSignature } from './DidDocument'
+import type { IContent } from './Content.js'
 
-export const STREAM_IDENTIFIER: number = 51
-export const STREAM_PREFIX: string = 'stream:cord:'
+export type Hash = HexString
+
+export type NonceHash = {
+  hash: Hash
+  nonce?: string
+}
 
 export interface IStream {
-  identifier: IContentStream['identifier']
-  streamHash: IContentStream['rootHash']
-  issuer: IPublicIdentity['address']
-  holder: IPublicIdentity['address'] | null
-  schema: ISchema['identifier'] | null
-  link: IContentStream['link'] | null
-  space: IContentStream['space'] | null
-  signatureProof?: IContentStream['signatureProof'] | null
+  content: IContent
+  contentHashes: Hash[]
+  contentNonceMap: Record<Hash, string>
+  evidenceIds: IStream[]
+  link: string | null
+  space: string | null
+  rootHash: Hash
+  identifier: string
 }
 
-export type CompressedStream = [
-  IStream['identifier'],
-  IStream['streamHash'],
-  IStream['issuer'],
-  IStream['holder'],
-  IStream['schema'],
-  IStream['link'],
-  IStream['space'],
-  IStream['signatureProof']
-]
-
-export interface IStreamDetails {
-  identifier: IStream['identifier']
-  streamHash: IStream['streamHash']
-  issuer: IPublicIdentity['address']
-  holder: IPublicIdentity['address'] | null
-  schema: string | null
-  link: IStream['link'] | null
-  space: IStream['space'] | null
-  revoked: boolean
-  meta: boolean
-  delegates: boolean
+export interface IStreamPresentation extends IStream {
+  claimerSignature: DidSignature & { challenge?: string }
 }
 
-export type CompressedStreamDetails = [
-  IStreamDetails['identifier'],
-  IStreamDetails['streamHash'],
-  IStreamDetails['issuer'],
-  IStreamDetails['holder'],
-  IStreamDetails['schema'],
-  IStreamDetails['link'],
-  IStreamDetails['space'],
-  IStreamDetails['revoked'],
-  IStreamDetails['meta'],
-  IStreamDetails['delegates']
-]
+export interface CordPublishedStreamV1 {
+  credential: IStream
+  metadata?: {
+    label?: string
+    blockNumber?: number
+    txHash?: HexString
+  }
+}
+
+export type CordPublishedStreamCollectionV1 = CordPublishedStreamV1[]
+
+export const CordPublishedStreamCollectionV1Type =
+  'CordPublishedStreamCollectionV1'

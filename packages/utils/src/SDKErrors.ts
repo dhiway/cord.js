@@ -16,9 +16,71 @@ export class SDKError extends Error {
 
 export class ERROR_UNAUTHORIZED extends SDKError {}
 
+export class UnsupportedKeyError extends SDKError {
+  constructor(keyType: string) {
+    super(`The provided key type "${keyType}" is currently not supported`)
+  }
+}
+
+export class EncryptionError extends SDKError {}
+
+export class DidError extends SDKError {}
+
+export class DidExporterError extends SDKError {}
+
+export class DidBatchError extends SDKError {}
+
+export class DidNotFoundError extends SDKError {}
+
+export class DidResolveUpgradedDidError extends SDKError {}
+
+export class DidDeactivatedError extends SDKError {}
+
+export class AddressTypeError extends SDKError {}
+
+export class SignatureMalformedError extends SDKError {}
+
 export class ERROR_ID_MALFORMED extends SDKError {
   constructor() {
     super('Identifier invalid or malformed')
+  }
+}
+
+export class InvalidDidFormatError extends SDKError {
+  constructor(did: string, options?: ErrorOptions) {
+    super(`Not a valid CORD DID "${did}"`, options)
+  }
+}
+
+export class DidSubjectMismatchError extends SDKError {
+  constructor(actual: string, expected: string) {
+    super(
+      `The DID "${actual}" doesn't match the DID Document's URI "${expected}"`
+    )
+  }
+}
+
+export class AddressInvalidError extends SDKError {
+  constructor(address?: string, type?: string) {
+    if (address && type) {
+      super(`Provided ${type} address "${address}" is invalid`)
+    } else if (address) {
+      super(`Provided address "${address}" is invalid`)
+    } else {
+      super(`Provided address invalid`)
+    }
+  }
+}
+
+export class HashMalformedError extends SDKError {
+  constructor(hash?: string, type?: string) {
+    if (hash && type) {
+      super(`Provided ${type} hash "${hash}" is invalid or malformed`)
+    } else if (hash) {
+      super(`Provided hash "${hash}" is invalid or malformed`)
+    } else {
+      super('Provided hash invalid or malformed')
+    }
   }
 }
 
@@ -411,4 +473,3 @@ export class ERROR_RATING_OWNER_NOT_PROVIDED extends SDKError {
     super('Rating Owner missing')
   }
 }
-

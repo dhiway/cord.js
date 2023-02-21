@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @module IIdentity
- */
 import type { KeyringPair } from '@polkadot/keyring/types'
 import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import type { BoxKeyPair } from 'tweetnacl'
