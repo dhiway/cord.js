@@ -43,13 +43,27 @@ function jsonLDcontents(
 
   if (!expanded) {
     return {
-      ...result,
+      ...jsonabc.sortObj(result),
       '@context': { '@vocab': vocabulary },
-      ...contents,
+      ...jsonabc.sortObj(contents ?? {}),
     }
   }
+
+
   Object.entries(contents || {}).forEach(([key, value]) => {
-    result[vocabulary + key] = value
+      let val = value;
+      if (typeof value === 'object') {
+          /* FIXME: GH-issue #40 */
+          /* Supporting object inside is tricky, and jsonld expansion is even more harder */
+	  /* for now, we got things under control with this check but need more work here */
+
+          let newObj = {};
+          Object.entries(jsonabc.sortObj(value)).forEach(([k,v]) => {
+	     newObj[vocabulary + k] = v;
+	  })
+	  val = newObj;
+      }
+      result[vocabulary + key] = val;
   })
   return result
 }
@@ -293,7 +307,7 @@ export function fromSchemaAndContent(
     schema: schema.identifier,
     issuer: issuer,
     holder: holder || null,
-    contents: contents,
+    contents: jsonabc.sortObj(contents),
   }
   verifyDataStructure(content)
   return content
