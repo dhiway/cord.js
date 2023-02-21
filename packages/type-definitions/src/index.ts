@@ -5,8 +5,11 @@ import type {
 
 import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'
+import { calls as didCalls } from './runtime/did.js'
+
 import { userExtensions } from './signedExtensions'
 export { userExtensions } from './signedExtensions'
+export { calls as didCalls } from './runtime/did.js'
 
 export { types8 as types }
 
@@ -25,12 +28,18 @@ const defaultTypesBundle: OverrideVersionedType[] = [
 export const typesBundle: OverrideBundleType = {
   chain: {
     Staging: {
+      runtime: {
+        ...didCalls,
+      },
       signedExtensions: {
         ...userExtensions,
       },
       types: defaultTypesBundle,
     },
     Development: {
+      runtime: {
+        ...didCalls,
+      },
       signedExtensions: {
         ...userExtensions,
       },

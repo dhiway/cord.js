@@ -25,7 +25,7 @@
   "engines": {
     "node": ">=14.0"
   },
-  "author": "Dhiway <info@dhiway.com>",
+  "author": "",
   "license": "Apache-2.0",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
