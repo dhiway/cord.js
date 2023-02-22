@@ -14,6 +14,7 @@
     "clean:docs": "rimraf docs/api",
     "demo": "tsx --no-cache demo/src/demo.ts",
     "demo-vc": "tsx --no-cache --no-warnings demo/src/demo-vc.ts",
+    "demo-vc1": "tsx --no-cache --no-warnings demo/src/demo-vc1.ts",
     "demo-messaging": "tsx --no-cache --no-warnings demo/src/demo-messaging.ts",
     "demo-meta": "tsx --no-cache --no-warnings demo/src/demo-meta.ts",
     "demo-score": "tsx --no-cache --no-warnings demo/src/demo-score.ts",

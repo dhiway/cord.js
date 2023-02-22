@@ -181,3 +181,38 @@ export async function makePresentation(
     proof: [selfSProof],
   }
 }
+
+/**
+ * Adds a VC to  Verifiable Presentation.
+ *
+ * @param VC The CORD Verifiable Credential as exported with the SDK utils.
+ * @param showProperties An array of properties to reveal.
+ * @creator Identity of the presentation holder.
+ * @returns A Verifiable Presentation with added VC.
+ */
+export async function addVC(
+  VP: VerifiablePresentation,
+  VC: VerifiableCredential,
+  showProperties: string[],
+  creator: Identity,
+): Promise<VerifiablePresentation> {
+  const copied = await removeProperties(VC, showProperties)
+
+  if (
+    creator?.address !==
+    Identifier.getIdentifierKey(VC.credentialSubject['@id']?.toString())
+  ) {
+    throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
+  }
+
+    let VCs: VerifiableCredential | VerifiableCredential[] = VP.verifiableCredential;
+    if (VCs instanceof Array) {
+	VCs.push(copied);
+    } else {
+	VCs = [ VCs, copied ];
+    }
+    return {
+	...VP,
+	verifiableCredential: VCs,
+    }
+}
