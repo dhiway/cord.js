@@ -155,12 +155,11 @@ async function main() {
       vcPresentation = await VCUtils.presentation.addVC(
 	  vcPresentation,
 	  sharedCredential,
-	  [ 'gender' ],
-	  holderIdentity
+	  [ 'gender' ]
       );
       
       console.dir(vcPresentation, { depth: null, colors: true })
-    console.log('✅ Verifiable Presentation created!')
+      console.log('✅ Verifiable Presentation created!', vcChallenge)
 
     console.log(`\n❄️  Verifiy Presentation`)
 

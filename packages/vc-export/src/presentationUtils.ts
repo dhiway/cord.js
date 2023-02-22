@@ -194,12 +194,11 @@ export async function addVC(
   VP: VerifiablePresentation,
   VC: VerifiableCredential,
   showProperties: string[],
-  creator: Identity,
 ): Promise<VerifiablePresentation> {
   const copied = await removeProperties(VC, showProperties)
 
   if (
-    creator?.address !==
+    Identifier.getIdentifierKey(VP?.holder) !==
     Identifier.getIdentifierKey(VC.credentialSubject['@id']?.toString())
   ) {
     throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
