@@ -1,26 +1,16 @@
 import { hexToBn } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import type {
+  DidUri,
   IContent,
   ISchema,
-  CompressedContent,
-  CompressedPartialContent,
   PartialContent,
-  IPublicIdentity,
 } from '@cord.network/types'
-import {
-  SDKErrors,
-  Identifier,
-  Crypto,
-  jsonabc,
-  DataUtils,
-} from '@cord.network/utils'
-import {
-  verifyContentWithSchema,
-  verifyContentWithNestedSchemas,
-} from '../schema/index.js'
+import { SDKErrors, Identifier, Crypto, DataUtils } from '@cord.network/utils'
+import * as Did from '@cord.network/did'
+import * as Schema from '../schema/index.js'
 
-const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
+const VC_VOCAB = 'https://www.w3.org/2018/credentials/v1'
 
 /**
  * Produces JSON-LD readable representations of [[IContent]]['contents']. This is done by implicitly or explicitely transforming property keys to globally unique predicates.
@@ -29,17 +19,16 @@ const VC_VOCAB = 'https://www.w3.org/2018/credentials#'
  * @param content A (partial) [[IContent]] from to build a JSON-LD representation from. The `identifier` property is required.
  * @param expanded Return an expanded instead of a compacted represenation. While property transformation is done explicitely in the expanded format, it is otherwise done implicitly via adding JSON-LD's reserved `@context` properties while leaving [[IContent]][contents] property keys untouched.
  * @returns An object which can be serialized into valid JSON-LD representing an [[IContent]]'s ['contents'].
- * @throws [[ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED]] in case the content's ['identifier'] property is undefined.
  */
 function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const { schema, contents, holder } = content
-  if (!schema) new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
-  const vocabulary = `${schema}#`
+  const { schemaId, contents, holder } = content
+  if (!schemaId) new SDKErrors.SchemaIdentifierMissingError()
+  const vocabulary = `${schemaId}#`
   const result: Record<string, unknown> = {}
-  if (holder) result['@id'] = Identifier.getAccountIdentifierFromAddress(holder)
+  if (holder) result['@id'] = holder
 
   if (!expanded) {
     return {
@@ -61,7 +50,6 @@ function jsonLDcontents(
  * @param claim A (partial) [[IContent]] from to build a JSON-LD representation from. The `identifier` property is required.
  * @param expanded Return an expanded instead of a compacted representation. While property transformation is done explicitly in the expanded format, it is otherwise done implicitly via adding JSON-LD's reserved `@context` properties while leaving [[IContent]][contents] property keys untouched.
  * @returns An object which can be serialized into valid JSON-LD representing an [[IContent]].
- * @throws [[ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED]] in case the content's ['identifier'] property is undefined.
  */
 export function toJsonLD(
   content: PartialContent,
@@ -73,7 +61,7 @@ export function toJsonLD(
     [`${prefix}credentialSubject`]: credentialSubject,
   }
   result[`${prefix}credentialSchema`] = {
-    '@id': content.schema,
+    '@id': content.schemaId,
   }
   if (!expanded) result['@context'] = { '@vocab': VC_VOCAB }
   return result
@@ -96,7 +84,6 @@ function makeStatementsJsonLD(content: PartialContent): string[] {
  * @param options.nonceGenerator Nonce generator as defined by [[hashStatements]] to be used if no `nonces` are given. Default produces random UUIDs (v4).
  * @param options.hasher The hasher to be used. Required but defaults to 256 bit blake2 over `${nonce}${statement}`.
  * @returns An array of salted `hashes` and a `nonceMap` where keys correspond to unsalted statement hashes.
- * @throws [[ERROR_CONTENT_NONCE_MAP_MALFORMED]] if the nonceMap or the nonceGenerator was non-exhaustive for any statement.
  */
 export function hashContents(
   content: PartialContent,
@@ -122,14 +109,14 @@ export function hashContents(
   const nonceMap = {}
   processed.forEach(({ digest, nonce, statement }) => {
     // throw if we can't map a digest to a nonce - this should not happen if the nonce map is complete and the credential has not been tampered with
-    if (!nonce) throw new SDKErrors.ERROR_CONTENT_NONCE_MAP_MALFORMED(statement)
+    if (!nonce) throw new SDKErrors.ContentNonceMapMalformedError(statement)
     nonceMap[digest] = nonce
   }, {})
   return { hashes, nonceMap }
 }
 
 /**
- * Used to verify the hash list based proof over the set of disclosed attributes in a [[Stream]].
+ * Used to verify the hash list based proof over the set of disclosed attributes in [[Content]].
  *
  * @param content Full or partial [[IContent]] to verify proof against.
  * @param proof Proof consisting of a map that matches nonces to statement digests and the resulting hashes.
@@ -138,7 +125,6 @@ export function hashContents(
  * @param options Object containing optional parameters.
  * @param options.canonicalisation Canonicalisation routine that produces an array of statement strings from the [IContent]. Default produces individual `{"key":"value"}` JSON representations where keys are transformed to expanded JSON-LD.
  * @param options.hasher The hasher to be used. Required but defaults to 256 bit blake2 over `${nonce}${statement}`.
- * @returns `verified` is a boolean indicating whether the proof is valid. `errors` is an array of all errors in case it is not.
  */
 export function verifyDisclosedAttributes(
   content: PartialContent,
@@ -149,7 +135,7 @@ export function verifyDisclosedAttributes(
   options: Pick<Crypto.HashingOptions, 'hasher'> & {
     canonicalisation?: (content: PartialContent) => string[]
   } = {}
-): { verified: boolean; errors: Error[] } {
+): void {
   // apply defaults
   const defaults = { canonicalisation: makeStatementsJsonLD }
   const canonicalisation = options.canonicalisation || defaults.canonicalisation
@@ -160,19 +146,20 @@ export function verifyDisclosedAttributes(
   const hashed = Crypto.hashStatements(statements, { ...options, nonces })
   // check resulting hashes
   const digestsInProof = Object.keys(nonces)
-  return hashed.reduce<{ verified: boolean; errors: Error[] }>(
+  const { verified, errors } = hashed.reduce<{
+    verified: boolean
+    errors: Error[]
+  }>(
     (status, { saltedHash, statement, digest, nonce }) => {
       // check if the statement digest was contained in the proof and mapped it to a nonce
       if (!digestsInProof.includes(digest) || !nonce) {
-        status.errors.push(
-          new SDKErrors.ERROR_NO_PROOF_FOR_STATEMENT(statement)
-        )
+        status.errors.push(new SDKErrors.NoProofForStatementError(statement))
         return { ...status, verified: false }
       }
       // check if the hash is whitelisted in the proof
       if (!proof.hashes.includes(saltedHash)) {
         status.errors.push(
-          new SDKErrors.ERROR_INVALID_PROOF_FOR_STATEMENT(statement)
+          new SDKErrors.InvalidProofForStatementError(statement)
         )
         return { ...status, verified: false }
       }
@@ -180,6 +167,12 @@ export function verifyDisclosedAttributes(
     },
     { verified: true, errors: [] }
   )
+  if (verified !== true) {
+    throw new SDKErrors.ContentUnverifiableError(
+      'One or more statements in the content could not be verified',
+      { cause: errors }
+    )
+  }
 }
 
 /**
@@ -187,16 +180,14 @@ export function verifyDisclosedAttributes(
  *  Throws on invalid input.
  *
  * @param input The potentially only partial IContent.
- * @throws [[ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED]] when input's id do not exist.
- * @throws [[ERROR_CONTENT_PROPERTIES_MALFORMED]] when any of the input's contents[key] is not of type 'number', 'boolean' or 'string'.
  *
  */
 export function verifyDataStructure(input: IContent | PartialContent): void {
-  if (!input.schema) {
-    throw new SDKErrors.ERROR_SCHEMA_IDENTIFIER_NOT_PROVIDED()
+  if (!input.schemaId) {
+    throw new SDKErrors.SchemaIdentifierMissingError()
   }
-  if (input.issuer) {
-    DataUtils.validateAddress(input.issuer, 'Content Creator')
+  if ('holder' in input) {
+    Did.validateUri(input.holder, 'Did')
   }
   if (input.contents !== undefined) {
     Object.entries(input.contents).forEach(([key, value]) => {
@@ -205,36 +196,22 @@ export function verifyDataStructure(input: IContent | PartialContent): void {
         typeof key !== 'string' ||
         !['string', 'number', 'boolean', 'object'].includes(typeof value)
       ) {
-        throw new SDKErrors.ERROR_CONTENT_PROPERTIES_MALFORMED()
+        throw new SDKErrors.InputContentsMalformedError()
       }
     })
   }
-  DataUtils.validateId(Identifier.getIdentifierKey(input.schema), 'Identifier')
-}
-
-function verifyWithSchema(
-  contents: IContent['contents'],
-  schema: ISchema['schema']
-): boolean {
-  return verifyContentWithSchema(contents, schema)
+  DataUtils.validateId(Identifier.uriToIdentifier(input.schemaId), 'Identifier')
 }
 
 /**
- * Verifies the data structure and schema of the Content.
+ * Verifies the data structure and schema of a Claim.
  *
- * @param contentInput IClaim to verify.
- * @param typeSchema ISchema['schema'] to verify contents.
- * @throws [[ERROR_CLAIM_UNVERIFIABLE]] when  contents could not be verified with the provided typeSchema.
+ * @param inputContent IContent to verify.
+ * @param schema ISchema to verify inputContent.
  */
-export function verify(
-  contentInput: IContent,
-  typeSchema: ISchema['schema']
-): void {
-  if (!verifyWithSchema(contentInput.contents, typeSchema)) {
-    throw new SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
-  }
-
-  verifyDataStructure(contentInput)
+export function verify(inputContent: IContent, schema: ISchema): void {
+  Schema.verifyContentAganistSchema(inputContent.contents, schema)
+  verifyDataStructure(inputContent)
 }
 
 /**
@@ -251,49 +228,41 @@ export function verify(
 
 export function fromNestedSchemaAndContent(
   schema: ISchema,
-  nestedSchemas: Array<ISchema['schema']>,
+  nestedSchemas: ISchema[],
   contents: IContent['contents'],
-  issuer: IPublicIdentity['address'],
-  holder?: IPublicIdentity['address']
+  holder: DidUri
 ): IContent {
-  if (!verifyContentWithNestedSchemas(schema.schema, nestedSchemas, contents)) {
-    throw new SDKErrors.ERROR_NESTED_CONTENT_UNVERIFIABLE()
-  }
+  Schema.verifyContentAgainstNestedSchemas(schema, nestedSchemas, contents)
+
   const content = {
-    schema: schema.identifier,
+    schemaId: schema.$id,
     contents: contents,
-    issuer: issuer,
-    holder: holder || null,
+    holder: holder,
   }
   verifyDataStructure(content)
   return content
 }
 
 /**
- * Builds a new [[Content]] stream from [[ISchema]], IContent['contents'] and issuer's [[IPublicIdentity['address']].
+ * Builds a new Content stream from [[ISchema]], IContent['contents'] and issuer's [[DidUri]].
  *
  * @param schema [[ISchema]] on which the content is based on.
  * @param contents IContent['contents'] to be used as the data of the instantiated Content stream.
- * @throws [[ERROR_CONTENT_UNVERIFIABLE]] when the input stream could not be verified with the schema provided.
- *
- * @returns An instantiated Content.
+ * @param holder The DID to be used as the holder.
+ * @returns A Content object.
  */
 export function fromSchemaAndContent(
   schema: ISchema,
   contents: IContent['contents'],
-  issuer: IPublicIdentity['address'],
-  holder?: IPublicIdentity['address']
+  holder: DidUri
 ): IContent {
-  if (schema.schema) {
-    if (!verifyWithSchema(contents, schema.schema)) {
-      throw new SDKErrors.ERROR_CONTENT_UNVERIFIABLE()
-    }
-  }
+  Schema.verifyDataStructure(schema)
+  Schema.verifyContentAganistSchema(contents, schema)
+
   const content = {
-    schema: schema.identifier,
-    issuer: issuer,
-    holder: holder || null,
+    schemaId: schema.$id,
     contents: contents,
+    holder: holder,
   }
   verifyDataStructure(content)
   return content
@@ -313,75 +282,4 @@ export function isIContent(input: unknown): input is IContent {
     return false
   }
   return true
-}
-
-/**
- * Compresses the [[Content]] for storage and/or messaging.
- *
- * @param content An [[IContent]] object that will be sorted and stripped for messaging or storage.
- *
- * @returns An ordered array of an [[CompressedContent]].
- */
-
-export function compress(content: IContent): CompressedContent
-
-/**
- * Compresses a [[PartialContent]] for storage and/or messaging.
- *
- * @param content A [[PartialContent]] object that will be sorted and stripped for messaging or storage.
- *
- * @returns An ordered array of a [[CompressedPartialContent]].
- */
-export function compress(content: PartialContent): CompressedPartialContent
-
-/**
- *  Compresses a content object for storage and/or messaging.
- *
- * @param content A (partial) content object that will be sorted and stripped for messaging or storage.
- *
- * @returns An ordered array of that represents the underlying data in a more compact form.
- */
-export function compress(
-  content: IContent | PartialContent
-): CompressedContent | CompressedPartialContent {
-  verifyDataStructure(content)
-  let sortedContents
-  if (content.contents) {
-    sortedContents = jsonabc.sortObj(content.contents)
-  }
-  return [content.schema, content.issuer, content.holder, sortedContents]
-}
-
-/**
- *  Decompresses an [[IContent]] from storage and/or message.
- *
- * @param content A [[CompressedContent]] array that is reverted back into an object.
- * @throws [[ERROR_DECOMPRESSION_ARRAY]] when a [[CompressedContent]] is not an Array or it's length is unequal 3.
- * @returns An [[IContent]] object that has the same properties compressed representation.
- */
-export function decompress(content: CompressedContent): IContent
-
-/**
- *  Decompresses compressed representation of a (partial) [[IContent]] from storage and/or message.
- *
- * @param content A [[CompressedContent]] or [[CompressedPartialContent]] array that is reverted back into an object.
- * @throws
- * @throws [[ERROR_DECOMPRESSION_ARRAY]] if the  `content` is not an Array or it's length is unequal 4.
- * @returns An [[IContent]] or [[PartialContent]] object that has the same properties compressed representation.
- */
-export function decompress(content: CompressedPartialContent): PartialContent
-export function decompress(
-  content: CompressedContent | CompressedPartialContent
-): IContent | PartialContent {
-  if (!Array.isArray(content) || content.length !== 4) {
-    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Stream')
-  }
-  const decompressedContent = {
-    schema: content[0],
-    issuer: content[1],
-    holder: content[2],
-    contents: content[3],
-  }
-  verifyDataStructure(decompressedContent)
-  return decompressedContent
 }

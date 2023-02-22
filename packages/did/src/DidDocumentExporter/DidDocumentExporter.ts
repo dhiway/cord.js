@@ -12,12 +12,12 @@ import type {
   ConformingDidDocument,
   DidResourceUri,
   JsonLDDidDocument,
-} from '@kiltprotocol/types'
+} from '@cord.network/types'
 import {
   encryptionKeyTypesMap,
   verificationKeyTypesMap,
-} from '@kiltprotocol/types'
-import { SDKErrors } from '@kiltprotocol/utils'
+} from '@cord.network/types'
+import { SDKErrors } from '@cord.network/utils'
 import { KILT_DID_CONTEXT_URL, W3C_DID_CONTEXT_URL } from './DidContexts.js'
 
 function exportToJsonDidDocument(did: DidDocument): ConformingDidDocument {

@@ -25,7 +25,7 @@
   "engines": {
     "node": ">=14.0"
   },
-  "author": "Dhiway",
+  "author": "",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
@@ -36,6 +36,6 @@
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@polkadot/api": "^9.10.2",
-    "typescript-logging": "^0.6.4"
+    "typescript-logging": "^1.0.0"
   }
 }

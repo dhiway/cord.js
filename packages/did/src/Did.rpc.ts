@@ -5,14 +5,16 @@
  * found in the LICENSE file in the root directory of this source tree.
  */
 
-import type { Enum, Option, U8aFixed, Vec } from '@polkadot/types'
-import type { Codec } from '@polkadot/types/types'
+import type { Option } from '@polkadot/types'
+
+// import type { Enum, Option, U8aFixed, Vec } from '@polkadot/types'
+// import type { Codec } from '@polkadot/types/types'
 import type { AccountId32, Hash } from '@polkadot/types/interfaces'
 import type {
   RawDidLinkedInfo,
-  DidDidDetailsDidPublicKeyDetails,
-  DidDidDetails,
-  DidServiceEndpointsDidEndpoint,
+  PalletDidDidDetailsDidPublicKeyDetails,
+  PalletDidDidDetails,
+  PalletDidServiceEndpointsDidEndpoint,
 } from '@cord.network/augment-api'
 import type {
   DidDocument,
@@ -21,16 +23,16 @@ import type {
   DidServiceEndpoint,
   DidUri,
   DidVerificationKey,
-  CordAddress,
+  // CordAddress,
   UriFragment,
 } from '@cord.network/types'
 
-import { encodeAddress } from '@polkadot/keyring'
-import { ethereumEncode } from '@polkadot/util-crypto'
+// import { encodeAddress } from '@polkadot/keyring'
+// import { ethereumEncode } from '@polkadot/util-crypto'
 import { BN, u8aToString } from '@polkadot/util'
 import { Crypto, ss58Format } from '@cord.network/utils'
 
-import { Address, SubstrateAddress } from './DidLinks/AccountLinks.chain.js'
+// import { SubstrateAddress } from './DidLinks/AccountLinks.chain.js'
 import { getFullDidUri } from './Did.utils.js'
 
 function fromChain(encoded: AccountId32): DidUri {
@@ -46,7 +48,7 @@ type RpcDocument = Pick<
 
 function didPublicKeyDetailsFromChain(
   keyId: Hash,
-  keyDetails: DidDidDetailsDidPublicKeyDetails
+  keyDetails: PalletDidDidDetailsDidPublicKeyDetails
 ): DidKey {
   const key = keyDetails.key.isPublicEncryptionKey
     ? keyDetails.key.asPublicEncryptionKey
@@ -62,11 +64,11 @@ function resourceIdToChain(id: UriFragment): string {
   return id.replace(/^#/, '')
 }
 
-function documentFromChain(encoded: DidDidDetails): RpcDocument {
+function documentFromChain(encoded: PalletDidDidDetails): RpcDocument {
   const {
     publicKeys,
     authenticationKey,
-    attestationKey,
+    assertionKey,
     delegationKey,
     keyAgreementKeys,
     lastTxCounter,
@@ -88,8 +90,8 @@ function documentFromChain(encoded: DidDidDetails): RpcDocument {
     lastTxCounter: lastTxCounter.toBn(),
   }
 
-  if (attestationKey.isSome) {
-    const key = keys[attestationKey.unwrap().toHex()] as DidVerificationKey
+  if (assertionKey.isSome) {
+    const key = keys[assertionKey.unwrap().toHex()] as DidVerificationKey
     didRecord.assertionMethod = [key]
   }
   if (delegationKey.isSome) {
@@ -110,7 +112,7 @@ function documentFromChain(encoded: DidDidDetails): RpcDocument {
 }
 
 function serviceFromChain(
-  encoded: DidServiceEndpointsDidEndpoint
+  encoded: PalletDidServiceEndpointsDidEndpoint
 ): DidServiceEndpoint {
   const { id, serviceTypes, urls } = encoded
   return {
@@ -121,51 +123,51 @@ function serviceFromChain(
 }
 
 function servicesFromChain(
-  encoded: DidServiceEndpointsDidEndpoint[]
+  encoded: PalletDidServiceEndpointsDidEndpoint[]
 ): DidServiceEndpoint[] {
   return encoded.map((encodedValue) => serviceFromChain(encodedValue))
 }
 
-/**
- * Type describing storage type that is yet to be deployed to spiritnet.
- */
-interface PalletDidLookupLinkableAccountLinkableAccountId extends Enum {
-  readonly isAccountId20: boolean
-  readonly asAccountId20: U8aFixed
-  readonly isAccountId32: boolean
-  readonly asAccountId32: AccountId32
-  readonly type: 'AccountId20' | 'AccountId32'
-}
+// /**
+//  * Type describing storage type that is yet to be deployed to spiritnet.
+//  */
+// interface PalletDidLookupLinkableAccountLinkableAccountId extends Enum {
+//   readonly isAccountId20: boolean
+//   readonly asAccountId20: U8aFixed
+//   readonly isAccountId32: boolean
+//   readonly asAccountId32: AccountId32
+//   readonly type: 'AccountId20' | 'AccountId32'
+// }
 
-function isLinkableAccountId(
-  arg: Codec
-): arg is PalletDidLookupLinkableAccountLinkableAccountId {
-  return 'isAccountId32' in arg && 'isAccountId20' in arg
-}
+// function isLinkableAccountId(
+//   arg: Codec
+// ): arg is PalletDidLookupLinkableAccountLinkableAccountId {
+//   return 'isAccountId32' in arg && 'isAccountId20' in arg
+// }
 
-function accountFromChain(
-  account: Codec,
-  networkPrefix = ss58Format
-): CordAddress | SubstrateAddress {
-  if (isLinkableAccountId(account)) {
-    // linked account is substrate address (ethereum-enabled storage version)
-    if (account.isAccountId32)
-      return encodeAddress(account.asAccountId32, networkPrefix)
-    // linked account is ethereum address (ethereum-enabled storage version)
-    if (account.isAccountId20) return ethereumEncode(account.asAccountId20)
-  }
-  // linked account is substrate account (legacy storage version)
-  return encodeAddress(account.toU8a(), networkPrefix)
-}
+// function accountFromChain(
+//   account: Codec,
+//   networkPrefix = ss58Format
+// ): CordAddress | SubstrateAddress {
+//   if (isLinkableAccountId(account)) {
+//     // linked account is substrate address (ethereum-enabled storage version)
+//     if (account.isAccountId32)
+//       return encodeAddress(account.asAccountId32, networkPrefix)
+//     // linked account is ethereum address (ethereum-enabled storage version)
+//     if (account.isAccountId20) return ethereumEncode(account.asAccountId20)
+//   }
+//   // linked account is substrate account (legacy storage version)
+//   return encodeAddress(account.toU8a(), networkPrefix)
+// }
 
-function connectedAccountsFromChain(
-  encoded: Vec<Codec>,
-  networkPrefix = ss58Format
-): Array<CordAddress | SubstrateAddress> {
-  return encoded.map<string>((account) =>
-    accountFromChain(account, networkPrefix)
-  )
-}
+// function connectedAccountsFromChain(
+//   encoded: Vec<Codec>,
+//   networkPrefix = ss58Format
+// ): Array<CordAddress | SubstrateAddress> {
+//   return encoded.map<string>((account) =>
+//     accountFromChain(account, networkPrefix)
+//   )
+// }
 
 /**
  * Web3Name is the type of nickname for a DID.
@@ -174,8 +176,8 @@ export type Web3Name = string
 
 export interface DidInfo {
   document: DidDocument
-  web3Name?: Web3Name
-  accounts: Address[]
+  // web3Name?: Web3Name
+  // accounts: Address[]
 }
 
 /**
@@ -186,11 +188,10 @@ export interface DidInfo {
  * @returns The accounts, DID, and web3name.
  */
 export function linkedInfoFromChain(
-  encoded: Option<RawDidLinkedInfo>,
-  networkPrefix = ss58Format
+  encoded: Option<RawDidLinkedInfo>
+  // networkPrefix = ss58Format
 ): DidInfo {
-  const { identifier, accounts, w3n, serviceEndpoints, details } =
-    encoded.unwrap()
+  const { identifier, serviceEndpoints, details } = encoded.unwrap()
 
   const didRec = documentFromChain(details)
   const did: DidDocument = {
@@ -206,12 +207,12 @@ export function linkedInfoFromChain(
     did.service = service
   }
 
-  const web3Name = w3n.isNone ? undefined : w3n.unwrap().toHuman()
-  const linkedAccounts = connectedAccountsFromChain(accounts, networkPrefix)
+  // const web3Name = w3n.isNone ? undefined : w3n.unwrap().toHuman()
+  // const linkedAccounts = connectedAccountsFromChain(accounts, networkPrefix)
 
   return {
     document: did,
-    web3Name,
-    accounts: linkedAccounts,
+    // web3Name,
+    // accounts: linkedAccounts,
   }
 }

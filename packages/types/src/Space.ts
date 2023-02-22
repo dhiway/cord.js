@@ -13,7 +13,7 @@ export interface ISpaceType {
 export interface ISpace {
   identifier: string
   spaceHash: HexString
-  schema: ISchema['identifier'] | null
+  schema: ISchema['$id'] | null
   controller: IPublicIdentity['address']
   controllerSignature: string
   details: ISpaceType

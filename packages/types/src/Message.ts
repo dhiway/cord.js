@@ -1,7 +1,7 @@
-import type { IStream, IStreamPresentation } from './Stream.js'
+import type { ICredential, ICredentialPresentation } from './Credential.js'
 import type { DidResourceUri, DidUri } from './DidDocument.js'
-import type { IStreamEntry } from './StreamEntry'
-import type { ISchema, SchemaId } from './Schema.js'
+import type { IStream } from './Stream'
+import type { SchemaId } from './Schema.js'
 
 export type MessageBodyType =
   | 'error'
@@ -49,7 +49,7 @@ export interface IReject extends IMessageBodyBase {
 }
 
 export interface ISubmitStream extends IMessageBodyBase {
-  content: IStreamPresentation[]
+  content: ICredentialPresentation[]
   type: 'submit-stream'
 }
 
@@ -63,7 +63,7 @@ export interface IRejectStream extends IMessageBodyBase {
   type: 'reject-stream'
 }
 export interface IRequestStreamContent {
-  stream: IStream
+  stream: ICredential
 }
 
 export interface IRequestStreamEntry extends IMessageBodyBase {
@@ -72,7 +72,7 @@ export interface IRequestStreamEntry extends IMessageBodyBase {
 }
 
 export interface ISubmitStreamEntryContent {
-  streamEntry: IStreamEntry
+  streamEntry: IStream
 }
 
 export interface ISubmitStreamEntry extends IMessageBodyBase {
@@ -81,13 +81,13 @@ export interface ISubmitStreamEntry extends IMessageBodyBase {
 }
 
 export interface IRejectStreamEntry extends IMessageBodyBase {
-  content: IStream['identifier']
+  content: ICredential['identifier']
   type: 'reject-stream-entry'
 }
 
 export interface IRequestStreamContent {
   Schemas: Array<{
-    schemaId: ISchema['identifier']
+    schemaId: SchemaId
     trustedAttesters?: DidUri[]
     requiredProperties?: string[]
   }>
