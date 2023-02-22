@@ -1,77 +1,87 @@
 import { JsonSchema } from '@cord.network/utils'
 
-export const SchemaModel: JsonSchema.Schema = {
+export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
   $id: 'http://cord.network/draft-01/schema#',
   $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'CORD Metaschema (V1)',
+  description: 'Describes a JSON schema for validating CORD stream types.',
   type: 'object',
   properties: {
     $id: {
-      type: 'string',
-      format: 'uri',
       pattern: '^schema:cord:5[0-9a-zA-Z]+$',
+      type: 'string',
     },
     $schema: {
       type: 'string',
-      format: 'uri',
-      const: 'http://json-schema.org/draft-07/schema#',
     },
-    title: {
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
-    $metadata: {
-      version: { type: ['string', 'null'] },
-    },
-    type: {
-      type: 'string',
-      const: 'object',
-    },
+    title: { type: 'string' },
+    type: { const: 'object', type: 'string' },
     properties: {
-      type: 'object',
       patternProperties: {
-        '^.*$': {
-          type: 'object',
-          properties: {
-            type: {
-              type: 'string',
-              enum: [
-                'string',
-                'integer',
-                'number',
-                'boolean',
-                'array',
-                'object',
-              ],
-            },
-            $ref: {
-              type: 'string',
-              format: 'uri',
-            },
-            format: {
-              type: 'string',
-              enum: ['date', 'time', 'uri'],
-            },
-          },
-          additionalProperties: false,
+        '^.+$': {
           oneOf: [
             {
-              required: ['type'],
-            },
-            {
+              additionalProperties: false,
+              properties: {
+                $ref: {
+                  pattern: '^schema:cord:5[0-9a-zA-Z]+(#/properties/.+)?$',
+                  format: 'uri',
+                  type: 'string',
+                },
+              },
               required: ['$ref'],
             },
+            {
+              additionalProperties: false,
+              properties: {
+                format: { enum: ['date', 'time', 'uri'], type: 'string' },
+                type: {
+                  enum: ['boolean', 'integer', 'number', 'string'],
+                  type: 'string',
+                },
+              },
+              required: ['type'],
+            },
           ],
+          type: 'object',
+        },
+      },
+      type: 'object',
+    },
+    additionalProperties: { const: false, type: 'boolean' },
+  },
+  additionalProperties: false,
+  required: [
+    '$id',
+    '$schema',
+    'additionalProperties',
+    'properties',
+    'title',
+    'type',
+  ],
+}
+
+export const SchemaModel: JsonSchema.Schema = {
+  $schema: 'http://json-schema.org/draft-07/schema',
+  allOf: [
+    {
+      properties: {
+        $schema: {
+          type: 'string',
+          const: SchemaModelV1.$id,
         },
       },
     },
+    {
+      $ref: SchemaModelV1.$id,
+    },
+  ],
+  definitions: {
+    [SchemaModelV1.$id]: SchemaModelV1,
   },
-  additionalProperties: true,
-  required: ['$id', 'title', '$schema', 'properties', 'type'],
 }
 
-export const MetadataModel = {
+export const MetadataModel: JsonSchema.Schema = {
   $id: 'http://cord.network/draft-01/schema-metadata',
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
@@ -109,7 +119,6 @@ export const MetadataModel = {
         },
         properties: {
           type: 'object',
-          properties: {},
           patternProperties: {
             '^.*$': {
               type: 'object',
@@ -152,10 +161,8 @@ export const MetadataModel = {
       required: ['title', 'properties'],
       additionalProperties: false,
     },
-    identifier: { type: 'string', minLength: 1 },
-    schemaHash: { type: 'string', minLength: 1 },
-    version: { type: 'string', minLength: 1 },
+    schemaId: { type: 'string', minLength: 1 },
   },
-  required: ['metadata', 'identifier'],
+  required: ['metadata', 'schemaId'],
   additionalProperties: false,
 }
