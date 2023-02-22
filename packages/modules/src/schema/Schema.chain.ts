@@ -1,200 +1,138 @@
-/**
- * @packageDocumentation
- * @module Schema
- */
+import type { u32, Bytes, Option } from '@polkadot/types'
+import type { BlockNumber } from '@polkadot/types/interfaces'
 
-import { Option, Struct } from '@polkadot/types'
-import type { AccountId, Hash } from '@polkadot/types/interfaces'
-import type {
+import type { PalletSchemaSchemaEntry } from '@cord.network/augment-api'
+import {
+  SchemaHash,
+  DidUri,
   ISchema,
-  ISchemaDetails,
-  IPublicIdentity,
-  SubmittableExtrinsic,
+  SchemaId,
+  SCHEMA_IDENTIFIER,
+  SCHEMA_PREFIX,
 } from '@cord.network/types'
-import { DecoderUtils, Identifier } from '@cord.network/utils'
+
 import { ConfigService } from '@cord.network/config'
-import { ChainApiConnection } from '@cord.network/network'
-import { Identity } from '../identity/Identity.js'
+import * as Did from '@cord.network/did'
+import { SDKErrors } from '@cord.network/utils'
+import { Identifier } from '@cord.network/utils'
 
-const log = ConfigService.LoggingFactory.getLogger('Schema')
+import { serializeForHash, verifyDataStructure } from './Schema.js'
 
 /**
- * Generate the extrinsic to create the [[ISchema]].
+ * Encodes the provided Schema for use in `api.tx.schema.add()`.
  *
- * @param schema The schema to anchor on the chain.
- * @returns The [[SubmittableExtrinsic]] for the `create` call.
+ * @param schema The Schema to write on the blockchain.
+ * @returns Encoded Schema.
  */
-
-export async function create(schema: ISchema): Promise<SubmittableExtrinsic> {
-  const api = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Create tx for 'schema'`)
-  const schemaParams = {
-    digest: schema.schemaHash,
-    controller: schema.controller,
-  }
-
-  return api.tx.schema.create(schemaParams, schema.controllerSignature)
+export function toChain(schema: ISchema): string {
+  return serializeForHash(schema)
 }
 
 /**
- * TBD
+ * Encodes the provided Schema['$id'] for use in `api.query.schema.schemas()`.
+ *
+ * @param cTypeId The Schema id to translate for the blockchain.
+ * @returns Encoded Schema id.
  */
-export async function revoke(
-  schema: ISchema,
-  controller: Identity
-): Promise<SubmittableExtrinsic> {
-  const { txSignature, txHash } = controller.signTx(schema.schemaHash)
-
-  const api = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Revoking a schema with ID ${schema.identifier}`)
-
-  const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier),
-    schema: {
-      digest: txHash,
-      controller: controller.address,
-    },
-  }
-
-  return api.tx.schema.revoke(schemaParams, txSignature)
+export function idToChain(schemaId: ISchema['$id']): SchemaId {
+  return Identifier.uriToIdentifier(schemaId)
 }
 
-/**
- * TBD
- */
-export async function delegate(
-  schema: ISchema,
-  controller: Identity,
-  delegates: [string]
-): Promise<SubmittableExtrinsic> {
-  const { txSignature, txHash } = controller.signTx(schema.schemaHash)
+// Transform a blockchain-formatted Schema input (represented as Bytes) into the original [[ISchema]].
+// It throws if what was written on the chain was garbage.
+function schemaInputFromChain(input: Bytes): ISchema {
+  try {
+    // Throws on invalid JSON input. Schema is expected to be a valid JSON document.
+    const reconstructedObject = JSON.parse(input.toUtf8())
+    const reconstructedSchemaId = Identifier.hashToUri(
+      reconstructedObject.schemaHash,
+      SCHEMA_IDENTIFIER,
+      SCHEMA_PREFIX
+    )
 
-  const api = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Adding a delagate to ${schema.identifier}`)
-  const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier),
-    schema: {
-      digest: txHash,
-      controller: controller.address,
-    },
-  }
-
-  return api.tx.schema.delegate(schemaParams, delegates, txSignature)
-}
-
-/**
- * TBD
- */
-export async function undelegate(
-  schema: ISchema,
-  controller: Identity,
-  delegates: [string]
-): Promise<SubmittableExtrinsic> {
-  const { txSignature, txHash } = controller.signTx(schema.schemaHash)
-
-  const api = await ChainApiConnection.getConnectionOrConnect()
-  log.debug(() => `Removing delagation from ${schema.identifier}`)
-  const schemaParams = {
-    identifier: Identifier.getIdentifierKey(schema.identifier),
-    schema: {
-      digest: txHash,
-      controller: controller.address,
-    },
-  }
-  return api.tx.schema.undelegate(schemaParams, delegates, txSignature)
-}
-
-export interface AnchoredSchemaDetails extends Struct {
-  readonly schemaHash: Hash
-  readonly controller: AccountId
-  readonly revoked: boolean
-  readonly meta: boolean
-}
-
-function decodeSchema(
-  encodedSchema: Option<AnchoredSchemaDetails>,
-  schemaId: string
-): ISchemaDetails | null {
-  DecoderUtils.assertCodecIsType(encodedSchema, [
-    'Option<PalletSchemaSchemasSchemaDetails>',
-  ])
-  if (encodedSchema.isSome) {
-    const anchoredSchema = encodedSchema.unwrap()
-    const schema: ISchemaDetails = {
-      identifier: schemaId,
-      schemaHash: anchoredSchema.schemaHash.toHex(),
-      controller: anchoredSchema.controller.toString(),
-      revoked: anchoredSchema.revoked.valueOf(),
-      meta: anchoredSchema.meta.valueOf(),
+    const reconstructedSchema: ISchema = {
+      ...reconstructedObject,
+      $id: reconstructedSchemaId,
     }
-    return schema
+    // If throws if the input was a valid JSON but not a valid Schema.
+    verifyDataStructure(reconstructedSchema)
+    return reconstructedSchema
+  } catch (cause) {
+    throw new SDKErrors.SchemaError(
+      `The provided payload cannot be parsed as a Schema: ${input.toHuman()}`,
+      { cause }
+    )
+  }
+}
+
+/**
+ * The details of a Schema that are stored on chain.
+ */
+export interface SchemaChainDetails {
+  /**
+   * The Schema.
+   */
+  schema: ISchema
+  /**
+   * The Schema digest/hash.
+   */
+  schemaHash: SchemaHash
+  /**
+   * The DID of the Schema's creator.
+   */
+  creator: DidUri
+  /**
+   * The block number in which the Schema was created.
+   */
+  createdAt: { height: BlockNumber; index: u32 }
+}
+
+export type ISchemaDetails = SchemaChainDetails
+
+/**
+ * Decodes the Schema details returned by `api.query.schema.schemas()`.
+ *
+ * @param encoded The data from the blockchain.
+ * @returns An object with on-chain Schema details.
+ */
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+export function fromChain(
+  encodedEntry: Option<PalletSchemaSchemaEntry>
+): SchemaChainDetails | null {
+  if (encodedEntry.isSome) {
+    const unwrapped = encodedEntry.unwrap()
+    const { schema, digest, creator, createdAt } = unwrapped
+    return {
+      schema: schemaInputFromChain(schema),
+      schemaHash: digest.toHex() as SchemaHash,
+      creator: Did.fromChain(creator),
+      createdAt: { height: createdAt.height, index: createdAt.index },
+    }
   }
   return null
 }
 
-async function queryRawHash(
-  schema_hash: string
-): Promise<Option<AnchoredSchemaDetails>> {
-  const api = await ChainApiConnection.getConnectionOrConnect()
-  const result = await api.query.schema.schemas<Option<AnchoredSchemaDetails>>(
-    schema_hash
-  )
-  return result
-}
-
-async function queryRaw(
-  schema_id: string
-): Promise<Option<AnchoredSchemaDetails>> {
-  const api = await ChainApiConnection.getConnectionOrConnect()
-  const result = await api.query.schema.schemas<Option<AnchoredSchemaDetails>>(
-    schema_id
-  )
-  return result
-}
-
 /**
- * @param identifier
- * @internal
- */
-export async function queryhash(
-  schema_hash: string
-): Promise<ISchemaDetails | null> {
-  const encoded = await queryRawHash(schema_hash)
-  return decodeSchema(encoded, schema_hash)
-}
-
-/**
- * @param identifier
- * @internal
- */
-export async function query(schema_id: string): Promise<ISchemaDetails | null> {
-  const schemaId: string = Identifier.getIdentifierKey(schema_id)
-  const encoded = await queryRaw(schemaId)
-  return decodeSchema(encoded, schemaId)
-}
-
-/**
- * @param id
- * @internal
- */
-export async function getOwner(
-  schemaId: ISchema['identifier']
-): Promise<IPublicIdentity['address'] | null> {
-  const encoded = await queryRaw(schemaId)
-  const queriedSchemaAccount = decodeSchema(encoded, schemaId)
-  return queriedSchemaAccount!.controller
-}
-
-/**
- * Queries the blockchain and returns whether a Schema with the provided ID exists.
+ * Resolves a Schema identifier to the Schema definition by fetching data from the block containing the transaction that registered the Schema on chain.
  *
- * @param schemaId The ID of the Schema to check.
- * @returns True if a Schema with the provided ID exists, false otherwise.
+ * @param schemaId Schema ID to use for the query. It is required to complement the information stored on the blockchain in a [[PalletSchemaSchemaEntry]].
+ *
+ * @returns The [[ISchemaDetails]].
  */
-export async function isStored(
-  schema_id: ISchema['identifier']
-): Promise<boolean> {
-  const schemaId: string = Identifier.getIdentifierKey(schema_id)
-  const encoded = await queryRaw(schemaId)
-  return encoded.isSome
+export async function fetchFromChain(
+  schemaId: ISchema['$id']
+): Promise<ISchemaDetails | null> {
+  const api = ConfigService.get('api')
+  const cordSchemaId = Identifier.uriToIdentifier(schemaId)
+
+  const schemaEntry = await api.query.schema.schemas(cordSchemaId)
+  const decodedSchema = fromChain(schemaEntry)
+  if (decodedSchema === null) {
+    throw new SDKErrors.SchemaError(
+      `There is not a Schema with the provided ID "${schemaId}" on chain.`
+    )
+  }
+
+  return decodedSchema
 }

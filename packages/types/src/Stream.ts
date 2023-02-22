@@ -1,39 +1,19 @@
-import type { HexString } from '@polkadot/util/types'
-import type { DidSignature } from './DidDocument'
-import type { IContent } from './Content.js'
+/**
+ * @packageDocumentation
+ * @module IStream
+ */
+import type { DidUri } from './DidDocument'
+import type { ISchema } from './Schema.js'
+import type { ICredential } from './Credential.js'
 
-export type Hash = HexString
-
-export type NonceHash = {
-  hash: Hash
-  nonce?: string
-}
+export const STREAM_IDENTIFIER: number = 51
+export const STREAM_PREFIX: string = 'stream:cord:'
 
 export interface IStream {
-  content: IContent
-  contentHashes: Hash[]
-  contentNonceMap: Record<Hash, string>
-  evidenceIds: IStream[]
-  link: string | null
-  space: string | null
-  rootHash: Hash
-  identifier: string
+  identifier: ICredential['identifier']
+  streamHash: ICredential['rootHash']
+  issuer: DidUri
+  schema: ISchema['$id'] | null
+  swarm: ICredential['swarm'] | null
+  revoked: boolean
 }
-
-export interface IStreamPresentation extends IStream {
-  claimerSignature: DidSignature & { challenge?: string }
-}
-
-export interface CordPublishedStreamV1 {
-  credential: IStream
-  metadata?: {
-    label?: string
-    blockNumber?: number
-    txHash?: HexString
-  }
-}
-
-export type CordPublishedStreamCollectionV1 = CordPublishedStreamV1[]
-
-export const CordPublishedStreamCollectionV1Type =
-  'CordPublishedStreamCollectionV1'

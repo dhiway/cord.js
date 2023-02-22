@@ -6,7 +6,8 @@
  * @module ConfigService
  */
 
-import '@polkadot/api-augment'
+import type { ApiPromise } from '@polkadot/api'
+
 import {
   LFService,
   LoggerFactoryOptions,
@@ -16,15 +17,19 @@ import {
   LogGroupControlSettings,
 } from 'typescript-logging'
 import { SDKErrors } from '@cord.network/utils'
+import { SubscriptionPromise } from '@cord.network/types'
 
 const DEFAULT_DEBUG_LEVEL =
-  process.env.DEBUG && process.env.DEBUG === 'true'
+  typeof process !== 'undefined' &&
+  process.env?.DEBUG &&
+  process.env.DEBUG === 'true'
     ? LogLevel.Debug
     : LogLevel.Error
 
 export type configOpts = {
-  address: string
+  api: ApiPromise
   logLevel: LogLevel
+  submitTxResolveOn: SubscriptionPromise.ResultEvaluator
 } & { [key: string]: any }
 
 /**
@@ -32,7 +37,6 @@ export type configOpts = {
  *
  * @param level The intended LogLevel. LogLevel has a range of 0 to 5.
  * @returns The new set level.
- *
  */
 export function modifyLogLevel(level: LogLevel): LogLevel {
   // eslint-disable-next-line no-nested-ternary
@@ -46,38 +50,32 @@ export function modifyLogLevel(level: LogLevel): LogLevel {
   return actualLevel
 }
 
-let configuration: configOpts = {
+const defaultConfig: Partial<configOpts> = {
   logLevel: DEFAULT_DEBUG_LEVEL,
-  address: '',
 }
 
-function checkAddress(): void {
-  if (!configuration.address) {
-    throw new SDKErrors.ERROR_WS_ADDRESS_NOT_SET()
-  }
-}
+let configuration: Partial<configOpts> = { ...defaultConfig }
 
 /**
  * Get the value set for a configuration.
  *
  * @param configOpt Key of the configuration.
  * @returns Value for this key.
- *
  */
 export function get<K extends keyof configOpts>(configOpt: K): configOpts[K] {
-  switch (configOpt) {
-    case 'address':
-      checkAddress()
-      break
-    default:
+  if (typeof configuration[configOpt] === 'undefined') {
+    switch (configOpt) {
+      case 'api':
+        throw new SDKErrors.BlockchainApiMissingError()
+      default:
+        throw new Error(`GENERIC NOT CONFIGURED ERROR FOR KEY: "${configOpt}"`)
+    }
   }
-  if (typeof configuration[configOpt] === 'undefined')
-    throw new Error(`GENERIC NOT CONFIGURED ERROR FOR KEY: "${configOpt}"`)
   return configuration[configOpt]
 }
 
 function setLogLevel(logLevel: LogLevel | undefined): void {
-  if (logLevel || logLevel === 0) {
+  if (logLevel !== undefined) {
     modifyLogLevel(logLevel)
   }
 }
@@ -86,11 +84,33 @@ function setLogLevel(logLevel: LogLevel | undefined): void {
  * Set values for one or multiple configurations.
  *
  * @param opts Object of configurations as key-value pairs.
- *
  */
 export function set<K extends Partial<configOpts>>(opts: K): void {
   configuration = { ...configuration, ...opts }
   setLogLevel(configuration.logLevel)
+}
+
+/**
+ * Set the value for a configuration to its default (which may be `undefined`).
+ *
+ * @param key Key identifying the configuration option.
+ */
+export function unset<K extends keyof configOpts>(key: K): void {
+  if (Object.prototype.hasOwnProperty.call(defaultConfig, key)) {
+    configuration[key] = defaultConfig[key]
+  } else {
+    delete configuration[key]
+  }
+}
+
+/**
+ * Indicates whether a configuration option is set.
+ *
+ * @param key Key identifying the configuration option.
+ * @returns True if this value is set, false otherwise.
+ */
+export function isSet<K extends keyof configOpts>(key: K): boolean {
+  return typeof configuration[key] !== 'undefined'
 }
 
 // Create options instance and specify 1 LogGroupRule:
@@ -98,7 +118,7 @@ export function set<K extends Partial<configOpts>>(opts: K): void {
 const options = new LoggerFactoryOptions().addLogGroupRule(
   new LogGroupRule(new RegExp('.+'), get('logLevel'))
 )
-// Create a named loggerfactory and pass in the options and export the factory.
+// Create a named logging factory and pass in the options and export the factory.
 // Named is since version 0.2.+ (it's recommended for future usage)
 export const LoggingFactory = LFService.createNamedLoggerFactory(
   'LoggerFactory',

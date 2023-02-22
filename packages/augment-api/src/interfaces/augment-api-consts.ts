@@ -218,6 +218,9 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxScheduledPerBlock: u32 & AugmentedConst<ApiType>;
     };
+    schema: {
+      maxEncodedSchemaLength: u32 & AugmentedConst<ApiType>;
+    };
     stream: {
       /**
        * The maximum number of commits for a stream.

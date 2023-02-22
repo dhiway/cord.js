@@ -5,9 +5,9 @@ import {
   u8aConcat,
   u8aToU8a,
   stringToU8a,
-  isU8a,
-  isHex,
-  u8aToHex,
+  // isU8a,
+  // isHex,
+  // u8aToHex,
 } from '@polkadot/util'
 import {
   IPublicIdentity,
@@ -18,7 +18,6 @@ import {
 } from '@cord.network/types'
 import {
   ACCOUNT_IDENTIFIER_PREFIX,
-  HASH_PREFIX,
   SPACE_IDENTIFIER,
   SCHEMA_IDENTIFIER,
   STREAM_IDENTIFIER,
@@ -105,46 +104,55 @@ function encodeIdentifier(
   )
 }
 
-function decodeIdentifier(
-  encoded?: HexString | string | Uint8Array | null,
-  ignoreChecksum?: boolean,
-  iDPrefix: number = -1
-): Uint8Array {
-  assert(encoded, 'Invalid identifier passed')
+// function decodeIdentifier(
+//   encoded?: HexString | string | Uint8Array | null,
+//   ignoreChecksum?: boolean,
+//   iDPrefix: number = -1
+// ): Uint8Array {
+//   assert(encoded, 'Invalid identifier passed')
 
-  if (isU8a(encoded) || isHex(encoded)) {
-    return u8aToU8a(encoded)
-  }
+//   if (isU8a(encoded) || isHex(encoded)) {
+//     return u8aToU8a(encoded)
+//   }
 
-  try {
-    const decoded = base58Decode(encoded)
+//   try {
+//     const decoded = base58Decode(encoded)
 
-    assert(
-      defaults.allowedEncodedLengths.includes(decoded.length),
-      'Invalid decoded identifier length'
-    )
+//     assert(
+//       defaults.allowedEncodedLengths.includes(decoded.length),
+//       'Invalid decoded identifier length'
+//     )
 
-    const [isValid, endPos, iDfrLength, iDfrDecoded] =
-      checkAddressChecksum(decoded)
+//     const [isValid, endPos, iDfrLength, iDfrDecoded] =
+//       checkAddressChecksum(decoded)
 
-    assert(ignoreChecksum || isValid, 'Invalid decoded identifier checksum')
-    assert(
-      [-1, iDfrDecoded].includes(iDPrefix),
-      () => `Expected iDPrefixnti ${iDPrefix}, received ${iDfrDecoded}`
-    )
+//     assert(ignoreChecksum || isValid, 'Invalid decoded identifier checksum')
+//     assert(
+//       [-1, iDfrDecoded].includes(iDPrefix),
+//       () => `Expected iDPrefixnti ${iDPrefix}, received ${iDfrDecoded}`
+//     )
 
-    return decoded.slice(iDfrLength, endPos)
-  } catch (error) {
-    throw new Error(`Decoding ${encoded}: ${(error as Error).message}`)
-  }
+//     return decoded.slice(iDfrLength, endPos)
+//   } catch (error) {
+//     throw new Error(`Decoding ${encoded}: ${(error as Error).message}`)
+//   }
+// }
+
+// function decodeIdentifierHash(encoded?: HexString | string): string {
+//   assert(encoded, 'Invalid empty identifier passed')
+//   return u8aToHex(decodeIdentifier(encoded))
+// }
+
+export function hashToIdentifier(
+  identifier: HexString | Uint8Array | string,
+  iDPrefix: number
+): string {
+  assert(identifier, 'Invalid key string passed')
+  const id = encodeIdentifier(identifier, iDPrefix)
+  return id
 }
 
-function decodeIdentifierHash(encoded?: HexString | string): string {
-  assert(encoded, 'Invalid empty identifier passed')
-  return u8aToHex(decodeIdentifier(encoded))
-}
-
-export function getIdentifier(
+export function hashToUri(
   identifier: HexString | Uint8Array | string,
   iDPrefix: number,
   prefix: string
@@ -154,9 +162,7 @@ export function getIdentifier(
   return `${prefix}${id}`
 }
 
-export function getIdentifierKey(
-  identifier: string | null | undefined
-): string {
+export function uriToIdentifier(identifier: string | null | undefined): string {
   assert(identifier, 'Invalid key string passed')
   if (identifier.startsWith(SCHEMA_PREFIX)) {
     return identifier.split(SCHEMA_PREFIX).join('')
@@ -173,17 +179,17 @@ export function getIdentifierKey(
   }
 }
 
-export function getHashIdentifier(
-  identifier: HexString | Uint8Array | string
-): string {
-  assert(identifier, 'Invalid key string passed')
-  return `${HASH_PREFIX}${identifier}`
-}
+// export function getHashIdentifier(
+//   identifier: HexString | Uint8Array | string
+// ): string {
+//   assert(identifier, 'Invalid key string passed')
+//   return `${HASH_PREFIX}${identifier}`
+// }
 
-export function getIdentifierHash(identifier: string): string {
-  const id = identifier.split(HASH_PREFIX).join('')
-  return decodeIdentifierHash(id)
-}
+// export function getIdentifierHash(identifier: string): string {
+//   const id = identifier.split(HASH_PREFIX).join('')
+//   return decodeIdentifierHash(id)
+// }
 
 /**
  * @name checkIdentifier

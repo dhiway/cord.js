@@ -9,7 +9,7 @@ import type {
   DidDocument,
   DidKey,
   DidServiceEndpoint,
-} from '@kiltprotocol/types'
+} from '@cord.network/types'
 
 /**
  * Gets all public keys associated with this DID.

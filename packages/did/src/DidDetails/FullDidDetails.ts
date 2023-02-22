@@ -11,14 +11,14 @@ import { BN } from '@polkadot/util'
 
 import type {
   DidUri,
-  KiltAddress,
+  CordAddress,
   SignExtrinsicCallback,
   SubmittableExtrinsic,
   VerificationKeyRelationship,
-} from '@kiltprotocol/types'
+} from '@cord.network/types'
 
-import { SDKErrors } from '@kiltprotocol/utils'
-import { ConfigService } from '@kiltprotocol/config'
+import { SDKErrors } from '@cord.network/utils'
+import { ConfigService } from '@cord.network/config'
 
 import {
   documentFromChain,
@@ -27,20 +27,16 @@ import {
 } from '../Did.chain.js'
 import { parse } from '../Did.utils.js'
 
-// Must be in sync with what's implemented in impl did::DeriveDidCallAuthorizationVerificationKeyRelationship for Call
-// in https://github.com/KILTprotocol/mashnet-node/blob/develop/runtimes/spiritnet/src/lib.rs
-// TODO: Should have an RPC or something similar to avoid inconsistencies in the future.
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
-  attestation: 'assertionMethod',
-  ctype: 'assertionMethod',
-  delegation: 'capabilityDelegation',
+  stream: 'assertionMethod',
+  // ctype: 'assertionMethod',
+  // delegation: 'capabilityDelegation',
   did: 'authentication',
   'did.create': undefined,
-  'did.reclaimDeposit': undefined,
   'did.submitDidCall': undefined,
   didLookup: 'authentication',
-  publicCredentials: 'assertionMethod',
-  web3Names: 'authentication',
+  // publicCredentials: 'assertionMethod',
+  // web3Names: 'authentication',
 }
 
 function getKeyRelationshipForMethod(
@@ -122,7 +118,7 @@ export async function authorizeTx(
   did: DidUri,
   extrinsic: Extrinsic,
   sign: SignExtrinsicCallback,
-  submitterAccount: KiltAddress,
+  submitterAccount: CordAddress,
   {
     txCounter,
   }: {
@@ -216,7 +212,7 @@ export async function authorizeBatch({
   extrinsics: Extrinsic[]
   nonce?: BN
   sign: SignExtrinsicCallback
-  submitter: KiltAddress
+  submitter: CordAddress
 }): Promise<SubmittableExtrinsic> {
   if (extrinsics.length === 0) {
     throw new SDKErrors.DidBatchError(

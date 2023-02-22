@@ -24,6 +24,5 @@ export interface IMetadata {
 
 export interface ISchemaMetadata {
   metadata: IMetadata
-  id: ISchema['identifier'] | null
-  hash: ISchema['schemaHash'] | null
+  id: ISchema['$id'] | null
 }

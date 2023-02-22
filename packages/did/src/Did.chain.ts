@@ -31,11 +31,11 @@ import { verificationKeyTypes } from '@cord.network/types'
 import { Crypto, SDKErrors, ss58Format } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import type {
-  DidDidDetails,
-  DidDidDetailsDidAuthorizedCallOperation,
-  DidDidDetailsDidPublicKey,
-  DidDidDetailsDidPublicKeyDetails,
-  DidServiceEndpointsDidEndpoint,
+  PalletDidDidDetails,
+  PalletDidDidDetailsDidAuthorizedCallOperation,
+  PalletDidDidDetailsDidPublicKey,
+  PalletDidDidDetailsDidPublicKeyDetails,
+  PalletDidServiceEndpointsDidEndpoint,
 } from '@cord.network/augment-api'
 
 import {
@@ -47,11 +47,12 @@ import {
   getFullDidUri,
   parse,
 } from './Did.utils.js'
+import { ApiPromise } from '@polkadot/api'
 
 // ### Chain type definitions
 
-export type ChainDidPublicKey = DidDidDetailsDidPublicKey
-export type ChainDidPublicKeyDetails = DidDidDetailsDidPublicKeyDetails
+export type ChainDidPublicKey = PalletDidDidDetailsDidPublicKey
+export type ChainDidPublicKeyDetails = PalletDidDidDetailsDidPublicKeyDetails
 
 // ### RAW QUERYING (lowest layer)
 
@@ -61,7 +62,7 @@ export type ChainDidPublicKeyDetails = DidDidDetailsDidPublicKeyDetails
  * @param did The DID to format.
  * @returns The blockchain-formatted DID.
  */
-export function toChain(did: DidUri): KiltAddress {
+export function toChain(did: DidUri): CordAddress {
   return parse(did).address
 }
 
@@ -75,19 +76,6 @@ export function resourceIdToChain(id: UriFragment): string {
   return id.replace(/^#/, '')
 }
 
-/**
- * Convert the deposit data coming from the blockchain to JS object.
- *
- * @param deposit The blockchain-formatted deposit data.
- * @returns The deposit data.
- */
-export function depositFromChain(deposit: KiltSupportDeposit): Deposit {
-  return {
-    owner: Crypto.encodeAddress(deposit.owner, ss58Format),
-    amount: deposit.amount.toBn(),
-  }
-}
-
 // ### DECODED QUERYING types
 
 type ChainDocument = Pick<
@@ -95,7 +83,6 @@ type ChainDocument = Pick<
   'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'keyAgreement'
 > & {
   lastTxCounter: BN
-  deposit: Deposit
 }
 
 // ### DECODED QUERYING (builds on top of raw querying)
@@ -131,16 +118,15 @@ export function fromChain(encoded: AccountId32): DidUri {
  * @returns The DID Document.
  */
 export function documentFromChain(
-  encoded: Option<DidDidDetails>
+  encoded: Option<PalletDidDidDetails>
 ): ChainDocument {
   const {
     publicKeys,
     authenticationKey,
-    attestationKey,
+    assertionKey,
     delegationKey,
     keyAgreementKeys,
     lastTxCounter,
-    deposit,
   } = encoded.unwrap()
 
   const keys: Record<string, DidKey> = [...publicKeys.entries()]
@@ -157,10 +143,9 @@ export function documentFromChain(
   const didRecord: ChainDocument = {
     authentication: [authentication],
     lastTxCounter: lastTxCounter.toBn(),
-    deposit: depositFromChain(deposit),
   }
-  if (attestationKey.isSome) {
-    const key = keys[attestationKey.unwrap().toHex()] as DidVerificationKey
+  if (assertionKey.isSome) {
+    const key = keys[assertionKey.unwrap().toHex()] as DidVerificationKey
     didRecord.assertionMethod = [key]
   }
   if (delegationKey.isSome) {
@@ -226,7 +211,7 @@ function isUriFragment(str: string): boolean {
  */
 export function validateService(endpoint: DidServiceEndpoint): void {
   const { id, serviceEndpoint } = endpoint
-  if (id.startsWith('did:kilt')) {
+  if (id.startsWith('did:cord')) {
     throw new SDKErrors.DidError(
       `This function requires only the URI fragment part (following '#') of the service ID, not the full DID URI, which is violated by id "${id}"`
     )
@@ -268,7 +253,7 @@ export function serviceToChain(service: DidServiceEndpoint): ChainEndpoint {
  * @returns The DID service.
  */
 export function serviceFromChain(
-  encoded: Option<DidServiceEndpointsDidEndpoint>
+  encoded: Option<PalletDidServiceEndpointsDidEndpoint>
 ): DidServiceEndpoint {
   const { id, serviceTypes, urls } = encoded.unwrap()
   return {
@@ -284,7 +269,7 @@ export type AuthorizeCallInput = {
   did: DidUri
   txCounter: AnyNumber
   call: Extrinsic
-  submitter: KiltAddress
+  submitter: CordAddress
   blockNumber?: AnyNumber
 }
 
@@ -312,7 +297,7 @@ interface GetStoreTxInput {
   authentication: [NewDidVerificationKey]
   assertionMethod?: [NewDidVerificationKey]
   capabilityDelegation?: [NewDidVerificationKey]
-  keyAgreement?: NewDidEncryptionKey[]
+  keyAgreement?: [NewDidEncryptionKey]
 
   service?: DidServiceEndpoint[]
 }
@@ -340,7 +325,7 @@ export type GetStoreTxSignCallback = (
  */
 export async function getStoreTx(
   input: GetStoreTxInput | DidDocument,
-  submitter: KiltAddress,
+  submitter: CordAddress,
   sign: GetStoreTxSignCallback
 ): Promise<SubmittableExtrinsic> {
   const api = ConfigService.get('api')
@@ -349,7 +334,7 @@ export async function getStoreTx(
     authentication,
     assertionMethod,
     capabilityDelegation,
-    keyAgreement = [],
+    keyAgreement,
     service = [],
   } = input
 
@@ -373,10 +358,9 @@ export async function getStoreTx(
     )
   }
 
-  const maxKeyAgreementKeys = api.consts.did.maxNewKeyAgreementKeys.toNumber()
-  if (keyAgreement.length > maxKeyAgreementKeys) {
+  if (keyAgreement && keyAgreement.length > 1) {
     throw new SDKErrors.DidError(
-      `The number of key agreement keys in the creation operation is greater than the maximum allowed, which is ${maxKeyAgreementKeys}`
+      `More than one agreement key (${keyAgreement.length}) specified. The transaction can only have one.`
     )
   }
 
@@ -401,7 +385,9 @@ export async function getStoreTx(
     capabilityDelegation.length > 0 &&
     publicKeyToChain(capabilityDelegation[0])
 
-  const newKeyAgreementKeys = keyAgreement.map(publicKeyToChain)
+  const newKeyAgreementKey =
+    keyAgreement && keyAgreement.length > 0 && publicKeyToChain(keyAgreement[0])
+
   const newServiceDetails = service.map(serviceToChain)
 
   const apiInput = {
@@ -409,7 +395,7 @@ export async function getStoreTx(
     submitter,
     newAttestationKey,
     newDelegationKey,
-    newKeyAgreementKeys,
+    newKeyAgreementKey,
     newServiceDetails,
   }
 
@@ -455,9 +441,9 @@ export async function generateDidAuthenticatedTx({
   submitter,
   blockNumber,
 }: AuthorizeCallInput & SigningOptions): Promise<SubmittableExtrinsic> {
-  const api = ConfigService.get('api')
-  const signableCall =
-    api.registry.createType<DidDidDetailsDidAuthorizedCallOperation>(
+  const api: ApiPromise = ConfigService.get('api')
+  const signableCall: PalletDidDidDetailsDidAuthorizedCallOperation =
+    api.registry.createType<PalletDidDidDetailsDidAuthorizedCallOperation>(
       api.tx.did.submitDidCall.meta.args[0].type.toString(),
       {
         txCounter,

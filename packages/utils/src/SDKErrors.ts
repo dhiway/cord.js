@@ -22,6 +22,16 @@ export class UnsupportedKeyError extends SDKError {
   }
 }
 
+export class BlockchainApiMissingError extends SDKError {
+  constructor(options?: ErrorOptions) {
+    super(
+      'The blockchain API is not set. Did you forget to call `Cord.connect(…)` or `Cord.init(…)`?',
+      options
+    )
+  }
+}
+export class InputContentsMalformedError extends SDKError {}
+
 export class EncryptionError extends SDKError {}
 
 export class DidError extends SDKError {}
@@ -39,6 +49,56 @@ export class DidDeactivatedError extends SDKError {}
 export class AddressTypeError extends SDKError {}
 
 export class SignatureMalformedError extends SDKError {}
+
+export class SignatureUnverifiableError extends SDKError {}
+
+export class ObjectUnverifiableError extends SDKError {}
+
+export class SchemaIdMissingError extends SDKError {}
+
+export class SchemaError extends SDKError {}
+
+export class SchemaIdentifierMissingError extends SDKError {}
+
+export class SchemaIdMismatchError extends SDKError {
+  constructor(fromSchema: string, provided: string) {
+    super(
+      `Provided $id "${provided}" does not match schema $id "${fromSchema}"`
+    )
+  }
+}
+
+export class NestedContentUnverifiableError extends SDKError {}
+
+export class RootHashUnverifiableError extends SDKError {}
+
+export class ContentHashMissingError extends SDKError {}
+
+export class RevokedTypeError extends SDKError {}
+
+export class HolderMissingError extends SDKError {}
+
+export class SubjectMissingError extends SDKError {}
+
+export class EvidenceMissingError extends SDKError {}
+
+export class ContentNonceMapMissingError extends SDKError {}
+
+export class ContentMissingError extends SDKError {}
+
+export class HashTypeError extends SDKError {}
+
+export class ContentNonceMapMalformedError extends SDKError {
+  constructor(statement?: string) {
+    if (statement) {
+      super(`Nonce map malformed or incomplete for statement "${statement}"`)
+    } else {
+      super(`Nonce map malformed or incomplete`)
+    }
+  }
+}
+
+export class DataStructureError extends SDKError {}
 
 export class ERROR_ID_MALFORMED extends SDKError {
   constructor() {
@@ -83,6 +143,19 @@ export class HashMalformedError extends SDKError {
     }
   }
 }
+
+export class InvalidProofForStatementError extends SDKError {
+  constructor(statement: string) {
+    super(`Proof could not be verified for statement:\n${statement}`)
+  }
+}
+export class NoProofForStatementError extends SDKError {
+  constructor(statement: string) {
+    super(`No matching proof found for statement:\n${statement}`)
+  }
+}
+
+export class ContentUnverifiableError extends SDKError {}
 
 export class ERROR_CONTROLLER_MISMATCH extends SDKError {
   constructor() {
