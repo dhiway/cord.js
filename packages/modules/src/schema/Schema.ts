@@ -55,26 +55,6 @@ export function getHashForSchema(
 }
 
 /**
-//  * Calculates the schema $id from a Schema hash.
-//  *
-//  * @param hash Schema hash as hex string.
-//  * @returns Schema id uri.
-//  */
-// export function hashToUri(hash: SchemaHash): ISchema['$id'] {
-//   return `schema:cord:${Identifier.getIdentifier(hash, SCHEMA_IDENTIFIER)}`
-// }
-
-// /**
-//  * Extracts the Schema Idenitfier from a Schema $id URI.
-//  *
-//  * @param id A Schema id of the form 'schema:cord:0x[0-9a-f]'.
-//  * @returns The CType hash as a zero-prefixed string of hex digits.
-//  */
-// export function uriToId(id: ISchema['$id']): SchemaId {
-//   return Identifier.getIdentifierKey(id) as SchemaId
-// }
-
-/**
  * Calculates the schema $id by hashing it.
  *
  * @param schema  Schema for which to create the id.
@@ -97,12 +77,13 @@ export function getUriForSchema(
  */
 export function verifyObjectAgainstSchema(
   object: Record<string, any>,
-  schema: Record<string, any>,
-  messages?: string[]
+  schema: JsonSchema.Schema,
+  messages?: string[],
+  referencedSchemas?: JsonSchema.Schema[]
 ): void {
   const validator = new JsonSchema.Validator(schema, '7', false)
-  if (schema.$id !== SchemaModel.$id) {
-    validator.addSchema(SchemaModel)
+  if (referencedSchemas) {
+    referencedSchemas.forEach((i) => validator.addSchema(i))
   }
   const { valid, errors } = validator.validate(object)
   if (valid === true) return
@@ -130,7 +111,7 @@ export function verifyContentAganistSchema(
   schema: ISchema,
   messages?: string[]
 ): void {
-  verifyObjectAgainstSchema(schema, SchemaModel)
+  verifyObjectAgainstSchema(schema, SchemaModel, messages)
   verifyObjectAgainstSchema(contents, schema, messages)
 }
 
@@ -178,21 +159,8 @@ export function verifyContentAgainstNestedSchemas(
   contents: Record<string, any>,
   messages?: string[]
 ): void {
-  const validator = new JsonSchema.Validator(schema, '7', false)
-  nestedSchemas.forEach((schema) => {
-    validator.addSchema(schema)
-  })
-  validator.addSchema(SchemaModel)
-  const { valid, errors } = validator.validate(contents)
-  if (valid === true) return
-  if (messages) {
-    errors.forEach((error) => {
-      messages.push(error.error)
-    })
-  }
-  throw new SDKErrors.NestedContentUnverifiableError(undefined, {
-    cause: errors,
-  })
+  verifyObjectAgainstSchema(schema, SchemaModel, messages)
+  verifyObjectAgainstSchema(contents, schema, messages, nestedSchemas)
 }
 
 /**
