@@ -293,6 +293,13 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Scheduled: AugmentedEvent<ApiType, [when: u32, index: u32], { when: u32, index: u32 }>;
     };
+    schema: {
+      /**
+       * A new schema has been created.
+       * \[schema identifier, digest, author\]
+       **/
+      Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
+    };
     session: {
       /**
        * New session has happened. Note that the argument is the session index, not the

@@ -547,6 +547,33 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TargetBlockNumberInPast: AugmentedError<ApiType>;
     };
+    schema: {
+      /**
+       * Creator DID information not found.
+       **/
+      CreatorNotFound: AugmentedError<ApiType>;
+      /**
+       * Empty transaction.
+       **/
+      EmptyTransaction: AugmentedError<ApiType>;
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Schema limit exceeds the permitted size.
+       **/
+      MaxEncodedSchemaLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Schema identifier is not unique.
+       **/
+      SchemaAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Schema identifier not found.
+       **/
+      SchemaNotFound: AugmentedError<ApiType>;
+      /**
+       * The paying account was unable to pay the fees for creating a schema.
+       **/
+      UnableToPayFees: AugmentedError<ApiType>;
+    };
     session: {
       /**
        * Registered duplicate key.

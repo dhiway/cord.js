@@ -15,9 +15,9 @@ import type {
   ResolvedDidKey,
   ResolvedDidServiceEndpoint,
   UriFragment,
-} from '@kiltprotocol/types'
-import { SDKErrors } from '@kiltprotocol/utils'
-import { ConfigService } from '@kiltprotocol/config'
+} from '@cord.network/types'
+import { SDKErrors } from '@cord.network/utils'
+import { ConfigService } from '@cord.network/config'
 
 import * as Did from '../index.js'
 import { toChain } from '../Did.chain.js'
@@ -42,9 +42,9 @@ export async function resolve(
   const { section, version } = queryFunction?.meta ?? {}
   if (version > 2)
     throw new Error(
-      `This version of the KILT sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
+      `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
     )
-  const { document, web3Name } = await queryFunction(toChain(did))
+  const { document } = await queryFunction(toChain(did))
     .then(linkedInfoFromChain)
     .catch(() => ({ document: undefined, web3Name: undefined }))
 
@@ -54,7 +54,7 @@ export async function resolve(
       metadata: {
         deactivated: false,
       },
-      ...(web3Name && { web3Name }),
+      // ...(web3Name && { web3Name }),
     }
   }
 
@@ -75,7 +75,7 @@ export async function resolve(
     return null
   }
 
-  const lightDocument = Did.parseDocumentFromLightDid(did, false)
+  // const lightDocument = Did.parseDocumentFromLightDid(did, false)
   // If a full DID with same subject is present, return the resolution metadata accordingly.
   if (document) {
     return {
@@ -89,7 +89,7 @@ export async function resolve(
   // If no full DID details nor deletion info is found, the light DID is un-migrated.
   // Metadata will simply contain `deactivated: false`.
   return {
-    document: lightDocument,
+    document: document,
     metadata: {
       deactivated: false,
     },

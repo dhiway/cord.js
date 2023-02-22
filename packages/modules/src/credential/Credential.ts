@@ -1,111 +1,332 @@
-/**
- * A[[Credential]] is a **stream**, which a Holder can store locally and share with Verifiers as they wish.
- *
- * Once a content for Credential has been made, the [[Stream]] can be built and the Issuer submits it wrapped in a [[Credential]] object.
- * This [[Credential]] also contains the original content.
- * Credential also exposes a [[createPresentation]] method, that can be used by the holder to hide some specific information from the verifier for more privacy.
- *
- * @packageDocumentation
- * @module Credential
- */
-
+import {
+  isDidSignature,
+  verifyDidSignature,
+  resolveKey,
+  signatureToJson,
+  signatureFromJson,
+} from '@cord.network/did'
 import type {
+  DidResolveKey,
+  Hash,
   ICredential,
-  CompressedCredential,
-  IContentStream,
   IStream,
+  IContent,
+  ICredentialPresentation,
   ISchema,
+  SignCallback,
 } from '@cord.network/types'
-import { SDKErrors, Identifier } from '@cord.network/utils'
-import * as Stream from '../stream/Stream.js'
-import * as ContentStream from '../contentstream/ContentStream.js'
-import { verifyContentWithSchema } from '../schema/index.js'
-import { Identity } from '../identity/Identity.js'
+import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
+import * as Content from '../content/index.js'
+import { hashContents } from '../content/index.js'
 
-/**
- * Verifies whether the data of the given credential is valid. It is valid if:
- * * the [[ContentStream]] object associated with this credential has valid data (see [[ContentStream.verifyDataIntegrity]]);
- * and
- * * the hash of the [[ContentStream]] object for the credential, and the hash of the [[Content]] for the credential are the same.
- *
- * @param credential - The credential to verify.
- * @returns Whether the credential's data is valid.
- */
-export function verifyDataIntegrity(credential: ICredential): boolean {
-  if (
-    Identifier.getIdentifierKey(credential.request.content.schema) !==
-    credential.stream.schema
-  )
-    return false
-  return (
-    credential.request.rootHash === credential.stream.streamHash &&
-    ContentStream.verifyDataIntegrity(credential.request)
-  )
+import { verifyContentAganistSchema } from '../schema/Schema.js'
+import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/types'
+import { Identifier } from '@cord.network/utils'
+
+function getHashRoot(leaves: Uint8Array[]): Uint8Array {
+  const result = Crypto.u8aConcat(...leaves)
+  return Crypto.hash(result)
+}
+
+function getHashLeaves(
+  contentHashes: Hash[],
+  evidenceIds: ICredential[]
+): Uint8Array[] {
+  const result = contentHashes.map((item) => Crypto.coToUInt8(item))
+
+  if (evidenceIds) {
+    evidenceIds.forEach((evidence) => {
+      result.push(Crypto.coToUInt8(evidence.identifier))
+    })
+  }
+  return result
 }
 
 /**
- * Checks whether the input meets all the required criteria of an ICredential object.
- * Throws on invalid input.
+ * Calculates the root hash of the credential.
  *
- * @param input The potentially only partial ICredential.
- * @throws [[ERROR_STREAM_NOT_PROVIDED]] or [[ERROR_RFA_NOT_PROVIDED]] when input's attestation and request respectively do not exist.
+ * @param credential The credential object.
+ * @returns The hash.
+ */
+
+export function calculateRootHash(credential: Partial<ICredential>): Hash {
+  const hashes = getHashLeaves(
+    credential.contentHashes || [],
+    credential.evidenceIds || []
+  )
+  const root = getHashRoot(hashes)
+  return Crypto.u8aToHex(root)
+}
+
+/**
+ * Removes [[Content] properties from the [[ContentStream]] object, provides anonymity and security when building the [[createPresentation]] method.
+ *
+ * @param credential - The credential object to remove properties from.
+ * @param properties - Properties to remove from the [[Content]] object.
+ * @returns A cloned Stream with removed properties.
+ */
+export function removeContentProperties(
+  credential: ICredential,
+  properties: string[]
+): ICredential {
+  const presentation: ICredential =
+    // clone the credential because properties will be deleted later.
+    // TODO: find a nice way to clone stuff
+    JSON.parse(JSON.stringify(credential))
+
+  properties.forEach((key) => {
+    delete presentation.content.contents[key]
+  })
+  presentation.contentNonceMap = hashContents(presentation.content, {
+    nonces: presentation.contentNonceMap,
+  }).nonceMap
+
+  return presentation
+}
+
+/**
+ * Prepares credential data for signing.
+ *
+ * @param input - The Stream to prepare the data for.
+ * @param challenge - An optional challenge to be included in the signing process.
+ * @returns The prepared signing data as Uint8Array.
+ */
+export function makeSigningData(
+  input: ICredential,
+  challenge?: string
+): Uint8Array {
+  return new Uint8Array([
+    ...Crypto.coToUInt8(input.rootHash),
+    ...Crypto.coToUInt8(challenge),
+  ])
+}
+
+// export async function verifySignature(
+//   content: IContentStream,
+//   {
+//     challenge,
+//   }: {
+//     challenge?: string
+//   } = {}
+// ): Promise<boolean> {
+//   const { signatureProof } = content
+//   if (!signatureProof) return false
+//   const signingData = makeSigningData(content, challenge)
+//   const verified = Crypto.verify(
+//     signingData,
+//     signatureProof.signature,
+//     signatureProof.keyId
+//   )
+//   return verified
+// }
+
+export function verifyRootHash(input: ICredential): void {
+  if (input.rootHash !== calculateRootHash(input))
+    throw new SDKErrors.RootHashUnverifiableError()
+}
+
+/**
+ * Verifies the data of the [[ContentStream]] object; used to check that the data was not tampered with, by checking the data against hashes.
+ *
+ * @param input - The [[Stream]] for which to verify data.
+ */
+
+export function verifyDataIntegrity(input: ICredential): void {
+  // check claim hash
+  verifyRootHash(input)
+
+  // verify properties against selective disclosure proof
+  Content.verifyDisclosedAttributes(input.content, {
+    nonces: input.contentNonceMap,
+    hashes: input.contentHashes,
+  })
+
+  // check legitimations
+  input.evidenceIds.forEach(verifyDataIntegrity)
+}
+
+/**
+ *  Checks whether the input meets all the required criteria of an ICredential object.
+ *  Throws on invalid input.
+ *
+ * @param input - A potentially only partial [[ICredential]].
  *
  */
 export function verifyDataStructure(input: ICredential): void {
-  if (input.stream) {
-    Stream.verifyDataStructure(input.stream)
-  } else throw new SDKErrors.ERROR_STREAM_NOT_PROVIDED()
-
-  if (input.request) {
-    ContentStream.verifyDataStructure(input.request)
-  } else throw new SDKErrors.ERROR_CONTENT_STREAM_NOT_PROVIDED()
+  if (!('content' in input)) {
+    throw new SDKErrors.ContentMissingError()
+  } else {
+    Content.verifyDataStructure(input.content)
+  }
+  if (!input.content.holder) {
+    throw new SDKErrors.HolderMissingError()
+  }
+  if (!Array.isArray(input.evidenceIds)) {
+    throw new SDKErrors.EvidenceMissingError()
+  }
+  if (!('contentNonceMap' in input)) {
+    throw new SDKErrors.ContentNonceMapMissingError()
+  }
+  if (typeof input.contentNonceMap !== 'object')
+    throw new SDKErrors.ContentNonceMapMalformedError()
+  Object.entries(input.contentNonceMap).forEach(([digest, nonce]) => {
+    DataUtils.verifyIsHex(digest, 256)
+    if (!digest || typeof nonce !== 'string' || !nonce)
+      throw new SDKErrors.ContentNonceMapMalformedError()
+  })
+  if (!('contentHashes' in input)) {
+    throw new SDKErrors.DataStructureError('content hashes not provided')
+  }
 }
 
 /**
- * Checks the [[Credential]] with a given [[Schema]] to check if the content meets the [[schema]] structure.
+ *  Checks the [[Stream]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
  *
- * @param credential A [[Credential]] object of an attested claim used for verification.
+ * @param contentStream A [[Stream]] object of an anchored content used for verification.
  * @param schema A [[Schema]] to verify the [[Content]] structure.
- *
- * @returns A boolean if the [[Content]] structure in the [[Credential]] is valid.
  */
-export function verifyAgainstCType(
+
+export function verifyAgainstSchema(
   credential: ICredential,
   schema: ISchema
-): boolean {
+): void {
   verifyDataStructure(credential)
-  return verifyContentWithSchema(
-    credential.request.content.contents,
-    schema.schema
-  )
+  verifyContentAganistSchema(credential.content.contents, schema)
 }
 
 /**
- * Builds a new instance of [[Credential]], from all required properties.
+ * Verifies the signature of the [[ICredentialPresentation]].
+ * the signature over the presentation **must** be generated with the DID in order for the verification to be successful.
  *
- * @param request - The content stream.
- * @param stream - The credential stream.
- * @returns A new [[Credential]] object.
- *
+ * @param input - The [[IPresentation]].
+ * @param verificationOpts Additional verification options.
+ * @param verificationOpts.didResolveKey - The function used to resolve the claimer's key. Defaults to [[resolveKey]].
+ * @param verificationOpts.challenge - The expected value of the challenge. Verification will fail in case of a mismatch.
  */
-export function fromRequestAndStream(
-  request: IContentStream,
-  stream: IStream
+export async function verifySignature(
+  input: ICredentialPresentation,
+  {
+    challenge,
+    didResolveKey = resolveKey,
+  }: {
+    challenge?: string
+    didResolveKey?: DidResolveKey
+  } = {}
+): Promise<void> {
+  const { claimerSignature } = input
+  if (challenge && challenge !== claimerSignature.challenge)
+    throw new SDKErrors.SignatureUnverifiableError(
+      'Challenge differs from expected'
+    )
+
+  const signingData = makeSigningData(input, claimerSignature.challenge)
+  await verifyDidSignature({
+    ...signatureFromJson(claimerSignature),
+    message: signingData,
+    // check if credential owner matches signer
+    expectedSigner: input.content.holder,
+    expectedVerificationMethod: 'authentication',
+    didResolveKey,
+  })
+}
+
+export type Options = {
+  evidenceIds?: ICredential[]
+  swarm?: ICredential['swarm']
+}
+
+/**
+ * Builds a new  [[ICredential]] object, from a complete set of required parameters.
+ *
+ * @param content An `IContent` object to build the credential for.
+ * @param option Container for different options that can be passed to this method.
+ * @param option.evidenceIds Array of [[Credential]] objects the Issuer include as evidenceIds.
+ * @param option.link Identifier of the credential this credential is linked to.
+ * @param option.space Identifier of the space this credential is linked to.
+ * @returns A new [[ICredential]] object.
+ */
+export function fromContent(
+  content: IContent,
+  { evidenceIds, swarm }: Options = {}
 ): ICredential {
+  const { hashes: contentHashes, nonceMap: contentNonceMap } =
+    Content.hashContents(content)
+
+  const rootHash = calculateRootHash({
+    evidenceIds,
+    contentHashes,
+  })
+
   const credential = {
-    request,
-    stream,
+    content,
+    contentHashes,
+    contentNonceMap,
+    evidenceIds: evidenceIds || [],
+    swarm: swarm || null,
+    rootHash,
+    identifier: Identifier.hashToUri(
+      rootHash,
+      STREAM_IDENTIFIER,
+      STREAM_PREFIX
+    ),
   }
   verifyDataStructure(credential)
   return credential
 }
 
+type VerifyOptions = {
+  schema?: ISchema
+  challenge?: string
+  didResolveKey?: DidResolveKey
+}
+
 /**
- * Custom Type Guard to determine input being of type ICredential using the CredentialUtils errorCheck.
+ * Verifies data structure & data integrity of a credential object.
  *
- * @param input The potentially only partial ICredential.
+ * @param credential - The object to check.
+ * @param options - Additional parameter for more verification steps.
+ * @param options.schema - Schema to be checked against.
+ */
+export async function verifyCredential(
+  credential: ICredential,
+  { schema }: VerifyOptions = {}
+): Promise<void> {
+  verifyDataStructure(credential)
+  verifyDataIntegrity(credential)
+
+  if (schema) {
+    verifyAgainstSchema(credential, schema)
+  }
+}
+
+/**
+ * Verifies data structure, data integrity and the holder's signature of a credential presentation.
  *
- * @returns Boolean whether input is of type ICredential.
+ * Upon presentation of a credential, a verifier would call this function.
+ *
+ * @param presentation - The object to check.
+ * @param options - Additional parameter for more verification steps.
+ * @param options.schema - Schema which the included claim should be checked against.
+ * @param options.challenge -  The expected value of the challenge. Verification will fail in case of a mismatch.
+ * @param options.didResolveKey - The function used to resolve the holders's key. Defaults to [[resolveKey]].
+ */
+export async function verifyPresentation(
+  presentation: ICredentialPresentation,
+  { schema, challenge, didResolveKey = resolveKey }: VerifyOptions = {}
+): Promise<void> {
+  await verifyCredential(presentation, { schema })
+  await verifySignature(presentation, {
+    challenge,
+    didResolveKey,
+  })
+}
+
+/**
+ * Type Guard to determine input being of type [[ICredential]].
+ *
+ * @param input - A potentially only partial [[ICredential]].
+ *
+ * @returns  Boolean whether input is of type ICredential.
  */
 export function isICredential(input: unknown): input is ICredential {
   try {
@@ -117,91 +338,65 @@ export function isICredential(input: unknown): input is ICredential {
 }
 
 /**
- * Verifies whether the credential stream is valid. It is valid if:
- * * the data is valid (see [[verifyData]]);
- * and
- * * the [[Stream]] object for this stream is valid (see [[Stream.checkValidity]], where the **chain** is queried).
+ * Type Guard to determine input being of type [[ICredentialPresentation]].
  *
- * Upon presentation of a stream, a verifier would call this [[verify]] function.
+ * @param input - An [[ICredential]], [[ICredentialPresentation]], or other object.
  *
- * @param markedStream - The stream to check for validity.
- * @returns A promise containing whether this attested stream is valid.
- *
+ * @returns  Boolean whether input is of type ICredentialPresentation.
  */
-
-export async function verify(
-  cred: ICredential,
-  challenge?: string
-): Promise<boolean> {
+export function isPresentation(
+  input: unknown
+): input is ICredentialPresentation {
   return (
-    verifyDataIntegrity(cred) &&
-    (await ContentStream.verifySignature(cred.request, { challenge })) &&
-    Stream.checkValidity(cred.stream)
+    isICredential(input) &&
+    isDidSignature((input as ICredentialPresentation).claimerSignature)
   )
 }
 
 /**
- * Verifies the data of each element of the given Array of IMarkedStreams.
+ * Gets the hash of the credential.
  *
- * @param evidenceIds Array of IMarkedStreams to validate.
- * @throws [[ERROR_EVIDENCE_ID_UNVERIFIABLE]] when one of the IMarkedStreams data is unable to be verified.
- *
- * @returns Boolean whether each element of the given Array of IMarkedStreams is verifiable.
+ * @param credential - The credential to get the hash from.
+ * @returns The hash of the credential.
  */
-export function validateEvidenceIds(evidenceIds: ICredential[]): boolean {
-  evidenceIds.forEach((evidence: ICredential) => {
-    if (!verifyDataIntegrity(evidence)) {
-      throw new SDKErrors.ERROR_EVIDENCE_ID_UNVERIFIABLE()
-    }
-  })
-  return true
+export function getHash(credential: ICredential): IStream['streamHash'] {
+  return credential.rootHash
 }
 
 /**
- * Gets the hash of the stream that corresponds to this credential.
+ * Gets names of the credential’s attributes.
  *
- * @returns The hash of the stream for this credential (streamHash).
- *
+ * @param credential The credential.
+ * @returns The set of names.
  */
-export function getHash(credential: ICredential): IStream['streamHash'] {
-  return credential.stream.streamHash
-}
-
-export function getId(credential: ICredential): IStream['identifier'] {
-  return credential.stream.identifier
-}
-
-export function getAttributes(credential: ICredential): Set<string> {
-  // TODO: move this to stream or contents
-  return new Set(Object.keys(credential.request.content.contents))
+function getAttributes(credential: ICredential): Set<string> {
+  return new Set(Object.keys(credential.content.contents))
 }
 
 /**
  * Creates a public presentation which can be sent to a verifier.
+ * This presentation is signed.
  *
- * @param publicAttributes All properties of the stream which have been requested by the verifier and therefore must be publicly presented.
- * If kept empty, we hide all attributes inside the stream for the presentation.
- *
- * @returns A deep copy of the MarkedStream with all but `publicAttributes` removed.
+ * @param presentationOptions The additional options to use upon presentation generation.
+ * @param presentationOptions.credential The credential to create the presentation for.
+ * @param presentationOptions.signCallback The callback to sign the presentation.
+ * @param presentationOptions.selectedAttributes All properties of the credential which have been requested by the verifier and therefore must be publicly presented.
+ * @param presentationOptions.challenge Challenge which will be part of the presentation signature.
+ * If not specified, all attributes are shown. If set to an empty array, we hide all attributes inside the claim for the presentation.
+ * @returns A deep copy of the Credential with selected attributes.
  */
-
 export async function createPresentation({
   credential,
+  signCallback,
   selectedAttributes,
-  signer,
   challenge,
 }: {
   credential: ICredential
+  signCallback: SignCallback
   selectedAttributes?: string[]
-  signer: Identity
   challenge?: string
-}): Promise<ICredential> {
-  const presentation =
-    // clone the attestation and request for attestation because properties will be deleted later.
-    // TODO: find a nice way to clone stuff
-    JSON.parse(JSON.stringify(credential))
-
-  // filter attributes that are not in public attributes
+}): Promise<ICredentialPresentation> {
+  // filter attributes that are not in requested attributes
   const excludedClaimProperties = selectedAttributes
     ? Array.from(getAttributes(credential)).filter(
         (property) => !selectedAttributes.includes(property)
@@ -209,46 +404,22 @@ export async function createPresentation({
     : []
 
   // remove these attributes
-  ContentStream.removeContentProperties(
-    presentation.request,
+  const presentation = removeContentProperties(
+    credential,
     excludedClaimProperties
   )
 
-  await ContentStream.signWithKey(presentation.request, signer, challenge)
+  const signature = await signCallback({
+    data: makeSigningData(presentation, challenge),
+    did: credential.content.holder,
+    keyRelationship: 'authentication',
+  })
 
-  return presentation
-}
-
-/**
- * Compresses a [[Credential]] object into an array for storage and/or messaging.
- *
- * @param credential - The credential to compress.
- * @returns An array that contains the same properties of a [[Credential]].
- */
-export function compress(credential: ICredential): CompressedCredential {
-  verifyDataStructure(credential)
-
-  return [
-    ContentStream.compress(credential.request),
-    Stream.compress(credential.stream),
-  ]
-}
-
-/**
- * Decompresses a [[Credential]] array from storage and/or message into an object.
- *
- * @param credential The [[CompressedCredential]] that should get decompressed.
- * @throws [[ERROR_DECOMPRESSION_ARRAY]] when credential is not an Array or it's length is unequal 2.
- * @returns A new [[Credential]] object.
- */
-export function decompress(credential: CompressedCredential): ICredential {
-  if (!Array.isArray(credential) || credential.length !== 2) {
-    throw new SDKErrors.ERROR_DECOMPRESSION_ARRAY('Credential')
+  return {
+    ...presentation,
+    claimerSignature: {
+      ...signatureToJson(signature),
+      ...(challenge && { challenge }),
+    },
   }
-  const decompressedCredential = {
-    request: ContentStream.decompress(credential[0]),
-    stream: Stream.decompress(credential[1]),
-  }
-  verifyDataStructure(decompressedCredential)
-  return decompressedCredential
 }

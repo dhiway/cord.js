@@ -1,8 +1,9 @@
 import type { HexString } from '@polkadot/util/types'
-import type { DidUri } from './DidDocument'
 
 export const SCHEMA_IDENTIFIER: number = 41
 export const SCHEMA_PREFIX: string = 'schema:cord:'
+export type SchemaId = string
+export type SchemaHash = HexString
 
 export type InstanceType =
   | 'array'
@@ -13,8 +14,8 @@ export type InstanceType =
   | 'object'
   | 'string'
 
-export interface ISchemaType {
-  $id: string
+export interface ISchema {
+  $id: SchemaId
   $schema: string
   title: string
   description: string
@@ -25,14 +26,4 @@ export interface ISchemaType {
     [key: string]: { $ref?: string; type?: InstanceType; format?: string }
   }
   type: 'object'
-}
-
-export type SchemaId = string
-
-export interface ISchema {
-  identifier: string
-  schemaHash: HexString
-  controller: DidUri
-  controllerSignature: string
-  schema: ISchemaType
 }

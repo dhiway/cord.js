@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @module TypeSchema
- */
-
 import { JsonSchema } from '@cord.network/utils'
 
 export const SchemaModel: JsonSchema.Schema = {
@@ -28,7 +23,6 @@ export const SchemaModel: JsonSchema.Schema = {
     },
     $metadata: {
       version: { type: ['string', 'null'] },
-      discoverable: { type: 'boolean' },
     },
     type: {
       type: 'string',
@@ -42,7 +36,14 @@ export const SchemaModel: JsonSchema.Schema = {
           properties: {
             type: {
               type: 'string',
-              enum: ['string', 'integer', 'number', 'boolean', 'array', 'object'],
+              enum: [
+                'string',
+                'integer',
+                'number',
+                'boolean',
+                'array',
+                'object',
+              ],
             },
             $ref: {
               type: 'string',
@@ -68,31 +69,6 @@ export const SchemaModel: JsonSchema.Schema = {
   },
   additionalProperties: true,
   required: ['$id', 'title', '$schema', 'properties', 'type'],
-}
-
-export const SchemaWrapperModel = {
-  $id: 'http://cord.network/draft-01/schema-wrapper#',
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  type: 'object',
-  properties: {
-    schema: {
-      type: 'object',
-      properties: SchemaModel.properties,
-      required: SchemaModel.required,
-    },
-    identifier: {
-      type: 'string',
-      format: 'uri',
-      pattern: '^schema:cord:5[0-9a-zA-Z]+$',
-    },
-    schemaHash: {
-      type: 'string',
-    },
-    controller: { type: ['string', 'null'] },
-    controllerSignature: { type: ['string', 'null'] },
-  },
-  additionalProperties: false,
-  required: ['schema', 'identifier', 'schemaHash'],
 }
 
 export const MetadataModel = {
@@ -180,6 +156,6 @@ export const MetadataModel = {
     schemaHash: { type: 'string', minLength: 1 },
     version: { type: 'string', minLength: 1 },
   },
-  required: ['metadata', 'identifier', 'schemaHash'],
+  required: ['metadata', 'identifier'],
   additionalProperties: false,
 }

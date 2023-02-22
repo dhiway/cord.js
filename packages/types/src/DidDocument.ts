@@ -16,7 +16,7 @@ type DidUriVersion = '' | `v${string}:`
 /**
  * A string containing a KILT DID Uri.
  */
-export type DidUri = `did:kilt:${DidUriVersion}${CordAddress}`
+export type DidUri = `did:cord:${DidUriVersion}${CordAddress}`
 
 /**
  * The fragment part of the DID URI including the `#` character.
@@ -37,7 +37,7 @@ const keyRelationshipsC = [
   'keyAgreement',
 ] as const
 export const keyRelationships = keyRelationshipsC as unknown as string[]
-export type KeyRelationship = typeof keyRelationshipsC[number]
+export type KeyRelationship = (typeof keyRelationshipsC)[number]
 
 /**
  * Subset of key relationships which pertain to signing/verification keys.
@@ -52,7 +52,7 @@ export type VerificationKeyRelationship = Extract<
  */
 const verificationKeyTypesC = ['sr25519', 'ed25519', 'ecdsa'] as const
 export const verificationKeyTypes = verificationKeyTypesC as unknown as string[]
-export type VerificationKeyType = typeof verificationKeyTypesC[number]
+export type VerificationKeyType = (typeof verificationKeyTypesC)[number]
 // `as unknown as string[]` is a workaround for https://github.com/microsoft/TypeScript/issues/26255
 
 /**
@@ -65,7 +65,7 @@ export type EncryptionKeyRelationship = Extract<KeyRelationship, 'keyAgreement'>
  */
 const encryptionKeyTypesC = ['x25519'] as const
 export const encryptionKeyTypes = encryptionKeyTypesC as unknown as string[]
-export type EncryptionKeyType = typeof encryptionKeyTypesC[number]
+export type EncryptionKeyType = (typeof encryptionKeyTypesC)[number]
 
 /**
  * Type of a new key material to add under a DID.
