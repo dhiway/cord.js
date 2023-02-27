@@ -1,12 +1,4 @@
-/**
- * Copyright (c) 2018-2023, BOTLabs GmbH.
- *
- * This source code is licensed under the BSD 4-Clause "Original" license
- * found in the LICENSE file in the root directory of this source tree.
- */
-
 import type { Option } from '@polkadot/types'
-
 // import type { Enum, Option, U8aFixed, Vec } from '@polkadot/types'
 // import type { Codec } from '@polkadot/types/types'
 import type { AccountId32, Hash } from '@polkadot/types/interfaces'
@@ -192,7 +184,7 @@ export function linkedInfoFromChain(
   // networkPrefix = ss58Format
 ): DidInfo {
   const { identifier, serviceEndpoints, details } = encoded.unwrap()
-
+  console.log(identifier, serviceEndpoints, details)
   const didRec = documentFromChain(details)
   const did: DidDocument = {
     uri: fromChain(identifier),

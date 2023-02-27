@@ -8,7 +8,7 @@
  * Dummy comment needed for correct doc display, do not remove.
  */
 import { isHex } from '@polkadot/util'
-import '@polkadot/api-augment'
+// import '@polkadot/api-augment'
 // import type { IPublicIdentity, CordAddress } from '@cord.network/types'
 import type { CordAddress } from '@cord.network/types'
 

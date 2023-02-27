@@ -26,7 +26,7 @@ export function makeSubscriptionPromise<SubscriptionType>(
   promise: Promise<SubscriptionType>
   subscription: (value: SubscriptionType) => void
 } {
-  const { resolveOn, rejectOn, timeout } = { ...terminationOptions }
+  const { resolveOn, rejectOn, timeout = 0 } = { ...terminationOptions }
   let resolve: (value: SubscriptionType) => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let reject: (reason: any) => void
@@ -37,15 +37,16 @@ export function makeSubscriptionPromise<SubscriptionType>(
   const subscription: (value: SubscriptionType) => void =
     typeof rejectOn === 'function'
       ? (value) => {
-          if (rejectOn(value)) reject(value)
-          if (resolveOn(value)) resolve(value)
+          // eslint-disable-next-line no-extra-boolean-cast
+          if (Boolean(rejectOn(value))) reject(value)
+          if (resolveOn(value) === true) resolve(value)
         }
       : (value) => {
-          if (resolveOn(value)) resolve(value)
+          if (resolveOn(value) === true) resolve(value)
         }
-  if (timeout)
+  if (timeout > 0)
     setTimeout(() => {
-      reject(new SDKErrors.ERROR_TIMEOUT())
+      reject(new SDKErrors.TimeoutError())
     }, timeout)
   return { promise, subscription }
 }
@@ -67,13 +68,15 @@ export function makeSubscriptionPromiseMulti<SubscriptionType>(
   const subscriptions: Array<(value: SubscriptionType) => void> = []
   args.forEach(
     (options: SubscriptionPromise.TerminationOptions<SubscriptionType>) => {
-      const { promise, subscription } = makeSubscriptionPromise(options)
+      const { promise, subscription: sub } = makeSubscriptionPromise(options)
       promises.push(promise)
-      subscriptions.push(subscription)
+      subscriptions.push(sub)
     }
   )
-  const subscription = (value: SubscriptionType): void => {
+
+  function subscription(value: SubscriptionType): void {
     subscriptions.forEach((s) => s(value))
   }
+
   return { promises, subscription }
 }

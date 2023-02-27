@@ -157,6 +157,21 @@ export class NoProofForStatementError extends SDKError {
 
 export class ContentUnverifiableError extends SDKError {}
 
+export class SubscriptionsNotSupportedError extends SDKError {
+  constructor(options?: ErrorOptions) {
+    super(
+      'This function is not available if the blockchain API does not support state or event subscriptions, use `WsProvider` to enable the complete feature set',
+      options
+    )
+  }
+}
+
+export class DecodingMessageError extends SDKError {}
+
+export class TimeoutError extends SDKError {}
+
+export class CodecMismatchError extends SDKError {}
+
 export class ERROR_CONTROLLER_MISMATCH extends SDKError {
   constructor() {
     super('Contoller details invalid or malformed')

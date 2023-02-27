@@ -113,7 +113,7 @@ export function toPicoWay(
   if (fraction && fraction.length > unitVal + 12) {
     throw new Error(
       `Too many decimal places: input with unit ${unit} and value ${stringRepresentation} exceeds the ${
-        unitVal + 15
+        unitVal + 12
       } possible decimal places by ${fraction.length - unitVal + 12}`
     )
   }

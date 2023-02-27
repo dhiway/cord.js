@@ -1,13 +1,13 @@
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { emptyCheck } from './emptyCheck'
-import { objectSpread } from '@polkadot/util'
+// import { objectSpread } from '@polkadot/util'
 
-export const cord: ExtDef = {
-  PalletExtrinsicAuthorshipCheckExtrinsicAuthor: emptyCheck,
+export const cordSignedExtensions: ExtDef = {
   CheckExtrinsicAuthor: emptyCheck,
+  PalletExtrinsicAuthorshipCheckExtrinsicAuthor: emptyCheck,
 }
 
-export const userExtensions: ExtDef = objectSpread({}, cord)
+// export const userExtensions: ExtDef = objectSpread({}, cord)
 
 // export const signedExtensions = {
 //   CheckExtrinsicAuthor: {

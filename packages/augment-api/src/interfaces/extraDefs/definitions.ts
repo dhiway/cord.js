@@ -2,7 +2,7 @@
 
 import {
   types,
-  userExtensions as cordUserExtensions,
+  cordSignedExtensions as userExtensions,
   didCalls,
 } from '@cord.network/type-definitions'
 
@@ -12,7 +12,10 @@ export default {
   runtime: {
     ...didCalls,
   },
+  userExtensions: {
+    ...userExtensions,
+  },
   signedExtensions: {
-    ...cordUserExtensions,
+    ...userExtensions,
   },
 }

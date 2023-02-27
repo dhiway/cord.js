@@ -38,7 +38,9 @@ export async function resolve(
 ): Promise<DidResolutionResult | null> {
   const { type } = parse(did)
   const api = ConfigService.get('api')
-  const queryFunction = api.call.did?.query ?? api.call.didApi.queryDid
+  // const queryFunction = api.call.did?.query ?? api.call.didApi.queryDid
+  const queryFunction = api.call.did.query
+
   const { section, version } = queryFunction?.meta ?? {}
   if (version > 2)
     throw new Error(
