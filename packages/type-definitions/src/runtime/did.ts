@@ -1,6 +1,7 @@
 import type { DefinitionsCall, DefinitionCall } from '@polkadot/types/types'
+import { objectSpread } from '@polkadot/util'
 
-const didApiCalls: Record<string, DefinitionCall> = {
+const DidApiCalls: Record<string, DefinitionCall> = {
   query: {
     description:
       'Return the information relative to the owner of the provided DID, if present.',
@@ -17,9 +18,7 @@ const didApiCalls: Record<string, DefinitionCall> = {
 export const calls: DefinitionsCall = {
   Did: [
     {
-      methods: {
-        ...didApiCalls,
-      },
+      methods: objectSpread({}, DidApiCalls),
       version: 1,
     },
   ],

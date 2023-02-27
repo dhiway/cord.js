@@ -6,61 +6,91 @@
  * @packageDocumentation
  * @module Chain
  */
+import { SubmittableResult } from '@polkadot/api'
+import { AnyNumber } from '@polkadot/types/types'
+
 import { ConfigService } from '@cord.network/config'
 import type {
-  IIdentity,
   ISubmittableResult,
+  KeyringPair,
   SubmittableExtrinsic,
   SubscriptionPromise,
 } from '@cord.network/types'
-import { SubmittableResult } from '@polkadot/api'
-import { AnyNumber } from '@polkadot/types/types'
+import { SDKErrors } from '@cord.network/utils'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
-import { getConnectionOrConnect } from '../chainApiConnection/ChainApiConnection.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 
 export const TxOutdated = 'Transaction is outdated'
 export const TxPriority = 'Priority is too low:'
 export const TxDuplicate = 'Transaction Already Imported'
-
-export const IS_READY: SubscriptionPromise.ResultEvaluator = (result) =>
-  result.status.isReady
-export const IS_IN_BLOCK: SubscriptionPromise.ResultEvaluator = (result) =>
-  result.isInBlock
-export const EXTRINSIC_EXECUTED: SubscriptionPromise.ResultEvaluator = (
-  result
-) => ErrorHandler.extrinsicSuccessful(result)
-export const IS_FINALIZED: SubscriptionPromise.ResultEvaluator = (result) =>
-  result.isFinalized
-
-export const IS_ERROR: SubscriptionPromise.ResultEvaluator = (result) =>
-  result.isError || result.internalError
-export const EXTRINSIC_FAILED: SubscriptionPromise.ResultEvaluator = (result) =>
-  ErrorHandler.extrinsicFailed(result)
+/**
+ * Evaluator resolves on extrinsic reaching status "is ready".
+ *
+ * @param result Submission result.
+ * @returns Whether the extrinsic reached status "is ready".
+ */
+export function IS_READY(result: ISubmittableResult): boolean {
+  return result.status.isReady
+}
 
 /**
- * Parses potentially incomplete or undefined options and returns complete [[Options]].
+ * Evaluator resolves on extrinsic reaching status "in block".
  *
- * @param opts Potentially undefined or partial [[Options]] .
- * @returns Complete [[Options]], with potentially defaulted values.
+ * @param result Submission result.
+ * @returns Whether the extrinsic reached status "in block".
  */
-export function parseSubscriptionOptions(
-  opts?: Partial<SubscriptionPromise.Options>
-): SubscriptionPromise.Options {
-  const {
-    resolveOn = IS_FINALIZED,
-    rejectOn = (result: ISubmittableResult) =>
-      EXTRINSIC_FAILED(result) || IS_ERROR(result),
-    timeout,
-  } = { ...opts }
+export function IS_IN_BLOCK(result: ISubmittableResult): boolean {
+  return result.isInBlock
+}
 
-  return {
-    resolveOn,
-    rejectOn,
-    timeout,
-  }
+/**
+ * Evaluator resolves on extrinsic reaching status "success".
+ *
+ * @param result Submission result.
+ * @returns Whether the extrinsic reached status "success".
+ */
+export function EXTRINSIC_EXECUTED(result: ISubmittableResult): boolean {
+  return ErrorHandler.extrinsicSuccessful(result)
+}
+
+/**
+ * Evaluator resolves on extrinsic reaching status "finalized".
+ *
+ * @param result Submission result.
+ * @returns Whether the extrinsic reached status "finalized".
+ */
+export function IS_FINALIZED(result: ISubmittableResult): boolean {
+  return result.isFinalized
+}
+
+/**
+ * Evaluator resolves on extrinsic reaching status "is error".
+ *
+ * @param result Submission result.
+ * @returns Whether the extrinsic reached status "is error" and the error itself.
+ */
+export function IS_ERROR(
+  result: ISubmittableResult
+): boolean | Error | undefined {
+  return result.isError || result.internalError
+}
+
+/**
+ * Evaluator resolves on extrinsic reaching status "is ready".
+ *
+ * @param result Submission result.
+ * @returns Whether the extrinsic reached status "is ready".
+ */
+export function EXTRINSIC_FAILED(result: ISubmittableResult): boolean {
+  return ErrorHandler.extrinsicFailed(result)
+}
+
+function defaultResolveOn(): SubscriptionPromise.ResultEvaluator {
+  return ConfigService.isSet('submitTxResolveOn')
+    ? ConfigService.get('submitTxResolveOn')
+    : IS_FINALIZED
 }
 
 /**
@@ -71,94 +101,81 @@ export function parseSubscriptionOptions(
  * Transaction fees will apply whenever a transaction fee makes it into a block, even if extrinsics fail to execute correctly!
  *
  * @param tx The SubmittableExtrinsic to be submitted. Most transactions need to be signed, this must be done beforehand.
- * @param opts Partial optional [[SubscriptionPromise]]to be parsed: Criteria for resolving/rejecting the promise.
+ * @param opts Allows overwriting criteria for resolving/rejecting the transaction result subscription promise. These options take precedent over configuration via the ConfigService.
  * @returns A promise which can be used to track transaction status.
  * If resolved, this promise returns ISubmittableResult that has led to its resolution.
  */
 export async function submitSignedTx(
   tx: SubmittableExtrinsic,
-  opts?: Partial<SubscriptionPromise.Options>
+  opts: Partial<SubscriptionPromise.Options> = {}
 ): Promise<ISubmittableResult> {
-  log.info(`Submitting ${tx.method}`)
-  const options = parseSubscriptionOptions(opts)
-  const { promise, subscription } = makeSubscriptionPromise(options)
+  const {
+    resolveOn = defaultResolveOn(),
+    rejectOn = (result: ISubmittableResult) =>
+      EXTRINSIC_FAILED(result) || IS_ERROR(result),
+  } = opts
 
-  let latestResult: SubmittableResult
+  const api = ConfigService.get('api')
+  if (!api.hasSubscriptions) {
+    throw new SDKErrors.SubscriptionsNotSupportedError()
+  }
+
+  log.info(`Submitting ${tx.method}`)
+  const { promise, subscription } = makeSubscriptionPromise({
+    ...opts,
+    resolveOn,
+    rejectOn,
+  })
+
+  let latestResult: SubmittableResult | undefined
   const unsubscribe = await tx.send((result) => {
     latestResult = result
     subscription(result)
   })
 
-  const api = await getConnectionOrConnect()
-  const handleDisconnect = (): void => {
+  function handleDisconnect(): void {
     const result = new SubmittableResult({
-      events: latestResult.events || [],
+      events: latestResult?.events || [],
       internalError: new Error('connection error'),
       status:
-        latestResult.status ||
+        latestResult?.status ||
         api.registry.createType('ExtrinsicStatus', 'future'),
       txHash: api.registry.createType('Hash'),
     })
     subscription(result)
   }
+
   api.once('disconnected', handleDisconnect)
 
-  return promise
-    .catch((e) => Promise.reject(ErrorHandler.getExtrinsicError(e) || e))
-    .finally(() => {
-      unsubscribe()
-      api.off('disconnected', handleDisconnect)
-    })
+  try {
+    return await promise
+  } catch (e) {
+    throw ErrorHandler.getExtrinsicError(e as ISubmittableResult) || e
+  } finally {
+    unsubscribe()
+    api.off('disconnected', handleDisconnect)
+  }
 }
 
 export const dispatchTx = submitSignedTx
 
 /**
- * Checks the TxError/TxStatus for issues that may be resolved via resigning.
- *
- * @param reason Polkadot API returned error or ISubmittableResult.
- * @returns Whether or not this issue may be resolved via resigning.
- */
-export function isRecoverableTxError(
-  reason: Error | ISubmittableResult
-): boolean {
-  if (reason instanceof Error) {
-    return (
-      reason.message.includes(TxOutdated) ||
-      reason.message.includes(TxPriority) ||
-      reason.message.includes(TxDuplicate) ||
-      false
-    )
-  }
-  if (
-    reason &&
-    typeof reason === 'object' &&
-    typeof reason.status === 'object'
-  ) {
-    const { status } = reason as ISubmittableResult
-    if (status.isUsurped) return true
-  }
-  return false
-}
-
-/**
  * Signs and submits the SubmittableExtrinsic with optional resolution and rejection criteria.
  *
  * @param tx The generated unsigned SubmittableExtrinsic to submit.
- * @param signer The [[IIdentity]] or KeyringPair used to sign and potentially re-sign the tx.
+ * @param signer The [[KiltKeyringPair]] used to sign the tx.
  * @param opts Partial optional criteria for resolving/rejecting the promise.
  * @param opts.tip Optional amount of Femto-KILT to tip the validator.
  * @returns Promise result of executing the extrinsic, of type ISubmittableResult.
  */
 export async function signAndSubmitTx(
   tx: SubmittableExtrinsic,
-  signer: IIdentity,
+  signer: KeyringPair,
   {
     tip,
     ...opts
   }: Partial<SubscriptionPromise.Options> & Partial<{ tip: AnyNumber }> = {}
 ): Promise<ISubmittableResult> {
-  const signKeyringPair = (signer as IIdentity).signKeyringPair || signer
-  const signedTx = await tx.signAsync(signKeyringPair, { nonce: -1, tip })
+  const signedTx = await tx.signAsync(signer, { tip })
   return submitSignedTx(signedTx, opts)
 }

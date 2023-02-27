@@ -5,42 +5,62 @@
  * ```Cord.connect('ws://localhost:9944');```.
  */
 
+import { cryptoWaitReady } from '@polkadot/util-crypto'
+import { ApiPromise, WsProvider } from '@polkadot/api'
+import type { ApiOptions } from '@polkadot/api/types'
+
 import { ConfigService } from '@cord.network/config'
-import { ChainApiConnection } from '@cord.network/network'
-import { Identity } from '../identity/index.js'
-import { ApiPromise } from '@polkadot/api'
+import { typesBundle } from '@cord.network/type-definitions'
 
 /**
- * Connects to the CORD Blockchain and caches the connection.
- * When used again, the cached instance is returned.
+ * Prepares crypto modules (required for identity creation and others) and calls ConfigService.set().
  *
- * @returns An instance of [[ApiPromise]].
- */
-export function connect(): Promise<ApiPromise> {
-  return ChainApiConnection.getConnectionOrConnect()
-}
-
-/**
- * Allows setting global configuration such as the blockchain endpoint and log level.
- *
- * @param configs Config options object.
- */
-export function config<K extends Partial<ConfigService.configOpts>>(
-  configs: K
-): void {
-  ConfigService.set(configs)
-}
-
-/**
- * Prepares crypto modules (required e.g. For identity creation) and calls Cord.config().
- *
- * @param configs Arguments to pass on to Cord.config().
+ * @param configs Arguments to pass on to ConfigService.set().
  * @returns Promise that must be awaited to assure crypto is ready.
  */
 export async function init<K extends Partial<ConfigService.configOpts>>(
   configs?: K
 ): Promise<void> {
-  config(configs || {})
-  await Identity.cryptoWaitReady()
+  ConfigService.set(configs || {})
+  await cryptoWaitReady()
 }
-export const { disconnect } = ChainApiConnection
+
+/**
+ * Connects to the CORD Blockchain and passes the initialized api instance to `init()`, making it available for functions in the sdk.
+ *
+ * @param blockchainRpcWsUrl WebSocket URL of the RPC endpoint exposed by a node that is part of the CORD blockchain network you wish to connect to.
+ * @param apiOpts Additional parameters to be passed to ApiPromise.create().
+ * @param apiOpts.noInitWarn Allows suppressing warnings related to runtime types and augmentation.
+ * By default warnings are shown if the global log level is 'warn' or lower and disabled on 'error' or higher.
+ * @returns An instance of ApiPromise.
+ */
+export async function connect(
+  blockchainRpcWsUrl: string,
+  {
+    noInitWarn = ConfigService.get('logLevel') > 3, // by default warnings are disabled on log level error and higher
+    ...apiOpts
+  }: Omit<ApiOptions, 'provider'> = {}
+): Promise<ApiPromise> {
+  const provider = new WsProvider(blockchainRpcWsUrl)
+  const api = await ApiPromise.create({
+    provider,
+    typesBundle,
+    noInitWarn,
+    ...apiOpts,
+  })
+  await init({ api })
+  return api.isReadyOrError
+}
+
+/**
+ * Disconnects the cached connection and clears the cache.
+ *
+ * @returns If there was a cached and connected connection, or not.
+ */
+export async function disconnect(): Promise<boolean> {
+  if (!ConfigService.isSet('api')) return false
+  const api = ConfigService.get('api')
+  ConfigService.unset('api')
+  await api.disconnect()
+  return true
+}

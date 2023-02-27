@@ -344,10 +344,10 @@ export async function getStoreTx(
     )
   }
 
-  // For now, it only takes the first attestation key, if present.
+  // For now, it only takes the first assertion key, if present.
   if (assertionMethod && assertionMethod.length > 1) {
     throw new SDKErrors.DidError(
-      `More than one attestation key (${assertionMethod.length}) specified. The chain can only store one.`
+      `More than one assertion key (${assertionMethod.length}) specified. The chain can only store one.`
     )
   }
 
@@ -375,7 +375,7 @@ export async function getStoreTx(
   const [authenticationKey] = authentication
   const did = getAddressByKey(authenticationKey)
 
-  const newAttestationKey =
+  const newAssertionKey =
     assertionMethod &&
     assertionMethod.length > 0 &&
     publicKeyToChain(assertionMethod[0])
@@ -393,7 +393,7 @@ export async function getStoreTx(
   const apiInput = {
     did,
     submitter,
-    newAttestationKey,
+    newAssertionKey,
     newDelegationKey,
     newKeyAgreementKey,
     newServiceDetails,

@@ -5,7 +5,7 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/types/types/registry'
 
-import type { DidApiAccountId, RawDidLinkedInfo } from './extraDefs/index.js'
+import type { RawDidLinkedInfo } from './extraDefs/index.js'
 import type { Data, StorageKey } from '@polkadot/types'
 import type {
   BitVec,
@@ -1479,7 +1479,6 @@ declare module '@polkadot/types/types/registry' {
     DepositBalance: DepositBalance
     DepositBalanceOf: DepositBalanceOf
     DestroyWitness: DestroyWitness
-    DidApiAccountId: DidApiAccountId
     Digest: Digest
     DigestItem: DigestItem
     DigestOf: DigestOf

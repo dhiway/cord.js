@@ -1,245 +1,254 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
+import { generateAccount } from './utils/generateAccount'
+import { generateKeypairs as generateIssuerKeypairs } from './utils/generateKeypairs'
+import { createFullDid } from './utils/generateDid'
+import { ensureStoredSchema } from './utils/generateSchema'
 
 async function main() {
-  await Cord.init({ address: 'ws://127.0.0.1:9944' })
+  const networkAddress = 'ws://127.0.0.1:9944'
+  Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
+  const api = await Cord.connect(networkAddress)
 
   // Step 1: Setup Org Identity
   console.log(`\n❄️  Demo Identities (KeyRing)`)
   //3x4DHc1rxVAEqKWSx1DAAA8wZxLB4VhiRbMV997niBckUwSi
-  const entityIdentity = Cord.Identity.buildFromURI('//Bob', {
-    signingKeyPairType: 'sr25519',
-  })
+  const authorIdentity = Crypto.makeKeypairFromUri('//Bob', 'sr25519')
+  console.log(`🏛  Entity (${authorIdentity.type}): ${authorIdentity.address}`)
+  const holderIdentity = Crypto.makeKeypairFromUri('//Alice')
+  console.log(`👩‍⚕️ Holder (${holderIdentity.type}): ${holderIdentity.address}`)
+  const verifierIdentity = Crypto.makeKeypairFromUri('//Charlie')
   console.log(
-    `🏛  Entity (${entityIdentity.signingKeyType}): ${entityIdentity.address}`
+    `🏢 Verifier (${verifierIdentity.type}): ${verifierIdentity.address}`
   )
-  const employeeIdentity = Cord.Identity.buildFromURI('//Dave', {
-    signingKeyPairType: 'sr25519',
-  })
-  console.log(
-    `🧑🏻‍💼 Employee (${employeeIdentity.signingKeyType}): ${employeeIdentity.address}`
+
+  // Setup issuer account.
+  const { account: issuerAccount } = await generateAccount()
+
+  // Create issuer DID
+  const { fullDid: issuerDid, mnemonic: issuerMnemonic } = await createFullDid(
+    authorIdentity
   )
-  const holderIdentity = Cord.Identity.buildFromURI('//Alice', {
-    signingKeyPairType: 'sr25519',
-  })
-  console.log(
-    `👩‍⚕️ Holder (${holderIdentity.signingKeyType}): ${holderIdentity.address}`
-  )
-  const verifierIdentity = Cord.Identity.buildFromURI('//Charlie', {
-    signingKeyPairType: 'ed25519',
-  })
-  console.log(
-    `🏢 Verifier (${verifierIdentity.signingKeyType}): ${verifierIdentity.address}`
-  )
+  const { assertionMethod } = generateIssuerKeypairs(issuerMnemonic)
+
   console.log('✅ Identities created!')
 
   // Step 2: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
-  let newSchemaContent = require('../res/schema.json')
-  let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
-  newSchemaContent.title = newSchemaTitle
-
-  let newSchema = Cord.Schema.fromSchemaProperties(
-    newSchemaContent,
-    employeeIdentity
+  const schema = await ensureStoredSchema(
+    authorIdentity,
+    issuerDid.uri,
+    async ({ data }) => ({
+      signature: assertionMethod.sign(data),
+      keyType: assertionMethod.type,
+    })
   )
-  console.dir(newSchema, {
+  console.dir(schema, {
     depth: null,
     colors: true,
   })
 
-  let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
+  //   let newSchemaContent = require('../res/schema.json')
+  //   let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
+  //   newSchemaContent.title = newSchemaTitle
 
-  try {
-    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {
-      resolveOn: Cord.Chain.IS_IN_BLOCK,
-      rejectOn: Cord.Chain.IS_ERROR,
-    })
-    console.log('✅ Schema created!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
+  //   let newSchema = Cord.Schema.fromSchemaProperties(
+  //     newSchemaContent,
+  //     employeeIdentity
+  //   )
 
-  // Step 3: Add Schema Metadata
-  console.log(`\n❄️  Schema Metadata addition `)
-  console.log(`🔗 ${newSchema.identifier}`)
+  //   let schemaCreationExtrinsic = await Cord.Schema.create(newSchema)
 
-  let schemaMeta = Cord.Meta.fromMetaProperties(
-    newSchema.identifier,
-    Crypto.encodeObjectAsStr(newSchema.schema),
-    employeeIdentity
-  )
-  let schemaMetaCreationExtrinsic = await Cord.Meta.setMetadata(schemaMeta)
-  console.dir(schemaMeta, {
-    depth: null,
-    colors: true,
-  })
+  //   try {
+  //     await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, entityIdentity, {
+  //       resolveOn: Cord.Chain.IS_IN_BLOCK,
+  //       rejectOn: Cord.Chain.IS_ERROR,
+  //     })
+  //     console.log('✅ Schema created!')
+  //   } catch (e: any) {
+  //     console.log(e.errorCode, '-', e.message)
+  //   }
 
-  try {
-    await Cord.Chain.signAndSubmitTx(
-      schemaMetaCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.Chain.IS_IN_BLOCK,
-        rejectOn: Cord.Chain.IS_ERROR,
-      }
-    )
-    console.log('✅ Schema metadata added!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
+  //   // Step 3: Add Schema Metadata
+  //   console.log(`\n❄️  Schema Metadata addition `)
+  //   console.log(`🔗 ${newSchema.identifier}`)
 
-  // Step 2: Create a new Space
-  console.log(`\n❄️  Space Creation `)
-  console.log(`🔗 ${newSchema.identifier}`)
-  let spaceContent = {
-    title: 'Demo Space',
-    description: 'Space for demo',
-  }
-  let spaceTitle = spaceContent.title + ':' + UUID.generate()
-  spaceContent.title = spaceTitle
+  //   let schemaMeta = Cord.Meta.fromMetaProperties(
+  //     newSchema.identifier,
+  //     Crypto.encodeObjectAsStr(newSchema.schema),
+  //     employeeIdentity
+  //   )
+  //   let schemaMetaCreationExtrinsic = await Cord.Meta.setMetadata(schemaMeta)
+  //   console.dir(schemaMeta, {
+  //     depth: null,
+  //     colors: true,
+  //   })
 
-  let newSpace = Cord.Space.fromSpaceProperties(
-    spaceContent,
-    employeeIdentity,
-    newSchema.identifier
-  )
+  //   try {
+  //     await Cord.Chain.signAndSubmitTx(
+  //       schemaMetaCreationExtrinsic,
+  //       entityIdentity,
+  //       {
+  //         resolveOn: Cord.Chain.IS_IN_BLOCK,
+  //         rejectOn: Cord.Chain.IS_ERROR,
+  //       }
+  //     )
+  //     console.log('✅ Schema metadata added!')
+  //   } catch (e: any) {
+  //     console.log(e.errorCode, '-', e.message)
+  //   }
 
-  let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
+  //   // Step 2: Create a new Space
+  //   console.log(`\n❄️  Space Creation `)
+  //   console.log(`🔗 ${newSchema.identifier}`)
+  //   let spaceContent = {
+  //     title: 'Demo Space',
+  //     description: 'Space for demo',
+  //   }
+  //   let spaceTitle = spaceContent.title + ':' + UUID.generate()
+  //   spaceContent.title = spaceTitle
 
-  console.dir(newSpace, { depth: null, colors: true })
+  //   let newSpace = Cord.Space.fromSpaceProperties(
+  //     spaceContent,
+  //     employeeIdentity,
+  //     newSchema.identifier
+  //   )
 
-  try {
-    await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
-      resolveOn: Cord.Chain.IS_IN_BLOCK,
-      rejectOn: Cord.Chain.IS_ERROR,
-    })
-    console.log('✅ Space created!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
+  //   let spaceCreationExtrinsic = await Cord.Space.create(newSpace)
 
-  // Step 4: Create a new Stream
-  console.log(`\n❄️  Stream Creation `)
-  console.log(`🔗 ${newSpace.identifier} `)
-  console.log(`🔗 ${newSchema.identifier} `)
+  //   console.dir(newSpace, { depth: null, colors: true })
 
-  const content = {
-    name: 'Alice',
-    age: 29,
-    gender: 'Female',
-    country: 'India',
-    credit: 1000,
-  }
-  let schemaStream = Cord.Content.fromSchemaAndContent(
-    newSchema,
-    content,
-    employeeIdentity.address,
-    holderIdentity.address
-  )
-  console.dir(schemaStream, { depth: null, colors: true })
+  //   try {
+  //     await Cord.Chain.signAndSubmitTx(spaceCreationExtrinsic, entityIdentity, {
+  //       resolveOn: Cord.Chain.IS_IN_BLOCK,
+  //       rejectOn: Cord.Chain.IS_ERROR,
+  //     })
+  //     console.log('✅ Space created!')
+  //   } catch (e: any) {
+  //     console.log(e.errorCode, '-', e.message)
+  //   }
 
-  let newStreamContent = Cord.ContentStream.fromContent(
-    schemaStream,
-    employeeIdentity,
-    { space: newSpace.identifier }
-  )
-  console.dir(newStreamContent, { depth: null, colors: true })
+  //   // Step 4: Create a new Stream
+  //   console.log(`\n❄️  Stream Creation `)
+  //   console.log(`🔗 ${newSpace.identifier} `)
+  //   console.log(`🔗 ${newSchema.identifier} `)
 
-  let newStream = Cord.Stream.fromContentStream(newStreamContent)
+  //   const content = {
+  //     name: 'Alice',
+  //     age: 29,
+  //     gender: 'Female',
+  //     country: 'India',
+  //     credit: 1000,
+  //   }
+  //   let schemaStream = Cord.Content.fromSchemaAndContent(
+  //     newSchema,
+  //     content,
+  //     employeeIdentity.address,
+  //     holderIdentity.address
+  //   )
+  //   console.dir(schemaStream, { depth: null, colors: true })
 
-  let streamCreationExtrinsic = await Cord.Stream.create(newStream)
-  console.dir(newStream, { depth: null, colors: true })
+  //   let newStreamContent = Cord.ContentStream.fromContent(
+  //     schemaStream,
+  //     employeeIdentity,
+  //     { space: newSpace.identifier }
+  //   )
+  //   console.dir(newStreamContent, { depth: null, colors: true })
 
-  try {
-    await Cord.Chain.signAndSubmitTx(streamCreationExtrinsic, entityIdentity, {
-      resolveOn: Cord.Chain.IS_IN_BLOCK,
-      rejectOn: Cord.Chain.IS_ERROR,
-    })
-    console.log('✅ Stream created!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
+  //   let newStream = Cord.Stream.fromContentStream(newStreamContent)
 
-  // Step 5: Update a Stream
-  console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
-  const updateContent = JSON.parse(JSON.stringify(newStreamContent))
-  updateContent.content.contents.name = 'Alice Jackson'
+  //   let streamCreationExtrinsic = await Cord.Stream.create(newStream)
+  //   console.dir(newStream, { depth: null, colors: true })
 
-  let updateStreamContent = Cord.ContentStream.updateContent(
-    updateContent,
-    employeeIdentity
-  )
-  console.dir(updateStreamContent, { depth: null, colors: true })
+  //   try {
+  //     await Cord.Chain.signAndSubmitTx(streamCreationExtrinsic, entityIdentity, {
+  //       resolveOn: Cord.Chain.IS_IN_BLOCK,
+  //       rejectOn: Cord.Chain.IS_ERROR,
+  //     })
+  //     console.log('✅ Stream created!')
+  //   } catch (e: any) {
+  //     console.log(e.errorCode, '-', e.message)
+  //   }
 
-  let updateStream = Cord.Stream.fromContentStream(updateStreamContent)
-  let updateStreamCreationExtrinsic = await Cord.Stream.update(updateStream)
-  console.dir(updateStream, { depth: null, colors: true })
+  //   // Step 5: Update a Stream
+  //   console.log(`\n❄️  Update - ${newStreamContent.identifier}`)
+  //   const updateContent = JSON.parse(JSON.stringify(newStreamContent))
+  //   updateContent.content.contents.name = 'Alice Jackson'
 
-  try {
-    await Cord.Chain.signAndSubmitTx(
-      updateStreamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.Chain.IS_IN_BLOCK,
-        rejectOn: Cord.Chain.IS_ERROR,
-      }
-    )
-    console.log('✅ Stream updated!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
+  //   let updateStreamContent = Cord.ContentStream.updateContent(
+  //     updateContent,
+  //     employeeIdentity
+  //   )
+  //   console.dir(updateStreamContent, { depth: null, colors: true })
 
-  // Step 6: Validate a Credential
-  console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
-  const stream = await Cord.Stream.query(updateStream.identifier)
-  if (!stream) {
-    console.log(`Stream not anchored on CORD`)
-  } else {
-    const credential = Cord.Credential.fromRequestAndStream(
-      updateStreamContent,
-      stream
-    )
-    const isCredentialValid = await Cord.Credential.verify(credential)
-    console.log(`Is Alices's credential valid? ${isCredentialValid}`)
-  }
+  //   let updateStream = Cord.Stream.fromContentStream(updateStreamContent)
+  //   let updateStreamCreationExtrinsic = await Cord.Stream.update(updateStream)
+  //   console.dir(updateStream, { depth: null, colors: true })
 
-  // Step 7: Revoke a Stream
-  console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
-  let revokeStream = updateStream
+  //   try {
+  //     await Cord.Chain.signAndSubmitTx(
+  //       updateStreamCreationExtrinsic,
+  //       entityIdentity,
+  //       {
+  //         resolveOn: Cord.Chain.IS_IN_BLOCK,
+  //         rejectOn: Cord.Chain.IS_ERROR,
+  //       }
+  //     )
+  //     console.log('✅ Stream updated!')
+  //   } catch (e: any) {
+  //     console.log(e.errorCode, '-', e.message)
+  //   }
 
-  let revokeStreamCreationExtrinsic = await Cord.Stream.revoke(
-    revokeStream,
-    employeeIdentity
-  )
+  //   // Step 6: Validate a Credential
+  //   console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
+  //   const stream = await Cord.Stream.query(updateStream.identifier)
+  //   if (!stream) {
+  //     console.log(`Stream not anchored on CORD`)
+  //   } else {
+  //     const credential = Cord.Credential.fromRequestAndStream(
+  //       updateStreamContent,
+  //       stream
+  //     )
+  //     const isCredentialValid = await Cord.Credential.verify(credential)
+  //     console.log(`Is Alices's credential valid? ${isCredentialValid}`)
+  //   }
 
-  try {
-    await Cord.Chain.signAndSubmitTx(
-      revokeStreamCreationExtrinsic,
-      entityIdentity,
-      {
-        resolveOn: Cord.Chain.IS_IN_BLOCK,
-        rejectOn: Cord.Chain.IS_ERROR,
-      }
-    )
-    console.log(`✅ Alices's credential revoked!`)
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
+  //   // Step 7: Revoke a Stream
+  //   console.log(`\n❄️  Revoke - ${updateStreamContent.identifier} `)
+  //   let revokeStream = updateStream
 
-  // Step 8: Re-verify a revoked Credential
-  console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
-  const revstream = await Cord.Stream.query(updateStream.identifier)
-  if (!revstream) {
-    console.log(`Stream not anchored on CORD`)
-  } else {
-    const credential = Cord.Credential.fromRequestAndStream(
-      updateStreamContent,
-      revstream
-    )
-    const isCredentialValid = await Cord.Credential.verify(credential)
-    console.log(`Is Alices's credential valid? ${isCredentialValid}`)
-  }
+  //   let revokeStreamCreationExtrinsic = await Cord.Stream.revoke(
+  //     revokeStream,
+  //     employeeIdentity
+  //   )
+
+  //   try {
+  //     await Cord.Chain.signAndSubmitTx(
+  //       revokeStreamCreationExtrinsic,
+  //       entityIdentity,
+  //       {
+  //         resolveOn: Cord.Chain.IS_IN_BLOCK,
+  //         rejectOn: Cord.Chain.IS_ERROR,
+  //       }
+  //     )
+  //     console.log(`✅ Alices's credential revoked!`)
+  //   } catch (e: any) {
+  //     console.log(e.errorCode, '-', e.message)
+  //   }
+
+  //   // Step 8: Re-verify a revoked Credential
+  //   console.log(`\n❄️  Verify - ${updateStreamContent.identifier} `)
+  //   const revstream = await Cord.Stream.query(updateStream.identifier)
+  //   if (!revstream) {
+  //     console.log(`Stream not anchored on CORD`)
+  //   } else {
+  //     const credential = Cord.Credential.fromRequestAndStream(
+  //       updateStreamContent,
+  //       revstream
+  //     )
+  //     const isCredentialValid = await Cord.Credential.verify(credential)
+  //     console.log(`Is Alices's credential valid? ${isCredentialValid}`)
+  //   }
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
