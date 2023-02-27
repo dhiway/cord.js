@@ -6,7 +6,7 @@
     "skipLibCheck": true,
     "noUnusedLocals": false,
     "paths": {
-      "@kiltprotocol/augment-api/*": [
+      "@cord.network/augment-api/*": [
         "./src/*"
       ],
       "@polkadot/api/augment": [

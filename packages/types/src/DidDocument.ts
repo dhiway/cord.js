@@ -9,14 +9,16 @@ import type { BN } from '@polkadot/util'
 
 import type { CordAddress } from './Address'
 
-type DidUriVersion = '' | `v${string}:`
+// type DidUriVersion = '' | `v${string}:`
 
 // NOTICE: The following string pattern types must be kept in sync with regex patterns @cord.network/did/Utils
 
 /**
  * A string containing a KILT DID Uri.
  */
-export type DidUri = `did:cord:${DidUriVersion}${CordAddress}`
+// export type DidUri = `did:cord:${DidUriVersion}${CordAddress}`
+
+export type DidUri = `did:cord:${CordAddress}`
 
 /**
  * The fragment part of the DID URI including the `#` character.

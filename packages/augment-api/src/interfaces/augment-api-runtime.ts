@@ -39,12 +39,14 @@ import type {
 import type {
   AccountId,
   AccountId32,
+  Balance,
   Block,
   Call,
   Header,
   Index,
   KeyTypeId,
   Slot,
+  Weight,
 } from '@polkadot/types/interfaces/runtime'
 import type { RuntimeVersion } from '@polkadot/types/interfaces/state'
 import type { ApplyExtrinsicResult } from '@polkadot/types/interfaces/system'
@@ -326,7 +328,7 @@ declare module '@polkadot/api-base/types/calls' {
         ) => Observable<TransactionValidity>
       >
     }
-    /** 0x37c8bb1350a9a2a8/2 */
+    /** 0x37c8bb1350a9a2a8/3 */
     transactionPaymentApi: {
       /**
        * The transaction fee details
@@ -348,8 +350,28 @@ declare module '@polkadot/api-base/types/calls' {
           len: u32 | AnyNumber | Uint8Array
         ) => Observable<RuntimeDispatchInfo>
       >
+      /**
+       * Query the output of the current LengthToFee given some input
+       **/
+      queryLengthToFee: AugmentedCall<
+        ApiType,
+        (length: u32 | AnyNumber | Uint8Array) => Observable<Balance>
+      >
+      /**
+       * Query the output of the current WeightToFee given some input
+       **/
+      queryWeightToFee: AugmentedCall<
+        ApiType,
+        (
+          weight:
+            | Weight
+            | { refTime?: any; proofSize?: any }
+            | string
+            | Uint8Array
+        ) => Observable<Balance>
+      >
     }
-    /** 0xf3ff14d5ab527059/2 */
+    /** 0xf3ff14d5ab527059/3 */
     transactionPaymentCallApi: {
       /**
        * The call fee details
@@ -370,6 +392,26 @@ declare module '@polkadot/api-base/types/calls' {
           call: Call | IMethod | string | Uint8Array,
           len: u32 | AnyNumber | Uint8Array
         ) => Observable<RuntimeDispatchInfo>
+      >
+      /**
+       * Query the output of the current LengthToFee given some input
+       **/
+      queryLengthToFee: AugmentedCall<
+        ApiType,
+        (length: u32 | AnyNumber | Uint8Array) => Observable<Balance>
+      >
+      /**
+       * Query the output of the current WeightToFee given some input
+       **/
+      queryWeightToFee: AugmentedCall<
+        ApiType,
+        (
+          weight:
+            | Weight
+            | { refTime?: any; proofSize?: any }
+            | string
+            | Uint8Array
+        ) => Observable<Balance>
       >
     }
   } // AugmentedCalls
