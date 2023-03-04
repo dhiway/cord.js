@@ -20,6 +20,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
+    project: './tsconfig.json',
   },
   plugins: [
     '@typescript-eslint',
@@ -73,6 +74,14 @@ module.exports = {
       },
     ],
     '@typescript-eslint/ban-ts-comment': 'warn',
+    '@typescript-eslint/strict-boolean-expressions': [
+      'error',
+      {
+        allowNumber: false,
+        allowNullableString: true,
+        allowNullableBoolean: true,
+      },
+    ],
     'jsdoc/require-description': 'warn',
     'jsdoc/require-description-complete-sentence': 'warn',
     'jsdoc/no-types': 'warn',
@@ -138,13 +147,35 @@ module.exports = {
         '@typescript-eslint/no-var-requires': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/ban-ts-comment': 'off'
+        '@typescript-eslint/ban-ts-comment': 'off',
+        'no-console': 'off',
       },
     },
     {
       files: ['**/__integrationtests__/*.ts'],
       rules: {
         'import/extensions': 'off',
+        'jsdoc/require-jsdoc': 'off',
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['**/augment-api/src/interfaces/**/*.ts'],
+      rules: {
+        'license-header/header': 'off',
+      },
+    },
+    {
+      files: ['tests/*'],
+      rules: {
+        'no-console': 'off',
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        'import/no-extraneous-dependencies': [
+          'error',
+          {
+            devDependencies: ['tests/*', 'tests/bundle.spec.ts'],
+          },
+        ],
       },
     },
   ],

@@ -6,5 +6,4 @@
  */
 
 export * from './DidDetails.js'
-// export * from './LightDidDetails.js'
 export * from './FullDidDetails.js'

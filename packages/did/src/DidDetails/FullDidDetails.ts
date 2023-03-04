@@ -25,18 +25,17 @@ import {
   generateDidAuthenticatedTx,
   toChain,
 } from '../Did.chain.js'
-import { parse } from '../Did.utils.js'
 
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   stream: 'assertionMethod',
-  // ctype: 'assertionMethod',
+  ctype: 'assertionMethod',
   // delegation: 'capabilityDelegation',
   did: 'authentication',
   'did.create': undefined,
   'did.submitDidCall': undefined,
   didLookup: 'authentication',
   // publicCredentials: 'assertionMethod',
-  // web3Names: 'authentication',
+  web3Names: 'authentication',
 }
 
 function getKeyRelationshipForMethod(
@@ -125,12 +124,6 @@ export async function authorizeTx(
     txCounter?: BN
   } = {}
 ): Promise<SubmittableExtrinsic> {
-  if (parse(did).type === 'light') {
-    throw new SDKErrors.DidError(
-      `An extrinsic can only be authorized with a full DID, not with "${did}"`
-    )
-  }
-
   const keyRelationship = getKeyRelationshipForTx(extrinsic)
   if (keyRelationship === undefined) {
     throw new SDKErrors.SDKError('No key relationship found for extrinsic')
@@ -217,12 +210,6 @@ export async function authorizeBatch({
   if (extrinsics.length === 0) {
     throw new SDKErrors.DidBatchError(
       'Cannot build a batch with no transactions'
-    )
-  }
-
-  if (parse(did).type === 'light') {
-    throw new SDKErrors.DidError(
-      `An extrinsic can only be authorized with a full DID, not with "${did}"`
     )
   }
 
