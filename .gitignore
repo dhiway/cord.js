@@ -21,6 +21,7 @@ coverage
 # production
 build
 lib
+**/dist
 
 # tooling setup
 .DS_Store
@@ -35,6 +36,7 @@ settings.json
 
 # misc
 /.idea
+.vscode
 
 # doc
 /docs/api

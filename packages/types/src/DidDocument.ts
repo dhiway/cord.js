@@ -14,7 +14,7 @@ import type { CordAddress } from './Address'
 // NOTICE: The following string pattern types must be kept in sync with regex patterns @cord.network/did/Utils
 
 /**
- * A string containing a KILT DID Uri.
+ * A string containing a DID Uri.
  */
 // export type DidUri = `did:cord:${DidUriVersion}${CordAddress}`
 

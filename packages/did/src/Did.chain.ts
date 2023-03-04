@@ -47,7 +47,6 @@ import {
   getFullDidUri,
   parse,
 } from './Did.utils.js'
-import { ApiPromise } from '@polkadot/api'
 
 // ### Chain type definitions
 
@@ -441,8 +440,8 @@ export async function generateDidAuthenticatedTx({
   submitter,
   blockNumber,
 }: AuthorizeCallInput & SigningOptions): Promise<SubmittableExtrinsic> {
-  const api: ApiPromise = ConfigService.get('api')
-  const signableCall: PalletDidDidDetailsDidAuthorizedCallOperation =
+  const api = ConfigService.get('api')
+  const signableCall =
     api.registry.createType<PalletDidDidDetailsDidAuthorizedCallOperation>(
       api.tx.did.submitDidCall.meta.args[0].type.toString(),
       {

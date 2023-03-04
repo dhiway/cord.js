@@ -43,18 +43,27 @@ export async function createFullDid(
   // await sleep(6000)
 
   const didUri = Cord.Did.getFullDidUriFromKey(authentication)
-  console.log(didUri, Cord.Did.toChain(didUri))
-  const { metadata, document } = await Cord.Did.resolve(didUri)
+  console.log(didUri, Cord.Did.toChain(didUri), typeof Cord.Did.toChain(didUri))
+
+  const newDid = {
+    did: Cord.Did.toChain(didUri),
+  }
+
+  // const { metadata, document } = await Cord.Did.resolve(didUri)
 
   // const encodedFullDid = await api.call.did.query(Cord.Did.toChain(didUri))
-  // const encodedFullDid = await api.query.did.did(Cord.Did.toChain(didUri))
+  // const encodedFullDid = await api.call.did.query(didUri)
 
-  // const encodedFullDid = await api.query.did.did(Cord.Did.toChain(didUri))
-  // const encodedFullDid = await api.call.did.query(
-  //   '3x431uLcUtL9nxbx7T8DzU6fDDZ1B9CoYB8aFPnz8W7Nr2Ez'
-  // )
-  console.log(document.unwrap())
-  // const { document } = Cord.Did.linkedInfoFromChain(encodedFullDid)
+  // await api.call.did.query(Cord.Did.toChain(didUri))
+  const encodedFullDidi = (await api.query.did.did) ?? Cord.Did.toChain(didUri)
+  console.log(encodedFullDidi)
+
+  const encodedFullDid = await api.call.did.query(newDid.did)
+  console.log(encodedFullDid)
+
+  // const encodedFullDid = (await api.call.did.query) ?? 'abs'
+  const { document } = Cord.Did.linkedInfoFromChain(encodedFullDid)
+  console.log(document)
 
   if (!document) {
     throw new Error('Full DID was not successfully created.')

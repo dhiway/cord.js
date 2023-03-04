@@ -1,9 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": [
-      "DOM"
-    ]
+    "lib": ["DOM"]
   },
   "include": ["packages/**/*", "jest-setup/*"],
   "typedocOptions": {
@@ -14,12 +12,12 @@
       "packages/utils/src/index.ts",
       "packages/config/src/index.ts",
       "packages/network/src/index.ts",
-      "packages/type-definitions/src/index.ts",
       "packages/did/src/index.ts",
+      "packages/type-definitions/src/index.ts",
       "packages/modules/src/index.ts",
       // "packages/messaging/src/index.ts",
       // "packages/vc-export/src/index.ts",
-      "packages/api/src/index.ts",
+      "packages/sdk/src/index.ts"
     ],
     "out": "docs/api",
     "theme": "default",
