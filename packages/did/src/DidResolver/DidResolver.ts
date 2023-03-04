@@ -36,7 +36,7 @@ import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.
 export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
-  const { type } = parse(did)
+  // const { type } = parse(did)
   const api = ConfigService.get('api')
   // const queryFunction = api.call.did?.query ?? api.call.didApi.queryDid
   const queryFunction = api.call.did.query
@@ -46,17 +46,17 @@ export async function resolve(
     throw new Error(
       `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
     )
-  const { document } = await queryFunction(toChain(did))
+  const { document, web3Name } = await queryFunction(toChain(did))
     .then(linkedInfoFromChain)
     .catch(() => ({ document: undefined, web3Name: undefined }))
 
-  if (type === 'full' && document) {
+  if (document) {
     return {
       document,
       metadata: {
         deactivated: false,
       },
-      // ...(web3Name && { web3Name }),
+      ...(web3Name && { web3Name }),
     }
   }
 
@@ -73,9 +73,9 @@ export async function resolve(
     }
   }
 
-  if (type === 'full') {
-    return null
-  }
+  // if (type === 'full') {
+  //   return null
+  // }
 
   // const lightDocument = Did.parseDocumentFromLightDid(did, false)
   // If a full DID with same subject is present, return the resolution metadata accordingly.

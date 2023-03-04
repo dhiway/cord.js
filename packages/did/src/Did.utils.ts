@@ -9,21 +9,21 @@ import {
 } from '@cord.network/types'
 import { DataUtils, SDKErrors, ss58Format } from '@cord.network/utils'
 
-// The latest version for KILT full DIDs.
-const FULL_DID_LATEST_VERSION = 1
+// The latest version for full DIDs.
+const DID_LATEST_VERSION = 1
 
 // NOTICE: The following regex patterns must be kept in sync with DidUri type in @cord.network/types
 
 // Matches the following full DIDs
 // - did:cord:<cord_address>
-// - did:cprd:<cord_address>#<fragment>
-const FULL_CORD_DID_REGEX =
+// - did:cord:<cord_address>#<fragment>
+const CORD_DID_REGEX =
   /^did:cord:(?<address>3[1-9a-km-zA-HJ-NP-Z]{47})(?<fragment>#[^#\n]+)?$/
 
 type IDidParsingResult = {
   did: DidUri
   version: number
-  type: 'light' | 'full'
+  // type: 'light' | 'full'
   address: CordAddress
   fragment?: UriFragment
   authKeyTypeEncoding?: string
@@ -37,17 +37,17 @@ type IDidParsingResult = {
  * @returns Object containing information extracted from the DID uri.
  */
 export function parse(didUri: DidUri | DidResourceUri): IDidParsingResult {
-  let matches = FULL_CORD_DID_REGEX.exec(didUri)?.groups
+  let matches = CORD_DID_REGEX.exec(didUri)?.groups
   if (matches) {
     const { version: versionString, fragment } = matches
     const address = matches.address as CordAddress
     const version = versionString
       ? parseInt(versionString, 10)
-      : FULL_DID_LATEST_VERSION
+      : DID_LATEST_VERSION
     return {
       did: didUri.replace(fragment || '', '') as DidUri,
       version,
-      type: 'full',
+      // type: 'full',
       address,
       fragment: fragment === '#' ? undefined : (fragment as UriFragment),
     }
@@ -144,14 +144,14 @@ export function getAddressByKey({
  * @returns The expected full DID URI.
  */
 export function getFullDidUri(
-  didOrAddress: DidUri | CordAddress,
-  version = FULL_DID_LATEST_VERSION
+  didOrAddress: DidUri | CordAddress
+  // version = DID_LATEST_VERSION
 ): DidUri {
   const address = DataUtils.isCordAddress(didOrAddress)
     ? didOrAddress
     : parse(didOrAddress as DidUri).address
-  const versionString = version === 1 ? '' : `v${version}`
-  return `did:cord:${versionString}${address}` as DidUri
+  // const versionString = version === 1 ? '' : `v${version}`
+  return `did:cord:${address}` as DidUri
 }
 
 /**

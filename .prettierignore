@@ -1,6 +1,7 @@
 dist
 lib
 *.json
+!package.json
 jest.*
 coverage
-!package.json
+**/augment-api/src/interfaces/**/*.ts

@@ -25,16 +25,9 @@ export type DidSignatureVerificationInput = {
   signature: Uint8Array
   keyUri: DidResourceUri
   expectedSigner?: DidUri
-  // allowUpgraded?: boolean
   expectedVerificationMethod?: VerificationKeyRelationship
   didResolveKey?: DidResolveKey
 }
-
-// // Used solely for retro-compatibility with previously-generated DID signatures.
-// // It is reasonable to think that it will be removed at some point in the future.
-// type OldDidSignature = Pick<DidSignature, 'signature'> & {
-//   keyId: DidSignature['keyUri']
-// }
 
 /**
  * Checks whether the input is a valid DidSignature object, consisting of a signature as hex and the uri of the signing key.
@@ -44,7 +37,6 @@ export type DidSignatureVerificationInput = {
  */
 function verifyDidSignatureDataStructure(input: DidSignature): void {
   const keyUri = input.keyUri
-  // 'keyUri' in input ? input.keyUri : input.keyId
   if (!isHex(input.signature)) {
     throw new SDKErrors.SignatureMalformedError(
       `Expected signature as a hex string, got ${input.signature}`
@@ -71,7 +63,6 @@ export async function verifyDidSignature({
   signature,
   keyUri,
   expectedSigner,
-  // allowUpgraded = false,
   expectedVerificationMethod,
   didResolveKey = resolveKey,
 }: DidSignatureVerificationInput): Promise<void> {
@@ -83,13 +74,6 @@ export async function verifyDidSignature({
     // NECESSARY CONDITION: subjects and versions match
     const subjectVersionMatch =
       expected.address === signer.address && expected.version === signer.version
-    // // EITHER: signer is a full did and we allow signatures by corresponding full did
-    // const allowedUpgrade = allowUpgraded && signer.type === 'full'
-    // // OR: both are light dids and their auth key type matches
-    // const keyTypeMatch =
-    //   signer.type === 'light' &&
-    //   expected.type === 'light' &&
-    //   expected.authKeyTypeEncoding === signer.authKeyTypeEncoding
     if (!subjectVersionMatch) {
       throw new SDKErrors.DidSubjectMismatchError(signer.did, expected.did)
     }

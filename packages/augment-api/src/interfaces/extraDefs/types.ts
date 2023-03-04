@@ -1,12 +1,12 @@
 // Auto-generated via `yarn polkadot-types-from-defs`, do not edit
 /* eslint-disable */
+
+import type { Option, Struct, Text, Vec } from '@polkadot/types-codec'
+import type { AccountId32 } from '@polkadot/types/interfaces/runtime'
 import type {
   PalletDidServiceEndpointsDidEndpoint,
   PalletDidDidDetails,
 } from '@polkadot/types/lookup'
-
-import type { Option, Struct, Text, Vec } from '@polkadot/types-codec'
-import type { AccountId32 } from '@polkadot/types/interfaces/runtime'
 
 /** @name RawDidLinkedInfo */
 export interface RawDidLinkedInfo extends Struct {

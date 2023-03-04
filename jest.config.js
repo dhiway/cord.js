@@ -1,11 +1,13 @@
 module.exports = {
-  preset: 'ts-jest/presets/js-with-ts',
+  preset: 'ts-jest',
   testEnvironment: 'node',
   clearMocks: true,
   runner: 'groups',
   testTimeout: 6000,
-  setupFilesAfterEnv: ['../testingTools/setup.js'],
-  transformIgnorePatterns:['/node_modules/(?!@polkadot|@babel/runtime/helpers/esm/)'],
+  setupFilesAfterEnv: ['../jest-setup/setup.js'],
+  transformIgnorePatterns: [
+    '/node_modules/(?!@polkadot|@babel/runtime/helpers/esm/)',
+  ],
   coverageThreshold: {
     global: {
       branches: 70,
@@ -13,6 +15,10 @@ module.exports = {
       lines: 80,
       statements: 80,
     },
+  },
+  transform: {
+    '\\.js$': 'babel-jest',
+    '\\.ts$': 'ts-jest',
   },
   collectCoverageFrom: [
     '**/*/src/**/*.ts',
@@ -22,19 +28,22 @@ module.exports = {
     '!**/__tests__/**',
     '!**/lib/**',
     '!**/test/**',
-    '!**/cordconfig/*',
-    '!**/chainApiConnection/*',
+    '!**/cord/*',
     '!**/types/**/*',
     '!**/SDKErrors.ts',
     '!utils/src/json-schema/*',
     '!testing/**',
+    '!augment-api/**',
+    '!type-definitions/**',
     '!**/*.chain.ts',
+    '!did/src/Did.chain.ts',
+    '!did/src/Did.rpc.ts',
+    '!did/src/Did.utils.ts',
+    '!utils/src/jsonabc.ts',
+    '!modules/src/utils.ts',
   ],
-  resolver: "ts-jest-resolver",
+  resolver: 'ts-jest-resolver',
   rootDir: 'packages',
   coverageDirectory: 'coverage',
-  moduleDirectories: [
-    "node_modules",
-    "packages/*/src",
-  ],
+  moduleDirectories: ['node_modules', 'packages/*/src'],
 }

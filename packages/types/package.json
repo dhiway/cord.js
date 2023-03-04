@@ -33,8 +33,7 @@
     "@polkadot/keyring": "^10.2.1",
     "@polkadot/types": "^9.10.2",
     "@polkadot/util": "^10.2.1",
-    "@polkadot/util-crypto": "^10.2.1",
-    "tweetnacl": "^1.0.3"
+    "@polkadot/util-crypto": "^10.2.1"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",
