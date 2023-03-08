@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2018-2023, BOTLabs GmbH.
- *
- * This source code is licensed under the BSD 4-Clause "Original" license
- * found in the LICENSE file in the root directory of this source tree.
- */
-
 import { base58Encode } from '@polkadot/util-crypto'
 
 import type {
@@ -18,7 +11,7 @@ import {
   verificationKeyTypesMap,
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
-import { KILT_DID_CONTEXT_URL, W3C_DID_CONTEXT_URL } from './DidContexts.js'
+import { CORD_DID_CONTEXT_URL, W3C_DID_CONTEXT_URL } from './DidContexts.js'
 
 function exportToJsonDidDocument(did: DidDocument): ConformingDidDocument {
   const {
@@ -78,7 +71,7 @@ function exportToJsonDidDocument(did: DidDocument): ConformingDidDocument {
 
 function exportToJsonLdDidDocument(did: DidDocument): JsonLDDidDocument {
   const document = exportToJsonDidDocument(did)
-  document['@context'] = [W3C_DID_CONTEXT_URL, KILT_DID_CONTEXT_URL]
+  document['@context'] = [W3C_DID_CONTEXT_URL, CORD_DID_CONTEXT_URL]
   return document as JsonLDDidDocument
 }
 

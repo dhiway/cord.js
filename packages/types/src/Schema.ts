@@ -18,12 +18,10 @@ export interface ISchema {
   $id: SchemaId
   $schema: string
   title: string
-  description: string
-  $metadata: {
-    version?: string
-  }
+  // description: string
   properties: {
-    [key: string]: { $ref?: string; type?: InstanceType; format?: string }
+    [key: string]: { type: InstanceType; format?: string } | { $ref: string }
   }
   type: 'object'
+  additionalProperties?: false
 }

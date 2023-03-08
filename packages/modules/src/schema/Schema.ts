@@ -24,7 +24,7 @@ import {
   jsonabc,
 } from '@cord.network/utils'
 import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/types'
-import { SchemaModel, MetadataModel } from './Schema.types.js'
+import { SchemaModel, MetadataModel, SchemaModelV1 } from './Schema.types.js'
 import { ConfigService } from '@cord.network/config'
 
 /**
@@ -82,6 +82,7 @@ export function verifyObjectAgainstSchema(
   referencedSchemas?: JsonSchema.Schema[]
 ): void {
   const validator = new JsonSchema.Validator(schema, '7', false)
+
   if (referencedSchemas) {
     referencedSchemas.forEach((i) => validator.addSchema(i))
   }
@@ -183,18 +184,15 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  */
 export function fromProperties(
   title: ISchema['title'],
-  properties: ISchema['properties'],
-  description?: ISchema['description'],
-  metadata?: ISchema['$metadata']
+  properties: ISchema['properties']
 ): ISchema {
   const schema: Omit<ISchema, '$id'> = {
     properties,
     title,
-    description: description || '',
-    $schema: 'http://cord.network/draft-01/schema#',
-    $metadata: metadata || {},
+    $schema: SchemaModelV1.$id,
     type: 'object',
   }
+  schema.additionalProperties = false
   const schemaType = jsonabc.sortObj({
     ...schema,
     $id: getUriForSchema(schema),

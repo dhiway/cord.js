@@ -4,6 +4,8 @@ import { generateAccount } from './utils/generateAccount'
 import { generateKeypairs as generateIssuerKeypairs } from './utils/generateKeypairs'
 import { createFullDid } from './utils/generateDid'
 import { ensureStoredSchema } from './utils/generateSchema'
+import { encode as cborEncode, decode as cborDecode } from 'cbor'
+import { HexString } from '@polkadot/util/types.js'
 
 async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
@@ -26,7 +28,7 @@ async function main() {
   const { account: issuerAccount } = await generateAccount()
 
   // Create issuer DID
-  const { fullDid: issuerDid, mnemonic: issuerMnemonic } = await createFullDid(
+  const { mnemonic: issuerMnemonic, didUri: didUri } = await createFullDid(
     authorIdentity
   )
   const { assertionMethod } = generateIssuerKeypairs(issuerMnemonic)
@@ -37,7 +39,7 @@ async function main() {
   console.log(`\n❄️  Schema Creation `)
   const schema = await ensureStoredSchema(
     authorIdentity,
-    issuerDid.uri,
+    didUri,
     async ({ data }) => ({
       signature: assertionMethod.sign(data),
       keyType: assertionMethod.type,
