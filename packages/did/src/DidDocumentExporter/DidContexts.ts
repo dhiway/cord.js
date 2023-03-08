@@ -1,15 +1,8 @@
 /**
- * Copyright (c) 2018-2023, BOTLabs GmbH.
- *
- * This source code is licensed under the BSD 4-Clause "Original" license
- * found in the LICENSE file in the root directory of this source tree.
+ * URL identifying a JSON-LD context file describing terms used in DID documents of the CORD method that are not defined in the W3C DID core context.
+ * Should be the second entry in the ordered set of contexts after [[W3C_DID_CONTEXT_URL]] in the JSON-LD representation of a CORD DID document.
  */
-
-/**
- * IPFS URL identifying a JSON-LD context file describing terms used in DID documents of the KILT method that are not defined in the W3C DID core context.
- * Should be the second entry in the ordered set of contexts after [[W3C_DID_CONTEXT_URL]] in the JSON-LD representation of a KILT DID document.
- */
-export const KILT_DID_CONTEXT_URL =
+export const CORD_DID_CONTEXT_URL =
   'ipfs://QmU7QkuTCPz7NmD5bD7Z7mQVz2UsSPaEK58B5sYnjnPRNW'
 /**
  * URL identifying the JSON-LD context file that is part of the W3C DID core specifications describing the terms defined by the core data model.
@@ -28,15 +21,13 @@ export const W3C_SECURITY_CONTEXT_URL = 'https://w3id.org/security/v2'
  * These context definitions are not supposed to change; therefore, a cached version can (and should) be used to avoid unexpected changes in definitions.
  */
 export const DID_CONTEXTS = {
-  [KILT_DID_CONTEXT_URL]: {
+  [CORD_DID_CONTEXT_URL]: {
     '@context': [
       W3C_SECURITY_CONTEXT_URL,
       {
         '@protected': true,
-        KiltPublishedCredentialCollectionV1:
-          'https://github.com/KILTprotocol/spec-KiltPublishedCredentialCollectionV1',
         Sr25519VerificationKey2020:
-          'https://github.com/KILTprotocol/spec-kilt-did#sr25519',
+          'https://github.com/dhiway/spec/cord-did#sr25519',
       },
     ],
   },

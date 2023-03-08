@@ -1,4 +1,5 @@
 import * as Cord from '@cord.network/sdk'
+import { DidUri } from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { generateAccount } from './generateAccount'
 import { generateKeypairs } from './generateKeypairs'
@@ -13,7 +14,7 @@ export async function createFullDid(
   submitterAccount: Cord.CordKeyringPair
 ): Promise<{
   mnemonic: string
-  fullDid: Cord.DidDocument
+  didUri: DidUri
 }> {
   const api = Cord.ConfigService.get('api')
 
@@ -31,6 +32,14 @@ export async function createFullDid(
       keyAgreement: [keyAgreement],
       assertionMethod: [assertionMethod],
       capabilityDelegation: [capabilityDelegation],
+      // Example service.
+      service: [
+        {
+          id: '#my-service',
+          type: ['service-type'],
+          serviceEndpoint: ['https://www.example.com'],
+        },
+      ],
     },
     submitterAccount.address,
     async ({ data }) => ({
@@ -43,11 +52,11 @@ export async function createFullDid(
   // await sleep(6000)
 
   const didUri = Cord.Did.getFullDidUriFromKey(authentication)
-  console.log(didUri, Cord.Did.toChain(didUri), typeof Cord.Did.toChain(didUri))
+  console.log(didUri)
 
-  const newDid = {
-    did: Cord.Did.toChain(didUri),
-  }
+  // const newDid = {
+  //   did: Cord.Did.toChain(didUri),
+  // }
 
   // const { metadata, document } = await Cord.Did.resolve(didUri)
 
@@ -55,19 +64,19 @@ export async function createFullDid(
   // const encodedFullDid = await api.call.did.query(didUri)
 
   // await api.call.did.query(Cord.Did.toChain(didUri))
-  const encodedFullDidi = (await api.query.did.did) ?? Cord.Did.toChain(didUri)
-  console.log(encodedFullDidi)
+  // const encodedFullDidi = (await api.query.did.did) ?? Cord.Did.toChain(didUri)
+  // console.log(encodedFullDidi)
 
-  const encodedFullDid = await api.call.did.query(newDid.did)
-  console.log(encodedFullDid)
+  // const encodedFullDid = await api.call.did.query(newDid.did)
+  // console.log(encodedFullDid)
 
-  // const encodedFullDid = (await api.call.did.query) ?? 'abs'
-  const { document } = Cord.Did.linkedInfoFromChain(encodedFullDid)
-  console.log(document)
+  // // const encodedFullDid = (await api.call.did.query) ?? 'abs'
+  // const { document } = Cord.Did.linkedInfoFromChain(encodedFullDid)
+  // console.log(document)
 
-  if (!document) {
-    throw new Error('Full DID was not successfully created.')
-  }
+  // if (!document) {
+  //   throw new Error('Full DID was not successfully created.')
+  // }
 
-  return { mnemonic, fullDid: document }
+  return { mnemonic, didUri: didUri }
 }

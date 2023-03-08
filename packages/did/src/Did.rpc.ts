@@ -1,6 +1,4 @@
 import type { Option } from '@polkadot/types'
-// import type { Enum, Option, U8aFixed, Vec } from '@polkadot/types'
-// import type { Codec } from '@polkadot/types/types'
 import type { AccountId32, Hash } from '@polkadot/types/interfaces'
 import type {
   RawDidLinkedInfo,
@@ -15,16 +13,11 @@ import type {
   DidServiceEndpoint,
   DidUri,
   DidVerificationKey,
-  // CordAddress,
   UriFragment,
 } from '@cord.network/types'
 
-// import { encodeAddress } from '@polkadot/keyring'
-// import { ethereumEncode } from '@polkadot/util-crypto'
 import { BN, u8aToString } from '@polkadot/util'
 import { Crypto, ss58Format } from '@cord.network/utils'
-
-// import { SubstrateAddress } from './DidLinks/AccountLinks.chain.js'
 import { getFullDidUri } from './Did.utils.js'
 
 function fromChain(encoded: AccountId32): DidUri {
