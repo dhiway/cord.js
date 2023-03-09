@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, H256 } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpFinalityGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
+import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletDemocracyVoteThreshold, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpFinalityGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
@@ -119,6 +119,18 @@ declare module '@polkadot/api-base/types/events' {
        **/
       ExternalTabled: AugmentedEvent<ApiType, []>;
       /**
+       * Metadata for a proposal or a referendum has been cleared.
+       **/
+      MetadataCleared: AugmentedEvent<ApiType, [owner: PalletDemocracyMetadataOwner, hash_: H256], { owner: PalletDemocracyMetadataOwner, hash_: H256 }>;
+      /**
+       * Metadata for a proposal or a referendum has been set.
+       **/
+      MetadataSet: AugmentedEvent<ApiType, [owner: PalletDemocracyMetadataOwner, hash_: H256], { owner: PalletDemocracyMetadataOwner, hash_: H256 }>;
+      /**
+       * Metadata has been transferred to new owner.
+       **/
+      MetadataTransferred: AugmentedEvent<ApiType, [prevOwner: PalletDemocracyMetadataOwner, owner: PalletDemocracyMetadataOwner, hash_: H256], { prevOwner: PalletDemocracyMetadataOwner, owner: PalletDemocracyMetadataOwner, hash_: H256 }>;
+      /**
        * A proposal has been rejected by referendum.
        **/
       NotPassed: AugmentedEvent<ApiType, [refIndex: u32], { refIndex: u32 }>;
@@ -180,6 +192,24 @@ declare module '@polkadot/api-base/types/events' {
        * \[DID identifier\]
        **/
       Updated: AugmentedEvent<ApiType, [identifier: AccountId32], { identifier: AccountId32 }>;
+    };
+    didNames: {
+      /**
+       * A name has been banned.
+       **/
+      DidNameBanned: AugmentedEvent<ApiType, [name: Bytes], { name: Bytes }>;
+      /**
+       * A new name has been claimed.
+       **/
+      DidNameClaimed: AugmentedEvent<ApiType, [owner: AccountId32, name: Bytes], { owner: AccountId32, name: Bytes }>;
+      /**
+       * A name has been released.
+       **/
+      DidNameReleased: AugmentedEvent<ApiType, [owner: AccountId32, name: Bytes], { owner: AccountId32, name: Bytes }>;
+      /**
+       * A name has been unbanned.
+       **/
+      DidNameUnbanned: AugmentedEvent<ApiType, [name: Bytes], { name: Bytes }>;
     };
     extrinsicAuthorship: {
       AuthorsAdded: AugmentedEvent<ApiType, [authorsAdded: Vec<AccountId32>], { authorsAdded: Vec<AccountId32> }>;
@@ -267,6 +297,43 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Requested: AugmentedEvent<ApiType, [hash_: H256], { hash_: H256 }>;
     };
+    registry: {
+      /**
+       * A new registry delegate has been added.
+       * \[registry identifier,  authority\]
+       **/
+      AddAuthority: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
+      /**
+       * A new registry delegate has been added.
+       * \[registry identifier,  authority\]
+       **/
+      AddAuthorization: AugmentedEvent<ApiType, [registry_: Bytes, delegate: AccountId32], { registry_: Bytes, delegate: AccountId32 }>;
+      /**
+       * A registry has been archived.
+       * \[registry identifier,  authority\]
+       **/
+      Archive: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
+      /**
+       * A new space has been created.
+       * \[registry identifier, creator\]
+       **/
+      Create: AugmentedEvent<ApiType, [registry_: Bytes, creator: AccountId32], { registry_: Bytes, creator: AccountId32 }>;
+      /**
+       * A registry delegate has been removed.
+       * \[registry identifier,  authority\]
+       **/
+      RemoveAuthority: AugmentedEvent<ApiType, [registry_: Bytes, delegate: AccountId32], { registry_: Bytes, delegate: AccountId32 }>;
+      /**
+       * A registry delegate has been removed.
+       * \[registry identifier,  authority\]
+       **/
+      RemoveAuthorization: AugmentedEvent<ApiType, [registry_: Bytes, authorizationId: Bytes], { registry_: Bytes, authorizationId: Bytes }>;
+      /**
+       * A registry has been restored.
+       * \[registry identifier,  authority\]
+       **/
+      Restore: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
+    };
     scheduler: {
       /**
        * The call for the provided hash was not found so the task has been aborted.
@@ -310,9 +377,34 @@ declare module '@polkadot/api-base/types/events' {
     stream: {
       /**
        * A new stream identifier has been created.
-       * \[stream identifier, stream hash, controller\]
+       * \[stream identifier, stream digest, controller\]
        **/
       Create: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      /**
+       * A stream digest has been added.
+       * \[stream identifier, digest, controller\]
+       **/
+      Digest: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      /**
+       * A stream identifier has been removed.
+       * \[stream identifier,  controller\]
+       **/
+      Remove: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A stream identifier status has been restored.
+       * \[stream identifier, controller\]
+       **/
+      Restore: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A stream identifier status has been revoked.
+       * \[stream identifier, controller\]
+       **/
+      Revoke: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A stream identifier has been updated.
+       * \[stream identifier, digest, controller\]
+       **/
+      Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
     };
     sudo: {
       /**

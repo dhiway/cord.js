@@ -83,7 +83,7 @@ export type ConformingDidDocument = {
   keyAgreement?: [DidEncryptionKey['id']]
   capabilityDelegation?: [DidVerificationKey['id']]
   service?: ConformingDidServiceEndpoint[]
-  alsoKnownAs?: [`w3n:${string}`]
+  alsoKnownAs?: [`dName:${string}`]
 }
 
 /**

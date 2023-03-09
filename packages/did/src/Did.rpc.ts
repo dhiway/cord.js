@@ -114,27 +114,27 @@ function servicesFromChain(
 }
 
 /**
- * Web3Name is the type of nickname for a DID.
+ * DidName is the type of nickname for a DID.
  */
-export type Web3Name = string
+export type DidName = string
 
 export interface DidInfo {
   document: DidDocument
-  web3Name?: Web3Name
+  didName?: DidName
 }
 
 /**
- * Decodes accounts, DID, and web3name linked to the provided account.
+ * Decodes accounts, DID, and DidName linked to the provided account.
  *
- * @param encoded The data returned by `api.call.did.queryByAccount()`, `api.call.did.query()`, and `api.call.did.queryByWeb3Name()`.
+ * @param encoded The data returned by `api.call.did.query()`, and `api.call.did.queryByDidName()`.
 
- * @returns The accounts, DID, and web3name.
+ * @returns The DID, and DidName.
  */
 export function linkedInfoFromChain(
   encoded: Option<RawDidLinkedInfo>
 ): DidInfo {
-  const { identifier, w3n, serviceEndpoints, details } = encoded.unwrap()
-  console.log(identifier, w3n, serviceEndpoints, details)
+  const { identifier, dName, serviceEndpoints, details } = encoded.unwrap()
+  console.log(identifier, dName, serviceEndpoints, details)
   const didRec = documentFromChain(details)
   const did: DidDocument = {
     uri: fromChain(identifier),
@@ -149,10 +149,10 @@ export function linkedInfoFromChain(
     did.service = service
   }
 
-  const web3Name = w3n.isNone ? undefined : w3n.unwrap().toHuman()
+  const didName = dName.isNone ? undefined : dName.unwrap().toHuman()
 
   return {
     document: did,
-    web3Name,
+    didName,
   }
 }

@@ -29,19 +29,17 @@ import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.
 export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
-  // const { type } = parse(did)
   const api = ConfigService.get('api')
-  // const queryFunction = api.call.did?.query ?? api.call.didApi.queryDid
-  const queryFunction = api.call.did.query
+  const queryFunction = api.call.did?.query
 
   const { section, version } = queryFunction?.meta ?? {}
   if (version > 2)
     throw new Error(
       `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
     )
-  const { document, web3Name } = await queryFunction(toChain(did))
+  const { document, didName } = await queryFunction(toChain(did))
     .then(linkedInfoFromChain)
-    .catch(() => ({ document: undefined, web3Name: undefined }))
+    .catch(() => ({ document: undefined, didName: undefined }))
 
   if (document) {
     return {
@@ -49,7 +47,7 @@ export async function resolve(
       metadata: {
         deactivated: false,
       },
-      ...(web3Name && { web3Name }),
+      ...(didName && { didName }),
     }
   }
 
@@ -123,14 +121,14 @@ export async function resolveCompliant(
     result.didResolutionMetadata.errorMessage = `DID ${did} not found (on chain)`
     return result
   }
-  const { metadata, document, web3Name } = resolutionResult
+  const { metadata, document, didName } = resolutionResult
   result.didDocumentMetadata = metadata
   result.didDocument = document
     ? exportToDidDocument(document, 'application/json')
     : { id: did }
 
-  if (web3Name) {
-    result.didDocument.alsoKnownAs = [`w3n:${web3Name}`]
+  if (didName) {
+    result.didDocument.alsoKnownAs = [`dName:${didName}`]
   }
 
   return result

@@ -155,6 +155,16 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxServiceUrlLength: u32 & AugmentedConst<ApiType>;
     };
+    didNames: {
+      /**
+       * The max encoded length of a name.
+       **/
+      maxNameLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The min encoded length of a name.
+       **/
+      minNameLength: u32 & AugmentedConst<ApiType>;
+    };
     extrinsicAuthorship: {
       maxAuthorityProposals: u32 & AugmentedConst<ApiType>;
     };
@@ -208,6 +218,11 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum amount of signatories allowed in the multisig.
        **/
       maxSignatories: u32 & AugmentedConst<ApiType>;
+    };
+    registry: {
+      maxEncodedRegistryLength: u32 & AugmentedConst<ApiType>;
+      maxRegistryAuthorities: u32 & AugmentedConst<ApiType>;
+      maxRegistryCommitActions: u32 & AugmentedConst<ApiType>;
     };
     scheduler: {
       /**
