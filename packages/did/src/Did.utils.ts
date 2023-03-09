@@ -23,7 +23,6 @@ const CORD_DID_REGEX =
 type IDidParsingResult = {
   did: DidUri
   version: number
-  // type: 'light' | 'full'
   address: CordAddress
   fragment?: UriFragment
   authKeyTypeEncoding?: string

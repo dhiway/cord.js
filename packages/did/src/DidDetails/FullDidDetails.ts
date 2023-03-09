@@ -28,7 +28,7 @@ const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   'did.submitDidCall': undefined,
   didLookup: 'authentication',
   // publicCredentials: 'assertionMethod',
-  web3Names: 'authentication',
+  didNames: 'authentication',
 }
 
 function getKeyRelationshipForMethod(
