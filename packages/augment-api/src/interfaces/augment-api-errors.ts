@@ -167,6 +167,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NotVoter: AugmentedError<ApiType>;
       /**
+       * The preimage does not exist.
+       **/
+      PreimageNotExist: AugmentedError<ApiType>;
+      /**
        * Proposal still blacklisted
        **/
       ProposalBlacklisted: AugmentedError<ApiType>;
@@ -312,6 +316,57 @@ declare module '@polkadot/api-base/types/errors' {
        * of verification keys.
        **/
       VerificationKeyNotPresent: AugmentedError<ApiType>;
+    };
+    didNames: {
+      /**
+       * The specified name has already been previously banned.
+       **/
+      AlreadyBanned: AugmentedError<ApiType>;
+      /**
+       * The specified name has already been previously claimed.
+       **/
+      AlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The specified name has been banned and cannot be interacted
+       * with.
+       **/
+      Banned: AugmentedError<ApiType>;
+      /**
+       * The tx submitter does not have enough funds to pay for the deposit.
+       **/
+      InsufficientFunds: AugmentedError<ApiType>;
+      /**
+       * A name that contains not allowed characters is being claimed.
+       **/
+      InvalidCharacter: AugmentedError<ApiType>;
+      /**
+       * The actor cannot performed the specified operation.
+       **/
+      NotAuthorized: AugmentedError<ApiType>;
+      /**
+       * The specified name is not currently banned.
+       **/
+      NotBanned: AugmentedError<ApiType>;
+      /**
+       * The specified name does not exist.
+       **/
+      NotFound: AugmentedError<ApiType>;
+      /**
+       * The specified owner already owns a name.
+       **/
+      OwnerAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The specified owner does not own any names.
+       **/
+      OwnerNotFound: AugmentedError<ApiType>;
+      /**
+       * A name that is too long is being claimed.
+       **/
+      TooLong: AugmentedError<ApiType>;
+      /**
+       * A name that is too short is being claimed.
+       **/
+      TooShort: AugmentedError<ApiType>;
     };
     extrinsicAuthorship: {
       /**
@@ -495,6 +550,62 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooBig: AugmentedError<ApiType>;
     };
+    registry: {
+      AccessDenied: AugmentedError<ApiType>;
+      ArchivedRegistry: AugmentedError<ApiType>;
+      /**
+       * Authority already added
+       **/
+      AuthorityAlreadyAdded: AugmentedError<ApiType>;
+      /**
+       * Authorization Id not found
+       **/
+      AuthorizationNotFound: AugmentedError<ApiType>;
+      /**
+       * Empty transaction.
+       **/
+      EmptyTransaction: AugmentedError<ApiType>;
+      InvalidIdentifier: AugmentedError<ApiType>;
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      InvalidIdentifierPrefix: AugmentedError<ApiType>;
+      /**
+       * Invalid Schema.
+       **/
+      InvalidSchema: AugmentedError<ApiType>;
+      /**
+       * Schema limit exceeds the permitted size.
+       **/
+      MaxEncodedRegistryLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Registry commit entries exceeded
+       **/
+      MaxRegistryCommitsExceeded: AugmentedError<ApiType>;
+      /**
+       * Registry identifier is not unique
+       **/
+      RegistryAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Registry entries exceeded for an identifier
+       **/
+      RegistryAuthoritiesLimitExceeded: AugmentedError<ApiType>;
+      RegistryNotArchived: AugmentedError<ApiType>;
+      /**
+       * Space identifier not found
+       **/
+      RegistryNotFound: AugmentedError<ApiType>;
+      /**
+       * Schema not found
+       **/
+      SchemaNotFound: AugmentedError<ApiType>;
+      /**
+       * Registry entries exceeded for an identifier
+       **/
+      TooManyRegistryEntries: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller or delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+    };
     scheduler: {
       /**
        * Failed to schedule a call
@@ -567,6 +678,7 @@ declare module '@polkadot/api-base/types/errors' {
       NoKeys: AugmentedError<ApiType>;
     };
     stream: {
+      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
       DigestHashAlreadyAnchored: AugmentedError<ApiType>;
       ExpiredSignature: AugmentedError<ApiType>;
       HashAlreadyAnchored: AugmentedError<ApiType>;
@@ -574,9 +686,14 @@ declare module '@polkadot/api-base/types/errors' {
       InvalidSignature: AugmentedError<ApiType>;
       InvalidStreamIdentifier: AugmentedError<ApiType>;
       InvalidTransactionHash: AugmentedError<ApiType>;
+      MaxStreamCommitsExceeded: AugmentedError<ApiType>;
       MetadataAlreadySet: AugmentedError<ApiType>;
       MetadataLimitExceeded: AugmentedError<ApiType>;
       MetadataNotFound: AugmentedError<ApiType>;
+      /**
+       * Stream idenfier marked inactive
+       **/
+      RevokedStream: AugmentedError<ApiType>;
       /**
        * Stream idenfier is not unique
        **/
@@ -594,9 +711,9 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       StreamNotFound: AugmentedError<ApiType>;
       /**
-       * Stream idenfier marked inactive
+       * Stream idenfier not marked inactive
        **/
-      StreamRevoked: AugmentedError<ApiType>;
+      StreamNotRevoked: AugmentedError<ApiType>;
       StreamSpaceMismatch: AugmentedError<ApiType>;
       TooManyDelegates: AugmentedError<ApiType>;
       TooManyDelegatesToRemove: AugmentedError<ApiType>;
