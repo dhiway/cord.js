@@ -12,13 +12,13 @@ import {
 import {
   IPublicIdentity,
   SCHEMA_PREFIX,
-  SPACE_PREFIX,
+  REGISTRY_PREFIX,
   STREAM_PREFIX,
   SCORE_PREFIX,
 } from '@cord.network/types'
 import {
   ACCOUNT_IDENTIFIER_PREFIX,
-  SPACE_IDENTIFIER,
+  REGISTRY_IDENT,
   SCHEMA_IDENTIFIER,
   STREAM_IDENTIFIER,
   SCORE_IDENTIFIER,
@@ -166,8 +166,8 @@ export function uriToIdentifier(identifier: string | null | undefined): string {
   assert(identifier, 'Invalid key string passed')
   if (identifier.startsWith(SCHEMA_PREFIX)) {
     return identifier.split(SCHEMA_PREFIX).join('')
-  } else if (identifier.startsWith(SPACE_PREFIX)) {
-    return identifier.split(SPACE_PREFIX).join('')
+  } else if (identifier.startsWith(REGISTRY_PREFIX)) {
+    return identifier.split(REGISTRY_PREFIX).join('')
   } else if (identifier.startsWith(STREAM_PREFIX)) {
     return identifier.split(STREAM_PREFIX).join('')
   } else if (identifier.startsWith(SCORE_PREFIX)) {
@@ -211,7 +211,7 @@ export function checkIdentifier(
   const [isValid, , , idfrDecoded] = checkAddressChecksum(decoded)
 
   if (
-    idfrDecoded !== SPACE_IDENTIFIER ||
+    idfrDecoded !== REGISTRY_IDENT ||
     idfrDecoded !== SCHEMA_IDENTIFIER ||
     idfrDecoded !== STREAM_IDENTIFIER ||
     idfrDecoded !== SCORE_IDENTIFIER

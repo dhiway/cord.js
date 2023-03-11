@@ -6,7 +6,7 @@ import type { DidUri } from './DidDocument'
 import type { ISchema } from './Schema.js'
 import type { ICredential } from './Credential.js'
 
-export const STREAM_IDENTIFIER: number = 51
+export const STREAM_IDENTIFIER: number = 11992
 export const STREAM_PREFIX: string = 'stream:cord:'
 
 export interface IStream {
@@ -14,6 +14,6 @@ export interface IStream {
   streamHash: ICredential['rootHash']
   issuer: DidUri
   schema: ISchema['$id'] | null
-  swarm: ICredential['swarm'] | null
+  registry: ICredential['registry'] | null
   revoked: boolean
 }

@@ -134,7 +134,6 @@ export function linkedInfoFromChain(
   encoded: Option<RawDidLinkedInfo>
 ): DidInfo {
   const { identifier, dName, serviceEndpoints, details } = encoded.unwrap()
-  console.log(identifier, dName, serviceEndpoints, details)
   const didRec = documentFromChain(details)
   const did: DidDocument = {
     uri: fromChain(identifier),

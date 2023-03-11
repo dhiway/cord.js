@@ -128,7 +128,7 @@ export async function resolveCompliant(
     : { id: did }
 
   if (didName) {
-    result.didDocument.alsoKnownAs = [`dName:${didName}`]
+    result.didDocument.alsoKnownAs = [`name:cord:${didName}`]
   }
 
   return result
