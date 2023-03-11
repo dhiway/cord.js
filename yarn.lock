@@ -439,6 +439,48 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cbor-extract/cbor-extract-darwin-arm64@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@cbor-extract/cbor-extract-darwin-arm64@npm:2.1.1"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@cbor-extract/cbor-extract-darwin-x64@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@cbor-extract/cbor-extract-darwin-x64@npm:2.1.1"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@cbor-extract/cbor-extract-linux-arm64@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@cbor-extract/cbor-extract-linux-arm64@npm:2.1.1"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@cbor-extract/cbor-extract-linux-arm@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@cbor-extract/cbor-extract-linux-arm@npm:2.1.1"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@cbor-extract/cbor-extract-linux-x64@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@cbor-extract/cbor-extract-linux-x64@npm:2.1.1"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@cbor-extract/cbor-extract-win32-x64@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@cbor-extract/cbor-extract-win32-x64@npm:2.1.1"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@cord.network/augment-api@workspace:*, @cord.network/augment-api@workspace:packages/augment-api":
   version: 0.0.0-use.local
   resolution: "@cord.network/augment-api@workspace:packages/augment-api"
@@ -583,6 +625,7 @@ __metadata:
     "@polkadot/keyring": ^10.2.1
     "@polkadot/util": ^10.2.1
     "@polkadot/util-crypto": ^10.2.1
+    cbor-x: ^1.5.1
     rimraf: ^3.0.2
     tweetnacl: ^1.0.3
     typescript: ^4.8.3
@@ -3103,6 +3146,49 @@ __metadata:
   version: 1.0.30001458
   resolution: "caniuse-lite@npm:1.0.30001458"
   checksum: 258cc5a25babbbfe483bf788c6f321a19400ff80b2bf156b360bac09a6f9f4da44516350d187a30395667cb142c682d9ea96577ea0df236d35f76234b07ccb41
+  languageName: node
+  linkType: hard
+
+"cbor-extract@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "cbor-extract@npm:2.1.1"
+  dependencies:
+    "@cbor-extract/cbor-extract-darwin-arm64": 2.1.1
+    "@cbor-extract/cbor-extract-darwin-x64": 2.1.1
+    "@cbor-extract/cbor-extract-linux-arm": 2.1.1
+    "@cbor-extract/cbor-extract-linux-arm64": 2.1.1
+    "@cbor-extract/cbor-extract-linux-x64": 2.1.1
+    "@cbor-extract/cbor-extract-win32-x64": 2.1.1
+    node-gyp: latest
+    node-gyp-build-optional-packages: 5.0.3
+  dependenciesMeta:
+    "@cbor-extract/cbor-extract-darwin-arm64":
+      optional: true
+    "@cbor-extract/cbor-extract-darwin-x64":
+      optional: true
+    "@cbor-extract/cbor-extract-linux-arm":
+      optional: true
+    "@cbor-extract/cbor-extract-linux-arm64":
+      optional: true
+    "@cbor-extract/cbor-extract-linux-x64":
+      optional: true
+    "@cbor-extract/cbor-extract-win32-x64":
+      optional: true
+  bin:
+    download-cbor-prebuilds: bin/download-prebuilds.js
+  checksum: 283d9cdb3c716b171b5ad8666673f4ac373f975b51d9a38233d280c6f9381d66c6af4c011a561d993c4be6e427e34681bc3c5af194b9da0c9ab3401d424b7988
+  languageName: node
+  linkType: hard
+
+"cbor-x@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "cbor-x@npm:1.5.1"
+  dependencies:
+    cbor-extract: ^2.1.1
+  dependenciesMeta:
+    cbor-extract:
+      optional: true
+  checksum: e4ff6012194e93739a36027a2d8abbe4e98f62c003c77896bed1c22bf29782fe371480c7db37a0fc288a1a56cb0b711e48072ed6f42d51bdf96395a1ed01bcea
   languageName: node
   linkType: hard
 
@@ -6696,6 +6782,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-gyp-build-optional-packages@npm:5.0.3":
+  version: 5.0.3
+  resolution: "node-gyp-build-optional-packages@npm:5.0.3"
+  bin:
+    node-gyp-build-optional-packages: bin.js
+    node-gyp-build-optional-packages-optional: optional.js
+    node-gyp-build-optional-packages-test: build-test.js
+  checksum: be3f0235925c8361e5bc1a03848f5e24815b0df8aa90bd13f1eac91cd86264bbb8b7689ca6cd083b02c8099c7b54f9fb83066c7bb77c2389dc4eceab921f084f
+  languageName: node
+  linkType: hard
+
 "node-gyp-build@npm:^4.3.0":
   version: 4.6.0
   resolution: "node-gyp-build@npm:4.6.0"
@@ -7491,7 +7588,6 @@ __metadata:
     "@types/jest": ^27.4.0
     "@typescript-eslint/eslint-plugin": ^5.7.0
     "@typescript-eslint/parser": ^5.7.0
-    cbor: ^8.1.0
     eslint: ^7.32.0
     eslint-config-airbnb-base: 14.2.1
     eslint-config-prettier: ^6.15.0

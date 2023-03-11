@@ -1,11 +1,12 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
-import { generateAccount } from './utils/generateAccount'
+// import { generateAccount } from './utils/generateAccount'
 import { generateKeypairs as generateIssuerKeypairs } from './utils/generateKeypairs'
 import { createFullDid } from './utils/generateDid'
 import { ensureStoredSchema } from './utils/generateSchema'
-import { encode as cborEncode, decode as cborDecode } from 'cbor'
-import { HexString } from '@polkadot/util/types.js'
+import { ensureStoredRegistry } from './utils/generateRegistry'
+// import { encode as cborEncode, decode as cborDecode } from 'cbor'
+// import { HexString } from '@polkadot/util/types.js'
 
 async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
@@ -14,24 +15,31 @@ async function main() {
 
   // Step 1: Setup Org Identity
   console.log(`\n❄️  Demo Identities (KeyRing)`)
+  // Setup issuer account.
   //3x4DHc1rxVAEqKWSx1DAAA8wZxLB4VhiRbMV997niBckUwSi
   const authorIdentity = Crypto.makeKeypairFromUri('//Bob', 'sr25519')
-  console.log(`🏛  Entity (${authorIdentity.type}): ${authorIdentity.address}`)
-  const holderIdentity = Crypto.makeKeypairFromUri('//Alice')
-  console.log(`👩‍⚕️ Holder (${holderIdentity.type}): ${holderIdentity.address}`)
-  const verifierIdentity = Crypto.makeKeypairFromUri('//Charlie')
-  console.log(
-    `🏢 Verifier (${verifierIdentity.type}): ${verifierIdentity.address}`
-  )
-
-  // Setup issuer account.
-  const { account: issuerAccount } = await generateAccount()
+  console.log(`🏦  Author (${authorIdentity.type}): ${authorIdentity.address}`)
 
   // Create issuer DID
-  const { mnemonic: issuerMnemonic, didUri: didUri } = await createFullDid(
+  const { mnemonic: issuerMnemonic, fullDid: issuerDid } = await createFullDid(
     authorIdentity
   )
   const { assertionMethod } = generateIssuerKeypairs(issuerMnemonic)
+  console.log(`🏛   Issuer (${assertionMethod.type}): ${issuerDid.uri}`)
+  // // Create Holder DID
+  // const { mnemonic: holderMnemonic, fullDid: holderDid } = await createFullDid(
+  //   authorIdentity
+  // )
+  // console.log(
+  //   `👩‍⚕️  Holder (${holderDid.assertionMethod[0].type}): ${holderDid.uri}`
+  // )
+  // // Create Verifier DID
+  // const { mnemonic: verifierMnemonic, fullDid: verifierDid } =
+  //   await createFullDid(authorIdentity)
+  // console.log(
+  //   `🏢  Verifier (${verifierDid.assertionMethod[0].type}): ${verifierDid.uri}`
+  // )
+  // Create Verifier DID
 
   console.log('✅ Identities created!')
 
@@ -39,13 +47,31 @@ async function main() {
   console.log(`\n❄️  Schema Creation `)
   const schema = await ensureStoredSchema(
     authorIdentity,
-    didUri,
+    issuerDid.uri,
     async ({ data }) => ({
       signature: assertionMethod.sign(data),
       keyType: assertionMethod.type,
     })
   )
   console.dir(schema, {
+    depth: null,
+    colors: true,
+  })
+
+  const { capabilityDelegation } = generateIssuerKeypairs(issuerMnemonic)
+
+  // Step 2: Create a new Registry
+  console.log(`\n❄️  Registry Creation `)
+  const registry = await ensureStoredRegistry(
+    authorIdentity,
+    issuerDid.uri,
+    schema['$id'],
+    async ({ data }) => ({
+      signature: assertionMethod.sign(data),
+      keyType: assertionMethod.type,
+    })
+  )
+  console.dir(registry, {
     depth: null,
     colors: true,
   })

@@ -1,9 +1,5 @@
 import * as Cord from '@cord.network/sdk'
 
-// import { generateAccount } from './generateAccount'
-// import { generateKeypairs } from './generateKeypairs'
-// import { getSchema } from './testSchema'
-
 export async function ensureStoredSchema(
   authorAccount: Cord.CordKeyringPair,
   creator: Cord.DidUri,
@@ -26,8 +22,6 @@ export async function ensureStoredSchema(
     },
   })
 
-  // Get the Schema and see if it's stored, if yes return it.
-  // const schema = getSchema()
   try {
     await Cord.Schema.verifyStored(schema)
     console.log('Schema already stored. Skipping creation')
@@ -43,7 +37,6 @@ export async function ensureStoredSchema(
       signCallback,
       authorAccount.address
     )
-
     // Write to chain then return the Schema.
     await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
 

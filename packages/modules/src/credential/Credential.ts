@@ -232,7 +232,7 @@ export async function verifySignature(
 
 export type Options = {
   evidenceIds?: ICredential[]
-  swarm?: ICredential['swarm']
+  registry?: ICredential['registry']
 }
 
 /**
@@ -247,7 +247,7 @@ export type Options = {
  */
 export function fromContent(
   content: IContent,
-  { evidenceIds, swarm }: Options = {}
+  { evidenceIds, registry }: Options = {}
 ): ICredential {
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
@@ -262,7 +262,7 @@ export function fromContent(
     contentHashes,
     contentNonceMap,
     evidenceIds: evidenceIds || [],
-    swarm: swarm || null,
+    registry: registry || null,
     rootHash,
     identifier: Identifier.hashToUri(
       rootHash,

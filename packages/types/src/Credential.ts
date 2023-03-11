@@ -14,7 +14,7 @@ export interface ICredential {
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
   evidenceIds: ICredential[]
-  swarm: string | null
+  registry: string | null
   rootHash: Hash
   identifier: string
 }
