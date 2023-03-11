@@ -18,4 +18,5 @@ export interface IContent {
   schemaId: SchemaId
   contents: IContents
   holder: DidUri
+  issuer: DidUri
 }

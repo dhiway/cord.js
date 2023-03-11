@@ -1,6 +1,7 @@
 import type { HexString } from '@polkadot/util/types'
 import type { DidSignature } from './DidDocument'
 import type { IContent } from './Content.js'
+import type { IRegistryAuthorization } from './Registry'
 
 export type Hash = HexString
 
@@ -14,6 +15,7 @@ export interface ICredential {
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
   evidenceIds: ICredential[]
+  authorization: IRegistryAuthorization['identifier'] | null
   registry: string | null
   rootHash: Hash
   identifier: string
