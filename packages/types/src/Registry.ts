@@ -7,7 +7,7 @@ export const REGISTRY_IDENT: number = 7101
 export const REGISTRY_PREFIX: string = 'space:cord:'
 
 export interface IRegistryMetaData {
-  registryHash: HexString
+  digest: HexString
   schema: ISchema['$id']
   creator: DidUri
   active: boolean

@@ -1,12 +1,12 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
-// import { generateAccount } from './utils/generateAccount'
 import { generateKeypairs as generateIssuerKeypairs } from './utils/generateKeypairs'
 import { createFullDid } from './utils/generateDid'
 import { ensureStoredSchema } from './utils/generateSchema'
 import { ensureStoredRegistry } from './utils/generateRegistry'
-// import { encode as cborEncode, decode as cborDecode } from 'cbor'
-// import { HexString } from '@polkadot/util/types.js'
+import { requestCredential } from './utils/requestCredential'
+import { createCredential } from './utils/createCredential'
+import { createStream } from './utils/createStream'
 
 async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
@@ -26,21 +26,19 @@ async function main() {
   )
   const { assertionMethod } = generateIssuerKeypairs(issuerMnemonic)
   console.log(`🏛   Issuer (${assertionMethod.type}): ${issuerDid.uri}`)
-  // // Create Holder DID
-  // const { mnemonic: holderMnemonic, fullDid: holderDid } = await createFullDid(
-  //   authorIdentity
-  // )
-  // console.log(
-  //   `👩‍⚕️  Holder (${holderDid.assertionMethod[0].type}): ${holderDid.uri}`
-  // )
-  // // Create Verifier DID
-  // const { mnemonic: verifierMnemonic, fullDid: verifierDid } =
-  //   await createFullDid(authorIdentity)
-  // console.log(
-  //   `🏢  Verifier (${verifierDid.assertionMethod[0].type}): ${verifierDid.uri}`
-  // )
+  // Create Holder DID
+  const { mnemonic: holderMnemonic, fullDid: holderDid } = await createFullDid(
+    authorIdentity
+  )
+  console.log(
+    `👩‍⚕️  Holder (${holderDid.assertionMethod[0].type}): ${holderDid.uri}`
+  )
   // Create Verifier DID
-
+  const { mnemonic: verifierMnemonic, fullDid: verifierDid } =
+    await createFullDid(authorIdentity)
+  console.log(
+    `🏢  Verifier (${verifierDid.assertionMethod[0].type}): ${verifierDid.uri}`
+  )
   console.log('✅ Identities created!')
 
   // Step 2: Create a new Schema
@@ -58,8 +56,6 @@ async function main() {
     colors: true,
   })
 
-  const { capabilityDelegation } = generateIssuerKeypairs(issuerMnemonic)
-
   // Step 2: Create a new Registry
   console.log(`\n❄️  Registry Creation `)
   const registry = await ensureStoredRegistry(
@@ -75,6 +71,23 @@ async function main() {
     depth: null,
     colors: true,
   })
+
+  // Step 2: Create a new Credential
+  console.log(`\n❄️  Credential Creation `)
+  const credential = requestCredential(holderDid.uri, issuerDid.uri, schema)
+  console.dir(credential, {
+    depth: null,
+    colors: true,
+  })
+  await createStream(
+    issuerDid.uri,
+    authorIdentity,
+    async ({ data }) => ({
+      signature: assertionMethod.sign(data),
+      keyType: assertionMethod.type,
+    }),
+    credential
+  )
 
   //   let newSchemaContent = require('../res/schema.json')
   //   let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()

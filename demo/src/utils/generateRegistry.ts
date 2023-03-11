@@ -1,6 +1,4 @@
 import * as Cord from '@cord.network/sdk'
-import { encode as cborEncode, decode as cborDecode } from 'cbor-x'
-import { HexString } from '@polkadot/util/types'
 
 export async function ensureStoredRegistry(
   authorAccount: Cord.CordKeyringPair,

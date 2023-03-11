@@ -6,14 +6,17 @@ export function getSchema(): Cord.ISchema {
     name: {
       type: 'string',
     },
+    id: {
+      type: 'integer',
+    },
     age: {
       type: 'integer',
     },
     gender: {
       type: 'string',
     },
-    credit: {
-      type: 'integer',
+    country: {
+      type: 'string',
     },
   })
 }

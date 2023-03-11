@@ -38,7 +38,6 @@
     "@polkadot/keyring": "^10.2.1",
     "@polkadot/util": "^10.2.1",
     "@polkadot/util-crypto": "^10.2.1",
-    "cbor-x": "^1.5.1",
     "tweetnacl": "^1.0.3",
     "uuid": "^9.0.0"
   }

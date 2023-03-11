@@ -220,7 +220,6 @@ export function verify(inputContent: IContent, schema: ISchema): void {
  * @param schema A [[Schema]] object that has nested [[Schema]]s.
  * @param nestedSchemas The array of [[Schema]]s, which are used inside the main [[Schema]].
  * @param contents The data inside the [[Content]].
- * @param issuer The owner of the [[Content]].
  * @param holder The holder of the [[Content]].
  *
  * @returns A validated [[Content]] stream.
@@ -230,7 +229,8 @@ export function fromNestedSchemaAndContent(
   schema: ISchema,
   nestedSchemas: ISchema[],
   contents: IContent['contents'],
-  holder: DidUri
+  holder: DidUri,
+  issuer: DidUri
 ): IContent {
   Schema.verifyContentAgainstNestedSchemas(schema, nestedSchemas, contents)
 
@@ -238,6 +238,7 @@ export function fromNestedSchemaAndContent(
     schemaId: schema.$id,
     contents: contents,
     holder: holder,
+    issuer: issuer,
   }
   verifyDataStructure(content)
   return content
@@ -254,7 +255,8 @@ export function fromNestedSchemaAndContent(
 export function fromSchemaAndContent(
   schema: ISchema,
   contents: IContent['contents'],
-  holder: DidUri
+  holder: DidUri,
+  issuer: DidUri
 ): IContent {
   Schema.verifyDataStructure(schema)
   Schema.verifyContentAganistSchema(contents, schema)
@@ -263,6 +265,7 @@ export function fromSchemaAndContent(
     schemaId: schema.$id,
     contents: contents,
     holder: holder,
+    issuer: issuer,
   }
   verifyDataStructure(content)
   return content

@@ -11,14 +11,17 @@ export async function ensureStoredSchema(
     name: {
       type: 'string',
     },
+    id: {
+      type: 'string',
+    },
     age: {
       type: 'integer',
     },
     gender: {
       type: 'string',
     },
-    credit: {
-      type: 'integer',
+    country: {
+      type: 'string',
     },
   })
 
