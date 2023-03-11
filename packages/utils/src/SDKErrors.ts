@@ -89,6 +89,14 @@ export class ContentMissingError extends SDKError {}
 
 export class HashTypeError extends SDKError {}
 
+export class IdentifierMissingError extends SDKError {}
+
+export class StreamHashMissingError extends SDKError {}
+
+export class IssuerMissingError extends SDKError {}
+
+export class CredentialUnverifiableError extends SDKError {}
+
 export class ContentNonceMapMalformedError extends SDKError {
   constructor(statement?: string) {
     if (statement) {

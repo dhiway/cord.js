@@ -14,6 +14,7 @@ import type {
   ICredentialPresentation,
   ISchema,
   SignCallback,
+  IRegistryAuthorization,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/index.js'
@@ -100,25 +101,6 @@ export function makeSigningData(
     ...Crypto.coToUInt8(challenge),
   ])
 }
-
-// export async function verifySignature(
-//   content: IContentStream,
-//   {
-//     challenge,
-//   }: {
-//     challenge?: string
-//   } = {}
-// ): Promise<boolean> {
-//   const { signatureProof } = content
-//   if (!signatureProof) return false
-//   const signingData = makeSigningData(content, challenge)
-//   const verified = Crypto.verify(
-//     signingData,
-//     signatureProof.signature,
-//     signatureProof.keyId
-//   )
-//   return verified
-// }
 
 export function verifyRootHash(input: ICredential): void {
   if (input.rootHash !== calculateRootHash(input))
@@ -232,7 +214,8 @@ export async function verifySignature(
 
 export type Options = {
   evidenceIds?: ICredential[]
-  registry?: ICredential['registry']
+  authorization?: IRegistryAuthorization['identifier'] | null
+  registry?: ICredential['registry'] | null
 }
 
 /**
@@ -247,22 +230,21 @@ export type Options = {
  */
 export function fromContent(
   content: IContent,
-  { evidenceIds, registry }: Options = {}
+  { evidenceIds = [], authorization = null, registry = null }: Options = {}
 ): ICredential {
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
-
   const rootHash = calculateRootHash({
     evidenceIds,
     contentHashes,
   })
-
   const credential = {
     content,
     contentHashes,
     contentNonceMap,
     evidenceIds: evidenceIds || [],
-    registry: registry || null,
+    authorization: authorization,
+    registry: registry,
     rootHash,
     identifier: Identifier.hashToUri(
       rootHash,

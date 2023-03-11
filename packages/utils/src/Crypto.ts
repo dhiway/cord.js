@@ -140,8 +140,8 @@ export function hash(value: CryptoInput, bitLength?: BitLength): Uint8Array {
  * @param value Value to be hashed.
  * @returns Blake2b hash as hex string.
  */
-export function hashStr(value: CryptoInput): HexString {
-  return u8aToHex(hash(value))
+export function hashStr(value: CryptoInput, bitLength?: BitLength): HexString {
+  return u8aToHex(hash(value, bitLength))
 }
 
 /**
@@ -165,6 +165,24 @@ export function encodeObjectAsStr(
       : value
 
   return input.normalize('NFC')
+}
+/**
+ * Hashes numbers, booleans, and objects by stringifying them. Object keys are sorted to yield consistent hashing.
+ *
+ * @param value Object or value to be hashed.
+ * @param nonce Optional nonce to obscure hashed values that could be guessed.
+ * @returns Blake2b hash as hex string.
+ */
+export function hashObjectAsHexStr(
+  value: Record<string, any> | string | number | boolean,
+  bitLength?: BitLength,
+  nonce?: string
+): HexString {
+  let objectAsStr = encodeObjectAsStr(value)
+  if (nonce) {
+    objectAsStr = nonce + objectAsStr
+  }
+  return hashStr(objectAsStr, bitLength)
 }
 
 /**

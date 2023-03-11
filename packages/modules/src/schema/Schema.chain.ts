@@ -31,7 +31,7 @@ export function toChain(schema: ISchema): string {
 /**
  * Encodes the provided Schema['$id'] for use in `api.query.schema.schemas()`.
  *
- * @param cTypeId The Schema id to translate for the blockchain.
+ * @param schemaId The Schema id to translate for the blockchain.
  * @returns Encoded Schema id.
  */
 export function idToChain(schemaId: ISchema['$id']): SchemaId {

@@ -17,3 +17,8 @@ export interface IStream {
   registry: ICredential['registry'] | null
   revoked: boolean
 }
+
+export interface IStreamChain {
+  streamHash: ICredential['rootHash']
+  schema: ISchema['$id'] | null
+}

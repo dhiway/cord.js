@@ -31,7 +31,7 @@ export function verifyRegistryDataStructure(input: IRegistry): void {
   if (!input.meta.creator) {
     throw new SDKErrors.CreatorMissingError()
   }
-  if (!input.meta.registryHash) {
+  if (!input.meta.digest) {
     throw new SDKErrors.DataStructureError('registry hash not provided')
   }
   if (!input.details) {
@@ -47,7 +47,7 @@ export function verifyRegistryDataStructure(input: IRegistry): void {
       }
     })
   }
-  DataUtils.verifyIsHex(input.meta.registryHash, 256)
+  DataUtils.verifyIsHex(input.meta.digest, 256)
 }
 
 /**
@@ -77,7 +77,7 @@ export function fromRegistryProperties(
     details: encodedRegistry,
   }
   const registryMeta = {
-    registryHash: registryHash,
+    digest: registryHash,
     schema: registryProps.schema,
     creator: registryProps.creator,
     active: true,
