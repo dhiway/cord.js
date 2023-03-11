@@ -1,14 +1,12 @@
 import * as Cord from '@cord.network/sdk'
-import { DidUri } from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
-import { generateAccount } from './generateAccount'
 import { generateKeypairs } from './generateKeypairs'
 
 export async function createFullDid(
   submitterAccount: Cord.CordKeyringPair
 ): Promise<{
   mnemonic: string
-  didUri: DidUri
+  fullDid: Cord.DidDocument
 }> {
   const api = Cord.ConfigService.get('api')
 
@@ -45,15 +43,19 @@ export async function createFullDid(
   await Cord.Chain.signAndSubmitTx(fullDidCreationTx, submitterAccount)
 
   const didUri = Cord.Did.getFullDidUriFromKey(authentication)
-  console.log(didUri)
-  // const encodedFullDid = await api.call.did.query(Cord.Did.toChain(didUri))
-  // const { document } = Cord.Did.linkedInfoFromChain(encodedFullDid)
+  const encodedFullDid = await api.call.did.query(Cord.Did.toChain(didUri))
+  const { document } = Cord.Did.linkedInfoFromChain(encodedFullDid)
 
-  // if (!document) {
-  //   throw new Error('Full DID was not successfully created.')
-  // }
+  // console.dir(document, {
+  //   depth: null,
+  //   colors: true,
+  // })
 
-  // return { mnemonic, fullDid: document }
+  if (!document) {
+    throw new Error('Full DID was not successfully created.')
+  }
 
-  return { mnemonic, didUri: didUri }
+  return { mnemonic, fullDid: document }
+
+  // return { mnemonic, didUri: didUri }
 }

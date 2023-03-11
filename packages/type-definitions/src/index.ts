@@ -7,8 +7,8 @@ import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'
 import { calls as didCalls } from './runtime/did.js'
 
-// import { cordSignedExtensions } from './signedExtensions'
-// export { cordSignedExtensions } from './signedExtensions'
+import { cordSignedExtensions } from './signedExtensions'
+export { cordSignedExtensions } from './signedExtensions'
 export { calls as didCalls } from './runtime/did.js'
 
 export { types8 as types }
@@ -27,22 +27,31 @@ const defaultTypesBundle: OverrideVersionedType[] = [
 // Current runtime version: 8000
 export const typesBundle: OverrideBundleType = {
   chain: {
-    Staging: {
+    'CORD Staging Testnet': {
       runtime: {
         ...didCalls,
       },
-      // signedExtensions: {
-      //   ...cordSignedExtensions,
-      // },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
+      types: defaultTypesBundle,
+    },
+    'Dev. Node': {
+      runtime: {
+        ...didCalls,
+      },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
       types: defaultTypesBundle,
     },
     Development: {
       runtime: {
         ...didCalls,
       },
-      // signedExtensions: {
-      //   ...cordSignedExtensions,
-      // },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
       types: defaultTypesBundle,
     },
   },

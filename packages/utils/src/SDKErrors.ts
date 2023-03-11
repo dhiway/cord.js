@@ -59,6 +59,7 @@ export class SchemaIdMissingError extends SDKError {}
 export class SchemaError extends SDKError {}
 
 export class SchemaIdentifierMissingError extends SDKError {}
+export class RegistryIdentifierMissingError extends SDKError {}
 
 export class SchemaIdMismatchError extends SDKError {
   constructor(fromSchema: string, provided: string) {
@@ -97,6 +98,10 @@ export class ContentNonceMapMalformedError extends SDKError {
     }
   }
 }
+export class CreatorMissingError extends SDKError {}
+export class RegistryInputMalformedError extends SDKError {}
+export class DelegateMissingError extends SDKError {}
+export class SchemaMissingError extends SDKError {}
 
 export class DataStructureError extends SDKError {}
 
