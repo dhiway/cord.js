@@ -6,7 +6,7 @@ export async function createFullDid(
   submitterAccount: Cord.CordKeyringPair
 ): Promise<{
   mnemonic: string
-  fullDid: Cord.DidDocument
+  document: Cord.DidDocument
 }> {
   const api = Cord.ConfigService.get('api')
 
@@ -46,16 +46,9 @@ export async function createFullDid(
   const encodedFullDid = await api.call.did.query(Cord.Did.toChain(didUri))
   const { document } = Cord.Did.linkedInfoFromChain(encodedFullDid)
 
-  // console.dir(document, {
-  //   depth: null,
-  //   colors: true,
-  // })
-
   if (!document) {
     throw new Error('Full DID was not successfully created.')
   }
 
-  return { mnemonic, fullDid: document }
-
-  // return { mnemonic, didUri: didUri }
+  return { mnemonic, document: document }
 }
