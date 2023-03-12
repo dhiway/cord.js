@@ -6,22 +6,15 @@ import type { SchemaId } from './Schema.js'
 export type MessageBodyType =
   | 'error'
   | 'reject'
-  | 'request-terms'
-  | 'submit-terms'
-  | 'reject-terms'
-  | 'request-stream-entry'
-  | 'submit-stream-entry'
-  | 'reject-stream-entry'
-  | 'request-payment'
-  | 'confirm-payment'
   | 'request-stream'
   | 'submit-stream'
-  | 'accept-stream'
   | 'reject-stream'
-  | 'request-accept-delegation'
-  | 'submit-accept-delegation'
-  | 'reject-accept-delegation'
-  | 'inform-create-delegation'
+  | 'request-payment'
+  | 'confirm-payment'
+  | 'request-credential'
+  | 'submit-credential'
+  | 'accept-credential'
+  | 'reject-credential'
 
 interface IMessageBodyBase {
   content: any
@@ -48,50 +41,22 @@ export interface IReject extends IMessageBodyBase {
   type: 'reject'
 }
 
-export interface ISubmitStream extends IMessageBodyBase {
+export interface ISubmitCredential extends IMessageBodyBase {
   content: ICredentialPresentation[]
-  type: 'submit-stream'
+  type: 'submit-credential'
 }
 
-export interface IAcceptStream extends IMessageBodyBase {
+export interface IAcceptCredential extends IMessageBodyBase {
   content: SchemaId[]
-  type: 'accept-stream'
+  type: 'accept-credential'
 }
 
-export interface IRejectStream extends IMessageBodyBase {
+export interface IRejectCredential extends IMessageBodyBase {
   content: SchemaId[]
-  type: 'reject-stream'
+  type: 'reject-credential'
 }
 export interface IRequestStreamContent {
-  stream: ICredential
-}
-
-export interface IRequestStreamEntry extends IMessageBodyBase {
-  content: IRequestStreamContent
-  type: 'request-stream-entry'
-}
-
-export interface ISubmitStreamEntryContent {
-  streamEntry: IStream
-}
-
-export interface ISubmitStreamEntry extends IMessageBodyBase {
-  content: ISubmitStreamEntryContent
-  type: 'submit-stream-entry'
-}
-
-export interface IRejectStreamEntry extends IMessageBodyBase {
-  content: ICredential['identifier']
-  type: 'reject-stream-entry'
-}
-
-export interface IRequestStreamContent {
-  Schemas: Array<{
-    schemaId: SchemaId
-    trustedAttesters?: DidUri[]
-    requiredProperties?: string[]
-  }>
-  challenge?: string
+  credential: ICredential
 }
 
 export interface IRequestStream extends IMessageBodyBase {
@@ -99,18 +64,46 @@ export interface IRequestStream extends IMessageBodyBase {
   type: 'request-stream'
 }
 
+export interface ISubmitStreamContent {
+  stream: IStream
+}
+
+export interface ISubmitStream extends IMessageBodyBase {
+  content: ISubmitStreamContent
+  type: 'submit-stream'
+}
+
+export interface IRejectStream extends IMessageBodyBase {
+  content: ICredential['identifier']
+  type: 'reject-stream'
+}
+
+export interface IRequestCredentialContent {
+  schemas: Array<{
+    schemaId: SchemaId
+    trustedAttesters?: DidUri[]
+    requiredProperties?: string[]
+  }>
+  challenge?: string
+}
+
+export interface IRequestCredential extends IMessageBodyBase {
+  content: IRequestCredentialContent
+  type: 'request-credential'
+}
+
 export type MessageBody =
   | IError
   | IReject
   //
-  | IRequestStreamEntry
-  | ISubmitStreamEntry
-  | IRejectStreamEntry
-  //
   | IRequestStream
   | ISubmitStream
-  | IAcceptStream
   | IRejectStream
+  //
+  | IRequestCredential
+  | ISubmitCredential
+  | IAcceptCredential
+  | IRejectCredential
 
 /**
  * - `body` - The body of the message, see [[MessageBody]].
