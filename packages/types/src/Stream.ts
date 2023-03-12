@@ -8,6 +8,7 @@ import type { ICredential } from './Credential.js'
 
 export const STREAM_IDENTIFIER: number = 11992
 export const STREAM_PREFIX: string = 'stream:cord:'
+export type StreamId = string
 
 export interface IStream {
   identifier: ICredential['identifier']

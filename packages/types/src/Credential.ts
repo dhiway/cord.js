@@ -22,7 +22,7 @@ export interface ICredential {
 }
 
 export interface ICredentialPresentation extends ICredential {
-  claimerSignature: DidSignature & { challenge?: string }
+  holderSignature: DidSignature & { challenge?: string }
 }
 
 export interface CordPublishedStreamV1 {
