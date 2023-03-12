@@ -9,12 +9,12 @@ import {
 } from '@cord.network/types'
 import { DataUtils, SDKErrors, ss58Format } from '@cord.network/utils'
 
-// The latest version for full DIDs.
+// The latest version for DIDs.
 const DID_LATEST_VERSION = 1
 
 // NOTICE: The following regex patterns must be kept in sync with DidUri type in @cord.network/types
 
-// Matches the following full DIDs
+// Matches the following DIDs
 // - did:cord:<cord_address>
 // - did:cord:<cord_address>#<fragment>
 const CORD_DID_REGEX =
@@ -138,32 +138,28 @@ export function getAddressByKey({
 }
 
 /**
- * Builds the URI a light DID will have after it’s stored on the blockchain.
+ * Builds the URI an accountswill have after it’s stored on the blockchain.
  *
- * @param didOrAddress The URI of the light DID. Internally it’s used with the DID "address" as well.
+ * @param didOrAddress The URI of the account. Internally it’s used with the DID "address" as well.
  * @param version The version of the DID URI to use.
- * @returns The expected full DID URI.
+ * @returns The expected DID URI.
  */
-export function getFullDidUri(
-  didOrAddress: DidUri | CordAddress
-  // version = DID_LATEST_VERSION
-): DidUri {
+export function getDidUri(didOrAddress: DidUri | CordAddress): DidUri {
   const address = DataUtils.isCordAddress(didOrAddress)
     ? didOrAddress
     : parse(didOrAddress as DidUri).address
-  // const versionString = version === 1 ? '' : `v${version}`
   return `did:cord:${address}` as DidUri
 }
 
 /**
- * Builds the URI of a full DID if it is created with the authentication key provided.
+ * Builds the URI of a DID if it is created with the authentication key provided.
  *
  * @param key The key that will be used as DID authentication key.
- * @returns The expected full DID URI.
+ * @returns The expected DID URI.
  */
-export function getFullDidUriFromKey(
+export function getDidUriFromKey(
   key: Pick<DidVerificationKey, 'publicKey' | 'type'>
 ): DidUri {
   const address = getAddressByKey(key)
-  return getFullDidUri(address)
+  return getDidUri(address)
 }

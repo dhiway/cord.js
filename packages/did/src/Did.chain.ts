@@ -37,7 +37,7 @@ import {
   EncodedSignature,
   EncodedVerificationKey,
   getAddressByKey,
-  getFullDidUri,
+  getDidUri,
   parse,
 } from './Did.utils.js'
 
@@ -100,7 +100,7 @@ function didPublicKeyDetailsFromChain(
  * @returns The DID URI.
  */
 export function fromChain(encoded: AccountId32): DidUri {
-  return getFullDidUri(Crypto.encodeAddress(encoded, ss58Format))
+  return getDidUri(Crypto.encodeAddress(encoded, ss58Format))
 }
 
 /**
@@ -205,7 +205,7 @@ export function validateService(endpoint: DidServiceEndpoint): void {
   const { id, serviceEndpoint } = endpoint
   if (id.startsWith('did:cord')) {
     throw new SDKErrors.DidError(
-      `This function requires only the URI fragment part (following '#') of the service ID, not the full DID URI, which is violated by id "${id}"`
+      `This function requires only the URI fragment part (following '#') of the service ID, not the DID URI, which is violated by id "${id}"`
     )
   }
   if (!isUriFragment(resourceIdToChain(id))) {
@@ -309,7 +309,7 @@ export type GetStoreTxSignCallback = (
  * - The service endpoint has at most 1 service type, with a value that is at most 50 bytes long.
  * - The service endpoint has at most 1 URI, with a value that is at most 200 bytes long, and which is a valid URI according to RFC#3986.
  *
- * @param input The DID keys and services to store, also accepts DidDocument, so you can store a light DID for example.
+ * @param input The DID keys and services to store, also accepts DidDocument.
  * @param submitter The address authorized to submit the creation operation.
  * @param sign The sign callback. The authentication key has to be used.
  *
@@ -411,7 +411,7 @@ export interface SigningOptions {
 }
 
 /**
- * DID related operations on the CORD blockchain require authorization by a full DID. This is realized by requiring that relevant extrinsics are signed with a key featured by a full DID as a verification method.
+ * DID related operations on the CORD blockchain require authorization by a DID. This is realized by requiring that relevant extrinsics are signed with a key featured by a DID as a verification method.
  * Such extrinsics can be produced using this function.
  *
  * @param params Object wrapping all input to the function.
@@ -419,7 +419,7 @@ export interface SigningOptions {
  * @param params.keyRelationship DID key relationship to be used for authorization.
  * @param params.sign The callback to interface with the key store managing the private key to be used.
  * @param params.call The call or extrinsic to be authorized.
- * @param params.txCounter The nonce or txCounter value for this extrinsic, which must be on larger than the current txCounter value of the authorizing full DID.
+ * @param params.txCounter The nonce or txCounter value for this extrinsic, which must be on larger than the current txCounter value of the authorizing DID.
  * @param params.submitter Payment account allowed to submit this extrinsic and cover its fees, which will end up owning any deposit associated with newly created records.
  * @param params.blockNumber Block number for determining the validity period of this authorization. If omitted, the current block number will be fetched from chain.
  * @returns A DID authorized extrinsic that, after signing with the payment account mentioned in the params, is ready for submission.
@@ -458,10 +458,10 @@ export async function generateDidAuthenticatedTx({
 
 // ### Chain utils
 /**
- * Compiles an enum-type key-value pair representation of a signature created with a full DID verification method. Required for creating full DID signed extrinsics.
+ * Compiles an enum-type key-value pair representation of a signature created with a DID verification method. Required for creating DID signed extrinsics.
  *
  * @param key Object describing data associated with a public key.
- * @param signature Object containing a signature generated with a full DID associated public key.
+ * @param signature Object containing a signature generated with a DID associated public key.
  * @returns Data restructured to allow SCALE encoding by polkadot api.
  */
 export function didSignatureToChain(

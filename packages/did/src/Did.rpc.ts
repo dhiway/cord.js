@@ -18,10 +18,10 @@ import type {
 
 import { BN, u8aToString } from '@polkadot/util'
 import { Crypto, ss58Format } from '@cord.network/utils'
-import { getFullDidUri } from './Did.utils.js'
+import { getDidUri } from './Did.utils.js'
 
 function fromChain(encoded: AccountId32): DidUri {
-  return getFullDidUri(Crypto.encodeAddress(encoded, ss58Format))
+  return getDidUri(Crypto.encodeAddress(encoded, ss58Format))
 }
 
 type RpcDocument = Pick<
@@ -124,7 +124,7 @@ export interface DidInfo {
 }
 
 /**
- * Decodes accounts, DID, and DidName linked to the provided account.
+ * Decodes DID and DidName linked to the provided account.
  *
  * @param encoded The data returned by `api.call.did.query()`, and `api.call.did.queryByDidName()`.
 
@@ -133,7 +133,7 @@ export interface DidInfo {
 export function linkedInfoFromChain(
   encoded: Option<RawDidLinkedInfo>
 ): DidInfo {
-  const { identifier, dName, serviceEndpoints, details } = encoded.unwrap()
+  const { identifier, name, serviceEndpoints, details } = encoded.unwrap()
   const didRec = documentFromChain(details)
   const did: DidDocument = {
     uri: fromChain(identifier),
@@ -148,7 +148,7 @@ export function linkedInfoFromChain(
     did.service = service
   }
 
-  const didName = dName.isNone ? undefined : dName.unwrap().toHuman()
+  const didName = name.isNone ? undefined : name.unwrap().toHuman()
 
   return {
     document: did,

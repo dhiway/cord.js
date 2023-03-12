@@ -8,7 +8,7 @@ import type { PalletDidServiceEndpointsDidEndpoint, PalletDidDidDetails, } from 
 /** @name RawDidLinkedInfo */
 export interface RawDidLinkedInfo extends Struct {
   readonly identifier: AccountId32;
-  readonly dName: Option<Text>;
+  readonly name: Option<Text>;
   readonly serviceEndpoints: Vec<PalletDidServiceEndpointsDidEndpoint>;
   readonly details: PalletDidDidDetails;
 }

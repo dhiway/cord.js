@@ -15,7 +15,7 @@ import { ConfigService } from '@cord.network/config'
 import * as Did from '../index.js'
 import { toChain } from '../Did.chain.js'
 import { linkedInfoFromChain } from '../Did.rpc.js'
-import { getFullDidUri, parse } from '../Did.utils.js'
+import { getDidUri, parse } from '../Did.utils.js'
 import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.js'
 
 /**
@@ -51,11 +51,9 @@ export async function resolve(
     }
   }
 
-  // If the full DID has been deleted (or the light DID was upgraded and deleted),
-  // return the info in the resolution metadata.
-  const isFullDidDeleted = (await api.query.did.didBlacklist(toChain(did)))
-    .isSome
-  if (isFullDidDeleted) {
+  // If theDID has been deleted return the info in the resolution metadata.
+  const isdidDeleted = (await api.query.did.didBlacklist(toChain(did))).isSome
+  if (isdidDeleted) {
     return {
       // No canonicalId and no details are returned as we consider this DID deactivated/deleted.
       metadata: {
@@ -64,18 +62,17 @@ export async function resolve(
     }
   }
 
-  // const lightDocument = Did.parseDocumentFromLightDid(did, false)
-  // If a full DID with same subject is present, return the resolution metadata accordingly.
+  // If a DID with same subject is present, return the resolution metadata accordingly.
   if (document) {
     return {
       metadata: {
-        canonicalId: getFullDidUri(did),
+        canonicalId: getDidUri(did),
         deactivated: false,
       },
     }
   }
 
-  // If no full DID details nor deletion info is found, the light DID is un-migrated.
+  // If no DID details nor deletion info is found,
   // Metadata will simply contain `deactivated: false`.
   return {
     document: document,
@@ -194,7 +191,6 @@ export async function resolveKey(
     metadata: { canonicalId },
   } = resolved
 
-  // If the light DID has been upgraded we consider the old key URI invalid, the full DID URI should be used instead.
   if (canonicalId) {
     throw new SDKErrors.DidResolveUpgradedDidError()
   }
@@ -248,7 +244,6 @@ export async function resolveService(
     metadata: { canonicalId },
   } = resolved
 
-  // If the light DID has been upgraded we consider the old service URI invalid, the full DID URI should be used instead.
   if (canonicalId) {
     throw new SDKErrors.DidResolveUpgradedDidError()
   }
