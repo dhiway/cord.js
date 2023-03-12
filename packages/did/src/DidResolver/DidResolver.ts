@@ -64,10 +64,6 @@ export async function resolve(
     }
   }
 
-  // if (type === 'full') {
-  //   return null
-  // }
-
   // const lightDocument = Did.parseDocumentFromLightDid(did, false)
   // If a full DID with same subject is present, return the resolution metadata accordingly.
   if (document) {

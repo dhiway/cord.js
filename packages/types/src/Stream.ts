@@ -14,7 +14,7 @@ export interface IStream {
   identifier: ICredential['identifier']
   streamHash: ICredential['rootHash']
   issuer: DidUri
-  schema: ISchema['$id'] | null
+  schema: ISchema['$id']
   registry: ICredential['registry'] | null
   revoked: boolean
 }
