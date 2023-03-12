@@ -2,7 +2,7 @@ import { mnemonicGenerate } from '@polkadot/util-crypto'
 
 import * as Cord from '@cord.network/sdk'
 
-export function generateAccount(mnemonic = mnemonicGenerate()): {
+export function createAccount(mnemonic = mnemonicGenerate()): {
   account: Cord.CordKeyringPair
   mnemonic: string
 } {

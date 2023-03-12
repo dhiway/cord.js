@@ -1,14 +1,6 @@
 import type { HexString } from '@polkadot/util/types'
 import { base58Decode, base58Encode, blake2AsU8a } from '@polkadot/util-crypto'
-import {
-  assert,
-  u8aConcat,
-  u8aToU8a,
-  stringToU8a,
-  // isU8a,
-  // isHex,
-  // u8aToHex,
-} from '@polkadot/util'
+import { assert, u8aConcat, u8aToU8a, stringToU8a } from '@polkadot/util'
 import {
   IPublicIdentity,
   SCHEMA_PREFIX,
@@ -104,45 +96,6 @@ function encodeIdentifier(
   )
 }
 
-// function decodeIdentifier(
-//   encoded?: HexString | string | Uint8Array | null,
-//   ignoreChecksum?: boolean,
-//   iDPrefix: number = -1
-// ): Uint8Array {
-//   assert(encoded, 'Invalid identifier passed')
-
-//   if (isU8a(encoded) || isHex(encoded)) {
-//     return u8aToU8a(encoded)
-//   }
-
-//   try {
-//     const decoded = base58Decode(encoded)
-
-//     assert(
-//       defaults.allowedEncodedLengths.includes(decoded.length),
-//       'Invalid decoded identifier length'
-//     )
-
-//     const [isValid, endPos, iDfrLength, iDfrDecoded] =
-//       checkAddressChecksum(decoded)
-
-//     assert(ignoreChecksum || isValid, 'Invalid decoded identifier checksum')
-//     assert(
-//       [-1, iDfrDecoded].includes(iDPrefix),
-//       () => `Expected iDPrefixnti ${iDPrefix}, received ${iDfrDecoded}`
-//     )
-
-//     return decoded.slice(iDfrLength, endPos)
-//   } catch (error) {
-//     throw new Error(`Decoding ${encoded}: ${(error as Error).message}`)
-//   }
-// }
-
-// function decodeIdentifierHash(encoded?: HexString | string): string {
-//   assert(encoded, 'Invalid empty identifier passed')
-//   return u8aToHex(decodeIdentifier(encoded))
-// }
-
 export function hashToIdentifier(
   identifier: HexString | Uint8Array | string,
   iDPrefix: number
@@ -178,18 +131,6 @@ export function uriToIdentifier(identifier: string | null | undefined): string {
     throw new Error(`Invalid Identifier ${identifier}`)
   }
 }
-
-// export function getHashIdentifier(
-//   identifier: HexString | Uint8Array | string
-// ): string {
-//   assert(identifier, 'Invalid key string passed')
-//   return `${HASH_PREFIX}${identifier}`
-// }
-
-// export function getIdentifierHash(identifier: string): string {
-//   const id = identifier.split(HASH_PREFIX).join('')
-//   return decodeIdentifierHash(id)
-// }
 
 /**
  * @name checkIdentifier

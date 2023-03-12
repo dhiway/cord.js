@@ -7,7 +7,7 @@ import {
   mnemonicToMiniSecret,
   sr25519PairFromSeed,
 } from '@polkadot/util-crypto'
-import { generateAccount } from './generateAccount'
+import { createAccount } from './createAccount'
 
 function generateKeyAgreement(mnemonic: string) {
   const secretKeyPair = sr25519PairFromSeed(mnemonicToMiniSecret(mnemonic))
@@ -17,7 +17,7 @@ function generateKeyAgreement(mnemonic: string) {
 }
 
 export function generateKeypairs(mnemonic = mnemonicGenerate()) {
-  const { account } = generateAccount(mnemonic)
+  const { account } = createAccount(mnemonic)
 
   const authentication = {
     ...account.derive('//did//0'),

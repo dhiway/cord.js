@@ -1,7 +1,9 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
 import { generateKeypairs } from './utils/generateKeypairs'
-import { createFullDid } from './utils/generateDid'
+import { createDid } from './utils/generateDid'
+import { createDidName } from './utils/generateDidName'
+import { getDidDocFromName } from './utils/queryDidName'
 import { ensureStoredSchema } from './utils/generateSchema'
 import { ensureStoredRegistry } from './utils/generateRegistry'
 import { requestCredential } from './utils/requestCredential'
@@ -9,6 +11,7 @@ import { createPresentation } from './utils/createPresentation'
 import { createStream } from './utils/createStream'
 import { verifyPresentation } from './utils/verifyPresentation'
 import { revokeCredential } from './utils/revokeCredential'
+import { randomUUID } from 'crypto'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -25,13 +28,14 @@ async function main() {
   const authorIdentity = Crypto.makeKeypairFromUri('//Bob', 'sr25519')
   console.log(`🏦  Author (${authorIdentity.type}): ${authorIdentity.address}`)
   // Create Verifier DID
-  const { mnemonic: verifierMnemonic, document: verifierDid } =
-    await createFullDid(authorIdentity)
+  const { mnemonic: verifierMnemonic, document: verifierDid } = await createDid(
+    authorIdentity
+  )
   console.log(
     `🏢  Verifier (${verifierDid.assertionMethod![0].type}): ${verifierDid.uri}`
   )
   // Create Holder DID
-  const { mnemonic: holderMnemonic, document: holderDid } = await createFullDid(
+  const { mnemonic: holderMnemonic, document: holderDid } = await createDid(
     authorIdentity
   )
   const holderKeys = generateKeypairs(holderMnemonic)
@@ -39,7 +43,7 @@ async function main() {
     `👩‍⚕️  Holder (${holderDid.assertionMethod![0].type}): ${holderDid.uri}`
   )
   // Create issuer DID
-  const { mnemonic: issuerMnemonic, document: issuerDid } = await createFullDid(
+  const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
     authorIdentity
   )
   const issuerKeys = generateKeypairs(issuerMnemonic)
@@ -55,6 +59,22 @@ async function main() {
     colors: true,
   })
   console.log('✅ Identities created!')
+
+  // Step 2: Create a DID name for Issuer
+  console.log(`\n❄️  DID mame Creation `)
+  const randomDidName = `${randomUUID().substring(0, 4)}-solar-sailer@space`
+
+  await createDidName(
+    issuerDid.uri,
+    authorIdentity,
+    randomDidName,
+    async ({ data }) => ({
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
+    })
+  )
+  console.log(`✅ DID name - ${randomDidName} - created!`)
+  await getDidDocFromName(randomDidName)
 
   // Step 2: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
