@@ -47,7 +47,6 @@ function verifyDidSignatureDataStructure(input: DidSignature): void {
  * @param input.signature Signature bytes.
  * @param input.keyUri DID URI of the key used for signing.
  * @param input.expectedSigner If given, verification fails if the controller of the signing key is not the expectedSigner.
- * @param input.allowUpgraded If `expectedSigner` is a light DID, setting this flag to `true` will accept signatures by the corresponding full DID.
  * @param input.expectedVerificationMethod Which relationship to the signer DID the key must have.
  * @param input.didResolveKey Allows specifying a custom DID key resolve. Defaults to the built-in [[resolveKey]].
  */
