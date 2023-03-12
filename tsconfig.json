@@ -8,6 +8,7 @@
       "@cord.network/network": ["network/src"],
       "@cord.network/config": ["config/src"],
       "@cord.network/modules": ["modules/src"],
+      "@cord.network/messaging": ["messaging/src"],
       "@cord.network/sdk": ["sdk/src"],
       "@cord.network/types": ["types/src"],
       "@cord.network/utils": ["utils/src"],

@@ -58,6 +58,8 @@ export class SchemaIdMissingError extends SDKError {}
 
 export class SchemaError extends SDKError {}
 
+export class SchemaUnknownPropertiesError extends SDKError {}
+
 export class SchemaIdentifierMissingError extends SDKError {}
 export class RegistryIdentifierMissingError extends SDKError {}
 
@@ -112,6 +114,19 @@ export class DelegateMissingError extends SDKError {}
 export class SchemaMissingError extends SDKError {}
 
 export class DataStructureError extends SDKError {}
+
+export class IdentityMismatchError extends SDKError {
+  constructor(context?: string, type?: string) {
+    if (type && context) {
+      super(`${type} is not owner of the ${context}`)
+    } else if (context) {
+      super(`Identity is not owner of the ${context}`)
+    } else {
+      super('Addresses expected to be equal mismatched')
+    }
+  }
+}
+export class UnknownMessageBodyTypeError extends SDKError {}
 
 export class ERROR_ID_MALFORMED extends SDKError {
   constructor() {
