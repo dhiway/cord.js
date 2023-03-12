@@ -310,7 +310,7 @@ export type GetStoreTxSignCallback = (
  * - The service endpoint has at most 1 URI, with a value that is at most 200 bytes long, and which is a valid URI according to RFC#3986.
  *
  * @param input The DID keys and services to store, also accepts DidDocument, so you can store a light DID for example.
- * @param submitter The KILT address authorized to submit the creation operation.
+ * @param submitter The address authorized to submit the creation operation.
  * @param sign The sign callback. The authentication key has to be used.
  *
  * @returns The SubmittableExtrinsic for the DID creation operation.
@@ -411,7 +411,7 @@ export interface SigningOptions {
 }
 
 /**
- * DID related operations on the KILT blockchain require authorization by a full DID. This is realized by requiring that relevant extrinsics are signed with a key featured by a full DID as a verification method.
+ * DID related operations on the CORD blockchain require authorization by a full DID. This is realized by requiring that relevant extrinsics are signed with a key featured by a full DID as a verification method.
  * Such extrinsics can be produced using this function.
  *
  * @param params Object wrapping all input to the function.

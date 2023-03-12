@@ -2,8 +2,7 @@
  * URL identifying a JSON-LD context file describing terms used in DID documents of the CORD method that are not defined in the W3C DID core context.
  * Should be the second entry in the ordered set of contexts after [[W3C_DID_CONTEXT_URL]] in the JSON-LD representation of a CORD DID document.
  */
-export const CORD_DID_CONTEXT_URL =
-  'ipfs://QmU7QkuTCPz7NmD5bD7Z7mQVz2UsSPaEK58B5sYnjnPRNW'
+export const CORD_DID_CONTEXT_URL = 'https://github.com/dhiway/spec/did/v1'
 /**
  * URL identifying the JSON-LD context file that is part of the W3C DID core specifications describing the terms defined by the core data model.
  * Must be the first entry in the ordered set of contexts in a JSON-LD representation of a DID document.
@@ -11,13 +10,13 @@ export const CORD_DID_CONTEXT_URL =
  */
 export const W3C_DID_CONTEXT_URL = 'https://www.w3.org/ns/did/v1'
 /**
- * URL identifying a JSON-LD context file proposed by the W3C Credentials Community Group defining a number of terms which are used in verification methods on KILT DID documents.
+ * URL identifying a JSON-LD context file proposed by the W3C Credentials Community Group defining a number of terms which are used in verification methods on DID documents.
  * See https://w3c-ccg.github.io/security-vocab/.
- * This document is extended by the context file available under the [[KILT_DID_CONTEXT_URL]].
+ * This document is extended by the context file available under the [[CORD_DID_CONTEXT_URL]].
  */
 export const W3C_SECURITY_CONTEXT_URL = 'https://w3id.org/security/v2'
 /**
- * An object containing static copies of JSON-LD context files relevant to KILT DID documents, of the form <context URL> -> context.
+ * An object containing static copies of JSON-LD context files relevant to DID documents, of the form <context URL> -> context.
  * These context definitions are not supposed to change; therefore, a cached version can (and should) be used to avoid unexpected changes in definitions.
  */
 export const DID_CONTEXTS = {

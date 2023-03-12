@@ -23,6 +23,7 @@ const CORD_DID_REGEX =
 type IDidParsingResult = {
   did: DidUri
   version: number
+  type: 'full'
   address: CordAddress
   fragment?: UriFragment
   authKeyTypeEncoding?: string
@@ -37,6 +38,7 @@ type IDidParsingResult = {
  */
 export function parse(didUri: DidUri | DidResourceUri): IDidParsingResult {
   let matches = CORD_DID_REGEX.exec(didUri)?.groups
+
   if (matches) {
     const { version: versionString, fragment } = matches
     const address = matches.address as CordAddress
@@ -46,7 +48,7 @@ export function parse(didUri: DidUri | DidResourceUri): IDidParsingResult {
     return {
       did: didUri.replace(fragment || '', '') as DidUri,
       version,
-      // type: 'full',
+      type: 'full',
       address,
       fragment: fragment === '#' ? undefined : (fragment as UriFragment),
     }

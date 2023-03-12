@@ -107,7 +107,7 @@ async function getNextNonce(did: DidUri): Promise<BN> {
  * @param did The DID data.
  * @param extrinsic The unsigned extrinsic to sign.
  * @param sign The callback to sign the operation.
- * @param submitterAccount The KILT account to bind the DID operation to (to avoid MitM and replay attacks).
+ * @param submitterAccount The account to bind the DID operation to (to avoid MitM and replay attacks).
  * @param signingOptions The signing options.
  * @param signingOptions.txCounter The optional DID nonce to include in the operation signatures. By default, it uses the next value of the nonce stored on chain.
  * @returns The DID-signed submittable extrinsic.
@@ -187,7 +187,7 @@ function groupExtrinsicsByKeyRelationship(
  * @param input.did The DID document.
  * @param input.extrinsics The array of unsigned extrinsics to sign.
  * @param input.sign The callback to sign the operation.
- * @param input.submitter The KILT account to bind the DID operation to (to avoid MitM and replay attacks).
+ * @param input.submitter The account to bind the DID operation to (to avoid MitM and replay attacks).
  * @param input.nonce The optional nonce to use for the first batch, next batches will use incremented value.
  * @returns The DID-signed submittable extrinsic.
  */

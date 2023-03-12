@@ -126,7 +126,7 @@ export function verifyCordAddress(input: unknown): void {
  * Type guard to check whether input is an SS58 address with our prefix of 29.
  *
  * @param input Address string to validate for correct format.
- * @returns True if input is a KiltAddress, false otherwise.
+ * @returns True if input is a CordAddress, false otherwise.
  */
 export function isCordAddress(input: unknown): input is CordAddress {
   try {

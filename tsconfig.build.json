@@ -18,14 +18,11 @@
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "outDir": "./dist"
+
   },
-  "exclude": ["**/node_modules", "**/lib"]
+  "exclude": ["**/node_modules", "**/lib","./dist/**/*"]
 }
 
-// "outDir": "./dist"
-// "exclude": [
-//   "node_modules/**/*",
-//   "lib/**/*"
-//   // "./dist/**/*"
-// ]
+
