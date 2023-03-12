@@ -163,9 +163,9 @@ export const dispatchTx = submitSignedTx
  * Signs and submits the SubmittableExtrinsic with optional resolution and rejection criteria.
  *
  * @param tx The generated unsigned SubmittableExtrinsic to submit.
- * @param signer The [[KiltKeyringPair]] used to sign the tx.
+ * @param signer The [[CordKeyringPair]] used to sign the tx.
  * @param opts Partial optional criteria for resolving/rejecting the promise.
- * @param opts.tip Optional amount of Femto-KILT to tip the validator.
+ * @param opts.tip Optional amount of Femto to tip the validator.
  * @returns Promise result of executing the extrinsic, of type ISubmittableResult.
  */
 export async function signAndSubmitTx(

@@ -1,22 +1,12 @@
-/**
- * Copyright (c) 2018-2023, BOTLabs GmbH.
- *
- * This source code is licensed under the BSD 4-Clause "Original" license
- * found in the LICENSE file in the root directory of this source tree.
- */
-
 import type { BN } from '@polkadot/util'
 
 import type { CordAddress } from './Address'
-
-// type DidUriVersion = '' | `v${string}:`
 
 // NOTICE: The following string pattern types must be kept in sync with regex patterns @cord.network/did/Utils
 
 /**
  * A string containing a DID Uri.
  */
-// export type DidUri = `did:cord:${DidUriVersion}${CordAddress}`
 
 export type DidUri = `did:cord:${CordAddress}`
 

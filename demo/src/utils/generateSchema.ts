@@ -7,7 +7,7 @@ export async function ensureStoredSchema(
 ): Promise<Cord.ISchema> {
   const api = Cord.ConfigService.get('api')
 
-  const schema = Cord.Schema.fromProperties('Test Demo Schema v1', {
+  const schema = Cord.Schema.fromProperties('Test Demo Schema v2', {
     name: {
       type: 'string',
     },

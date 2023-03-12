@@ -195,15 +195,15 @@ export async function verifySignature(
     didResolveKey?: DidResolveKey
   } = {}
 ): Promise<void> {
-  const { claimerSignature } = input
-  if (challenge && challenge !== claimerSignature.challenge)
+  const { holderSignature } = input
+  if (challenge && challenge !== holderSignature.challenge)
     throw new SDKErrors.SignatureUnverifiableError(
       'Challenge differs from expected'
     )
 
-  const signingData = makeSigningData(input, claimerSignature.challenge)
+  const signingData = makeSigningData(input, holderSignature.challenge)
   await verifyDidSignature({
-    ...signatureFromJson(claimerSignature),
+    ...signatureFromJson(holderSignature),
     message: signingData,
     // check if credential owner matches signer
     expectedSigner: input.content.holder,
@@ -331,7 +331,7 @@ export function isPresentation(
 ): input is ICredentialPresentation {
   return (
     isICredential(input) &&
-    isDidSignature((input as ICredentialPresentation).claimerSignature)
+    isDidSignature((input as ICredentialPresentation).holderSignature)
   )
 }
 
@@ -399,7 +399,7 @@ export async function createPresentation({
 
   return {
     ...presentation,
-    claimerSignature: {
+    holderSignature: {
       ...signatureToJson(signature),
       ...(challenge && { challenge }),
     },
