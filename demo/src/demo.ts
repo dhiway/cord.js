@@ -12,6 +12,9 @@ import { createStream } from './utils/createStream'
 import { verifyPresentation } from './utils/verifyPresentation'
 import { revokeCredential } from './utils/revokeCredential'
 import { randomUUID } from 'crypto'
+import { decryptMessage } from './utils/decrypt_message'
+import { encryptMessage } from './utils/encrypt_message'
+import { generateRequestCredentialMessage } from './utils/request_credential_message'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -31,6 +34,7 @@ async function main() {
   const { mnemonic: verifierMnemonic, document: verifierDid } = await createDid(
     authorIdentity
   )
+  const verifierKeys = generateKeypairs(verifierMnemonic)
   console.log(
     `🏢  Verifier (${verifierDid.assertionMethod![0].type}): ${verifierDid.uri}`
   )
@@ -158,6 +162,26 @@ async function main() {
   } else {
     console.log('✅ Verification failed! 🚫')
   }
+
+  console.log(`\n❄️  Messaging `)
+  const schemaId = Cord.Schema.idToChain(schema.$id)
+  console.log(' Generating the message')
+  const message = await generateRequestCredentialMessage(
+    holderDid.uri,
+    verifierDid.uri,
+    schemaId
+  )
+
+  console.log(' Encrypting the message - Sender -> Receiver')
+  const encryptedMessage = await encryptMessage(
+    message,
+    holderDid.uri,
+    verifierDid.uri,
+    holderKeys.keyAgreement
+  )
+
+  console.log(' Decrypting the message - Receiver')
+  await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
   // Step 7: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${credential.identifier}`)

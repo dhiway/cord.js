@@ -10,7 +10,7 @@ export async function createDid(
 }> {
   const api = Cord.ConfigService.get('api')
 
-  const mnemonic = mnemonicGenerate()
+  const mnemonic = mnemonicGenerate(24)
   const {
     authentication,
     keyAgreement,
