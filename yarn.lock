@@ -488,7 +488,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/messaging@workspace:packages/messaging":
+"@cord.network/messaging@workspace:*, @cord.network/messaging@workspace:packages/messaging":
   version: 0.0.0-use.local
   resolution: "@cord.network/messaging@workspace:packages/messaging"
   dependencies:
@@ -545,6 +545,7 @@ __metadata:
   dependencies:
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
+    "@cord.network/messaging": "workspace:*"
     "@cord.network/modules": "workspace:*"
     "@cord.network/network": "workspace:*"
     "@cord.network/types": "workspace:*"
