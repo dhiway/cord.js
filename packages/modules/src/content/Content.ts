@@ -6,7 +6,13 @@ import type {
   ISchema,
   PartialContent,
 } from '@cord.network/types'
-import { SDKErrors, Identifier, Crypto, DataUtils } from '@cord.network/utils'
+import {
+  SDKErrors,
+  Identifier,
+  Crypto,
+  DataUtils,
+  jsonabc,
+} from '@cord.network/utils'
 import * as Did from '@cord.network/did'
 import * as Schema from '../schema/index.js'
 
@@ -38,21 +44,20 @@ function jsonLDcontents(
     }
   }
 
-
   Object.entries(contents || {}).forEach(([key, value]) => {
-      let val = value;
-      if (typeof value === 'object') {
-          /* FIXME: GH-issue #40 */
-          /* Supporting object inside is tricky, and jsonld expansion is even more harder */
-	  /* for now, we got things under control with this check but need more work here */
+    let val = value
+    if (typeof value === 'object') {
+      /* FIXME: GH-issue #40 */
+      /* Supporting object inside is tricky, and jsonld expansion is even more harder */
+      /* for now, we got things under control with this check but need more work here */
 
-          let newObj = {};
-          Object.entries(jsonabc.sortObj(value)).forEach(([k,v]) => {
-	     newObj[vocabulary + k] = v;
-	  })
-	  val = newObj;
-      }
-      result[vocabulary + key] = val;
+      let newObj = {}
+      Object.entries(jsonabc.sortObj(value)).forEach(([k, v]) => {
+        newObj[vocabulary + k] = v
+      })
+      val = newObj
+    }
+    result[vocabulary + key] = val
   })
   return result
 }
