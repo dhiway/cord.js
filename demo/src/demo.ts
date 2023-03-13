@@ -2,8 +2,7 @@ import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
 
 async function main() {
-  //await Cord.init({ address: 'ws://127.0.0.1:9944' })
-  await Cord.init({ address: 'wss://staging.cord.network' })
+  await Cord.init({ address: 'ws://127.0.0.1:9944' })
 
   // Step 1: Setup Org Identity
   console.log(`\n❄️  Demo Identities (KeyRing)`)

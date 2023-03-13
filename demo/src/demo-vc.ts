@@ -4,8 +4,7 @@ import type { VerifiableCredential } from '@cord.network/vc-export/src/types.js'
 import * as VCUtils from '@cord.network/vc-export'
 
 async function main() {
-  //await Cord.init({ address: 'ws://127.0.0.1:9944' })
-  await Cord.init({ address: 'wss://staging.cord.network' })
+  await Cord.init({ address: 'ws://127.0.0.1:9944' })
 
   // Step 1: Setup Org Identity
   console.log(`\n❄️  Demo Identities (KeyRing)`)
