@@ -81,7 +81,7 @@ export interface IRejectStream extends IMessageBodyBase {
 export interface IRequestCredentialContent {
   schemas: Array<{
     schemaId: SchemaId
-    trustedAttesters?: DidUri[]
+    trustedIssuers?: DidUri[]
     requiredProperties?: string[]
   }>
   challenge?: string

@@ -2330,10 +2330,7 @@ export default {
    * Lookup313: pallet_registry::types::RegistryEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, primitive_types::H256, cord_primitives::curi::Ss58Identifier, sp_core::crypto::AccountId32, StatusOf>
    **/
   PalletRegistryRegistryEntry: {
-    _alias: {
-      registry_: 'registry'
-    },
-    registry_: 'Bytes',
+    details: 'Bytes',
     digest: 'H256',
     schema: 'Bytes',
     creator: 'AccountId32',
