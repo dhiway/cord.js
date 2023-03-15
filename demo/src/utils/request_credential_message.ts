@@ -18,7 +18,7 @@ export async function generateRequestCredentialMessage(
   // The sender is the trusted issuer in the scenario
   const requestCredentialContent = {
     schemaId: schemaId,
-    trustedAttesters: [senderUri],
+    trustedIssuers: [senderUri],
   }
 
   const messageBody: Cord.IRequestCredential = {
@@ -29,7 +29,10 @@ export async function generateRequestCredentialMessage(
   // The message will throw an Error if invalid
   const message = Cord.Message.fromBody(messageBody, senderUri, receiverUri)
 
-  console.log(`Generated message: ${JSON.stringify(message, null, 4)}`)
+  console.dir(message, {
+    depth: null,
+    colors: true,
+  })
 
   return message
 }
