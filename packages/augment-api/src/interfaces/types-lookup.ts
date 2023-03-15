@@ -2355,7 +2355,7 @@ declare module '@polkadot/types/lookup' {
 
   /** @name PalletRegistryRegistryEntry (313) */
   interface PalletRegistryRegistryEntry extends Struct {
-    readonly registry_: Bytes;
+    readonly details: Bytes;
     readonly digest: H256;
     readonly schema: Bytes;
     readonly creator: AccountId32;

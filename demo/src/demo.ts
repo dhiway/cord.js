@@ -15,6 +15,8 @@ import { randomUUID } from 'crypto'
 import { decryptMessage } from './utils/decrypt_message'
 import { encryptMessage } from './utils/encrypt_message'
 import { generateRequestCredentialMessage } from './utils/request_credential_message'
+import { getChainCredits, addAuthority } from './utils/createAuthorities'
+import { createAccount } from './utils/createAccount'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -25,11 +27,26 @@ async function main() {
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
-  // Step 1: Setup Identities
-  console.log(`\n❄️  Demo Identities (KeyRing)`)
+  // Step 1: Setup Authority
   // Setup transaction author account - CORD Account.
-  const authorIdentity = Crypto.makeKeypairFromUri('//Bob', 'sr25519')
+
+  console.log(`\n❄️  New Authority`)
+  const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
+    '//Alice',
+    'sr25519'
+  )
+  // Setup author authority account.
+  const { account: authorIdentity } = await createAccount()
   console.log(`🏦  Author (${authorIdentity.type}): ${authorIdentity.address}`)
+  await addAuthority(authorityAuthorIdentity, authorIdentity.address)
+  console.log(`🔏  Author permissions updated`)
+  await getChainCredits(authorityAuthorIdentity, authorIdentity.address, 5)
+  console.log(`💸  Author endowed with credits`)
+  console.log('✅ Authority created!')
+
+  // Step 2: Setup Identities
+  console.log(`\n❄️  Demo Identities (KeyRing)`)
+
   // Create Verifier DID
   const { mnemonic: verifierMnemonic, document: verifierDid } = await createDid(
     authorIdentity
@@ -65,7 +82,7 @@ async function main() {
   console.log('✅ Identities created!')
 
   // Step 2: Create a DID name for Issuer
-  console.log(`\n❄️  DID mame Creation `)
+  console.log(`\n❄️  DID name Creation `)
   const randomDidName = `${randomUUID().substring(0, 4)}-solar-sailer@space`
 
   await createDidName(
@@ -165,7 +182,7 @@ async function main() {
 
   console.log(`\n❄️  Messaging `)
   const schemaId = Cord.Schema.idToChain(schema.$id)
-  console.log(' Generating the message')
+  console.log(' Generating the message - Sender -> Receiver')
   const message = await generateRequestCredentialMessage(
     holderDid.uri,
     verifierDid.uri,

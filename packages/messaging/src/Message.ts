@@ -43,9 +43,9 @@ export function verifyMessageBody(body: MessageBody): void {
     }
     case 'request-credential': {
       body.content.schemas.forEach(
-        ({ schemaId, trustedAttesters, requiredProperties }): void => {
+        ({ schemaId, trustedIssuers, requiredProperties }): void => {
           DataUtils.validateId(schemaId, 'Schema Identiifier')
-          trustedAttesters?.forEach((did) => Did.validateUri(did, 'Did'))
+          trustedIssuers?.forEach((did) => Did.validateUri(did, 'Did'))
           requiredProperties?.forEach((requiredProps) => {
             if (typeof requiredProps !== 'string')
               throw new TypeError(
