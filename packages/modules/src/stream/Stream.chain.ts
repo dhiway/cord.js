@@ -2,7 +2,7 @@ import { ConfigService } from '@cord.network/config'
 import type { Option } from '@polkadot/types'
 import type {
   IStream,
-  ICredential,
+  IDocument,
   IStreamChain,
   StreamId,
 } from '@cord.network/types'
@@ -45,7 +45,7 @@ export function idToChain(streamId: IStream['identifier']): StreamId {
  */
 export function fromChain(
   encoded: Option<PalletStreamStreamEntry>,
-  identifier: ICredential['identifier']
+  identifier: IDocument['identifier']
 ): IStream {
   const chainStream = encoded.unwrap()
   const stream: IStream = {

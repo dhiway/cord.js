@@ -792,8 +792,8 @@ declare module '@polkadot/types/lookup' {
 
   /** @name PalletDidNamesEvent (74) */
   interface PalletDidNamesEvent extends Enum {
-    readonly isDidNameClaimed: boolean;
-    readonly asDidNameClaimed: {
+    readonly isDidNameRegistered: boolean;
+    readonly asDidNameRegistered: {
       readonly owner: AccountId32;
       readonly name: Bytes;
     } & Struct;
@@ -810,7 +810,7 @@ declare module '@polkadot/types/lookup' {
     readonly asDidNameUnbanned: {
       readonly name: Bytes;
     } & Struct;
-    readonly type: 'DidNameClaimed' | 'DidNameReleased' | 'DidNameBanned' | 'DidNameUnbanned';
+    readonly type: 'DidNameRegistered' | 'DidNameReleased' | 'DidNameBanned' | 'DidNameUnbanned';
   }
 
   /** @name PalletSudoEvent (77) */
@@ -1844,8 +1844,8 @@ declare module '@polkadot/types/lookup' {
 
   /** @name PalletDidNamesCall (202) */
   interface PalletDidNamesCall extends Enum {
-    readonly isClaim: boolean;
-    readonly asClaim: {
+    readonly isRegister: boolean;
+    readonly asRegister: {
       readonly name: Bytes;
     } & Struct;
     readonly isRelease: boolean;
@@ -1857,7 +1857,7 @@ declare module '@polkadot/types/lookup' {
     readonly asUnban: {
       readonly name: Bytes;
     } & Struct;
-    readonly type: 'Claim' | 'Release' | 'Ban' | 'Unban';
+    readonly type: 'Register' | 'Release' | 'Ban' | 'Unban';
   }
 
   /** @name PalletSudoCall (203) */
@@ -2485,16 +2485,10 @@ declare module '@polkadot/types/lookup' {
   /** @name PalletDidNamesDidNameDidNameOwnership (331) */
   interface PalletDidNamesDidNameDidNameOwnership extends Struct {
     readonly owner: AccountId32;
-    readonly claimedAt: PalletDidNamesDidNameTimepoint;
+    readonly registeredAt: u32;
   }
 
-  /** @name PalletDidNamesDidNameTimepoint (332) */
-  interface PalletDidNamesDidNameTimepoint extends Struct {
-    readonly height: u32;
-    readonly index: u32;
-  }
-
-  /** @name PalletDidNamesError (333) */
+  /** @name PalletDidNamesError (332) */
   interface PalletDidNamesError extends Enum {
     readonly isInsufficientFunds: boolean;
     readonly isAlreadyExists: boolean;
@@ -2505,19 +2499,23 @@ declare module '@polkadot/types/lookup' {
     readonly isNotBanned: boolean;
     readonly isAlreadyBanned: boolean;
     readonly isNotAuthorized: boolean;
-    readonly isTooShort: boolean;
-    readonly isTooLong: boolean;
-    readonly isInvalidCharacter: boolean;
-    readonly type: 'InsufficientFunds' | 'AlreadyExists' | 'NotFound' | 'OwnerAlreadyExists' | 'OwnerNotFound' | 'Banned' | 'NotBanned' | 'AlreadyBanned' | 'NotAuthorized' | 'TooShort' | 'TooLong' | 'InvalidCharacter';
+    readonly isNameTooShort: boolean;
+    readonly isNameExceedsMaxLength: boolean;
+    readonly isNamePrefixTooShort: boolean;
+    readonly isNamePrefixTooLong: boolean;
+    readonly isInvalidSuffix: boolean;
+    readonly isSuffixTooLong: boolean;
+    readonly isInvalidFormat: boolean;
+    readonly type: 'InsufficientFunds' | 'AlreadyExists' | 'NotFound' | 'OwnerAlreadyExists' | 'OwnerNotFound' | 'Banned' | 'NotBanned' | 'AlreadyBanned' | 'NotAuthorized' | 'NameTooShort' | 'NameExceedsMaxLength' | 'NamePrefixTooShort' | 'NamePrefixTooLong' | 'InvalidSuffix' | 'SuffixTooLong' | 'InvalidFormat';
   }
 
-  /** @name PalletSudoError (334) */
+  /** @name PalletSudoError (333) */
   interface PalletSudoError extends Enum {
     readonly isRequireSudo: boolean;
     readonly type: 'RequireSudo';
   }
 
-  /** @name SpRuntimeMultiSignature (336) */
+  /** @name SpRuntimeMultiSignature (335) */
   interface SpRuntimeMultiSignature extends Enum {
     readonly isEd25519: boolean;
     readonly asEd25519: SpCoreEd25519Signature;
@@ -2528,28 +2526,28 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Ed25519' | 'Sr25519' | 'Ecdsa';
   }
 
-  /** @name FrameSystemExtensionsCheckNonZeroSender (338) */
+  /** @name FrameSystemExtensionsCheckNonZeroSender (337) */
   type FrameSystemExtensionsCheckNonZeroSender = Null;
 
-  /** @name FrameSystemExtensionsCheckSpecVersion (339) */
+  /** @name FrameSystemExtensionsCheckSpecVersion (338) */
   type FrameSystemExtensionsCheckSpecVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckTxVersion (340) */
+  /** @name FrameSystemExtensionsCheckTxVersion (339) */
   type FrameSystemExtensionsCheckTxVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckGenesis (341) */
+  /** @name FrameSystemExtensionsCheckGenesis (340) */
   type FrameSystemExtensionsCheckGenesis = Null;
 
-  /** @name FrameSystemExtensionsCheckNonce (344) */
+  /** @name FrameSystemExtensionsCheckNonce (343) */
   interface FrameSystemExtensionsCheckNonce extends Compact<u32> {}
 
-  /** @name FrameSystemExtensionsCheckWeight (345) */
+  /** @name FrameSystemExtensionsCheckWeight (344) */
   type FrameSystemExtensionsCheckWeight = Null;
 
-  /** @name PalletExtrinsicAuthorshipCheckExtrinsicAuthor (346) */
+  /** @name PalletExtrinsicAuthorshipCheckExtrinsicAuthor (345) */
   type PalletExtrinsicAuthorshipCheckExtrinsicAuthor = Null;
 
-  /** @name PalletTransactionPaymentChargeTransactionPayment (347) */
+  /** @name PalletTransactionPaymentChargeTransactionPayment (346) */
   interface PalletTransactionPaymentChargeTransactionPayment extends Compact<u128> {}
 
 } // declare module

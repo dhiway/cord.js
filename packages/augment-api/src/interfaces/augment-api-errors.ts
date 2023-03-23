@@ -338,7 +338,27 @@ declare module '@polkadot/api-base/types/errors' {
       /**
        * A name that contains not allowed characters is being claimed.
        **/
-      InvalidCharacter: AugmentedError<ApiType>;
+      InvalidFormat: AugmentedError<ApiType>;
+      /**
+       * A suffix that is too short is being claimed.
+       **/
+      InvalidSuffix: AugmentedError<ApiType>;
+      /**
+       * A name that is too long is being claimed.
+       **/
+      NameExceedsMaxLength: AugmentedError<ApiType>;
+      /**
+       * A prefix that is too long is being claimed.
+       **/
+      NamePrefixTooLong: AugmentedError<ApiType>;
+      /**
+       * A prefix that is too short is being claimed.
+       **/
+      NamePrefixTooShort: AugmentedError<ApiType>;
+      /**
+       * A name that is too short is being claimed.
+       **/
+      NameTooShort: AugmentedError<ApiType>;
       /**
        * The actor cannot performed the specified operation.
        **/
@@ -360,13 +380,9 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       OwnerNotFound: AugmentedError<ApiType>;
       /**
-       * A name that is too long is being claimed.
+       * A suffix that is too long is being claimed.
        **/
-      TooLong: AugmentedError<ApiType>;
-      /**
-       * A name that is too short is being claimed.
-       **/
-      TooShort: AugmentedError<ApiType>;
+      SuffixTooLong: AugmentedError<ApiType>;
     };
     extrinsicAuthorship: {
       /**

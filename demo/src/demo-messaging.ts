@@ -159,7 +159,7 @@ async function main() {
 
   const chainStream = await Cord.Stream.query(newStream.identifier)
   if (chainStream) {
-    let credential: Cord.ICredential
+    let credential: Cord.IDocument
     credential = await Cord.Credential.fromRequestAndStream(
       newStreamContent,
       chainStream

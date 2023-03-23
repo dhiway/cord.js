@@ -133,7 +133,7 @@ async function main() {
   console.log(`🔗  ${newStream.identifier} `)
   const stream = await Cord.Stream.query(newStream.identifier)
 
-  let credential: Cord.ICredential
+  let credential: Cord.IDocument
   if (!stream) {
     console.log(`Stream not anchored on CORD`)
   } else {

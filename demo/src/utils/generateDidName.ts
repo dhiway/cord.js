@@ -8,7 +8,7 @@ export async function createDidName(
 ): Promise<void> {
   const api = Cord.ConfigService.get('api')
 
-  const didNameClaimTx = api.tx.didNames.claim(name)
+  const didNameClaimTx = api.tx.didNames.register(name)
   const authorizedDidNameClaimTx = await Cord.Did.authorizeTx(
     did,
     didNameClaimTx,
