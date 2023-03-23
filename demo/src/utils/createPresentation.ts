@@ -1,14 +1,14 @@
 import * as Cord from '@cord.network/sdk'
 
 export async function createPresentation(
-  credential: Cord.ICredential,
+  document: Cord.IDocument,
   signCallback: Cord.SignCallback,
   selectedAttributes?: string[],
   challenge?: string
-): Promise<Cord.ICredentialPresentation> {
+): Promise<Cord.IDocumentPresentation> {
   // Create a presentation with only the specified fields revealed, if specified.
-  return Cord.Credential.createPresentation({
-    credential,
+  return Cord.Document.createPresentation({
+    document,
     signCallback,
     selectedAttributes,
     challenge,

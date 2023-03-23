@@ -161,6 +161,10 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxNameLength: u32 & AugmentedConst<ApiType>;
       /**
+       * The max encoded length of a prefix.
+       **/
+      maxPrefixLength: u32 & AugmentedConst<ApiType>;
+      /**
        * The min encoded length of a name.
        **/
       minNameLength: u32 & AugmentedConst<ApiType>;

@@ -10,31 +10,31 @@ export type NonceHash = {
   nonce?: string
 }
 
-export interface ICredential {
+export interface IDocument {
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
-  evidenceIds: ICredential[]
+  evidenceIds: IDocument[]
   authorization: IRegistryAuthorization['identifier'] | null
   registry: string | null
-  rootHash: Hash
+  documentHash: Hash
   identifier: string
 }
 
-export interface ICredentialPresentation extends ICredential {
+export interface IDocumentPresentation extends IDocument {
   holderSignature: DidSignature & { challenge?: string }
 }
 
-export interface CordPublishedStreamV1 {
-  credential: ICredential
+export interface CordPublishedDocument {
+  document: IDocument
   metadata?: {
+    template?: string
     label?: string
     blockNumber?: number
-    txHash?: HexString
   }
 }
 
-export type CordPublishedStreamCollectionV1 = CordPublishedStreamV1[]
+export type CordPublishedDocumentCollection = CordPublishedDocument[]
 
-export const CordPublishedStreamCollectionV1Type =
-  'CordPublishedStreamCollectionV1'
+export const CordPublishedDocumentCollectionType =
+  'CordPublishedDocumentCollection'

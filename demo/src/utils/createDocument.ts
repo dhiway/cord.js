@@ -1,10 +1,10 @@
 import * as Cord from '@cord.network/sdk'
 
-export function requestCredential(
+export function createDocument(
   holder: Cord.DidUri,
   issuer: Cord.DidUri,
   schema: Cord.ISchema
-): Cord.ICredential {
+): Cord.IDocument {
   const content = Cord.Content.fromSchemaAndContent(
     schema,
     {
@@ -17,6 +17,6 @@ export function requestCredential(
     holder,
     issuer
   )
-  const credential = Cord.Credential.fromContent(content)
-  return credential
+  const document = Cord.Document.fromContent(content)
+  return document
 }

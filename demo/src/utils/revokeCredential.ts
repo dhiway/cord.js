@@ -4,7 +4,7 @@ export async function revokeCredential(
   issuer: Cord.DidUri,
   submitterAccount: Cord.CordKeyringPair,
   signCallback: Cord.SignExtrinsicCallback,
-  credential: Cord.ICredential,
+  credential: Cord.IDocument,
   shouldRemove = false
 ): Promise<void> {
   const api = Cord.ConfigService.get('api')
