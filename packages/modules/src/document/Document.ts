@@ -8,10 +8,10 @@ import {
 import type {
   DidResolveKey,
   Hash,
-  ICredential,
+  IDocument,
   IStream,
   IContent,
-  ICredentialPresentation,
+  IDocumentPresentation,
   ISchema,
   SignCallback,
   IRegistryAuthorization,
@@ -31,7 +31,7 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 
 function getHashLeaves(
   contentHashes: Hash[],
-  evidenceIds: ICredential[]
+  evidenceIds: IDocument[]
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
@@ -44,36 +44,36 @@ function getHashLeaves(
 }
 
 /**
- * Calculates the root hash of the credential.
+ * Calculates the root hash of the document.
  *
- * @param credential The credential object.
- * @returns The hash.
+ * @param document The document object.
+ * @returns The document hash.
  */
 
-export function calculateRootHash(credential: Partial<ICredential>): Hash {
+export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
-    credential.contentHashes || [],
-    credential.evidenceIds || []
+    document.contentHashes || [],
+    document.evidenceIds || []
   )
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
 }
 
 /**
- * Removes [[Content] properties from the [[ContentStream]] object, provides anonymity and security when building the [[createPresentation]] method.
+ * Removes [[Content] properties from the [[Document]] object, provides anonymity and security when building the [[createPresentation]] method.
  *
- * @param credential - The credential object to remove properties from.
+ * @param document - The document object to remove properties from.
  * @param properties - Properties to remove from the [[Content]] object.
- * @returns A cloned Stream with removed properties.
+ * @returns A cloned Document with removed properties.
  */
 export function removeContentProperties(
-  credential: ICredential,
+  document: IDocument,
   properties: string[]
-): ICredential {
-  const presentation: ICredential =
+): IDocument {
+  const presentation: IDocument =
     // clone the credential because properties will be deleted later.
     // TODO: find a nice way to clone stuff
-    JSON.parse(JSON.stringify(credential))
+    JSON.parse(JSON.stringify(document))
 
   properties.forEach((key) => {
     delete presentation.content.contents[key]
@@ -93,17 +93,17 @@ export function removeContentProperties(
  * @returns The prepared signing data as Uint8Array.
  */
 export function makeSigningData(
-  input: ICredential,
+  input: IDocument,
   challenge?: string
 ): Uint8Array {
   return new Uint8Array([
-    ...Crypto.coToUInt8(input.rootHash),
+    ...Crypto.coToUInt8(input.documentHash),
     ...Crypto.coToUInt8(challenge),
   ])
 }
 
-export function verifyRootHash(input: ICredential): void {
-  if (input.rootHash !== calculateRootHash(input))
+export function verifyDocumentHash(input: IDocument): void {
+  if (input.documentHash !== calculateDocumentHash(input))
     throw new SDKErrors.RootHashUnverifiableError()
 }
 
@@ -113,9 +113,9 @@ export function verifyRootHash(input: ICredential): void {
  * @param input - The [[Stream]] for which to verify data.
  */
 
-export function verifyDataIntegrity(input: ICredential): void {
-  // check claim hash
-  verifyRootHash(input)
+export function verifyDataIntegrity(input: IDocument): void {
+  // check document hash
+  verifyDocumentHash(input)
 
   // verify properties against selective disclosure proof
   Content.verifyDisclosedAttributes(input.content, {
@@ -123,18 +123,18 @@ export function verifyDataIntegrity(input: ICredential): void {
     hashes: input.contentHashes,
   })
 
-  // check legitimations
+  // check evidences
   input.evidenceIds.forEach(verifyDataIntegrity)
 }
 
 /**
- *  Checks whether the input meets all the required criteria of an ICredential object.
+ *  Checks whether the input meets all the required criteria of an IDocument object.
  *  Throws on invalid input.
  *
- * @param input - A potentially only partial [[ICredential]].
+ * @param input - A potentially only partial [[IDocument]].
  *
  */
-export function verifyDataStructure(input: ICredential): void {
+export function verifyDataStructure(input: IDocument): void {
   if (!('content' in input)) {
     throw new SDKErrors.ContentMissingError()
   } else {
@@ -162,22 +162,22 @@ export function verifyDataStructure(input: ICredential): void {
 }
 
 /**
- *  Checks the [[Stream]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
+ *  Checks the [[Document]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
  *
- * @param contentStream A [[Stream]] object of an anchored content used for verification.
+ * @param document A [[Document]] object of an anchored content used for verification.
  * @param schema A [[Schema]] to verify the [[Content]] structure.
  */
 
 export function verifyAgainstSchema(
-  credential: ICredential,
+  document: IDocument,
   schema: ISchema
 ): void {
-  verifyDataStructure(credential)
-  verifyContentAganistSchema(credential.content.contents, schema)
+  verifyDataStructure(document)
+  verifyContentAganistSchema(document.content.contents, schema)
 }
 
 /**
- * Verifies the signature of the [[ICredentialPresentation]].
+ * Verifies the signature of the [[IDocumentPresentation]].
  * the signature over the presentation **must** be generated with the DID in order for the verification to be successful.
  *
  * @param input - The [[IPresentation]].
@@ -186,7 +186,7 @@ export function verifyAgainstSchema(
  * @param verificationOpts.challenge - The expected value of the challenge. Verification will fail in case of a mismatch.
  */
 export async function verifySignature(
-  input: ICredentialPresentation,
+  input: IDocumentPresentation,
   {
     challenge,
     didResolveKey = resolveKey,
@@ -213,47 +213,47 @@ export async function verifySignature(
 }
 
 export type Options = {
-  evidenceIds?: ICredential[]
+  evidenceIds?: IDocument[]
   authorization?: IRegistryAuthorization['identifier'] | null
-  registry?: ICredential['registry'] | null
+  registry?: IDocument['registry'] | null
 }
 
 /**
- * Builds a new  [[ICredential]] object, from a complete set of required parameters.
+ * Builds a new  [[IDocument]] object, from a complete set of required parameters.
  *
- * @param content An `IContent` object to build the credential for.
+ * @param content An `IContent` object to build the document for.
  * @param option Container for different options that can be passed to this method.
- * @param option.evidenceIds Array of [[Credential]] objects the Issuer include as evidenceIds.
- * @param option.link Identifier of the credential this credential is linked to.
- * @param option.space Identifier of the space this credential is linked to.
- * @returns A new [[ICredential]] object.
+ * @param option.evidenceIds Array of [[Document]] objects the Issuer include as evidenceIds.
+ * @param option.authorization The authrization id of the Issuer, which should be used in anchoring the document.
+ * @param option.registry Identifier of the registry this document is linked to.
+ * @returns A new [[IDocument]] object.
  */
 export function fromContent(
   content: IContent,
   { evidenceIds = [], authorization = null, registry = null }: Options = {}
-): ICredential {
+): IDocument {
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
-  const rootHash = calculateRootHash({
+  const documentHash = calculateDocumentHash({
     evidenceIds,
     contentHashes,
   })
-  const credential = {
+  const document = {
     content,
     contentHashes,
     contentNonceMap,
     evidenceIds: evidenceIds || [],
     authorization: authorization,
     registry: registry,
-    rootHash,
+    documentHash,
     identifier: Identifier.hashToUri(
-      rootHash,
+      documentHash,
       STREAM_IDENTIFIER,
       STREAM_PREFIX
     ),
   }
-  verifyDataStructure(credential)
-  return credential
+  verifyDataStructure(document)
+  return document
 }
 
 type VerifyOptions = {
@@ -265,38 +265,38 @@ type VerifyOptions = {
 /**
  * Verifies data structure & data integrity of a credential object.
  *
- * @param credential - The object to check.
+ * @param document - The object to check.
  * @param options - Additional parameter for more verification steps.
  * @param options.schema - Schema to be checked against.
  */
-export async function verifyCredential(
-  credential: ICredential,
+export async function verifyDocument(
+  document: IDocument,
   { schema }: VerifyOptions = {}
 ): Promise<void> {
-  verifyDataStructure(credential)
-  verifyDataIntegrity(credential)
+  verifyDataStructure(document)
+  verifyDataIntegrity(document)
 
   if (schema) {
-    verifyAgainstSchema(credential, schema)
+    verifyAgainstSchema(document, schema)
   }
 }
 
 /**
- * Verifies data structure, data integrity and the holder's signature of a credential presentation.
+ * Verifies data structure, data integrity and the holder's signature of a document presentation.
  *
- * Upon presentation of a credential, a verifier would call this function.
+ * Upon presentation of a document, a verifier would call this function.
  *
  * @param presentation - The object to check.
  * @param options - Additional parameter for more verification steps.
- * @param options.schema - Schema which the included claim should be checked against.
+ * @param options.schema - Schema which the included document should be checked against.
  * @param options.challenge -  The expected value of the challenge. Verification will fail in case of a mismatch.
  * @param options.didResolveKey - The function used to resolve the holders's key. Defaults to [[resolveKey]].
  */
 export async function verifyPresentation(
-  presentation: ICredentialPresentation,
+  presentation: IDocumentPresentation,
   { schema, challenge, didResolveKey = resolveKey }: VerifyOptions = {}
 ): Promise<void> {
-  await verifyCredential(presentation, { schema })
+  await verifyDocument(presentation, { schema })
   await verifySignature(presentation, {
     challenge,
     didResolveKey,
@@ -304,15 +304,15 @@ export async function verifyPresentation(
 }
 
 /**
- * Type Guard to determine input being of type [[ICredential]].
+ * Type Guard to determine input being of type [[IDocument]].
  *
- * @param input - A potentially only partial [[ICredential]].
+ * @param input - A potentially only partial [[IDocument]].
  *
- * @returns  Boolean whether input is of type ICredential.
+ * @returns  Boolean whether input is of type IDocument.
  */
-export function isICredential(input: unknown): input is ICredential {
+export function isIDocument(input: unknown): input is IDocument {
   try {
-    verifyDataStructure(input as ICredential)
+    verifyDataStructure(input as IDocument)
   } catch (error) {
     return false
   }
@@ -320,39 +320,37 @@ export function isICredential(input: unknown): input is ICredential {
 }
 
 /**
- * Type Guard to determine input being of type [[ICredentialPresentation]].
+ * Type Guard to determine input being of type [[IDocumentPresentation]].
  *
- * @param input - An [[ICredential]], [[ICredentialPresentation]], or other object.
+ * @param input - An [[IDocument]], [[IDocumentPresentation]], or other object.
  *
- * @returns  Boolean whether input is of type ICredentialPresentation.
+ * @returns  Boolean whether input is of type IDocumentPresentation.
  */
-export function isPresentation(
-  input: unknown
-): input is ICredentialPresentation {
+export function isPresentation(input: unknown): input is IDocumentPresentation {
   return (
-    isICredential(input) &&
-    isDidSignature((input as ICredentialPresentation).holderSignature)
+    isIDocument(input) &&
+    isDidSignature((input as IDocumentPresentation).holderSignature)
   )
 }
 
 /**
- * Gets the hash of the credential.
+ * Gets the hash of the document.
  *
- * @param credential - The credential to get the hash from.
+ * @param document - The document to get the hash from.
  * @returns The hash of the credential.
  */
-export function getHash(credential: ICredential): IStream['streamHash'] {
-  return credential.rootHash
+export function getHash(document: IDocument): IStream['streamHash'] {
+  return document.documentHash
 }
 
 /**
- * Gets names of the credential’s attributes.
+ * Gets names of the document's attributes.
  *
- * @param credential The credential.
+ * @param document The document.
  * @returns The set of names.
  */
-function getAttributes(credential: ICredential): Set<string> {
-  return new Set(Object.keys(credential.content.contents))
+function getAttributes(document: IDocument): Set<string> {
+  return new Set(Object.keys(document.content.contents))
 }
 
 /**
@@ -360,7 +358,7 @@ function getAttributes(credential: ICredential): Set<string> {
  * This presentation is signed.
  *
  * @param presentationOptions The additional options to use upon presentation generation.
- * @param presentationOptions.credential The credential to create the presentation for.
+ * @param presentationOptions.document The document to create the presentation for.
  * @param presentationOptions.signCallback The callback to sign the presentation.
  * @param presentationOptions.selectedAttributes All properties of the credential which have been requested by the verifier and therefore must be publicly presented.
  * @param presentationOptions.challenge Challenge which will be part of the presentation signature.
@@ -368,32 +366,32 @@ function getAttributes(credential: ICredential): Set<string> {
  * @returns A deep copy of the Credential with selected attributes.
  */
 export async function createPresentation({
-  credential,
+  document,
   signCallback,
   selectedAttributes,
   challenge,
 }: {
-  credential: ICredential
+  document: IDocument
   signCallback: SignCallback
   selectedAttributes?: string[]
   challenge?: string
-}): Promise<ICredentialPresentation> {
+}): Promise<IDocumentPresentation> {
   // filter attributes that are not in requested attributes
   const excludedClaimProperties = selectedAttributes
-    ? Array.from(getAttributes(credential)).filter(
+    ? Array.from(getAttributes(document)).filter(
         (property) => !selectedAttributes.includes(property)
       )
     : []
 
   // remove these attributes
   const presentation = removeContentProperties(
-    credential,
+    document,
     excludedClaimProperties
   )
 
   const signature = await signCallback({
     data: makeSigningData(presentation, challenge),
-    did: credential.content.holder,
+    did: document.content.holder,
     keyRelationship: 'authentication',
   })
 

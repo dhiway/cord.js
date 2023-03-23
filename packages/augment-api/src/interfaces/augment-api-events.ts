@@ -201,7 +201,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A new name has been claimed.
        **/
-      DidNameClaimed: AugmentedEvent<ApiType, [owner: AccountId32, name: Bytes], { owner: AccountId32, name: Bytes }>;
+      DidNameRegistered: AugmentedEvent<ApiType, [owner: AccountId32, name: Bytes], { owner: AccountId32, name: Bytes }>;
       /**
        * A name has been released.
        **/

@@ -21,7 +21,7 @@ export async function decryptMessage(
   // console.log(`Decrypted Message: ${JSON.stringify(decryptedMessage, null, 4)}`)
 
   // Checking if the message type matches the expected checks
-  if (decryptedMessage.body.type !== 'request-credential') {
+  if (decryptedMessage.body.type !== 'request-credential-document') {
     throw new Error('Not the correct body type')
   }
 

@@ -807,8 +807,7 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Ban a name.
        * 
-       * A banned name cannot be claimed by anyone. The name's deposit
-       * is returned to the original payer.
+       * A banned name cannot be registered by anyone.
        * 
        * The origin must be the ban origin.
        **/
@@ -817,10 +816,10 @@ declare module '@polkadot/api-base/types/submittable' {
        * Assign the specified name to the owner as specified in the
        * origin.
        * 
-       * The name must not have already been claimed by someone else and the
+       * The name must not have already been registered by someone else and the
        * owner must not already own another name.
        **/
-      claim: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      register: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
        * Release the provided name from its owner.
        * 
@@ -830,7 +829,7 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Unban a name.
        * 
-       * Make a name claimable again.
+       * Make a name available again.
        * 
        * The origin must be the ban origin.
        **/

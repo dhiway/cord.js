@@ -6,7 +6,7 @@ import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
 import { ensureStoredSchema } from './utils/generateSchema'
 import { ensureStoredRegistry } from './utils/generateRegistry'
-import { requestCredential } from './utils/requestCredential'
+import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
 import { createStream } from './utils/createStream'
 import { verifyPresentation } from './utils/verifyPresentation'
@@ -83,7 +83,7 @@ async function main() {
 
   // Step 2: Create a DID name for Issuer
   console.log(`\n❄️  DID name Creation `)
-  const randomDidName = `${randomUUID().substring(0, 4)}-solar-sailer@space`
+  const randomDidName = `solar.sailer.${randomUUID().substring(0, 4)}@cord`
 
   await createDidName(
     issuerDid.uri,
@@ -130,10 +130,10 @@ async function main() {
   })
   console.log('✅ Registry created!')
 
-  // Step 4: Create a new Credential
-  console.log(`\n❄️  Credential Creation `)
-  const credential = requestCredential(holderDid.uri, issuerDid.uri, schema)
-  console.dir(credential, {
+  // Step 4: Create a new Verifiable Document
+  console.log(`\n❄️  Verifiable Document Creation `)
+  const document = createDocument(holderDid.uri, issuerDid.uri, schema)
+  console.dir(document, {
     depth: null,
     colors: true,
   })
@@ -144,7 +144,7 @@ async function main() {
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,
     }),
-    credential
+    document
   )
   console.log('✅ Credential created!')
 
@@ -152,7 +152,7 @@ async function main() {
   console.log(`\n❄️  Presentation Creation `)
   const challenge = getChallenge()
   const presentation = await createPresentation(
-    credential,
+    document,
     async ({ data }) => ({
       signature: holderKeys.authentication.sign(data),
       keyType: holderKeys.authentication.type,
@@ -201,7 +201,7 @@ async function main() {
   await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
   // Step 7: Revoke a Credential
-  console.log(`\n❄️  Revoke credential - ${credential.identifier}`)
+  console.log(`\n❄️  Revoke credential - ${document.identifier}`)
   await revokeCredential(
     issuerDid.uri,
     authorIdentity,
@@ -209,7 +209,7 @@ async function main() {
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,
     }),
-    credential,
+    document,
     false
   )
   console.log(`✅ Credential revoked!`)

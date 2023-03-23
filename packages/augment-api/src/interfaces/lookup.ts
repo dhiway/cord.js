@@ -769,7 +769,7 @@ export default {
    **/
   PalletDidNamesEvent: {
     _enum: {
-      DidNameClaimed: {
+      DidNameRegistered: {
         owner: 'AccountId32',
         name: 'Bytes',
       },
@@ -1922,7 +1922,7 @@ export default {
    **/
   PalletDidNamesCall: {
     _enum: {
-      claim: {
+      register: {
         name: 'Bytes',
       },
       release: 'Null',
@@ -2427,29 +2427,22 @@ export default {
    **/
   PalletDidNamesDidNameDidNameOwnership: {
     owner: 'AccountId32',
-    claimedAt: 'PalletDidNamesDidNameTimepoint'
+    registeredAt: 'u32'
   },
   /**
-   * Lookup332: pallet_did_names::did_name::Timepoint<BlockNumber>
-   **/
-  PalletDidNamesDidNameTimepoint: {
-    height: 'u32',
-    index: 'u32'
-  },
-  /**
-   * Lookup333: pallet_did_names::pallet::Error<T>
+   * Lookup332: pallet_did_names::pallet::Error<T>
    **/
   PalletDidNamesError: {
-    _enum: ['InsufficientFunds', 'AlreadyExists', 'NotFound', 'OwnerAlreadyExists', 'OwnerNotFound', 'Banned', 'NotBanned', 'AlreadyBanned', 'NotAuthorized', 'TooShort', 'TooLong', 'InvalidCharacter']
+    _enum: ['InsufficientFunds', 'AlreadyExists', 'NotFound', 'OwnerAlreadyExists', 'OwnerNotFound', 'Banned', 'NotBanned', 'AlreadyBanned', 'NotAuthorized', 'NameTooShort', 'NameExceedsMaxLength', 'NamePrefixTooShort', 'NamePrefixTooLong', 'InvalidSuffix', 'SuffixTooLong', 'InvalidFormat']
   },
   /**
-   * Lookup334: pallet_sudo::pallet::Error<T>
+   * Lookup333: pallet_sudo::pallet::Error<T>
    **/
   PalletSudoError: {
     _enum: ['RequireSudo']
   },
   /**
-   * Lookup336: sp_runtime::MultiSignature
+   * Lookup335: sp_runtime::MultiSignature
    **/
   SpRuntimeMultiSignature: {
     _enum: {
@@ -2459,35 +2452,35 @@ export default {
     }
   },
   /**
-   * Lookup338: frame_system::extensions::check_non_zero_sender::CheckNonZeroSender<T>
+   * Lookup337: frame_system::extensions::check_non_zero_sender::CheckNonZeroSender<T>
    **/
   FrameSystemExtensionsCheckNonZeroSender: 'Null',
   /**
-   * Lookup339: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
+   * Lookup338: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
    **/
   FrameSystemExtensionsCheckSpecVersion: 'Null',
   /**
-   * Lookup340: frame_system::extensions::check_tx_version::CheckTxVersion<T>
+   * Lookup339: frame_system::extensions::check_tx_version::CheckTxVersion<T>
    **/
   FrameSystemExtensionsCheckTxVersion: 'Null',
   /**
-   * Lookup341: frame_system::extensions::check_genesis::CheckGenesis<T>
+   * Lookup340: frame_system::extensions::check_genesis::CheckGenesis<T>
    **/
   FrameSystemExtensionsCheckGenesis: 'Null',
   /**
-   * Lookup344: frame_system::extensions::check_nonce::CheckNonce<T>
+   * Lookup343: frame_system::extensions::check_nonce::CheckNonce<T>
    **/
   FrameSystemExtensionsCheckNonce: 'Compact<u32>',
   /**
-   * Lookup345: frame_system::extensions::check_weight::CheckWeight<T>
+   * Lookup344: frame_system::extensions::check_weight::CheckWeight<T>
    **/
   FrameSystemExtensionsCheckWeight: 'Null',
   /**
-   * Lookup346: pallet_extrinsic_authorship::CheckExtrinsicAuthor<T>
+   * Lookup345: pallet_extrinsic_authorship::CheckExtrinsicAuthor<T>
    **/
   PalletExtrinsicAuthorshipCheckExtrinsicAuthor: 'Null',
   /**
-   * Lookup347: pallet_transaction_payment::ChargeTransactionPayment<T>
+   * Lookup346: pallet_transaction_payment::ChargeTransactionPayment<T>
    **/
   PalletTransactionPaymentChargeTransactionPayment: 'Compact<u128>'
 };

@@ -1,4 +1,4 @@
-import type { ICredential, ICredentialPresentation } from './Credential.js'
+import type { IDocument, IDocumentPresentation } from './Document.js'
 import type { DidResourceUri, DidUri } from './DidDocument.js'
 import type { IStream } from './Stream'
 import type { SchemaId } from './Schema.js'
@@ -6,15 +6,13 @@ import type { SchemaId } from './Schema.js'
 export type MessageBodyType =
   | 'error'
   | 'reject'
-  | 'request-stream'
-  | 'submit-stream'
-  | 'reject-stream'
-  | 'request-payment'
-  | 'confirm-payment'
-  | 'request-credential'
-  | 'submit-credential'
-  | 'accept-credential'
-  | 'reject-credential'
+  | 'request-document-stream'
+  | 'submit-document-stream'
+  | 'reject-document-stream'
+  | 'request-credential-document'
+  | 'submit-credential-document'
+  | 'accept-credential-document'
+  | 'reject-credential-document'
 
 interface IMessageBodyBase {
   content: any
@@ -41,44 +39,44 @@ export interface IReject extends IMessageBodyBase {
   type: 'reject'
 }
 
-export interface ISubmitCredential extends IMessageBodyBase {
-  content: ICredentialPresentation[]
-  type: 'submit-credential'
+export interface ISubmitCredentialDocument extends IMessageBodyBase {
+  content: IDocumentPresentation[]
+  type: 'submit-credential-document'
 }
 
-export interface IAcceptCredential extends IMessageBodyBase {
+export interface IAcceptCredentialDocument extends IMessageBodyBase {
   content: SchemaId[]
-  type: 'accept-credential'
+  type: 'accept-credential-document'
 }
 
-export interface IRejectCredential extends IMessageBodyBase {
+export interface IRejectCredentialDocument extends IMessageBodyBase {
   content: SchemaId[]
-  type: 'reject-credential'
+  type: 'reject-credential-document'
 }
-export interface IRequestStreamContent {
-  credential: ICredential
+export interface IRequestDocumentContent {
+  document: IDocument
 }
 
-export interface IRequestStream extends IMessageBodyBase {
-  content: IRequestStreamContent
-  type: 'request-stream'
+export interface IRequestDocument extends IMessageBodyBase {
+  content: IRequestDocumentContent
+  type: 'request-document-stream'
 }
 
 export interface ISubmitStreamContent {
   stream: IStream
 }
 
-export interface ISubmitStream extends IMessageBodyBase {
+export interface ISubmitDocumentStream extends IMessageBodyBase {
   content: ISubmitStreamContent
-  type: 'submit-stream'
+  type: 'submit-document-stream'
 }
 
-export interface IRejectStream extends IMessageBodyBase {
-  content: ICredential['identifier']
-  type: 'reject-stream'
+export interface IRejectDocumentStream extends IMessageBodyBase {
+  content: IDocument['identifier']
+  type: 'reject-document-stream'
 }
 
-export interface IRequestCredentialContent {
+export interface IRequestDocumentContent {
   schemas: Array<{
     schemaId: SchemaId
     trustedIssuers?: DidUri[]
@@ -87,23 +85,23 @@ export interface IRequestCredentialContent {
   challenge?: string
 }
 
-export interface IRequestCredential extends IMessageBodyBase {
-  content: IRequestCredentialContent
-  type: 'request-credential'
+export interface IRequestCredentialDocument extends IMessageBodyBase {
+  content: IRequestDocumentContent
+  type: 'request-credential-document'
 }
 
 export type MessageBody =
   | IError
   | IReject
   //
-  | IRequestStream
-  | ISubmitStream
-  | IRejectStream
+  | IRequestDocument
+  | ISubmitDocumentStream
+  | IRejectDocumentStream
   //
-  | IRequestCredential
-  | ISubmitCredential
-  | IAcceptCredential
-  | IRejectCredential
+  | IRequestCredentialDocument
+  | ISubmitCredentialDocument
+  | IAcceptCredentialDocument
+  | IRejectCredentialDocument
 
 /**
  * - `body` - The body of the message, see [[MessageBody]].

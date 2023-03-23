@@ -9,7 +9,7 @@ import type {
   IMessage,
   MessageBody,
 } from '@cord.network/types'
-import { Stream, Credential, Schema } from '@cord.network/modules'
+import { Stream, Document, Schema } from '@cord.network/modules'
 import { DataUtils, SDKErrors, UUID } from '@cord.network/utils'
 import * as Did from '@cord.network/did'
 import {
@@ -27,21 +27,21 @@ import {
  */
 export function verifyMessageBody(body: MessageBody): void {
   switch (body.type) {
-    case 'request-stream': {
-      Credential.verifyDataStructure(body.content.credential)
+    case 'request-document-stream': {
+      Document.verifyDataStructure(body.content.document)
       break
     }
-    case 'submit-stream': {
+    case 'submit-document-stream': {
       Stream.verifyDataStructure(body.content.stream)
       break
     }
-    case 'reject-stream': {
+    case 'reject-document-stream': {
       if (!isHex(body.content)) {
         throw new SDKErrors.HashMalformedError()
       }
       break
     }
-    case 'request-credential': {
+    case 'request-credential-document': {
       body.content.schemas.forEach(
         ({ schemaId, trustedIssuers, requiredProperties }): void => {
           DataUtils.validateId(schemaId, 'Schema Identiifier')
@@ -56,22 +56,22 @@ export function verifyMessageBody(body: MessageBody): void {
       )
       break
     }
-    case 'submit-credential': {
+    case 'submit-credential-document': {
       body.content.forEach((presentation) => {
-        Credential.verifyDataStructure(presentation)
+        Document.verifyDataStructure(presentation)
         if (!Did.isDidSignature(presentation.holderSignature)) {
           throw new SDKErrors.SignatureMalformedError()
         }
       })
       break
     }
-    case 'accept-credential': {
+    case 'accept-credential-document': {
       body.content.forEach((schemaId) =>
         DataUtils.validateId(schemaId, 'Schema Identiifier')
       )
       break
     }
-    case 'reject-credential': {
+    case 'reject-credential-document': {
       body.content.forEach((schemaId) =>
         DataUtils.validateId(schemaId, 'Schema Identiifier')
       )
@@ -135,12 +135,12 @@ export function verifyRequiredSchemaProperties(
  */
 export function ensureOwnerIsSender({ body, sender }: IMessage): void {
   switch (body.type) {
-    case 'request-stream':
+    case 'request-document-stream':
       {
         const requestStream = body
         if (
           !Did.isSameSubject(
-            requestStream.content.credential.content.holder,
+            requestStream.content.document.content.holder,
             sender
           )
         ) {
@@ -148,7 +148,7 @@ export function ensureOwnerIsSender({ body, sender }: IMessage): void {
         }
       }
       break
-    case 'submit-stream':
+    case 'submit-document-stream':
       {
         const submitStream = body
         if (!Did.isSameSubject(submitStream.content.stream.issuer, sender)) {
@@ -156,7 +156,7 @@ export function ensureOwnerIsSender({ body, sender }: IMessage): void {
         }
       }
       break
-    case 'submit-credential':
+    case 'submit-credential-document':
       {
         const submitContentForSchema = body
         submitContentForSchema.content.forEach((presentation) => {

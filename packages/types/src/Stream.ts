@@ -4,22 +4,22 @@
  */
 import type { DidUri } from './DidDocument'
 import type { ISchema } from './Schema.js'
-import type { ICredential } from './Credential.js'
+import type { IDocument } from './Document.js'
 
 export const STREAM_IDENTIFIER: number = 11992
 export const STREAM_PREFIX: string = 'stream:cord:'
 export type StreamId = string
 
 export interface IStream {
-  identifier: ICredential['identifier']
-  streamHash: ICredential['rootHash']
+  identifier: IDocument['identifier']
+  streamHash: IDocument['documentHash']
   issuer: DidUri
   schema: ISchema['$id']
-  registry: ICredential['registry'] | null
+  registry: IDocument['registry'] | null
   revoked: boolean
 }
 
 export interface IStreamChain {
-  streamHash: ICredential['rootHash']
+  streamHash: IDocument['documentHash']
   schema: ISchema['$id'] | null
 }

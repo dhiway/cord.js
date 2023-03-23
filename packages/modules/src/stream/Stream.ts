@@ -1,7 +1,7 @@
-import type { IStream, ICredential } from '@cord.network/types'
+import type { IStream, IDocument } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import * as Did from '@cord.network/did'
-import * as Credential from '../credential/index.js'
+import * as Document from '../document/index.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStream]] object.
@@ -38,18 +38,17 @@ export function verifyDataStructure(input: IStream): void {
 /**
  * Builds a new instance of an [[Stream]], from a complete set of input required for an stream.
  *
- * @param content - The base request for stream.
- * @param creatorPublicIdentity - Public Identity of the issuer, used to anchor the underlying stream.
+ * @param document - The base request for stream.
  * @returns A new [[Stream]] object.
  *
  */
-export function fromCredential(content: ICredential): IStream {
+export function fromDocument(document: IDocument): IStream {
   const stream = {
-    identifier: content.identifier,
-    streamHash: content.rootHash,
-    issuer: content.content.issuer,
-    schema: content.content.schemaId,
-    registry: content.registry,
+    identifier: document.identifier,
+    streamHash: document.documentHash,
+    issuer: document.content.issuer,
+    schema: document.content.schemaId,
+    registry: document.registry,
     revoked: false,
   }
   verifyDataStructure(stream)
@@ -78,23 +77,23 @@ export function isIStream(input: unknown): input is IStream {
  * * the hash of the [[Credential]] object, and the hash of the [[Stream]].
  *
  * @param stream - The stream to verify.
- * @param credential - The credential to verify against.
+ * @param document - The document to verify against.
  */
-export function verifyAgainstCredential(
+export function verifyAgainstDocument(
   stream: IStream,
-  credential: ICredential
+  document: IDocument
 ): void {
-  const schemaMismatch = credential.content.schemaId !== stream.schema
-  const credentialMismatch = credential.rootHash !== stream.streamHash
-  if (credentialMismatch || schemaMismatch) {
+  const schemaMismatch = document.content.schemaId !== stream.schema
+  const documentMismatch = document.documentHash !== stream.streamHash
+  if (documentMismatch || schemaMismatch) {
     throw new SDKErrors.CredentialUnverifiableError(
       `Some attributes of the stream diverge from the credential: ${[
         'schemaId',
         'streamHash',
       ]
-        .filter((_, i) => [schemaMismatch, credentialMismatch][i])
+        .filter((_, i) => [schemaMismatch, documentMismatch][i])
         .join(', ')}`
     )
   }
-  Credential.verifyDataIntegrity(credential)
+  Document.verifyDataIntegrity(document)
 }

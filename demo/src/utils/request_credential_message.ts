@@ -22,7 +22,7 @@ export async function generateRequestCredentialMessage(
   }
 
   const messageBody: Cord.IRequestCredential = {
-    type: 'request-credential',
+    type: 'request-credential-document',
     content: { schemas: [requestCredentialContent], challenge: challenge },
   }
 
