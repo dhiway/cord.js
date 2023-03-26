@@ -7,6 +7,7 @@ import {
   REGISTRY_PREFIX,
   STREAM_PREFIX,
   SCORE_PREFIX,
+  AUTHORIZATION_PREFIX,
 } from '@cord.network/types'
 import {
   ACCOUNT_IDENTIFIER_PREFIX,
@@ -14,6 +15,7 @@ import {
   SCHEMA_IDENTIFIER,
   STREAM_IDENTIFIER,
   SCORE_IDENTIFIER,
+  AUTHORIZATION_IDENT,
 } from '@cord.network/types'
 
 const defaults = {
@@ -127,6 +129,8 @@ export function uriToIdentifier(identifier: string | null | undefined): string {
     return identifier.split(SCORE_PREFIX).join('')
   } else if (identifier.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
     return identifier.split(ACCOUNT_IDENTIFIER_PREFIX).join('')
+  } else if (identifier.startsWith(AUTHORIZATION_PREFIX)) {
+    return identifier.split(AUTHORIZATION_PREFIX).join('')
   } else {
     throw new Error(`Invalid Identifier ${identifier}`)
   }
@@ -155,7 +159,8 @@ export function checkIdentifier(
     idfrDecoded !== REGISTRY_IDENT ||
     idfrDecoded !== SCHEMA_IDENTIFIER ||
     idfrDecoded !== STREAM_IDENTIFIER ||
-    idfrDecoded !== SCORE_IDENTIFIER
+    idfrDecoded !== SCORE_IDENTIFIER ||
+    idfrDecoded !== AUTHORIZATION_IDENT
   ) {
     return [false, `Prefix mismatch, found ${idfrDecoded}`]
   } else if (!defaults.allowedEncodedLengths.includes(decoded.length)) {

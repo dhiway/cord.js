@@ -2,6 +2,11 @@ import * as Cord from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { generateKeypairs } from './generateKeypairs'
 
+/**
+ * It creates a DID on chain, and returns the mnemonic and DID document
+ * @param submitterAccount - The account that will be used to pay for the transaction.
+ * @returns The mnemonic and the DID document.
+ */
 export async function createDid(
   submitterAccount: Cord.CordKeyringPair
 ): Promise<{

@@ -62,6 +62,7 @@ export class SchemaUnknownPropertiesError extends SDKError {}
 
 export class SchemaIdentifierMissingError extends SDKError {}
 export class RegistryIdentifierMissingError extends SDKError {}
+export class AuthorizationIdentifierMissingError extends SDKError {}
 
 export class SchemaIdMismatchError extends SDKError {
   constructor(fromSchema: string, provided: string) {
@@ -80,6 +81,10 @@ export class ContentHashMissingError extends SDKError {}
 export class RevokedTypeError extends SDKError {}
 
 export class HolderMissingError extends SDKError {}
+
+export class IssuerMismatchError extends SDKError {}
+
+export class SchemaMismatchError extends SDKError {}
 
 export class SubjectMissingError extends SDKError {}
 
@@ -112,6 +117,7 @@ export class CreatorMissingError extends SDKError {}
 export class RegistryInputMalformedError extends SDKError {}
 export class DelegateMissingError extends SDKError {}
 export class SchemaMissingError extends SDKError {}
+export class AuthorizationIdMissingError extends SDKError {}
 
 export class DataStructureError extends SDKError {}
 

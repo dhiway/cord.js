@@ -1,6 +1,15 @@
 import * as Cord from '@cord.network/sdk'
 import { useEncryptionCallback } from './useEncryptionCallback'
 
+/**
+ * `encryptMessage` takes a message, a sender DID, a receiver DID, and a key agreement, and returns an
+ * encrypted message
+ * @param message - The message to encrypt.
+ * @param senderUri - The DID URI of the sender.
+ * @param receiverUri - The DID URI of the receiver of the message.
+ * @param keyAgreement - The keyAgreement object that was created in the previous step.
+ * @returns An encrypted message
+ */
 export async function encryptMessage(
   message: Cord.IMessage,
   senderUri: Cord.DidUri,
@@ -29,7 +38,6 @@ export async function encryptMessage(
     depth: null,
     colors: true,
   })
-  // console.log(`Encrypted Message: ${JSON.stringify(encryptedMessage, null, 4)}`)
 
   return encryptedMessage
 }

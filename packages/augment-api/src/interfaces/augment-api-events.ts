@@ -299,40 +299,35 @@ declare module '@polkadot/api-base/types/events' {
     };
     registry: {
       /**
-       * A new registry delegate has been added.
-       * \[registry identifier,  authority\]
+       * A new registry authorization has been added.
+       * \[registry identifier, authorization,  authority\]
        **/
-      AddAuthority: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
-      /**
-       * A new registry delegate has been added.
-       * \[registry identifier,  authority\]
-       **/
-      AddAuthorization: AugmentedEvent<ApiType, [registry_: Bytes, delegate: AccountId32], { registry_: Bytes, delegate: AccountId32 }>;
+      AddAuthorization: AugmentedEvent<ApiType, [registry_: Bytes, authorization: Bytes, delegate: AccountId32], { registry_: Bytes, authorization: Bytes, delegate: AccountId32 }>;
       /**
        * A registry has been archived.
        * \[registry identifier,  authority\]
        **/
       Archive: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
       /**
-       * A new space has been created.
+       * A new registry has been created.
        * \[registry identifier, creator\]
        **/
       Create: AugmentedEvent<ApiType, [registry_: Bytes, creator: AccountId32], { registry_: Bytes, creator: AccountId32 }>;
       /**
-       * A registry delegate has been removed.
-       * \[registry identifier,  authority\]
+       * A registry authorization has been removed.
+       * \[registry identifier, authorization, ]
        **/
-      RemoveAuthority: AugmentedEvent<ApiType, [registry_: Bytes, delegate: AccountId32], { registry_: Bytes, delegate: AccountId32 }>;
-      /**
-       * A registry delegate has been removed.
-       * \[registry identifier,  authority\]
-       **/
-      RemoveAuthorization: AugmentedEvent<ApiType, [registry_: Bytes, authorizationId: Bytes], { registry_: Bytes, authorizationId: Bytes }>;
+      RemoveAuthorization: AugmentedEvent<ApiType, [registry_: Bytes, authorization: Bytes], { registry_: Bytes, authorization: Bytes }>;
       /**
        * A registry has been restored.
        * \[registry identifier,  authority\]
        **/
       Restore: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
+      /**
+       * A registry has been updated.
+       * \[registry identifier, authority\]
+       **/
+      Update: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
     };
     scheduler: {
       /**
