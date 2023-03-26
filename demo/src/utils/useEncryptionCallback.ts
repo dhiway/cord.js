@@ -1,6 +1,12 @@
 import * as Cord from '@cord.network/sdk'
 import { naclSeal } from '@polkadot/util-crypto'
 
+/**
+ * It takes a keyAgreement and keyAgreementUri and returns a function that takes a data and
+ * peerPublicKey and returns a nonce, data, and keyUri
+ * @param  - `keyAgreement` is the keypair that will be used to encrypt the data.
+ * @returns A function that takes an object with two properties: data and peerPublicKey.
+ */
 export function useEncryptionCallback({
   keyAgreement,
   keyAgreementUri,

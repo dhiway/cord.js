@@ -2,6 +2,11 @@ import * as Cord from '@cord.network/sdk'
 import { BN } from '@polkadot/util'
 import { setTimeout } from 'timers/promises'
 
+/**
+ * It tries to submit a transaction, and if it fails, it waits a bit and tries again
+ * @param tx - The transaction to submit.
+ * @param submitter - The account that will be used to sign the transaction.
+ */
 async function failproofSubmit(
   tx: Cord.SubmittableExtrinsic,
   submitter: Cord.KeyringPair
@@ -22,6 +27,13 @@ async function failproofSubmit(
   }
 }
 
+/**
+ * It sends a transaction to the chain to transfer the specified amount of credits from the faucet
+ * account to the recipient account
+ * @param faucetAccount - The account that will be used to send the credits to the recipient.
+ * @param recipient - The address of the account you want to send credits to.
+ * @param {number} chainAmount - The amount of credits to transfer to the recipient.
+ */
 export async function getChainCredits(
   faucetAccount: Cord.KeyringPair,
   recipient: Cord.CordAddress,
@@ -37,6 +49,11 @@ export async function getChainCredits(
   await failproofSubmit(tx, faucetAccount)
 }
 
+/**
+ * It adds an authority to the list of authorities that can submit extrinsics to the chain
+ * @param authorAccount - The account that will be used to sign the transaction.
+ * @param authority - The address of the authority to add.
+ */
 export async function addAuthority(
   authorAccount: Cord.KeyringPair,
   authority: Cord.CordAddress

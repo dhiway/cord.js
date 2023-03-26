@@ -1,5 +1,13 @@
 import * as Cord from '@cord.network/sdk'
 
+/**
+ * It checks if the schema is already stored on chain, and if not, it creates it
+ * @param authorAccount - The account that will be used to sign and submit the extrinsic.
+ * @param creator - The DID of the schema creator.
+ * @param signCallback - A callback function that will be called when the DID module needs to sign a
+ * transaction.
+ * @returns The schema is being returned.
+ */
 export async function ensureStoredSchema(
   authorAccount: Cord.CordKeyringPair,
   creator: Cord.DidUri,

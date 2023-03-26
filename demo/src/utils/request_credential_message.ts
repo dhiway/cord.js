@@ -1,5 +1,12 @@
 import * as Cord from '@cord.network/sdk'
 
+/**
+ * It creates a `request-credential` message that requests a credential with a specific schema
+ * @param senderUri - The DID URI of the sender of the message.
+ * @param receiverUri - The DID of the receiver of the message
+ * @param schemaId - The schemaId of the credential schema that you want to request.
+ * @returns A message object
+ */
 export async function generateRequestCredentialMessage(
   senderUri: Cord.DidUri,
   receiverUri: Cord.DidUri,

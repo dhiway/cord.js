@@ -15,6 +15,8 @@ import type {
   ISchema,
   SignCallback,
   IRegistryAuthorization,
+  IRegistryAuthorizationDetails,
+  IRegistry,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/index.js'
@@ -161,6 +163,18 @@ export function verifyDataStructure(input: IDocument): void {
   }
 }
 
+export function verifyAuthorization(
+  input: IContent,
+  authorizationDetails: IRegistryAuthorizationDetails
+): void {
+  if (input.issuer !== authorizationDetails.delegate) {
+    throw new SDKErrors.IssuerMismatchError()
+  }
+  if (input.schemaId !== authorizationDetails.schema) {
+    throw new SDKErrors.SchemaMismatchError()
+  }
+}
+
 /**
  *  Checks the [[Document]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
  *
@@ -214,8 +228,6 @@ export async function verifySignature(
 
 export type Options = {
   evidenceIds?: IDocument[]
-  authorization?: IRegistryAuthorization['identifier'] | null
-  registry?: IDocument['registry'] | null
 }
 
 /**
@@ -223,14 +235,16 @@ export type Options = {
  *
  * @param content An `IContent` object to build the document for.
  * @param option Container for different options that can be passed to this method.
+ * @param authorization The authrization id of the Issuer, which should be used in anchoring the document.
+ * @param registry Identifier of the registry this document is linked to.
  * @param option.evidenceIds Array of [[Document]] objects the Issuer include as evidenceIds.
- * @param option.authorization The authrization id of the Issuer, which should be used in anchoring the document.
- * @param option.registry Identifier of the registry this document is linked to.
  * @returns A new [[IDocument]] object.
  */
 export function fromContent(
   content: IContent,
-  { evidenceIds = [], authorization = null, registry = null }: Options = {}
+  authorization: IRegistryAuthorization['identifier'],
+  registry: IRegistry['identifier'],
+  { evidenceIds = [] }: Options = {}
 ): IDocument {
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
@@ -238,6 +252,7 @@ export function fromContent(
     evidenceIds,
     contentHashes,
   })
+
   const document = {
     content,
     contentHashes,

@@ -9,6 +9,11 @@ import {
 } from '@polkadot/util-crypto'
 import { createAccount } from './createAccount'
 
+/**
+ * It takes a mnemonic and returns a keypair that can be used for encryption
+ * @param {string} mnemonic - The mnemonic that was generated in the previous step.
+ * @returns A keypair for encryption.
+ */
 function generateKeyAgreement(mnemonic: string) {
   const secretKeyPair = sr25519PairFromSeed(mnemonicToMiniSecret(mnemonic))
   const { path } = keyExtractPath('//did//keyAgreement//0')
@@ -16,6 +21,12 @@ function generateKeyAgreement(mnemonic: string) {
   return Cord.Utils.Crypto.makeEncryptionKeypairFromSeed(blake2AsU8a(secretKey))
 }
 
+/**
+ * It generates a mnemonic, creates an account from the mnemonic, and then derives four keypairs from
+ * the account
+ * @param mnemonic - A string of words that can be used to recover the keypairs.
+ * @returns An object with 4 keyring pairs.
+ */
 export function generateKeypairs(mnemonic = mnemonicGenerate()) {
   const { account } = createAccount(mnemonic)
 

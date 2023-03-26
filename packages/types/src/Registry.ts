@@ -4,7 +4,11 @@ import type { DidUri } from './DidDocument'
 import type { IContents } from './Content.js'
 
 export const REGISTRY_IDENT: number = 7101
-export const REGISTRY_PREFIX: string = 'space:cord:'
+export const REGISTRY_PREFIX: string = 'registry:cord:'
+export type RegistryId = string
+export const AUTHORIZATION_IDENT: number = 2604
+export const AUTHORIZATION_PREFIX: string = 'auth:cord:'
+export type AuthorizationId = string
 
 export interface IRegistryMetaData {
   digest: HexString
@@ -45,8 +49,11 @@ export interface IRegistryAuthorization {
 }
 
 export interface IRegistryAuthorizationDetails {
-  identifier: IRegistry['identifier']
   delegate: DidUri
   schema: ISchema['$id'] | null
-  permissions: PermissionType[]
+}
+
+export interface IAuthorizationDetails {
+  auth: AuthorizationId
+  digest: HexString
 }

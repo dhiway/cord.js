@@ -5,7 +5,11 @@ import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
 import { ensureStoredSchema } from './utils/generateSchema'
-import { ensureStoredRegistry } from './utils/generateRegistry'
+import {
+  ensureStoredRegistry,
+  addRegistryAdminDelegate,
+  addRegistryDelegate,
+} from './utils/generateRegistry'
 import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
 import { createStream } from './utils/createStream'
@@ -47,6 +51,7 @@ async function main() {
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
 
+  /* Creating the DIDs for the different parties involved in the demo. */
   // Create Verifier DID
   const { mnemonic: verifierMnemonic, document: verifierDid } = await createDid(
     authorIdentity
@@ -79,6 +84,33 @@ async function main() {
     depth: null,
     colors: true,
   })
+  // Create Delegate One DID
+  const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
+    await createDid(authorIdentity)
+  const delegateOneKeys = generateKeypairs(delegateOneMnemonic)
+  console.log(
+    `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${
+      delegateOneDid.uri
+    }`
+  )
+  // Create Delegate Two DID
+  const { mnemonic: delegateTwoMnemonic, document: delegateTwoDid } =
+    await createDid(authorIdentity)
+  const delegateTwoKeys = generateKeypairs(delegateTwoMnemonic)
+  console.log(
+    `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${
+      delegateTwoDid.uri
+    }`
+  )
+  // Create Delegate 3 DID
+  const { mnemonic: delegate3Mnemonic, document: delegate3Did } =
+    await createDid(authorIdentity)
+  const delegate3Keys = generateKeypairs(delegate3Mnemonic)
+  console.log(
+    `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${
+      delegate3Did.uri
+    }`
+  )
   console.log('✅ Identities created!')
 
   // Step 2: Create a DID name for Issuer
@@ -130,19 +162,53 @@ async function main() {
   })
   console.log('✅ Registry created!')
 
-  // Step 4: Create a new Verifiable Document
+  // Step 4: Add Delelegate One as Registry Admin
+  console.log(`\n❄️  Registry Admin Delegate Authorization `)
+  const registryAuthority = await addRegistryAdminDelegate(
+    authorIdentity,
+    issuerDid.uri,
+    registry['identifier'],
+    delegateOneDid.uri,
+    async ({ data }) => ({
+      signature: issuerKeys.capabilityDelegation.sign(data),
+      keyType: issuerKeys.capabilityDelegation.type,
+    })
+  )
+  console.log(`✅ Registry Authorization - ${registryAuthority} - created!`)
+
+  // Step 4: Add Delelegate Two as Registry Delegate
+  console.log(`\n❄️  Registry Delegate Authorization `)
+  const registryDelegate = await addRegistryDelegate(
+    authorIdentity,
+    issuerDid.uri,
+    registry['identifier'],
+    delegateTwoDid.uri,
+    async ({ data }) => ({
+      signature: issuerKeys.capabilityDelegation.sign(data),
+      keyType: issuerKeys.capabilityDelegation.type,
+    })
+  )
+  console.log(`✅ Registry Delegation - ${registryDelegate} - created!`)
+
+  // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
-  const document = createDocument(holderDid.uri, issuerDid.uri, schema)
+  const document = createDocument(
+    holderDid.uri,
+    delegateTwoDid.uri,
+    schema,
+    registryDelegate,
+    registry.identifier
+  )
   console.dir(document, {
     depth: null,
     colors: true,
   })
   await createStream(
-    issuerDid.uri,
+    delegateTwoDid.uri,
     authorIdentity,
     async ({ data }) => ({
-      signature: issuerKeys.assertionMethod.sign(data),
-      keyType: issuerKeys.assertionMethod.type,
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
     }),
     document
   )
@@ -171,7 +237,7 @@ async function main() {
   console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
   const isValid = await verifyPresentation(presentation, {
     challenge: challenge,
-    trustedIssuerUris: [issuerDid.uri],
+    trustedIssuerUris: [delegateTwoDid.uri],
   })
 
   if (isValid) {
@@ -203,11 +269,11 @@ async function main() {
   // Step 7: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${document.identifier}`)
   await revokeCredential(
-    issuerDid.uri,
+    delegateTwoDid.uri,
     authorIdentity,
     async ({ data }) => ({
-      signature: issuerKeys.assertionMethod.sign(data),
-      keyType: issuerKeys.assertionMethod.type,
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
     }),
     document,
     false
