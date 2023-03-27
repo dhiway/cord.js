@@ -445,7 +445,7 @@ declare module '@polkadot/api-base/types/storage' {
     };
     registry: {
       /**
-       * space delegations stored on chain.
+       * registry authorities stored on chain.
        * It maps from an identifier to a vector of delegates.
        **/
       authorities: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;

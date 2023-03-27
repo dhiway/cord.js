@@ -22,10 +22,9 @@ import {
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   stream: 'assertionMethod',
   schema: 'assertionMethod',
-  'registry.add_authorities': 'capabilityDelegation',
-  'registry.authorize': 'capabilityDelegation',
-  'registry.deauthorize': 'capabilityDelegation',
-  'registry.remove_authorities': 'capabilityDelegation',
+  'registry.addAdminDelegate': 'capabilityDelegation',
+  'registry.addDelegate': 'capabilityDelegation',
+  'registry.removeDelegate': 'capabilityDelegation',
   'registry.create': 'assertionMethod',
   'registry.archive': 'assertionMethod',
   'registry.restore': 'assertionMethod',

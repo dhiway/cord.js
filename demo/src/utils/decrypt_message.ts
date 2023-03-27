@@ -1,6 +1,12 @@
 import * as Cord from '@cord.network/sdk'
 import { useDecryptionCallback } from './useDecryptionCallback'
 
+/**
+ * `decryptMessage` decrypts the encrypted message and verifies that it is a properly formatted message
+ * @param encryptedMessage - The encrypted message that was received from the sender
+ * @param keyAgreement - The keyAgreement object that was created in the previous step.
+ * @returns The decrypted message
+ */
 export async function decryptMessage(
   encryptedMessage: Cord.IEncryptedMessage,
   keyAgreement: Cord.CordEncryptionKeypair

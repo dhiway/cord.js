@@ -1,6 +1,10 @@
 import { assert } from 'console'
 import * as Cord from '@cord.network/sdk'
 
+/**
+ * It queries the owner of the provided DID name, and then prints the URI of the DID document
+ * @param didName - The DID name to resolve.
+ */
 export async function getDidDocFromName(
   didName: Cord.Did.DidName
 ): Promise<void> {

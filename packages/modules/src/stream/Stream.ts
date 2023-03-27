@@ -48,6 +48,7 @@ export function fromDocument(document: IDocument): IStream {
     streamHash: document.documentHash,
     issuer: document.content.issuer,
     schema: document.content.schemaId,
+    authorization: document.authorization,
     registry: document.registry,
     revoked: false,
   }

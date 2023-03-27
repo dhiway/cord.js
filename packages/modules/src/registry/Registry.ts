@@ -6,17 +6,35 @@
  * @preferred
  */
 
-import type { IRegistry, IRegistryType } from '@cord.network/types'
+import type {
+  DidUri,
+  IRegistry,
+  IRegistryType,
+  RegistryId,
+  AuthorizationId,
+  IAuthorizationDetails,
+  IRegistryAuthorizationDetails,
+} from '@cord.network/types'
 import {
   Identifier,
   Crypto,
   SDKErrors,
   jsonabc,
   DataUtils,
+  DecoderUtils,
 } from '@cord.network/utils'
-import { REGISTRY_IDENT, REGISTRY_PREFIX } from '@cord.network/types'
+import {
+  REGISTRY_IDENT,
+  REGISTRY_PREFIX,
+  AUTHORIZATION_IDENT,
+  AUTHORIZATION_PREFIX,
+} from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
-
+import type { AccountId } from '@polkadot/types/interfaces'
+import { Bytes, Option } from '@polkadot/types'
+import * as Did from '@cord.network/did'
+import { blake2AsHex } from '@polkadot/util-crypto'
+import type { PalletRegistryRegistryAuthorization } from '@cord.network/augment-api'
 /**
  *  Checks whether the input meets all the required criteria of an [[IRegistry]] object.
  *  Throws on invalid input.
@@ -91,6 +109,34 @@ export function fromRegistryProperties(
   return registry
 }
 
+export function getAuthorizationIdentifier(
+  registry: IRegistry['identifier'],
+  authority: DidUri
+): IAuthorizationDetails {
+  const api = ConfigService.get('api')
+
+  const scaleEncodedRegistry = api
+    .createType<Bytes>('Bytes', uriToIdentifier(registry))
+    .toU8a()
+  const scaleEncodedAuthority = api
+    .createType<AccountId>('AccountId', Did.toChain(authority))
+    .toU8a()
+
+  const digest = blake2AsHex(
+    Uint8Array.from([...scaleEncodedRegistry, ...scaleEncodedAuthority])
+  )
+  const authorizationId = Identifier.hashToUri(
+    digest,
+    AUTHORIZATION_IDENT,
+    AUTHORIZATION_PREFIX
+  )
+  const authorization: IAuthorizationDetails = {
+    auth: authorizationId,
+    digest: digest,
+  }
+  return authorization
+}
+
 /**
  *  Custom Type Guard to determine input being of type ISpace using the SpaceUtils errorCheck.
  *
@@ -107,9 +153,9 @@ export function isIRegistry(input: unknown): input is IRegistry {
 }
 
 /**
- * Checks on the CORD blockchain whether a schema is registered.
+ * Checks on the CORD blockchain whether a Registry is anchored.
  *
- * @param schema Schema data.
+ * @param registry Registry data.
  */
 
 export async function verifyStored(registry: IRegistry): Promise<void> {
@@ -123,6 +169,57 @@ export async function verifyStored(registry: IRegistry): Promise<void> {
 }
 
 /**
+ * Checks on the CORD blockchain whether a schema is registered.
+ *
+ * @param schema Schema data.
+ */
+
+export async function verifyAuthorization(
+  auth: AuthorizationId
+): Promise<void> {
+  const api = ConfigService.get('api')
+  const identifier = Identifier.uriToIdentifier(auth)
+  const encoded: any = await api.query.registry.authorizations(identifier)
+  if (encoded.isNone)
+    throw new SDKErrors.AuthorizationIdMissingError(
+      `Authorization with identifier ${identifier} is not registered on chain`
+    )
+}
+
+/**
+ * Checks on the CORD blockchain whether a Registry is anchored.
+ *
+ * @param auth authorization URI.
+ */
+
+export async function fetchAuthorizationDetailsfromChain(
+  auth: AuthorizationId
+): Promise<Option<PalletRegistryRegistryAuthorization>> {
+  const api = ConfigService.get('api')
+  const authorizationId = Identifier.uriToIdentifier(auth)
+  const registryAuthoriation: Option<PalletRegistryRegistryAuthorization> =
+    await api.query.registry.authorizations(authorizationId)
+  if (registryAuthoriation.isNone) {
+    throw new SDKErrors.AuthorizationIdentifierMissingError(
+      `Registry Authorization with identifier ${authorizationId} is not registered on chain`
+    )
+  } else {
+    return registryAuthoriation
+  }
+}
+
+export function getAuthorizationDetails(
+  encodedEntry: Option<PalletRegistryRegistryAuthorization>
+): IRegistryAuthorizationDetails {
+  const decodedEntry = encodedEntry.unwrap()
+  const authorizationDetails: IRegistryAuthorizationDetails = {
+    delegate: Did.fromChain(decodedEntry.delegate),
+    schema: DecoderUtils.hexToString(decodedEntry.schema.toString()),
+  }
+  return authorizationDetails
+}
+
+/**
  * Encodes the provided Schema for use in `api.tx.schema.add()`.
  *
  * @param schema The Schema to write on the blockchain.
@@ -130,4 +227,10 @@ export async function verifyStored(registry: IRegistry): Promise<void> {
  */
 export function toChain(details: IRegistryType): string {
   return Crypto.encodeObjectAsStr(details)
+}
+
+export function uriToIdentifier(
+  registryId: IRegistry['identifier']
+): RegistryId {
+  return Identifier.uriToIdentifier(registryId)
 }

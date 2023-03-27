@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableE
 import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeAuthorizePalletAuthorize, CordRuntimeOriginCaller, CordRuntimeSessionKeys, FrameSupportPreimagesBounded, PalletDemocracyConviction, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusSlotsEquivocationProof, SpFinalityGrandpaEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, FrameSupportPreimagesBounded, PalletDemocracyConviction, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusSlotsEquivocationProof, SpFinalityGrandpaEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -1119,51 +1119,42 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     registry: {
       /**
-       * Add space authorisations (delegation).
+       * Add registry admin authorisations.
        * 
-       * This transaction can only be performed by the space controller
+       * This transaction can only be performed by the registry creator
        * or delegates.
        **/
-      addAuthorities: AugmentedSubmittable<(registry: Bytes | string | Uint8Array, authority: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      addAdminDelegate: AugmentedSubmittable<(txDigest: H256 | string | Uint8Array, registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes, AccountId32]>;
       /**
-       * Archive a space
+       * Add registry delegates.
        * 
-       * This transaction can only be performed by the space controller
-       * or delegated authorities
+       * This transaction can only be performed by the registry creator
+       * or admin delegates.
        **/
-      archive: AugmentedSubmittable<(registry: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      addDelegate: AugmentedSubmittable<(txDigest: H256 | string | Uint8Array, registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes, AccountId32]>;
       /**
-       * Add space authorisations (delegation).
-       * 
-       * This transaction can only be performed by the space controller
-       * or delegates.
+       * Archive a registry
        **/
-      authorize: AugmentedSubmittable<(registry: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Create a new space and associates with its identifier.
+       * Create a new registry and associates with its identifier.
        **/
       create: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, txSchema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Remove space authorisations (delegation).
+       * Remove registry delegates.
        * 
-       * This transaction can only be performed by the space controller
-       * or delegated authorities.
+       * This transaction can only be performed by the registry creator
+       * or admin delegates.
        **/
-      deauthorize: AugmentedSubmittable<(registry: Bytes | string | Uint8Array, authorizationId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      removeDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorizationId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Remove space authorisations (delegation).
-       * 
-       * This transaction can only be performed by the space controller
-       * or delegated authorities.
+       * Restore an archived registry
        **/
-      removeAuthorities: AugmentedSubmittable<(registry: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Restore an archived space
-       * 
-       * This transaction can only be performed by the space controller
-       * or delegated authorities
+       * Update registry details and associates with its identifier.
        **/
-      restore: AugmentedSubmittable<(registry: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      update: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
     };
     scheduler: {
       /**
@@ -1231,33 +1222,28 @@ declare module '@polkadot/api-base/types/submittable' {
        * Create a new stream identifier and associates it with its
        * controller. The controller (issuer) is the owner of the identifier.
        **/
-      create: AugmentedSubmittable<(streamDigest: H256 | string | Uint8Array, schemaId: Bytes | string | Uint8Array, authorization: Option<CordRuntimeAuthorizePalletAuthorize> | null | Uint8Array | CordRuntimeAuthorizePalletAuthorize | { Registry: any } | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<CordRuntimeAuthorizePalletAuthorize>]>;
+      create: AugmentedSubmittable<(streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes]>;
       /**
        * Adds stream digest information. This operation can only be performed by
        * the stream issuer or delegated authorities.
        **/
-      digest: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Option<CordRuntimeAuthorizePalletAuthorize> | null | Uint8Array | CordRuntimeAuthorizePalletAuthorize | { Registry: any } | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<CordRuntimeAuthorizePalletAuthorize>]>;
-      /**
-       * Remove a stream from the chain using space identities.This operation can only be performed by
-       * the stream issuer or delegated authorities.
-       **/
-      remove: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Option<CordRuntimeAuthorizePalletAuthorize> | null | Uint8Array | CordRuntimeAuthorizePalletAuthorize | { Registry: any } | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<CordRuntimeAuthorizePalletAuthorize>]>;
+      digest: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
       /**
        * Restore a revoked stream identifier. This operation can only be performed by
        * the stream issuer or delegated authorities.
        **/
-      restore: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Option<CordRuntimeAuthorizePalletAuthorize> | null | Uint8Array | CordRuntimeAuthorizePalletAuthorize | { Registry: any } | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<CordRuntimeAuthorizePalletAuthorize>]>;
+      restore: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
        * Revoke a stream identifier. This operation can only be performed by
        * the stream issuer or delegated authorities.
        **/
-      revoke: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Option<CordRuntimeAuthorizePalletAuthorize> | null | Uint8Array | CordRuntimeAuthorizePalletAuthorize | { Registry: any } | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<CordRuntimeAuthorizePalletAuthorize>]>;
+      revoke: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
        * Updates the stream identifier with a new digest. The updated digest
        * represents the changes a stream might have undergone. This operation can
        * only be performed by the stream issuer or delegated authorities.
        **/
-      update: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Option<CordRuntimeAuthorizePalletAuthorize> | null | Uint8Array | CordRuntimeAuthorizePalletAuthorize | { Registry: any } | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<CordRuntimeAuthorizePalletAuthorize>]>;
+      update: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
     };
     sudo: {
       /**

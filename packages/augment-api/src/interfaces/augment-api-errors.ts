@@ -567,16 +567,15 @@ declare module '@polkadot/api-base/types/errors' {
       TooBig: AugmentedError<ApiType>;
     };
     registry: {
-      AccessDenied: AugmentedError<ApiType>;
       ArchivedRegistry: AugmentedError<ApiType>;
-      /**
-       * Authority already added
-       **/
-      AuthorityAlreadyAdded: AugmentedError<ApiType>;
       /**
        * Authorization Id not found
        **/
       AuthorizationNotFound: AugmentedError<ApiType>;
+      /**
+       * Authority already added
+       **/
+      DelegateAlreadyAdded: AugmentedError<ApiType>;
       /**
        * Empty transaction.
        **/
@@ -606,7 +605,7 @@ declare module '@polkadot/api-base/types/errors' {
       RegistryAuthoritiesLimitExceeded: AugmentedError<ApiType>;
       RegistryNotArchived: AugmentedError<ApiType>;
       /**
-       * Space identifier not found
+       * Registry identifier not found
        **/
       RegistryNotFound: AugmentedError<ApiType>;
       /**
