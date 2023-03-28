@@ -15,23 +15,27 @@ export async function ensureStoredSchema(
 ): Promise<Cord.ISchema> {
   const api = Cord.ConfigService.get('api')
 
-  const schema = Cord.Schema.fromProperties('Test Demo Schema v2', {
-    name: {
-      type: 'string',
+  const schema = Cord.Schema.fromProperties(
+    'Test Demo Schema v2',
+    {
+      name: {
+        type: 'string',
+      },
+      id: {
+        type: 'string',
+      },
+      age: {
+        type: 'integer',
+      },
+      gender: {
+        type: 'string',
+      },
+      country: {
+        type: 'string',
+      },
     },
-    id: {
-      type: 'string',
-    },
-    age: {
-      type: 'integer',
-    },
-    gender: {
-      type: 'string',
-    },
-    country: {
-      type: 'string',
-    },
-  })
+    creator
+  )
 
   try {
     await Cord.Schema.verifyStored(schema)

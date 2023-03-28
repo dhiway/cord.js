@@ -18,8 +18,9 @@ export async function createStream(
   // Create a stream object
   const { streamHash } = Cord.Stream.fromDocument(document)
   const authorization = Cord.Registry.uriToIdentifier(document.authorization)
+  const schemaId = Cord.Registry.uriToIdentifier(document.content.schemaId)
 
-  const streamTx = api.tx.stream.create(streamHash, authorization)
+  const streamTx = api.tx.stream.create(streamHash, schemaId, authorization)
   const authorizedStreamTx = await Cord.Did.authorizeTx(
     issuer,
     streamTx,

@@ -12,7 +12,6 @@ import type {
   IRegistryType,
   RegistryId,
   AuthorizationId,
-  IAuthorizationDetails,
   IRegistryAuthorizationDetails,
 } from '@cord.network/types'
 import {
@@ -69,6 +68,29 @@ export function verifyRegistryDataStructure(input: IRegistry): void {
 }
 
 /**
+ * Calculates the registry Id by hashing it.
+ *
+ * @param registry  Registry for which to create the id.
+ * @returns Registry id uri.
+ */
+export function getUriForRegistry(
+  serializedRegistry: string,
+  creator: DidUri
+): RegistryId {
+  const api = ConfigService.get('api')
+  const scaleEncodedRegistry = api
+    .createType<Bytes>('Bytes', serializedRegistry)
+    .toU8a()
+  const scaleEncodedCreator = api
+    .createType<AccountId>('AccountId', Did.toChain(creator))
+    .toU8a()
+  const digest = blake2AsHex(
+    Uint8Array.from([...scaleEncodedRegistry, ...scaleEncodedCreator])
+  )
+  return Identifier.hashToUri(digest, REGISTRY_IDENT, REGISTRY_PREFIX)
+}
+
+/**
    * Creates a new [[Registry]] from an [[IRegistryType]].
  
    *
@@ -84,11 +106,9 @@ export function fromRegistryProperties(
   })
   const encodedRegistry = Crypto.encodeObjectAsStr(registryType)
   const registryHash = Crypto.hashStr(encodedRegistry)
-  const registryId = Identifier.hashToUri(
-    registryHash,
-    REGISTRY_IDENT,
-    REGISTRY_PREFIX
-  )
+
+  const registryId = getUriForRegistry(encodedRegistry, registryProps.creator)
+
   const registryDetails = {
     identifier: registryId,
     registryHash: registryHash,
@@ -96,7 +116,7 @@ export function fromRegistryProperties(
   }
   const registryMeta = {
     digest: registryHash,
-    schema: registryProps.schema,
+    schema: registryProps.schema || null,
     creator: registryProps.creator,
     active: true,
   }
@@ -111,8 +131,9 @@ export function fromRegistryProperties(
 
 export function getAuthorizationIdentifier(
   registry: IRegistry['identifier'],
-  authority: DidUri
-): IAuthorizationDetails {
+  authority: DidUri,
+  creator: DidUri
+): AuthorizationId {
   const api = ConfigService.get('api')
 
   const scaleEncodedRegistry = api
@@ -121,20 +142,25 @@ export function getAuthorizationIdentifier(
   const scaleEncodedAuthority = api
     .createType<AccountId>('AccountId', Did.toChain(authority))
     .toU8a()
+  const scaleEncodedCreator = api
+    .createType<AccountId>('AccountId', Did.toChain(creator))
+    .toU8a()
 
   const digest = blake2AsHex(
-    Uint8Array.from([...scaleEncodedRegistry, ...scaleEncodedAuthority])
+    Uint8Array.from([
+      ...scaleEncodedRegistry,
+      ...scaleEncodedAuthority,
+      ...scaleEncodedCreator,
+    ])
   )
+
   const authorizationId = Identifier.hashToUri(
     digest,
     AUTHORIZATION_IDENT,
     AUTHORIZATION_PREFIX
   )
-  const authorization: IAuthorizationDetails = {
-    auth: authorizationId,
-    digest: digest,
-  }
-  return authorization
+
+  return authorizationId
 }
 
 /**

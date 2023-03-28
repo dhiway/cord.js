@@ -74,32 +74,23 @@ export async function addRegistryAdminDelegate(
 ): Promise<Cord.AuthorizationId> {
   const api = Cord.ConfigService.get('api')
 
-  const authDetails = Cord.Registry.getAuthorizationIdentifier(
+  const authId = Cord.Registry.getAuthorizationIdentifier(
     registryUri,
-    adminAuthority
+    adminAuthority,
+    creator
   )
 
   try {
-    await Cord.Registry.verifyAuthorization(authDetails.auth)
+    await Cord.Registry.verifyAuthorization(authId)
     console.log('Registry Authorization already stored. Skipping addition')
-    return authDetails.auth
+    return authId
   } catch {
     console.log('Regisrty Authorization not present. Creating it now...')
     // Authorize the tx.
     const registryId = Cord.Registry.uriToIdentifier(registryUri)
     const delegateId = Cord.Did.toChain(adminAuthority)
-    console.log(
-      registryId,
-      delegateId,
-      authDetails.digest,
-      authDetails.auth,
-      creator
-    )
-    const tx = api.tx.registry.addAdminDelegate(
-      authDetails.digest,
-      registryId,
-      delegateId
-    )
+    console.log(registryId, delegateId, authId, creator)
+    const tx = api.tx.registry.addAdminDelegate(registryId, delegateId)
     const extrinsic = await Cord.Did.authorizeTx(
       creator,
       tx,
@@ -109,7 +100,7 @@ export async function addRegistryAdminDelegate(
     // Write to chain then return the Schema.
     await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
 
-    return authDetails.auth
+    return authId
   }
 }
 
@@ -132,26 +123,23 @@ export async function addRegistryDelegate(
 ): Promise<Cord.AuthorizationId> {
   const api = Cord.ConfigService.get('api')
 
-  const authDetails = Cord.Registry.getAuthorizationIdentifier(
+  const authId = Cord.Registry.getAuthorizationIdentifier(
     registryUri,
-    registryDelegate
+    registryDelegate,
+    creator
   )
 
   try {
-    await Cord.Registry.verifyAuthorization(authDetails.auth)
+    await Cord.Registry.verifyAuthorization(authId)
     console.log('Registry Authorization already stored. Skipping addition')
-    return authDetails.auth
+    return authId
   } catch {
     console.log('Regisrty Authorization not present. Creating it now...')
     // Authorize the tx.
     const registryId = Cord.Registry.uriToIdentifier(registryUri)
     const delegateId = Cord.Did.toChain(registryDelegate)
 
-    const tx = api.tx.registry.addDelegate(
-      authDetails.digest,
-      registryId,
-      delegateId
-    )
+    const tx = api.tx.registry.addDelegate(registryId, delegateId)
     const extrinsic = await Cord.Did.authorizeTx(
       creator,
       tx,
@@ -161,6 +149,6 @@ export async function addRegistryDelegate(
     // Write to chain then return the Schema.
     await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
 
-    return authDetails.auth
+    return authId
   }
 }

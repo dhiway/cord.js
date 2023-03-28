@@ -12,8 +12,8 @@ import {
 import {
   ACCOUNT_IDENTIFIER_PREFIX,
   REGISTRY_IDENT,
-  SCHEMA_IDENTIFIER,
-  STREAM_IDENTIFIER,
+  SCHEMA_IDENT,
+  STREAM_IDENT,
   SCORE_IDENTIFIER,
   AUTHORIZATION_IDENT,
 } from '@cord.network/types'
@@ -157,8 +157,8 @@ export function checkIdentifier(
 
   if (
     idfrDecoded !== REGISTRY_IDENT ||
-    idfrDecoded !== SCHEMA_IDENTIFIER ||
-    idfrDecoded !== STREAM_IDENTIFIER ||
+    idfrDecoded !== SCHEMA_IDENT ||
+    idfrDecoded !== STREAM_IDENT ||
     idfrDecoded !== SCORE_IDENTIFIER ||
     idfrDecoded !== AUTHORIZATION_IDENT
   ) {

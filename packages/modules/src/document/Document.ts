@@ -6,6 +6,7 @@ import {
   signatureFromJson,
 } from '@cord.network/did'
 import type {
+  DidUri,
   DidResolveKey,
   Hash,
   IDocument,
@@ -17,14 +18,21 @@ import type {
   IRegistryAuthorization,
   IRegistryAuthorizationDetails,
   IRegistry,
+  StreamId,
+  RegistryId,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/index.js'
 import { hashContents } from '../content/index.js'
-
 import { verifyContentAganistSchema } from '../schema/Schema.js'
-import { STREAM_IDENTIFIER, STREAM_PREFIX } from '@cord.network/types'
+import { STREAM_IDENT, STREAM_PREFIX } from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
+import { HexString } from '@polkadot/util/types.js'
+import { Bytes } from '@polkadot/types'
+import type { AccountId, H256 } from '@polkadot/types/interfaces'
+import * as Did from '@cord.network/did'
+import { blake2AsHex } from '@polkadot/util-crypto'
+import { ConfigService } from '@cord.network/config'
 
 function getHashRoot(leaves: Uint8Array[]): Uint8Array {
   const result = Crypto.u8aConcat(...leaves)
@@ -231,6 +239,34 @@ export type Options = {
 }
 
 /**
+ * Calculates the stream Id by hashing it.
+ *
+ * @param stream  Stream for which to create the id.
+ * @returns Stream id uri.
+ */
+export function getUriForStream(
+  streamDigest: HexString,
+  registry: RegistryId,
+  creator: DidUri
+): StreamId {
+  const api = ConfigService.get('api')
+  const scaleEncodedDigest = api.createType<H256>('H256', streamDigest).toU8a()
+  const scaleEncodedRegistry = api.createType<Bytes>('Bytes', registry).toU8a()
+  const scaleEncodedCreator = api
+    .createType<AccountId>('AccountId', Did.toChain(creator))
+    .toU8a()
+
+  const digest = blake2AsHex(
+    Uint8Array.from([
+      ...scaleEncodedDigest,
+      ...scaleEncodedRegistry,
+      ...scaleEncodedCreator,
+    ])
+  )
+  return Identifier.hashToUri(digest, STREAM_IDENT, STREAM_PREFIX)
+}
+
+/**
  * Builds a new  [[IDocument]] object, from a complete set of required parameters.
  *
  * @param content An `IContent` object to build the document for.
@@ -252,6 +288,12 @@ export function fromContent(
     evidenceIds,
     contentHashes,
   })
+  const registryIdentifier = Identifier.uriToIdentifier(registry)
+  const streamId = getUriForStream(
+    documentHash,
+    registryIdentifier,
+    content.issuer
+  )
 
   const document = {
     content,
@@ -261,11 +303,7 @@ export function fromContent(
     authorization: authorization,
     registry: registry,
     documentHash,
-    identifier: Identifier.hashToUri(
-      documentHash,
-      STREAM_IDENTIFIER,
-      STREAM_PREFIX
-    ),
+    identifier: streamId,
   }
   verifyDataStructure(document)
   return document
