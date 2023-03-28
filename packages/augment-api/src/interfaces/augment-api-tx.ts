@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableE
 import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, FrameSupportPreimagesBounded, PalletDemocracyConviction, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusSlotsEquivocationProof, SpFinalityGrandpaEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, FrameSupportPreimagesBounded, PalletDemocracyConviction, PalletDemocracyMetadataOwner, PalletDemocracyVoteAccountVote, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -868,7 +868,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * against the extracted offender. If both are valid, the offence
        * will be reported.
        **/
-      reportEquivocation: AugmentedSubmittable<(equivocationProof: SpFinalityGrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpFinalityGrandpaEquivocationProof, SpSessionMembershipProof]>;
+      reportEquivocation: AugmentedSubmittable<(equivocationProof: SpConsensusGrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusGrandpaEquivocationProof, SpSessionMembershipProof]>;
       /**
        * Report voter equivocation/misbehavior. This method will verify the
        * equivocation proof and validate the given key ownership proof
@@ -880,7 +880,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * if the block author is defined it will be defined as the equivocation
        * reporter.
        **/
-      reportEquivocationUnsigned: AugmentedSubmittable<(equivocationProof: SpFinalityGrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpFinalityGrandpaEquivocationProof, SpSessionMembershipProof]>;
+      reportEquivocationUnsigned: AugmentedSubmittable<(equivocationProof: SpConsensusGrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusGrandpaEquivocationProof, SpSessionMembershipProof]>;
     };
     imOnline: {
       /**
@@ -969,6 +969,28 @@ declare module '@polkadot/api-base/types/submittable' {
        * - `O(1)`.
        **/
       transfer: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, u32]>;
+    };
+    messageQueue: {
+      /**
+       * Execute an overweight message.
+       * 
+       * Temporary processing errors will be propagated whereas permanent errors are treated
+       * as success condition.
+       * 
+       * - `origin`: Must be `Signed`.
+       * - `message_origin`: The origin from which the message to be executed arrived.
+       * - `page`: The page in the queue in which the message to be executed is sitting.
+       * - `index`: The index into the queue of the message to be executed.
+       * - `weight_limit`: The maximum amount of weight allowed to be consumed in the execution
+       * of the message.
+       * 
+       * Benchmark complexity considerations: O(index + weight_limit).
+       **/
+      executeOverweight: AugmentedSubmittable<(messageOrigin: u32 | AnyNumber | Uint8Array, page: u32 | AnyNumber | Uint8Array, index: u32 | AnyNumber | Uint8Array, weightLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, u32, SpWeightsWeightV2Weight]>;
+      /**
+       * Remove a page which has no more messages remaining to be processed or is stale.
+       **/
+      reapPage: AugmentedSubmittable<(messageOrigin: u32 | AnyNumber | Uint8Array, pageIndex: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
     };
     multisig: {
       /**
@@ -1086,6 +1108,99 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       cancelAsMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], timepoint: PalletMultisigTimepoint | { height?: any; index?: any } | string | Uint8Array, callHash: U8aFixed | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, PalletMultisigTimepoint, U8aFixed]>;
     };
+    openStream: {
+      /**
+       * Create a new open stream and associates it with its
+       * controller. The controller (issuer) is the owner of the identifier.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: OriginFor<T>
+       * * `tx_stream`: OpenStreamOf<T>
+       * * `schema_id`: The schema id of the transaction stream.
+       * * `authorization`: AuthorizationIdOf
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      create: AugmentedSubmittable<(txStream: Bytes | string | Uint8Array, schemaId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      /**
+       * Adds stream digest information.
+       * `digest` is a function that takes a stream identifier, a stream digest, and an authorization
+       * identifier, and inserts the stream digest into the `StreamDigests` storage map, and then deposits an
+       * event. This operation can only be performed bythe stream issuer or delegated authorities.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream identifier.
+       * * `stream_digest`: StreamDigestOf<T>
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      digest: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      /**
+       * Removes a stream from the registry.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream id of the stream to be removed.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      remove: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Restore a a previously revoked stream.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream identifier.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      restore: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Revokes a stream.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream identifier.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      revoke: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Updates the stream identifier with a new information and digest. The updated digest
+       * represents the changes a stream reference document might have undergone.
+       * Arguments:
+       * 
+       * * `origin`: The origin of the call.
+       * * `stream_id`: The identifier of the stream to be updated.
+       * * `stream_digest`: The hash of the stream reference document.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      update: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, txStream: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+    };
     preimage: {
       /**
        * Register a preimage on-chain.
@@ -1119,40 +1234,100 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     registry: {
       /**
-       * Add registry admin authorisations.
+       * Addsadds a delegate to the list of authorities for a registry.
        * 
-       * This transaction can only be performed by the registry creator
-       * or delegates.
-       **/
-      addAdminDelegate: AugmentedSubmittable<(txDigest: H256 | string | Uint8Array, registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes, AccountId32]>;
-      /**
-       * Add registry delegates.
+       * Arguments:
        * 
-       * This transaction can only be performed by the registry creator
-       * or admin delegates.
+       * * `origin`: OriginFor<T>
+       * * `registry_id`: The registry to which the delegate is being added.
+       * * `delegate`: The delegate to add to the registry.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
-      addDelegate: AugmentedSubmittable<(txDigest: H256 | string | Uint8Array, registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes, AccountId32]>;
+      addAdminDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Archive a registry
+       * Adds a delegate to a registry.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the call.
+       * * `registry_id`: The registry to which the delegate is being added.
+       * * `delegate`: The delegate to add to the registry.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      addDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      /**
+       * Archives a registry
+       * 
+       * Arguments:
+       * 
+       * * `origin`: OriginFor<T>
+       * * `registry_id`: The id of the registry to archive.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Create a new registry and associates with its identifier.
-       **/
-      create: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, txSchema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * Remove registry delegates.
+       * Create a new registry.
        * 
-       * This transaction can only be performed by the registry creator
-       * or admin delegates.
+       * Arguments:
+       * 
+       * * `origin`: OriginFor<T>
+       * * `tx_registry`: The new registry detail
+       * * `tx_schema`: Optional schema identifier. Schema Identifier is used to restrict the registry
+       * *  content to a specific schema type.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      create: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, txSchema: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
+      /**
+       * Removes a delegate from a registry.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the call.
+       * * `registry_id`: The registry_id of the registry you want to remove the delegate from.
+       * * `authorization_id`: The transaction authorization id .
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       removeDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorizationId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Restore an archived registry
+       * Restores an archived registry
+       * 
+       * Arguments:
+       * 
+       * * `origin`: OriginFor<T>
+       * * `registry_id`: The id of the registry to be restored.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Update registry details and associates with its identifier.
+       * Allows the creator or an admin delegate of a registry to update the registry's details
+       * 
+       * Arguments:
+       * 
+       * * `origin`: OriginFor<T>
+       * * `tx_registry`: The updated registry details
+       * * `registry_id`: The registry ID of the registry to be updated.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       update: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
     };
@@ -1185,6 +1360,16 @@ declare module '@polkadot/api-base/types/submittable' {
     schema: {
       /**
        * Create a new schema and associates with its identifier.
+       * `create` takes a `InputSchemaOf<T>` and returns a `DispatchResult`
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `tx_schema`: The schema that is being anchored.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
@@ -1219,29 +1404,94 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     stream: {
       /**
-       * Create a new stream identifier and associates it with its
+       * Create a new stream and associates it with its
        * controller. The controller (issuer) is the owner of the identifier.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the call.
+       * * `stream_digest`: The digest of the stream.
+       * * `schema_id`: The schema id of the stream.
+       * * `authorization`: AuthorizationIdOf
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
-      create: AugmentedSubmittable<(streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes]>;
+      create: AugmentedSubmittable<(streamDigest: H256 | string | Uint8Array, schemaId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Bytes]>;
       /**
-       * Adds stream digest information. This operation can only be performed by
-       * the stream issuer or delegated authorities.
+       * Adds stream digest information.
+       * `digest` is a function that takes a stream identifier, a stream digest, and an authorization
+       * identifier, and inserts the stream digest into the `StreamDigests` storage map, and then deposits an
+       * event. This operation can only be performed bythe stream issuer or delegated authorities.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream identifier.
+       * * `stream_digest`: StreamDigestOf<T>
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       digest: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
       /**
-       * Restore a revoked stream identifier. This operation can only be performed by
-       * the stream issuer or delegated authorities.
+       * Removes a stream from the registry.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream id of the stream to be removed.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
+       **/
+      remove: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Restore a a previously revoked stream.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream identifier.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       restore: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Revoke a stream identifier. This operation can only be performed by
-       * the stream issuer or delegated authorities.
+       * Revokes a stream.
+       * 
+       * Arguments:
+       * 
+       * * `origin`: The origin of the transaction.
+       * * `stream_id`: The stream identifier.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       revoke: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
        * Updates the stream identifier with a new digest. The updated digest
-       * represents the changes a stream might have undergone. This operation can
-       * only be performed by the stream issuer or delegated authorities.
+       * represents the changes a stream reference document might have undergone.
+       * Arguments:
+       * 
+       * * `origin`: The origin of the call.
+       * * `stream_id`: The identifier of the stream to be updated.
+       * * `stream_digest`: The hash of the stream reference document.
+       * * `authorization`: The authorization ID of the delegate who is allowed to perform this action.
+       * 
+       * Returns:
+       * 
+       * DispatchResult
        **/
       update: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
     };

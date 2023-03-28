@@ -202,6 +202,30 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       deposit: u128 & AugmentedConst<ApiType>;
     };
+    messageQueue: {
+      /**
+       * The size of the page; this implies the maximum message size which can be sent.
+       * 
+       * A good value depends on the expected message sizes, their weights, the weight that is
+       * available for processing them and the maximal needed message size. The maximal message
+       * size is slightly lower than this as defined by [`MaxMessageLenOf`].
+       **/
+      heapSize: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of stale pages (i.e. of overweight messages) allowed before culling
+       * can happen. Once there are more stale pages than this, then historical pages may be
+       * dropped, even if they contain unprocessed overweight messages.
+       **/
+      maxStale: u32 & AugmentedConst<ApiType>;
+      /**
+       * The amount of weight (if any) which should be provided to the message queue for
+       * servicing enqueued items.
+       * 
+       * This may be legitimately `None` in the case that you will call
+       * `ServiceQueues::service_queues` manually.
+       **/
+      serviceWeight: Option<SpWeightsWeightV2Weight> & AugmentedConst<ApiType>;
+    };
     multisig: {
       /**
        * The base amount of currency needed to reserve for creating a multisig execution or to
@@ -222,6 +246,16 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum amount of signatories allowed in the multisig.
        **/
       maxSignatories: u32 & AugmentedConst<ApiType>;
+    };
+    openStream: {
+      /**
+       * The maximum number of commits for a stream.
+       **/
+      maxEncodedOpenStreamLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of commits for a stream.
+       **/
+      maxOpenStreamCommits: u32 & AugmentedConst<ApiType>;
     };
     registry: {
       maxEncodedRegistryLength: u32 & AugmentedConst<ApiType>;

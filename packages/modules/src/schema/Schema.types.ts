@@ -8,7 +8,7 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
   type: 'object',
   properties: {
     $id: {
-      pattern: '^schema:cord:s[0-9a-zA-Z]+$',
+      pattern: '^schema:cord:m[0-9a-zA-Z]+$',
       type: 'string',
     },
     $schema: {
@@ -24,7 +24,7 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
               additionalProperties: false,
               properties: {
                 $ref: {
-                  pattern: '^schema:cord:s[0-9a-zA-Z]+(#/properties/.+)?$',
+                  pattern: '^schema:cord:m[0-9a-zA-Z]+(#/properties/.+)?$',
                   format: 'uri',
                   type: 'string',
                 },

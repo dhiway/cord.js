@@ -7,7 +7,6 @@ import {
   DidUri,
   ISchema,
   SchemaId,
-  SCHEMA_IDENTIFIER,
   SCHEMA_PREFIX,
 } from '@cord.network/types'
 
@@ -40,15 +39,11 @@ export function idToChain(schemaId: ISchema['$id']): SchemaId {
 
 // Transform a blockchain-formatted Schema input (represented as Bytes) into the original [[ISchema]].
 // It throws if what was written on the chain was garbage.
-function schemaInputFromChain(input: Bytes): ISchema {
+function schemaInputFromChain(input: Bytes, schemaId: ISchema['$id']): ISchema {
   try {
     // Throws on invalid JSON input. Schema is expected to be a valid JSON document.
     const reconstructedObject = JSON.parse(input.toUtf8())
-    const reconstructedSchemaId = Identifier.hashToUri(
-      reconstructedObject.schemaHash,
-      SCHEMA_IDENTIFIER,
-      SCHEMA_PREFIX
-    )
+    const reconstructedSchemaId = `${SCHEMA_PREFIX}${schemaId}`
 
     const reconstructedSchema: ISchema = {
       ...reconstructedObject,
@@ -98,13 +93,14 @@ export type ISchemaDetails = SchemaChainDetails
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function fromChain(
-  encodedEntry: Option<PalletSchemaSchemaEntry>
+  encodedEntry: Option<PalletSchemaSchemaEntry>,
+  schemaId: ISchema['$id']
 ): SchemaChainDetails | null {
   if (encodedEntry.isSome) {
     const unwrapped = encodedEntry.unwrap()
     const { schema, digest, creator, createdAt } = unwrapped
     return {
-      schema: schemaInputFromChain(schema),
+      schema: schemaInputFromChain(schema, schemaId),
       schemaHash: digest.toHex() as SchemaHash,
       creator: Did.fromChain(creator),
       createdAt: { height: createdAt.height, index: createdAt.index },
@@ -127,7 +123,7 @@ export async function fetchFromChain(
   const cordSchemaId = Identifier.uriToIdentifier(schemaId)
 
   const schemaEntry = await api.query.schema.schemas(cordSchemaId)
-  const decodedSchema = fromChain(schemaEntry)
+  const decodedSchema = fromChain(schemaEntry, schemaId)
   if (decodedSchema === null) {
     throw new SDKErrors.SchemaError(
       `There is not a Schema with the provided ID "${schemaId}" on chain.`

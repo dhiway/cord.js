@@ -6,20 +6,20 @@ import type { IContents } from './Content.js'
 export const REGISTRY_IDENT: number = 7101
 export const REGISTRY_PREFIX: string = 'registry:cord:'
 export type RegistryId = string
-export const AUTHORIZATION_IDENT: number = 2604
+export const AUTHORIZATION_IDENT: number = 10447
 export const AUTHORIZATION_PREFIX: string = 'auth:cord:'
 export type AuthorizationId = string
 
 export interface IRegistryMetaData {
   digest: HexString
-  schema: ISchema['$id']
+  schema?: ISchema['$id'] | null
   creator: DidUri
   active: boolean
 }
 
 export interface IRegistryType {
   details: IContents
-  schema: ISchema['$id']
+  schema?: ISchema['$id'] | null
   creator: DidUri
 }
 
@@ -51,9 +51,4 @@ export interface IRegistryAuthorization {
 export interface IRegistryAuthorizationDetails {
   delegate: DidUri
   schema: ISchema['$id'] | null
-}
-
-export interface IAuthorizationDetails {
-  auth: AuthorizationId
-  digest: HexString
 }

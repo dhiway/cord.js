@@ -11,6 +11,7 @@
  */
 
 import type {
+  DidUri,
   IContent,
   ISchema,
   ISchemaMetadata,
@@ -23,9 +24,13 @@ import {
   SDKErrors,
   jsonabc,
 } from '@cord.network/utils'
-import { SCHEMA_IDENTIFIER, SCHEMA_PREFIX } from '@cord.network/types'
+import { SCHEMA_IDENT, SCHEMA_PREFIX } from '@cord.network/types'
 import { SchemaModel, MetadataModel, SchemaModelV1 } from './Schema.types.js'
 import { ConfigService } from '@cord.network/config'
+import { Bytes } from '@polkadot/types'
+import type { AccountId } from '@polkadot/types/interfaces'
+import * as Did from '@cord.network/did'
+import { blake2AsHex } from '@polkadot/util-crypto'
 
 /**
  * Utility for (re)creating Schema hashes. Sorts the schema and strips the $id property (which contains the Schema hash) before stringifying.
@@ -61,10 +66,21 @@ export function getHashForSchema(
  * @returns Schema id uri.
  */
 export function getUriForSchema(
-  schema: ISchema | Omit<ISchema, '$id'>
+  schema: ISchema | Omit<ISchema, '$id'>,
+  creator: DidUri
 ): ISchema['$id'] {
-  const schemaHash = getHashForSchema(schema)
-  return Identifier.hashToUri(schemaHash, SCHEMA_IDENTIFIER, SCHEMA_PREFIX)
+  const api = ConfigService.get('api')
+  const serializedSchema = serializeForHash(schema)
+  const scaleEncodedSchema = api
+    .createType<Bytes>('Bytes', serializedSchema)
+    .toU8a()
+  const scaleEncodedCreator = api
+    .createType<AccountId>('AccountId', Did.toChain(creator))
+    .toU8a()
+  const digest = blake2AsHex(
+    Uint8Array.from([...scaleEncodedSchema, ...scaleEncodedCreator])
+  )
+  return Identifier.hashToUri(digest, SCHEMA_IDENT, SCHEMA_PREFIX)
 }
 
 /**
@@ -136,14 +152,24 @@ export async function verifyStored(schema: ISchema): Promise<void> {
  * Checks whether the input meets all the required criteria of an ISchema object.
  * Throws on invalid input.
  *
+ * @param input The ISchema object.
+ */
+export function verifySchemaStructure(input: ISchema, creator: DidUri): void {
+  verifyObjectAgainstSchema(input, SchemaModel)
+  const uriFromSchema = getUriForSchema(input, creator)
+  if (uriFromSchema !== input.$id) {
+    throw new SDKErrors.SchemaIdMismatchError(uriFromSchema, input.$id)
+  }
+}
+
+/**
+ * Checks whether the schema input meets all the required criteria of an ISchema object.
+ * Throws on invalid input.
+ *
  * @param input The ISchem object.
  */
 export function verifyDataStructure(input: ISchema): void {
   verifyObjectAgainstSchema(input, SchemaModel)
-  const uriFromSchema = getUriForSchema(input)
-  if (uriFromSchema !== input.$id) {
-    throw new SDKErrors.SchemaIdMismatchError(uriFromSchema, input.$id)
-  }
 }
 
 /**
@@ -184,7 +210,8 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  */
 export function fromProperties(
   title: ISchema['title'],
-  properties: ISchema['properties']
+  properties: ISchema['properties'],
+  creator: DidUri
 ): ISchema {
   const schema: Omit<ISchema, '$id'> = {
     properties,
@@ -195,9 +222,9 @@ export function fromProperties(
   schema.additionalProperties = false
   const schemaType = jsonabc.sortObj({
     ...schema,
-    $id: getUriForSchema(schema),
+    $id: getUriForSchema(schema, creator),
   })
-  verifyDataStructure(schemaType)
+  verifySchemaStructure(schemaType, creator)
   return schemaType
 }
 
