@@ -317,7 +317,6 @@ export type GetStoreTxSignCallback = (
  */
 export async function getStoreTx(
   input: GetStoreTxInput | DidDocument,
-  submitter: CordAddress,
   sign: GetStoreTxSignCallback
 ): Promise<SubmittableExtrinsic> {
   const api = ConfigService.get('api')
@@ -384,7 +383,6 @@ export async function getStoreTx(
 
   const apiInput = {
     did,
-    submitter,
     newAssertionKey,
     newDelegationKey,
     newKeyAgreementKey,
