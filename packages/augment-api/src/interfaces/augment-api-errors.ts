@@ -482,6 +482,40 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       Permanent: AugmentedError<ApiType>;
     };
+    messageQueue: {
+      /**
+       * The message was already processed and cannot be processed again.
+       **/
+      AlreadyProcessed: AugmentedError<ApiType>;
+      /**
+       * There is temporarily not enough weight to continue servicing messages.
+       **/
+      InsufficientWeight: AugmentedError<ApiType>;
+      /**
+       * The referenced message could not be found.
+       **/
+      NoMessage: AugmentedError<ApiType>;
+      /**
+       * Page to be reaped does not exist.
+       **/
+      NoPage: AugmentedError<ApiType>;
+      /**
+       * Page is not reapable because it has items remaining to be processed and is not old
+       * enough.
+       **/
+      NotReapable: AugmentedError<ApiType>;
+      /**
+       * The message is queued for future execution.
+       **/
+      Queued: AugmentedError<ApiType>;
+      /**
+       * This message is temporarily unprocessable.
+       * 
+       * Such errors are expected, but not guaranteed, to resolve themselves eventually through
+       * retrying.
+       **/
+      TemporarilyUnprocessable: AugmentedError<ApiType>;
+    };
     multisig: {
       /**
        * Call is already approved by this signatory.
@@ -539,6 +573,46 @@ declare module '@polkadot/api-base/types/errors' {
        * A different timepoint was given to the multisig operation that is underway.
        **/
       WrongTimepoint: AugmentedError<ApiType>;
+    };
+    openStream: {
+      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Empty transaction.
+       **/
+      EmptyTransaction: AugmentedError<ApiType>;
+      HashAlreadyAnchored: AugmentedError<ApiType>;
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      InvalidOpenStreamIdentifier: AugmentedError<ApiType>;
+      InvalidTransactionHash: AugmentedError<ApiType>;
+      MaxEncodedOpenStreamLimitExceeded: AugmentedError<ApiType>;
+      MaxOpenStreamCommitsExceeded: AugmentedError<ApiType>;
+      MetadataAlreadySet: AugmentedError<ApiType>;
+      MetadataLimitExceeded: AugmentedError<ApiType>;
+      MetadataNotFound: AugmentedError<ApiType>;
+      /**
+       * Stream idenfier is not unique
+       **/
+      OpenStreamAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Stream idenfier not found
+       **/
+      OpenStreamNotFound: AugmentedError<ApiType>;
+      /**
+       * Stream idenfier not marked inactive
+       **/
+      OpenStreamNotRevoked: AugmentedError<ApiType>;
+      OpenStreamSpaceMismatch: AugmentedError<ApiType>;
+      /**
+       * Stream idenfier marked inactive
+       **/
+      RevokedOpenStream: AugmentedError<ApiType>;
+      TooManyDelegates: AugmentedError<ApiType>;
+      TooManyDelegatesToRemove: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller/delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
     };
     preimage: {
       /**
@@ -608,6 +682,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Registry identifier not found
        **/
       RegistryNotFound: AugmentedError<ApiType>;
+      /**
+       * Registry schema mismatch
+       **/
+      RegistrySchemaMismatch: AugmentedError<ApiType>;
       /**
        * Schema not found
        **/

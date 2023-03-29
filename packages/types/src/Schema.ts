@@ -1,6 +1,6 @@
 import type { HexString } from '@polkadot/util/types'
 
-export const SCHEMA_IDENTIFIER: number = 8902
+export const SCHEMA_IDENT: number = 1424
 export const SCHEMA_PREFIX: string = 'schema:cord:'
 export type SchemaId = string
 export type SchemaHash = HexString
