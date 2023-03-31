@@ -41,6 +41,8 @@ export async function ensureStoredRegistry(
     console.log('Regisrty not present. Creating it now...')
     // Authorize the tx.
     const schemaId = Cord.Schema.idToChain(schemaUri)
+    // To create a registry without a schema, use the following line instead:
+    // const schemaId = null
     const tx = api.tx.registry.create(txRegistry.details, schemaId)
     const extrinsic = await Cord.Did.authorizeTx(
       creator,
