@@ -78,7 +78,7 @@ async function main() {
   )
   const conformingDidDocument = Cord.Did.exportToDidDocument(
     issuerDid,
-    'application/ld+json'
+    'application/json'
   )
   console.dir(conformingDidDocument, {
     depth: null,
