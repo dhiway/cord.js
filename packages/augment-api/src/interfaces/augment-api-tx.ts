@@ -612,7 +612,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * (with N new service endpoints), DidEndpointsCount
        * # </weight>
        **/
-      create: AugmentedSubmittable<(details: PalletDidDidDetailsDidCreationDetails | { did?: any; submitter?: any; newKeyAgreementKey?: any; newAssertionKey?: any; newDelegationKey?: any; newServiceDetails?: any } | string | Uint8Array, signature: PalletDidDidDetailsDidSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidSignature]>;
+      create: AugmentedSubmittable<(details: PalletDidDidDetailsDidCreationDetails | { did?: any; newKeyAgreementKey?: any; newAssertionKey?: any; newDelegationKey?: any; newServiceDetails?: any } | string | Uint8Array, signature: PalletDidDidDetailsDidSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidSignature]>;
       /**
        * Delete a DID from the chain and all information associated with it,
        * after verifying that the delete operation has been signed by the DID
@@ -1418,7 +1418,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * DispatchResult
        **/
-      create: AugmentedSubmittable<(streamDigest: H256 | string | Uint8Array, schemaId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Bytes]>;
+      create: AugmentedSubmittable<(streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>]>;
       /**
        * Adds stream digest information.
        * `digest` is a function that takes a stream identifier, a stream digest, and an authorization

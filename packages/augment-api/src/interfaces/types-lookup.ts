@@ -1780,7 +1780,6 @@ declare module '@polkadot/types/lookup' {
   /** @name PalletDidDidDetailsDidCreationDetails (178) */
   interface PalletDidDidDetailsDidCreationDetails extends Struct {
     readonly did: AccountId32;
-    readonly submitter: AccountId32;
     readonly newKeyAgreementKey: PalletDidDidDetailsDidEncryptionKey;
     readonly newAssertionKey: Option<PalletDidDidDetailsDidVerificationKey>;
     readonly newDelegationKey: Option<PalletDidDidDetailsDidVerificationKey>;
@@ -1890,8 +1889,8 @@ declare module '@polkadot/types/lookup' {
     readonly isCreate: boolean;
     readonly asCreate: {
       readonly streamDigest: H256;
-      readonly schemaId: Bytes;
       readonly authorization: Bytes;
+      readonly schemaId: Option<Bytes>;
     } & Struct;
     readonly isUpdate: boolean;
     readonly asUpdate: {
@@ -2578,7 +2577,7 @@ declare module '@polkadot/types/lookup' {
   interface PalletStreamStreamEntry extends Struct {
     readonly digest: H256;
     readonly creator: AccountId32;
-    readonly schema: Bytes;
+    readonly schema: Option<Bytes>;
     readonly registry_: Bytes;
     readonly revoked: bool;
   }
