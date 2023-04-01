@@ -217,6 +217,7 @@ export async function verifySignature(
     didResolveKey?: DidResolveKey
   } = {}
 ): Promise<void> {
+  // verify Holder Signature
   const { holderSignature } = input
   if (challenge && challenge !== holderSignature.challenge)
     throw new SDKErrors.SignatureUnverifiableError(
@@ -232,10 +233,19 @@ export async function verifySignature(
     expectedVerificationMethod: 'authentication',
     didResolveKey,
   })
-}
-
-export type Options = {
-  evidenceIds?: IDocument[]
+  // verify Issuer Signature
+  const { issuerSignature } = input
+  const uint8DocumentHash = new Uint8Array([
+    ...Crypto.coToUInt8(input.documentHash),
+  ])
+  await verifyDidSignature({
+    ...signatureFromJson(issuerSignature),
+    message: uint8DocumentHash,
+    // check if credential issuer matches signer
+    expectedSigner: input.content.issuer,
+    expectedVerificationMethod: 'authentication',
+    didResolveKey,
+  })
 }
 
 /**
@@ -276,12 +286,20 @@ export function getUriForStream(
  * @param option.evidenceIds Array of [[Document]] objects the Issuer include as evidenceIds.
  * @returns A new [[IDocument]] object.
  */
-export function fromContent(
-  content: IContent,
-  authorization: IRegistryAuthorization['identifier'],
-  registry: IRegistry['identifier'],
-  { evidenceIds = [] }: Options = {}
-): IDocument {
+
+export async function fromContent({
+  content,
+  authorization,
+  registry,
+  signCallback,
+  evidenceIds,
+}: {
+  content: IContent
+  authorization: IRegistryAuthorization['identifier']
+  registry: IRegistry['identifier']
+  signCallback: SignCallback
+  evidenceIds?: IDocument[]
+}): Promise<IDocument> {
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
   const documentHash = calculateDocumentHash({
@@ -294,8 +312,15 @@ export function fromContent(
     registryIdentifier,
     content.issuer
   )
+  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
+  const issuerSignature = await signCallback({
+    data: uint8Hash,
+    did: content.issuer,
+    keyRelationship: 'authentication',
+  })
 
   const document = {
+    identifier: streamId,
     content,
     contentHashes,
     contentNonceMap,
@@ -303,7 +328,7 @@ export function fromContent(
     authorization: authorization,
     registry: registry,
     documentHash,
-    identifier: streamId,
+    issuerSignature: signatureToJson(issuerSignature),
   }
   verifyDataStructure(document)
   return document

@@ -11,6 +11,7 @@ export type NonceHash = {
 }
 
 export interface IDocument {
+  identifier: string
   content: IContent
   contentHashes: Hash[]
   contentNonceMap: Record<Hash, string>
@@ -18,7 +19,7 @@ export interface IDocument {
   authorization: IRegistryAuthorization['identifier'] | null
   registry: string | null
   documentHash: Hash
-  identifier: string
+  issuerSignature: DidSignature
 }
 
 export interface IDocumentPresentation extends IDocument {
