@@ -20,6 +20,7 @@ import type {
   IRegistry,
   StreamId,
   RegistryId,
+  // DocumenentMetaData,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/index.js'
@@ -41,7 +42,9 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 
 function getHashLeaves(
   contentHashes: Hash[],
-  evidenceIds: IDocument[]
+  evidenceIds: IDocument[],
+  createdAt: string,
+  validUntil: string
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
@@ -50,6 +53,13 @@ function getHashLeaves(
       result.push(Crypto.coToUInt8(evidence.identifier))
     })
   }
+  if (createdAt) {
+    result.push(Crypto.coToUInt8(createdAt))
+  }
+  if (validUntil) {
+    result.push(Crypto.coToUInt8(validUntil))
+  }
+
   return result
 }
 
@@ -63,7 +73,9 @@ function getHashLeaves(
 export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
     document.contentHashes || [],
-    document.evidenceIds || []
+    document.evidenceIds || [],
+    document.createdAt || '',
+    document.validUntil || ''
   )
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
@@ -276,6 +288,13 @@ export function getUriForStream(
   return Identifier.hashToUri(digest, STREAM_IDENT, STREAM_PREFIX)
 }
 
+export type Options = {
+  evidenceIds?: IDocument[]
+  expiresAt?: Date | null
+  templates?: string[]
+  labels?: string[]
+}
+
 /**
  * Builds a new  [[IDocument]] object, from a complete set of required parameters.
  *
@@ -292,19 +311,34 @@ export async function fromContent({
   authorization,
   registry,
   signCallback,
-  evidenceIds,
+  // evidenceIds,
+  options = {},
 }: {
   content: IContent
   authorization: IRegistryAuthorization['identifier']
   registry: IRegistry['identifier']
   signCallback: SignCallback
-  evidenceIds?: IDocument[]
+  // evidenceIds?: IDocument[]
+  options: Options
 }): Promise<IDocument> {
+  const { evidenceIds, expiresAt, templates = [], labels } = options
+
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
+
+  const issuanceDate = new Date()
+  const issuanceDateString = issuanceDate.toISOString()
+  const expiryDateString = expiresAt ? expiresAt.toISOString() : 'Infinity'
+
+  const metaData = {
+    templates: templates || [],
+    labels: labels || [],
+  }
   const documentHash = calculateDocumentHash({
     evidenceIds,
     contentHashes,
+    createdAt: issuanceDateString,
+    validUntil: expiryDateString,
   })
   const registryIdentifier = Identifier.uriToIdentifier(registry)
   const streamId = getUriForStream(
@@ -327,8 +361,11 @@ export async function fromContent({
     evidenceIds: evidenceIds || [],
     authorization: authorization,
     registry: registry,
+    createdAt: issuanceDateString,
+    validUntil: expiryDateString,
     documentHash,
     issuerSignature: signatureToJson(issuerSignature),
+    metadata: metaData,
   }
   verifyDataStructure(document)
   return document
