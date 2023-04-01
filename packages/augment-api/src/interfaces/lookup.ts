@@ -1844,7 +1844,6 @@ export default {
    **/
   PalletDidDidDetailsDidCreationDetails: {
     did: 'AccountId32',
-    submitter: 'AccountId32',
     newKeyAgreementKey: 'PalletDidDidDetailsDidEncryptionKey',
     newAssertionKey: 'Option<PalletDidDidDetailsDidVerificationKey>',
     newDelegationKey: 'Option<PalletDidDidDetailsDidVerificationKey>',
@@ -1954,8 +1953,8 @@ export default {
     _enum: {
       create: {
         streamDigest: 'H256',
-        schemaId: 'Bytes',
         authorization: 'Bytes',
+        schemaId: 'Option<Bytes>',
       },
       update: {
         streamId: 'Bytes',
@@ -2517,7 +2516,7 @@ export default {
     },
     digest: 'H256',
     creator: 'AccountId32',
-    schema: 'Bytes',
+    schema: 'Option<Bytes>',
     registry_: 'Bytes',
     revoked: 'bool'
   },

@@ -15,7 +15,7 @@ export interface IStream {
   streamHash: IDocument['documentHash']
   issuer: DidUri
   schema: ISchema['$id']
-  registry: IDocument['registry'] | null
+  registry: IDocument['registry']
   revoked: boolean
 }
 
