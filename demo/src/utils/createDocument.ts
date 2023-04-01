@@ -9,13 +9,14 @@ import * as Cord from '@cord.network/sdk'
  * @param registry - The registry where the document is linked.
  * @returns A document
  */
-export function createDocument(
+export async function createDocument(
   holder: Cord.DidUri,
   issuer: Cord.DidUri,
   schema: Cord.ISchema,
   authorization: Cord.AuthorizationId,
-  registry: Cord.RegistryId
-): Cord.IDocument {
+  registry: Cord.RegistryId,
+  signCallback: Cord.SignCallback
+): Promise<Cord.IDocument> {
   const content = Cord.Content.fromSchemaAndContent(
     schema,
     {
@@ -28,6 +29,11 @@ export function createDocument(
     holder,
     issuer
   )
-  const document = Cord.Document.fromContent(content, authorization, registry)
+  const document = Cord.Document.fromContent({
+    content,
+    authorization,
+    registry,
+    signCallback,
+  })
   return document
 }
