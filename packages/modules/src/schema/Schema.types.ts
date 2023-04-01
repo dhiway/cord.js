@@ -20,28 +20,11 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
       patternProperties: {
         '^.+$': {
           oneOf: [
-            {
-              additionalProperties: false,
-              properties: {
-                $ref: {
-                  pattern: '^schema:cord:m[0-9a-zA-Z]+(#/properties/.+)?$',
-                  format: 'uri',
-                  type: 'string',
-                },
-              },
-              required: ['$ref'],
-            },
-            {
-              additionalProperties: false,
-              properties: {
-                format: { enum: ['date', 'time', 'uri'], type: 'string' },
-                type: {
-                  enum: ['boolean', 'integer', 'number', 'string'],
-                  type: 'string',
-                },
-              },
-              required: ['type'],
-            },
+            { $ref: '#/definitions/string' },
+            { $ref: '#/definitions/number' },
+            { $ref: '#/definitions/boolean' },
+            { $ref: '#/definitions/schemaReference' },
+            { $ref: '#/definitions/array' },
           ],
           type: 'object',
         },
@@ -59,6 +42,88 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
     'title',
     'type',
   ],
+  definitions: {
+    schemaReference: {
+      additionalProperties: false,
+      properties: {
+        $ref: {
+          pattern: '^schema:cord:m[0-9a-zA-Z]+(#/properties/.+)?$',
+          format: 'uri',
+          type: 'string',
+        },
+      },
+      required: ['$ref'],
+    },
+    string: {
+      additionalProperties: false,
+      properties: {
+        type: {
+          const: 'string',
+        },
+        format: { enum: ['date', 'time', 'uri'] },
+        enum: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        minLength: {
+          type: 'number',
+        },
+        maxLength: {
+          type: 'number',
+        },
+      },
+      required: ['type'],
+    },
+    boolean: {
+      additionalProperties: false,
+      properties: {
+        type: {
+          const: 'boolean',
+        },
+      },
+      required: ['type'],
+    },
+    number: {
+      additionalProperties: false,
+      properties: {
+        type: {
+          enum: ['integer', 'number'],
+        },
+        enum: {
+          type: 'array',
+          items: { type: 'number' },
+        },
+        minimum: {
+          type: 'number',
+        },
+        maximum: {
+          type: 'number',
+        },
+      },
+      required: ['type'],
+    },
+    array: {
+      additionalProperties: false,
+      properties: {
+        type: { const: 'array' },
+        items: {
+          oneOf: [
+            { $ref: '#/definitions/string' },
+            { $ref: '#/definitions/number' },
+            { $ref: '#/definitions/boolean' },
+            { $ref: '#/definitions/schemaReference' },
+          ],
+        },
+        minItems: {
+          type: 'number',
+        },
+        maxItems: {
+          type: 'number',
+        },
+      },
+      required: ['type', 'items'],
+    },
+  },
 }
 
 // export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
@@ -126,10 +191,6 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
 
 export const SchemaModel: JsonSchema.Schema = {
   $schema: 'http://json-schema.org/draft-07/schema',
-  // oneOf: [
-  //   // Option A): conforms to draft-01 of the CType meta sschema, which defines that the CType's $schema property must be equal to the CType meta schema's $id.
-  //   { $ref: SchemaModelV1.$id },
-  //   {
   allOf: [
     {
       properties: {
@@ -143,11 +204,9 @@ export const SchemaModel: JsonSchema.Schema = {
       $ref: SchemaModelV1.$id,
     },
   ],
-  //   },
-  // ],
+
   definitions: {
     [SchemaModelV1.$id]: SchemaModelV1,
-    // [SchemaModelV2.$id]: SchemaModelV2,
   },
 }
 
