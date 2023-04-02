@@ -30,11 +30,12 @@ function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const { schemaId, contents, holder } = content
+  const { schemaId, contents, holder, issuer } = content
   if (!schemaId) new SDKErrors.SchemaIdentifierMissingError()
   const vocabulary = `${schemaId}#`
   const result: Record<string, unknown> = {}
-  if (holder) result['@id'] = holder
+  if (issuer) result['@issuer'] = issuer
+  if (holder) result['@holder'] = holder
 
   if (!expanded) {
     return {

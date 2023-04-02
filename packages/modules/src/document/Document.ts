@@ -20,6 +20,7 @@ import type {
   IRegistry,
   StreamId,
   RegistryId,
+  // DocumenentMetaData,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/index.js'
@@ -41,7 +42,9 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 
 function getHashLeaves(
   contentHashes: Hash[],
-  evidenceIds: IDocument[]
+  evidenceIds: IDocument[],
+  createdAt: string,
+  validUntil: string
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
@@ -50,6 +53,13 @@ function getHashLeaves(
       result.push(Crypto.coToUInt8(evidence.identifier))
     })
   }
+  if (createdAt) {
+    result.push(Crypto.coToUInt8(createdAt))
+  }
+  if (validUntil) {
+    result.push(Crypto.coToUInt8(validUntil))
+  }
+
   return result
 }
 
@@ -63,7 +73,9 @@ function getHashLeaves(
 export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
     document.contentHashes || [],
-    document.evidenceIds || []
+    document.evidenceIds || [],
+    document.createdAt || '',
+    document.validUntil || ''
   )
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
@@ -217,6 +229,7 @@ export async function verifySignature(
     didResolveKey?: DidResolveKey
   } = {}
 ): Promise<void> {
+  // verify Holder Signature
   const { holderSignature } = input
   if (challenge && challenge !== holderSignature.challenge)
     throw new SDKErrors.SignatureUnverifiableError(
@@ -232,10 +245,19 @@ export async function verifySignature(
     expectedVerificationMethod: 'authentication',
     didResolveKey,
   })
-}
-
-export type Options = {
-  evidenceIds?: IDocument[]
+  // verify Issuer Signature
+  const { issuerSignature } = input
+  const uint8DocumentHash = new Uint8Array([
+    ...Crypto.coToUInt8(input.documentHash),
+  ])
+  await verifyDidSignature({
+    ...signatureFromJson(issuerSignature),
+    message: uint8DocumentHash,
+    // check if credential issuer matches signer
+    expectedSigner: input.content.issuer,
+    expectedVerificationMethod: 'authentication',
+    didResolveKey,
+  })
 }
 
 /**
@@ -266,6 +288,13 @@ export function getUriForStream(
   return Identifier.hashToUri(digest, STREAM_IDENT, STREAM_PREFIX)
 }
 
+export type Options = {
+  evidenceIds?: IDocument[]
+  expiresAt?: Date | null
+  templates?: string[]
+  labels?: string[]
+}
+
 /**
  * Builds a new  [[IDocument]] object, from a complete set of required parameters.
  *
@@ -276,17 +305,40 @@ export function getUriForStream(
  * @param option.evidenceIds Array of [[Document]] objects the Issuer include as evidenceIds.
  * @returns A new [[IDocument]] object.
  */
-export function fromContent(
-  content: IContent,
-  authorization: IRegistryAuthorization['identifier'],
-  registry: IRegistry['identifier'],
-  { evidenceIds = [] }: Options = {}
-): IDocument {
+
+export async function fromContent({
+  content,
+  authorization,
+  registry,
+  signCallback,
+  // evidenceIds,
+  options = {},
+}: {
+  content: IContent
+  authorization: IRegistryAuthorization['identifier']
+  registry: IRegistry['identifier']
+  signCallback: SignCallback
+  // evidenceIds?: IDocument[]
+  options: Options
+}): Promise<IDocument> {
+  const { evidenceIds, expiresAt, templates = [], labels } = options
+
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
+
+  const issuanceDate = new Date()
+  const issuanceDateString = issuanceDate.toISOString()
+  const expiryDateString = expiresAt ? expiresAt.toISOString() : 'Infinity'
+
+  const metaData = {
+    templates: templates || [],
+    labels: labels || [],
+  }
   const documentHash = calculateDocumentHash({
     evidenceIds,
     contentHashes,
+    createdAt: issuanceDateString,
+    validUntil: expiryDateString,
   })
   const registryIdentifier = Identifier.uriToIdentifier(registry)
   const streamId = getUriForStream(
@@ -294,16 +346,26 @@ export function fromContent(
     registryIdentifier,
     content.issuer
   )
+  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
+  const issuerSignature = await signCallback({
+    data: uint8Hash,
+    did: content.issuer,
+    keyRelationship: 'authentication',
+  })
 
   const document = {
+    identifier: streamId,
     content,
     contentHashes,
     contentNonceMap,
     evidenceIds: evidenceIds || [],
     authorization: authorization,
     registry: registry,
+    createdAt: issuanceDateString,
+    validUntil: expiryDateString,
     documentHash,
-    identifier: streamId,
+    issuerSignature: signatureToJson(issuerSignature),
+    metadata: metaData,
   }
   verifyDataStructure(document)
   return document

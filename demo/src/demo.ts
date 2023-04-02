@@ -192,12 +192,17 @@ async function main() {
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
-  const document = createDocument(
+  const document = await createDocument(
     holderDid.uri,
     delegateTwoDid.uri,
     schema,
     registryDelegate,
-    registry.identifier
+    registry.identifier,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+    })
   )
   console.dir(document, {
     depth: null,
