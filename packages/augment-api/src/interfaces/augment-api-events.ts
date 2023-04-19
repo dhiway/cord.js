@@ -306,38 +306,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Offence: AugmentedEvent<ApiType, [kind: U8aFixed, timeslot: Bytes], { kind: U8aFixed, timeslot: Bytes }>;
     };
-    openStream: {
-      /**
-       * A new open stream identifier has been created.
-       * \[stream identifier, stream digest, controller\]
-       **/
-      Create: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
-      /**
-       * An open stream digest has been added.
-       * \[open stream identifier, digest, controller\]
-       **/
-      Digest: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
-      /**
-       * An open stream identifier has been removed.
-       * \[open stream identifier,  controller\]
-       **/
-      Remove: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * An open stream identifier status has been restored.
-       * \[open stream identifier, controller\]
-       **/
-      Restore: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * An open stream identifier status has been revoked.
-       * \[open stream identifier, controller\]
-       **/
-      Revoke: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * An open stream identifier has been updated.
-       * \[open stream identifier, digest, controller\]
-       **/
-      Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
-    };
     preimage: {
       /**
        * A preimage has ben cleared.
@@ -383,6 +351,12 @@ declare module '@polkadot/api-base/types/events' {
        * \[registry identifier, authority\]
        **/
       Update: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32], { registry_: Bytes, authority: AccountId32 }>;
+    };
+    remark: {
+      /**
+       * Stored data off chain.
+       **/
+      Stored: AugmentedEvent<ApiType, [sender: AccountId32, contentHash: H256], { sender: AccountId32, contentHash: H256 }>;
     };
     scheduler: {
       /**

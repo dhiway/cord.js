@@ -16,6 +16,7 @@ export async function createDidName(
 ): Promise<void> {
   const api = Cord.ConfigService.get('api')
 
+  console.log("Did - ", did, name)
   const didNameClaimTx = api.tx.didNames.register(name)
   const authorizedDidNameClaimTx = await Cord.Did.authorizeTx(
     did,
