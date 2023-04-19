@@ -1,4 +1,4 @@
-import type { u32, Bytes, Option } from '@polkadot/types'
+import type { Bytes, Option } from '@polkadot/types'
 import type { BlockNumber } from '@polkadot/types/interfaces'
 
 import type { PalletSchemaSchemaEntry } from '@cord.network/augment-api'
@@ -79,7 +79,7 @@ export interface SchemaChainDetails {
   /**
    * The block number in which the Schema was created.
    */
-  createdAt: { height: BlockNumber; index: u32 }
+  createdAt: BlockNumber
 }
 
 export type ISchemaDetails = SchemaChainDetails
@@ -103,7 +103,7 @@ export function fromChain(
       schema: schemaInputFromChain(schema, schemaId),
       schemaHash: digest.toHex() as SchemaHash,
       creator: Did.fromChain(creator),
-      createdAt: { height: createdAt.height, index: createdAt.index },
+      createdAt: createdAt,
     }
   }
   return null

@@ -206,25 +206,21 @@ declare module '@polkadot/api-base/types/errors' {
     };
     did: {
       /**
+       * The DID has already been previously deleted.
+       **/
+      AlreadyDeleted: AugmentedError<ApiType>;
+      /**
+       * The DID with the given identifier is already present on chain.
+       **/
+      AlreadyExists: AugmentedError<ApiType>;
+      /**
        * The DID call was submitted by the wrong account
        **/
       BadDidOrigin: AugmentedError<ApiType>;
       /**
-       * The DID has already been previously deleted.
-       **/
-      DidAlreadyDeleted: AugmentedError<ApiType>;
-      /**
-       * The DID with the given identifier is already present on chain.
-       **/
-      DidAlreadyPresent: AugmentedError<ApiType>;
-      /**
-       * No DID with the given identifier is present on chain.
-       **/
-      DidNotPresent: AugmentedError<ApiType>;
-      /**
        * An error that is not supposed to take place, yet it happened.
        **/
-      InternalError: AugmentedError<ApiType>;
+      Internal: AugmentedError<ApiType>;
       /**
        * The call had parameters that conflicted with each other
        * or were invalid.
@@ -249,14 +245,19 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InvalidSignatureFormat: AugmentedError<ApiType>;
       /**
+       * The maximum number of key agreements has been reached for the DID
+       * subject.
+       **/
+      MaxKeyAgreementKeysExceeded: AugmentedError<ApiType>;
+      /**
        * A number of new key agreement keys greater than the maximum allowed
        * has been provided.
        **/
-      MaxKeyAgreementKeysLimitExceeded: AugmentedError<ApiType>;
+      MaxNewKeyAgreementKeysLimitExceeded: AugmentedError<ApiType>;
       /**
        * The maximum number of service endpoints for a DID has been exceeded.
        **/
-      MaxNumberOfServicesPerDidExceeded: AugmentedError<ApiType>;
+      MaxNumberOfServicesExceeded: AugmentedError<ApiType>;
       /**
        * The maximum number of types for a service endpoint has been
        * exceeded.
@@ -270,7 +271,7 @@ declare module '@polkadot/api-base/types/errors' {
        * The maximum number of public keys for this DID key identifier has
        * been reached.
        **/
-      MaxPublicKeysPerDidExceeded: AugmentedError<ApiType>;
+      MaxPublicKeysExceeded: AugmentedError<ApiType>;
       /**
        * The service endpoint ID exceeded the maximum allowed length.
        **/
@@ -286,23 +287,22 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       MaxServiceUrlLengthExceeded: AugmentedError<ApiType>;
       /**
-       * The maximum number of key agreements has been reached for the DID
-       * subject.
-       **/
-      MaxTotalKeyAgreementKeysExceeded: AugmentedError<ApiType>;
-      /**
-       * A service with the provided ID is already present for the given DID.
-       **/
-      ServiceAlreadyPresent: AugmentedError<ApiType>;
-      /**
-       * A service with the provided ID is not present under the given DID.
-       **/
-      ServiceNotPresent: AugmentedError<ApiType>;
-      /**
        * The number of service endpoints stored under the DID is larger than
        * the number of endpoints to delete.
        **/
-      StoredEndpointsCountTooLarge: AugmentedError<ApiType>;
+      MaxStoredEndpointsCountExceeded: AugmentedError<ApiType>;
+      /**
+       * No DID with the given identifier is present on chain.
+       **/
+      NotFound: AugmentedError<ApiType>;
+      /**
+       * A service with the provided ID is already present for the given DID.
+       **/
+      ServiceAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * A service with the provided ID is not present under the given DID.
+       **/
+      ServiceNotFound: AugmentedError<ApiType>;
       /**
        * The block number provided in a DID-authorized operation is invalid.
        **/
@@ -315,7 +315,7 @@ declare module '@polkadot/api-base/types/errors' {
        * One or more verification keys referenced are not stored in the set
        * of verification keys.
        **/
-      VerificationKeyNotPresent: AugmentedError<ApiType>;
+      VerificationKeyNotFound: AugmentedError<ApiType>;
     };
     didNames: {
       /**
@@ -574,46 +574,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       WrongTimepoint: AugmentedError<ApiType>;
     };
-    openStream: {
-      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
-      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Empty transaction.
-       **/
-      EmptyTransaction: AugmentedError<ApiType>;
-      HashAlreadyAnchored: AugmentedError<ApiType>;
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      InvalidOpenStreamIdentifier: AugmentedError<ApiType>;
-      InvalidTransactionHash: AugmentedError<ApiType>;
-      MaxEncodedOpenStreamLimitExceeded: AugmentedError<ApiType>;
-      MaxOpenStreamCommitsExceeded: AugmentedError<ApiType>;
-      MetadataAlreadySet: AugmentedError<ApiType>;
-      MetadataLimitExceeded: AugmentedError<ApiType>;
-      MetadataNotFound: AugmentedError<ApiType>;
-      /**
-       * Stream idenfier is not unique
-       **/
-      OpenStreamAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Stream idenfier not found
-       **/
-      OpenStreamNotFound: AugmentedError<ApiType>;
-      /**
-       * Stream idenfier not marked inactive
-       **/
-      OpenStreamNotRevoked: AugmentedError<ApiType>;
-      OpenStreamSpaceMismatch: AugmentedError<ApiType>;
-      /**
-       * Stream idenfier marked inactive
-       **/
-      RevokedOpenStream: AugmentedError<ApiType>;
-      TooManyDelegates: AugmentedError<ApiType>;
-      TooManyDelegatesToRemove: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller/delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
-    };
     preimage: {
       /**
        * Preimage has already been noted on-chain.
@@ -698,6 +658,16 @@ declare module '@polkadot/api-base/types/errors' {
        * Only when the author is not the controller or delegate.
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
+    };
+    remark: {
+      /**
+       * Attempted to call `store` outside of block execution.
+       **/
+      BadContext: AugmentedError<ApiType>;
+      /**
+       * Attempting to store empty data.
+       **/
+      Empty: AugmentedError<ApiType>;
     };
     scheduler: {
       /**
