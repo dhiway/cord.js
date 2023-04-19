@@ -32,7 +32,6 @@ const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   'did.create': undefined,
   'did.submitDidCall': undefined,
   didLookup: 'authentication',
-  // publicCredentials: 'assertionMethod',
   didNames: 'authentication',
 }
 

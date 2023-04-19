@@ -118,12 +118,10 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxBlocksTxValidity: u32 & AugmentedConst<ApiType>;
       /**
-       * Maximum number of total key agreement keys that can be stored for a
-       * DID subject.
-       * 
-       * Should be greater than `MaxNewKeyAgreementKeys`.
+       * Maximum number of key agreement keys that can be added in a creation
+       * operation.
        **/
-      maxKeyAgreementKeys: u32 & AugmentedConst<ApiType>;
+      maxNewKeyAgreementKeys: u32 & AugmentedConst<ApiType>;
       /**
        * The maximum number of services that can be stored under a DID.
        **/
@@ -154,6 +152,13 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum length of a service URL.
        **/
       maxServiceUrlLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * Maximum number of total key agreement keys that can be stored for a
+       * DID subject.
+       * 
+       * Should be greater than `MaxNewKeyAgreementKeys`.
+       **/
+      maxTotalKeyAgreementKeys: u32 & AugmentedConst<ApiType>;
     };
     didNames: {
       /**
@@ -246,16 +251,6 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum amount of signatories allowed in the multisig.
        **/
       maxSignatories: u32 & AugmentedConst<ApiType>;
-    };
-    openStream: {
-      /**
-       * The maximum number of commits for a stream.
-       **/
-      maxEncodedOpenStreamLength: u32 & AugmentedConst<ApiType>;
-      /**
-       * The maximum number of commits for a stream.
-       **/
-      maxOpenStreamCommits: u32 & AugmentedConst<ApiType>;
     };
     registry: {
       maxEncodedRegistryLength: u32 & AugmentedConst<ApiType>;

@@ -1,7 +1,9 @@
 import {
+  DidEncryptionKey,
   DidResourceUri,
   DidServiceEndpoint,
   DidUri,
+  DidVerificationKey,
   EncryptionKeyType,
   VerificationKeyType,
 } from './DidDocument.js'
@@ -69,12 +71,12 @@ export type ConformingDidServiceEndpoint = Omit<DidServiceEndpoint, 'id'> & {
 export type ConformingDidDocument = {
   id: DidUri
   verificationMethod: ConformingDidKey[]
-  authentication: [ConformingDidKey['id']]
-  assertionMethod?: [ConformingDidKey['id']]
-  keyAgreement?: [ConformingDidKey['id']]
-  capabilityDelegation?: [ConformingDidKey['id']]
+  authentication: [DidVerificationKey['id']]
+  assertionMethod?: [DidVerificationKey['id']]
+  keyAgreement?: [DidEncryptionKey['id']]
+  capabilityDelegation?: [DidVerificationKey['id']]
   service?: ConformingDidServiceEndpoint[]
-  alsoKnownAs?: [`name:cord:${string}`]
+  alsoKnownAs?: string
 }
 
 /**

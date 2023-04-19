@@ -289,7 +289,7 @@ interface GetStoreTxInput {
   authentication: [NewDidVerificationKey]
   assertionMethod?: [NewDidVerificationKey]
   capabilityDelegation?: [NewDidVerificationKey]
-  keyAgreement?: [NewDidEncryptionKey]
+  keyAgreement?: NewDidEncryptionKey[]
 
   service?: DidServiceEndpoint[]
 }
@@ -325,7 +325,7 @@ export async function getStoreTx(
     authentication,
     assertionMethod,
     capabilityDelegation,
-    keyAgreement,
+    keyAgreement = [],
     service = [],
   } = input
 
@@ -349,9 +349,10 @@ export async function getStoreTx(
     )
   }
 
-  if (keyAgreement && keyAgreement.length > 1) {
+  const maxKeyAgreementKeys = api.consts.did.maxNewKeyAgreementKeys.toNumber()
+  if (keyAgreement.length > maxKeyAgreementKeys) {
     throw new SDKErrors.DidError(
-      `More than one agreement key (${keyAgreement.length}) specified. The transaction can only have one.`
+      `The number of key agreement keys in the creation operation is greater than the maximum allowed, which is ${maxKeyAgreementKeys}`
     )
   }
 
@@ -376,16 +377,14 @@ export async function getStoreTx(
     capabilityDelegation.length > 0 &&
     publicKeyToChain(capabilityDelegation[0])
 
-  const newKeyAgreementKey =
-    keyAgreement && keyAgreement.length > 0 && publicKeyToChain(keyAgreement[0])
-
+  const newKeyAgreementKeys = keyAgreement.map(publicKeyToChain)
   const newServiceDetails = service.map(serviceToChain)
 
   const apiInput = {
     did,
     newAssertionKey,
     newDelegationKey,
-    newKeyAgreementKey,
+    newKeyAgreementKeys,
     newServiceDetails,
   }
 
