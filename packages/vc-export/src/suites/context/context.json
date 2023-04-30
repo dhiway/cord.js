@@ -1,0 +1,76 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+    "cred": "https://www.w3.org/2018/credentials#",
+    "cordCred": "https://cord.network/contexts/credentials#",
+    "sec": "https://w3id.org/security#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "verificationMethod": {
+      "@id": "sec:verificationMethod",
+      "@type": "@id"
+    },
+    "publicKeyHex": {
+      "@id": "sec:publicKeyHex"
+    },
+    "proofPurpose": {
+      "@id": "sec:proofPurpose",
+      "@type": "@vocab",
+      "@context": {
+        "@vocab": "sec"
+      }
+    },
+    "CordCredential2020": {
+      "@id": "cordCred:CordCredential",
+      "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "credentialStatus": {
+          "@id": "cordCred:credentialHash",
+          "@type": "@id"
+        },
+        "evidence": {
+          "@id": "cred:evidence",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "nonTransferable": {
+          "@id": "cred:nonTransferable",
+          "@type": "xsd:boolean"
+        }
+      }
+    },
+    "CordSignature2020": {
+      "@id": "cordCred:CordSignature2020",
+      "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "signature": "sec:proofValue"
+      }
+    },
+    "Ed25519VerificationKey2018": "sec:Ed25519VerificationKey2018",
+    "Credential": {
+      "@id": "cordCred:CordCredential2020",
+      "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "issuerAddress": "cred:issuer"
+      }
+    },
+    "CordCredentialDigest2020": {
+      "@id": "cordCred:CordCredentialDigest2020",
+      "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "contentHashes": {
+          "@id": "cordCred:CordCredentialDigest2020#contentHashes",
+          "@container": "@set"
+        },
+        "nonces": {
+          "@id": "cordCred:CordCredentialDigest2020#nonces",
+          "@container": "@index"
+        }
+      }
+    }
+  }
+}
