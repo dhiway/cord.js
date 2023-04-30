@@ -16,7 +16,7 @@
       "packages/type-definitions/src/index.ts",
       "packages/modules/src/index.ts",
       // "packages/messaging/src/index.ts",
-      // "packages/vc-export/src/index.ts",
+      "packages/vc-export/src/index.ts",
       "packages/sdk/src/index.ts"
     ],
     "out": "docs/api",

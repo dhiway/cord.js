@@ -34,8 +34,8 @@ function jsonLDcontents(
   if (!schemaId) new SDKErrors.SchemaIdentifierMissingError()
   const vocabulary = `${schemaId}#`
   const result: Record<string, unknown> = {}
-  if (issuer) result['@issuer'] = issuer
-  if (holder) result['@holder'] = holder
+  if (issuer) result['issuer'] = issuer
+  if (holder) result['holder'] = holder
 
   if (!expanded) {
     return {
