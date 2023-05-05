@@ -39,10 +39,7 @@
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@digitalbazaar/vc": "^6.0.1",
-    "@polkadot/api": "^10.0.0",
-    "@polkadot/types": "^10.0.0",
-    "@polkadot/util": "^11.0.0",
-    "@polkadot/util-crypto": "^11.0.0",
+    "bip39": "^3.1.0",
     "jsonld": "^2.0.2",
     "jsonld-signatures": "^5.0.0"
   }
