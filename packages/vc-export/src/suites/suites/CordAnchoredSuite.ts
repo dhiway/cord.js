@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { ApiPromise } from '@polkadot/api'
-import { ChainApiConnection } from '@cord.network/network'
+import { ConfigService } from '@cord.network/config'
 import type {
   DocumentLoader,
   ExpansionMap,
@@ -39,7 +39,7 @@ export default class CordAnchoredSuite extends CordAbstractSuite {
   }
 
   private setConnection(): void {
-    ChainApiConnection.setConnection(Promise.resolve(this.provider))
+    ConfigService.set(Promise.resolve(this.provider))
   }
 
   public async verifyProof(options: {

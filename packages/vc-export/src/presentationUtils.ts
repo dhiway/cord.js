@@ -7,7 +7,6 @@ import { blake2AsHex, signatureVerify } from '@polkadot/util-crypto'
 import { u8aToHex } from '@polkadot/util'
 import jsonld from 'jsonld'
 import { SDKErrors, Identifier, Crypto } from '@cord.network/utils'
-import { Identity } from '@cord.network/modules'
 import {
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -21,6 +20,7 @@ import type {
   CredentialDigestProof,
   CordSelfSignatureProof,
 } from './types.js'
+import { DidDocument } from '@cord.network/types'
 
 export function makeSigningData(
   rootHash: string,
@@ -133,28 +133,28 @@ export async function removeProperties(
 export async function makePresentation(
   VC: VerifiableCredential,
   showProperties: string[],
-  creator: Identity,
+  creator: DidDocument,
   challenge?: string
 ): Promise<VerifiablePresentation> {
   const copied = await removeProperties(VC, showProperties)
 
   if (
-    creator?.address !==
-    Identifier.getIdentifierKey(VC.credentialSubject['@id']?.toString())
+    creator.uri !==
+    Identifier.uriToIdentifier(VC.credentialSubject['@id']?.toString())
   ) {
-    throw new SDKErrors.ERROR_IDENTITY_MISMATCH()
+    throw new SDKErrors.CreatorMissingError;
   }
   const createdAt = new Date().toISOString()
-  const selfSignature = creator.signStr(
+  const selfSignature = '' /*creator.(
     makeSigningData(
-      Identifier.getIdentifierHash(VC.credentialHash),
+      Identifier.uriToIdentifier(VC.credentialHash),
       createdAt,
       challenge
     )
   )
-
+*/
   const keyType: string | undefined =
-    KeyTypesMap[signatureVerify('', selfSignature, creator.address).crypto]
+    KeyTypesMap[signatureVerify('', selfSignature, creator.uri).crypto]
   if (!keyType)
     throw new TypeError(
       `Unknown signature type on credential.\nCurrently this handles ${JSON.stringify(
@@ -168,7 +168,7 @@ export async function makePresentation(
     proofPurpose: 'assertionMethod',
     verificationMethod: {
       type: keyType,
-      publicKeyHex: u8aToHex(decodeAddress(creator.address)),
+      publicKeyHex: u8aToHex(decodeAddress(creator.uri)),
     },
     signature: selfSignature,
   }

@@ -53,7 +53,7 @@ export interface CordSelfSignatureProof extends Proof {
 export interface CredentialSchema {
   '@id': string
   '@type': typeof JSON_SCHEMA_TYPE
-  schema: ISchema['schema']
+  schema: ISchema['$schema']
   modelVersion?: string
   name?: string
   author?: string

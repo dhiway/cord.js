@@ -6,6 +6,7 @@
 import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
 import { Stream, Schema } from '@cord.network/modules'
+import { ConfigService } from '@cord.network/config'
 import { Crypto, JsonSchema, Identifier } from '@cord.network/utils'
 import {
   CORD_STREAM_SIGNATURE_PROOF_TYPE,
@@ -20,6 +21,7 @@ import type {
   CordSelfSignatureProof,
   CordStreamProof,
   CredentialDigestProof,
+  CredentialSchema,
 } from './types.js'
 import { Hash } from '@cord.network/types'
 import { fromCredentialIRI } from './exportToVerifiableCredential.js'
@@ -89,7 +91,7 @@ export function verifyStreamSignatureProof(
       )
     const signerPubKey = verificationMethod.publicKeyHex
 
-    const rootHash = Identifier.getIdentifierHash(
+    const rootHash = Identifier.uriToIdentifier(
       fromCredentialIRI(credential.credentialHash)
     )
     // validate signature over root hash
@@ -146,8 +148,10 @@ export async function verifyStreamProof(
       )
     const streamId = fromCredentialIRI(credential.id)
 
+    const api = await ConfigService.get('api');
     // query on-chain data by credential id (= stream root hash)
-    const onChain = await Stream.query(streamId)
+    const onChainData = await api.query.stream.streams(streamId)
+    const onChain = Stream.fromChain(onChainData, streamId);
     // if not found, credential has not been attested, proof is invalid
     if (!onChain) {
       status = StreamStatus.invalid
@@ -163,6 +167,8 @@ export async function verifyStreamProof(
       )
     }
     // if holder data on proof does not correspond to data on chain, proof is incorrect
+    /* TODO: No holder information on chain */
+    /*
     const holderAddress = credential.credentialSubject['@id']
     if (holderAddress) {
       if (typeof holderAddress !== 'string')
@@ -177,11 +183,11 @@ export async function verifyStreamProof(
           }}`
         )
     }
-
-    // if rootHash on credential does not correspond to data on chain, proof is incorrect
+    */
+    // if documentHash on credential does not correspond to data on chain, proof is incorrect
     if (
       onChain.streamHash !==
-      Identifier.getIdentifierHash(credential.credentialHash)
+      Identifier.uriToIdentifier(credential.credentialHash)
     )
       throw new Error(
         `credential hash is not matching on-chain data: proof ${{
@@ -236,7 +242,7 @@ export async function verifyCredentialDigestProof(
 
     const rootHash = verifyRootHash(credential, proof)
     // throw if root hash does not match expected (=id)
-    const expectedRootHash = Identifier.getIdentifierHash(
+    const expectedRootHash = Identifier.uriToIdentifier(
       credential.credentialHash
     )
     if (expectedRootHash !== rootHash)
@@ -328,7 +334,7 @@ export function verifySelfSignatureProof(
       )
     const signerPubKey = verificationMethod.publicKeyHex
 
-    const rootHash = Identifier.getIdentifierHash(
+    const rootHash = Identifier.uriToIdentifier(
       fromCredentialIRI(credential.credentialHash)
     )
     const proofData = makeSigningData(rootHash, proof.created, challenge)
@@ -356,12 +362,12 @@ export function verifySelfSignatureProof(
 export function validateSchema(
   credential: VerifiableCredential
 ): VerificationResult {
-  const { schema } = credential.credentialSchema || {}
+  const schema = credential.credentialSchema || {}
   // if present, perform schema validation
   if (schema) {
     // there's no rule against additional properties, so we can just validate the ones that are there
 
-    const validator = new JsonSchema.Validator(schema)
+    const validator = new JsonSchema.Validator(schema as CredentialSchema)
     validator.addSchema(Schema.TypeSchema.SchemaModel)
     const result = validator.validate(credential.credentialSubject)
     return {

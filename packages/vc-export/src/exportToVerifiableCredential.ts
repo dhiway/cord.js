@@ -52,14 +52,14 @@ export function fromCredential(
   const {
     contentHashes,
     evidenceIds,
-    rootHash,
-    signatureProof,
+    documentHash,
+    issuerSignature,
     content,
     identifier,
-  } = input.request
+  } = input
 
   // write root hash to id
-  const id = toCredentialIRI(Identifier.getIdentifierKey(identifier))
+  const id = toCredentialIRI(Identifier.uriToIdentifier(identifier))
 
   // transform & annotate stream to be json-ld and VC conformant
   const { credentialSubject } = Content.toJsonLD(content, false) as Record<
@@ -67,26 +67,23 @@ export function fromCredential(
     Record<string, AnyJson>
   >
 
-  const issuer = Identifier.getAccountIdentifierFromAddress(input.stream.issuer)
+  const issuer = Identifier.getAccountIdentifierFromAddress(input.content.issuer)
 
-  const issuanceDate = input.request.issuanceDate
-  const expirationDate = input.request.expirationDate
+  const issuanceDate = input.createdAt
+  const expirationDate = input.validUntil
   // if schema is given, add as credential schema
   let credentialSchema: CredentialSchema | undefined
   if (schemaType) {
-    const { schema, controller } = schemaType
+    const schema = schemaType
     credentialSchema = {
       '@id': schema.$id,
       '@type': JSON_SCHEMA_TYPE,
       name: schema.title,
-      schema,
-      author: controller
-        ? Identifier.getAccountIdentifierFromAddress(controller)
-        : undefined,
+      schema: schema.$schema,
     }
   }
 
-  const evidence = evidenceIds.map((leg) => leg.request.rootHash)
+  const evidence = evidenceIds.map((leg) => leg.documentHash)
 
   const proof: Proof[] = []
 
@@ -101,7 +98,7 @@ export function fromCredential(
     issuanceDate,
     expirationDate,
     credentialSubject,
-    credentialHash: Identifier.getHashIdentifier(rootHash),
+    credentialHash: Identifier.uriToIdentifier(documentHash),
     evidence,
     nonTransferable: true,
     proof,
@@ -109,10 +106,10 @@ export function fromCredential(
   }
 
   let keyType: string | undefined
-  if (signatureProof) {
+  if (issuerSignature) {
     keyType =
       KeyTypesMap[
-        signatureVerify('', signatureProof?.signature, content.issuer).crypto
+        signatureVerify('', issuerSignature?.signature, content.issuer).crypto
       ]
   }
 
@@ -123,15 +120,15 @@ export function fromCredential(
       )}\nReceived: ${keyType}`
     )
 
-  if (signatureProof) {
+  if (issuerSignature) {
     const sSProof: CordStreamSignatureProof = {
       type: CORD_STREAM_SIGNATURE_PROOF_TYPE,
       proofPurpose: 'assertionMethod',
       verificationMethod: {
         type: keyType,
-        publicKeyHex: u8aToHex(decodeAddress(signatureProof.keyId)),
+        publicKeyHex: u8aToHex(decodeAddress(issuerSignature.keyUri)),
       },
-      signature: signatureProof.signature,
+      signature: issuerSignature.signature,
     }
     VC.proof.push(sSProof)
   }
@@ -139,7 +136,7 @@ export function fromCredential(
   const streamProof: CordStreamProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
-    issuerAddress: input.stream.issuer,
+    issuerAddress: input.content.issuer,
   }
   VC.proof.push(streamProof)
 
@@ -147,7 +144,7 @@ export function fromCredential(
   const cDProof: CredentialDigestProof = {
     type: CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
-    nonces: input.request.contentNonceMap,
+    nonces: input.contentNonceMap,
     contentHashes,
   }
   VC.proof.push(cDProof)
