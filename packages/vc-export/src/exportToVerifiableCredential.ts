@@ -1,22 +1,22 @@
 /**
- * @packageDocumentation
+ * @packageDocumentation////////////////////////////////////////////////////////
  * @module VCExport
  */
 
-import { decodeAddress } from '@polkadot/keyring'
-import { u8aToHex } from '@polkadot/util'
+//import { decodeAddress } from '@polkadot/keyring'
+//import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
 import { Content } from '@cord.network/modules'
 import type { IDocument, ISchema } from '@cord.network/types'
-import { signatureVerify } from '@polkadot/util-crypto'
+//import { signatureVerify } from '@polkadot/util-crypto'
 import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLE_CREDENTIAL_TYPE,
   JSON_SCHEMA_TYPE,
-  KeyTypesMap,
+  //KeyTypesMap,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  //CORD_STREAM_SIGNATURE_PROOF_TYPE,
   CORD_CREDENTIAL_CONTEXT_URL,
   CORD_VERIFIABLE_CREDENTIAL_TYPE,
   CORD_CREDENTIAL_IRI_PREFIX,
@@ -26,7 +26,7 @@ import type {
   CredentialDigestProof,
   CredentialSchema,
   Proof,
-  CordStreamSignatureProof,
+  //CordStreamSignatureProof,
   VerifiableCredential,
 } from './types.js'
 import { Identifier } from '@cord.network/utils'
@@ -53,7 +53,7 @@ export function fromCredential(
     contentHashes,
     evidenceIds,
     documentHash,
-    issuerSignature,
+    //issuerSignature,
     content,
     identifier,
   } = input
@@ -98,13 +98,14 @@ export function fromCredential(
     issuanceDate,
     expirationDate,
     credentialSubject,
-    credentialHash: Identifier.uriToIdentifier(documentHash),
+    credentialHash: documentHash,
     evidence,
     nonTransferable: true,
     proof,
     credentialSchema,
   }
 
+  /* TODO: fix this
   let keyType: string | undefined
   if (issuerSignature) {
     keyType =
@@ -126,12 +127,13 @@ export function fromCredential(
       proofPurpose: 'assertionMethod',
       verificationMethod: {
         type: keyType,
-        publicKeyHex: u8aToHex(decodeAddress(issuerSignature.keyUri)),
+        publicKeyHex: 'test' // fojjjjjjjjjjjjjjjjj
       },
-      signature: issuerSignature.signature,
+      signature: issuerSignature?.signature,
     }
     VC.proof.push(sSProof)
   }
+  */
   // add credential proof
   const streamProof: CordStreamProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
