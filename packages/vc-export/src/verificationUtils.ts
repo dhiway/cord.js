@@ -13,7 +13,6 @@ import {
   CORD_SELF_SIGNATURE_PROOF_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  KeyTypesMap,
 } from './constants.js'
 import type {
   VerifiableCredential,
@@ -82,13 +81,6 @@ export function verifyStreamSignatureProof(
         'proof must contain public key; resolve did key references beforehand'
       )
     }
-    const keyType = verificationMethod.type || verificationMethod['@type']
-    if (!Object.values(KeyTypesMap).includes(keyType))
-      throw PROOF_MALFORMED_ERROR(
-        `signature type unknown; expected one of ${JSON.stringify(
-          Object.values(KeyTypesMap)
-        )}, got "${verificationMethod.type}"`
-      )
     const signerPubKey = verificationMethod.publicKeyHex
 
     const rootHash = Identifier.uriToIdentifier(
@@ -102,7 +94,7 @@ export function verifyStreamSignatureProof(
       signerPubKey
     )
     if (
-      !(verification.isValid && KeyTypesMap[verification.crypto] === keyType)
+      !(verification.isValid)
     ) {
       throw new Error('signature could not be verified')
     }
@@ -136,10 +128,7 @@ export async function verifyStreamProof(
     const { issuerAddress } = proof
     if (typeof issuerAddress !== 'string' || !issuerAddress)
       throw PROOF_MALFORMED_ERROR('issuer address not understood')
-    if (
-      issuerAddress !==
-      Identifier.getAccountAddressFromIdentifier(credential.issuer)
-    )
+    if (issuerAddress !== credential.issuer)
       throw PROOF_MALFORMED_ERROR('credential issuer address is not matching')
 
     if (typeof credential.id !== 'string' || !credential.id)
@@ -325,29 +314,21 @@ export function verifySelfSignatureProof(
         'proof must contain public key; resolve did key references beforehand'
       )
     }
-    const keyType = verificationMethod.type || verificationMethod['@type']
-    if (!Object.values(KeyTypesMap).includes(keyType))
-      throw PROOF_MALFORMED_ERROR(
-        `signature type unknown; expected one of ${JSON.stringify(
-          Object.values(KeyTypesMap)
-        )}, got "${verificationMethod.type}"`
-      )
-    const signerPubKey = verificationMethod.publicKeyHex
-
+    
     const rootHash = Identifier.uriToIdentifier(
       fromCredentialIRI(credential.credentialHash)
     )
-    const proofData = makeSigningData(rootHash, proof.created, challenge)
+    const proofData = makeSigningData(rootHash, challenge)
 
     // validate signature over calculated proofData
     // signatureVerify can handle all required signature types out of the box
     const verification = signatureVerify(
       proofData,
       proof.signature,
-      signerPubKey
+      proof.keyUri
     )
     if (
-      !(verification.isValid && KeyTypesMap[verification.crypto] === keyType)
+      !(verification.isValid)
     ) {
       throw new Error('signature could not be verified')
     }

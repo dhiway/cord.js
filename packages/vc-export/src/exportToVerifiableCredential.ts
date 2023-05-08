@@ -1,4 +1,4 @@
-/**
+/**A
  * @packageDocumentation////////////////////////////////////////////////////////
  * @module VCExport
  */
@@ -8,15 +8,13 @@
 import type { AnyJson } from '@polkadot/types/types'
 import { Content } from '@cord.network/modules'
 import type { IDocument, ISchema } from '@cord.network/types'
-//import { signatureVerify } from '@polkadot/util-crypto'
 import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLE_CREDENTIAL_TYPE,
   JSON_SCHEMA_TYPE,
-  //KeyTypesMap,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  //CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_STREAM_SIGNATURE_PROOF_TYPE,
   CORD_CREDENTIAL_CONTEXT_URL,
   CORD_VERIFIABLE_CREDENTIAL_TYPE,
   CORD_CREDENTIAL_IRI_PREFIX,
@@ -26,7 +24,7 @@ import type {
   CredentialDigestProof,
   CredentialSchema,
   Proof,
-  //CordStreamSignatureProof,
+  CordStreamSignatureProof,
   VerifiableCredential,
 } from './types.js'
 import { Identifier } from '@cord.network/utils'
@@ -53,7 +51,7 @@ export function fromCredential(
     contentHashes,
     evidenceIds,
     documentHash,
-    //issuerSignature,
+    issuerSignature,
     content,
     identifier,
   } = input
@@ -105,35 +103,17 @@ export function fromCredential(
     credentialSchema,
   }
 
-  /* TODO: fix this
-  let keyType: string | undefined
-  if (issuerSignature) {
-    keyType =
-      KeyTypesMap[
-        signatureVerify('', issuerSignature?.signature, content.issuer).crypto
-      ]
-  }
-
-  if (!keyType)
-    throw new TypeError(
-      `Unknown signature type on credential.\nCurrently this handles ${JSON.stringify(
-        Object.keys(KeyTypesMap)
-      )}\nReceived: ${keyType}`
-    )
-
   if (issuerSignature) {
     const sSProof: CordStreamSignatureProof = {
       type: CORD_STREAM_SIGNATURE_PROOF_TYPE,
       proofPurpose: 'assertionMethod',
-      verificationMethod: {
-        type: keyType,
-        publicKeyHex: 'test' // fojjjjjjjjjjjjjjjjj
-      },
       signature: issuerSignature?.signature,
+      challenge: documentHash,
+      verificationMethod: issuerSignature?.keyUri,
     }
     VC.proof.push(sSProof)
   }
-  */
+ 
   // add credential proof
   const streamProof: CordStreamProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
@@ -146,8 +126,8 @@ export function fromCredential(
   const cDProof: CredentialDigestProof = {
     type: CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
-    nonces: input.contentNonceMap,
-    contentHashes,
+    nonces: {...input.contentNonceMap},
+    contentHashes: [...contentHashes],
   }
   VC.proof.push(cDProof)
 

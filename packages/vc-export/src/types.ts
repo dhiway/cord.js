@@ -43,7 +43,6 @@ export interface CredentialDigestProof extends Proof {
   contentHashes: string[]
 }
 export interface CordSelfSignatureProof extends Proof {
-  created: string
   type: typeof CORD_SELF_SIGNATURE_PROOF_TYPE
   verificationMethod: string | IPublicKeyRecord
   signature: string

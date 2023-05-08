@@ -2,9 +2,7 @@
  * @packageDocumentation
  * @module PresentationUtils
  */
-import { decodeAddress } from '@polkadot/keyring'
-import { blake2AsHex, signatureVerify } from '@polkadot/util-crypto'
-import { u8aToHex } from '@polkadot/util'
+import { blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
 import { SDKErrors, Identifier, Crypto } from '@cord.network/utils'
 import {
@@ -12,7 +10,6 @@ import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLEPRESENTATION_TYPE,
   CORD_SELF_SIGNATURE_PROOF_TYPE,
-  KeyTypesMap,
 } from './constants.js'
 import type {
   VerifiableCredential,
@@ -20,16 +17,15 @@ import type {
   CredentialDigestProof,
   CordSelfSignatureProof,
 } from './types.js'
+
 import { DidDocument } from '@cord.network/types'
 
 export function makeSigningData(
   rootHash: string,
-  createdAt: string,
   challenge?: string | null
 ): Uint8Array {
   return new Uint8Array([
     ...Crypto.coToUInt8(rootHash),
-    ...Crypto.coToUInt8(createdAt),
     ...Crypto.coToUInt8(challenge),
   ])
 }
@@ -134,6 +130,7 @@ export async function makePresentation(
   VC: VerifiableCredential,
   showProperties: string[],
   creator: DidDocument,
+  keys: any,
   challenge?: string
 ): Promise<VerifiablePresentation> {
   const copied = await removeProperties(VC, showProperties)
@@ -144,33 +141,26 @@ export async function makePresentation(
   ) {
     throw new SDKErrors.CreatorMissingError;
   }
-  const createdAt = new Date().toISOString()
-  const selfSignature = '' /*creator.(
-    makeSigningData(
-      Identifier.uriToIdentifier(VC.credentialHash),
-      createdAt,
-      challenge
-    )
-  )
-*/
-  const keyType: string | undefined =
-    KeyTypesMap[signatureVerify('', selfSignature, creator.uri).crypto]
-  if (!keyType)
-    throw new TypeError(
-      `Unknown signature type on credential.\nCurrently this handles ${JSON.stringify(
-        Object.keys(KeyTypesMap)
-      )}\nReceived: ${keyType}`
-    )
+
+  async function callback(data: any) {
+    return {
+    signature: keys.authentication.sign(data.data),
+    keyType: keys.authentication.type,
+    keyUri: `${creator.uri}${creator.authentication[0].id}`,
+    }
+  };
+
+  const signature = await callback({
+    data: makeSigningData(VC.credentialHash, challenge),
+    did: VC.credentialSubject.holder,
+  })
 
   const selfSProof: CordSelfSignatureProof = {
-    created: createdAt,
+    challenge: challenge,
     type: CORD_SELF_SIGNATURE_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
-    verificationMethod: {
-      type: keyType,
-      publicKeyHex: u8aToHex(decodeAddress(creator.uri)),
-    },
-    signature: selfSignature,
+    verificationMethod: signature.keyUri,
+    signature: signature.signature,
   }
 
   return {
