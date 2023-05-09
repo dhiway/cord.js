@@ -65,7 +65,7 @@ export function fromCredential(
     Record<string, AnyJson>
   >
 
-  const issuer = Identifier.getAccountIdentifierFromAddress(input.content.issuer)
+  const issuer = input.content.issuer
 
   const issuanceDate = input.createdAt
   const expirationDate = input.validUntil
@@ -78,6 +78,7 @@ export function fromCredential(
       '@type': JSON_SCHEMA_TYPE,
       name: schema.title,
       schema: schema.$schema,
+      properties: schema.properties,
     }
   }
 

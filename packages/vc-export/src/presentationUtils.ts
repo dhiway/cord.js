@@ -4,7 +4,7 @@
  */
 import { blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
-import { SDKErrors, Identifier, Crypto } from '@cord.network/utils'
+import { SDKErrors, Crypto } from '@cord.network/utils'
 import {
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -135,13 +135,10 @@ export async function makePresentation(
 ): Promise<VerifiablePresentation> {
   const copied = await removeProperties(VC, showProperties)
 
-  if (
-    creator.uri !==
-    Identifier.uriToIdentifier(VC.credentialSubject['@id']?.toString())
-  ) {
+  if (creator.uri !== VC.credentialSubject.holder) {
     throw new SDKErrors.CreatorMissingError;
   }
-
+//console.log(creator, VC.credentialSubject);
   async function callback(data: any) {
     return {
     signature: keys.authentication.sign(data.data),
@@ -160,14 +157,14 @@ export async function makePresentation(
     type: CORD_SELF_SIGNATURE_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
     verificationMethod: signature.keyUri,
-    signature: signature.signature,
+    signature: Crypto.u8aToHex(signature.signature),
   }
 
   return {
     '@context': [DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT],
     type: [DEFAULT_VERIFIABLEPRESENTATION_TYPE],
     verifiableCredential: copied,
-    holder: copied.credentialSubject['@id'] as string,
+    holder: creator.uri,
     proof: [selfSProof],
   }
 }

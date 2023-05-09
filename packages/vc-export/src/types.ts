@@ -53,6 +53,7 @@ export interface CredentialSchema {
   '@id': string
   '@type': typeof JSON_SCHEMA_TYPE
   schema: ISchema['$schema']
+  properties: ISchema['properties']
   modelVersion?: string
   name?: string
   author?: string
