@@ -12,6 +12,7 @@
     "clean": "rimraf tests/dist && yarn workspaces foreach -p --exclude '{root-workspace}' run clean",
     "clean:docs": "rimraf docs/api",
     "demo": "tsx --no-cache demo/src/demo.ts",
+    "demo-staging": "tsx --no-cache demo/src/demo-staging.ts",
     "demo-vc": "tsx --no-cache --no-warnings demo/src/demo-vc.ts",
     "demo-messaging": "tsx --no-cache --no-warnings demo/src/demo-messaging.ts",
     "demo-meta": "tsx --no-cache --no-warnings demo/src/demo-meta.ts",
