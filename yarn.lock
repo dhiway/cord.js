@@ -614,7 +614,7 @@ __metadata:
     "@digitalbazaar/vc": ^6.0.1
     "@types/jsonld": 1.5.1
     bip39: ^3.1.0
-    jsonld: ^2.0.2
+    jsonld: ^8.1.1
     jsonld-signatures: ^5.0.0
     rimraf: ^3.0.2
     typescript: ^4.8.3
@@ -6633,7 +6633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsonld@npm:^8.0.0, jsonld@npm:^8.1.0":
+"jsonld@npm:^8.0.0, jsonld@npm:^8.1.0, jsonld@npm:^8.1.1":
   version: 8.1.1
   resolution: "jsonld@npm:8.1.1"
   dependencies:
