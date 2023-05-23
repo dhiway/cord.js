@@ -27,7 +27,7 @@ const defaultTypesBundle: OverrideVersionedType[] = [
 // Current runtime version: 8000
 export const typesBundle: OverrideBundleType = {
   chain: {
-    'CORD Staging Testnet': {
+    'Cord Sprintnet': {
       runtime: {
         ...didCalls,
       },
