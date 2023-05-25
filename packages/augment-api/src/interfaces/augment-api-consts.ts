@@ -14,6 +14,9 @@ export type __AugmentedConst<ApiType extends ApiTypes> = AugmentedConst<ApiType>
 
 declare module '@polkadot/api-base/types/consts' {
   interface AugmentedConsts<ApiType extends ApiTypes> {
+    authorityManager: {
+      maxProposalLength: u16 & AugmentedConst<ApiType>;
+    };
     babe: {
       /**
        * The amount of time, in slots, that each epoch should last.
@@ -36,9 +39,24 @@ declare module '@polkadot/api-base/types/consts' {
     };
     balances: {
       /**
-       * The minimum amount required to keep an account open.
+       * The minimum amount required to keep an account open. MUST BE GREATER THAN ZERO!
+       * 
+       * If you *really* need it to be zero, you can enable the feature `insecure_zero_ed` for
+       * this pallet. However, you do so at your own risk: this will open up a major DoS vector.
+       * In case you have multiple sources of provider references, you may also get unexpected
+       * behaviour if you set this to zero.
+       * 
+       * Bottom line: Do yourself a favour and make it at least one!
        **/
       existentialDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of individual freeze locks that can exist on an account at any time.
+       **/
+      maxFreezes: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of holds that can exist on an account at any time.
+       **/
+      maxHolds: u32 & AugmentedConst<ApiType>;
       /**
        * The maximum number of locks that should exist on an account.
        * Not strictly enforced, but used for weight estimation.
@@ -48,6 +66,12 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum number of named reserves that can exist on an account.
        **/
       maxReserves: u32 & AugmentedConst<ApiType>;
+    };
+    council: {
+      /**
+       * The maximum weight of a dispatch call that can be proposed and executed.
+       **/
+      maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
     };
     democracy: {
       /**
@@ -192,6 +216,36 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxSetIdSessionEntries: u64 & AugmentedConst<ApiType>;
     };
+    identity: {
+      /**
+       * The amount held on deposit for a registered identity
+       **/
+      basicDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The amount held on deposit per additional field for a registered identity.
+       **/
+      fieldDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * Maximum number of additional fields that may be stored in an ID. Needed to bound the I/O
+       * required to access an identity, but can be pretty high.
+       **/
+      maxAdditionalFields: u32 & AugmentedConst<ApiType>;
+      /**
+       * Maxmimum number of registrars allowed in the system. Needed to bound the complexity
+       * of, e.g., updating judgements.
+       **/
+      maxRegistrars: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of sub-accounts allowed per identified account.
+       **/
+      maxSubAccounts: u32 & AugmentedConst<ApiType>;
+      /**
+       * The amount held on deposit for a registered subaccount. This should account for the fact
+       * that one storage item's value will increase by the size of an account ID, and there will
+       * be another trie item whose value is the size of an account ID plus 32 bytes.
+       **/
+      subAccountDeposit: u128 & AugmentedConst<ApiType>;
+    };
     imOnline: {
       /**
        * A configuration for base priority of unsigned transactions.
@@ -264,6 +318,10 @@ declare module '@polkadot/api-base/types/consts' {
       maximumWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
       /**
        * The maximum number of scheduled calls in the queue for a single block.
+       * 
+       * NOTE:
+       * + Dependent pallets' benchmarks might require a higher limit for the setting. Set a
+       * higher limit under `runtime-benchmarks` feature.
        **/
       maxScheduledPerBlock: u32 & AugmentedConst<ApiType>;
     };
@@ -305,6 +363,12 @@ declare module '@polkadot/api-base/types/consts' {
        * Get the chain's current version.
        **/
       version: SpVersionRuntimeVersion & AugmentedConst<ApiType>;
+    };
+    technicalCommittee: {
+      /**
+       * The maximum weight of a dispatch call that can be proposed and executed.
+       **/
+      maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
     };
     timestamp: {
       /**

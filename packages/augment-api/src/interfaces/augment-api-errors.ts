@@ -11,6 +11,28 @@ export type __AugmentedError<ApiType extends ApiTypes> = AugmentedError<ApiType>
 
 declare module '@polkadot/api-base/types/errors' {
   interface AugmentedErrors<ApiType extends ApiTypes> {
+    authorityManager: {
+      /**
+       * The authority entry already exists.
+       **/
+      AuthorityAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * There is no authority with the given ID.
+       **/
+      AuthorityNotFound: AugmentedError<ApiType>;
+      /**
+       * Not an authority owner.
+       **/
+      BadOrigin: AugmentedError<ApiType>;
+      /**
+       * Max authorities included in a proposal exceeds the limit.
+       **/
+      MaxProposalLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * No validator associated with the identity.
+       **/
+      NoAssociatedValidatorId: AugmentedError<ApiType>;
+    };
     babe: {
       /**
        * A given equivocation report is valid but already previously reported.
@@ -31,35 +53,43 @@ declare module '@polkadot/api-base/types/errors' {
     };
     balances: {
       /**
-       * Beneficiary account must pre-exist
+       * Beneficiary account must pre-exist.
        **/
       DeadAccount: AugmentedError<ApiType>;
       /**
-       * Value too low to create account due to existential deposit
+       * Value too low to create account due to existential deposit.
        **/
       ExistentialDeposit: AugmentedError<ApiType>;
       /**
-       * A vesting schedule already exists for this account
+       * A vesting schedule already exists for this account.
        **/
       ExistingVestingSchedule: AugmentedError<ApiType>;
+      /**
+       * Transfer/payment would kill account.
+       **/
+      Expendability: AugmentedError<ApiType>;
       /**
        * Balance too low to send value.
        **/
       InsufficientBalance: AugmentedError<ApiType>;
       /**
-       * Transfer/payment would kill account
-       **/
-      KeepAlive: AugmentedError<ApiType>;
-      /**
-       * Account liquidity restrictions prevent withdrawal
+       * Account liquidity restrictions prevent withdrawal.
        **/
       LiquidityRestrictions: AugmentedError<ApiType>;
       /**
-       * Number of named reserves exceed MaxReserves
+       * Number of freezes exceed `MaxFreezes`.
+       **/
+      TooManyFreezes: AugmentedError<ApiType>;
+      /**
+       * Number of holds exceed `MaxHolds`.
+       **/
+      TooManyHolds: AugmentedError<ApiType>;
+      /**
+       * Number of named reserves exceed `MaxReserves`.
        **/
       TooManyReserves: AugmentedError<ApiType>;
       /**
-       * Vesting balance too high to send value
+       * Vesting balance too high to send value.
        **/
       VestingBalance: AugmentedError<ApiType>;
     };
@@ -450,6 +480,80 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooSoon: AugmentedError<ApiType>;
     };
+    identity: {
+      /**
+       * Account ID is already named.
+       **/
+      AlreadyClaimed: AugmentedError<ApiType>;
+      /**
+       * Empty index.
+       **/
+      EmptyIndex: AugmentedError<ApiType>;
+      /**
+       * Fee is changed.
+       **/
+      FeeChanged: AugmentedError<ApiType>;
+      /**
+       * The index is invalid.
+       **/
+      InvalidIndex: AugmentedError<ApiType>;
+      /**
+       * Invalid judgement.
+       **/
+      InvalidJudgement: AugmentedError<ApiType>;
+      /**
+       * The target is invalid.
+       **/
+      InvalidTarget: AugmentedError<ApiType>;
+      /**
+       * The provided judgement was for a different identity.
+       **/
+      JudgementForDifferentIdentity: AugmentedError<ApiType>;
+      /**
+       * Judgement given.
+       **/
+      JudgementGiven: AugmentedError<ApiType>;
+      /**
+       * Error that occurs when there is an issue paying for judgement.
+       **/
+      JudgementPaymentFailed: AugmentedError<ApiType>;
+      /**
+       * No identity found.
+       **/
+      NoIdentity: AugmentedError<ApiType>;
+      /**
+       * Account isn't found.
+       **/
+      NotFound: AugmentedError<ApiType>;
+      /**
+       * Account isn't named.
+       **/
+      NotNamed: AugmentedError<ApiType>;
+      /**
+       * Sub-account isn't owned by sender.
+       **/
+      NotOwned: AugmentedError<ApiType>;
+      /**
+       * Sender is not a sub-account.
+       **/
+      NotSub: AugmentedError<ApiType>;
+      /**
+       * Sticky judgement.
+       **/
+      StickyJudgement: AugmentedError<ApiType>;
+      /**
+       * Too many additional fields.
+       **/
+      TooManyFields: AugmentedError<ApiType>;
+      /**
+       * Maximum amount of registrars reached. Cannot add any more.
+       **/
+      TooManyRegistrars: AugmentedError<ApiType>;
+      /**
+       * Too many subs-accounts.
+       **/
+      TooManySubAccounts: AugmentedError<ApiType>;
+    };
     imOnline: {
       /**
        * Duplicated heartbeat.
@@ -614,6 +718,9 @@ declare module '@polkadot/api-base/types/errors' {
        * Empty transaction.
        **/
       EmptyTransaction: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier
+       **/
       InvalidIdentifier: AugmentedError<ApiType>;
       InvalidIdentifierLength: AugmentedError<ApiType>;
       InvalidIdentifierPrefix: AugmentedError<ApiType>;

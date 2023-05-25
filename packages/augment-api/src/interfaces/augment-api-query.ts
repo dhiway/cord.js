@@ -6,10 +6,11 @@
 import '@polkadot/api-base/types/storage';
 
 import type { ApiTypes, AugmentedQuery, QueryableStorageEntry } from '@polkadot/api-base/types';
+import type { Data } from '@polkadot/types';
 import type { Bytes, Null, Option, U8aFixed, Vec, WrapperOpaque, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportPreimagesBounded, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletCollectiveVotes, PalletDemocracyMetadataOwner, PalletDemocracyReferendumInfo, PalletDemocracyVoteThreshold, PalletDemocracyVoteVoting, PalletDidDidDetails, PalletDidNamesDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletImOnlineBoundedOpaqueNetworkState, PalletImOnlineSr25519AppSr25519Public, PalletMessageQueueBookState, PalletMessageQueuePage, PalletMultisigMultisig, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStreamStreamCommit, PalletStreamStreamEntry, PalletTransactionPaymentReleases, PalletTreasuryProposal, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportPreimagesBounded, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmount, PalletBalancesReserveData, PalletCollectiveVotes, PalletDemocracyMetadataOwner, PalletDemocracyReferendumInfo, PalletDemocracyVoteThreshold, PalletDemocracyVoteVoting, PalletDidDidDetails, PalletDidNamesDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineBoundedOpaqueNetworkState, PalletImOnlineSr25519AppSr25519Public, PalletMessageQueueBookState, PalletMessageQueuePage, PalletMultisigMultisig, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStreamStreamCommit, PalletStreamStreamEntry, PalletTransactionPaymentReleases, PalletTreasuryProposal, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -36,6 +37,10 @@ declare module '@polkadot/api-base/types/storage' {
        * Authorities that should be retired.
        **/
       authoritiesToRetire: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
+      /**
+       * Authority Membership.
+       **/
+      authorityMembers: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
     };
     authorship: {
       /**
@@ -180,6 +185,14 @@ declare module '@polkadot/api-base/types/storage' {
        * NOTE: This is only used in the case that this pallet is used to store balances.
        **/
       account: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<PalletBalancesAccountData>, [AccountId32]>;
+      /**
+       * Freeze locks on account balances.
+       **/
+      freezes: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesIdAmount>>, [AccountId32]>;
+      /**
+       * Holds on account balances.
+       **/
+      holds: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesIdAmount>>, [AccountId32]>;
       /**
        * The total units of outstanding deactivated balance in the system.
        **/
@@ -375,6 +388,34 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       state: AugmentedQuery<ApiType, () => Observable<PalletGrandpaStoredState>, []>;
     };
+    identity: {
+      /**
+       * Information that is pertinent to identify the entity behind an account.
+       * 
+       * TWOX-NOTE: OK ― `AccountId` is a secure hash.
+       **/
+      identityOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletIdentityRegistration>>, [AccountId32]>;
+      /**
+       * The set of registrars. Not expected to get very big as can only be added through a
+       * special origin (likely a council motion).
+       * 
+       * The index into this can be cast to `RegistrarIndex` to get a valid value.
+       **/
+      registrars: AugmentedQuery<ApiType, () => Observable<Vec<Option<PalletIdentityRegistrarInfo>>>, []>;
+      /**
+       * Alternative "sub" identities of this account.
+       * 
+       * The first item is the deposit, the second is a vector of the accounts.
+       * 
+       * TWOX-NOTE: OK ― `AccountId` is a secure hash.
+       **/
+      subsOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<ITuple<[u128, Vec<AccountId32>]>>, [AccountId32]>;
+      /**
+       * The super-identity of an alternative "sub" identity together with its name, within that
+       * context. If the account is not some other account's sub-identity, then just `None`.
+       **/
+      superOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, Data]>>>, [AccountId32]>;
+    };
     imOnline: {
       /**
        * For each session index, we keep a mapping of `ValidatorId<T>` to the
@@ -440,15 +481,6 @@ declare module '@polkadot/api-base/types/storage' {
        * The primary structure that holds all offence records keyed by report identifiers.
        **/
       reports: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<SpStakingOffenceOffenceDetails>>, [H256]>;
-      /**
-       * Enumerates all reports of a kind along with the time they happened.
-       * 
-       * All reports are sorted by the time of offence.
-       * 
-       * Note that the actual type of this mapping is `Vec<u8>`, this is because values of
-       * different types are not supported at the moment so we are doing the manual serialization.
-       **/
-      reportsByKindIndex: AugmentedQuery<ApiType, (arg: U8aFixed | string | Uint8Array) => Observable<Bytes>, [U8aFixed]>;
     };
     preimage: {
       preimageFor: AugmentedQuery<ApiType, (arg: ITuple<[H256, u32]> | [H256 | string | Uint8Array, u32 | AnyNumber | Uint8Array]) => Observable<Option<Bytes>>, [ITuple<[H256, u32]>]>;
