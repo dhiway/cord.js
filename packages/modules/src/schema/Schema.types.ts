@@ -25,6 +25,7 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
             { $ref: '#/definitions/boolean' },
             { $ref: '#/definitions/schemaReference' },
             { $ref: '#/definitions/array' },
+            { $ref: '#/definitions/object' },
           ],
           type: 'object',
         },
@@ -122,6 +123,25 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
         },
       },
       required: ['type', 'items'],
+    },
+    object: {
+      additionalProperties: true,
+      properties: {
+        patternProperties: {
+          '^.+$': {
+            oneOf: [
+              { $ref: '#/definitions/string' },
+              { $ref: '#/definitions/number' },
+              { $ref: '#/definitions/boolean' },
+              { $ref: '#/definitions/schemaReference' },
+              { $ref: '#/definitions/array' },
+              { $ref: '#/definitions/object' },
+            ],
+            type: 'object',
+          },
+        },
+      },
+      required: ['type'],
     },
   },
 }
