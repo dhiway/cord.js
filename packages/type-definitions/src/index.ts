@@ -36,7 +36,7 @@ export const typesBundle: OverrideBundleType = {
       },
       types: defaultTypesBundle,
     },
-    'Dev. Node': {
+    'Cord Sparknet': {
       runtime: {
         ...didCalls,
       },
@@ -45,7 +45,16 @@ export const typesBundle: OverrideBundleType = {
       },
       types: defaultTypesBundle,
     },
-    Development: {
+    "Cord Spin": {
+      runtime: {
+        ...didCalls,
+      },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
+      types: defaultTypesBundle,
+    },
+    "Cord Ignite": {
       runtime: {
         ...didCalls,
       },
@@ -56,3 +65,4 @@ export const typesBundle: OverrideBundleType = {
     },
   },
 }
+
