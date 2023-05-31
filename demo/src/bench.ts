@@ -37,7 +37,7 @@ async function main() {
   let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 3400
+  let txCount = 3000;
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
   for (let j = 0; j < txCount; j++) {
     try {
@@ -62,20 +62,12 @@ async function main() {
         moment.duration(moment().diff(ancStartTime)).as('seconds').toFixed(3) +
         's\r'
     )
-      let nonce: number = 24012412;
     try {
-        await tx_batch[i].signAndSend(Alice, {nonce: -1})
-	/*
-	TODO: Fix below
-	*/
-	/*
-	Cord.Chain.signAndSubmitTx(tx_batch[i], Alice, {
-	    nonce: nonce,
-        resolveOn: Cord.Chain.IS_READY,
-        rejectOn: Cord.Chain.IS_ERROR,
+    	//await tx_batch[i].signAndSend(Alice, {nonce: -1})
+	await Cord.Chain.signAndSubmitTx(tx_batch[i], Alice, {
+          resolveOn: Cord.Chain.IS_READY,
+          rejectOn: Cord.Chain.IS_ERROR,
 	})
-	nonce++;
-	*/  
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
     }
@@ -92,9 +84,6 @@ async function main() {
   let BatchAuthor = keyring.addFromUri('//Sparknet//1//Demo')
   let batchAncStartTime = moment()
   api.tx.utility.batchAll(tx_batch).signAndSend(BatchAuthor, {nonce: -1})
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
 
   let batchAncEndTime = moment()
   var batchAncDuration = moment.duration(
@@ -111,9 +100,7 @@ async function main() {
     ).toFixed(0)} `
   )
   await sleep(2000)
-  await api.disconnect()
-
-    
+  await api.disconnect()    
 }
 
 main()
