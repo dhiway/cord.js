@@ -28,7 +28,7 @@ async function main() {
     `👩🏻  Alice (${Alice.type}): ${Alice.address}`
   )
   const Bob = Crypto.makeKeypairFromUri(
-    '//Sparknet//1//Demo',
+    '//Bob',
     'sr25519'
   )
   console.log(
@@ -37,25 +37,15 @@ async function main() {
   let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 10
+  let txCount = 3400
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
-  let nonce : any = 0
   for (let j = 0; j < txCount; j++) {
-    process.stdout.write(
-      ' 🔖  Extrinsic creation took ' +
-        moment.duration(moment().diff(startTxPrep)).as('seconds').toFixed(3) +
-        's\r'
-    )
     try {
-      const txTransfer =  api.tx.balances.transfer(
-        Alice.address,
-        5,
+      const txTransfer =  await api.tx.balances.transfer(
+        Bob.address,
+        1,
       )
-      // console.log('txTransfer',txTransfer)
       tx_batch.push(txTransfer)
-      // console.log(`tx_batch[${j}]\n`,tx_batch[j].registry,'\n')
-      // console.log(`tx_batch\n`,tx_batch,'\n')
-
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
     }
@@ -72,15 +62,20 @@ async function main() {
         moment.duration(moment().diff(ancStartTime)).as('seconds').toFixed(3) +
         's\r'
     )
+      let nonce: number = 24012412;
     try {
-      // let resignedBatchTx = await tx_batch[i].signAsync(Bob, { nonce: nonce })
-      // nonce = nonce + 1
-      // console.log('\nnonce\n',nonce)
-      // console.log('\nValue of i\n',i)
-        await Cord.Chain.signAndSubmitTx(tx_batch[i], Bob, { 
+        await tx_batch[i].signAndSend(Alice, {nonce: -1})
+	/*
+	TODO: Fix below
+	*/
+	/*
+	Cord.Chain.signAndSubmitTx(tx_batch[i], Alice, {
+	    nonce: nonce,
         resolveOn: Cord.Chain.IS_READY,
         rejectOn: Cord.Chain.IS_ERROR,
-      })
+	})
+	nonce++;
+	*/  
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
     }
@@ -93,21 +88,13 @@ async function main() {
       txCount / ancDuration.as('seconds')
     ).toFixed(0)} `
   )
-
   let keyring = new Keyring({ type: 'sr25519' })
   let BatchAuthor = keyring.addFromUri('//Sparknet//1//Demo')
   let batchAncStartTime = moment()
-  // for (let i = 0; i < tx_batch.length; i++){
-  try {
-    // await api.tx.utility.batch(tx_batch[i]).signAndSend(BatchAuthor,{nonce:nonce})
-    // console.log('nonce : line 109',nonce)
-    // nonce++
-    api.tx.utility.batchAll(tx_batch).signAndSend(BatchAuthor, {nonce: -1})
-    // nonce++
+  api.tx.utility.batchAll(tx_batch).signAndSend(BatchAuthor, {nonce: -1})
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
-// }
 
   let batchAncEndTime = moment()
   var batchAncDuration = moment.duration(
