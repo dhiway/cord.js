@@ -1,10 +1,7 @@
 import * as Cord from '@cord.network/sdk'
-import BN from 'bn.js'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
-import { ApiPromise, WsProvider } from '@polkadot/api'
-
-const amount: BN = new BN('1')
+import { Crypto } from '@cord.network/utils'
 
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
@@ -13,41 +10,38 @@ export const sleep = (ms: number): Promise<void> => {
 }
 
 async function main() {
-  await Cord.init({ address: 'ws://127.0.0.1:9944' })
-  const wsProvider = new WsProvider('ws://127.0.0.1:9944')
-  const api = await ApiPromise.create({ provider: wsProvider })
-
+  // Make sure that you are running the CORD locally
+  const networkAddress = 'ws://127.0.0.1:9944'
+  Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
+  await Cord.connect(networkAddress)
+  const api = Cord.ConfigService.get('api')
   // Step 1: Setup Identities
-  const Alice = Cord.Identity.buildFromURI('//Alice', {
-    signingKeyPairType: 'sr25519',
-  })
-  const Bob = Cord.Identity.buildFromURI('//Bob', {
-    signingKeyPairType: 'sr25519',
-  })
+  console.log(`\n❄️  Demo Identities (KeyRing)\n`)
+  const Alice = Crypto.makeKeypairFromUri('//Alice', 'sr25519')
+  console.log(`👩🏻  Alice (${Alice.type}): ${Alice.address}`)
+  const Bob = Crypto.makeKeypairFromUri('//Bob', 'sr25519')
+  console.log(`👦🏻  Bob (${Bob.type}): ${Bob.address}`)
   let tx_batch: any = []
-
   let startTxPrep = moment()
-  let txCount = 1000
+  let txCount = 3000
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
-
+  console.log(
+    '\nTo see the transactions, Go to https://apps.cord.network -> DEVELOPMENT -> Local Node -> Switch\n'
+  )
+  let nonce: any = 0
   for (let j = 0; j < txCount; j++) {
     process.stdout.write(
-      '  🔖  Extrinsic creation took ' +
+      ' 🔖  Extrinsic creation took ' +
         moment.duration(moment().diff(startTxPrep)).as('seconds').toFixed(3) +
         's\r'
     )
     try {
-      let txTransfer = await Cord.Balance.makeTransfer(
-        Alice.address,
-        amount,
-        -6
-      )
+      const txTransfer = api.tx.balances.transfer(Alice.address, 5)
       tx_batch.push(txTransfer)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
     }
   }
-
   let ancStartTime = moment()
   console.log('\n')
   for (let i = 0; i < tx_batch.length; i++) {
@@ -67,7 +61,6 @@ async function main() {
       console.log(e.errorCode, '-', e.message)
     }
   }
-
   let ancEndTime = moment()
   var ancDuration = moment.duration(ancEndTime.diff(ancStartTime))
   console.log(
@@ -75,7 +68,6 @@ async function main() {
       txCount / ancDuration.as('seconds')
     ).toFixed(0)} `
   )
-
   let keyring = new Keyring({ type: 'sr25519' })
   let BatchAuthor = keyring.addFromUri('//Charlie')
   let batchAncStartTime = moment()
@@ -84,7 +76,6 @@ async function main() {
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
-
   let batchAncEndTime = moment()
   var batchAncDuration = moment.duration(
     batchAncEndTime.diff(batchAncStartTime)
@@ -108,7 +99,7 @@ main()
   .finally(Cord.disconnect)
 
 process.on('SIGINT', async () => {
-  console.log('Bye! 👋 👋 👋 \n')
+  console.log('\nBye! 👋 👋 👋 \n')
   Cord.disconnect()
   process.exit(0)
 })
