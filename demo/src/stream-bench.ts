@@ -1,73 +1,134 @@
 import * as Cord from '@cord.network/sdk'
-import { UUID } from '@cord.network/utils'
+import { UUID, Crypto } from '@cord.network/utils'
+import { generateKeypairs } from './utils/generateKeypairs'
+import { createDid } from './utils/generateDid'
+import { createDidName } from './utils/generateDidName'
+import { getDidDocFromName } from './utils/queryDidName'
+import { ensureStoredSchema } from './utils/generateSchema'
+import {
+  ensureStoredRegistry,
+  addRegistryAdminDelegate,
+  addRegistryDelegate,
+} from './utils/generateRegistry'
+import { createDocument } from './utils/createDocument'
+import { createPresentation } from './utils/createPresentation'
+import { createStream } from './utils/createStream'
+import { verifyPresentation } from './utils/verifyPresentation'
+import { revokeCredential } from './utils/revokeCredential'
+import { randomUUID } from 'crypto'
+import { decryptMessage } from './utils/decrypt_message'
+import { encryptMessage } from './utils/encrypt_message'
+import { generateRequestCredentialMessage } from './utils/request_credential_message'
+import { getChainCredits, addAuthority } from './utils/createAuthorities'
+import { createAccount } from './utils/createAccount'
 import moment from 'moment'
-import Keyring from '@polkadot/keyring'
-import { ApiPromise, WsProvider } from '@polkadot/api'
 
-export const sleep = (ms: number): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), ms)
-  })
+function getChallenge(): string {
+  return Cord.Utils.UUID.generate()
 }
 
 async function main() {
-  await Cord.init({ address: 'ws://127.0.0.1:9944' })
-  // await Cord.ChainHelpers.ChainApiConnection.getConnectionOrConnect()
-  const wsProvider = new WsProvider('ws://127.0.0.1:9944')
-  const api = await ApiPromise.create({ provider: wsProvider })
+  const networkAddress = 'ws://127.0.0.1:9944'
+  Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
+  await Cord.connect(networkAddress)
 
-  // Step 1: Setup Identities
-  const Alice = Cord.Identity.buildFromURI('//Alice', {
-    signingKeyPairType: 'sr25519',
-  })
-  const Bob = Cord.Identity.buildFromURI('//Bob', {
-    signingKeyPairType: 'sr25519',
-  })
+  // Step 1: Setup Authority
+  // Setup transaction author account - CORD Account.
+
+  console.log(`\n❄️  Identities `)
+  const Alice = Crypto.makeKeypairFromUri(
+    '//Alice',
+    'sr25519'
+  )
+  const Bob = Crypto.makeKeypairFromUri(
+    '//Bob',
+    'sr25519'
+  )
+
+  const { mnemonic: aliceMnemonic, document: aliceDid } = await createDid(
+    Alice
+  )
+
+  const { mnemonic: bobMnemonic, document: bobDid } = await createDid(
+    Bob
+  )
+  const aliceKeys = await generateKeypairs(aliceMnemonic)
+
+
+  // // Step 2: Create a DID name for Issuer
+  console.log(`\n❄️  DID name Creation `)
+  const randomDidName = `solar.sailer.${randomUUID().substring(0, 4)}@cord`
+
+  await createDidName(
+    aliceDid.uri,
+    Bob,
+    randomDidName,
+    async ({ data }) => ({
+      signature: aliceKeys.authentication.sign(data),
+      keyType: aliceKeys.authentication.type,
+    })
+  )
+  console.log(`✅ DID name - ${randomDidName} - created!`)
+  await getDidDocFromName(randomDidName)
 
   // Step 2: Create a new Schema
-  console.log(`\n\n✉️  Adding a new Schema \n`)
-  let newSchemaContent = require('../res/schema.json')
-  let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
-  newSchemaContent.title = newSchemaTitle
-
-  let newSchema = Cord.Schema.fromSchemaProperties(newSchemaContent, Bob)
-  let schemaCreationExtrinsic = await await Cord.Schema.create(newSchema)
-
-  try {
-    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, Bob, {
-      resolveOn: Cord.Chain.IS_IN_BLOCK,
-      rejectOn: Cord.Chain.IS_ERROR,
+  console.log(`\n❄️  Schema Creation `)
+  const schema = await ensureStoredSchema(
+    Bob,
+    aliceDid.uri,
+    async ({ data }) => ({
+      signature: aliceKeys.assertionMethod.sign(data),
+      keyType: aliceKeys.assertionMethod.type,
     })
-    console.log('✅ Schema created!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
+  )
+  console.dir(schema, {
+    depth: null,
+    colors: true,
+  })
+  console.log('✅ Schema created!')
 
-  // Step 2: Create a new Stream
+  // Step 3: Create a new Registry
+  console.log(`\n❄️  Registry Creation `)
+  const registry = await ensureStoredRegistry(
+    Bob,
+    aliceDid.uri,
+    schema['$id'],
+    async ({ data }) => ({
+      signature: aliceKeys.assertionMethod.sign(data),
+      keyType: aliceKeys.assertionMethod.type,
+    })
+  )
+  console.dir(registry, {
+    depth: null,
+    colors: true,
+  })
+  console.log('✅ Registry created!')
+
+
+// Step 2: Create a new Stream
   console.log(`\n✉️  Adding a new Stream`, '\n')
   let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 805
+  let txCount = 10
   let newStreamContent: Cord.IContentStream
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
   for (let j = 0; j < txCount; j++) {
     let content = {
-      name: 'Alice' + ':' + UUID.generate(),
+      name: 'Bob ' + ': ' + UUID.generate(),
       age: 29,
-      gender: 'Female',
+      id: `${bobDid.uri}`,
+      gender: 'Male',
       country: 'India',
-      credit: 1000,
     }
-    let schemaStream = Cord.Content.fromSchemaAndContent(
-      newSchema,
-      content,
-      Bob.address
-    )
 
-    newStreamContent = Cord.ContentStream.fromContent(schemaStream, Bob)
-    let newStream = Cord.Stream.fromContentStream(newStreamContent)
+    let schemaStream = Cord.Content.fromSchemaAndContent(
+      schema,
+      content,
+      aliceDid.uri,
+    ) 
+    console.log('schemaStream',schemaStream)
 
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
@@ -75,12 +136,20 @@ async function main() {
         's\r'
     )
     try {
-      let txStream = await Cord.Stream.create(newStream)
+      let txStream = await createStream(
+        aliceDid.uri,
+        aliceKeys,
+        async ({ data }) => ({
+          signature: aliceKeys.assertionMethod.sign(data),
+          keyType: aliceKeys.assertionMethod.type,
+        }),
+        content
+      )
       tx_batch.push(txStream)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
     }
-  }
+  
 
   let ancStartTime = moment()
   console.log('\n')
@@ -102,7 +171,7 @@ async function main() {
       console.log(e.errorCode, '-', e.message)
     }
   }
-
+  
   let ancEndTime = moment()
   var ancDuration = moment.duration(ancEndTime.diff(ancStartTime))
   console.log(
@@ -110,69 +179,8 @@ async function main() {
       txCount / ancDuration.as('seconds')
     ).toFixed(0)} `
   )
-
-  let tx_new_batch: any = []
-
-  let startTxPrep2 = moment()
-
-  for (let j = 0; j < txCount; j++) {
-    let content = {
-      name: 'Alice' + ':' + UUID.generate(),
-      age: 29,
-      gender: 'Female',
-      country: 'India',
-      credit: 1000,
-    }
-    let schemaStream = Cord.Content.fromSchemaAndContent(
-      newSchema,
-      content,
-      Bob.address
-    )
-
-    let newStreamContent = Cord.ContentStream.fromContent(schemaStream, Bob)
-    let newStream = Cord.Stream.fromContentStream(newStreamContent)
-
-    process.stdout.write(
-      '  🔖  Extrinsic creation took ' +
-        moment.duration(moment().diff(startTxPrep2)).as('seconds').toFixed(3) +
-        's\r'
-    )
-    try {
-      let txStream = await Cord.Stream.create(newStream)
-      tx_new_batch.push(txStream)
-    } catch (e: any) {
-      console.log(e.errorCode, '-', e.message)
-    }
-  }
-
-  let keyring = new Keyring({ type: 'sr25519' })
-  let BatchAuthor = keyring.addFromUri('//Charlie')
-  let batchAncStartTime = moment()
-
-  try {
-    api.tx.utility.batch(tx_new_batch).signAndSend(BatchAuthor)
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
-
-  let batchAncEndTime = moment()
-  var batchAncDuration = moment.duration(
-    batchAncEndTime.diff(batchAncStartTime)
-  )
-  console.log(
-    `\n  🎁  Anchoring a batch of ${
-      tx_batch.length
-    } extrinsics took ${batchAncDuration.as('seconds')}s`
-  )
-  console.log(
-    `  🙌  Block TPS (batch) - ${+(
-      txCount / batchAncDuration.as('seconds')
-    ).toFixed(0)} `
-  )
-  await sleep(2000)
-  await api.disconnect()
+ }
 }
-
 main()
   .then(() => console.log('Bye! 👋 👋 👋 \n'))
   .finally(Cord.disconnect)
