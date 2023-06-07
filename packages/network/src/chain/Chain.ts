@@ -8,6 +8,7 @@
  */
 import { SubmittableResult } from '@polkadot/api'
 import { AnyNumber } from '@polkadot/types/types'
+import fetch from 'node-fetch'
 
 import { ConfigService } from '@cord.network/config'
 import type {
@@ -175,7 +176,24 @@ export async function signAndSubmitTx(
     tip,
     ...opts
   }: Partial<SubscriptionPromise.Options> & Partial<{ tip: AnyNumber }> = {}
-): Promise<ISubmittableResult> {
-  const signedTx = await tx.signAsync(signer, { tip, nonce:-1 })
-  return submitSignedTx(signedTx, opts)
+): Promise<any> {
+  // : Promise<ISubmittableResult>
+  // const signedTx = await tx.signAsync(signer, { tip, nonce: -1 })
+
+  const url = 'http://localhost:5103/api/v1'
+
+  const submit = await fetch(`${url}/extrinsic`, {
+    body: JSON.stringify({
+      extrinsic: tx.toHex(),
+    }),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  })
+    .then((resp) => resp)
+    .catch((error) => {
+      console.error(error)
+    })
+
+  return submit
+  // return submitSignedTx(signedTx, opts)
 }
