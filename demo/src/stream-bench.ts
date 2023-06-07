@@ -104,13 +104,23 @@ async function main() {
   })
   console.log('✅ Registry created!')
 
+    const registryDelegate = await addRegistryDelegate(
+	Alice,
+	aliceDid.uri,
+	registry['identifier'],
+	aliceDid.uri,
+	async ({ data }) => ({
+	    signature: aliceKeys.capabilityDelegation.sign(data),
+	    keyType: aliceKeys.capabilityDelegation.type,
+	})
+    )
 
-// Step 2: Create a new Stream
+    // Step 2: Create a new Stream
   console.log(`\n✉️  Adding a new Stream`, '\n')
   let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 10
+  let txCount = 2
   let newStreamContent: Cord.IContentStream
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
@@ -123,32 +133,48 @@ async function main() {
       country: 'India',
     }
 
-    let schemaStream = Cord.Content.fromSchemaAndContent(
-      schema,
-      content,
-      aliceDid.uri,
-    ) 
-    console.log('schemaStream',schemaStream)
+      let schemaStream = await Cord.Content.fromSchemaAndContent(
+	  schema,
+	  content,
+	  bobDid.uri,
+	  aliceDid.uri,
+      ) 
+      console.log('schemaStream',schemaStream)
+      let signCallback: Cord.SignCallback =  async ({ data }) => ({
+	  signature: aliceKeys.authentication.sign(data),
+	  keyType: aliceKeys.authentication.type,
+	  keyUri: `${aliceDid.uri}${aliceDid.authentication[0].id}`,
+      })
+      
+      const document = await Cord.Document.fromContent({
+	  content: schemaStream,
+	  authorization: registryDelegate,
+	  registry: registry.identifier,
+	  signCallback
+      })
+      console.log('document',document)
 
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
         moment.duration(moment().diff(startTxPrep)).as('seconds').toFixed(3) +
         's\r'
     )
-    try {
+      try {
+	  
       let txStream = await createStream(
-        aliceDid.uri,
-        aliceKeys,
-        async ({ data }) => ({
-          signature: aliceKeys.assertionMethod.sign(data),
-          keyType: aliceKeys.assertionMethod.type,
-        }),
-        content
+          aliceDid.uri,
+          Alice,
+          async ({ data }) => ({
+              signature: aliceKeys.assertionMethod.sign(data),
+              keyType: aliceKeys.assertionMethod.type,
+          }),
+          document
       )
-      tx_batch.push(txStream)
-    } catch (e: any) {
-      console.log(e.errorCode, '-', e.message)
-    }
+	  tx_batch.push(txStream)
+      } catch (e: any) {
+	  console.log(e.errorCode, '-', e.message)
+	  console.log("IN ERROR 1")
+      }
   
 
   let ancStartTime = moment()
@@ -163,12 +189,13 @@ async function main() {
     )
 
     try {
-      await Cord.Chain.signAndSubmitTx(tx_batch[i], Bob, {
+      await Cord.Chain.signAndSubmitTx(tx_batch[i], Alice, {
         resolveOn: Cord.Chain.IS_READY,
         rejectOn: Cord.Chain.IS_ERROR,
       })
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
+      console.log("IN ERROR 2")
     }
   }
   
