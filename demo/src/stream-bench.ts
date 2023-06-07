@@ -22,6 +22,7 @@ import { generateRequestCredentialMessage } from './utils/request_credential_mes
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 import moment from 'moment'
+import { ApiPromise, WsProvider } from '@polkadot/api'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -31,27 +32,34 @@ async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
+  const wsProvider = new WsProvider(networkAddress)
+  const api = await ApiPromise.create({ provider: wsProvider })
 
   // Step 1: Setup Authority
   // Setup transaction author account - CORD Account.
 
   console.log(`\n❄️  Identities `)
-  const Alice = Crypto.makeKeypairFromUri(
+  const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
     '//Alice',
     'sr25519'
   )
-  const Bob = Crypto.makeKeypairFromUri(
-    '//Bob',
-    'sr25519'
-  )
 
-  const { mnemonic: aliceMnemonic, document: aliceDid } = await createDid(
-    Alice
-  )
+  const { account: Alice } = await createAccount()
+  console.log(`🏦  Author (${Alice.type}): ${Alice.address}`)
+  await addAuthority(authorityAuthorIdentity, Alice.address)
+  console.log(`🔏  Author permissions updated`)
+  await getChainCredits(authorityAuthorIdentity, Alice.address, 5)
+  console.log(`💸  Author endowed with credits`)
+  console.log('✅ Authority created!')
+  const Bob = Crypto.makeKeypairFromUri('//Bob', 'sr25519')
+  const {
+    mnemonic: authorityAuthorIdentityMnemonic,
+    document: authorityAuthorIdentityeDid,
+  } = await createDid(authorityAuthorIdentity)
 
-  const { mnemonic: bobMnemonic, document: bobDid } = await createDid(
-    Bob
-  )
+  const { mnemonic: aliceMnemonic, document: aliceDid } = await createDid(Alice)
+
+  const { mnemonic: bobMnemonic, document: bobDid } = await createDid(Bob)
   const aliceKeys = await generateKeypairs(aliceMnemonic)
 
 
@@ -59,22 +67,17 @@ async function main() {
   console.log(`\n❄️  DID name Creation `)
   const randomDidName = `solar.sailer.${randomUUID().substring(0, 4)}@cord`
 
-  await createDidName(
-    aliceDid.uri,
-    Bob,
-    randomDidName,
-    async ({ data }) => ({
-      signature: aliceKeys.authentication.sign(data),
-      keyType: aliceKeys.authentication.type,
-    })
-  )
+  await createDidName(aliceDid.uri, Alice, randomDidName, async ({ data }) => ({
+    signature: aliceKeys.authentication.sign(data),
+    keyType: aliceKeys.authentication.type,
+  }))
   console.log(`✅ DID name - ${randomDidName} - created!`)
   await getDidDocFromName(randomDidName)
 
   // Step 2: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
   const schema = await ensureStoredSchema(
-    Bob,
+    Alice,
     aliceDid.uri,
     async ({ data }) => ({
       signature: aliceKeys.assertionMethod.sign(data),
@@ -90,7 +93,7 @@ async function main() {
   // Step 3: Create a new Registry
   console.log(`\n❄️  Registry Creation `)
   const registry = await ensureStoredRegistry(
-    Bob,
+    Alice,
     aliceDid.uri,
     schema['$id'],
     async ({ data }) => ({
@@ -104,8 +107,7 @@ async function main() {
   })
   console.log('✅ Registry created!')
 
-
-// Step 2: Create a new Stream
+  // Step 2: Create a new Stream
   console.log(`\n✉️  Adding a new Stream`, '\n')
   let tx_batch: any = []
 
@@ -126,60 +128,72 @@ async function main() {
     let schemaStream = Cord.Content.fromSchemaAndContent(
       schema,
       content,
-      aliceDid.uri,
-    ) 
-    console.log('schemaStream',schemaStream)
-
+      bobDid.uri,
+      aliceDid.uri
+    )
+    const document = await Cord.Document.fromContent({
+      content: schemaStream,
+      authorization: Alice,
+      registry: registry.identifier,
+      signCallback: async ({ data }) => ({
+        signature: aliceKeys.assertionMethod.sign(data),
+        keyType: aliceKeys.assertionMethod.type,
+      }),
+    })
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
         moment.duration(moment().diff(startTxPrep)).as('seconds').toFixed(3) +
         's\r'
     )
+
     try {
-      let txStream = await createStream(
-        aliceDid.uri,
-        aliceKeys,
-        async ({ data }) => ({
-          signature: aliceKeys.assertionMethod.sign(data),
-          keyType: aliceKeys.assertionMethod.type,
-        }),
-        content
+      const { streamHash } = Cord.Stream.fromDocument(document)
+      const streamTx = api.tx.stream.create(
+        streamHash,
+        document.authorization,
+        document.content.schemaId
       )
-      tx_batch.push(txStream)
+
+      tx_batch.push(streamTx)
     } catch (e: any) {
+      console.log('\nline 331\n')
       console.log(e.errorCode, '-', e.message)
     }
-  
 
-  let ancStartTime = moment()
-  console.log('\n')
-  for (let i = 0; i < tx_batch.length; i++) {
-    process.stdout.write(
-      '  🎁  Anchoring ' +
-        (i + 1) +
-        ' extrinsics took ' +
-        moment.duration(moment().diff(ancStartTime)).as('seconds').toFixed(3) +
-        's\r'
+    let ancStartTime = moment()
+    console.log('\n')
+    for (let i = 0; i < tx_batch.length; i++) {
+      process.stdout.write(
+        '  🎁  Anchoring ' +
+          (i + 1) +
+          ' extrinsics took ' +
+          moment
+            .duration(moment().diff(ancStartTime))
+            .as('seconds')
+            .toFixed(3) +
+          's\r'
+      )
+
+      try {
+        await Cord.Chain.signAndSubmitTx(tx_batch[i], aliceKeys, {
+          resolveOn: Cord.Chain.IS_READY,
+          rejectOn: Cord.Chain.IS_ERROR,
+        })
+      } catch (e: any) {
+        console.log(e.errorCode, '-', e.message)
+      }
+    }
+
+    let ancEndTime = moment()
+    var ancDuration = moment.duration(ancEndTime.diff(ancStartTime))
+    console.log(
+      `\n  🙌  Block TPS (extrinsic) - ${+(
+        txCount / ancDuration.as('seconds')
+      ).toFixed(0)} `
     )
 
-    try {
-      await Cord.Chain.signAndSubmitTx(tx_batch[i], Bob, {
-        resolveOn: Cord.Chain.IS_READY,
-        rejectOn: Cord.Chain.IS_ERROR,
-      })
-    } catch (e: any) {
-      console.log(e.errorCode, '-', e.message)
-    }
+    await api.disconnect()
   }
-  
-  let ancEndTime = moment()
-  var ancDuration = moment.duration(ancEndTime.diff(ancStartTime))
-  console.log(
-    `\n  🙌  Block TPS (extrinsic) - ${+(
-      txCount / ancDuration.as('seconds')
-    ).toFixed(0)} `
-  )
- }
 }
 main()
   .then(() => console.log('Bye! 👋 👋 👋 \n'))
