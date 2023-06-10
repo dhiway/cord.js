@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /**
  * Chain bridges that connects the SDK and the CORD Chain.
  *
@@ -17,9 +18,14 @@ import type {
   SubmittableExtrinsic,
   SubscriptionPromise,
 } from '@cord.network/types'
+import dotenv from 'dotenv'
 import { SDKErrors } from '@cord.network/utils'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
+
+dotenv.config()
+
+const { API_URL } = process.env
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 
@@ -180,20 +186,24 @@ export async function signAndSubmitTx(
   // : Promise<ISubmittableResult>
   // const signedTx = await tx.signAsync(signer, { tip, nonce: -1 })
 
-  const url = 'http://localhost:5103/api/v1'
+  let submit: any
 
-  const submit = await fetch(`${url}/extrinsic`, {
-    body: JSON.stringify({
-      extrinsic: tx.toHex(),
-    }),
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-  })
-    .then((resp) => resp)
-    .catch((error) => {
-      console.error(error)
+  const url = API_URL
+
+  if (url) {
+    submit = await fetch(`${url}/extrinsic`, {
+      body: JSON.stringify({
+        extrinsic: tx.toHex(),
+      }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     })
-
+      .then((resp) => resp)
+      .catch((error) => {
+        console.error(error)
+      })
+  }
   return submit
+
   // return submitSignedTx(signedTx, opts)
 }
