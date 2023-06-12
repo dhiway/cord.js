@@ -61,20 +61,23 @@ export async function createDid(
   // }
 
   const url = API_URL
+  const cordApiUrl = `${url}/query/did/${didUri}`
+
   let document: any
 
   if (url) {
-    document = await fetch(`${url}/query`, {
-      body: JSON.stringify({
-        did: didUri,
-      }),
-      method: 'POST',
+    document = await fetch(cordApiUrl, {
+      method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     })
-      .then((resp) => resp.json())
+      .then((resp) => {
+        return resp.json()
+      })
       .catch((error) => {
         console.error(error)
       })
+  } else {
+    console.log('URL not found')
   }
 
   return { mnemonic, document: document }
