@@ -189,9 +189,10 @@ export async function signAndSubmitTx(
   let submit: any
 
   const url = API_URL
+  const cordApiUrl = `${url}/extrinsic`
 
   if (url) {
-    submit = await fetch(`${url}/extrinsic`, {
+    submit = await fetch(cordApiUrl, {
       body: JSON.stringify({
         extrinsic: tx.toHex(),
       }),
@@ -202,6 +203,8 @@ export async function signAndSubmitTx(
       .catch((error) => {
         console.error(error)
       })
+  } else {
+    console.log('URL not found')
   }
   return submit
 
