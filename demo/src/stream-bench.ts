@@ -1,87 +1,175 @@
 import * as Cord from '@cord.network/sdk'
-import { UUID } from '@cord.network/utils'
+import { UUID, Crypto } from '@cord.network/utils'
+import { generateKeypairs } from './utils/generateKeypairs'
+import { createDid } from './utils/generateDid'
+import { createDidName } from './utils/generateDidName'
+import { getDidDocFromName } from './utils/queryDidName'
+import { ensureStoredSchema } from './utils/generateSchema'
+import {
+  ensureStoredRegistry,
+  addRegistryDelegate,
+} from './utils/generateRegistry'
+import { randomUUID } from 'crypto'
+import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import moment from 'moment'
-import Keyring from '@polkadot/keyring'
-import { ApiPromise, WsProvider } from '@polkadot/api'
 
-export const sleep = (ms: number): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), ms)
-  })
+function getChallenge(): string {
+  return Cord.Utils.UUID.generate()
 }
 
 async function main() {
-  await Cord.init({ address: 'ws://127.0.0.1:9944' })
-  // await Cord.ChainHelpers.ChainApiConnection.getConnectionOrConnect()
-  const wsProvider = new WsProvider('ws://127.0.0.1:9944')
-  const api = await ApiPromise.create({ provider: wsProvider })
+  const networkAddress = 'ws://127.0.0.1:9944'
+  Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
+  await Cord.connect(networkAddress)
 
-  // Step 1: Setup Identities
-  const Alice = Cord.Identity.buildFromURI('//Alice', {
-    signingKeyPairType: 'sr25519',
-  })
-  const Bob = Cord.Identity.buildFromURI('//Bob', {
-    signingKeyPairType: 'sr25519',
-  })
+  // Step 1: Setup Authority
+  // Setup transaction author account - CORD Account.
 
-  // Step 2: Create a new Schema
-  console.log(`\n\n✉️  Adding a new Schema \n`)
-  let newSchemaContent = require('../res/schema.json')
-  let newSchemaTitle = newSchemaContent.title + ':' + UUID.generate()
-  newSchemaContent.title = newSchemaTitle
+  console.log(`\n❄️  Identities `)
+  const xUri = process.argv[2] ? process.argv[2] : '//Alice'
+  const yUri = process.argv[3] ? process.argv[3] : '//Bob'
+  console.log('🥢 URI of identity 1: ', xUri)
+  console.log('🥢 URI of identity 2: ', yUri)
 
-  let newSchema = Cord.Schema.fromSchemaProperties(newSchemaContent, Bob)
-  let schemaCreationExtrinsic = await await Cord.Schema.create(newSchema)
+  const X = Crypto.makeKeypairFromUri(`${xUri}`, 'sr25519')
+  const Y = Crypto.makeKeypairFromUri(`${yUri}`, 'sr25519')
 
-  try {
-    await Cord.Chain.signAndSubmitTx(schemaCreationExtrinsic, Bob, {
-      resolveOn: Cord.Chain.IS_IN_BLOCK,
-      rejectOn: Cord.Chain.IS_ERROR,
-    })
-    console.log('✅ Schema created!')
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
+  if (xUri != '//Alice' && xUri != '//Bob') {
+    const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
+      `//Alice`,
+      'sr25519'
+    )
+    await addAuthority(authorityAuthorIdentity, X.address)
+    await addAuthority(authorityAuthorIdentity, Y.address)
+    console.log(`🔏 permissions updated`)
+    await getChainCredits(authorityAuthorIdentity, X.address, 15)
+    await getChainCredits(authorityAuthorIdentity, Y.address, 15)
+    console.log(`💸 Authors endowed with credits`)
   }
 
+  const { mnemonic: XMnemonic, document: XDid } = await createDid(X)
+  const { mnemonic: YMnemonic, document: YDid } = await createDid(Y)
+  const XKeys = await generateKeypairs(XMnemonic)
+
+  // // Step 2: Create a DID name for Issuer
+  console.log(`\n❄️  DID name Creation `)
+  const randomDidName = `solar.sailer.${randomUUID().substring(0, 4)}@cord`
+
+  await createDidName(XDid.uri, Y, randomDidName, async ({ data }) => ({
+    signature: XKeys.authentication.sign(data),
+    keyType: XKeys.authentication.type,
+  }))
+  console.log(`✅ DID name - ${randomDidName} - created!`)
+  await getDidDocFromName(randomDidName)
+
+  // Step 2: Create a new Schema
+  console.log(`\n❄️  Schema Creation `)
+  const schema = await ensureStoredSchema(Y, XDid.uri, async ({ data }) => ({
+    signature: XKeys.assertionMethod.sign(data),
+    keyType: XKeys.assertionMethod.type,
+  }))
+  console.log('✅ Schema created!')
+  // Step 3: Create a new Registry
+  console.log(`\n❄️  Registry Creation `)
+  const registry = await ensureStoredRegistry(
+    Y,
+    XDid.uri,
+    schema['$id'],
+    async ({ data }) => ({
+      signature: XKeys.assertionMethod.sign(data),
+      keyType: XKeys.assertionMethod.type,
+    })
+  )
+  console.log('\n✅ Registry created!')
+
+  const registryDelegate = await addRegistryDelegate(
+    X,
+    XDid.uri,
+    registry['identifier'],
+    XDid.uri,
+    async ({ data }) => ({
+      signature: XKeys.capabilityDelegation.sign(data),
+      keyType: XKeys.capabilityDelegation.type,
+    })
+  )
+
+  const api = Cord.ConfigService.get('api')
   // Step 2: Create a new Stream
   console.log(`\n✉️  Adding a new Stream`, '\n')
   let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 805
+  let txCount = 2000
   let newStreamContent: Cord.IContentStream
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
   for (let j = 0; j < txCount; j++) {
     let content = {
-      name: 'Alice' + ':' + UUID.generate(),
+      name: 'Bob ' + ': ' + UUID.generate(),
       age: 29,
-      gender: 'Female',
+      id: `${YDid.uri}`,
+      gender: 'Male',
       country: 'India',
-      credit: 1000,
     }
-    let schemaStream = Cord.Content.fromSchemaAndContent(
-      newSchema,
-      content,
-      Bob.address
-    )
 
-    newStreamContent = Cord.ContentStream.fromContent(schemaStream, Bob)
-    let newStream = Cord.Stream.fromContentStream(newStreamContent)
+    let schemaStream = await Cord.Content.fromSchemaAndContent(
+      schema,
+      content,
+      YDid.uri,
+      XDid.uri
+    )
+    let signCallback: Cord.SignCallback = async ({ data }) => ({
+      signature: XKeys.authentication.sign(data),
+      keyType: XKeys.authentication.type,
+      keyUri: `${XDid.uri}${XDid.authentication[0].id}`,
+    })
+
+    const document = await Cord.Document.fromContent({
+      content: schemaStream,
+      authorization: registryDelegate,
+      registry: registry.identifier,
+      signCallback,
+    })
 
     process.stdout.write(
       '  🔖  Extrinsic creation took ' +
         moment.duration(moment().diff(startTxPrep)).as('seconds').toFixed(3) +
         's\r'
     )
+    let extSignCallback: Cord.SignExtrinsicCallback = async ({ data }) => ({
+      signature: XKeys.assertionMethod.sign(data),
+      keyType: XKeys.assertionMethod.type,
+    })
+
     try {
-      let txStream = await Cord.Stream.create(newStream)
+      // Create a stream object
+      const { streamHash } = Cord.Stream.fromDocument(document)
+      const authorization = Cord.Registry.uriToIdentifier(
+        document.authorization
+      )
+      const schemaId = Cord.Registry.uriToIdentifier(document.content.schemaId)
+      // To create a stream without a schema, use the following line instead:
+      // const schemaId = null
+      // make sure the registry is not linked with a schema for this to work
+      const streamTx = api.tx.stream.create(streamHash, authorization, schemaId)
+
+      /* TODO: txCounter is a must have requirement in this case, but it works
+         because DID is freshly created. Otherwise, it should pick the latest
+         DID's nonce and then use that. */
+
+      const txStream = await Cord.Did.authorizeTx(
+        XDid.uri,
+        streamTx,
+        extSignCallback,
+        X.address,
+        { txCounter: j + 1 }
+      )
       tx_batch.push(txStream)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
+      console.log('IN ERROR 1')
     }
   }
-
   let ancStartTime = moment()
   console.log('\n')
   for (let i = 0; i < tx_batch.length; i++) {
@@ -94,12 +182,13 @@ async function main() {
     )
 
     try {
-      await Cord.Chain.signAndSubmitTx(tx_batch[i], Bob, {
+      await Cord.Chain.signAndSubmitTx(tx_batch[i], X, {
         resolveOn: Cord.Chain.IS_READY,
         rejectOn: Cord.Chain.IS_ERROR,
       })
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
+      console.log('IN ERROR 2')
     }
   }
 
@@ -110,69 +199,7 @@ async function main() {
       txCount / ancDuration.as('seconds')
     ).toFixed(0)} `
   )
-
-  let tx_new_batch: any = []
-
-  let startTxPrep2 = moment()
-
-  for (let j = 0; j < txCount; j++) {
-    let content = {
-      name: 'Alice' + ':' + UUID.generate(),
-      age: 29,
-      gender: 'Female',
-      country: 'India',
-      credit: 1000,
-    }
-    let schemaStream = Cord.Content.fromSchemaAndContent(
-      newSchema,
-      content,
-      Bob.address
-    )
-
-    let newStreamContent = Cord.ContentStream.fromContent(schemaStream, Bob)
-    let newStream = Cord.Stream.fromContentStream(newStreamContent)
-
-    process.stdout.write(
-      '  🔖  Extrinsic creation took ' +
-        moment.duration(moment().diff(startTxPrep2)).as('seconds').toFixed(3) +
-        's\r'
-    )
-    try {
-      let txStream = await Cord.Stream.create(newStream)
-      tx_new_batch.push(txStream)
-    } catch (e: any) {
-      console.log(e.errorCode, '-', e.message)
-    }
-  }
-
-  let keyring = new Keyring({ type: 'sr25519' })
-  let BatchAuthor = keyring.addFromUri('//Charlie')
-  let batchAncStartTime = moment()
-
-  try {
-    api.tx.utility.batch(tx_new_batch).signAndSend(BatchAuthor)
-  } catch (e: any) {
-    console.log(e.errorCode, '-', e.message)
-  }
-
-  let batchAncEndTime = moment()
-  var batchAncDuration = moment.duration(
-    batchAncEndTime.diff(batchAncStartTime)
-  )
-  console.log(
-    `\n  🎁  Anchoring a batch of ${
-      tx_batch.length
-    } extrinsics took ${batchAncDuration.as('seconds')}s`
-  )
-  console.log(
-    `  🙌  Block TPS (batch) - ${+(
-      txCount / batchAncDuration.as('seconds')
-    ).toFixed(0)} `
-  )
-  await sleep(2000)
-  await api.disconnect()
 }
-
 main()
   .then(() => console.log('Bye! 👋 👋 👋 \n'))
   .finally(Cord.disconnect)
