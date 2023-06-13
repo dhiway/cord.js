@@ -25,7 +25,7 @@ import { makeSubscriptionPromise } from './SubscriptionPromise.js'
 
 dotenv.config()
 
-const { API_URL } = process.env
+export const { API_URL } = process.env
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 

@@ -1,10 +1,7 @@
 import * as Cord from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { generateKeypairs } from './generateKeypairs'
-import dotenv from 'dotenv'
-dotenv.config()
-
-const { API_URL } = process.env
+import { API_URL } from '../../../packages/network/src/chain/Chain'
 
 /**
  * It creates a DID on chain, and returns the mnemonic and DID document
@@ -17,7 +14,7 @@ export async function createDid(
   mnemonic: string
   document: Cord.DidDocument
 }> {
-  const api = Cord.ConfigService.get('api')
+  // const api = Cord.ConfigService.get('api')
 
   const mnemonic = mnemonicGenerate(24)
   const {
@@ -53,7 +50,7 @@ export async function createDid(
   const didUri = Cord.Did.getDidUriFromKey(authentication)
 
   // const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
-
+  //TODO:REVIST
   // const { document } = Cord.Did.linkedInfoFromChain(encodedDid)
 
   // if (!document) {
