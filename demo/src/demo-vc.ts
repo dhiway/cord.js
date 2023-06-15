@@ -242,7 +242,6 @@ async function main() {
   console.dir(vcPresentation, { depth: null, colors: true })
   console.log('✅ Verifiable Presentation created!')
 
-  /*
   console.log(`\n❄️  Verifiy Presentation`)
 
   const VCfromPresentation =
@@ -254,7 +253,9 @@ async function main() {
       VCfromPresentation.proof[0]
     )
 
+
     console.log("\n: VC Proof(0): ", VCfromPresentation.proof[0], streamSignatureResult)
+  
     const streamResult = await VCUtils.verification.verifyStreamProof(
     VCfromPresentation,
     VCfromPresentation.proof[1]

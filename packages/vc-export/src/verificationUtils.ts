@@ -155,29 +155,9 @@ export async function verifyStreamProof(
         }}`
       )
     }
-    // if holder data on proof does not correspond to data on chain, proof is incorrect
-    /* TODO: No holder information on chain */
-    /*
-    const holderAddress = credential.credentialSubject['@id']
-    if (holderAddress) {
-      if (typeof holderAddress !== 'string')
-        throw PROOF_MALFORMED_ERROR('holder address not understood')
-      if (
-        onChain.holder !==
-        Identifier.getAccountAddressFromIdentifier(holderAddress)
-      )
-        throw new Error(
-          `proof not matching on-chain data: proof ${{
-            holder: holderAddress,
-          }}`
-        )
-    }
-    */
+
     // if documentHash on credential does not correspond to data on chain, proof is incorrect
-    if (
-      onChain.streamHash !==
-      Identifier.uriToIdentifier(credential.credentialHash)
-    )
+    if (onChain.streamHash !== credential.credentialHash)
       throw new Error(
         `credential hash is not matching on-chain data: proof ${{
           hash: credential.credentialHash,
