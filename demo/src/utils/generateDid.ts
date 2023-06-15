@@ -58,7 +58,7 @@ export async function createDid(
   // }
 
   const url = API_URL
-  const cordApiUrl = `${url}/query/did/${didUri}`
+  const cordApiUrl = `${url}/query/encodedDid/${didUri}`
 
   let document: any
 
