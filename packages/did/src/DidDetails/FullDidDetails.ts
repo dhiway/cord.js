@@ -11,13 +11,11 @@ import type {
 } from '@cord.network/types'
 
 import { SDKErrors } from '@cord.network/utils'
-import { ConfigService } from '@cord.network/config'
 
-import {
-  documentFromChain,
-  generateDidAuthenticatedTx,
-  toChain,
-} from '../Did.chain.js'
+import fetch from 'node-fetch'
+import { API_URL } from '../../../network/src/chain/Chain'
+
+import { generateDidAuthenticatedTx } from '../Did.chain.js'
 
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   stream: 'assertionMethod',
@@ -91,11 +89,31 @@ function increaseNonce(currentNonce: BN, increment = 1): BN {
  * @returns The next valid nonce, i.e., the nonce currently stored on the blockchain + 1, wrapping around the max value when reached.
  */
 async function getNextNonce(did: DidUri): Promise<BN> {
-  const api = ConfigService.get('api')
-  const queried = await api.query.did.did(toChain(did))
-  const currentNonce = queried.isSome
-    ? documentFromChain(queried).lastTxCounter
-    : new BN(0)
+  // const api = ConfigService.get('api')
+
+  const url = API_URL
+  const cordApiUrl = `${url}/query/did/${did}`
+
+  let queried: any
+
+  if (url) {
+    queried = await fetch(cordApiUrl, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then((data) => {
+        return data.json()
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  } else {
+    console.log('URL not found')
+  }
+
+  // const queried = await api.query.did.did(toChain(did))
+
+  const currentNonce = queried ? new BN(queried.lastTxCounter) : new BN(0)
   return increaseNonce(currentNonce)
 }
 

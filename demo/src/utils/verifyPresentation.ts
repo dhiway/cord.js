@@ -31,10 +31,10 @@ export async function verifyPresentation(
     const url = API_URL
     const cordApiUrl = `${url}/query/stream/${chainIdentifier}`
 
-    let streamOnChain: any
+    let stream: any
 
     if (url) {
-      streamOnChain = await fetch(cordApiUrl, {
+      stream = await fetch(cordApiUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -48,7 +48,7 @@ export async function verifyPresentation(
       console.log('URL not found')
     }
 
-    const stream = Cord.Stream.fromChain(streamOnChain, chainIdentifier)
+    // const stream = Cord.Stream.fromChain(streamOnChai, chainIdentifier)
     if (stream.revoked) {
       return false
     }
