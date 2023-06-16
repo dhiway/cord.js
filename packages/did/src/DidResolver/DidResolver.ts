@@ -19,6 +19,7 @@ import { toChain } from '../Did.chain.js'
 import { linkedInfoFromChain } from '../Did.rpc.js'
 import { getDidUri, parse } from '../Did.utils.js'
 import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.js'
+import { cord_api_query } from '../../../../helper'
 
 /**
  * Resolve a DID URI to the DID document and its metadata.
@@ -54,27 +55,11 @@ export async function resolve(
   }
 
   // If theDID has been deleted return the info in the resolution metadata.
-  const url = API_URL
-  const cordApiUrl = `${url}/query/didBlacklist/${did}`
 
-  let isdidDeleted: any
-
-  if (url) {
-    isdidDeleted = await fetch(cordApiUrl, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((data) => {
-        return data.json()
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  } else {
-    console.log('URL not found')
-  }
+  const isdidDeleted = await cord_api_query('didBlacklist', 'did', did)
 
   // const isdidDeleted = (await api.query.did.didBlacklist(toChain(did))).isSome
+
   if (isdidDeleted) {
     return {
       // No canonicalId and no details are returned as we consider this DID deactivated/deleted.

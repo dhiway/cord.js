@@ -33,6 +33,7 @@ import type {
   PalletDidDidDetailsDidPublicKeyDetails,
   PalletDidServiceEndpointsDidEndpoint,
 } from '@cord.network/augment-api'
+import { cord_api_query } from '../../../helper'
 
 import {
   EncodedEncryptionKey,
@@ -435,25 +436,7 @@ export async function generateDidAuthenticatedTx({
 }: AuthorizeCallInput & SigningOptions): Promise<SubmittableExtrinsic> {
   const api = ConfigService.get('api')
 
-  const url = API_URL
-  const cordApiUrl = `${url}/query/system/number`
-
-  let num: any
-
-  if (url) {
-    num = await fetch(cordApiUrl, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((data) => {
-        return data.json()
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  } else {
-    console.log('URL not found')
-  }
+  const number = await cord_api_query('system', 'section', 'number')
 
   const signableCall =
     api.registry.createType<PalletDidDidDetailsDidAuthorizedCallOperation>(
@@ -463,7 +446,7 @@ export async function generateDidAuthenticatedTx({
         did: toChain(did),
         call,
         submitter,
-        blockNumber: blockNumber ?? num,
+        blockNumber: blockNumber ?? number,
       }
     )
   const signature = await sign({
