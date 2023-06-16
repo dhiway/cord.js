@@ -3,6 +3,9 @@ import type { AccountId32, Extrinsic, Hash } from '@polkadot/types/interfaces'
 import type { AnyNumber } from '@polkadot/types/types'
 import { BN } from '@polkadot/util'
 
+import fetch from 'node-fetch'
+import { API_URL } from '../../network/src/chain/Chain'
+
 import type {
   DidDocument,
   DidEncryptionKey,
@@ -431,6 +434,27 @@ export async function generateDidAuthenticatedTx({
   blockNumber,
 }: AuthorizeCallInput & SigningOptions): Promise<SubmittableExtrinsic> {
   const api = ConfigService.get('api')
+
+  const url = API_URL
+  const cordApiUrl = `${url}/query/system/number`
+
+  let num: any
+
+  if (url) {
+    num = await fetch(cordApiUrl, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then((data) => {
+        return data.json()
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  } else {
+    console.log('URL not found')
+  }
+
   const signableCall =
     api.registry.createType<PalletDidDidDetailsDidAuthorizedCallOperation>(
       api.tx.did.submitDidCall.meta.args[0].type.toString(),
@@ -439,7 +463,7 @@ export async function generateDidAuthenticatedTx({
         did: toChain(did),
         call,
         submitter,
-        blockNumber: blockNumber ?? (await api.query.system.number()),
+        blockNumber: blockNumber ?? num,
       }
     )
   const signature = await sign({
