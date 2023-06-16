@@ -16,6 +16,7 @@ import fetch from 'node-fetch'
 import { API_URL } from '../../../network/src/chain/Chain'
 
 import { generateDidAuthenticatedTx } from '../Did.chain.js'
+import { cord_api_query } from '../../../../helper'
 
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   stream: 'assertionMethod',
@@ -91,25 +92,7 @@ function increaseNonce(currentNonce: BN, increment = 1): BN {
 async function getNextNonce(did: DidUri): Promise<BN> {
   // const api = ConfigService.get('api')
 
-  const url = API_URL
-  const cordApiUrl = `${url}/query/did/${did}`
-
-  let queried: any
-
-  if (url) {
-    queried = await fetch(cordApiUrl, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((data) => {
-        return data.json()
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  } else {
-    console.log('URL not found')
-  }
+  const queried = await cord_api_query('did', 'did', did)
 
   // const queried = await api.query.did.did(toChain(did))
 
