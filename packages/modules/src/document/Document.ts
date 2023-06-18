@@ -53,10 +53,10 @@ function getHashLeaves(
       result.push(Crypto.coToUInt8(evidence.identifier))
     })
   }
-  if (createdAt) {
+  if (createdAt && createdAt !== '') {
     result.push(Crypto.coToUInt8(createdAt))
   }
-  if (validUntil) {
+  if (validUntil && validUntil !== '') {
     result.push(Crypto.coToUInt8(validUntil))
   }
 
@@ -71,12 +71,15 @@ function getHashLeaves(
  */
 
 export function calculateDocumentHash(document: Partial<IDocument>): Hash {
+  /*
   const hashes = getHashLeaves(
     document.contentHashes || [],
     document.evidenceIds || [],
     document.createdAt || '',
     document.validUntil || ''
   )
+  */
+  const hashes = getHashLeaves(document.contentHashes || [], [], '', '');
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
 }

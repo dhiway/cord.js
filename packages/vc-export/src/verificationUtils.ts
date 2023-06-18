@@ -4,12 +4,12 @@
  */
 
 import { ConfigService, DidResourceUri, Stream } from "@cord.network/sdk"
-import { CORD_ANCHORED_PROOF_TYPE, CORD_CREDENTIAL_DIGEST_PROOF_TYPE, CORD_SELF_SIGNATURE_PROOF_TYPE } from "./constants"
+import { CORD_ANCHORED_PROOF_TYPE, CORD_CREDENTIAL_DIGEST_PROOF_TYPE, CORD_SELF_SIGNATURE_PROOF_TYPE, CORD_STREAM_SIGNATURE_PROOF_TYPE } from "./constants"
 import { fromCredentialIRI } from "./exportToVerifiableCredential"
 import { CordSelfSignatureProof, CordStreamProof, CordStreamSignatureProof, CredentialDigestProof, VerifiableCredential } from "./types"
 import { Crypto } from "@cord.network/utils"
 import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
-import { blake2AsHex } from '@polkadot/util-crypto'
+//import { blake2AsHex } from '@polkadot/util-crypto'
 import { makeSigningData } from "./presentationUtils"
 import { signatureFromJson, verifyDidSignature } from "@cord.network/did"
 
@@ -114,10 +114,6 @@ export async function verifyCredentialDigestProof(
   proof: CredentialDigestProof,
   options: { hasher?: Crypto.Hasher } = {}
 ): Promise<VerificationResult> {
-  const result: VerificationResult = { verified: true, errors: [] }
-  const {
-    hasher = (value, nonce?) => blake2AsHex((nonce || '') + value, 256),
-  } = options
   try {
     // check proof
     const type = proof['@type'] ?? proof.type
@@ -139,33 +135,72 @@ export async function verifyCredentialDigestProof(
     const rootHash = Crypto.hash(concatenated)
 
     // throw if root hash does not match expected (=id)
-    const expectedRootHash = fromCredentialIRI(credential.id)
-    if (expectedRootHash !== u8aToHex(rootHash))
-      throw new Error('Computed root hash does not match expected')
-
+    const expectedRootHash = credential.credentialHash
+    if (expectedRootHash !== u8aToHex(rootHash)) {
+      throw new Error(`Computed root hash does not match expected ${expectedRootHash} != ${u8aToHex(rootHash)}`)
+    }
     // 2: check individual properties against claim hashes in proof
     // expand credentialSubject keys by compacting with empty context credential to produce statements
     const flattened = credential.credentialSubject;// await jsonld.compact(credential.credentialSubject, {})
-    const statements = Object.entries(flattened).map(([key, value]) =>
+    const statements = Object.entries(flattened).filter(([key, value]) =>
+      key !== '@context'
+    ).map(([key, value]) =>
       JSON.stringify({ [key]: value })
     )
-    const expectedUnsalted = Object.keys(proof.nonces)
+  const { nonces } = proof
+  // iterate over statements to produce salted hashes
+  const hashed = Crypto.hashStatements(statements, { ...options, nonces })
+  const digestsInProof = Object.keys(nonces)
+  const result = hashed.reduce<{
+      verified: boolean
+      errors: Error[]
+    }>(
+      (status, { saltedHash, statement, digest, nonce }) => {
+        // check if the statement digest was contained in the proof and mapped it to a nonce
+        if (!digestsInProof.includes(digest) || !nonce) {
+          status.errors.push(PROOF_MALFORMED_ERROR(
+            `Proof contains no digest for statement ${statement} - ${digestsInProof} ${digest}`
+          ))
+          return { ...status, verified: false }
+        }
+        // check if the hash is whitelisted in the proof
+        if (!proof.hashes.includes(saltedHash)) {
+          status.errors.push(
+            new Error('proof missing hash')
+          )
+          return { ...status, verified: false }
+        }
+        return status
+      },
+      { verified: true, errors: [] }
+    )
+    return result;
+  } catch(error) {
+    return { verified: false, errors: [new Error(`${error}`)]}
+  }
 
+    /*
+    const expectedUnsalted = Object.keys(proof.nonces)
+    console.log("Expected Nonces: ", expectedUnsalted);
+    const { nonces } = proof
+    const processed = Crypto.hashStatements(statements, {...options, nonces});
+    const sample = processed.map(({ saltedHash }) => saltedHash)
     return statements.reduce<VerificationResult>(
       (r, stmt) => {
         const unsalted = hasher(stmt)
+        console.log("Unsalted: ", unsalted);
         if (!expectedUnsalted.includes(unsalted))
           return {
             verified: false,
             errors: [
               ...r.errors,
               PROOF_MALFORMED_ERROR(
-                `Proof contains no digest for statement ${stmt}`
+                `Proof contains no digest for statement ${stmt} - ${expectedUnsalted} ${unsalted} ${sample}`
               ),
             ],
           }
         const nonce = proof.nonces[unsalted]
-        if (!proof.claimHashes.includes(hasher(unsalted, nonce)))
+        if (!proof.contentHashes.includes(hasher(unsalted, nonce)))
           return {
             verified: false,
             errors: [
@@ -184,25 +219,44 @@ export async function verifyCredentialDigestProof(
     result.errors = [e as Error]
     return result
   }
-
-  return result;
+  */
 }
-/*
-export function verifySelfSignatureProof(
-  credential: VerifiableCredential,
-  proof: CordSelfSignatureProof,
-  challenge?: string
-): VerificationResult {
-  const result: VerificationResult = { verified: true, errors: []}
-  return result;
-}
-*/
 
-export function verifyStreamSignatureProof(
+export async function verifyStreamSignatureProof(
     credential: VerifiableCredential,
     proof: CordStreamSignatureProof
-): VerificationResult {
+): Promise<VerificationResult> {
   const result: VerificationResult = { verified: true, errors: [] }
+  try {
+    // check proof
+    const type = proof['@type'] ?? proof.type
+    if (type !== CORD_STREAM_SIGNATURE_PROOF_TYPE)
+      throw new Error('Proof type mismatch')
+    if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
+    /*TODO: for now, makePresentation takes just one VC. Think more on what should be verified. */ 
+    const signingData = makeSigningData(proof.challenge)
+
+    const proofJson = {
+      keyUri: proof.verificationMethod as DidResourceUri,
+      signature: proof.signature,
+    }
+    try {
+    await verifyDidSignature({
+      ...signatureFromJson(proofJson),
+      message: signingData,
+      // check if credential owner matches signer
+      expectedSigner: credential.issuer as DidResourceUri,
+      expectedVerificationMethod: 'authentication'
+    })
+  } catch (err) {
+    result.verified = false;
+    result.errors.push(err as  Error);
+  }
+  } catch (e) {
+    result.verified = false
+    result.errors = [e as Error]
+    return result
+  }
   return result;
 }
 
