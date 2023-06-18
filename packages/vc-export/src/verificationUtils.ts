@@ -3,29 +3,15 @@
  * @module VerificationUtils
  */
 
-import { signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
-import jsonld from 'jsonld'
-import { Stream, Schema } from '@cord.network/modules'
-import { ConfigService } from '@cord.network/config'
-import { Crypto, JsonSchema, Identifier } from '@cord.network/utils'
-import {
-  CORD_STREAM_SIGNATURE_PROOF_TYPE,
-  CORD_SELF_SIGNATURE_PROOF_TYPE,
-  CORD_ANCHORED_PROOF_TYPE,
-  CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-} from './constants.js'
-import type {
-  VerifiableCredential,
-  CordStreamSignatureProof,
-  CordSelfSignatureProof,
-  CordStreamProof,
-  CredentialDigestProof,
-  CredentialSchema,
-} from './types.js'
-import { Hash } from '@cord.network/types'
-import { fromCredentialIRI } from './exportToVerifiableCredential.js'
-import { makeSigningData } from './presentationUtils.js'
-import { HexString } from '@polkadot/util/types.js'
+import { ConfigService, DidResourceUri, Stream } from "@cord.network/sdk"
+import { CORD_ANCHORED_PROOF_TYPE, CORD_CREDENTIAL_DIGEST_PROOF_TYPE, CORD_SELF_SIGNATURE_PROOF_TYPE } from "./constants"
+import { fromCredentialIRI } from "./exportToVerifiableCredential"
+import { CordSelfSignatureProof, CordStreamProof, CordStreamSignatureProof, CredentialDigestProof, VerifiableCredential } from "./types"
+import { Crypto } from "@cord.network/utils"
+import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
+import { blake2AsHex } from '@polkadot/util-crypto'
+import { makeSigningData } from "./presentationUtils"
+import { signatureFromJson, verifyDidSignature } from "@cord.network/did"
 
 export interface VerificationResult {
   verified: boolean
@@ -48,63 +34,6 @@ const CREDENTIAL_MALFORMED_ERROR = (reason: string): Error =>
 
 const PROOF_MALFORMED_ERROR = (reason: string): Error =>
   new Error(`Proof malformed: ${reason}`)
-
-/**
- * Verifies a stream signed proof (holder signature) against a CORD Verifiable Credential.
- * This entails computing the root hash from the hashes contained in the `protected` section of the credentialSubject.
- * The resulting hash is then verified against the signature and public key contained in the proof (the latter
- * could be a DID URI in the future). It is also expected to by identical to the credential id.
- *
- * @param credential Verifiable Credential to verify proof against.
- * @param proof CORD self signed proof object.
- * @returns Object indicating whether proof could be verified.
- */
-export function verifyStreamSignatureProof(
-  credential: VerifiableCredential,
-  proof: CordStreamSignatureProof
-): VerificationResult {
-  const result: VerificationResult = { verified: true, errors: [] }
-  try {
-    // check proof
-    const type = proof['@type'] || proof.type
-    if (type !== CORD_STREAM_SIGNATURE_PROOF_TYPE)
-      throw new Error('Proof type mismatch')
-    if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
-    const { verificationMethod } = proof
-    if (
-      !(
-        typeof verificationMethod === 'object' &&
-        verificationMethod.publicKeyHex
-      )
-    ) {
-      throw PROOF_MALFORMED_ERROR(
-        'proof must contain public key; resolve did key references beforehand'
-      )
-    }
-    const signerPubKey = verificationMethod.publicKeyHex
-
-    const rootHash = Identifier.uriToIdentifier(
-      fromCredentialIRI(credential.credentialHash)
-    )
-    // validate signature over root hash
-    // signatureVerify can handle all required signature types out of the box
-    const verification = signatureVerify(
-      rootHash,
-      proof.signature,
-      signerPubKey
-    )
-    if (
-      !(verification.isValid)
-    ) {
-      throw new Error('signature could not be verified')
-    }
-    return result
-  } catch (e) {
-    result.verified = false
-    result.errors = [e as Error]
-    return result
-  }
-}
 
 /**
  * Verifies a CORD credential proof by querying data from the CORD blockchain.
@@ -179,47 +108,44 @@ export async function verifyStreamProof(
   return { verified: true, errors: [], status: StreamStatus.valid }
 }
 
-/**
- * Verifies a proof that reveals the content of selected properties to a verifier. This enables selective disclosure.
- * Values and nonces contained within this proof will be hashed, the result of which is expected to equal hashes on the credential.
- *
- * @param credential Verifiable Credential to verify proof against.
- * @param proof CORD self signed proof object.
- * @param options Allows passing custom hasher.
- * @param options.hasher A custom hasher. Defaults to hex(blake2-256('nonce'+'value')).
- * @returns Object indicating whether proof could be verified.
- */
+
 export async function verifyCredentialDigestProof(
   credential: VerifiableCredential,
   proof: CredentialDigestProof,
   options: { hasher?: Crypto.Hasher } = {}
 ): Promise<VerificationResult> {
+  const result: VerificationResult = { verified: true, errors: [] }
   const {
     hasher = (value, nonce?) => blake2AsHex((nonce || '') + value, 256),
   } = options
-  const result: VerificationResult = { verified: true, errors: [] }
   try {
     // check proof
-    const type = proof['@type'] || proof.type
+    const type = proof['@type'] ?? proof.type
     if (type !== CORD_CREDENTIAL_DIGEST_PROOF_TYPE)
       throw new Error('Proof type mismatch')
     if (typeof proof.nonces !== 'object') {
-      throw PROOF_MALFORMED_ERROR('proof must contain object "nonces"')
+      throw  PROOF_MALFORMED_ERROR('Proof must contain object "nonces"')
     }
     if (typeof credential.credentialSubject !== 'object')
-      throw CREDENTIAL_MALFORMED_ERROR('credential subject missing')
+      throw CREDENTIAL_MALFORMED_ERROR('Credential subject missing')
 
-    const rootHash = verifyRootHash(credential, proof)
-    // throw if root hash does not match expected (=id)
-    const expectedRootHash = Identifier.uriToIdentifier(
-      credential.credentialHash
+    // 1: check credential digest against credential contents & claim property hashes in proof
+    // collect hashes from hash array, legitimations & delegationId
+    const hashes = proof.contentHashes
+    // convert hex hashes to byte arrays & concatenate
+    const concatenated = u8aConcat(
+      ...hashes.map((hexHash) => hexToU8a(hexHash))
     )
-    if (expectedRootHash !== rootHash)
-      throw new Error('computed root hash does not match expected')
+    const rootHash = Crypto.hash(concatenated)
 
-    // 2: check individual properties against stream hashes in proof
+    // throw if root hash does not match expected (=id)
+    const expectedRootHash = fromCredentialIRI(credential.id)
+    if (expectedRootHash !== u8aToHex(rootHash))
+      throw new Error('Computed root hash does not match expected')
+
+    // 2: check individual properties against claim hashes in proof
     // expand credentialSubject keys by compacting with empty context credential to produce statements
-    const flattened = await jsonld.compact(credential.credentialSubject, {})
+    const flattened = credential.credentialSubject;// await jsonld.compact(credential.credentialSubject, {})
     const statements = Object.entries(flattened).map(([key, value]) =>
       JSON.stringify({ [key]: value })
     )
@@ -239,13 +165,13 @@ export async function verifyCredentialDigestProof(
             ],
           }
         const nonce = proof.nonces[unsalted]
-        if (!proof.contentHashes.includes(hasher(unsalted, nonce)))
+        if (!proof.claimHashes.includes(hasher(unsalted, nonce)))
           return {
             verified: false,
             errors: [
               ...r.errors,
               new Error(
-                `Proof for statement ${stmt} not valid against streamHashes`
+                `Proof for statement "${stmt}" not valid against contentHashes`
               ),
             ],
           }
@@ -258,133 +184,64 @@ export async function verifyCredentialDigestProof(
     result.errors = [e as Error]
     return result
   }
-}
 
-/**
- * Verifies a self signed proof (holder signature)
- * This entails computing the root hash from the hashes contained in the `protected` section of the credentialSubject.
- * The resulting hash is then verified against the signature, created date,
- * challenge and thepublic key contained in the proof.
- *
- * @param credential Verifiable Credential to verify proof against.
- * @param proof CORD self signed proof object.
- * @returns Object indicating whether proof could be verified.
- */
+  return result;
+}
+/*
 export function verifySelfSignatureProof(
   credential: VerifiableCredential,
   proof: CordSelfSignatureProof,
   challenge?: string
 ): VerificationResult {
+  const result: VerificationResult = { verified: true, errors: []}
+  return result;
+}
+*/
+
+export function verifyStreamSignatureProof(
+    credential: VerifiableCredential,
+    proof: CordStreamSignatureProof
+): VerificationResult {
+  const result: VerificationResult = { verified: true, errors: [] }
+  return result;
+}
+
+
+export async function verifySelfSignatureProof(
+  credential: VerifiableCredential,
+  proof: CordSelfSignatureProof,
+  challenge?: string
+ ) : Promise<VerificationResult> {
   const result: VerificationResult = { verified: true, errors: [] }
   try {
     // check proof
-    const type = proof['@type'] || proof.type
+    const type = proof['@type'] ?? proof.type
     if (type !== CORD_SELF_SIGNATURE_PROOF_TYPE)
       throw new Error('Proof type mismatch')
     if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
-    if (!proof.created) throw PROOF_MALFORMED_ERROR('creattion time missing')
-    const { verificationMethod } = proof
-    if (
-      !(
-        typeof verificationMethod === 'object' &&
-        verificationMethod.publicKeyHex
-      )
-    ) {
-      throw PROOF_MALFORMED_ERROR(
-        'proof must contain public key; resolve did key references beforehand'
-      )
-    }
-    
-    const rootHash = Identifier.uriToIdentifier(
-      fromCredentialIRI(credential.credentialHash)
-    )
-    const proofData = makeSigningData(rootHash, challenge)
+    /*TODO: for now, makePresentation takes just one VC. Think more on what should be verified. */ 
+    const signingData = makeSigningData(credential.credentialHash, proof.challenge)
 
-    // validate signature over calculated proofData
-    // signatureVerify can handle all required signature types out of the box
-    const verification = signatureVerify(
-      proofData,
-      proof.signature,
-      proof.keyUri
-    )
-    if (
-      !(verification.isValid)
-    ) {
-      throw new Error('signature could not be verified')
+    const proofJson = {
+      keyUri: proof.verificationMethod as DidResourceUri,
+      signature: proof.signature,
     }
-    return result
+    try {
+    await verifyDidSignature({
+      ...signatureFromJson(proofJson),
+      message: signingData,
+      // check if credential owner matches signer
+      expectedSigner: credential.credentialSubject.holder as `did:cord:3${string}#${string}`,
+      expectedVerificationMethod: 'authentication'
+    })
+  } catch (err) {
+    result.verified = false;
+    result.errors.push(err as  Error);
+  }
   } catch (e) {
     result.verified = false
     result.errors = [e as Error]
     return result
   }
-}
-
-export function validateSchema(
-  credential: VerifiableCredential
-): VerificationResult {
-  const schema = credential.credentialSchema || {}
-  // if present, perform schema validation
-  if (schema) {
-    // there's no rule against additional properties, so we can just validate the ones that are there
-
-    const validator = new JsonSchema.Validator(schema as CredentialSchema)
-    validator.addSchema(Schema.TypeSchema.SchemaModel)
-    const result = validator.validate(credential.credentialSubject)
-    return {
-      verified: result.valid,
-      errors: result.errors?.map((e) => new Error(e.error)) || [],
-    }
-  }
-  return { verified: false, errors: [] }
-}
-
-function verifyRootHash(
-  input: VerifiableCredential,
-  proof: CredentialDigestProof
-): Hash {
-  const issuanceDateHash = Crypto.hashObjectAsHexStr(input.issuanceDate)
-  const expirationDateHash = Crypto.hashObjectAsHexStr(input.expirationDate)
-  return calculateRootHash(input, proof, issuanceDateHash, expirationDateHash)
-}
-
-function calculateRootHash(
-  credential: Partial<VerifiableCredential>,
-  proof: CredentialDigestProof,
-  issuanceDate: HexString,
-  expirationDate: HexString
-): Hash {
-  const hashes: Uint8Array[] = getHashLeaves(
-    proof.contentHashes || [],
-    credential.evidence || [],
-    issuanceDate,
-    expirationDate
-  )
-  const root: Uint8Array = getHashRoot(hashes)
-  return Crypto.u8aToHex(root)
-}
-
-function getHashLeaves(
-  contentHashes: string[],
-  evidenceIds: string[],
-  issueDate: HexString,
-  expiryDate: HexString
-): Uint8Array[] {
-  const result: Uint8Array[] = []
-  contentHashes.forEach((item) => {
-    result.push(Crypto.coToUInt8(item))
-  })
-  if (evidenceIds) {
-    evidenceIds.forEach((evidence) => {
-      result.push(Crypto.coToUInt8(evidence))
-    })
-  }
-  result.push(Crypto.coToUInt8(issueDate))
-  result.push(Crypto.coToUInt8(expiryDate))
-  return result
-}
-
-function getHashRoot(leaves: Uint8Array[]): Uint8Array {
-  const result = Crypto.u8aConcat(...leaves)
-  return Crypto.hash(result)
+  return result;
 }

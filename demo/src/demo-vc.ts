@@ -247,26 +247,12 @@ async function main() {
   const VCfromPresentation =
     vcPresentation.verifiableCredential as VerifiableCredential
 
-  const streamSignatureResult =
-    await VCUtils.verification.verifyStreamSignatureProof(
-      VCfromPresentation,
-      VCfromPresentation.proof[0]
-    )
-
-
-    console.log("\n: VC Proof(0): ", VCfromPresentation.proof[0], streamSignatureResult)
-  
-    const streamResult = await VCUtils.verification.verifyStreamProof(
+  const streamResult = await VCUtils.verification.verifyStreamProof(
     VCfromPresentation,
     VCfromPresentation.proof[1]
   )
   console.log("\n: VC Proof(1): ", VCfromPresentation.proof[1], streamResult)
 
-  const digestResult = await VCUtils.verification.verifyCredentialDigestProof(
-    VCfromPresentation,
-    VCfromPresentation.proof[2]
-  )
-  console.log("\n: VC Proof(2): ", VCfromPresentation.proof[2], digestResult)
   const selfSignatureResult =
     await VCUtils.verification.verifySelfSignatureProof(
       VCfromPresentation,
@@ -274,6 +260,20 @@ async function main() {
       vcChallenge
     )
     console.log("\n: VP Proof: ", vcPresentation.proof, vcChallenge, selfSignatureResult)
+/*
+  const streamSignatureResult =
+    await VCUtils.verification.verifyStreamSignatureProof(
+      VCfromPresentation,
+      VCfromPresentation.proof[0]
+    )
+
+  console.log("\n: VC Proof(0): ", VCfromPresentation.proof[0], streamSignatureResult)
+  
+  const digestResult = await VCUtils.verification.verifyCredentialDigestProof(
+    VCfromPresentation,
+    VCfromPresentation.proof[2]
+  )
+  console.log("\n: VC Proof(2): ", VCfromPresentation.proof[2], digestResult)
   
   if (
     streamResult &&

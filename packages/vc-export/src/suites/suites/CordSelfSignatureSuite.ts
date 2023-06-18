@@ -49,7 +49,7 @@ export default class CordSelfSignatureSuite extends CordAbstractSuite {
           dereferenced.document as IPublicKeyRecord
       }
       // note that we currently don't check whether the public key in the proof is linked to the credential subject
-      const { verified, errors } = verifySelfSignatureProof(
+      const { verified, errors } = await verifySelfSignatureProof(
         compactedDoc,
         compactedProof
       )
