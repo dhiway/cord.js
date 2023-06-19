@@ -207,7 +207,8 @@ export async function verifyAuthorization(
 ): Promise<void> {
   const api = ConfigService.get('api')
   const identifier = Identifier.uriToIdentifier(auth)
-  const encoded: any = await api.query.registry.authorizations(identifier)
+  // const encoded: any = await api.query.registry.authorizations(identifier)
+  const encoded = await cord_api_query('registry', 'authorizations', identifier)
   if (encoded.isNone)
     throw new SDKErrors.AuthorizationIdMissingError(
       `Authorization with identifier ${identifier} is not registered on chain`
