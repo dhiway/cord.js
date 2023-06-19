@@ -34,6 +34,7 @@ import { Bytes, Option } from '@polkadot/types'
 import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import type { PalletRegistryRegistryAuthorization } from '@cord.network/augment-api'
+import { cord_api_query } from '../../../../helper'
 /**
  *  Checks whether the input meets all the required criteria of an [[IRegistry]] object.
  *  Throws on invalid input.
@@ -185,9 +186,10 @@ export function isIRegistry(input: unknown): input is IRegistry {
  */
 
 export async function verifyStored(registry: IRegistry): Promise<void> {
-  const api = ConfigService.get('api')
+  // const api = ConfigService.get('api')
   const identifier = Identifier.uriToIdentifier(registry.identifier)
-  const encoded: any = await api.query.registry.registries(identifier)
+  // const encoded: any = await api.query.registry.registries(identifier)
+  const encoded = await cord_api_query('registry', 'registries', identifier)
   if (encoded.isNone)
     throw new SDKErrors.RegistryIdentifierMissingError(
       `Registry with identifier ${identifier} is not registered on chain`
