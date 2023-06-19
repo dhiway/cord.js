@@ -71,15 +71,12 @@ function getHashLeaves(
  */
 
 export function calculateDocumentHash(document: Partial<IDocument>): Hash {
-  /*
   const hashes = getHashLeaves(
     document.contentHashes || [],
     document.evidenceIds || [],
     document.createdAt || '',
     document.validUntil || ''
   )
-  */
-  const hashes = getHashLeaves(document.contentHashes || [], [], '', '');
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
 }

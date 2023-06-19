@@ -82,7 +82,7 @@ export function fromCredential(
     }
   }
 
-  const evidence = evidenceIds.map((leg) => leg.documentHash)
+  const evidence = evidenceIds.map((e) => e.identifier)
 
   const proof: Proof[] = []
 

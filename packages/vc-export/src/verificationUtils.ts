@@ -3,13 +3,11 @@
  * @module VerificationUtils
  */
 
-import { ConfigService, DidResourceUri, Stream } from "@cord.network/sdk"
+import { ConfigService, DidResourceUri, Hash, Stream } from "@cord.network/sdk"
 import { CORD_ANCHORED_PROOF_TYPE, CORD_CREDENTIAL_DIGEST_PROOF_TYPE, CORD_SELF_SIGNATURE_PROOF_TYPE, CORD_STREAM_SIGNATURE_PROOF_TYPE } from "./constants"
 import { fromCredentialIRI } from "./exportToVerifiableCredential"
 import { CordSelfSignatureProof, CordStreamProof, CordStreamSignatureProof, CredentialDigestProof, VerifiableCredential } from "./types"
 import { Crypto } from "@cord.network/utils"
-import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
-//import { blake2AsHex } from '@polkadot/util-crypto'
 import { makeSigningData } from "./presentationUtils"
 import { signatureFromJson, verifyDidSignature } from "@cord.network/did"
 import type { AnyJson } from '@polkadot/types/types'
@@ -132,6 +130,51 @@ function makeStatementsJsonLD(content: Record<string, AnyJson>): string[] {
   )
 }
 
+function getHashRoot(leaves: Uint8Array[]): Uint8Array {
+  const result = Crypto.u8aConcat(...leaves)
+  return Crypto.hash(result)
+}
+
+function getHashLeaves(
+  contentHashes: string[],
+  evidenceIds: string[],
+  createdAt: string,
+  validUntil: string
+): Uint8Array[] {
+  const result = contentHashes.map((item) => Crypto.coToUInt8(item))
+
+  if (evidenceIds) {
+    evidenceIds.forEach((evidence) => {
+      result.push(Crypto.coToUInt8(evidence))
+    })
+  }
+  if (createdAt && createdAt !== '') {
+    result.push(Crypto.coToUInt8(createdAt))
+  }
+  if (validUntil && validUntil !== '') {
+    result.push(Crypto.coToUInt8(validUntil))
+  }
+
+  return result
+}
+
+/**
+ * Calculates the root hash of the document.
+ *
+ * @param document The document object.
+ * @returns The document hash.
+ */
+
+export function calculateCredentialHash(document: VerifiableCredential, proof: CredentialDigestProof): Hash {
+  const hashes = getHashLeaves(
+    proof.contentHashes || [],
+    document.evidence || [],
+    document.issuanceDate || '',
+    document.expirationDate || ''
+  )
+  const root = getHashRoot(hashes)
+  return Crypto.u8aToHex(root)
+}
 
 export async function verifyCredentialDigestProof(
   credential: VerifiableCredential,
@@ -154,17 +197,13 @@ export async function verifyCredentialDigestProof(
     const defaults = { canonicalisation: makeStatementsJsonLD }
     const canonicalisation = defaults.canonicalisation
  
-    const hashes = proof.contentHashes
+    const rootHash = calculateCredentialHash(credential, proof);
     // convert hex hashes to byte arrays & concatenate
-    const concatenated = u8aConcat(
-      ...hashes.map((hexHash) => hexToU8a(hexHash))
-    )
-    const rootHash = Crypto.hash(concatenated)
-
+   
     // throw if root hash does not match expected (=id)
     const expectedRootHash = credential.credentialHash
-    if (expectedRootHash !== u8aToHex(rootHash)) {
-      throw new Error(`Computed root hash does not match expected ${expectedRootHash} != ${u8aToHex(rootHash)}`)
+    if (expectedRootHash !== rootHash) {
+      throw new Error(`Computed root hash does not match expected ${expectedRootHash} != ${rootHash}`)
     }
     // 2: check individual properties against claim hashes in proof
     // expand credentialSubject keys by compacting with empty context credential to produce statements
