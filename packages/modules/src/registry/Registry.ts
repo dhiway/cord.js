@@ -227,7 +227,9 @@ export async function fetchAuthorizationDetailsfromChain(
   const api = ConfigService.get('api')
   const authorizationId = Identifier.uriToIdentifier(auth)
   const registryAuthoriation: Option<PalletRegistryRegistryAuthorization> =
-    await api.query.registry.authorizations(authorizationId)
+    // await api.query.registry.authorizations(authorizationId)
+    await cord_api_query('registry', 'fetchAuthorizations', authorizationId)
+
   if (registryAuthoriation.isNone) {
     throw new SDKErrors.AuthorizationIdentifierMissingError(
       `Registry Authorization with identifier ${authorizationId} is not registered on chain`
