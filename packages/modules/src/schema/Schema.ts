@@ -31,6 +31,7 @@ import { Bytes } from '@polkadot/types'
 import type { AccountId } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
+import { cord_api_query } from '../../../../helper.js'
 
 /**
  * Utility for (re)creating Schema hashes. Sorts the schema and strips the $id property (which contains the Schema hash) before stringifying.
@@ -141,7 +142,9 @@ export function verifyContentAganistSchema(
 export async function verifyStored(schema: ISchema): Promise<void> {
   const api = ConfigService.get('api')
   const identifier = Identifier.uriToIdentifier(schema.$id)
-  const encoded: any = await api.query.schema.schemas(identifier)
+  // const encoded: any = await api.query.schema.schemas(identifier)
+  const encoded = await cord_api_query('schema', 'fetchSchema', identifier)
+
   if (encoded.isNone)
     throw new SDKErrors.SchemaIdMissingError(
       `Schema with identifier ${identifier} is not registered on chain`
