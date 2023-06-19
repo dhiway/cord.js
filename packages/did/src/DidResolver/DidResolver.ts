@@ -56,7 +56,7 @@ export async function resolve(
 
   // If theDID has been deleted return the info in the resolution metadata.
 
-  const isdidDeleted = await cord_api_query('didBlacklist', 'did', did)
+  const isdidDeleted = await cord_api_query('did', 'didBlacklist', did)
 
   // const isdidDeleted = (await api.query.did.didBlacklist(toChain(did))).isSome
 
