@@ -17,6 +17,12 @@ function getChallenge(): string {
   return Cord.Utils.UUID.generate()
 }
 
+export const sleep = (ms: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(), ms)
+  })
+}
+
 async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
@@ -27,35 +33,35 @@ async function main() {
 
   console.log(`\n❄️  Identities `)
   const xUri = process.argv[2] ? process.argv[2] : '//Alice'
-  const yUri = process.argv[3] ? process.argv[3] : '//Bob'
   console.log('🥢 URI of identity 1: ', xUri)
-  console.log('🥢 URI of identity 2: ', yUri)
 
   const X = Crypto.makeKeypairFromUri(`${xUri}`, 'sr25519')
-  const Y = Crypto.makeKeypairFromUri(`${yUri}`, 'sr25519')
 
+  await sleep(Math.random()*6000);
   if (xUri != '//Alice' && xUri != '//Bob') {
+  try {
     const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
       `//Alice`,
       'sr25519'
     )
     await addAuthority(authorityAuthorIdentity, X.address)
-    await addAuthority(authorityAuthorIdentity, Y.address)
     console.log(`🔏 permissions updated`)
     await getChainCredits(authorityAuthorIdentity, X.address, 15)
-    await getChainCredits(authorityAuthorIdentity, Y.address, 15)
     console.log(`💸 Authors endowed with credits`)
+    } catch (err) {
+    console.log('authority addition: ', err);
+    }
   }
 
   const { mnemonic: XMnemonic, document: XDid } = await createDid(X)
-  const { mnemonic: YMnemonic, document: YDid } = await createDid(Y)
+  const { mnemonic: YMnemonic, document: YDid } = await createDid(X)
   const XKeys = await generateKeypairs(XMnemonic)
 
   // // Step 2: Create a DID name for Issuer
   console.log(`\n❄️  DID name Creation `)
   const randomDidName = `solar.sailer.${randomUUID().substring(0, 4)}@cord`
 
-  await createDidName(XDid.uri, Y, randomDidName, async ({ data }) => ({
+  await createDidName(XDid.uri, X, randomDidName, async ({ data }) => ({
     signature: XKeys.authentication.sign(data),
     keyType: XKeys.authentication.type,
   }))
@@ -64,7 +70,7 @@ async function main() {
 
   // Step 2: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
-  const schema = await ensureStoredSchema(Y, XDid.uri, async ({ data }) => ({
+  const schema = await ensureStoredSchema(X, XDid.uri, async ({ data }) => ({
     signature: XKeys.assertionMethod.sign(data),
     keyType: XKeys.assertionMethod.type,
   }))
@@ -72,7 +78,7 @@ async function main() {
   // Step 3: Create a new Registry
   console.log(`\n❄️  Registry Creation `)
   const registry = await ensureStoredRegistry(
-    Y,
+    X,
     XDid.uri,
     schema['$id'],
     async ({ data }) => ({
@@ -99,7 +105,7 @@ async function main() {
   let tx_batch: any = []
 
   let startTxPrep = moment()
-  let txCount = 2000
+  let txCount = 3000
   let newStreamContent: Cord.IContentStream
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
@@ -199,6 +205,34 @@ async function main() {
       txCount / ancDuration.as('seconds')
     ).toFixed(0)} `
   )
+
+  /*
+  await sleep(3000)
+
+  let batchAncStartTime = moment()
+  try {
+    api.tx.utility.batchAll(tx_batch).signAndSend(Alice)
+  } catch (e: any) {
+    console.log(e.errorCode, '-', e.message)
+  }
+
+  let batchAncEndTime = moment()
+  var batchAncDuration = moment.duration(
+    batchAncEndTime.diff(batchAncStartTime)
+  )
+  console.log(
+    `\n  🎁  Anchoring a batch of ${
+      tx_batch.length
+    } extrinsics took ${batchAncDuration.as('seconds')}s`
+  )
+  console.log(
+    `  🙌  Block TPS (batch) - ${+(
+      txCount / batchAncDuration.as('seconds')
+    ).toFixed(0)} `
+  )
+  */
+  await sleep(2000)
+  await api.disconnect()
 }
 main()
   .then(() => console.log('Bye! 👋 👋 👋 \n'))
