@@ -22,7 +22,7 @@ import { encryptMessage } from './utils/encrypt_message'
 import { generateRequestCredentialMessage } from './utils/request_credential_message'
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
-import { VerifiableCredential } from '@cord.network/vc-export/lib/cjs/types'
+import { VerifiableCredential } from '@cord.network/vc-export'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -274,7 +274,7 @@ async function main() {
     )
 
   console.log("\n: VC Proof(0): ", VCfromPresentation.proof[0], streamSignatureResult)
-  /*
+  
   if (
     streamResult &&
     streamResult['verified'] &&
@@ -309,7 +309,6 @@ async function main() {
       selfSignatureResult['verified']
     )
   }
-  */
 }
 
 main()

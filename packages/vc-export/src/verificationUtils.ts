@@ -12,6 +12,7 @@ import { u8aConcat, hexToU8a, u8aToHex } from '@polkadot/util'
 //import { blake2AsHex } from '@polkadot/util-crypto'
 import { makeSigningData } from "./presentationUtils"
 import { signatureFromJson, verifyDidSignature } from "@cord.network/did"
+import type { AnyJson } from '@polkadot/types/types'
 
 export interface VerificationResult {
   verified: boolean
@@ -108,6 +109,29 @@ export async function verifyStreamProof(
   return { verified: true, errors: [], status: StreamStatus.valid }
 }
 
+function jsonLDcontents(
+  content: Record<string, AnyJson>,
+  vocabulary: string,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+ 
+  Object.entries(content || {}).forEach(([key, value]) => {
+    result[vocabulary + key] = value
+  })
+  return result
+}
+
+function makeStatementsJsonLD(content: Record<string, AnyJson>): string[] {
+  const vocabObj = content['@context']
+  const vocabulary = vocabObj ? vocabObj['@vocab'] : undefined;
+  if (!vocabulary) throw new Error('Schema Identifier Missing')
+  delete content['@context'];
+  const normalized = jsonLDcontents(content, vocabulary)
+  return Object.entries(normalized).map(([key, value]) =>
+    JSON.stringify({ [key]: value })
+  )
+}
+
 
 export async function verifyCredentialDigestProof(
   credential: VerifiableCredential,
@@ -127,6 +151,9 @@ export async function verifyCredentialDigestProof(
 
     // 1: check credential digest against credential contents & claim property hashes in proof
     // collect hashes from hash array, legitimations & delegationId
+    const defaults = { canonicalisation: makeStatementsJsonLD }
+    const canonicalisation = defaults.canonicalisation
+ 
     const hashes = proof.contentHashes
     // convert hex hashes to byte arrays & concatenate
     const concatenated = u8aConcat(
@@ -141,12 +168,8 @@ export async function verifyCredentialDigestProof(
     }
     // 2: check individual properties against claim hashes in proof
     // expand credentialSubject keys by compacting with empty context credential to produce statements
-    const flattened = credential.credentialSubject;// await jsonld.compact(credential.credentialSubject, {})
-    const statements = Object.entries(flattened).filter(([key, value]) =>
-      key !== '@context'
-    ).map(([key, value]) =>
-      JSON.stringify({ [key]: value })
-    )
+    const statements = canonicalisation(credential.credentialSubject)
+    
   const { nonces } = proof
   // iterate over statements to produce salted hashes
   const hashed = Crypto.hashStatements(statements, { ...options, nonces })
@@ -164,7 +187,7 @@ export async function verifyCredentialDigestProof(
           return { ...status, verified: false }
         }
         // check if the hash is whitelisted in the proof
-        if (!proof.hashes.includes(saltedHash)) {
+        if (!proof.contentHashes.includes(saltedHash)) {
           status.errors.push(
             new Error('proof missing hash')
           )
@@ -178,48 +201,6 @@ export async function verifyCredentialDigestProof(
   } catch(error) {
     return { verified: false, errors: [new Error(`${error}`)]}
   }
-
-    /*
-    const expectedUnsalted = Object.keys(proof.nonces)
-    console.log("Expected Nonces: ", expectedUnsalted);
-    const { nonces } = proof
-    const processed = Crypto.hashStatements(statements, {...options, nonces});
-    const sample = processed.map(({ saltedHash }) => saltedHash)
-    return statements.reduce<VerificationResult>(
-      (r, stmt) => {
-        const unsalted = hasher(stmt)
-        console.log("Unsalted: ", unsalted);
-        if (!expectedUnsalted.includes(unsalted))
-          return {
-            verified: false,
-            errors: [
-              ...r.errors,
-              PROOF_MALFORMED_ERROR(
-                `Proof contains no digest for statement ${stmt} - ${expectedUnsalted} ${unsalted} ${sample}`
-              ),
-            ],
-          }
-        const nonce = proof.nonces[unsalted]
-        if (!proof.contentHashes.includes(hasher(unsalted, nonce)))
-          return {
-            verified: false,
-            errors: [
-              ...r.errors,
-              new Error(
-                `Proof for statement "${stmt}" not valid against contentHashes`
-              ),
-            ],
-          }
-        return r
-      },
-      { verified: true, errors: [] }
-    )
-  } catch (e) {
-    result.verified = false
-    result.errors = [e as Error]
-    return result
-  }
-  */
 }
 
 export async function verifyStreamSignatureProof(
