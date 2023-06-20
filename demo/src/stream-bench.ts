@@ -4,6 +4,8 @@ import moment from 'moment'
 import Keyring from '@polkadot/keyring'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 
+import { cordApiTx } from '../../helper'
+
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(), ms)
@@ -150,7 +152,9 @@ async function main() {
   let batchAncStartTime = moment()
 
   try {
-    api.tx.utility.batch(tx_new_batch).signAndSend(BatchAuthor)
+    // api.tx.utility.batch(tx_new_batch).signAndSend(BatchAuthor)
+    const tx = api.tx.utility.batch(tx_new_batch)
+    await cordApiTx(tx, 'signAndSend')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }

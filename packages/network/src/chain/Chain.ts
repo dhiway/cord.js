@@ -22,6 +22,7 @@ import dotenv from 'dotenv'
 import { SDKErrors } from '@cord.network/utils'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
+import { cordApiTx } from '../../../../helper.js'
 
 dotenv.config()
 
@@ -185,28 +186,8 @@ export async function signAndSubmitTx(
 ): Promise<any> {
   // : Promise<ISubmittableResult>
   // const signedTx = await tx.signAsync(signer, { tip, nonce: -1 })
+  const submit = await cordApiTx(tx, 'signAndSubmit')
 
-  let submit: any
-
-  const url = API_URL
-  const cordApiUrl = `${url}/extrinsic`
-
-  if (url) {
-    submit = await fetch(cordApiUrl, {
-      body: JSON.stringify({
-        extrinsic: tx.toHex(),
-      }),
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((resp) => resp)
-      .catch((error) => {
-        console.error(error)
-      })
-  } else {
-    console.log('URL not found')
-  }
   return submit
-
   // return submitSignedTx(signedTx, opts)
 }

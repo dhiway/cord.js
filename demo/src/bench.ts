@@ -3,6 +3,7 @@ import BN from 'bn.js'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
 import { ApiPromise, WsProvider } from '@polkadot/api'
+import { cordApiTx } from '../../helper'
 
 const amount: BN = new BN('1')
 
@@ -80,7 +81,9 @@ async function main() {
   let BatchAuthor = keyring.addFromUri('//Charlie')
   let batchAncStartTime = moment()
   try {
-    api.tx.utility.batchAll(tx_batch).signAndSend(BatchAuthor)
+    // api.tx.utility.batchAll(tx_batch).signAndSend(BatchAuthor)
+    const tx = api.tx.utility.batchAll(tx_batch)
+    await cordApiTx(tx, 'signAndSend')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
