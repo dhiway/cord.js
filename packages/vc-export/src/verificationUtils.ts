@@ -120,11 +120,12 @@ function jsonLDcontents(
 }
 
 function makeStatementsJsonLD(content: Record<string, AnyJson>): string[] {
+  const temp_content: Record<string, AnyJson> = { ...content };
   const vocabObj = content['@context']
   const vocabulary = vocabObj ? vocabObj['@vocab'] : undefined;
   if (!vocabulary) throw new Error('Schema Identifier Missing')
-  delete content['@context'];
-  const normalized = jsonLDcontents(content, vocabulary)
+  delete temp_content['@context'];
+  const normalized = jsonLDcontents(temp_content, vocabulary)
   return Object.entries(normalized).map(([key, value]) =>
     JSON.stringify({ [key]: value })
   )
