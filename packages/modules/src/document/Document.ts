@@ -53,10 +53,10 @@ function getHashLeaves(
       result.push(Crypto.coToUInt8(evidence.identifier))
     })
   }
-  if (createdAt) {
+  if (createdAt && createdAt !== '') {
     result.push(Crypto.coToUInt8(createdAt))
   }
-  if (validUntil) {
+  if (validUntil && validUntil !== '') {
     result.push(Crypto.coToUInt8(validUntil))
   }
 
