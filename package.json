@@ -20,6 +20,8 @@
     "demo-score": "tsx --no-cache --no-warnings demo/src/demo-score.ts",
     "demo-score-batch": "tsx --no-cache --no-warnings demo/src/demo-score-batch.ts",
     "bench": "tsx demo/src/bench.ts",
+    "stream-bench": "tsx --no-cache --no-warnings demo/src/stream-bench.ts",
+    "create-custom-schema": "tsx --no-cache --no-warnings demo/src/create-custom-schema"
     "set:version": "yarn workspaces foreach -pt exec npm version --no-git-tag-version",
     "prepublish": "yarn workspaces foreach -p --no-private exec cp -f ../../LICENSE .",
     "publish": "yarn workspaces foreach -pt --no-private npm publish",
