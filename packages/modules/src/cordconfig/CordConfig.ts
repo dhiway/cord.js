@@ -41,7 +41,14 @@ export async function connect(
     ...apiOpts
   }: Omit<ApiOptions, 'provider'> = {}
 ): Promise<ApiPromise> {
-  const provider = new WsProvider(blockchainRpcWsUrl)
+  let provider: any
+
+  if (blockchainRpcWsUrl) {
+    provider = new WsProvider(blockchainRpcWsUrl)
+  } else {
+    provider = undefined
+  }
+
   const api = await ApiPromise.create({
     provider,
     typesBundle,

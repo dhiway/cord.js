@@ -27,8 +27,8 @@ function getChallenge(): string {
 }
 
 async function main() {
-  //const networkAddress = 'ws://127.0.0.1:9944'
-  const networkAddress = 'wss://staging.cord.network'
+  const networkAddress = 'ws://127.0.0.1:9944'
+  //const networkAddress = 'wss://staging.cord.network'
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 

@@ -1,6 +1,8 @@
 import * as Cord from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { generateKeypairs } from './generateKeypairs'
+import { API_URL } from '../../../packages/network/src/chain/Chain'
+import { cord_api_query } from '../../../helper'
 
 /**
  * It creates a DID on chain, and returns the mnemonic and DID document
@@ -13,7 +15,7 @@ export async function createDid(
   mnemonic: string
   document: Cord.DidDocument
 }> {
-  const api = Cord.ConfigService.get('api')
+  // const api = Cord.ConfigService.get('api')
 
   const mnemonic = mnemonicGenerate(24)
   const {
@@ -47,12 +49,16 @@ export async function createDid(
   await Cord.Chain.signAndSubmitTx(didCreationTx, submitterAccount)
 
   const didUri = Cord.Did.getDidUriFromKey(authentication)
-  const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
-  const { document } = Cord.Did.linkedInfoFromChain(encodedDid)
 
-  if (!document) {
-    throw new Error('DID was not successfully created.')
-  }
+  const document = await cord_api_query('did', 'query', didUri)
+
+  // const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
+  // const { document } = Cord.Did.linkedInfoFromChain(encodedDid)
+
+  // if (!document) {
+  //   throw new Error('DID was not successfully created.')
+  // }
+
 
   return { mnemonic, document: document }
 }

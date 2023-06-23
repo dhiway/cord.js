@@ -16,6 +16,7 @@ import { SDKErrors } from '@cord.network/utils'
 import { Identifier } from '@cord.network/utils'
 
 import { serializeForHash, verifyDataStructure } from './Schema.js'
+import { cord_api_query } from '../../../../helper.js'
 
 /**
  * Encodes the provided Schema for use in `api.tx.schema.add()`.
@@ -122,7 +123,9 @@ export async function fetchFromChain(
   const api = ConfigService.get('api')
   const cordSchemaId = Identifier.uriToIdentifier(schemaId)
 
-  const schemaEntry = await api.query.schema.schemas(cordSchemaId)
+  // const schemaEntry = await api.query.schema.schemas(cordSchemaId)
+  const schemaEntry = await cord_api_query('schema', 'schemas', cordSchemaId)
+
   const decodedSchema = fromChain(schemaEntry, schemaId)
   if (decodedSchema === null) {
     throw new SDKErrors.SchemaError(

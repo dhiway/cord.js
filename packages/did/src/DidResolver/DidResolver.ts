@@ -11,12 +11,15 @@ import type {
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
+import fetch from 'node-fetch'
+import { API_URL } from '../../../network/src/chain/Chain'
 
 import * as Did from '../index.js'
 import { toChain } from '../Did.chain.js'
 import { linkedInfoFromChain } from '../Did.rpc.js'
 import { getDidUri, parse } from '../Did.utils.js'
 import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.js'
+import { cord_api_query } from '../../../../helper'
 
 /**
  * Resolve a DID URI to the DID document and its metadata.
@@ -52,7 +55,11 @@ export async function resolve(
   }
 
   // If theDID has been deleted return the info in the resolution metadata.
-  const isdidDeleted = (await api.query.did.didBlacklist(toChain(did))).isSome
+
+  const isdidDeleted = await cord_api_query('did', 'didBlacklist', did)
+
+  // const isdidDeleted = (await api.query.did.didBlacklist(toChain(did))).isSome
+
   if (isdidDeleted) {
     return {
       // No canonicalId and no details are returned as we consider this DID deactivated/deleted.
