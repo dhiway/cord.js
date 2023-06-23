@@ -19,6 +19,8 @@ import {
 import { SDKErrors } from '@cord.network/utils'
 import { SubscriptionPromise } from '@cord.network/types'
 
+const { CORD_WSS_URL, CORD_API_URL, CORD_API_TOKEN } = process.env
+
 const DEFAULT_DEBUG_LEVEL =
   typeof process !== 'undefined' &&
   process.env?.DEBUG &&
@@ -30,6 +32,9 @@ export type configOpts = {
   api: ApiPromise
   logLevel: LogLevel
   submitTxResolveOn: SubscriptionPromise.ResultEvaluator
+  apiUrl: string
+  wssUrl: string
+  token: string | undefined
 } & { [key: string]: any }
 
 /**
@@ -52,6 +57,9 @@ export function modifyLogLevel(level: LogLevel): LogLevel {
 
 const defaultConfig: Partial<configOpts> = {
   logLevel: DEFAULT_DEBUG_LEVEL,
+  apiUrl: CORD_API_URL ?? 'localhost:3009',
+  wssUrl: CORD_WSS_URL ?? 'localhost:9944',
+  token: CORD_API_TOKEN ?? 'dummyToken',
 }
 
 let configuration: Partial<configOpts> = { ...defaultConfig }
