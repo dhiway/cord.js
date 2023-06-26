@@ -2,6 +2,8 @@ import fetch from 'node-fetch'
 import type { SubmittableExtrinsic } from '@cord.network/types'
 import { API_URL } from './packages/network/src/chain/Chain'
 
+const { CORD_WSS_URL, CORD_API_URL, CORD_API_TOKEN } = process.env
+
 export async function cord_api_query(
   modules: any,
   section: any,
@@ -14,7 +16,10 @@ export async function cord_api_query(
     try {
       const resp = await fetch(cordApiUrl, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${CORD_API_TOKEN}`,
+        },
       })
       const data = resp.json()
       return data
@@ -37,7 +42,10 @@ export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
           extrinsic: tx.toHex(),
         }),
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${CORD_API_TOKEN}`,
+        },
       })
       const data = submit.json()
       return data
