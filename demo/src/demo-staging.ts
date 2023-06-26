@@ -22,6 +22,8 @@ import { generateRequestCredentialMessage } from './utils/request_credential_mes
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 
+const { CORD_WSS_URL, CORD_API_URL, CORD_API_TOKEN } = process.env
+
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
 }
@@ -29,7 +31,10 @@ function getChallenge(): string {
 async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
   //const networkAddress = 'wss://staging.cord.network'
-  Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
+  Cord.ConfigService.set({
+    submitTxResolveOn: Cord.Chain.IS_IN_BLOCK,
+    token: CORD_API_TOKEN,
+  })
   await Cord.connect(networkAddress)
 
   // Step 1: Setup Authority
@@ -40,8 +45,11 @@ async function main() {
     '//Alice',
     'sr25519'
   )
-  console.log("Alice (AuthorIdentity for this run): ", authorityAuthorIdentity.address);
-  
+  console.log(
+    'Alice (AuthorIdentity for this run): ',
+    authorityAuthorIdentity.address
+  )
+
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
 

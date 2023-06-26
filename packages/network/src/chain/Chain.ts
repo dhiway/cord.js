@@ -186,8 +186,11 @@ export async function signAndSubmitTx(
 ): Promise<any> {
   // : Promise<ISubmittableResult>
   // const signedTx = await tx.signAsync(signer, { tip, nonce: -1 })
-  const submit = await cordApiTx(tx, 'signAndSubmit')
-
-  return submit
   // return submitSignedTx(signedTx, opts)
+  try {
+    const submit = await cordApiTx(tx, 'signAndSubmit')
+    return submit
+  } catch (error) {
+    return error
+  }
 }
