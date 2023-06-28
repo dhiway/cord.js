@@ -49,9 +49,8 @@ export async function createDid(
   await Cord.Chain.signAndSubmitTx(didCreationTx, submitterAccount)
 
   const didUri = Cord.Did.getDidUriFromKey(authentication)
-
-  const document = await cord_api_query('did', 'query', didUri)
-
+  
+  const { document } = await cord_api_query('did', 'query', didUri)
   // const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
   // const { document } = Cord.Did.linkedInfoFromChain(encodedDid)
 

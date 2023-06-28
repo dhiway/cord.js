@@ -12,6 +12,7 @@ import type {
 import { SDKErrors } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import fetch from 'node-fetch'
+import * as Cord from '@cord.network/sdk'
 import { API_URL } from '../../../network/src/chain/Chain'
 
 import * as Did from '../index.js'
@@ -32,17 +33,20 @@ import { cord_api_query } from '../../../../helper'
 export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
-  const api = ConfigService.get('api')
-  const queryFunction = api.call.did?.query
+  // const api = ConfigService.get('api')
+  // const queryFunction = api.call.did?.query
 
-  const { section, version } = queryFunction?.meta ?? {}
-  if (version > 2)
-    throw new Error(
-      `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
-    )
-  const { document, didName } = await queryFunction(toChain(did))
-    .then(linkedInfoFromChain)
-    .catch(() => ({ document: undefined, didName: undefined }))
+  // const { section, version } = queryFunction?.meta ?? {}
+  // if (version > 2)
+  //   throw new Error(
+  //     `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
+  //   )
+  // const { document, didName } = await queryFunction(toChain(did))
+  // .then(linkedInfoFromChain)
+  // .catch(() => ({ document: undefined, didName: undefined }))
+  const encodedDid = await cord_api_query('did', 'query', did)
+
+  const { document, didName }: any = encodedDid
 
   if (document) {
     return {

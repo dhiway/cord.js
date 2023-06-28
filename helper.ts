@@ -1,15 +1,15 @@
+import * as Cord from '@cord.network/sdk'
 import fetch from 'node-fetch'
 import type { SubmittableExtrinsic } from '@cord.network/types'
-import { API_URL } from './packages/network/src/chain/Chain'
-
-const { CORD_WSS_URL, CORD_API_URL, CORD_API_TOKEN } = process.env
 
 export async function cord_api_query(
   modules: any,
   section: any,
   identifier: any
 ) {
-  const url = API_URL
+  const url = Cord.ConfigService.get('apiUrl')
+  const token = Cord.ConfigService.get('token')
+
   const cordApiUrl = `${url}/query/${modules}/${section}/${identifier}`
 
   if (url) {
@@ -18,7 +18,7 @@ export async function cord_api_query(
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${CORD_API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       const data = resp.json()
@@ -32,7 +32,9 @@ export async function cord_api_query(
 }
 
 export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
-  const url = API_URL
+  const url = Cord.ConfigService.get('apiUrl')
+  const token = Cord.ConfigService.get('token')
+
   const cordApiUrl = `${url}/${modules}/extrinsic`
 
   if (url) {
@@ -44,7 +46,7 @@ export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${CORD_API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       const data = submit.json()
