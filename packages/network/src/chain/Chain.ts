@@ -18,13 +18,10 @@ import type {
   SubmittableExtrinsic,
   SubscriptionPromise,
 } from '@cord.network/types'
-import dotenv from 'dotenv'
 import { SDKErrors } from '@cord.network/utils'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
 import { cordApiTx } from '../../../../helper.js'
-
-dotenv.config()
 
 export const { API_URL } = process.env
 
