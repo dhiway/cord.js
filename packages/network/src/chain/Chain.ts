@@ -9,7 +9,6 @@
  */
 import { SubmittableResult } from '@polkadot/api'
 import { AnyNumber } from '@polkadot/types/types'
-import fetch from 'node-fetch'
 
 import { ConfigService } from '@cord.network/config'
 import type {
@@ -22,8 +21,6 @@ import { SDKErrors } from '@cord.network/utils'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
 import { cordApiTx } from '../../../../helper.js'
-
-export const { API_URL } = process.env
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 

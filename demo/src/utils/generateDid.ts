@@ -1,7 +1,6 @@
 import * as Cord from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { generateKeypairs } from './generateKeypairs'
-import { API_URL } from '../../../packages/network/src/chain/Chain'
 import { cord_api_query } from '../../../helper'
 
 /**

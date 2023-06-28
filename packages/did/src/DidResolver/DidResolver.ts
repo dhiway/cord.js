@@ -10,14 +10,9 @@ import type {
   UriFragment,
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
-import { ConfigService } from '@cord.network/config'
-import fetch from 'node-fetch'
 import * as Cord from '@cord.network/sdk'
-import { API_URL } from '../../../network/src/chain/Chain'
 
 import * as Did from '../index.js'
-import { toChain } from '../Did.chain.js'
-import { linkedInfoFromChain } from '../Did.rpc.js'
 import { getDidUri, parse } from '../Did.utils.js'
 import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.js'
 import { cord_api_query } from '../../../../helper'

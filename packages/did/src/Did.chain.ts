@@ -3,9 +3,6 @@ import type { AccountId32, Extrinsic, Hash } from '@polkadot/types/interfaces'
 import type { AnyNumber } from '@polkadot/types/types'
 import { BN } from '@polkadot/util'
 
-import fetch from 'node-fetch'
-import { API_URL } from '../../network/src/chain/Chain'
-
 import type {
   DidDocument,
   DidEncryptionKey,

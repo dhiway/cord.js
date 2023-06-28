@@ -1,5 +1,4 @@
 import * as Cord from '@cord.network/sdk'
-import { API_URL } from '../../../packages/network/src/chain/Chain'
 import { cord_api_query } from '../../../helper'
 
 /**

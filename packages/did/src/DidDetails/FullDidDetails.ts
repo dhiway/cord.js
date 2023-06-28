@@ -12,9 +12,6 @@ import type {
 
 import { SDKErrors } from '@cord.network/utils'
 
-import fetch from 'node-fetch'
-import { API_URL } from '../../../network/src/chain/Chain'
-
 import { generateDidAuthenticatedTx } from '../Did.chain.js'
 import { cord_api_query } from '../../../../helper'
 
