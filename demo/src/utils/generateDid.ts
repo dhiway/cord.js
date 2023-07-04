@@ -14,7 +14,7 @@ export async function createDid(
   mnemonic: string
   document: Cord.DidDocument
 }> {
-  // const api = Cord.ConfigService.get('api')
+  const api = Cord.ConfigService.get('api')
 
   const mnemonic = mnemonicGenerate(24)
   const {
@@ -48,15 +48,16 @@ export async function createDid(
   await Cord.Chain.signAndSubmitTx(didCreationTx, submitterAccount)
 
   const didUri = Cord.Did.getDidUriFromKey(authentication)
-  
+
   const { document } = await cord_api_query('did', 'query', didUri)
-  // const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
-  // const { document } = Cord.Did.linkedInfoFromChain(encodedDid)
 
-  // if (!document) {
-  //   throw new Error('DID was not successfully created.')
-  // }
-
+  if (document === null) {
+    const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
+    const { document } = Cord.Did.linkedInfoFromChain(encodedDid)
+    if (!document) {
+      throw new Error('DID was not successfully created.')
+    }
+  }
 
   return { mnemonic, document: document }
 }

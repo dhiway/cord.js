@@ -10,9 +10,9 @@ export async function cord_api_query(
   const url = Cord.ConfigService.get('apiUrl')
   const token = Cord.ConfigService.get('token')
 
-  const cordApiUrl = `${url}/query/${modules}/${section}/${identifier}`
+  if (url && token) {
+    const cordApiUrl = `${url}/query/${modules}/${section}/${identifier}`
 
-  if (url) {
     try {
       const resp = await fetch(cordApiUrl, {
         method: 'GET',
@@ -27,7 +27,8 @@ export async function cord_api_query(
       return error
     }
   } else {
-    console.log('URL not found')
+    console.log('URL or Token not found')
+    return null
   }
 }
 
@@ -35,9 +36,9 @@ export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
   const url = Cord.ConfigService.get('apiUrl')
   const token = Cord.ConfigService.get('token')
 
-  const cordApiUrl = `${url}/${modules}/extrinsic`
+  if (url && token) {
+    const cordApiUrl = `${url}/${modules}/extrinsic`
 
-  if (url) {
     try {
       const submit = await fetch(cordApiUrl, {
         body: JSON.stringify({
@@ -55,6 +56,7 @@ export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
       return error
     }
   } else {
-    console.log('URL not found')
+    console.log('URL or Token not found')
+    return null
   }
 }
