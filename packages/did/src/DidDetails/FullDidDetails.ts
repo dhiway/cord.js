@@ -1,6 +1,7 @@
 import type { Extrinsic } from '@polkadot/types/interfaces'
 import type { SubmittableExtrinsicFunction } from '@polkadot/api/types'
 import { BN } from '@polkadot/util'
+import { ConfigService } from '@cord.network/config'
 
 import type {
   DidUri,
@@ -10,13 +11,13 @@ import type {
   VerificationKeyRelationship,
 } from '@cord.network/types'
 
-import { SDKErrors } from '@cord.network/utils'
+import { SDKErrors, cord_api_query } from '@cord.network/utils'
 
-import fetch from 'node-fetch'
-import { API_URL } from '../../../network/src/chain/Chain'
-
-import { generateDidAuthenticatedTx } from '../Did.chain.js'
-import { cord_api_query } from '../../../../helper'
+import {
+  documentFromChain,
+  generateDidAuthenticatedTx,
+  toChain,
+} from '../Did.chain.js'
 
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   stream: 'assertionMethod',
@@ -90,11 +91,18 @@ function increaseNonce(currentNonce: BN, increment = 1): BN {
  * @returns The next valid nonce, i.e., the nonce currently stored on the blockchain + 1, wrapping around the max value when reached.
  */
 async function getNextNonce(did: DidUri): Promise<BN> {
-  // const api = ConfigService.get('api')
+  const api = ConfigService.get('api')
+  let queried: any
 
-  const queried = await cord_api_query('did', 'did', did)
+  queried = await cord_api_query('did', 'did', did)
 
-  // const queried = await api.query.did.did(toChain(did))
+  if (!queried) {
+    queried = await api.query.did.did(toChain(did))
+    const currentNonce = queried.isSome
+      ? documentFromChain(queried).lastTxCounter
+      : new BN(0)
+    return increaseNonce(currentNonce)
+  }
 
   const currentNonce = queried ? new BN(queried.lastTxCounter) : new BN(0)
   return increaseNonce(currentNonce)
