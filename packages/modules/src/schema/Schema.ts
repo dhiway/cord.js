@@ -23,15 +23,15 @@ import {
   JsonSchema,
   SDKErrors,
   jsonabc,
+  cord_api_query,
 } from '@cord.network/utils'
 import { SCHEMA_IDENT, SCHEMA_PREFIX } from '@cord.network/types'
-import { SchemaModel, MetadataModel, SchemaModelV1 } from './Schema.types.js'
 import { ConfigService } from '@cord.network/config'
 import { Bytes } from '@polkadot/types'
 import type { AccountId } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { cord_api_query } from '../../../../helper.js'
+import { SchemaModel, MetadataModel, SchemaModelV1 } from './Schema.types.js'
 
 /**
  * Utility for (re)creating Schema hashes. Sorts the schema and strips the $id property (which contains the Schema hash) before stringifying.
@@ -141,9 +141,14 @@ export function verifyContentAganistSchema(
 
 export async function verifyStored(schema: ISchema): Promise<void> {
   const api = ConfigService.get('api')
+  let encoded: any
+
   const identifier = Identifier.uriToIdentifier(schema.$id)
-  // const encoded: any = await api.query.schema.schemas(identifier)
-  const encoded = await cord_api_query('schema', 'fetchSchema', identifier)
+  encoded = await cord_api_query('schema', 'fetchSchema', identifier)
+
+  if (!encoded) {
+    encoded = await api.query.schema.schemas(identifier)
+  }
 
   if (encoded.isNone)
     throw new SDKErrors.SchemaIdMissingError(

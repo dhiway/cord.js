@@ -17,10 +17,9 @@ import type {
   SubmittableExtrinsic,
   SubscriptionPromise,
 } from '@cord.network/types'
-import { SDKErrors } from '@cord.network/utils'
+import { SDKErrors, cordApiTx } from '@cord.network/utils'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
-import { cordApiTx } from '../../../../helper.js'
 
 const log = ConfigService.LoggingFactory.getLogger('Chain')
 
@@ -178,11 +177,14 @@ export async function signAndSubmitTx(
     ...opts
   }: Partial<SubscriptionPromise.Options> & Partial<{ tip: AnyNumber }> = {}
 ): Promise<any> {
-  // : Promise<ISubmittableResult>
-  // const signedTx = await tx.signAsync(signer, { tip, nonce: -1 })
-  // return submitSignedTx(signedTx, opts)
   try {
     const submit = await cordApiTx(tx, 'signAndSubmit')
+
+    if (!submit) {
+      const signedTx = await tx.signAsync(signer, { tip, nonce: -1 })
+      return submitSignedTx(signedTx, opts)
+    }
+
     return submit
   } catch (error) {
     return error

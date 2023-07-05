@@ -9,13 +9,14 @@ import type {
   ResolvedDidServiceEndpoint,
   UriFragment,
 } from '@cord.network/types'
-import { SDKErrors } from '@cord.network/utils'
-import * as Cord from '@cord.network/sdk'
+import { SDKErrors, cord_api_query } from '@cord.network/utils'
+import { ConfigService } from '@cord.network/config'
 
 import * as Did from '../index.js'
+import { toChain } from '../Did.chain.js'
+import { linkedInfoFromChain } from '../Did.rpc.js'
 import { getDidUri, parse } from '../Did.utils.js'
 import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.js'
-import { cord_api_query } from '../../../../helper'
 
 /**
  * Resolve a DID URI to the DID document and its metadata.
@@ -28,18 +29,23 @@ import { cord_api_query } from '../../../../helper'
 export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
-  // const api = ConfigService.get('api')
-  // const queryFunction = api.call.did?.query
+  const api = ConfigService.get('api')
+  let encodedDid: any
 
-  // const { section, version } = queryFunction?.meta ?? {}
-  // if (version > 2)
-  //   throw new Error(
-  //     `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
-  //   )
-  // const { document, didName } = await queryFunction(toChain(did))
-  // .then(linkedInfoFromChain)
-  // .catch(() => ({ document: undefined, didName: undefined }))
-  const encodedDid = await cord_api_query('did', 'query', did)
+  encodedDid = await cord_api_query('did', 'query', did)
+
+  if (!encodedDid) {
+    const queryFunction = api.call.did?.query
+    const { section, version } = queryFunction?.meta ?? {}
+    if (version > 2)
+      throw new Error(
+        `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
+      )
+
+    encodedDid = await queryFunction(toChain(did))
+      .then(linkedInfoFromChain)
+      .catch(() => ({ document: undefined, didName: undefined }))
+  }
 
   const { document, didName }: any = encodedDid
 
@@ -54,10 +60,13 @@ export async function resolve(
   }
 
   // If theDID has been deleted return the info in the resolution metadata.
+  let isdidDeleted: any
 
-  const isdidDeleted = await cord_api_query('did', 'didBlacklist', did)
+  isdidDeleted = await cord_api_query('did', 'didBlacklist', did)
 
-  // const isdidDeleted = (await api.query.did.didBlacklist(toChain(did))).isSome
+  if (!isdidDeleted) {
+    isdidDeleted = (await api.query.did.didBlacklist(toChain(did))).isSome
+  }
 
   if (isdidDeleted) {
     return {
