@@ -218,7 +218,53 @@ async function main() {
     document
   )
   console.log('✅ Credential created!')
+  
+  console.log('🖍️ Stream update...')
+  let argSignCallBack: any = async ({ data }) => ({
+    signature: delegateTwoKeys.assertionMethod.sign(data),
+    keyType: delegateTwoKeys.assertionMethod.type,
+  })
 
+  let newContent: any = {
+    name: 'Alice Senna',
+    age: 23,
+    id: '123456789987654311',
+    gender: 'Female',
+    country: 'India',
+  }
+
+  let updatedDocument: any = await Cord.Document.updateStream(
+    document,
+    newContent,
+    argSignCallBack
+  )
+  console.log('🔖 Document after the updation\n', updatedDocument)
+
+  console.log('⚓ Anchoring the updated document on the blockchain...')
+  const api = Cord.ConfigService.get('api')
+  const { streamHash } = Cord.Stream.fromDocument(updatedDocument)
+  const authorization = Cord.Registry.uriToIdentifier(
+    updatedDocument.authorization
+  )
+  const streamTx = api.tx.stream.update(
+    updatedDocument.identifier.replace('stream:cord:', ''),
+    streamHash,
+    authorization
+  )
+
+  const authorizedStreamTx = await Cord.Did.authorizeTx(
+    delegateTwoDid.uri,
+    streamTx,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    }),
+    authorIdentity.address
+  )
+
+  await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
+
+  console.log('✅ Success!')
   // Step 5: Create a Presentation
   console.log(`\n❄️  Presentation Creation `)
   const challenge = getChallenge()
