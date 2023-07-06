@@ -370,7 +370,7 @@ export async function fromContent({
   verifyDataStructure(document)
   return document
 }
-export async function updateStream(
+export async function updateFromContent(
   document: IDocument,
   argContent: any,
   signCallback: SignCallback,
