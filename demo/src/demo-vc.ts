@@ -91,8 +91,7 @@ async function main() {
     await createDid(authorIdentity)
   const delegateOneKeys = generateKeypairs(delegateOneMnemonic)
   console.log(
-    `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${
-      delegateOneDid.uri
+    `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${delegateOneDid.uri
     }`
   )
   // Create Delegate Two DID
@@ -100,8 +99,7 @@ async function main() {
     await createDid(authorIdentity)
   const delegateTwoKeys = generateKeypairs(delegateTwoMnemonic)
   console.log(
-    `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${
-      delegateTwoDid.uri
+    `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${delegateTwoDid.uri
     }`
   )
   // Create Delegate 3 DID
@@ -109,8 +107,7 @@ async function main() {
     await createDid(authorIdentity)
   const delegate3Keys = generateKeypairs(delegate3Mnemonic)
   console.log(
-    `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${
-      delegate3Did.uri
+    `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${delegate3Did.uri
     }`
   )
   console.log('✅ Identities created!')
@@ -259,14 +256,14 @@ async function main() {
       vcPresentation.proof[0],
       vcChallenge
     )
-    //console.log("\n: VP Proof: ", vcPresentation.proof, vcChallenge, selfSignatureResult)
+  //console.log("\n: VP Proof: ", vcPresentation.proof, vcChallenge, selfSignatureResult)
 
-    const digestResult = await VCUtils.verification.verifyCredentialDigestProof(
-      VCfromPresentation,
-      VCfromPresentation.proof[2]
-    )
-    //console.log("\n: VC Proof(2): ", VCfromPresentation.proof[2], digestResult)
-    
+  const digestResult = await VCUtils.verification.verifyCredentialDigestProof(
+    VCfromPresentation,
+    VCfromPresentation.proof[2]
+  )
+  //console.log("\n: VC Proof(2): ", VCfromPresentation.proof[2], digestResult)
+
   const streamSignatureResult =
     await VCUtils.verification.verifyStreamSignatureProof(
       VCfromPresentation,
@@ -274,7 +271,7 @@ async function main() {
     )
 
   //console.log("\n: VC Proof(0): ", VCfromPresentation.proof[0], streamSignatureResult)
-  
+
   if (
     streamResult &&
     streamResult['verified'] &&
@@ -336,14 +333,14 @@ async function main() {
       vcPresentation.proof[0],
       vcChallenge
     )
-    //console.log("\n: VP Proof: ", vcPresentation.proof, vcChallenge, selfSignatureResult)
+  //console.log("\n: VP Proof: ", vcPresentation.proof, vcChallenge, selfSignatureResult)
 
-    const digestResult1 = await VCUtils.verification.verifyCredentialDigestProof(
-      VCfromPresentation,
-      VCfromPresentation.proof[2]
-    )
-    //console.log("\n: VC Proof(2): ", VCfromPresentation.proof[2], digestResult)
-    
+  const digestResult1 = await VCUtils.verification.verifyCredentialDigestProof(
+    VCfromPresentation,
+    VCfromPresentation.proof[2]
+  )
+  //console.log("\n: VC Proof(2): ", VCfromPresentation.proof[2], digestResult)
+
   const streamSignatureResult1 =
     await VCUtils.verification.verifyStreamSignatureProof(
       VCfromPresentation,
@@ -351,7 +348,7 @@ async function main() {
     )
 
   //console.log("\n: VC Proof(0): ", VCfromPresentation.proof[0], streamSignatureResult)
-  
+
   if (
     streamResult1 &&
     streamResult1['verified'] &&
@@ -375,11 +372,11 @@ async function main() {
     )
   } else {
     console.log(
-      `❌`,
+      `🚫`,
       'Stream-Signature-Proof',
       streamSignatureResult1['verified'],
       '✧ Stream-Proof',
-      streamResult1,
+      streamResult1['verified'],
       '✧ Digest-Proof',
       digestResult1['verified'],
       '✧ Self-Signature-Proof',

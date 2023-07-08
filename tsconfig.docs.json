@@ -1,9 +1,14 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["DOM"]
+    "lib": [
+      "DOM"
+    ]
   },
-  "include": ["packages/**/*", "jest-setup/*"],
+  "include": [
+    "packages/**/*",
+    "jest-setup/*"
+  ],
   "typedocOptions": {
     "entryPointStrategy": "resolve",
     "entryPoints": [
@@ -15,7 +20,7 @@
       "packages/did/src/index.ts",
       "packages/type-definitions/src/index.ts",
       "packages/modules/src/index.ts",
-      // "packages/messaging/src/index.ts",
+      "packages/messaging/src/index.ts",
       "packages/vc-export/src/index.ts",
       "packages/sdk/src/index.ts"
     ],
