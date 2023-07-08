@@ -1,21 +1,50 @@
 {
   "extends": "./tsconfig.build.json",
-  "include": ["packages/**/*", "jest-setup/*", "docs/*"],
+  "include": [
+    "packages/**/*",
+    "jest-setup/*",
+    "docs/*"
+  ],
   "compilerOptions": {
     "baseUrl": "./packages",
     "sourceMap": true,
     "paths": {
-      "@cord.network/network": ["network/src"],
-      "@cord.network/config": ["config/src"],
-      "@cord.network/modules": ["modules/src"],
-      "@cord.network/messaging": ["messaging/src"],
-      "@cord.network/sdk": ["sdk/src"],
-      "@cord.network/types": ["types/src"],
-      "@cord.network/utils": ["utils/src"],
-      "@cord.network/did": ["did/src"],
-      "@cord.network/docs": ["docs/src"],
-      "@cord.network/augment-api": ["augment-api/src"],
-      "@cord.network/type-definitions": ["type-definitions/src"]
+      "@cord.network/network": [
+        "network/src"
+      ],
+      "@cord.network/config": [
+        "config/src"
+      ],
+      "@cord.network/modules": [
+        "modules/src"
+      ],
+      "@cord.network/messaging": [
+        "messaging/src"
+      ],
+      "@cord.network/sdk": [
+        "sdk/src"
+      ],
+      "@cord.network/types": [
+        "types/src"
+      ],
+      "@cord.network/vc-export": [
+        "vc-export/src"
+      ],
+      "@cord.network/utils": [
+        "utils/src"
+      ],
+      "@cord.network/did": [
+        "did/src"
+      ],
+      "@cord.network/docs": [
+        "docs/src"
+      ],
+      "@cord.network/augment-api": [
+        "augment-api/src"
+      ],
+      "@cord.network/type-definitions": [
+        "type-definitions/src"
+      ]
     }
   }
 }
