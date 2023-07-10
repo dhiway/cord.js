@@ -22,8 +22,6 @@ import { generateRequestCredentialMessage } from './utils/request_credential_mes
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 
-const { CORD_WSS_URL, CORD_API_URL, CORD_API_TOKEN } = process.env
-
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
 }
@@ -33,7 +31,6 @@ async function main() {
   //const networkAddress = 'wss://staging.cord.network'
   Cord.ConfigService.set({
     submitTxResolveOn: Cord.Chain.IS_IN_BLOCK,
-    token: CORD_API_TOKEN,
   })
   await Cord.connect(networkAddress)
 

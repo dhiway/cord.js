@@ -21,6 +21,7 @@ import {
   jsonabc,
   DataUtils,
   DecoderUtils,
+  cord_api_query,
 } from '@cord.network/utils'
 import {
   REGISTRY_IDENT,
@@ -34,7 +35,6 @@ import { Bytes, Option } from '@polkadot/types'
 import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import type { PalletRegistryRegistryAuthorization } from '@cord.network/augment-api'
-import { cord_api_query } from '../../../../helper'
 /**
  *  Checks whether the input meets all the required criteria of an [[IRegistry]] object.
  *  Throws on invalid input.
@@ -186,10 +186,15 @@ export function isIRegistry(input: unknown): input is IRegistry {
  */
 
 export async function verifyStored(registry: IRegistry): Promise<void> {
-  // const api = ConfigService.get('api')
+  const api = ConfigService.get('api')
+  let encoded: any
+
   const identifier = Identifier.uriToIdentifier(registry.identifier)
-  // const encoded: any = await api.query.registry.registries(identifier)
-  const encoded = await cord_api_query('registry', 'registries', identifier)
+  encoded = await cord_api_query('registry', 'registries', identifier)
+
+  if (!encoded) {
+    encoded = await api.query.registry.registries(identifier)
+  }
   if (encoded.isNone)
     throw new SDKErrors.RegistryIdentifierMissingError(
       `Registry with identifier ${identifier} is not registered on chain`
@@ -206,9 +211,14 @@ export async function verifyAuthorization(
   auth: AuthorizationId
 ): Promise<void> {
   const api = ConfigService.get('api')
+  let encoded: any
+
   const identifier = Identifier.uriToIdentifier(auth)
-  // const encoded: any = await api.query.registry.authorizations(identifier)
-  const encoded = await cord_api_query('registry', 'authorizations', identifier)
+  encoded = await cord_api_query('registry', 'authorizations', identifier)
+
+  if (!encoded) {
+    encoded = await api.query.registry.authorizations(identifier)
+  }
   if (encoded.isNone)
     throw new SDKErrors.AuthorizationIdMissingError(
       `Authorization with identifier ${identifier} is not registered on chain`
@@ -225,10 +235,20 @@ export async function fetchAuthorizationDetailsfromChain(
   auth: AuthorizationId
 ): Promise<Option<PalletRegistryRegistryAuthorization>> {
   const api = ConfigService.get('api')
+  let registryAuthoriation: any
+
   const authorizationId = Identifier.uriToIdentifier(auth)
-  const registryAuthoriation: Option<PalletRegistryRegistryAuthorization> =
-    // await api.query.registry.authorizations(authorizationId)
-    await cord_api_query('registry', 'fetchAuthorizations', authorizationId)
+  registryAuthoriation = await cord_api_query(
+    'registry',
+    'fetchAuthorizations',
+    authorizationId
+  )
+
+  if (!registryAuthoriation) {
+    registryAuthoriation = await api.query.registry.authorizations(
+      authorizationId
+    )
+  }
 
   if (registryAuthoriation.isNone) {
     throw new SDKErrors.AuthorizationIdentifierMissingError(

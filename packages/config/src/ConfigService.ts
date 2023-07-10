@@ -32,9 +32,9 @@ export type configOpts = {
   api: ApiPromise
   logLevel: LogLevel
   submitTxResolveOn: SubscriptionPromise.ResultEvaluator
-  apiUrl: string
-  wssUrl: string
-  token: string | undefined
+  apiUrl: string | null
+  wssUrl: string | null
+  token: string | null
 } & { [key: string]: any }
 
 /**
@@ -57,9 +57,9 @@ export function modifyLogLevel(level: LogLevel): LogLevel {
 
 const defaultConfig: Partial<configOpts> = {
   logLevel: DEFAULT_DEBUG_LEVEL,
-  apiUrl: CORD_API_URL ?? 'localhost:3009',
-  wssUrl: CORD_WSS_URL ?? 'localhost:9944',
-  token: CORD_API_TOKEN ?? 'dummyToken',
+  apiUrl: CORD_API_URL ?? null,
+  wssUrl: CORD_WSS_URL ?? null,
+  token: CORD_API_TOKEN ?? null,
 }
 
 let configuration: Partial<configOpts> = { ...defaultConfig }
