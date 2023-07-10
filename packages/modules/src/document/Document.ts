@@ -370,58 +370,33 @@ export async function fromContent({
   verifyDataStructure(document)
   return document
 }
+
 export async function updateFromContent(
   document: IDocument,
   argContent: any,
+  schema: ISchema,
   signCallback: SignCallback,
   options: Options
 ) {
   options = {}
   const { evidenceIds, expiresAt, templates = [], labels } = options
-  let newContent: IContent = {
-    schemaId: `${document.content.schemaId}`,
-    contents: argContent,
-    holder: `${document.content.holder}`,
-    issuer: `${document.content.issuer}`,
-  }
-  const { hashes: contentHashes, nonceMap: contentNonceMap } =
-    Content.hashContents(newContent)
-  const issuanceDate = new Date()
-  const issuanceDateString = issuanceDate.toISOString()
-  const expiryDateString = expiresAt ? expiresAt.toISOString() : 'Infinity'
-  const metaData = {
-    templates: templates || [],
-    labels: labels || [],
-  }
-  const documentHash = calculateDocumentHash({
-    evidenceIds,
-    contentHashes,
-    createdAt: issuanceDateString,
-    validUntil: expiryDateString,
+
+  const newContent = Content.fromSchemaAndContent(
+    schema,
+    argContent,
+    document.content.holder,
+    document.content.issuer
+  )
+
+  const updatedDocument = await fromContent({
+    content: newContent,
+    authorization: `${document.authorization}`,
+    registry: `${document.registry}`,
+    signCallback: signCallback,
+    options: options,
   })
-  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
-  const issuerSignature = await signCallback({
-    data: uint8Hash,
-    did: newContent.issuer,
-    keyRelationship: 'authentication',
-  })
-  let content: IContent = newContent
-  const UpdatedStream = {
-    identifier: document.identifier,
-    content,
-    contentHashes,
-    contentNonceMap,
-    evidenceIds: evidenceIds || [],
-    authorization: document.authorization,
-    registry: document.registry,
-    createdAt: issuanceDateString,
-    validUntil: expiryDateString,
-    documentHash,
-    issuerSignature: signatureToJson(issuerSignature),
-    metadata: metaData,
-  }
-  verifyDataStructure(UpdatedStream)
-  return UpdatedStream
+  updatedDocument.identifier = document.identifier
+  return updatedDocument
 }
 
 type VerifyOptions = {
