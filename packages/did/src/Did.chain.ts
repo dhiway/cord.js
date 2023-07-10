@@ -3,9 +3,6 @@ import type { AccountId32, Extrinsic, Hash } from '@polkadot/types/interfaces'
 import type { AnyNumber } from '@polkadot/types/types'
 import { BN } from '@polkadot/util'
 
-import fetch from 'node-fetch'
-import { API_URL } from '../../network/src/chain/Chain'
-
 import type {
   DidDocument,
   DidEncryptionKey,
@@ -24,7 +21,12 @@ import type {
   VerificationKeyRelationship,
 } from '@cord.network/types'
 import { verificationKeyTypes } from '@cord.network/types'
-import { Crypto, SDKErrors, ss58Format } from '@cord.network/utils'
+import {
+  Crypto,
+  SDKErrors,
+  ss58Format,
+  cord_api_query,
+} from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import type {
   PalletDidDidDetails,
@@ -33,7 +35,6 @@ import type {
   PalletDidDidDetailsDidPublicKeyDetails,
   PalletDidServiceEndpointsDidEndpoint,
 } from '@cord.network/augment-api'
-import { cord_api_query } from '../../../helper'
 
 import {
   EncodedEncryptionKey,
@@ -435,8 +436,13 @@ export async function generateDidAuthenticatedTx({
   blockNumber,
 }: AuthorizeCallInput & SigningOptions): Promise<SubmittableExtrinsic> {
   const api = ConfigService.get('api')
+  let number: any
 
-  const number = await cord_api_query('system', 'section', 'number')
+  number = await cord_api_query('system', 'section', 'number')
+
+  if (!number) {
+    number = await api.query.system.number()
+  }
 
   const signableCall =
     api.registry.createType<PalletDidDidDetailsDidAuthorizedCallOperation>(
