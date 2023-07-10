@@ -91,7 +91,6 @@ export async function addRegistryAdminDelegate(
     // Authorize the tx.
     const registryId = Cord.Registry.uriToIdentifier(registryUri)
     const delegateId = Cord.Did.toChain(adminAuthority)
-    console.log(registryId, delegateId, authId, creator)
     const tx = api.tx.registry.addAdminDelegate(registryId, delegateId)
     const extrinsic = await Cord.Did.authorizeTx(
       creator,
