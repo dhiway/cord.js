@@ -1,6 +1,7 @@
 import * as Cord from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { generateKeypairs } from './generateKeypairs'
+import { hexToU8a } from '@polkadot/util'
 import { cord_api_query } from '@cord.network/utils'
 
 /**
@@ -52,14 +53,14 @@ export async function createDid(
   let document: any
 
   document = await cord_api_query('did', 'query', didUri)
-
-  if (!document) {
+  if (!document || !document.response) {
     const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
     document = Cord.Did.linkedInfoFromChain(encodedDid)
-    if (!document) {
-      throw new Error('DID was not successfully created.')
-    }
+  } else {
+    document = Cord.Did.linkedInfoFromApi(document.response)
   }
-
-  return { mnemonic, document: document.document }
+  if (!document) {
+      throw new Error('DID was not successfully created.')
+  }
+  return { mnemonic, document: document?.document }
 }

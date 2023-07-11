@@ -72,7 +72,6 @@ export async function verifyDidSignature({
   }
 
   const { publicKey } = await didResolveKey(keyUri, expectedVerificationMethod)
-
   Crypto.verify(message, signature, publicKey)
 }
 

@@ -19,8 +19,6 @@ import { randomUUID } from 'crypto'
 import { decryptMessage } from './utils/decrypt_message'
 import { encryptMessage } from './utils/encrypt_message'
 import { generateRequestCredentialMessage } from './utils/request_credential_message'
-import { getChainCredits, addAuthority } from './utils/createAuthorities'
-import { createAccount } from './utils/createAccount'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()

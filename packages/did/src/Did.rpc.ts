@@ -1,5 +1,7 @@
-import type { Option } from '@polkadot/types'
+import type { Option, Struct } from '@polkadot/types'
 import type { AccountId32, Hash } from '@polkadot/types/interfaces'
+import { AnyJson } from '@polkadot/types/types'
+import { BN, hexToU8a, u8aToString } from '@polkadot/util'
 import type {
   RawDidLinkedInfo,
   PalletDidDidDetailsDidPublicKeyDetails,
@@ -16,11 +18,11 @@ import type {
   UriFragment,
 } from '@cord.network/types'
 
-import { BN, u8aToString } from '@polkadot/util'
 import { Crypto, ss58Format } from '@cord.network/utils'
 import { getDidUri } from './Did.utils.js'
+import { HexString } from '@polkadot/util/types.js'
 
-function fromChain(encoded: AccountId32): DidUri {
+function fromChain(encoded: AccountId32 | string): DidUri {
   return getDidUri(Crypto.encodeAddress(encoded, ss58Format))
 }
 
@@ -153,5 +155,123 @@ export function linkedInfoFromChain(
   return {
     document: did,
     didName,
+  }
+}
+
+interface PalletDidDidDetailsApi extends Struct {
+  readonly authenticationKey: string;
+  readonly keyAgreementKeys: string;
+  readonly delegationKey: string | undefined;
+  readonly assertionKey: string | undefined;
+  readonly publicKeys: any; /* todo */
+  readonly lastTxCounter: number;
+}
+
+interface PalletDidServiceEndpointsApi extends Struct {
+  readonly id: string;
+  readonly serviceTypes: string[];
+  readonly urls: string[];
+}
+
+function didPublicKeyDetailsFromApi(
+  keyId: string,
+  keyDetails: any
+): DidKey {
+  const key = keyDetails.key.publicVerificationKey 
+    ? keyDetails.key.publicVerificationKey
+    : keyDetails.key.publicEncryptionKey
+  return {
+    id: `#${keyId}`,
+    type: Object.keys(key)[0].toLowerCase() as DidKey['type'],
+    publicKey: hexToU8a(Object.entries(key)[0][1] as HexString)
+  }
+}
+
+function documentFromApi(encoded: AnyJson): RpcDocument {
+  if (!encoded) return {} as RpcDocument
+  if (typeof encoded !== 'object') return {} as RpcDocument
+  const {
+    publicKeys,
+    authenticationKey,
+    assertionKey,
+    delegationKey,
+    keyAgreementKeys,
+    lastTxCounter,
+  } = encoded as unknown as PalletDidDidDetailsApi
+
+  const keys: Record<string, DidKey> = [...Object.entries(publicKeys)]
+    .map(([keyId, keyDetails]) =>
+      didPublicKeyDetailsFromApi(keyId, (keyDetails as unknown) as PalletDidDidDetailsDidPublicKeyDetails)
+    )
+    .reduce((res, key) => {
+      res[resourceIdToChain(key.id)] = key
+      return res
+    }, {})
+
+  const authentication = keys[authenticationKey] as DidVerificationKey
+
+  const didRecord: RpcDocument = {
+    authentication: [authentication],
+    lastTxCounter: new BN(lastTxCounter),
+  }
+
+  if (assertionKey) {
+    const key = keys[assertionKey] as DidVerificationKey
+    didRecord.assertionMethod = [key]
+  }
+  if (delegationKey) {
+    const key = keys[delegationKey] as DidVerificationKey
+    didRecord.capabilityDelegation = [key]
+  }
+
+  const keyAgreementKeyIds = [...keyAgreementKeys]
+  if (keyAgreementKeyIds.length > 0) {
+    didRecord.keyAgreement = keyAgreementKeyIds.map(
+      (id) => keys[id] as DidEncryptionKey
+    )
+  }
+
+  return didRecord
+}
+
+function serviceFromApi(
+  encoded: PalletDidServiceEndpointsApi
+): DidServiceEndpoint {
+  const { id, serviceTypes, urls } = encoded
+  return {
+    id: `#${id}`,
+    type: serviceTypes,
+    serviceEndpoint: urls,
+  }
+}
+
+function servicesFromApi(
+  encoded: AnyJson
+): DidServiceEndpoint[] {
+  const e: PalletDidServiceEndpointsApi[] = encoded as unknown as PalletDidServiceEndpointsApi[]
+  return e.map((encodedValue) => serviceFromApi(encodedValue))
+}
+
+export function linkedInfoFromApi(
+  encoded: Record<string, AnyJson>
+): DidInfo {
+  const { identifier, name, serviceEndpoints, details } = encoded
+  const didRec = documentFromApi(details)
+  const did: DidDocument = {
+    uri: fromChain(identifier as string),
+    authentication: didRec.authentication,
+    assertionMethod: didRec.assertionMethod,
+    capabilityDelegation: didRec.capabilityDelegation,
+    keyAgreement: didRec.keyAgreement,
+  }
+
+  const service = servicesFromApi(serviceEndpoints)
+  if (service.length > 0) {
+    did.service = service
+  }
+
+  return {
+    document: did,
+    didName: name ? name as string : undefined,
   }
 }

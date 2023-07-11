@@ -103,7 +103,6 @@ async function getNextNonce(did: DidUri): Promise<BN> {
       : new BN(0)
     return increaseNonce(currentNonce)
   }
-
   const currentNonce = queried ? new BN(queried.lastTxCounter) : new BN(0)
   return increaseNonce(currentNonce)
 }

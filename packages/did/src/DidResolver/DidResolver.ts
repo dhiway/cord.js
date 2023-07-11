@@ -14,7 +14,7 @@ import { ConfigService } from '@cord.network/config'
 
 import * as Did from '../index.js'
 import { toChain } from '../Did.chain.js'
-import { linkedInfoFromChain } from '../Did.rpc.js'
+import { linkedInfoFromApi, linkedInfoFromChain } from '../Did.rpc.js'
 import { getDidUri, parse } from '../Did.utils.js'
 import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.js'
 
@@ -34,7 +34,7 @@ export async function resolve(
 
   encodedDid = await cord_api_query('did', 'query', did)
 
-  if (!encodedDid) {
+  if (!encodedDid || !encodedDid.response) {
     const queryFunction = api.call.did?.query
     const { section, version } = queryFunction?.meta ?? {}
     if (version > 2)
@@ -45,6 +45,8 @@ export async function resolve(
     encodedDid = await queryFunction(toChain(did))
       .then(linkedInfoFromChain)
       .catch(() => ({ document: undefined, didName: undefined }))
+  } else {
+    encodedDid = linkedInfoFromApi(encodedDid.response)
   }
 
   const { document, didName }: any = encodedDid
