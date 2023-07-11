@@ -34,12 +34,12 @@ export async function verifyPresentation(
       const streamOnChain = await api.query.stream.streams(chainIdentifier)
       stream = Cord.Stream.fromChain(streamOnChain, chainIdentifier)
     }
-
     if (stream.revoked) {
       return false
     }
     return trustedIssuerUris.includes(stream.issuer)
-  } catch {
+  } catch  (err: any) {
+    console.log(err);
     return false
   }
 }

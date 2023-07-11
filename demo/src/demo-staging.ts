@@ -249,27 +249,6 @@ async function main() {
   } else {
     console.log('✅ Verification failed! 🚫')
   }
-
-  console.log(`\n❄️  Messaging `)
-  const schemaId = Cord.Schema.idToChain(schema.$id)
-  console.log(' Generating the message - Sender -> Receiver')
-  const message = await generateRequestCredentialMessage(
-    holderDid.uri,
-    verifierDid.uri,
-    schemaId
-  )
-
-  console.log(' Encrypting the message - Sender -> Receiver')
-  const encryptedMessage = await encryptMessage(
-    message,
-    holderDid.uri,
-    verifierDid.uri,
-    holderKeys.keyAgreement
-  )
-
-  console.log(' Decrypting the message - Receiver')
-  await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
-
   // Step 7: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${document.identifier}`)
   await revokeCredential(
