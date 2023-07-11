@@ -380,7 +380,7 @@ export async function updateFromContent(
 ) {
   options = {}
   const { evidenceIds, expiresAt, templates = [], labels } = options
-  conole.log(evidenceIds, expiresAt, templates, labels)
+  console.log(evidenceIds, expiresAt, templates, labels)
 
   const newContent = Content.fromSchemaAndContent(
     schema,
