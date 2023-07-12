@@ -327,7 +327,7 @@ async function main() {
   console.log(' Decrypting the message - Receiver')
   await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
-  Step 7: Revoke a Credential
+  // Step 7: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${document.identifier}`)
   await revokeCredential(
     delegateTwoDid.uri,
@@ -341,7 +341,7 @@ async function main() {
   )
   console.log(`✅ Credential revoked!`)
 
-  Step 8: The verifier checks the presentation.
+  // Step 8: The verifier checks the presentation.
   console.log(
     // `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
     `\n❄️  Presentation Verification - ${presentation.identifier} `
