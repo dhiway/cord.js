@@ -373,14 +373,11 @@ export async function fromContent({
 
 export async function updateStream(
   document: IDocument,
-  argContent: any,
+  argContent: IContent['contents'],
   schema: ISchema,
   signCallback: SignCallback,
   options: Options
 ) {
-  options = {}
-  const { evidenceIds, expiresAt, templates = [], labels } = options  
-  console.log(evidenceIds, expiresAt, templates, labels )
   const newContent = Content.fromSchemaAndContent(
     schema,
     argContent,
@@ -390,10 +387,10 @@ export async function updateStream(
 
   const updatedDocument = await fromContent({
     content: newContent,
-    authorization: `${document.authorization}`,
-    registry: `${document.registry}`,
-    signCallback: signCallback,
-    options: options,
+    authorization: document.authorization,
+    registry: document.registry ?? '',
+    signCallback,
+    options,
   })
   updatedDocument.identifier = document.identifier
   return updatedDocument

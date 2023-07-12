@@ -197,17 +197,18 @@ async function main() {
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
+  let callBackFn = async ({ data }) => ({
+    signature: delegateTwoKeys.authentication.sign(data),
+    keyType: delegateTwoKeys.authentication.type,
+    keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+  })
   const document = await createDocument(
     holderDid.uri,
     delegateTwoDid.uri,
     schema,
     registryDelegate,
     registry.identifier,
-    async ({ data }) => ({
-      signature: delegateTwoKeys.authentication.sign(data),
-      keyType: delegateTwoKeys.authentication.type,
-      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
-    })
+    callBackFn  
   )
   console.dir(document, {
     depth: null,
@@ -225,11 +226,6 @@ async function main() {
   console.log('✅ Credential created!')
 
   console.log('🖍️ Stream update...')
-  let argSignCallBack: any = async ({ data }) => ({
-    signature: delegateTwoKeys.assertionMethod.sign(data),
-    keyType: delegateTwoKeys.assertionMethod.type,
-  })
-
   let newContent: any = {
     name: 'Adi',
     age: 23,
@@ -238,11 +234,12 @@ async function main() {
     country: 'India',
   }
 
-  let updatedDocument: any = await Cord.Document.updateStream(
+  const updatedDocument = await Cord.Document.updateStream(
     document,
     newContent,
     schema,
-    argSignCallBack
+    callBackFn,
+    {}
   )
   console.log('🔖 Document after the updation\n', updatedDocument)
 
