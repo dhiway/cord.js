@@ -307,55 +307,55 @@ async function main() {
     console.log('✅ 301 :Verification failed! 🚫')
   }
 
-  // console.log(`\n❄️  Messaging `)
-  // const schemaId = Cord.Schema.idToChain(schema.$id)
-  // console.log(' Generating the message - Sender -> Receiver')
-  // const message = await generateRequestCredentialMessage(
-  //   holderDid.uri,
-  //   verifierDid.uri,
-  //   schemaId
-  // )
+  console.log(`\n❄️  Messaging `)
+  const schemaId = Cord.Schema.idToChain(schema.$id)
+  console.log(' Generating the message - Sender -> Receiver')
+  const message = await generateRequestCredentialMessage(
+    holderDid.uri,
+    verifierDid.uri,
+    schemaId
+  )
 
-  // console.log(' Encrypting the message - Sender -> Receiver')
-  // const encryptedMessage = await encryptMessage(
-  //   message,
-  //   holderDid.uri,
-  //   verifierDid.uri,
-  //   holderKeys.keyAgreement
-  // )
+  console.log(' Encrypting the message - Sender -> Receiver')
+  const encryptedMessage = await encryptMessage(
+    message,
+    holderDid.uri,
+    verifierDid.uri,
+    holderKeys.keyAgreement
+  )
 
-  // console.log(' Decrypting the message - Receiver')
-  // await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
+  console.log(' Decrypting the message - Receiver')
+  await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
-  // Step 7: Revoke a Credential
-  // console.log(`\n❄️  Revoke credential - ${document.identifier}`)
-  // await revokeCredential(
-  //   delegateTwoDid.uri,
-  //   authorIdentity,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.assertionMethod.sign(data),
-  //     keyType: delegateTwoKeys.assertionMethod.type,
-  //   }),
-  //   document,
-  //   false
-  // )
-  // console.log(`✅ Credential revoked!`)
+  Step 7: Revoke a Credential
+  console.log(`\n❄️  Revoke credential - ${document.identifier}`)
+  await revokeCredential(
+    delegateTwoDid.uri,
+    authorIdentity,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    }),
+    document,
+    false
+  )
+  console.log(`✅ Credential revoked!`)
 
-  // Step 8: The verifier checks the presentation.
-  // console.log(
-  //   // `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
-  //   `\n❄️  Presentation Verification - ${presentation.identifier} `
-  // )
-  // const isAgainValid = await verifyPresentation(presentation, {
-  //   challenge: challenge,
-  //   trustedIssuerUris: [issuerDid.uri],
-  // })
+  Step 8: The verifier checks the presentation.
+  console.log(
+    // `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
+    `\n❄️  Presentation Verification - ${presentation.identifier} `
+  )
+  const isAgainValid = await verifyPresentation(presentation, {
+    challenge: challenge,
+    trustedIssuerUris: [issuerDid.uri],
+  })
 
-  // if (isAgainValid) {
-  //   console.log('✅ Verification successful! 🎉')
-  // } else {
-  //   console.log('✅ Verification failed! 🚫')
-  // }
+  if (isAgainValid) {
+    console.log('✅ Verification successful! 🎉')
+  } else {
+    console.log('✅ Verification failed! 🚫')
+  }
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
