@@ -371,6 +371,31 @@ export async function fromContent({
   return document
 }
 
+export async function updateStream(
+  document: IDocument,
+  argContent: IContent['contents'],
+  schema: ISchema,
+  signCallback: SignCallback,
+  options: Options
+) {
+  const newContent = Content.fromSchemaAndContent(
+    schema,
+    argContent,
+    document.content.holder,
+    document.content.issuer
+  )
+
+  const updatedDocument = await fromContent({
+    content: newContent,
+    authorization: document.authorization,
+    registry: document.registry ?? '',
+    signCallback,
+    options,
+  })
+  updatedDocument.identifier = document.identifier
+  return updatedDocument
+}
+
 type VerifyOptions = {
   schema?: ISchema
   challenge?: string
