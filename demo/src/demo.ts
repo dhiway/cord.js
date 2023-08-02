@@ -22,6 +22,11 @@ import { generateRequestCredentialMessage } from './utils/request_credential_mes
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 
+import type {
+  SignCallback,
+  // DocumenentMetaData,
+} from '@cord.network/types'
+
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
 }
@@ -192,23 +197,24 @@ async function main() {
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
+  let callBackFn = async ({ data }) => ({
+    signature: delegateTwoKeys.authentication.sign(data),
+    keyType: delegateTwoKeys.authentication.type,
+    keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+  })
   const document = await createDocument(
     holderDid.uri,
     delegateTwoDid.uri,
     schema,
     registryDelegate,
     registry.identifier,
-    async ({ data }) => ({
-      signature: delegateTwoKeys.authentication.sign(data),
-      keyType: delegateTwoKeys.authentication.type,
-      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
-    })
+    callBackFn  
   )
   console.dir(document, {
     depth: null,
     colors: true,
   })
-  await createStream(
+  let x = await createStream(
     delegateTwoDid.uri,
     authorIdentity,
     async ({ data }) => ({
@@ -219,11 +225,61 @@ async function main() {
   )
   console.log('✅ Credential created!')
 
+  console.log('🖍️ Stream update...')
+  let newContent: any = {
+    name: 'Adi',
+    age: 23,
+    id: '123456789987654311',
+    gender: 'Male',
+    country: 'India',
+  }
+
+  const updatedDocument = await Cord.Document.updateStream(
+    document,
+    newContent,
+    schema,
+    callBackFn,
+    {}
+  )
+  console.log('🔖 Document after the updation\n', updatedDocument)
+
+  console.log('⚓ Anchoring the updated document on the blockchain...')
+  const api = Cord.ConfigService.get('api')
+  const { streamHash } = Cord.Stream.fromDocument(updatedDocument)
+  const authorization = Cord.Registry.uriToIdentifier(
+    updatedDocument.authorization
+  )
+  const streamTx = api.tx.stream.update(
+    updatedDocument.identifier.replace('stream:cord:', ''),
+    // updatedDocument.identifier,
+    streamHash,
+    authorization
+  )
+
+  const authorizedStreamTx = await Cord.Did.authorizeTx(
+    delegateTwoDid.uri,
+    streamTx,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    }),
+    authorIdentity.address
+  )
+  try{
+    await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
+  }
+  catch(e) {
+    console.log('Error: \n',e.message)
+  }
+  
+
+  
+
   // Step 5: Create a Presentation
   console.log(`\n❄️  Presentation Creation `)
   const challenge = getChallenge()
   const presentation = await createPresentation(
-    document,
+    updatedDocument,
     async ({ data }) => ({
       signature: holderKeys.authentication.sign(data),
       keyType: holderKeys.authentication.type,
@@ -246,9 +302,9 @@ async function main() {
   })
 
   if (isValid) {
-    console.log('✅ Verification successful! 🎉')
+    console.log('✅ 301 :Verification successful! 🎉')
   } else {
-    console.log('✅ Verification failed! 🚫')
+    console.log('✅ 301 :Verification failed! 🚫')
   }
 
   console.log(`\n❄️  Messaging `)
@@ -287,7 +343,8 @@ async function main() {
 
   // Step 8: The verifier checks the presentation.
   console.log(
-    `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
+    // `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
+    `\n❄️  Presentation Verification - ${presentation.identifier} `
   )
   const isAgainValid = await verifyPresentation(presentation, {
     challenge: challenge,
