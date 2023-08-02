@@ -25,6 +25,10 @@ export async function createDocument(
       id: '123456789987654321',
       gender: 'Female',
       country: 'India',
+      address: {
+        street: 'a',
+	pin: 54032
+      }
     },
     holder,
     issuer
