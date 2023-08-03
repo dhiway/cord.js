@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/type-definitions",
-  "version": "0.8.0-3",
+  "version": "0.8.1-beta.6",
   "description": "Type definitions for CORD Network",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",

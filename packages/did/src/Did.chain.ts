@@ -25,9 +25,8 @@ import {
   Crypto,
   SDKErrors,
   ss58Format,
-  cord_api_query,
 } from '@cord.network/utils'
-import { ConfigService } from '@cord.network/config'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 import type {
   PalletDidDidDetails,
   PalletDidDidDetailsDidAuthorizedCallOperation,

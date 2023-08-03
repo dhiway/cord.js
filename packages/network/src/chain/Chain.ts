@@ -10,14 +10,14 @@
 import { SubmittableResult } from '@polkadot/api'
 import { AnyNumber } from '@polkadot/types/types'
 
-import { ConfigService } from '@cord.network/config'
+import { ConfigService, cordApiTx } from '@cord.network/config'
 import type {
   ISubmittableResult,
   KeyringPair,
   SubmittableExtrinsic,
   SubscriptionPromise,
 } from '@cord.network/types'
-import { SDKErrors, cordApiTx } from '@cord.network/utils'
+import { SDKErrors } from '@cord.network/utils'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
 

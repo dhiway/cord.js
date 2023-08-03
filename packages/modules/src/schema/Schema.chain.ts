@@ -10,9 +10,9 @@ import {
   SCHEMA_PREFIX,
 } from '@cord.network/types'
 
-import { ConfigService } from '@cord.network/config'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 import * as Did from '@cord.network/did'
-import { SDKErrors, Identifier, cord_api_query } from '@cord.network/utils'
+import { SDKErrors, Identifier } from '@cord.network/utils'
 
 import { serializeForHash, verifyDataStructure } from './Schema.js'
 

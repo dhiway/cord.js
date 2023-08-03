@@ -23,10 +23,9 @@ import {
   JsonSchema,
   SDKErrors,
   jsonabc,
-  cord_api_query,
 } from '@cord.network/utils'
 import { SCHEMA_IDENT, SCHEMA_PREFIX } from '@cord.network/types'
-import { ConfigService } from '@cord.network/config'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 import { Bytes } from '@polkadot/types'
 import type { AccountId } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'

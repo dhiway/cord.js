@@ -1,7 +1,7 @@
 import type { Extrinsic } from '@polkadot/types/interfaces'
 import type { SubmittableExtrinsicFunction } from '@polkadot/api/types'
 import { BN } from '@polkadot/util'
-import { ConfigService } from '@cord.network/config'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 
 import type {
   DidUri,
@@ -11,7 +11,7 @@ import type {
   VerificationKeyRelationship,
 } from '@cord.network/types'
 
-import { SDKErrors, cord_api_query } from '@cord.network/utils'
+import { SDKErrors } from '@cord.network/utils'
 
 import {
   documentFromChain,

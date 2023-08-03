@@ -21,7 +21,6 @@ import {
   jsonabc,
   DataUtils,
   DecoderUtils,
-  cord_api_query,
 } from '@cord.network/utils'
 import {
   REGISTRY_IDENT,
@@ -29,7 +28,7 @@ import {
   AUTHORIZATION_IDENT,
   AUTHORIZATION_PREFIX,
 } from '@cord.network/types'
-import { ConfigService } from '@cord.network/config'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 import type { AccountId } from '@polkadot/types/interfaces'
 import { Bytes, Option } from '@polkadot/types'
 import * as Did from '@cord.network/did'

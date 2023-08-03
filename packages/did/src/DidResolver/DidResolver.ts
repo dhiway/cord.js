@@ -9,8 +9,8 @@ import type {
   ResolvedDidServiceEndpoint,
   UriFragment,
 } from '@cord.network/types'
-import { SDKErrors, cord_api_query } from '@cord.network/utils'
-import { ConfigService } from '@cord.network/config'
+import { SDKErrors } from '@cord.network/utils'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 
 import * as Did from '../index.js'
 import { toChain } from '../Did.chain.js'

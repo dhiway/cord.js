@@ -1,5 +1,5 @@
-import * as Cord from '@cord.network/sdk'
 import fetch from 'node-fetch'
+import * as ConfigService from './ConfigService';
 import type { SubmittableExtrinsic } from '@cord.network/types'
 
 export async function cord_api_query(
@@ -7,8 +7,8 @@ export async function cord_api_query(
   section: any,
   identifier: any
 ) {
-  const url = Cord.ConfigService.get('apiUrl')
-  const token = Cord.ConfigService.get('token')
+  const url = ConfigService.get('apiUrl')
+  const token = ConfigService.get('token')
 
   if (!url || !token) {
     return null
@@ -32,8 +32,8 @@ export async function cord_api_query(
 }
 
 export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
-  const url = Cord.ConfigService.get('apiUrl')
-  const token = Cord.ConfigService.get('token')
+  const url = ConfigService.get('apiUrl')
+  const token = ConfigService.get('token')
 
   if (!url || !token) {
     return null
