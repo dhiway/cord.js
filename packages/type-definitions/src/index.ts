@@ -63,6 +63,15 @@ export const typesBundle: OverrideBundleType = {
       },
       types: defaultTypesBundle,
     },
+    "Dev. Node": {
+      runtime: {
+        ...didCalls,
+      },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
+      types: defaultTypesBundle,
+    },
   },
 }
 
