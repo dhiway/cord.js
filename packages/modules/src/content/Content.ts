@@ -11,7 +11,7 @@ import {
   Identifier,
   Crypto,
   DataUtils,
-  jsonabc,
+  // jsonabc,
 } from '@cord.network/utils'
 import * as Did from '@cord.network/did'
 import * as Schema from '../schema/index.js'
@@ -26,41 +26,36 @@ const VC_VOCAB = 'https://www.w3.org/2018/credentials/v1'
  * @param expanded Return an expanded instead of a compacted represenation. While property transformation is done explicitely in the expanded format, it is otherwise done implicitly via adding JSON-LD's reserved `@context` properties while leaving [[IContent]][contents] property keys untouched.
  * @returns An object which can be serialized into valid JSON-LD representing an [[IContent]]'s ['contents'].
  */
+
 function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const { schemaId, contents, holder, issuer } = content
-  if (!schemaId) new SDKErrors.SchemaIdentifierMissingError()
-  const vocabulary = `${schemaId}#`
-  const result: Record<string, unknown> = {}
-  if (issuer) result['issuer'] = issuer
-  if (holder) result['holder'] = holder
+  const { schemaId, contents, holder, issuer } = content;
+
+  if (!schemaId) throw new SDKErrors.SchemaIdentifierMissingError();
+
+  const vocabulary = `${schemaId}#`;
+  const result: Record<string, unknown> = {};
+
+  if (issuer) result['issuer'] = issuer;
+  if (holder) result['holder'] = holder;
+
+  const flattenedContents = DataUtils.flattenObject(contents || {});
 
   if (!expanded) {
     return {
-      ...jsonabc.sortObj(result),
+      ...result,
       '@context': { '@vocab': vocabulary },
-      ...jsonabc.sortObj(contents ?? {}),
-    }
+      ...flattenedContents,
+    };
   }
 
-  Object.entries(contents || {}).forEach(([key, value]) => {
-    let val = value
-    if (typeof value === 'object') {
-      /* FIXME: GH-issue #40 */
-      /* Supporting object inside is tricky, and jsonld expansion is even more harder */
-      /* for now, we got things under control with this check but need more work here */
+  Object.entries(flattenedContents).forEach(([key, value]) => {
+    result[vocabulary + key] = value;
+  });
 
-      let newObj = {}
-      Object.entries(jsonabc.sortObj(value)).forEach(([k, v]) => {
-        newObj[vocabulary + k] = v
-      })
-      val = newObj
-    }
-    result[vocabulary + key] = val
-  })
-  return result
+  return result;
 }
 
 /**
@@ -108,6 +103,7 @@ function makeStatementsJsonLD(content: PartialContent): string[] {
 export function hashContents(
   content: PartialContent,
   options: Crypto.HashingOptions & {
+    selectedAttributes?: string[],
     canonicalisation?: (content: PartialContent) => string[]
   } = {}
 ): {
@@ -119,12 +115,20 @@ export function hashContents(
   const canonicalisation = options.canonicalisation || defaults.canonicalisation
   // use canonicalisation algorithm to make hashable statement strings
   const statements = canonicalisation(content)
+
+  let filteredStatements = statements
+  if (options.selectedAttributes && options.selectedAttributes.length) {
+    filteredStatements = DataUtils.filterStatements(statements, options.selectedAttributes);
+  }
+
   // iterate over statements to produce salted hashes
-  const processed = Crypto.hashStatements(statements, options)
+  const processed = Crypto.hashStatements(filteredStatements, options)
+
   // produce array of salted hashes to add to credential
   const hashes = processed
     .map(({ saltedHash }) => saltedHash)
     .sort((a, b) => hexToBn(a).cmp(hexToBn(b)))
+
   // produce nonce map, where each nonce is keyed with the unsalted hash
   const nonceMap = {}
   processed.forEach(({ digest, nonce, statement }) => {
@@ -148,6 +152,7 @@ export function hashContents(
  */
 export function verifyDisclosedAttributes(
   content: PartialContent,
+  attributes: string[],
   proof: {
     nonces: Record<string, string>
     hashes: string[]
@@ -162,8 +167,13 @@ export function verifyDisclosedAttributes(
   const { nonces } = proof
   // use canonicalisation algorithm to make hashable statement strings
   const statements = canonicalisation(content)
+  let filteredStatements = statements
+  if (attributes && attributes.length) {
+    filteredStatements = DataUtils.filterStatements(statements, attributes);
+  }
+
   // iterate over statements to produce salted hashes
-  const hashed = Crypto.hashStatements(statements, { ...options, nonces })
+  const hashed = Crypto.hashStatements(filteredStatements, { ...options, nonces })
   // check resulting hashes
   const digestsInProof = Object.keys(nonces)
   const { verified, errors } = hashed.reduce<{

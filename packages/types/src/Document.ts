@@ -23,13 +23,15 @@ export interface IDocument {
   evidenceIds: IDocument[]
   authorization: IRegistryAuthorization['identifier']
   registry: string | null
-  createdAt: string
-  validUntil: string
+  issuanceDate: string
+  validFrom?: string
+  validUntil?: string
   documentHash: Hash
   issuerSignature: DidSignature
   metadata: DocumentMetaData
 }
 
 export interface IDocumentPresentation extends IDocument {
+  selectiveAttributes: string[]
   holderSignature: DidSignature & { challenge?: string }
 }

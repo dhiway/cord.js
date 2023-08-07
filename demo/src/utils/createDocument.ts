@@ -27,7 +27,11 @@ export async function createDocument(
       country: 'India',
       address: {
         street: 'a',
-	pin: 54032
+        pin: 54032,
+        location: {
+          state: 'karnataka',
+          country: 'india'
+        }
       }
     },
     holder,

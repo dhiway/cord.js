@@ -159,10 +159,10 @@ export function encodeObjectAsStr(
       ? JSON.stringify(jsonabc.sortObj(value))
       : // eslint-disable-next-line no-nested-ternary
       typeof value === 'number' && value !== null
-      ? value.toString()
-      : typeof value === 'boolean' && value !== null
-      ? JSON.stringify(value)
-      : value
+        ? value.toString()
+        : typeof value === 'boolean' && value !== null
+          ? JSON.stringify(value)
+          : value
 
   return input.normalize('NFC')
 }
@@ -288,6 +288,7 @@ export interface HashingOptions {
   nonces?: Record<string, string>
   nonceGenerator?: (key: string) => string
   hasher?: Hasher
+  // selectedAttributes?: string[]
 }
 
 /**
