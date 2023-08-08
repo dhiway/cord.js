@@ -27,7 +27,6 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
             { $ref: '#/definitions/array' },
             { $ref: '#/definitions/object' },
           ],
-          type: 'object',
         },
       },
       type: 'object',
@@ -125,79 +124,41 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
       required: ['type', 'items'],
     },
     object: {
-      additionalProperties: true,
+      additionalProperties: false,
       properties: {
-        type: {
-          const: 'object',
+        type: { const: 'object' },
+        properties: {
+          type: 'object',
+          patternProperties: {
+            '^.+$': {
+              oneOf: [
+                { $ref: '#/definitions/string' },
+                { $ref: '#/definitions/number' },
+                { $ref: '#/definitions/boolean' },
+                { $ref: '#/definitions/schemaReference' },
+                { $ref: '#/definitions/array' },
+                { $ref: '#/definitions/object' },
+              ],
+            },
+          },
+        },
+        patternProperties: {
+          '^.+$': {
+            oneOf: [
+              { $ref: '#/definitions/string' },
+              { $ref: '#/definitions/number' },
+              { $ref: '#/definitions/boolean' },
+              { $ref: '#/definitions/schemaReference' },
+              { $ref: '#/definitions/array' },
+              { $ref: '#/definitions/object' },
+            ],
+          },
         },
       },
       required: ['type'],
     },
   },
 }
-
-// export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
-//   $id: 'http://cord.network/draft-01/schema#',
-//   $schema: 'http://json-schema.org/draft-07/schema#',
-//   title: 'CType Metaschema (draft-01)',
-//   description: `Describes a Schema, which is a JSON schema for validating stream types. This version has known issues, the use of schema ${SchemaModelV2.$id} is recommended instead.`,
-//   type: 'object',
-//   properties: {
-//     $id: {
-//       type: 'string',
-//       format: 'uri',
-//       pattern: '^schema:cord:5[0-9a-zA-Z]+$',
-//     },
-//     $schema: {
-//       type: 'string',
-//       format: 'uri',
-//       const: 'http://json-schema.org/draft-07/schema#',
-//     },
-//     title: {
-//       type: 'string',
-//     },
-//     description: {
-//       type: 'string',
-//     },
-//     type: {
-//       type: 'string',
-//       const: 'object',
-//     },
-//     properties: {
-//       type: 'object',
-//       patternProperties: {
-//         '^.*$': {
-//           type: 'object',
-//           properties: {
-//             type: {
-//               type: 'string',
-//               enum: ['string', 'integer', 'number', 'boolean'],
-//             },
-//             $ref: {
-//               type: 'string',
-//               format: 'uri',
-//             },
-//             format: {
-//               type: 'string',
-//               enum: ['date', 'time', 'uri'],
-//             },
-//           },
-//           additionalProperties: false,
-//           oneOf: [
-//             {
-//               required: ['type'],
-//             },
-//             {
-//               required: ['$ref'],
-//             },
-//           ],
-//         },
-//       },
-//     },
-//   },
-//   additionalProperties: false,
-//   required: ['$id', 'title', '$schema', 'properties', 'type'],
-// }
 
 export const SchemaModel: JsonSchema.Schema = {
   $schema: 'http://json-schema.org/draft-07/schema',
