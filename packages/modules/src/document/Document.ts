@@ -20,6 +20,7 @@ import type {
   IRegistry,
   StreamId,
   RegistryId,
+  PresentationOptions,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/index.js'
@@ -108,15 +109,23 @@ export function verifyDocumentHash(input: IDocument): void {
  * @param input - The [[Stream]] for which to verify data.
  */
 
-export function verifyDataIntegrity(input: IDocumentPresentation): void {
+export function verifyDataIntegrity(input: IDocument, { selectedAttributes }: VerifyOptions = {}): void {
   // check document hash
   verifyDocumentHash(input)
 
   // verify properties against selective disclosure proof
-  Content.verifyDisclosedAttributes(input.content, input.selectiveAttributes, {
-    nonces: input.contentNonceMap,
-    hashes: input.contentHashes,
-  })
+  if (selectedAttributes) {
+    Content.verifyDisclosedAttributes(input.content, {
+      nonces: input.contentNonceMap,
+      hashes: input.contentHashes,
+    }, selectedAttributes)
+  } else {
+    Content.verifyDisclosedAttributes(input.content, {
+      nonces: input.contentNonceMap,
+      hashes: input.contentHashes,
+    })
+
+  }
 
   // TODO - check evidences
   // input.evidenceIds.forEach(verifyDataIntegrity)
@@ -175,13 +184,13 @@ export function verifyAuthorization(
  * @param schema A [[Schema]] to verify the [[Content]] structure.
  */
 
-export function verifyAgainstSchema(
-  document: IDocument,
-  schema: ISchema
-): void {
-  verifyDataStructure(document)
-  verifyContentAganistSchema(document.content.contents, schema)
-}
+// export function verifyAgainstSchema(
+//   document: IDocument,
+//   schema: ISchema
+// ): void {
+//   verifyDataStructure(document)
+//   verifyContentAganistSchema(document.content.contents, schema)
+// }
 
 /**
  * Verifies the signature of the [[IDocumentPresentation]].
@@ -377,6 +386,32 @@ type VerifyOptions = {
   schema?: ISchema
   challenge?: string
   didResolveKey?: DidResolveKey
+  selectedAttributes?: string[]
+}
+
+/**
+ * Verifies data structure & data integrity of a document object.
+ * This combines all offline sanity checks that can be performed on an IDocument object.
+ *
+ * @param document - The object to check.
+ * @param options - Additional parameter for more verification steps.
+ * @param options.schema - Schema to be checked against.
+ * @param options.selectedAttributes - Selective disclosure attributes 
+ */
+export function verifyWellFormed(
+  document: IDocument,
+  { schema, selectedAttributes }: VerifyOptions = {}
+): void {
+  verifyDataStructure(document)
+  if (selectedAttributes && (selectedAttributes.length > 0 || selectedAttributes[0] !== '*')) {
+    verifyDataIntegrity(document, { selectedAttributes })
+  } else {
+    verifyDataIntegrity(document)
+
+  }
+  if (schema) {
+    verifyContentAganistSchema(document.content.contents, schema)
+  }
 }
 
 /**
@@ -387,15 +422,16 @@ type VerifyOptions = {
  * @param options.schema - Schema to be checked against.
  */
 export async function verifyDocument(
-  document: IDocumentPresentation,
-  { schema }: VerifyOptions = {}
+  document: IDocument,
+  { schema, selectedAttributes }: VerifyOptions = {}
 ): Promise<void> {
-  verifyDataStructure(document)
-  verifyDataIntegrity(document)
+  verifyWellFormed(document, { schema, selectedAttributes })
+  // verifyDataStructure(document)
+  // verifyDataIntegrity(document)
 
-  if (schema) {
-    verifyAgainstSchema(document, schema)
-  }
+  // if (schema) {
+  //   verifyAgainstSchema(document, schema)
+  // }
 }
 
 /**
@@ -413,7 +449,8 @@ export async function verifyPresentation(
   presentation: IDocumentPresentation,
   { schema, challenge, didResolveKey = resolveKey }: VerifyOptions = {}
 ): Promise<void> {
-  await verifyDocument(presentation, { schema })
+  const selectedAttributes = presentation.selectiveAttributes
+  await verifyDocument(presentation, { schema, selectedAttributes })
   await verifySignature(presentation, {
     challenge,
     didResolveKey,
@@ -460,16 +497,6 @@ export function getHash(document: IDocument): IStream['streamHash'] {
   return document.documentHash
 }
 
-/**
- * Gets names of the document's attributes.
- *
- * @param document The document.
- * @returns The set of names.
- */
-// function getAttributes(document: IDocument): Set<string> {
-//   return new Set(Object.keys(document.content.contents))
-// }
-
 function filterNestedObject(obj: Record<string, any>, keysToKeep: string[]): Record<string, any> {
   const result = {};
 
@@ -494,6 +521,8 @@ function filterNestedObject(obj: Record<string, any>, keysToKeep: string[]): Rec
 
   return result;
 }
+
+
 /**
  * Creates a public presentation which can be sent to a verifier.
  * This presentation is signed.
@@ -509,21 +538,15 @@ function filterNestedObject(obj: Record<string, any>, keysToKeep: string[]): Rec
 export async function createPresentation({
   document,
   signCallback,
-  selectedAttributes = [],
+  selectedAttributes,
   challenge,
-}: {
-  document: IDocument
-  signCallback: SignCallback
-  selectedAttributes?: string[]
-  challenge?: string
-}): Promise<IDocumentPresentation> {
+}: PresentationOptions): Promise<IDocumentPresentation> {
   let presentationDocument = document;
 
-  if (selectedAttributes.length > 0) {
+  if (selectedAttributes && selectedAttributes.length > 0) {
     // Only keep selected attributes
     presentationDocument.content.contents = filterNestedObject(document.content.contents, selectedAttributes);
   }
-
   presentationDocument.contentNonceMap = hashContents(presentationDocument.content, {
     nonces: presentationDocument.contentNonceMap, selectedAttributes,
   }).nonceMap

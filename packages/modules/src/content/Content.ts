@@ -47,7 +47,7 @@ function jsonLDcontents(
     return {
       ...result,
       '@context': { '@vocab': vocabulary },
-      ...flattenedContents,
+      ...contents,
     };
   }
 
@@ -152,11 +152,11 @@ export function hashContents(
  */
 export function verifyDisclosedAttributes(
   content: PartialContent,
-  attributes: string[],
   proof: {
     nonces: Record<string, string>
     hashes: string[]
   },
+  attributes?: string[],
   options: Pick<Crypto.HashingOptions, 'hasher'> & {
     canonicalisation?: (content: PartialContent) => string[]
   } = {}
@@ -171,7 +171,6 @@ export function verifyDisclosedAttributes(
   if (attributes && attributes.length) {
     filteredStatements = DataUtils.filterStatements(statements, attributes);
   }
-
   // iterate over statements to produce salted hashes
   const hashed = Crypto.hashStatements(filteredStatements, { ...options, nonces })
   // check resulting hashes

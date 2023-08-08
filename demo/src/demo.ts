@@ -273,19 +273,20 @@ async function main() {
 
 
   // Step 5: Create a Presentation
-  console.log(`\n❄️  Presentation Creation `)
+  console.log(`\n❄️  Selective Disclosure Presentation Creation `)
   const challenge = getChallenge()
-  const presentation = await createPresentation(
-    document,
-    async ({ data }) => ({
+  const presentation = await createPresentation({
+    document: document,
+    signCallback: async ({ data }) => ({
       signature: holderKeys.authentication.sign(data),
       keyType: holderKeys.authentication.type,
       keyUri: `${holderDid.uri}${holderDid.authentication[0].id}`,
     }),
-    // [],
-    ['name', 'id', 'address.pin', 'address.location', 'address'],
-    challenge,
-  )
+    // Comment the below line to have a full disclosure
+    selectedAttributes: ['name', 'id', 'address.pin', 'address.location',],
+    challenge: challenge
+  });
+
   console.dir(presentation, {
     depth: null,
     colors: true,
@@ -305,25 +306,28 @@ async function main() {
     console.log('✅  Verification failed! 🚫')
   }
 
-  console.log(`\n❄️  Messaging `)
-  const schemaId = Cord.Schema.idToChain(schema.$id)
-  console.log(' Generating the message - Sender -> Receiver')
-  const message = await generateRequestCredentialMessage(
-    holderDid.uri,
-    verifierDid.uri,
-    schemaId
-  )
+  // Uncomment the following section to enable messaging demo
+  // 
+  // console.log(`\n❄️  Messaging `)
+  // const schemaId = Cord.Schema.idToChain(schema.$id)
+  // console.log(' Generating the message - Sender -> Receiver')
+  // const message = await generateRequestCredentialMessage(
+  //   holderDid.uri,
+  //   verifierDid.uri,
+  //   schemaId
+  // )
+  //
+  // console.log(' Encrypting the message - Sender -> Receiver')
+  // const encryptedMessage = await encryptMessage(
+  //   message,
+  //   holderDid.uri,
+  //   verifierDid.uri,
+  //   holderKeys.keyAgreement
+  // )
+  //
+  // console.log(' Decrypting the message - Receiver')
+  // await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
-  console.log(' Encrypting the message - Sender -> Receiver')
-  const encryptedMessage = await encryptMessage(
-    message,
-    holderDid.uri,
-    verifierDid.uri,
-    holderKeys.keyAgreement
-  )
-
-  console.log(' Decrypting the message - Receiver')
-  await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
   // Step 7: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${document.identifier}`)
