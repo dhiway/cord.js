@@ -20,7 +20,7 @@ import type {
   IRegistry,
   StreamId,
   RegistryId,
-  // DocumenentMetaData,
+  PresentationOptions,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import * as Content from '../content/index.js'
@@ -43,8 +43,6 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 function getHashLeaves(
   contentHashes: Hash[],
   evidenceIds: IDocument[],
-  createdAt: string,
-  validUntil: string
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
@@ -52,12 +50,6 @@ function getHashLeaves(
     evidenceIds.forEach((evidence) => {
       result.push(Crypto.coToUInt8(evidence.identifier))
     })
-  }
-  if (createdAt && createdAt !== '') {
-    result.push(Crypto.coToUInt8(createdAt))
-  }
-  if (validUntil && validUntil !== '') {
-    result.push(Crypto.coToUInt8(validUntil))
   }
 
   return result
@@ -74,38 +66,20 @@ export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
     document.contentHashes || [],
     document.evidenceIds || [],
-    document.createdAt || '',
-    document.validUntil || ''
   )
+  if (document.issuanceDate) {
+    hashes.push(Crypto.coToUInt8(document.issuanceDate))
+  }
+  if (document.validFrom) {
+    hashes.push(Crypto.coToUInt8(document.validFrom))
+  }
+  if (document.validUntil) {
+    hashes.push(Crypto.coToUInt8(document.validUntil))
+  }
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
 }
 
-/**
- * Removes [[Content] properties from the [[Document]] object, provides anonymity and security when building the [[createPresentation]] method.
- *
- * @param document - The document object to remove properties from.
- * @param properties - Properties to remove from the [[Content]] object.
- * @returns A cloned Document with removed properties.
- */
-export function removeContentProperties(
-  document: IDocument,
-  properties: string[]
-): IDocument {
-  const presentation: IDocument =
-    // clone the credential because properties will be deleted later.
-    // TODO: find a nice way to clone stuff
-    JSON.parse(JSON.stringify(document))
-
-  properties.forEach((key) => {
-    delete presentation.content.contents[key]
-  })
-  presentation.contentNonceMap = hashContents(presentation.content, {
-    nonces: presentation.contentNonceMap,
-  }).nonceMap
-
-  return presentation
-}
 
 /**
  * Prepares credential data for signing.
@@ -135,18 +109,26 @@ export function verifyDocumentHash(input: IDocument): void {
  * @param input - The [[Stream]] for which to verify data.
  */
 
-export function verifyDataIntegrity(input: IDocument): void {
+export function verifyDataIntegrity(input: IDocument, { selectedAttributes }: VerifyOptions = {}): void {
   // check document hash
   verifyDocumentHash(input)
 
   // verify properties against selective disclosure proof
-  Content.verifyDisclosedAttributes(input.content, {
-    nonces: input.contentNonceMap,
-    hashes: input.contentHashes,
-  })
+  if (selectedAttributes) {
+    Content.verifyDisclosedAttributes(input.content, {
+      nonces: input.contentNonceMap,
+      hashes: input.contentHashes,
+    }, selectedAttributes)
+  } else {
+    Content.verifyDisclosedAttributes(input.content, {
+      nonces: input.contentNonceMap,
+      hashes: input.contentHashes,
+    })
 
-  // check evidences
-  input.evidenceIds.forEach(verifyDataIntegrity)
+  }
+
+  // TODO - check evidences
+  // input.evidenceIds.forEach(verifyDataIntegrity)
 }
 
 /**
@@ -202,13 +184,13 @@ export function verifyAuthorization(
  * @param schema A [[Schema]] to verify the [[Content]] structure.
  */
 
-export function verifyAgainstSchema(
-  document: IDocument,
-  schema: ISchema
-): void {
-  verifyDataStructure(document)
-  verifyContentAganistSchema(document.content.contents, schema)
-}
+// export function verifyAgainstSchema(
+//   document: IDocument,
+//   schema: ISchema
+// ): void {
+//   verifyDataStructure(document)
+//   verifyContentAganistSchema(document.content.contents, schema)
+// }
 
 /**
  * Verifies the signature of the [[IDocumentPresentation]].
@@ -290,7 +272,8 @@ export function getUriForStream(
 
 export type Options = {
   evidenceIds?: IDocument[]
-  expiresAt?: Date | null
+  validFrom?: Date
+  validUntil?: Date
   templates?: string[]
   labels?: string[]
 }
@@ -311,35 +294,37 @@ export async function fromContent({
   authorization,
   registry,
   signCallback,
-  // evidenceIds,
   options = {},
 }: {
   content: IContent
   authorization: IRegistryAuthorization['identifier']
   registry: IRegistry['identifier']
   signCallback: SignCallback
-  // evidenceIds?: IDocument[]
   options: Options
 }): Promise<IDocument> {
-  const { evidenceIds, expiresAt, templates = [], labels } = options
+  const { evidenceIds, validFrom, validUntil, templates, labels } = options
 
   const { hashes: contentHashes, nonceMap: contentNonceMap } =
     Content.hashContents(content)
 
-  const issuanceDate = new Date()
-  const issuanceDateString = issuanceDate.toISOString()
-  const expiryDateString = expiresAt ? expiresAt.toISOString() : 'Infinity'
+  const issuanceDate = new Date().toISOString()
+  const validFromString = validFrom ? validFrom.toISOString() : undefined
+  const validUntilString = validUntil ? validUntil.toISOString() : undefined
 
   const metaData = {
     templates: templates || [],
     labels: labels || [],
   }
+
+
   const documentHash = calculateDocumentHash({
     evidenceIds,
     contentHashes,
-    createdAt: issuanceDateString,
-    validUntil: expiryDateString,
+    issuanceDate,
+    validFrom: validFromString,
+    validUntil: validUntilString,
   })
+
   const registryIdentifier = Identifier.uriToIdentifier(registry)
   const streamId = getUriForStream(
     documentHash,
@@ -361,8 +346,9 @@ export async function fromContent({
     evidenceIds: evidenceIds || [],
     authorization: authorization,
     registry: registry,
-    createdAt: issuanceDateString,
-    validUntil: expiryDateString,
+    issuanceDate,
+    validFrom: validFromString,
+    validUntil: validUntilString,
     documentHash,
     issuerSignature: signatureToJson(issuerSignature),
     metadata: metaData,
@@ -400,6 +386,32 @@ type VerifyOptions = {
   schema?: ISchema
   challenge?: string
   didResolveKey?: DidResolveKey
+  selectedAttributes?: string[]
+}
+
+/**
+ * Verifies data structure & data integrity of a document object.
+ * This combines all offline sanity checks that can be performed on an IDocument object.
+ *
+ * @param document - The object to check.
+ * @param options - Additional parameter for more verification steps.
+ * @param options.schema - Schema to be checked against.
+ * @param options.selectedAttributes - Selective disclosure attributes 
+ */
+export function verifyWellFormed(
+  document: IDocument,
+  { schema, selectedAttributes }: VerifyOptions = {}
+): void {
+  verifyDataStructure(document)
+  if (selectedAttributes && (selectedAttributes.length > 0 || selectedAttributes[0] !== '*')) {
+    verifyDataIntegrity(document, { selectedAttributes })
+  } else {
+    verifyDataIntegrity(document)
+
+  }
+  if (schema) {
+    verifyContentAganistSchema(document.content.contents, schema)
+  }
 }
 
 /**
@@ -411,14 +423,15 @@ type VerifyOptions = {
  */
 export async function verifyDocument(
   document: IDocument,
-  { schema }: VerifyOptions = {}
+  { schema, selectedAttributes }: VerifyOptions = {}
 ): Promise<void> {
-  verifyDataStructure(document)
-  verifyDataIntegrity(document)
+  verifyWellFormed(document, { schema, selectedAttributes })
+  // verifyDataStructure(document)
+  // verifyDataIntegrity(document)
 
-  if (schema) {
-    verifyAgainstSchema(document, schema)
-  }
+  // if (schema) {
+  //   verifyAgainstSchema(document, schema)
+  // }
 }
 
 /**
@@ -436,7 +449,8 @@ export async function verifyPresentation(
   presentation: IDocumentPresentation,
   { schema, challenge, didResolveKey = resolveKey }: VerifyOptions = {}
 ): Promise<void> {
-  await verifyDocument(presentation, { schema })
+  const selectedAttributes = presentation.selectiveAttributes
+  await verifyDocument(presentation, { schema, selectedAttributes })
   await verifySignature(presentation, {
     challenge,
     didResolveKey,
@@ -483,15 +497,31 @@ export function getHash(document: IDocument): IStream['streamHash'] {
   return document.documentHash
 }
 
-/**
- * Gets names of the document's attributes.
- *
- * @param document The document.
- * @returns The set of names.
- */
-function getAttributes(document: IDocument): Set<string> {
-  return new Set(Object.keys(document.content.contents))
+function filterNestedObject(obj: Record<string, any>, keysToKeep: string[]): Record<string, any> {
+  const result = {};
+
+  for (const key in obj) {
+    // Check if the key is in keysToKeep list.
+    if (keysToKeep.includes(key)) {
+      result[key] = obj[key];
+    } else if (typeof obj[key] === 'object') {
+      // Process nested keys.
+      const nestedKeys = keysToKeep
+        .filter(k => k.startsWith(key + "."))
+        .map(k => k.split('.').slice(1).join('.'));
+
+      if (nestedKeys.length) {
+        const nestedObject = filterNestedObject(obj[key], nestedKeys);
+        if (Object.keys(nestedObject).length > 0) {
+          result[key] = nestedObject;
+        }
+      }
+    }
+  }
+
+  return result;
 }
+
 
 /**
  * Creates a public presentation which can be sent to a verifier.
@@ -510,33 +540,26 @@ export async function createPresentation({
   signCallback,
   selectedAttributes,
   challenge,
-}: {
-  document: IDocument
-  signCallback: SignCallback
-  selectedAttributes?: string[]
-  challenge?: string
-}): Promise<IDocumentPresentation> {
-  // filter attributes that are not in requested attributes
-  const excludedClaimProperties = selectedAttributes
-    ? Array.from(getAttributes(document)).filter(
-        (property) => !selectedAttributes.includes(property)
-      )
-    : []
+}: PresentationOptions): Promise<IDocumentPresentation> {
+  let presentationDocument = document;
 
-  // remove these attributes
-  const presentation = removeContentProperties(
-    document,
-    excludedClaimProperties
-  )
+  if (selectedAttributes && selectedAttributes.length > 0) {
+    // Only keep selected attributes
+    presentationDocument.content.contents = filterNestedObject(document.content.contents, selectedAttributes);
+  }
+  presentationDocument.contentNonceMap = hashContents(presentationDocument.content, {
+    nonces: presentationDocument.contentNonceMap, selectedAttributes,
+  }).nonceMap
 
   const signature = await signCallback({
-    data: makeSigningData(presentation, challenge),
+    data: makeSigningData(presentationDocument, challenge),
     did: document.content.holder,
     keyRelationship: 'authentication',
   })
 
   return {
-    ...presentation,
+    ...presentationDocument,
+    selectiveAttributes: selectedAttributes || [],
     holderSignature: {
       ...signatureToJson(signature),
       ...(challenge && { challenge }),

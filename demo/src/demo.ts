@@ -22,10 +22,10 @@ import { generateRequestCredentialMessage } from './utils/request_credential_mes
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 
-import type {
-  SignCallback,
-  // DocumenentMetaData,
-} from '@cord.network/types'
+// import type {
+//   SignCallback,
+//   // DocumenentMetaData,
+// } from '@cord.network/types'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -94,8 +94,7 @@ async function main() {
     await createDid(authorIdentity)
   const delegateOneKeys = generateKeypairs(delegateOneMnemonic)
   console.log(
-    `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${
-      delegateOneDid.uri
+    `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${delegateOneDid.uri
     }`
   )
   // Create Delegate Two DID
@@ -103,8 +102,7 @@ async function main() {
     await createDid(authorIdentity)
   const delegateTwoKeys = generateKeypairs(delegateTwoMnemonic)
   console.log(
-    `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${
-      delegateTwoDid.uri
+    `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${delegateTwoDid.uri
     }`
   )
   // Create Delegate 3 DID
@@ -112,8 +110,7 @@ async function main() {
     await createDid(authorIdentity)
   const delegate3Keys = generateKeypairs(delegate3Mnemonic)
   console.log(
-    `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${
-      delegate3Did.uri
+    `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${delegate3Did.uri
     }`
   )
   console.log('✅ Identities created!')
@@ -208,13 +205,13 @@ async function main() {
     schema,
     registryDelegate,
     registry.identifier,
-    callBackFn  
+    callBackFn
   )
   console.dir(document, {
     depth: null,
     colors: true,
   })
-  let x = await createStream(
+  await createStream(
     delegateTwoDid.uri,
     authorIdentity,
     async ({ data }) => ({
@@ -225,69 +222,71 @@ async function main() {
   )
   console.log('✅ Credential created!')
 
-  console.log('🖍️ Stream update...')
-  let newContent: any = {
-    name: 'Adi',
-    age: 23,
-    id: '123456789987654311',
-    gender: 'Male',
-    country: 'India',
-  }
+  // console.log('🖍️ Stream update...')
+  // let newContent: any = {
+  //   name: 'Adi',
+  //   age: 23,
+  //   id: '123456789987654311',
+  //   gender: 'Male',
+  //   country: 'India',
+  // }
+  //
+  // const updatedDocument = await Cord.Document.updateStream(
+  //   document,
+  //   newContent,
+  //   schema,
+  //   callBackFn,
+  //   {}
+  // )
+  // console.log('🔖 Document after the updation\n', updatedDocument)
+  //
+  // console.log('⚓ Anchoring the updated document on the blockchain...')
+  // const api = Cord.ConfigService.get('api')
+  // const { streamHash } = Cord.Stream.fromDocument(updatedDocument)
+  // const authorization = Cord.Registry.uriToIdentifier(
+  //   updatedDocument.authorization
+  // )
+  // const streamTx = api.tx.stream.update(
+  //   updatedDocument.identifier.replace('stream:cord:', ''),
+  //   // updatedDocument.identifier,
+  //   streamHash,
+  //   authorization
+  // )
+  //
+  // const authorizedStreamTx = await Cord.Did.authorizeTx(
+  //   delegateTwoDid.uri,
+  //   streamTx,
+  //   async ({ data }) => ({
+  //     signature: delegateTwoKeys.assertionMethod.sign(data),
+  //     keyType: delegateTwoKeys.assertionMethod.type,
+  //   }),
+  //   authorIdentity.address
+  // )
+  // try {
+  //   await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
+  // }
+  // catch (e) {
+  //   console.log('Error: \n', e.message)
+  // }
+  //
 
-  const updatedDocument = await Cord.Document.updateStream(
-    document,
-    newContent,
-    schema,
-    callBackFn,
-    {}
-  )
-  console.log('🔖 Document after the updation\n', updatedDocument)
 
-  console.log('⚓ Anchoring the updated document on the blockchain...')
-  const api = Cord.ConfigService.get('api')
-  const { streamHash } = Cord.Stream.fromDocument(updatedDocument)
-  const authorization = Cord.Registry.uriToIdentifier(
-    updatedDocument.authorization
-  )
-  const streamTx = api.tx.stream.update(
-    updatedDocument.identifier.replace('stream:cord:', ''),
-    // updatedDocument.identifier,
-    streamHash,
-    authorization
-  )
-
-  const authorizedStreamTx = await Cord.Did.authorizeTx(
-    delegateTwoDid.uri,
-    streamTx,
-    async ({ data }) => ({
-      signature: delegateTwoKeys.assertionMethod.sign(data),
-      keyType: delegateTwoKeys.assertionMethod.type,
-    }),
-    authorIdentity.address
-  )
-  try{
-    await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
-  }
-  catch(e) {
-    console.log('Error: \n',e.message)
-  }
-  
-
-  
 
   // Step 5: Create a Presentation
-  console.log(`\n❄️  Presentation Creation `)
+  console.log(`\n❄️  Selective Disclosure Presentation Creation `)
   const challenge = getChallenge()
-  const presentation = await createPresentation(
-    updatedDocument,
-    async ({ data }) => ({
+  const presentation = await createPresentation({
+    document: document,
+    signCallback: async ({ data }) => ({
       signature: holderKeys.authentication.sign(data),
       keyType: holderKeys.authentication.type,
       keyUri: `${holderDid.uri}${holderDid.authentication[0].id}`,
     }),
-    ['name', 'id'],
-    challenge
-  )
+    // Comment the below line to have a full disclosure
+    selectedAttributes: ['name', 'id', 'address.pin', 'address.location',],
+    challenge: challenge
+  });
+
   console.dir(presentation, {
     depth: null,
     colors: true,
@@ -302,30 +301,33 @@ async function main() {
   })
 
   if (isValid) {
-    console.log('✅ 301 :Verification successful! 🎉')
+    console.log('✅  Verification successful! 🎉')
   } else {
-    console.log('✅ 301 :Verification failed! 🚫')
+    console.log('✅  Verification failed! 🚫')
   }
 
-  console.log(`\n❄️  Messaging `)
-  const schemaId = Cord.Schema.idToChain(schema.$id)
-  console.log(' Generating the message - Sender -> Receiver')
-  const message = await generateRequestCredentialMessage(
-    holderDid.uri,
-    verifierDid.uri,
-    schemaId
-  )
+  // Uncomment the following section to enable messaging demo
+  // 
+  // console.log(`\n❄️  Messaging `)
+  // const schemaId = Cord.Schema.idToChain(schema.$id)
+  // console.log(' Generating the message - Sender -> Receiver')
+  // const message = await generateRequestCredentialMessage(
+  //   holderDid.uri,
+  //   verifierDid.uri,
+  //   schemaId
+  // )
+  //
+  // console.log(' Encrypting the message - Sender -> Receiver')
+  // const encryptedMessage = await encryptMessage(
+  //   message,
+  //   holderDid.uri,
+  //   verifierDid.uri,
+  //   holderKeys.keyAgreement
+  // )
+  //
+  // console.log(' Decrypting the message - Receiver')
+  // await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
-  console.log(' Encrypting the message - Sender -> Receiver')
-  const encryptedMessage = await encryptMessage(
-    message,
-    holderDid.uri,
-    verifierDid.uri,
-    holderKeys.keyAgreement
-  )
-
-  console.log(' Decrypting the message - Receiver')
-  await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
   // Step 7: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${document.identifier}`)
