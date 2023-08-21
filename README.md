@@ -40,7 +40,7 @@ Once the build of the package is complete (with `yarn build`), one can try below
 if methods are working.
 
 Note:
-Make sure that the cord instance in running locally by following the README.md under the CORD repo
+Make sure that the cord instance in running locally by following the README.md under the CORD repo.
 Follow the instructions under the topic -  "Run the node"
 
 
