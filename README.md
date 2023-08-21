@@ -51,3 +51,4 @@ $ yarn bench
 The output of these runs are self-explanatory. For reference of how this is structured,
 you can refer to the source of the demo scripts.
 
+1
