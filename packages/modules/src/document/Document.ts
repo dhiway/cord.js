@@ -22,7 +22,7 @@ import type {
   RegistryId,
   PresentationOptions,
 } from '@cord.network/types'
-import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
+import { Crypto, SDKErrors, DataUtils, jsonabc } from '@cord.network/utils'
 import * as Content from '../content/index.js'
 import { hashContents } from '../content/index.js'
 import { verifyContentAganistSchema } from '../schema/Schema.js'
@@ -42,7 +42,7 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 
 function getHashLeaves(
   contentHashes: Hash[],
-  evidenceIds: IDocument[],
+  evidenceIds: IDocument[]
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
@@ -65,7 +65,7 @@ function getHashLeaves(
 export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
     document.contentHashes || [],
-    document.evidenceIds || [],
+    document.evidenceIds || []
   )
   if (document.issuanceDate) {
     hashes.push(Crypto.coToUInt8(document.issuanceDate))
@@ -79,7 +79,6 @@ export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
 }
-
 
 /**
  * Prepares credential data for signing.
@@ -109,22 +108,28 @@ export function verifyDocumentHash(input: IDocument): void {
  * @param input - The [[Stream]] for which to verify data.
  */
 
-export function verifyDataIntegrity(input: IDocument, { selectedAttributes }: VerifyOptions = {}): void {
+export function verifyDataIntegrity(
+  input: IDocument,
+  { selectedAttributes }: VerifyOptions = {}
+): void {
   // check document hash
   verifyDocumentHash(input)
 
   // verify properties against selective disclosure proof
   if (selectedAttributes) {
-    Content.verifyDisclosedAttributes(input.content, {
-      nonces: input.contentNonceMap,
-      hashes: input.contentHashes,
-    }, selectedAttributes)
+    Content.verifyDisclosedAttributes(
+      input.content,
+      {
+        nonces: input.contentNonceMap,
+        hashes: input.contentHashes,
+      },
+      selectedAttributes
+    )
   } else {
     Content.verifyDisclosedAttributes(input.content, {
       nonces: input.contentNonceMap,
       hashes: input.contentHashes,
     })
-
   }
 
   // TODO - check evidences
@@ -316,7 +321,6 @@ export async function fromContent({
     labels: labels || [],
   }
 
-
   const documentHash = calculateDocumentHash({
     evidenceIds,
     contentHashes,
@@ -357,16 +361,49 @@ export async function fromContent({
   return document
 }
 
-export async function updateStream(
+export async function updateFromContent(
   document: IDocument,
-  argContent: IContent['contents'],
+  updatedContent: IContent['contents'],
   schema: ISchema,
   signCallback: SignCallback,
   options: Options
 ) {
+  const { evidenceIds, validFrom, validUntil, templates, labels } = options
+  let isUpdateFromOptionsPossible: boolean = false
+  let isUpdateFromContentsPossible: boolean = false
+
+  if (document.content.schemaId !== schema.$id) {
+    throw new Error(
+      'Updating cannot be performed because the schema ID of the document does not correspond to the provided schema argument'
+    )
+  }
+
+  if (
+    JSON.stringify(evidenceIds) !== JSON.stringify(document.evidenceIds) ||
+    JSON.stringify(validFrom) !== JSON.stringify(document.validFrom) ||
+    JSON.stringify(validUntil) !== JSON.stringify(document.validUntil) ||
+    JSON.stringify(templates) !== JSON.stringify(document.metadata.templates) ||
+    JSON.stringify(labels) !== JSON.stringify(document.metadata.labels)
+  ) {
+    isUpdateFromOptionsPossible = true
+  }
+
+  if (
+    JSON.stringify(jsonabc.sortObj(document.content.contents)) !==
+    JSON.stringify(jsonabc.sortObj(updatedContent))
+  ) {
+    isUpdateFromContentsPossible = true
+  }
+
+  if (!(isUpdateFromOptionsPossible || isUpdateFromContentsPossible)) {
+    throw new Error(
+      "For document updating, it's necessary to modify either the contents or the options, or modify both"
+    )
+  }
+
   const newContent = Content.fromSchemaAndContent(
     schema,
-    argContent,
+    updatedContent,
     document.content.holder,
     document.content.issuer
   )
@@ -396,18 +433,20 @@ type VerifyOptions = {
  * @param document - The object to check.
  * @param options - Additional parameter for more verification steps.
  * @param options.schema - Schema to be checked against.
- * @param options.selectedAttributes - Selective disclosure attributes 
+ * @param options.selectedAttributes - Selective disclosure attributes
  */
 export function verifyWellFormed(
   document: IDocument,
   { schema, selectedAttributes }: VerifyOptions = {}
 ): void {
   verifyDataStructure(document)
-  if (selectedAttributes && (selectedAttributes.length > 0 || selectedAttributes[0] !== '*')) {
+  if (
+    selectedAttributes &&
+    (selectedAttributes.length > 0 || selectedAttributes[0] !== '*')
+  ) {
     verifyDataIntegrity(document, { selectedAttributes })
   } else {
     verifyDataIntegrity(document)
-
   }
   if (schema) {
     verifyContentAganistSchema(document.content.contents, schema)
@@ -497,31 +536,33 @@ export function getHash(document: IDocument): IStream['streamHash'] {
   return document.documentHash
 }
 
-function filterNestedObject(obj: Record<string, any>, keysToKeep: string[]): Record<string, any> {
-  const result = {};
+function filterNestedObject(
+  obj: Record<string, any>,
+  keysToKeep: string[]
+): Record<string, any> {
+  const result = {}
 
   for (const key in obj) {
     // Check if the key is in keysToKeep list.
     if (keysToKeep.includes(key)) {
-      result[key] = obj[key];
+      result[key] = obj[key]
     } else if (typeof obj[key] === 'object') {
       // Process nested keys.
       const nestedKeys = keysToKeep
-        .filter(k => k.startsWith(key + "."))
-        .map(k => k.split('.').slice(1).join('.'));
+        .filter((k) => k.startsWith(key + '.'))
+        .map((k) => k.split('.').slice(1).join('.'))
 
       if (nestedKeys.length) {
-        const nestedObject = filterNestedObject(obj[key], nestedKeys);
+        const nestedObject = filterNestedObject(obj[key], nestedKeys)
         if (Object.keys(nestedObject).length > 0) {
-          result[key] = nestedObject;
+          result[key] = nestedObject
         }
       }
     }
   }
 
-  return result;
+  return result
 }
-
 
 /**
  * Creates a public presentation which can be sent to a verifier.
@@ -541,15 +582,22 @@ export async function createPresentation({
   selectedAttributes,
   challenge,
 }: PresentationOptions): Promise<IDocumentPresentation> {
-  let presentationDocument = document;
+  let presentationDocument = document
 
   if (selectedAttributes && selectedAttributes.length > 0) {
     // Only keep selected attributes
-    presentationDocument.content.contents = filterNestedObject(document.content.contents, selectedAttributes);
+    presentationDocument.content.contents = filterNestedObject(
+      document.content.contents,
+      selectedAttributes
+    )
   }
-  presentationDocument.contentNonceMap = hashContents(presentationDocument.content, {
-    nonces: presentationDocument.contentNonceMap, selectedAttributes,
-  }).nonceMap
+  presentationDocument.contentNonceMap = hashContents(
+    presentationDocument.content,
+    {
+      nonces: presentationDocument.contentNonceMap,
+      selectedAttributes,
+    }
+  ).nonceMap
 
   const signature = await signCallback({
     data: makeSigningData(presentationDocument, challenge),
