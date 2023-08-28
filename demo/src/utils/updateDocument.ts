@@ -20,11 +20,11 @@ import type {
  * @returns the updated document if the update operation is executed successfully.
  */
 export async function updateStream(
-  document: IDocument,
-  updatedContent: IContents,
-  schema: ISchema,
-  signCallback: SignCallback,
-  authorDid: DidUri,
+  document: Cord.IDocument,
+  updatedContent: Cord.IContents,
+  schema: Cord.ISchema,
+  signCallback: Cord.SignCallback,
+  authorDid: Cord.DidUri,
   authorIdentity: Cord.CordKeyringPair,
   signingkeys: any
 ) {
@@ -50,7 +50,7 @@ export async function updateStream(
   )
 
   const authorizedStreamTx = await Cord.Did.authorizeTx(
-    authorDid.uri,
+    authorDid,
     streamTx,
     async ({ data }) => ({
       signature: signingkeys.assertionMethod.sign(data),

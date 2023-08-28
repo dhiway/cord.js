@@ -252,7 +252,7 @@ async function main() {
     updatedContent,
     schema,
     callBackFn,
-    delegateTwoDid,
+    delegateTwoDid.uri,
     authorIdentity,
     delegateTwoKeys
   )
