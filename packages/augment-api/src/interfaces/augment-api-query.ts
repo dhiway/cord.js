@@ -10,7 +10,7 @@ import type { Data } from '@polkadot/types';
 import type { Bytes, Null, Option, U8aFixed, Vec, WrapperOpaque, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportPreimagesBounded, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmount, PalletBalancesReserveData, PalletCollectiveVotes, PalletDemocracyMetadataOwner, PalletDemocracyReferendumInfo, PalletDemocracyVoteThreshold, PalletDemocracyVoteVoting, PalletDidDidDetails, PalletDidNamesDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineBoundedOpaqueNetworkState, PalletImOnlineSr25519AppSr25519Public, PalletMessageQueueBookState, PalletMessageQueuePage, PalletMultisigMultisig, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStreamStreamCommit, PalletStreamStreamEntry, PalletTransactionPaymentReleases, PalletTreasuryProposal, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, NetworkMembershipMemberData, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmount, PalletBalancesReserveData, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNamesDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineBoundedOpaqueNetworkState, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStreamStreamCommit, PalletStreamStreamEntry, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -237,73 +237,15 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       voting: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletCollectiveVotes>>, [H256]>;
     };
-    democracy: {
+    councilMembership: {
       /**
-       * A record of who vetoed what. Maps proposal hash to a possible existent block number
-       * (until when it may not be resubmitted) and who vetoed it.
+       * The current membership, stored as an ordered Vec.
        **/
-      blacklist: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<ITuple<[u32, Vec<AccountId32>]>>>, [H256]>;
+      members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * Record of all proposals that have been subject to emergency cancellation.
+       * The current prime member, if one exists.
        **/
-      cancellations: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<bool>, [H256]>;
-      /**
-       * Those who have locked a deposit.
-       * 
-       * TWOX-NOTE: Safe, as increasing integer keys are safe.
-       **/
-      depositOf: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<ITuple<[Vec<AccountId32>, u128]>>>, [u32]>;
-      /**
-       * True if the last referendum tabled was submitted externally. False if it was a public
-       * proposal.
-       **/
-      lastTabledWasExternal: AugmentedQuery<ApiType, () => Observable<bool>, []>;
-      /**
-       * The lowest referendum index representing an unbaked referendum. Equal to
-       * `ReferendumCount` if there isn't a unbaked referendum.
-       **/
-      lowestUnbaked: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      /**
-       * General information concerning any proposal or referendum.
-       * The `PreimageHash` refers to the preimage of the `Preimages` provider which can be a JSON
-       * dump or IPFS hash of a JSON file.
-       * 
-       * Consider a garbage collection for a metadata of finished referendums to `unrequest` (remove)
-       * large preimages.
-       **/
-      metadataOf: AugmentedQuery<ApiType, (arg: PalletDemocracyMetadataOwner | { External: any } | { Proposal: any } | { Referendum: any } | string | Uint8Array) => Observable<Option<H256>>, [PalletDemocracyMetadataOwner]>;
-      /**
-       * The referendum to be tabled whenever it would be valid to table an external proposal.
-       * This happens when a referendum needs to be tabled and one of two conditions are met:
-       * - `LastTabledWasExternal` is `false`; or
-       * - `PublicProps` is empty.
-       **/
-      nextExternal: AugmentedQuery<ApiType, () => Observable<Option<ITuple<[FrameSupportPreimagesBounded, PalletDemocracyVoteThreshold]>>>, []>;
-      /**
-       * The number of (public) proposals that have been made so far.
-       **/
-      publicPropCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      /**
-       * The public proposals. Unsorted. The second item is the proposal.
-       **/
-      publicProps: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[u32, FrameSupportPreimagesBounded, AccountId32]>>>, []>;
-      /**
-       * The next free referendum index, aka the number of referenda started so far.
-       **/
-      referendumCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      /**
-       * Information concerning any given referendum.
-       * 
-       * TWOX-NOTE: SAFE as indexes are not under an attacker’s control.
-       **/
-      referendumInfoOf: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletDemocracyReferendumInfo>>, [u32]>;
-      /**
-       * All votes for a particular voter. We store the balance for the number of votes that we
-       * have recorded. The second item is the total amount of delegations, that will be added.
-       * 
-       * TWOX-NOTE: SAFE as `AccountId`s are crypto hashes anyway.
-       **/
-      votingOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<PalletDemocracyVoteVoting>, [AccountId32]>;
+      prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
     };
     did: {
       /**
@@ -348,9 +290,6 @@ declare module '@polkadot/api-base/types/storage' {
        * Map of name -> ownership details.
        **/
       owner: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletDidNamesDidNameDidNameOwnership>>, [Bytes]>;
-    };
-    extrinsicAuthorship: {
-      extrinsicAuthors: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
     };
     grandpa: {
       /**
@@ -452,25 +391,30 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       accounts: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<ITuple<[AccountId32, u128, bool]>>>, [u32]>;
     };
-    messageQueue: {
-      /**
-       * The index of the first and last (non-empty) pages.
-       **/
-      bookStateFor: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<PalletMessageQueueBookState>, [u32]>;
-      /**
-       * The map of page indices to pages.
-       **/
-      pages: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletMessageQueuePage>>, [u32, u32]>;
-      /**
-       * The origin at which we should begin servicing.
-       **/
-      serviceHead: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
-    };
     multisig: {
       /**
        * The set of open multisig operations.
        **/
       multisigs: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: U8aFixed | string | Uint8Array) => Observable<Option<PalletMultisigMultisig>>, [AccountId32, U8aFixed]>;
+    };
+    networkMembership: {
+      /**
+       * Counter for the related counted storage map
+       **/
+      counterForMembers: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      members: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<NetworkMembershipMemberData>>, [AccountId32]>;
+      /**
+       * maps from a member identifier to a unit tuple
+       **/
+      membershipBlacklist: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
+      /**
+       * maps block number to the list of authors set to expire at this block
+       **/
+      membershipsExpiresOn: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Vec<AccountId32>>, [u32]>;
+      /**
+       * maps block number to the list of authors set to renew
+       **/
+      membershipsRenewsOn: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
     };
     offences: {
       /**
@@ -711,28 +655,6 @@ declare module '@polkadot/api-base/types/storage' {
        * Current time for the current block.
        **/
       now: AugmentedQuery<ApiType, () => Observable<u64>, []>;
-    };
-    transactionPayment: {
-      nextFeeMultiplier: AugmentedQuery<ApiType, () => Observable<u128>, []>;
-      storageVersion: AugmentedQuery<ApiType, () => Observable<PalletTransactionPaymentReleases>, []>;
-    };
-    treasury: {
-      /**
-       * Proposal indices that have been approved but not yet awarded.
-       **/
-      approvals: AugmentedQuery<ApiType, () => Observable<Vec<u32>>, []>;
-      /**
-       * The amount which has been reported as inactive to Currency.
-       **/
-      deactivated: AugmentedQuery<ApiType, () => Observable<u128>, []>;
-      /**
-       * Number of proposals that have been made.
-       **/
-      proposalCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      /**
-       * Proposals that have been made.
-       **/
-      proposals: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletTreasuryProposal>>, [u32]>;
     };
   } // AugmentedQueries
 } // declare module

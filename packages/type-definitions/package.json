@@ -23,7 +23,7 @@
   },
   "repository": "github:dhiway/cord.js",
   "engines": {
-    "node": ">=14.0"
+    "node": ">=16.0"
   },
   "author": "",
   "license": "Apache-2.0",

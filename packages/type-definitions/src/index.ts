@@ -7,8 +7,9 @@ import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'
 import { calls as didCalls } from './runtime/did.js'
 
-import { cordSignedExtensions } from './signedExtensions'
-export { cordSignedExtensions } from './signedExtensions'
+import { cordSignedExtensions } from './signedExtensions/index.js'
+
+export { cordSignedExtensions } from './signedExtensions/index.js'
 export { calls as didCalls } from './runtime/did.js'
 
 export { types8 as types }
@@ -45,7 +46,7 @@ export const typesBundle: OverrideBundleType = {
       },
       types: defaultTypesBundle,
     },
-    "Cord Spin": {
+    'Cord Spin': {
       runtime: {
         ...didCalls,
       },
@@ -54,7 +55,7 @@ export const typesBundle: OverrideBundleType = {
       },
       types: defaultTypesBundle,
     },
-    "Cord Ignite": {
+    'Cord Ignite': {
       runtime: {
         ...didCalls,
       },
@@ -63,7 +64,7 @@ export const typesBundle: OverrideBundleType = {
       },
       types: defaultTypesBundle,
     },
-    "Dev. Node": {
+    'Dev. Node': {
       runtime: {
         ...didCalls,
       },
@@ -74,4 +75,3 @@ export const typesBundle: OverrideBundleType = {
     },
   },
 }
-

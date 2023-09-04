@@ -62,7 +62,9 @@ export function validate(
       break
     default:
       // undefined, bigint, function, symbol
-      throw new Error(`Instances of ${rawInstanceType} type are not supported.`)
+      throw new Error(
+        `Instances of "${rawInstanceType}" type are not supported.`
+      )
   }
 
   const {

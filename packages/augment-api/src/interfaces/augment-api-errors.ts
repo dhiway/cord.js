@@ -135,104 +135,19 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       WrongProposalWeight: AugmentedError<ApiType>;
     };
-    democracy: {
+    councilMembership: {
       /**
-       * Cannot cancel the same proposal twice
+       * Already a member.
        **/
-      AlreadyCanceled: AugmentedError<ApiType>;
+      AlreadyMember: AugmentedError<ApiType>;
       /**
-       * The account is already delegating.
+       * Not a member.
        **/
-      AlreadyDelegating: AugmentedError<ApiType>;
+      NotMember: AugmentedError<ApiType>;
       /**
-       * Identity may not veto a proposal twice
+       * Too many members.
        **/
-      AlreadyVetoed: AugmentedError<ApiType>;
-      /**
-       * Proposal already made
-       **/
-      DuplicateProposal: AugmentedError<ApiType>;
-      /**
-       * The instant referendum origin is currently disallowed.
-       **/
-      InstantNotAllowed: AugmentedError<ApiType>;
-      /**
-       * Too high a balance was provided that the account cannot afford.
-       **/
-      InsufficientFunds: AugmentedError<ApiType>;
-      /**
-       * Invalid hash
-       **/
-      InvalidHash: AugmentedError<ApiType>;
-      /**
-       * Maximum number of votes reached.
-       **/
-      MaxVotesReached: AugmentedError<ApiType>;
-      /**
-       * No proposals waiting
-       **/
-      NoneWaiting: AugmentedError<ApiType>;
-      /**
-       * Delegation to oneself makes no sense.
-       **/
-      Nonsense: AugmentedError<ApiType>;
-      /**
-       * The actor has no permission to conduct the action.
-       **/
-      NoPermission: AugmentedError<ApiType>;
-      /**
-       * No external proposal
-       **/
-      NoProposal: AugmentedError<ApiType>;
-      /**
-       * The account is not currently delegating.
-       **/
-      NotDelegating: AugmentedError<ApiType>;
-      /**
-       * Next external proposal not simple majority
-       **/
-      NotSimpleMajority: AugmentedError<ApiType>;
-      /**
-       * The given account did not vote on the referendum.
-       **/
-      NotVoter: AugmentedError<ApiType>;
-      /**
-       * The preimage does not exist.
-       **/
-      PreimageNotExist: AugmentedError<ApiType>;
-      /**
-       * Proposal still blacklisted
-       **/
-      ProposalBlacklisted: AugmentedError<ApiType>;
-      /**
-       * Proposal does not exist
-       **/
-      ProposalMissing: AugmentedError<ApiType>;
-      /**
-       * Vote given for invalid referendum
-       **/
-      ReferendumInvalid: AugmentedError<ApiType>;
-      /**
-       * Maximum number of items reached.
-       **/
-      TooMany: AugmentedError<ApiType>;
-      /**
-       * Value too low
-       **/
-      ValueLow: AugmentedError<ApiType>;
-      /**
-       * The account currently has votes attached to it and the operation cannot succeed until
-       * these are removed, either through `unvote` or `reap_vote`.
-       **/
-      VotesExist: AugmentedError<ApiType>;
-      /**
-       * Voting period too low
-       **/
-      VotingPeriodLow: AugmentedError<ApiType>;
-      /**
-       * Invalid upper bound.
-       **/
-      WrongUpperBound: AugmentedError<ApiType>;
+      TooManyMembers: AugmentedError<ApiType>;
     };
     did: {
       /**
@@ -414,40 +329,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       SuffixTooLong: AugmentedError<ApiType>;
     };
-    extrinsicAuthorship: {
-      /**
-       * The author entry already exists.
-       **/
-      AuthorAccountAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * There is no author with the given ID.
-       **/
-      AuthorAccountNotFound: AugmentedError<ApiType>;
-      /**
-       * Not able to find author block
-       **/
-      AuthorBlockDetailsNotFound: AugmentedError<ApiType>;
-      /**
-       * Authorship is ending soon
-       **/
-      AuthorshipExpiringSoon: AugmentedError<ApiType>;
-      /**
-       * Proposer is not authorised
-       **/
-      ProposerNotAuthorised: AugmentedError<ApiType>;
-      /**
-       * Too many proposals within a block
-       **/
-      TooManyAuthorityProposals: AugmentedError<ApiType>;
-      /**
-       * Unable to transfer credits from proposer
-       **/
-      UnableToTransferCredits: AugmentedError<ApiType>;
-      /**
-       * Unable to ensure withdrawal of credits from proposer
-       **/
-      UnableToWithdrawCredits: AugmentedError<ApiType>;
-    };
     grandpa: {
       /**
        * Attempt to signal GRANDPA change with one already pending.
@@ -586,40 +467,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       Permanent: AugmentedError<ApiType>;
     };
-    messageQueue: {
-      /**
-       * The message was already processed and cannot be processed again.
-       **/
-      AlreadyProcessed: AugmentedError<ApiType>;
-      /**
-       * There is temporarily not enough weight to continue servicing messages.
-       **/
-      InsufficientWeight: AugmentedError<ApiType>;
-      /**
-       * The referenced message could not be found.
-       **/
-      NoMessage: AugmentedError<ApiType>;
-      /**
-       * Page to be reaped does not exist.
-       **/
-      NoPage: AugmentedError<ApiType>;
-      /**
-       * Page is not reapable because it has items remaining to be processed and is not old
-       * enough.
-       **/
-      NotReapable: AugmentedError<ApiType>;
-      /**
-       * The message is queued for future execution.
-       **/
-      Queued: AugmentedError<ApiType>;
-      /**
-       * This message is temporarily unprocessable.
-       * 
-       * Such errors are expected, but not guaranteed, to resolve themselves eventually through
-       * retrying.
-       **/
-      TemporarilyUnprocessable: AugmentedError<ApiType>;
-    };
     multisig: {
       /**
        * Call is already approved by this signatory.
@@ -677,6 +524,36 @@ declare module '@polkadot/api-base/types/errors' {
        * A different timepoint was given to the multisig operation that is underway.
        **/
       WrongTimepoint: AugmentedError<ApiType>;
+    };
+    networkMembership: {
+      /**
+       * Max members limit exceeded
+       **/
+      MaxMembersExceededForTheBlock: AugmentedError<ApiType>;
+      /**
+       * Membership already acquired
+       **/
+      MembershipAlreadyAcquired: AugmentedError<ApiType>;
+      /**
+       * Membership expired
+       **/
+      MembershipExpired: AugmentedError<ApiType>;
+      /**
+       * There is no member with the given ID.
+       **/
+      MembershipNotFound: AugmentedError<ApiType>;
+      /**
+       * Membership Renewal already requested
+       **/
+      MembershipRenewalAlreadyRequested: AugmentedError<ApiType>;
+      /**
+       * Rejects request if the member is added to the blacklist
+       **/
+      MembershipRequestRejected: AugmentedError<ApiType>;
+      /**
+       * Origin is not authorized
+       **/
+      OriginNotAuthorized: AugmentedError<ApiType>;
     };
     preimage: {
       /**
@@ -983,29 +860,6 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many members.
        **/
       TooManyMembers: AugmentedError<ApiType>;
-    };
-    treasury: {
-      /**
-       * The spend origin is valid but the amount it is allowed to spend is lower than the
-       * amount to be spent.
-       **/
-      InsufficientPermission: AugmentedError<ApiType>;
-      /**
-       * Proposer's balance is too low.
-       **/
-      InsufficientProposersBalance: AugmentedError<ApiType>;
-      /**
-       * No proposal or bounty at that index.
-       **/
-      InvalidIndex: AugmentedError<ApiType>;
-      /**
-       * Proposal has not been approved.
-       **/
-      ProposalNotApproved: AugmentedError<ApiType>;
-      /**
-       * Too many approvals in the queue.
-       **/
-      TooManyApprovals: AugmentedError<ApiType>;
     };
     utility: {
       /**
