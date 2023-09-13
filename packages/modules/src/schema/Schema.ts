@@ -211,10 +211,12 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
 export function fromProperties(
   title: ISchema['title'],
   properties: ISchema['properties'],
+  required: ISchema['required'],
   creator: DidUri
 ): ISchema {
   const schema: Omit<ISchema, '$id'> = {
     properties,
+    required,
     title,
     $schema: SchemaModelV1.$id,
     type: 'object',
