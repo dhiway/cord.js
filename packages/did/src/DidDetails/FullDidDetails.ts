@@ -33,6 +33,7 @@ const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   'did.submitDidCall': undefined,
   didLookup: 'authentication',
   didNames: 'authentication',
+  scoring: 'assertionMethod'
 }
 
 function getKeyRelationshipForMethod(

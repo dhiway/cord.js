@@ -354,14 +354,9 @@ declare module '@polkadot/api-base/types/events' {
     };
     messageQueue: {
       /**
-       * Message discarded due to an inability to decode the item. Usually caused by state
-       * corruption.
-       **/
-      Discarded: AugmentedEvent<ApiType, [hash_: H256], { hash_: H256 }>;
-      /**
        * Message placed in overweight queue.
        **/
-      OverweightEnqueued: AugmentedEvent<ApiType, [hash_: H256, origin: u32, pageIndex: u32, messageIndex: u32], { hash_: H256, origin: u32, pageIndex: u32, messageIndex: u32 }>;
+      OverweightEnqueued: AugmentedEvent<ApiType, [id: U8aFixed, origin: u32, pageIndex: u32, messageIndex: u32], { id: U8aFixed, origin: u32, pageIndex: u32, messageIndex: u32 }>;
       /**
        * This page was reaped.
        **/
@@ -369,11 +364,11 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * Message is processed.
        **/
-      Processed: AugmentedEvent<ApiType, [hash_: H256, origin: u32, weightUsed: SpWeightsWeightV2Weight, success: bool], { hash_: H256, origin: u32, weightUsed: SpWeightsWeightV2Weight, success: bool }>;
+      Processed: AugmentedEvent<ApiType, [id: U8aFixed, origin: u32, weightUsed: SpWeightsWeightV2Weight, success: bool], { id: U8aFixed, origin: u32, weightUsed: SpWeightsWeightV2Weight, success: bool }>;
       /**
        * Message discarded due to an error in the `MessageProcessor` (usually a format error).
        **/
-      ProcessingFailed: AugmentedEvent<ApiType, [hash_: H256, origin: u32, error: FrameSupportMessagesProcessMessageError], { hash_: H256, origin: u32, error: FrameSupportMessagesProcessMessageError }>;
+      ProcessingFailed: AugmentedEvent<ApiType, [id: U8aFixed, origin: u32, error: FrameSupportMessagesProcessMessageError], { id: U8aFixed, origin: u32, error: FrameSupportMessagesProcessMessageError }>;
     };
     multisig: {
       /**
@@ -485,6 +480,18 @@ declare module '@polkadot/api-base/types/events' {
        * \[schema identifier, digest, author\]
        **/
       Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
+    };
+    scoring: {
+      /**
+       * Aggregate scores has been updated.
+       * \[entity identifier\]
+       **/
+      AggregateUpdated: AugmentedEvent<ApiType, [entity: AccountId32], { entity: AccountId32 }>;
+      /**
+       * A new journal entry has been added.
+       * \[entry identifier, entity, author\]
+       **/
+      JournalEntry: AugmentedEvent<ApiType, [identifier: Bytes, entity: AccountId32, author: AccountId32], { identifier: Bytes, entity: AccountId32, author: AccountId32 }>;
     };
     session: {
       /**

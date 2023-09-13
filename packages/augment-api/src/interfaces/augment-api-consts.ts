@@ -328,6 +328,11 @@ declare module '@polkadot/api-base/types/consts' {
     schema: {
       maxEncodedSchemaLength: u32 & AugmentedConst<ApiType>;
     };
+    scoring: {
+      maxScoreValue: u32 & AugmentedConst<ApiType>;
+      minScoreValue: u32 & AugmentedConst<ApiType>;
+      valueLimit: u32 & AugmentedConst<ApiType>;
+    };
     stream: {
       /**
        * The maximum number of commits for a stream.

@@ -5,7 +5,6 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/types/types/registry';
 
-import type { RawDidLinkedInfo } from './extraDefs/index.js';
 import type { Data, StorageKey } from '@polkadot/types';
 import type { BitVec, Bool, Bytes, F32, F64, I128, I16, I256, I32, I64, I8, Json, Null, OptionBool, Raw, Text, Type, U128, U16, U256, U32, U64, U8, USize, bool, f32, f64, i128, i16, i256, i32, i64, i8, u128, u16, u256, u32, u64, u8, usize } from '@polkadot/types-codec';
 import type { AssetApproval, AssetApprovalKey, AssetBalance, AssetDestroyWitness, AssetDetails, AssetMetadata, TAssetBalance, TAssetDepositBalance } from '@polkadot/types/interfaces/assets';
@@ -826,7 +825,6 @@ declare module '@polkadot/types/types/registry' {
     RawBabePreDigestSecondaryTo159: RawBabePreDigestSecondaryTo159;
     RawBabePreDigestSecondaryVRF: RawBabePreDigestSecondaryVRF;
     RawBabePreDigestTo159: RawBabePreDigestTo159;
-    RawDidLinkedInfo: RawDidLinkedInfo;
     RawOrigin: RawOrigin;
     RawSolution: RawSolution;
     RawSolutionTo265: RawSolutionTo265;

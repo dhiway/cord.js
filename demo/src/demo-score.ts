@@ -29,7 +29,6 @@ async function main() {
     '//Alice',
     'sr25519'
   )
-  console.log('authorityAuthorIdentity\n', authorityAuthorIdentity, '\n')
   // Setup author authority account.
   const { account: authorIdentity } = await createAccount()
   console.log(`🏦  Author (${authorIdentity.type}): ${authorIdentity.address}`)

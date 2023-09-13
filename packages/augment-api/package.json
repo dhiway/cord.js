@@ -25,7 +25,7 @@
     "build:esm": "tsc --declaration -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > ./lib/esm/package.json",
     "generate:defs": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-defs --package @cord.network/augment-api --input ./src/interfaces --endpoint ./metadata/cord.json",
     "generate:meta": "ts-node --skip-project ../../node_modules/.bin/polkadot-types-from-chain --package @cord.network/augment-api --endpoint ./metadata/cord.json --output ./src/interfaces  --strict",
-    "update-metadata": "node ./scripts/fetchMetadata.js -o './metadata/cord.json' -e 'wss://staging.cord.network/'"
+    "update-metadata": "node ./scripts/fetchMetadata.js -o './metadata/cord.json' -e 'ws://127.0.0.1:9944/'"
   },
   "repository": "github:dhiway/cord.js",
   "engines": {

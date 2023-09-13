@@ -825,6 +825,20 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       UnableToPayFees: AugmentedError<ApiType>;
     };
+    scoring: {
+      DigestAlreadyAnchored: AugmentedError<ApiType>;
+      InvalidDigest: AugmentedError<ApiType>;
+      InvalidEntitySignature: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifer Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      InvalidRatingIdentifier: AugmentedError<ApiType>;
+      InvalidRatingValue: AugmentedError<ApiType>;
+      InvalidSignature: AugmentedError<ApiType>;
+      TooManyJournalEntries: AugmentedError<ApiType>;
+      TransactionAlreadyRated: AugmentedError<ApiType>;
+    };
     session: {
       /**
        * Registered duplicate key.
