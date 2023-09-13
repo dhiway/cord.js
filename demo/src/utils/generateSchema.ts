@@ -37,6 +37,7 @@ export async function ensureStoredSchema(
         type: 'object',
       },
     },
+    [ 'name', 'id', 'age' ],
     creator
   )
 
