@@ -30,9 +30,9 @@ export async function createDocument(
         pin: 54032,
         location: {
           state: 'karnataka',
-          country: 'india'
-        }
-      }
+          country: 'india',
+        },
+      },
     },
     holder,
     issuer
@@ -42,6 +42,7 @@ export async function createDocument(
     authorization,
     registry,
     signCallback,
+    options: {},
   })
   return document
 }

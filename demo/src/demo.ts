@@ -198,18 +198,18 @@ async function main() {
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
-  let callBackFn = async ({ data }) => ({
-    signature: delegateTwoKeys.authentication.sign(data),
-    keyType: delegateTwoKeys.authentication.type,
-    keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
-  })
+
   const document = await createDocument(
     holderDid.uri,
     delegateTwoDid.uri,
     schema,
     registryDelegate,
     registry.identifier,
-    callBackFn
+    async ({ data }) => ({
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+    })
   )
   console.dir(document, {
     depth: null,
@@ -229,7 +229,7 @@ async function main() {
   // Step 5: Delegate updates the Verifiable Document
   console.log('\n🖍️ Stream update...\n')
 
-  let updatedContent: any = {
+  let updatedContent: Cord.IContent = {
     name: 'Adi',
     age: 23,
     id: '123456789987654321',
@@ -251,7 +251,11 @@ async function main() {
     document,
     updatedContent,
     schema,
-    callBackFn,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+    }),
     delegateTwoDid.uri,
     authorIdentity,
     delegateTwoKeys

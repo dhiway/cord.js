@@ -33,22 +33,22 @@ async function main() {
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
-  // Step 1: Setup Authority
+  // Step 1: Setup Membership
   // Setup transaction author account - CORD Account.
 
-  console.log(`\n❄️  New Authority`)
+  console.log(`\n❄️  New Network Member`)
   const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
     '//Alice',
     'sr25519'
   )
-  // Setup author authority account.
+  // Setup network member account.
   const { account: authorIdentity } = await createAccount()
-  console.log(`🏦  Author (${authorIdentity.type}): ${authorIdentity.address}`)
+  console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
   await addAuthority(authorityAuthorIdentity, authorIdentity.address)
-  console.log(`🔏  Author permissions updated`)
+  console.log(`🔏  Member permissions updated`)
   await getChainCredits(authorityAuthorIdentity, authorIdentity.address, 5)
-  console.log(`💸  Author endowed with credits`)
-  console.log('✅ Authority created!')
+  console.log(`💸  Member endowed with credits`)
+  console.log('✅ Network Member added!')
 
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
@@ -91,7 +91,8 @@ async function main() {
     await createDid(authorIdentity)
   const delegateOneKeys = generateKeypairs(delegateOneMnemonic)
   console.log(
-    `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${delegateOneDid.uri
+    `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${
+      delegateOneDid.uri
     }`
   )
   // Create Delegate Two DID
@@ -99,7 +100,8 @@ async function main() {
     await createDid(authorIdentity)
   const delegateTwoKeys = generateKeypairs(delegateTwoMnemonic)
   console.log(
-    `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${delegateTwoDid.uri
+    `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${
+      delegateTwoDid.uri
     }`
   )
   // Create Delegate 3 DID
@@ -107,7 +109,8 @@ async function main() {
     await createDid(authorIdentity)
   const delegate3Keys = generateKeypairs(delegate3Mnemonic)
   console.log(
-    `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${delegate3Did.uri
+    `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${
+      delegate3Did.uri
     }`
   )
   console.log('✅ Identities created!')
@@ -383,7 +386,6 @@ async function main() {
       selfSignatureResult1['verified']
     )
   }
-
 }
 
 main()
