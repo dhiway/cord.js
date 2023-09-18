@@ -46,8 +46,6 @@ async function main() {
   console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
   await addAuthority(authorityAuthorIdentity, authorIdentity.address)
   console.log(`🔏  Member permissions updated`)
-  await getChainCredits(authorityAuthorIdentity, authorIdentity.address, 5)
-  console.log(`💸  Member endowed with credits`)
   console.log('✅ Network Member added!')
 
   // Step 2: Setup Identities
