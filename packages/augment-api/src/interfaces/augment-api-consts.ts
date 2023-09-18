@@ -13,9 +13,6 @@ export type __AugmentedConst<ApiType extends ApiTypes> = AugmentedConst<ApiType>
 
 declare module '@polkadot/api-base/types/consts' {
   interface AugmentedConsts<ApiType extends ApiTypes> {
-    authorityManager: {
-      maxProposalLength: u16 & AugmentedConst<ApiType>;
-    };
     babe: {
       /**
        * The amount of time, in slots, that each epoch should last.
@@ -68,7 +65,8 @@ declare module '@polkadot/api-base/types/consts' {
     };
     council: {
       /**
-       * The maximum weight of a dispatch call that can be proposed and executed.
+       * The maximum weight of a dispatch call that can be proposed and
+       * executed.
        **/
       maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
     };
@@ -284,7 +282,8 @@ declare module '@polkadot/api-base/types/consts' {
     };
     technicalCommittee: {
       /**
-       * The maximum weight of a dispatch call that can be proposed and executed.
+       * The maximum weight of a dispatch call that can be proposed and
+       * executed.
        **/
       maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
     };

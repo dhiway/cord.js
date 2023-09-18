@@ -28,19 +28,20 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       nextKeys: AugmentedQuery<ApiType, () => Observable<Vec<SpAuthorityDiscoveryAppPublic>>, []>;
     };
-    authorityManager: {
+    authorityMembership: {
+      blackList: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * Authorities that should be added.
+       * list incoming authorities
        **/
-      authoritiesToAdd: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
+      incomingAuthorities: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * Authorities that should be retired.
+       * maps member id to member data
        **/
-      authoritiesToRetire: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
+      members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * Authority Membership.
+       * list outgoing authorities
        **/
-      authorityMembers: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
+      outgoingAuthorities: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
     };
     authorship: {
       /**
@@ -213,11 +214,13 @@ declare module '@polkadot/api-base/types/storage' {
     };
     council: {
       /**
-       * The current members of the collective. This is stored sorted (just by value).
+       * The current members of the collective. This is stored sorted (just by
+       * value).
        **/
       members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * The prime member that helps determine the default vote behavior in case of absentations.
+       * The prime member that helps determine the default vote behavior in case
+       * of absentations.
        **/
       prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
       /**
@@ -418,11 +421,13 @@ declare module '@polkadot/api-base/types/storage' {
     };
     offences: {
       /**
-       * A vector of reports of the same kind that happened at the same time slot.
+       * A vector of reports of the same kind that happened at the same time
+       * slot.
        **/
       concurrentReportsIndex: AugmentedQuery<ApiType, (arg1: U8aFixed | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Vec<H256>>, [U8aFixed, Bytes]>;
       /**
-       * The primary structure that holds all offence records keyed by report identifiers.
+       * The primary structure that holds all offence records keyed by report
+       * identifiers.
        **/
       reports: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<SpStakingOffenceOffenceDetails>>, [H256]>;
     };
@@ -612,11 +617,13 @@ declare module '@polkadot/api-base/types/storage' {
     };
     technicalCommittee: {
       /**
-       * The current members of the collective. This is stored sorted (just by value).
+       * The current members of the collective. This is stored sorted (just by
+       * value).
        **/
       members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * The prime member that helps determine the default vote behavior in case of absentations.
+       * The prime member that helps determine the default vote behavior in case
+       * of absentations.
        **/
       prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
       /**

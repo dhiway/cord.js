@@ -11,27 +11,40 @@ export type __AugmentedError<ApiType extends ApiTypes> = AugmentedError<ApiType>
 
 declare module '@polkadot/api-base/types/errors' {
   interface AugmentedErrors<ApiType extends ApiTypes> {
-    authorityManager: {
+    authorityMembership: {
       /**
        * The authority entry already exists.
        **/
-      AuthorityAlreadyExists: AugmentedError<ApiType>;
+      MemberAlreadyExists: AugmentedError<ApiType>;
       /**
+       * Already incoming
+       **/
+      MemberAlreadyIncoming: AugmentedError<ApiType>;
+      /**
+       * Already outgoing
+       **/
+      MemberAlreadyOutgoing: AugmentedError<ApiType>;
+      /**
+       * Member is blacklisted
+       **/
+      MemberBlackListed: AugmentedError<ApiType>;
+      /**
+       * Member not blacklisted
+       **/
+      MemberNotBlackListed: AugmentedError<ApiType>;
+      /**
+       * Not found owner key
        * There is no authority with the given ID.
        **/
-      AuthorityNotFound: AugmentedError<ApiType>;
+      MemberNotFound: AugmentedError<ApiType>;
       /**
-       * Not an authority owner.
+       * Not a network member
        **/
-      BadOrigin: AugmentedError<ApiType>;
+      NetworkMembershipNotFound: AugmentedError<ApiType>;
       /**
-       * Max authorities included in a proposal exceeds the limit.
+       * Session keys not provided
        **/
-      MaxProposalLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * No validator associated with the identity.
-       **/
-      NoAssociatedValidatorId: AugmentedError<ApiType>;
+      SessionKeysNotAdded: AugmentedError<ApiType>;
     };
     babe: {
       /**

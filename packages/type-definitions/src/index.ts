@@ -5,12 +5,14 @@ import type {
 
 import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'
-import { calls as didCalls } from './runtime/did.js'
+import { calls as didApiCalls } from './runtime/did.js'
+import { calls as TransactionWeightApiCalls } from './runtime/weight.js'
 
 import { cordSignedExtensions } from './signedExtensions/index.js'
 
 export { cordSignedExtensions } from './signedExtensions/index.js'
-export { calls as didCalls } from './runtime/did.js'
+export { calls as didApiCalls } from './runtime/did.js'
+export { calls as TransactionWeightApiCalls } from './runtime/weight.js'
 
 export { types8 as types }
 
@@ -30,7 +32,8 @@ export const typesBundle: OverrideBundleType = {
   chain: {
     'Cord Sprintnet': {
       runtime: {
-        ...didCalls,
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
       },
       signedExtensions: {
         ...cordSignedExtensions,
@@ -39,7 +42,8 @@ export const typesBundle: OverrideBundleType = {
     },
     'Cord Sparknet': {
       runtime: {
-        ...didCalls,
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
       },
       signedExtensions: {
         ...cordSignedExtensions,
@@ -48,7 +52,8 @@ export const typesBundle: OverrideBundleType = {
     },
     'Cord Spin': {
       runtime: {
-        ...didCalls,
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
       },
       signedExtensions: {
         ...cordSignedExtensions,
@@ -57,7 +62,8 @@ export const typesBundle: OverrideBundleType = {
     },
     'Cord Ignite': {
       runtime: {
-        ...didCalls,
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
       },
       signedExtensions: {
         ...cordSignedExtensions,
@@ -66,7 +72,8 @@ export const typesBundle: OverrideBundleType = {
     },
     'Dev. Node': {
       runtime: {
-        ...didCalls,
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
       },
       signedExtensions: {
         ...cordSignedExtensions,

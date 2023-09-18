@@ -18,27 +18,31 @@ export type __SubmittableExtrinsicFunction<ApiType extends ApiTypes> = Submittab
 
 declare module '@polkadot/api-base/types/submittable' {
   interface AugmentedSubmittables<ApiType extends ApiTypes> {
-    authorityManager: {
+    authorityMembership: {
       /**
-       * Mark an authority offline.
+       * Mark an authority member offline.
        * The authority will be deactivated from current session + 2.
        **/
-      goOffline: AugmentedSubmittable<(authority: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      goOffline: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * An extisting offline authority is going online.
+       * Mark an authority member going online.
        * Authority will be activated from current session + 2.
        **/
-      goOnline: AugmentedSubmittable<(authority: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      goOnline: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
        * Add new authorities to the set.
        * The new authorities will be active from current session + 2.
        **/
-      register: AugmentedSubmittable<(authorities: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
+      nominate: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
        * Remove authorities from the set.
        * The removed authorities will be deactivated from current session + 2
        **/
-      remove: AugmentedSubmittable<(authorities: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
+      remove: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      /**
+       * Remove members from blacklist.
+       **/
+      removeMemberFromBlacklist: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
     };
     babe: {
       /**
@@ -151,23 +155,28 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     council: {
       /**
-       * Close a vote that is either approved, disapproved or whose voting period has ended.
+       * Close a vote that is either approved, disapproved or whose voting
+       * period has ended.
        * 
-       * May be called by any signed account in order to finish voting and close the proposal.
+       * May be called by any signed account in order to finish voting and
+       * close the proposal.
        * 
-       * If called before the end of the voting period it will only close the vote if it is
-       * has enough votes to be approved or disapproved.
+       * If called before the end of the voting period it will only close the
+       * vote if it is has enough votes to be approved or disapproved.
        * 
-       * If called after the end of the voting period abstentions are counted as rejections
-       * unless there is a prime member set and the prime member cast an approval.
+       * If called after the end of the voting period abstentions are counted
+       * as rejections unless there is a prime member set and the prime
+       * member cast an approval.
        * 
-       * If the close operation completes successfully with disapproval, the transaction fee will
-       * be waived. Otherwise execution of the approved operation will be charged to the caller.
+       * If the close operation completes successfully with disapproval, the
+       * transaction fee will be waived. Otherwise execution of the approved
+       * operation will be charged to the caller.
        * 
-       * + `proposal_weight_bound`: The maximum amount of weight consumed by executing the closed
-       * proposal.
-       * + `length_bound`: The upper bound for the length of the proposal in storage. Checked via
-       * `storage::read` so it is `size_of::<u32>() == 4` larger than the pure length.
+       * + `proposal_weight_bound`: The maximum amount of weight consumed by
+       * executing the closed proposal.
+       * + `length_bound`: The upper bound for the length of the proposal in
+       * storage. Checked via `storage::read` so it is `size_of::<u32>() ==
+       * 4` larger than the pure length.
        * 
        * ## Complexity
        * - `O(B + M + P1 + P2)` where:
@@ -178,13 +187,14 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       close: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array, index: Compact<u32> | AnyNumber | Uint8Array, proposalWeightBound: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Compact<u32>, SpWeightsWeightV2Weight, Compact<u32>]>;
       /**
-       * Disapprove a proposal, close, and remove it from the system, regardless of its current
-       * state.
+       * Disapprove a proposal, close, and remove it from the system,
+       * regardless of its current state.
        * 
        * Must be called by the Root origin.
        * 
        * Parameters:
-       * * `proposal_hash`: The hash of the proposal that should be disapproved.
+       * * `proposal_hash`: The hash of the proposal that should be
+       * disapproved.
        * 
        * ## Complexity
        * O(P) where P is the number of max proposals
@@ -207,8 +217,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Requires the sender to be member.
        * 
-       * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
-       * or put up for voting.
+       * `threshold` determines whether `proposal` is executed directly
+       * (`threshold < 2`) or put up for voting.
        * 
        * ## Complexity
        * - `O(B + M + P1)` or `O(B + M + P2)` where:
@@ -222,22 +232,24 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Set the collective's membership.
        * 
-       * - `new_members`: The new member list. Be nice to the chain and provide it sorted.
+       * - `new_members`: The new member list. Be nice to the chain and
+       * provide it sorted.
        * - `prime`: The prime member whose vote sets the default.
-       * - `old_count`: The upper bound for the previous number of members in storage. Used for
-       * weight estimation.
+       * - `old_count`: The upper bound for the previous number of members in
+       * storage. Used for weight estimation.
        * 
        * The dispatch of this call must be `SetMembersOrigin`.
        * 
-       * NOTE: Does not enforce the expected `MaxMembers` limit on the amount of members, but
-       * the weight estimations rely on it to estimate dispatchable weight.
+       * NOTE: Does not enforce the expected `MaxMembers` limit on the amount
+       * of members, but       the weight estimations rely on it to estimate
+       * dispatchable weight.
        * 
        * # WARNING:
        * 
-       * The `pallet-collective` can also be managed by logic outside of the pallet through the
-       * implementation of the trait [`ChangeMembers`].
-       * Any call to `set_members` must be careful that the member set doesn't get out of sync
-       * with other logic managing the member set.
+       * The `pallet-collective` can also be managed by logic outside of the
+       * pallet through the implementation of the trait [`ChangeMembers`].
+       * Any call to `set_members` must be careful that the member set
+       * doesn't get out of sync with other logic managing the member set.
        * 
        * ## Complexity:
        * - `O(MP + N)` where:
@@ -251,9 +263,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Requires the sender to be a member.
        * 
-       * Transaction fees will be waived if the member is voting on any particular proposal
-       * for the first time and the call is successful. Subsequent vote changes will charge a
-       * fee.
+       * Transaction fees will be waived if the member is voting on any
+       * particular proposal for the first time and the call is successful.
+       * Subsequent vote changes will charge a fee.
        * ## Complexity
        * - `O(M)` where `M` is members-count (code- and governance-bounded)
        **/
@@ -1075,7 +1087,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Add an author. Only root or council origin can perform this
        * action.
        **/
-      add: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array, expires: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, bool]>;
+      nominate: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array, expires: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, bool]>;
       /**
        * Renew authorship. Only root or council orgin can perform this
        * action.
@@ -1483,23 +1495,28 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     technicalCommittee: {
       /**
-       * Close a vote that is either approved, disapproved or whose voting period has ended.
+       * Close a vote that is either approved, disapproved or whose voting
+       * period has ended.
        * 
-       * May be called by any signed account in order to finish voting and close the proposal.
+       * May be called by any signed account in order to finish voting and
+       * close the proposal.
        * 
-       * If called before the end of the voting period it will only close the vote if it is
-       * has enough votes to be approved or disapproved.
+       * If called before the end of the voting period it will only close the
+       * vote if it is has enough votes to be approved or disapproved.
        * 
-       * If called after the end of the voting period abstentions are counted as rejections
-       * unless there is a prime member set and the prime member cast an approval.
+       * If called after the end of the voting period abstentions are counted
+       * as rejections unless there is a prime member set and the prime
+       * member cast an approval.
        * 
-       * If the close operation completes successfully with disapproval, the transaction fee will
-       * be waived. Otherwise execution of the approved operation will be charged to the caller.
+       * If the close operation completes successfully with disapproval, the
+       * transaction fee will be waived. Otherwise execution of the approved
+       * operation will be charged to the caller.
        * 
-       * + `proposal_weight_bound`: The maximum amount of weight consumed by executing the closed
-       * proposal.
-       * + `length_bound`: The upper bound for the length of the proposal in storage. Checked via
-       * `storage::read` so it is `size_of::<u32>() == 4` larger than the pure length.
+       * + `proposal_weight_bound`: The maximum amount of weight consumed by
+       * executing the closed proposal.
+       * + `length_bound`: The upper bound for the length of the proposal in
+       * storage. Checked via `storage::read` so it is `size_of::<u32>() ==
+       * 4` larger than the pure length.
        * 
        * ## Complexity
        * - `O(B + M + P1 + P2)` where:
@@ -1510,13 +1527,14 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       close: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array, index: Compact<u32> | AnyNumber | Uint8Array, proposalWeightBound: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Compact<u32>, SpWeightsWeightV2Weight, Compact<u32>]>;
       /**
-       * Disapprove a proposal, close, and remove it from the system, regardless of its current
-       * state.
+       * Disapprove a proposal, close, and remove it from the system,
+       * regardless of its current state.
        * 
        * Must be called by the Root origin.
        * 
        * Parameters:
-       * * `proposal_hash`: The hash of the proposal that should be disapproved.
+       * * `proposal_hash`: The hash of the proposal that should be
+       * disapproved.
        * 
        * ## Complexity
        * O(P) where P is the number of max proposals
@@ -1539,8 +1557,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Requires the sender to be member.
        * 
-       * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
-       * or put up for voting.
+       * `threshold` determines whether `proposal` is executed directly
+       * (`threshold < 2`) or put up for voting.
        * 
        * ## Complexity
        * - `O(B + M + P1)` or `O(B + M + P2)` where:
@@ -1554,22 +1572,24 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Set the collective's membership.
        * 
-       * - `new_members`: The new member list. Be nice to the chain and provide it sorted.
+       * - `new_members`: The new member list. Be nice to the chain and
+       * provide it sorted.
        * - `prime`: The prime member whose vote sets the default.
-       * - `old_count`: The upper bound for the previous number of members in storage. Used for
-       * weight estimation.
+       * - `old_count`: The upper bound for the previous number of members in
+       * storage. Used for weight estimation.
        * 
        * The dispatch of this call must be `SetMembersOrigin`.
        * 
-       * NOTE: Does not enforce the expected `MaxMembers` limit on the amount of members, but
-       * the weight estimations rely on it to estimate dispatchable weight.
+       * NOTE: Does not enforce the expected `MaxMembers` limit on the amount
+       * of members, but       the weight estimations rely on it to estimate
+       * dispatchable weight.
        * 
        * # WARNING:
        * 
-       * The `pallet-collective` can also be managed by logic outside of the pallet through the
-       * implementation of the trait [`ChangeMembers`].
-       * Any call to `set_members` must be careful that the member set doesn't get out of sync
-       * with other logic managing the member set.
+       * The `pallet-collective` can also be managed by logic outside of the
+       * pallet through the implementation of the trait [`ChangeMembers`].
+       * Any call to `set_members` must be careful that the member set
+       * doesn't get out of sync with other logic managing the member set.
        * 
        * ## Complexity:
        * - `O(MP + N)` where:
@@ -1583,9 +1603,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Requires the sender to be a member.
        * 
-       * Transaction fees will be waived if the member is voting on any particular proposal
-       * for the first time and the call is successful. Subsequent vote changes will charge a
-       * fee.
+       * Transaction fees will be waived if the member is voting on any
+       * particular proposal for the first time and the call is successful.
+       * Subsequent vote changes will charge a fee.
        * ## Complexity
        * - `O(M)` where `M` is members-count (code- and governance-bounded)
        **/

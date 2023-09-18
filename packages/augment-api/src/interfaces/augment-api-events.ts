@@ -9,29 +9,43 @@ import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, H256 } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
+import type { CordRuntimeEntitiesValidatorFullIdentification, FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
 declare module '@polkadot/api-base/types/events' {
   interface AugmentedEvents<ApiType extends ApiTypes> {
-    authorityManager: {
+    authorityMembership: {
       /**
-       * An authority is marked online.
+       * List of members who will enter the set of authorities at the next
+       * session. [Vec<member_id>]
        **/
-      GoingOfflineInitiated: AugmentedEvent<ApiType, [AccountId32]>;
+      IncomingAuthorities: AugmentedEvent<ApiType, [Vec<AccountId32>]>;
       /**
-       * An authority is marked offline.
+       * A member will be added to the authority membership.
        **/
-      GoingOnlineInitiated: AugmentedEvent<ApiType, [AccountId32]>;
+      MemberAdded: AugmentedEvent<ApiType, [AccountId32]>;
       /**
-       * New Authorities were added to the set.
+       * A member will leave the set of authorities in 2 sessions.
        **/
-      RegistrationInitiated: AugmentedEvent<ApiType, [Vec<AccountId32>]>;
+      MemberGoOffline: AugmentedEvent<ApiType, [AccountId32]>;
       /**
-       * Authorities were removed from the set.
+       * A member will enter the set of authorities in 2 sessions.
        **/
-      RemovalInitiated: AugmentedEvent<ApiType, [Vec<AccountId32>]>;
+      MemberGoOnline: AugmentedEvent<ApiType, [AccountId32]>;
+      /**
+       * this member will be removed from the authority set in 2 sessions.
+       **/
+      MemberRemoved: AugmentedEvent<ApiType, [AccountId32]>;
+      /**
+       * A member has been removed from the blacklist.
+       **/
+      MemberWhiteList: AugmentedEvent<ApiType, [AccountId32]>;
+      /**
+       * List of members who will leave the set of authorities at the next
+       * session. [Vec<member_id>]
+       **/
+      OutgoingAuthorities: AugmentedEvent<ApiType, [Vec<AccountId32>]>;
     };
     balances: {
       /**
@@ -127,7 +141,8 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Approved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A proposal was closed because its threshold was reached or after its duration was up.
+       * A proposal was closed because its threshold was reached or after its
+       * duration was up.
        **/
       Closed: AugmentedEvent<ApiType, [proposalHash: H256, yes: u32, no: u32], { proposalHash: H256, yes: u32, no: u32 }>;
       /**
@@ -135,21 +150,24 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Disapproved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A motion was executed; result will be `Ok` if it returned without error.
+       * A motion was executed; result will be `Ok` if it returned without
+       * error.
        **/
       Executed: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A single member did some action; result will be `Ok` if it returned without error.
+       * A single member did some action; result will be `Ok` if it returned
+       * without error.
        **/
       MemberExecuted: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A motion (given hash) has been proposed (by given account) with a threshold (given
-       * `MemberCount`).
+       * A motion (given hash) has been proposed (by given account) with a
+       * threshold (given `MemberCount`).
        **/
       Proposed: AugmentedEvent<ApiType, [account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32], { account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32 }>;
       /**
        * A motion (given hash) has been voted on by given account, leaving
-       * a tally (yes votes and no votes given respectively as `MemberCount`).
+       * a tally (yes votes and no votes given respectively as
+       * `MemberCount`).
        **/
       Voted: AugmentedEvent<ApiType, [account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32], { account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32 }>;
     };
@@ -289,7 +307,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * At the end of the session, at least one validator was found to be offline.
        **/
-      SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, Null]>>], { offline: Vec<ITuple<[AccountId32, Null]>> }>;
+      SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, CordRuntimeEntitiesValidatorFullIdentification]>>], { offline: Vec<ITuple<[AccountId32, CordRuntimeEntitiesValidatorFullIdentification]>> }>;
     };
     indices: {
       /**
@@ -347,9 +365,9 @@ declare module '@polkadot/api-base/types/events' {
     };
     offences: {
       /**
-       * There is an offence reported of the given `kind` happened at the `session_index` and
-       * (kind-specific) time slot. This event is not deposited for duplicate slashes.
-       * \[kind, timeslot\].
+       * There is an offence reported of the given `kind` happened at the
+       * `session_index` and (kind-specific) time slot. This event is not
+       * deposited for duplicate slashes. \[kind, timeslot\].
        **/
       Offence: AugmentedEvent<ApiType, [kind: U8aFixed, timeslot: Bytes], { kind: U8aFixed, timeslot: Bytes }>;
     };
@@ -523,7 +541,8 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Approved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A proposal was closed because its threshold was reached or after its duration was up.
+       * A proposal was closed because its threshold was reached or after its
+       * duration was up.
        **/
       Closed: AugmentedEvent<ApiType, [proposalHash: H256, yes: u32, no: u32], { proposalHash: H256, yes: u32, no: u32 }>;
       /**
@@ -531,21 +550,24 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Disapproved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A motion was executed; result will be `Ok` if it returned without error.
+       * A motion was executed; result will be `Ok` if it returned without
+       * error.
        **/
       Executed: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A single member did some action; result will be `Ok` if it returned without error.
+       * A single member did some action; result will be `Ok` if it returned
+       * without error.
        **/
       MemberExecuted: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A motion (given hash) has been proposed (by given account) with a threshold (given
-       * `MemberCount`).
+       * A motion (given hash) has been proposed (by given account) with a
+       * threshold (given `MemberCount`).
        **/
       Proposed: AugmentedEvent<ApiType, [account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32], { account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32 }>;
       /**
        * A motion (given hash) has been voted on by given account, leaving
-       * a tally (yes votes and no votes given respectively as `MemberCount`).
+       * a tally (yes votes and no votes given respectively as
+       * `MemberCount`).
        **/
       Voted: AugmentedEvent<ApiType, [account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32], { account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32 }>;
     };

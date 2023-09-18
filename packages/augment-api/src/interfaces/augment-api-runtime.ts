@@ -16,6 +16,7 @@ import type { AuthorityId } from '@polkadot/types/interfaces/consensus';
 import type { Extrinsic } from '@polkadot/types/interfaces/extrinsics';
 import type { AuthorityList, GrandpaEquivocationProof, SetId } from '@polkadot/types/interfaces/grandpa';
 import type { OpaqueMetadata } from '@polkadot/types/interfaces/metadata';
+import type { RuntimeDispatchInfo } from '@polkadot/types/interfaces/payment';
 import type { AccountId, AccountId32, Block, Header, Index, KeyTypeId, Slot } from '@polkadot/types/interfaces/runtime';
 import type { RuntimeVersion } from '@polkadot/types/interfaces/state';
 import type { ApplyExtrinsicResult } from '@polkadot/types/interfaces/system';
@@ -102,8 +103,8 @@ declare module '@polkadot/api-base/types/calls' {
        **/
       version: AugmentedCall<ApiType, () => Observable<RuntimeVersion>>;
     };
-    /** 0x26609555c0656603/1 */
-    did: {
+    /** 0xa02708c798d60bce/1 */
+    didApi: {
       /**
        * Return the information relative to the owner of the provided DID, if present.
        **/
@@ -171,6 +172,13 @@ declare module '@polkadot/api-base/types/calls' {
        * Validate the transaction.
        **/
       validateTransaction: AugmentedCall<ApiType, (source: TransactionSource | 'InBlock' | 'Local' | 'External' | number | Uint8Array, tx: Extrinsic | IExtrinsic | string | Uint8Array, blockHash: BlockHash | string | Uint8Array) => Observable<TransactionValidity>>;
+    };
+    /** 0x5c8cda05c5979c32/1 */
+    transactionWeightApi: {
+      /**
+       * The transaction weight info
+       **/
+      queryWeightInfo: AugmentedCall<ApiType, (uxt: Extrinsic | IExtrinsic | string | Uint8Array) => Observable<RuntimeDispatchInfo>>;
     };
   } // AugmentedCalls
 } // declare module
