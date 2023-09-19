@@ -23,7 +23,6 @@ export async function createDocument(
       name: 'Alice',
       age: 29,
       id: '123456789987654321',
-      gender: 'Female',
       country: 'India',
       address: {
         street: 'a',

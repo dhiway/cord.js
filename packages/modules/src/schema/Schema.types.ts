@@ -32,6 +32,7 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
       type: 'object',
     },
     additionalProperties: { const: false, type: 'boolean' },
+    required: { type: 'array', items: { type: 'string' } },
   },
   additionalProperties: false,
   required: [
