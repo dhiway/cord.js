@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'fs/promises'
 import glob from 'glob'
+
 ;(async () => {
   const path = 'src/interfaces/augment-api-tx.ts'
   const source = await readFile(path, 'utf8')
@@ -17,7 +18,7 @@ glob('./src/**/*.ts', async (err, matches) => {
     let matched = false
     const fixed = source.replace(regex, (match) => {
       matched = true
-      return match + '.js'
+      return `${match}.js`
     })
     if (!matched) return
     console.log(`adding .js extention to import in ${path}`)

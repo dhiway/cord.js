@@ -12,7 +12,7 @@ export async function getDidDocFromName(
   console.log(`\n❄️  Resolve DID name ${didName} `)
 
   // Query the owner of the provided didName.
-  const encodedDidNameOwner = await api.call.did.queryByName(didName)
+  const encodedDidNameOwner = await api.call.didApi.queryByName(didName)
 
   const {
     document: { uri },

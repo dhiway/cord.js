@@ -37,22 +37,20 @@ async function main() {
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
-  // Step 1: Setup Authority
+  // Step 1: Setup Membership
   // Setup transaction author account - CORD Account.
 
-  console.log(`\n❄️  New Authority`)
+  console.log(`\n❄️  New Network Member`)
   const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
     '//Alice',
     'sr25519'
   )
-  // Setup author authority account.
+  // Setup network member account.
   const { account: authorIdentity } = await createAccount()
-  console.log(`🏦  Author (${authorIdentity.type}): ${authorIdentity.address}`)
+  console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
   await addAuthority(authorityAuthorIdentity, authorIdentity.address)
-  console.log(`🔏  Author permissions updated`)
-  await getChainCredits(authorityAuthorIdentity, authorIdentity.address, 5)
-  console.log(`💸  Author endowed with credits`)
-  console.log('✅ Authority created!')
+  console.log(`🔏  Member permissions updated`)
+  console.log('✅ Network Member added!')
 
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
@@ -198,18 +196,18 @@ async function main() {
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
-  let callBackFn = async ({ data }) => ({
-    signature: delegateTwoKeys.authentication.sign(data),
-    keyType: delegateTwoKeys.authentication.type,
-    keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
-  })
+
   const document = await createDocument(
     holderDid.uri,
     delegateTwoDid.uri,
     schema,
     registryDelegate,
     registry.identifier,
-    callBackFn
+    async ({ data }) => ({
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+    })
   )
   console.dir(document, {
     depth: null,
@@ -229,7 +227,7 @@ async function main() {
   // Step 5: Delegate updates the Verifiable Document
   console.log('\n🖍️ Stream update...\n')
 
-  let updatedContent: any = {
+  let updatedContent: Cord.IContent = {
     name: 'Adi',
     age: 23,
     id: '123456789987654321',
@@ -251,7 +249,11 @@ async function main() {
     document,
     updatedContent,
     schema,
-    callBackFn,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+    }),
     delegateTwoDid.uri,
     authorIdentity,
     delegateTwoKeys

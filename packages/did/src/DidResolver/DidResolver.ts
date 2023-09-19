@@ -30,7 +30,7 @@ export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
   const api = ConfigService.get('api')
-  const queryFunction = api.call.did?.query
+  const queryFunction = api.call.didApi?.query
 
   const { section, version } = queryFunction?.meta ?? {}
   if (version > 2)
@@ -75,7 +75,7 @@ export async function resolve(
   // If no DID details nor deletion info is found,
   // Metadata will simply contain `deactivated: false`.
   return {
-    document: document,
+    document,
     metadata: {
       deactivated: false,
     },
