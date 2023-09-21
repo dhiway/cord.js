@@ -5,6 +5,7 @@ import type {
 
 import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'
+import { types9 } from './types_9.js'
 import { calls as didApiCalls } from './runtime/did.js'
 import { calls as TransactionWeightApiCalls } from './runtime/weight.js'
 
@@ -14,7 +15,7 @@ export { cordSignedExtensions } from './signedExtensions/index.js'
 export { calls as didApiCalls } from './runtime/did.js'
 export { calls as TransactionWeightApiCalls } from './runtime/weight.js'
 
-export { types8 as types }
+export { types7, types8, types9 as types }
 
 const defaultTypesBundle: OverrideVersionedType[] = [
   {
@@ -22,12 +23,16 @@ const defaultTypesBundle: OverrideVersionedType[] = [
     types: types7,
   },
   {
-    minmax: [8000, undefined],
+    minmax: [8000, 8999],
     types: types8,
+  },
+  {
+    minmax: [9000, undefined],
+    types: types9,
   },
 ]
 
-// Current runtime version: 8000
+// Current runtime version: 9000
 export const typesBundle: OverrideBundleType = {
   chain: {
     'Cord Sprintnet': {
