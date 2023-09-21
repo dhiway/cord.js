@@ -150,33 +150,16 @@ declare module '@polkadot/api-base/types/consts' {
     };
     identity: {
       /**
-       * The amount held on deposit for a registered identity
-       **/
-      basicDeposit: u128 & AugmentedConst<ApiType>;
-      /**
-       * The amount held on deposit per additional field for a registered identity.
-       **/
-      fieldDeposit: u128 & AugmentedConst<ApiType>;
-      /**
-       * Maximum number of additional fields that may be stored in an ID. Needed to bound the I/O
-       * required to access an identity, but can be pretty high.
+       * Maximum number of additional fields that may be stored in an ID.
+       * Needed to bound the I/O required to access an identity, but can be
+       * pretty high.
        **/
       maxAdditionalFields: u32 & AugmentedConst<ApiType>;
       /**
-       * Maxmimum number of registrars allowed in the system. Needed to bound the complexity
-       * of, e.g., updating judgements.
+       * Maxmimum number of registrars allowed in the system. Needed to bound
+       * the complexity of, e.g., updating judgements.
        **/
       maxRegistrars: u32 & AugmentedConst<ApiType>;
-      /**
-       * The maximum number of sub-accounts allowed per identified account.
-       **/
-      maxSubAccounts: u32 & AugmentedConst<ApiType>;
-      /**
-       * The amount held on deposit for a registered subaccount. This should account for the fact
-       * that one storage item's value will increase by the size of an account ID, and there will
-       * be another trie item whose value is the size of an account ID plus 32 bytes.
-       **/
-      subAccountDeposit: u128 & AugmentedConst<ApiType>;
     };
     imOnline: {
       /**
@@ -295,6 +278,12 @@ declare module '@polkadot/api-base/types/consts' {
        * double this period on default settings.
        **/
       minimumPeriod: u64 & AugmentedConst<ApiType>;
+    };
+    unique: {
+      /**
+       * The maximum number of commits for a unique.
+       **/
+      maxUniqueCommits: u32 & AugmentedConst<ApiType>;
     };
     utility: {
       /**

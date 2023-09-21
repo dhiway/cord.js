@@ -384,14 +384,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       EmptyIndex: AugmentedError<ApiType>;
       /**
-       * Fee is changed.
-       **/
-      FeeChanged: AugmentedError<ApiType>;
-      /**
-       * The index is invalid.
-       **/
-      InvalidIndex: AugmentedError<ApiType>;
-      /**
        * Invalid judgement.
        **/
       InvalidJudgement: AugmentedError<ApiType>;
@@ -424,13 +416,13 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NotNamed: AugmentedError<ApiType>;
       /**
-       * Sub-account isn't owned by sender.
+       * Registrar already exists.
        **/
-      NotOwned: AugmentedError<ApiType>;
+      RegistrarAlreadyExists: AugmentedError<ApiType>;
       /**
-       * Sender is not a sub-account.
+       * Registrar not found.
        **/
-      NotSub: AugmentedError<ApiType>;
+      RegistrarNotFound: AugmentedError<ApiType>;
       /**
        * Sticky judgement.
        **/
@@ -443,10 +435,6 @@ declare module '@polkadot/api-base/types/errors' {
        * Maximum amount of registrars reached. Cannot add any more.
        **/
       TooManyRegistrars: AugmentedError<ApiType>;
-      /**
-       * Too many subs-accounts.
-       **/
-      TooManySubAccounts: AugmentedError<ApiType>;
     };
     imOnline: {
       /**
@@ -873,6 +861,51 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many members.
        **/
       TooManyMembers: AugmentedError<ApiType>;
+    };
+    unique: {
+      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      EmptyTransaction: AugmentedError<ApiType>;
+      ExpiredSignature: AugmentedError<ApiType>;
+      HashAlreadyAnchored: AugmentedError<ApiType>;
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      InvalidSignature: AugmentedError<ApiType>;
+      InvalidTransactionHash: AugmentedError<ApiType>;
+      InvalidUniqueIdentifier: AugmentedError<ApiType>;
+      MaxEncodedLimitExceeded: AugmentedError<ApiType>;
+      MaxUniqueCommitsExceeded: AugmentedError<ApiType>;
+      MetadataAlreadySet: AugmentedError<ApiType>;
+      MetadataLimitExceeded: AugmentedError<ApiType>;
+      MetadataNotFound: AugmentedError<ApiType>;
+      RegistryIdMismatch: AugmentedError<ApiType>;
+      /**
+       * Unique idenfier marked inactive
+       **/
+      RevokedUnique: AugmentedError<ApiType>;
+      TooManyDelegates: AugmentedError<ApiType>;
+      TooManyDelegatesToRemove: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller/delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+      UniqueAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Unique link does not exist
+       **/
+      UniqueLinkNotFound: AugmentedError<ApiType>;
+      /**
+       * Unique Link is revoked
+       **/
+      UniqueLinkRevoked: AugmentedError<ApiType>;
+      /**
+       * Unique idenfier not found
+       **/
+      UniqueNotFound: AugmentedError<ApiType>;
+      /**
+       * Unique idenfier not marked inactive
+       **/
+      UniqueNotRevoked: AugmentedError<ApiType>;
+      UniqueSpaceMismatch: AugmentedError<ApiType>;
     };
     utility: {
       /**

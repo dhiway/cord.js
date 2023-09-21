@@ -29,6 +29,7 @@ import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.
 export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
+  const { type } = parse(did)
   const api = ConfigService.get('api')
   const queryFunction = api.call.didApi?.query
 
@@ -41,7 +42,7 @@ export async function resolve(
     .then(linkedInfoFromChain)
     .catch(() => ({ document: undefined, didName: undefined }))
 
-  if (document) {
+  if (type === 'full' && document) {
     return {
       document,
       metadata: {
@@ -62,6 +63,9 @@ export async function resolve(
     }
   }
 
+  if (type === 'full') {
+    return null
+  }
   // If a DID with same subject is present, return the resolution metadata accordingly.
   if (document) {
     return {

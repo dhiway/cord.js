@@ -256,11 +256,11 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A name was cleared, and the given balance returned.
        **/
-      IdentityCleared: AugmentedEvent<ApiType, [who: AccountId32, deposit: u128], { who: AccountId32, deposit: u128 }>;
+      IdentityCleared: AugmentedEvent<ApiType, [who: AccountId32], { who: AccountId32 }>;
       /**
        * A name was removed and the given balance slashed.
        **/
-      IdentityKilled: AugmentedEvent<ApiType, [who: AccountId32, deposit: u128], { who: AccountId32, deposit: u128 }>;
+      IdentityKilled: AugmentedEvent<ApiType, [who: AccountId32], { who: AccountId32 }>;
       /**
        * A name was set or reset (which will remove all judgements).
        **/
@@ -268,32 +268,23 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A judgement was given by a registrar.
        **/
-      JudgementGiven: AugmentedEvent<ApiType, [target: AccountId32, registrarIndex: u32], { target: AccountId32, registrarIndex: u32 }>;
+      JudgementGiven: AugmentedEvent<ApiType, [target: AccountId32, registrar: AccountId32], { target: AccountId32, registrar: AccountId32 }>;
       /**
        * A judgement was asked from a registrar.
        **/
-      JudgementRequested: AugmentedEvent<ApiType, [who: AccountId32, registrarIndex: u32], { who: AccountId32, registrarIndex: u32 }>;
+      JudgementRequested: AugmentedEvent<ApiType, [who: AccountId32, registrar: AccountId32, digest: H256], { who: AccountId32, registrar: AccountId32, digest: H256 }>;
       /**
        * A judgement request was retracted.
        **/
-      JudgementUnrequested: AugmentedEvent<ApiType, [who: AccountId32, registrarIndex: u32], { who: AccountId32, registrarIndex: u32 }>;
+      JudgementUnrequested: AugmentedEvent<ApiType, [who: AccountId32, registrar: AccountId32], { who: AccountId32, registrar: AccountId32 }>;
       /**
        * A registrar was added.
        **/
-      RegistrarAdded: AugmentedEvent<ApiType, [registrarIndex: u32], { registrarIndex: u32 }>;
+      RegistrarAdded: AugmentedEvent<ApiType, [registrar: AccountId32], { registrar: AccountId32 }>;
       /**
-       * A sub-identity was added to an identity and the deposit paid.
+       * A registrar was removed.
        **/
-      SubIdentityAdded: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
-      /**
-       * A sub-identity was removed from an identity and the deposit freed.
-       **/
-      SubIdentityRemoved: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
-      /**
-       * A sub-identity was cleared, and the given deposit repatriated from the
-       * main identity account to the sub-identity account.
-       **/
-      SubIdentityRevoked: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
+      RegistrarRemoved: AugmentedEvent<ApiType, [registrar: AccountId32], { registrar: AccountId32 }>;
     };
     imOnline: {
       /**
@@ -597,6 +588,28 @@ declare module '@polkadot/api-base/types/events' {
        * Two members were swapped; see the transaction for who.
        **/
       MembersSwapped: AugmentedEvent<ApiType, []>;
+    };
+    unique: {
+      /**
+       * A new unique identifier has been created.
+       * \[unique identifier, unique digest, controller\]
+       **/
+      Create: AugmentedEvent<ApiType, [identifier: Bytes, digest: Bytes, author: AccountId32], { identifier: Bytes, digest: Bytes, author: AccountId32 }>;
+      /**
+       * A unique identifier has been removed.
+       * \[unique identifier,  controller\]
+       **/
+      Remove: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A unique identifier status has been revoked.
+       * \[unique identifier, controller\]
+       **/
+      Revoke: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A unique identifier status has been updated.
+       * \[unique identifier, unique digest, controller\]
+       **/
+      Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: Bytes, author: AccountId32], { identifier: Bytes, digest: Bytes, author: AccountId32 }>;
     };
     utility: {
       /**

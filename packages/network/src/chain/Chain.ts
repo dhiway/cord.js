@@ -164,6 +164,7 @@ export const dispatchTx = submitSignedTx
  *
  * @param tx The generated unsigned SubmittableExtrinsic to submit.
  * @param signer The [[CordKeyringPair]] used to sign the tx.
+ * @param opts.nonce
  * @param opts Partial optional criteria for resolving/rejecting the promise.
  * @param opts.tip Optional amount of Femto to tip the validator.
  * @returns Promise result of executing the extrinsic, of type ISubmittableResult.
@@ -172,10 +173,10 @@ export async function signAndSubmitTx(
   tx: SubmittableExtrinsic,
   signer: KeyringPair,
   {
-    tip,
+    nonce = -1,
     ...opts
-  }: Partial<SubscriptionPromise.Options> & Partial<{ tip: AnyNumber }> = {}
+  }: Partial<SubscriptionPromise.Options> & Partial<{ nonce: AnyNumber }> = {}
 ): Promise<ISubmittableResult> {
-  const signedTx = await tx.signAsync(signer, { tip, nonce:-1 })
+  const signedTx = await tx.signAsync(signer, { nonce })
   return submitSignedTx(signedTx, opts)
 }
