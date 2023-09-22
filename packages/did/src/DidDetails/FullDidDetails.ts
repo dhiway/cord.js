@@ -28,6 +28,7 @@ const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   'registry.create': 'assertionMethod',
   'registry.archive': 'assertionMethod',
   'registry.restore': 'assertionMethod',
+  unique: 'assertionMethod',
   did: 'authentication',
   'did.create': undefined,
   'did.submitDidCall': undefined,

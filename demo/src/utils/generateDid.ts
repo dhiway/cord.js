@@ -38,6 +38,7 @@ export async function createDid(
         },
       ],
     },
+    submitterAccount.address,
     async ({ data }) => ({
       signature: authentication.sign(data),
       keyType: authentication.type,

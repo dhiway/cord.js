@@ -117,9 +117,11 @@ function servicesFromChain(
  * DidName is the type of nickname for a DID.
  */
 export type DidName = string
+export type DidAccount = string
 
 export interface DidInfo {
   document: DidDocument
+  account: DidAccount
   didName?: DidName
 }
 
@@ -133,7 +135,8 @@ export interface DidInfo {
 export function linkedInfoFromChain(
   encoded: Option<RawDidLinkedInfo>
 ): DidInfo {
-  const { identifier, name, serviceEndpoints, details } = encoded.unwrap()
+  const { identifier, account, name, serviceEndpoints, details } =
+    encoded.unwrap()
   const didRec = documentFromChain(details)
   const did: DidDocument = {
     uri: fromChain(identifier),
@@ -149,9 +152,11 @@ export function linkedInfoFromChain(
   }
 
   const didName = name.isNone ? undefined : name.unwrap().toHuman()
+  const DidAccount = account.toHuman()
 
   return {
     document: did,
+    account: DidAccount,
     didName,
   }
 }

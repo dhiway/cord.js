@@ -37,7 +37,7 @@ type IDidParsingResult = {
  * @returns Object containing information extracted from the DID uri.
  */
 export function parse(didUri: DidUri | DidResourceUri): IDidParsingResult {
-  let matches = CORD_DID_REGEX.exec(didUri)?.groups
+  const matches = CORD_DID_REGEX.exec(didUri)?.groups
 
   if (matches) {
     const { version: versionString, fragment } = matches
