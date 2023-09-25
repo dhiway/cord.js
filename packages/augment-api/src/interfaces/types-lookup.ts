@@ -1031,9 +1031,6 @@ declare module '@polkadot/types/lookup' {
     readonly digest: SpRuntimeDigest;
   }
 
-  /** @name SpRuntimeBlakeTwo256 (113) */
-  type SpRuntimeBlakeTwo256 = Null;
-
   /** @name SpConsensusBabeAppPublic (114) */
   interface SpConsensusBabeAppPublic extends SpCoreSr25519Public {}
 
@@ -1461,9 +1458,6 @@ declare module '@polkadot/types/lookup' {
     readonly id: AccountId32;
     readonly submitter: AccountId32;
   }
-
-  /** @name SpCoreVoid (164) */
-  type SpCoreVoid = Null;
 
   /** @name PalletMultisigCall (165) */
   interface PalletMultisigCall extends Enum {
@@ -2474,7 +2468,7 @@ declare module '@polkadot/types/lookup' {
     readonly isMetadataLimitExceeded: boolean;
     readonly isMetadataAlreadySet: boolean;
     readonly isMetadataNotFound: boolean;
-    readonly isTooManyDelegates: boolean;
+     readonly isTooManyDelegates: boolean;
     readonly isTooManyDelegatesToRemove: boolean;
     readonly isAuthorizationDetailsNotFound: boolean;
     readonly isMaxUniqueCommitsExceeded: boolean;
@@ -2505,23 +2499,8 @@ declare module '@polkadot/types/lookup' {
   /** @name PalletNetworkMembershipCheckNetworkMembership (366) */
   type PalletNetworkMembershipCheckNetworkMembership = Null;
 
-  /** @name FrameSystemExtensionsCheckNonZeroSender (367) */
-  type FrameSystemExtensionsCheckNonZeroSender = Null;
-
-  /** @name FrameSystemExtensionsCheckSpecVersion (368) */
-  type FrameSystemExtensionsCheckSpecVersion = Null;
-
-  /** @name FrameSystemExtensionsCheckTxVersion (369) */
-  type FrameSystemExtensionsCheckTxVersion = Null;
-
-  /** @name FrameSystemExtensionsCheckGenesis (370) */
-  type FrameSystemExtensionsCheckGenesis = Null;
-
   /** @name FrameSystemExtensionsCheckNonce (373) */
   interface FrameSystemExtensionsCheckNonce extends Compact<u32> {}
-
-  /** @name FrameSystemExtensionsCheckWeight (374) */
-  type FrameSystemExtensionsCheckWeight = Null;
 
   /** @name CordRuntimeRuntime (375) */
   type CordRuntimeRuntime = Null;
