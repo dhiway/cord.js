@@ -1,22 +1,28 @@
+import { U32 } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types.js'
-import type { IPublicIdentity } from './PublicIdentity.js'
 
 export const SCORE_IDENTIFIER: number = 101
 export const SCORE_PREFIX: string = 'score:cord:'
+export const SCORE_MULTIPLIER: number = 10
 
 export enum ScoreType {
-  overall = 'overall',
-  delivery = 'delivery',
+  overall = 'Overall',
+  delivery = 'Delivery',
+}
+export enum EntryType {
+  credit = 'Credit',
+  debit = 'Debit',
 }
 
 export interface IJournalContent {
-  entity: IPublicIdentity['address']
-  uid: string
+  entity: string
   tid: string
-  collector: IPublicIdentity['address']
-  requestor: IPublicIdentity['address']
-  scoreType: ScoreType
-  score: number
+  collector: string
+  requestor: string
+  rating_type: ScoreType
+  rating: U32
+  entry_type: EntryType
+  count: U32
 }
 
 export interface IJournal {

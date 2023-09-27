@@ -447,6 +447,18 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
     };
+    scoring: {
+      /**
+       * Aggregate scores has been updated.
+       * \[entity identifier\]
+       **/
+      AggregateUpdated: AugmentedEvent<ApiType, [entity: AccountId32], { entity: AccountId32 }>;
+      /**
+       * A new journal entry has been added.
+       * \[entry identifier, entity, author\]
+       **/
+      JournalEntry: AugmentedEvent<ApiType, [identifier: Bytes, entity: AccountId32, author: AccountId32], { identifier: Bytes, entity: AccountId32, author: AccountId32 }>;
+    };
     session: {
       /**
        * New session has happened. Note that the argument is the session index, not the
