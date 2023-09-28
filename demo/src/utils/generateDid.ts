@@ -53,14 +53,16 @@ export async function createDid(
   let document: any
 
   document = await cord_api_query('did', 'query', didUri)
+
   if (!document || !document.response) {
-    const encodedDid = await api.call.did.query(Cord.Did.toChain(didUri))
+    const encodedDid = await api.call.didApi.query(Cord.Did.toChain(didUri))
     document = Cord.Did.linkedInfoFromChain(encodedDid)
   } else {
     document = Cord.Did.linkedInfoFromApi(document.response)
   }
+
   if (!document) {
-      throw new Error('DID was not successfully created.')
+    throw new Error('DID was not successfully created.')
   }
   return { mnemonic, document: document?.document }
 }
