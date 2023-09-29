@@ -71,7 +71,7 @@ export interface VerifiableCredential {
   // when the credential was issued
   issuanceDate: string
   // when the credential will expire
-  expirationDate: string
+  expirationDate?: string
   // streams about the subjects of the credential
   credentialSubject: Record<string, AnyJson>
   // rootHash  of the credential

@@ -2,6 +2,7 @@ import type { HexString } from '@polkadot/util/types'
 import type { DidSignature } from './DidDocument'
 import type { IContent } from './Content.js'
 import type { IRegistryAuthorization } from './Registry'
+import type { SignCallback } from './CryptoCallbacks'
 
 export type Hash = HexString
 
@@ -23,13 +24,23 @@ export interface IDocument {
   evidenceIds: IDocument[]
   authorization: IRegistryAuthorization['identifier']
   registry: string | null
-  createdAt: string
-  validUntil: string
+  issuanceDate: string
+  validFrom?: string
+  validUntil?: string
   documentHash: Hash
   issuerSignature: DidSignature
   metadata: DocumentMetaData
 }
 
 export interface IDocumentPresentation extends IDocument {
+  selectiveAttributes: string[]
   holderSignature: DidSignature & { challenge?: string }
 }
+
+export interface PresentationOptions {
+  document: IDocument;
+  signCallback: SignCallback;
+  selectedAttributes?: string[];
+  challenge?: string;
+}
+

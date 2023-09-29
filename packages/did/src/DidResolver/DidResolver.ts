@@ -29,6 +29,7 @@ import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.
 export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
+  const { type } = parse(did)
   const api = ConfigService.get('api')
   let encodedDid: any
 
@@ -51,7 +52,7 @@ export async function resolve(
 
   const { document, didName }: any = encodedDid
 
-  if (document) {
+  if (type === 'full' && document) {
     return {
       document,
       metadata: {
@@ -79,6 +80,9 @@ export async function resolve(
     }
   }
 
+  if (type === 'full') {
+    return null
+  }
   // If a DID with same subject is present, return the resolution metadata accordingly.
   if (document) {
     return {
@@ -92,7 +96,7 @@ export async function resolve(
   // If no DID details nor deletion info is found,
   // Metadata will simply contain `deactivated: false`.
   return {
-    document: document,
+    document,
     metadata: {
       deactivated: false,
     },

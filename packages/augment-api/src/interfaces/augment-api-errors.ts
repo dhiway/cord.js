@@ -11,27 +11,40 @@ export type __AugmentedError<ApiType extends ApiTypes> = AugmentedError<ApiType>
 
 declare module '@polkadot/api-base/types/errors' {
   interface AugmentedErrors<ApiType extends ApiTypes> {
-    authorityManager: {
+    authorityMembership: {
       /**
        * The authority entry already exists.
        **/
-      AuthorityAlreadyExists: AugmentedError<ApiType>;
+      MemberAlreadyExists: AugmentedError<ApiType>;
       /**
+       * Already incoming
+       **/
+      MemberAlreadyIncoming: AugmentedError<ApiType>;
+      /**
+       * Already outgoing
+       **/
+      MemberAlreadyOutgoing: AugmentedError<ApiType>;
+      /**
+       * Member is blacklisted
+       **/
+      MemberBlackListed: AugmentedError<ApiType>;
+      /**
+       * Member not blacklisted
+       **/
+      MemberNotBlackListed: AugmentedError<ApiType>;
+      /**
+       * Not found owner key
        * There is no authority with the given ID.
        **/
-      AuthorityNotFound: AugmentedError<ApiType>;
+      MemberNotFound: AugmentedError<ApiType>;
       /**
-       * Not an authority owner.
+       * Not a network member
        **/
-      BadOrigin: AugmentedError<ApiType>;
+      NetworkMembershipNotFound: AugmentedError<ApiType>;
       /**
-       * Max authorities included in a proposal exceeds the limit.
+       * Session keys not provided
        **/
-      MaxProposalLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * No validator associated with the identity.
-       **/
-      NoAssociatedValidatorId: AugmentedError<ApiType>;
+      SessionKeysNotAdded: AugmentedError<ApiType>;
     };
     babe: {
       /**
@@ -135,104 +148,19 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       WrongProposalWeight: AugmentedError<ApiType>;
     };
-    democracy: {
+    councilMembership: {
       /**
-       * Cannot cancel the same proposal twice
+       * Already a member.
        **/
-      AlreadyCanceled: AugmentedError<ApiType>;
+      AlreadyMember: AugmentedError<ApiType>;
       /**
-       * The account is already delegating.
+       * Not a member.
        **/
-      AlreadyDelegating: AugmentedError<ApiType>;
+      NotMember: AugmentedError<ApiType>;
       /**
-       * Identity may not veto a proposal twice
+       * Too many members.
        **/
-      AlreadyVetoed: AugmentedError<ApiType>;
-      /**
-       * Proposal already made
-       **/
-      DuplicateProposal: AugmentedError<ApiType>;
-      /**
-       * The instant referendum origin is currently disallowed.
-       **/
-      InstantNotAllowed: AugmentedError<ApiType>;
-      /**
-       * Too high a balance was provided that the account cannot afford.
-       **/
-      InsufficientFunds: AugmentedError<ApiType>;
-      /**
-       * Invalid hash
-       **/
-      InvalidHash: AugmentedError<ApiType>;
-      /**
-       * Maximum number of votes reached.
-       **/
-      MaxVotesReached: AugmentedError<ApiType>;
-      /**
-       * No proposals waiting
-       **/
-      NoneWaiting: AugmentedError<ApiType>;
-      /**
-       * Delegation to oneself makes no sense.
-       **/
-      Nonsense: AugmentedError<ApiType>;
-      /**
-       * The actor has no permission to conduct the action.
-       **/
-      NoPermission: AugmentedError<ApiType>;
-      /**
-       * No external proposal
-       **/
-      NoProposal: AugmentedError<ApiType>;
-      /**
-       * The account is not currently delegating.
-       **/
-      NotDelegating: AugmentedError<ApiType>;
-      /**
-       * Next external proposal not simple majority
-       **/
-      NotSimpleMajority: AugmentedError<ApiType>;
-      /**
-       * The given account did not vote on the referendum.
-       **/
-      NotVoter: AugmentedError<ApiType>;
-      /**
-       * The preimage does not exist.
-       **/
-      PreimageNotExist: AugmentedError<ApiType>;
-      /**
-       * Proposal still blacklisted
-       **/
-      ProposalBlacklisted: AugmentedError<ApiType>;
-      /**
-       * Proposal does not exist
-       **/
-      ProposalMissing: AugmentedError<ApiType>;
-      /**
-       * Vote given for invalid referendum
-       **/
-      ReferendumInvalid: AugmentedError<ApiType>;
-      /**
-       * Maximum number of items reached.
-       **/
-      TooMany: AugmentedError<ApiType>;
-      /**
-       * Value too low
-       **/
-      ValueLow: AugmentedError<ApiType>;
-      /**
-       * The account currently has votes attached to it and the operation cannot succeed until
-       * these are removed, either through `unvote` or `reap_vote`.
-       **/
-      VotesExist: AugmentedError<ApiType>;
-      /**
-       * Voting period too low
-       **/
-      VotingPeriodLow: AugmentedError<ApiType>;
-      /**
-       * Invalid upper bound.
-       **/
-      WrongUpperBound: AugmentedError<ApiType>;
+      TooManyMembers: AugmentedError<ApiType>;
     };
     did: {
       /**
@@ -414,40 +342,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       SuffixTooLong: AugmentedError<ApiType>;
     };
-    extrinsicAuthorship: {
-      /**
-       * The author entry already exists.
-       **/
-      AuthorAccountAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * There is no author with the given ID.
-       **/
-      AuthorAccountNotFound: AugmentedError<ApiType>;
-      /**
-       * Not able to find author block
-       **/
-      AuthorBlockDetailsNotFound: AugmentedError<ApiType>;
-      /**
-       * Authorship is ending soon
-       **/
-      AuthorshipExpiringSoon: AugmentedError<ApiType>;
-      /**
-       * Proposer is not authorised
-       **/
-      ProposerNotAuthorised: AugmentedError<ApiType>;
-      /**
-       * Too many proposals within a block
-       **/
-      TooManyAuthorityProposals: AugmentedError<ApiType>;
-      /**
-       * Unable to transfer credits from proposer
-       **/
-      UnableToTransferCredits: AugmentedError<ApiType>;
-      /**
-       * Unable to ensure withdrawal of credits from proposer
-       **/
-      UnableToWithdrawCredits: AugmentedError<ApiType>;
-    };
     grandpa: {
       /**
        * Attempt to signal GRANDPA change with one already pending.
@@ -490,14 +384,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       EmptyIndex: AugmentedError<ApiType>;
       /**
-       * Fee is changed.
-       **/
-      FeeChanged: AugmentedError<ApiType>;
-      /**
-       * The index is invalid.
-       **/
-      InvalidIndex: AugmentedError<ApiType>;
-      /**
        * Invalid judgement.
        **/
       InvalidJudgement: AugmentedError<ApiType>;
@@ -530,13 +416,13 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NotNamed: AugmentedError<ApiType>;
       /**
-       * Sub-account isn't owned by sender.
+       * Registrar already exists.
        **/
-      NotOwned: AugmentedError<ApiType>;
+      RegistrarAlreadyExists: AugmentedError<ApiType>;
       /**
-       * Sender is not a sub-account.
+       * Registrar not found.
        **/
-      NotSub: AugmentedError<ApiType>;
+      RegistrarNotFound: AugmentedError<ApiType>;
       /**
        * Sticky judgement.
        **/
@@ -549,10 +435,6 @@ declare module '@polkadot/api-base/types/errors' {
        * Maximum amount of registrars reached. Cannot add any more.
        **/
       TooManyRegistrars: AugmentedError<ApiType>;
-      /**
-       * Too many subs-accounts.
-       **/
-      TooManySubAccounts: AugmentedError<ApiType>;
     };
     imOnline: {
       /**
@@ -585,40 +467,6 @@ declare module '@polkadot/api-base/types/errors' {
        * The index is permanent and may not be freed/changed.
        **/
       Permanent: AugmentedError<ApiType>;
-    };
-    messageQueue: {
-      /**
-       * The message was already processed and cannot be processed again.
-       **/
-      AlreadyProcessed: AugmentedError<ApiType>;
-      /**
-       * There is temporarily not enough weight to continue servicing messages.
-       **/
-      InsufficientWeight: AugmentedError<ApiType>;
-      /**
-       * The referenced message could not be found.
-       **/
-      NoMessage: AugmentedError<ApiType>;
-      /**
-       * Page to be reaped does not exist.
-       **/
-      NoPage: AugmentedError<ApiType>;
-      /**
-       * Page is not reapable because it has items remaining to be processed and is not old
-       * enough.
-       **/
-      NotReapable: AugmentedError<ApiType>;
-      /**
-       * The message is queued for future execution.
-       **/
-      Queued: AugmentedError<ApiType>;
-      /**
-       * This message is temporarily unprocessable.
-       * 
-       * Such errors are expected, but not guaranteed, to resolve themselves eventually through
-       * retrying.
-       **/
-      TemporarilyUnprocessable: AugmentedError<ApiType>;
     };
     multisig: {
       /**
@@ -677,6 +525,36 @@ declare module '@polkadot/api-base/types/errors' {
        * A different timepoint was given to the multisig operation that is underway.
        **/
       WrongTimepoint: AugmentedError<ApiType>;
+    };
+    networkMembership: {
+      /**
+       * Max members limit exceeded
+       **/
+      MaxMembersExceededForTheBlock: AugmentedError<ApiType>;
+      /**
+       * Membership already acquired
+       **/
+      MembershipAlreadyAcquired: AugmentedError<ApiType>;
+      /**
+       * Membership expired
+       **/
+      MembershipExpired: AugmentedError<ApiType>;
+      /**
+       * There is no member with the given ID.
+       **/
+      MembershipNotFound: AugmentedError<ApiType>;
+      /**
+       * Membership Renewal already requested
+       **/
+      MembershipRenewalAlreadyRequested: AugmentedError<ApiType>;
+      /**
+       * Rejects request if the member is added to the blacklist
+       **/
+      MembershipRequestRejected: AugmentedError<ApiType>;
+      /**
+       * Origin is not authorized
+       **/
+      OriginNotAuthorized: AugmentedError<ApiType>;
     };
     preimage: {
       /**
@@ -984,28 +862,50 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooManyMembers: AugmentedError<ApiType>;
     };
-    treasury: {
+    unique: {
+      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      EmptyTransaction: AugmentedError<ApiType>;
+      ExpiredSignature: AugmentedError<ApiType>;
+      HashAlreadyAnchored: AugmentedError<ApiType>;
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      InvalidSignature: AugmentedError<ApiType>;
+      InvalidTransactionHash: AugmentedError<ApiType>;
+      InvalidUniqueIdentifier: AugmentedError<ApiType>;
+      MaxEncodedLimitExceeded: AugmentedError<ApiType>;
+      MaxUniqueCommitsExceeded: AugmentedError<ApiType>;
+      MetadataAlreadySet: AugmentedError<ApiType>;
+      MetadataLimitExceeded: AugmentedError<ApiType>;
+      MetadataNotFound: AugmentedError<ApiType>;
+      RegistryIdMismatch: AugmentedError<ApiType>;
       /**
-       * The spend origin is valid but the amount it is allowed to spend is lower than the
-       * amount to be spent.
+       * Unique idenfier marked inactive
        **/
-      InsufficientPermission: AugmentedError<ApiType>;
+      RevokedUnique: AugmentedError<ApiType>;
+      TooManyDelegates: AugmentedError<ApiType>;
+      TooManyDelegatesToRemove: AugmentedError<ApiType>;
       /**
-       * Proposer's balance is too low.
+       * Only when the author is not the controller/delegate.
        **/
-      InsufficientProposersBalance: AugmentedError<ApiType>;
+      UnauthorizedOperation: AugmentedError<ApiType>;
+      UniqueAlreadyAnchored: AugmentedError<ApiType>;
       /**
-       * No proposal or bounty at that index.
+       * Unique link does not exist
        **/
-      InvalidIndex: AugmentedError<ApiType>;
+      UniqueLinkNotFound: AugmentedError<ApiType>;
       /**
-       * Proposal has not been approved.
+       * Unique Link is revoked
        **/
-      ProposalNotApproved: AugmentedError<ApiType>;
+      UniqueLinkRevoked: AugmentedError<ApiType>;
       /**
-       * Too many approvals in the queue.
+       * Unique idenfier not found
        **/
-      TooManyApprovals: AugmentedError<ApiType>;
+      UniqueNotFound: AugmentedError<ApiType>;
+      /**
+       * Unique idenfier not marked inactive
+       **/
+      UniqueNotRevoked: AugmentedError<ApiType>;
+      UniqueSpaceMismatch: AugmentedError<ApiType>;
     };
     utility: {
       /**

@@ -21,11 +21,12 @@ import { encryptMessage } from './utils/encrypt_message'
 import { generateRequestCredentialMessage } from './utils/request_credential_message'
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
+import { updateStream } from './utils/updateDocument'
 
-import type {
-  SignCallback,
-  // DocumenentMetaData,
-} from '@cord.network/types'
+// import type {
+//   SignCallback,
+//   // DocumenentMetaData,
+// } from '@cord.network/types'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -36,22 +37,20 @@ async function main() {
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
-  // Step 1: Setup Authority
+  // Step 1: Setup Membership
   // Setup transaction author account - CORD Account.
 
-  console.log(`\n❄️  New Authority`)
+  console.log(`\n❄️  New Network Member`)
   const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
     '//Alice',
     'sr25519'
   )
-  // Setup author authority account.
+  // Setup network member account.
   const { account: authorIdentity } = await createAccount()
-  console.log(`🏦  Author (${authorIdentity.type}): ${authorIdentity.address}`)
+  console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
   await addAuthority(authorityAuthorIdentity, authorIdentity.address)
-  console.log(`🔏  Author permissions updated`)
-  await getChainCredits(authorityAuthorIdentity, authorIdentity.address, 5)
-  console.log(`💸  Author endowed with credits`)
-  console.log('✅ Authority created!')
+  console.log(`🔏  Member permissions updated`)
+  console.log('✅ Network Member added!')
 
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
@@ -197,24 +196,24 @@ async function main() {
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
-  let callBackFn = async ({ data }) => ({
-    signature: delegateTwoKeys.authentication.sign(data),
-    keyType: delegateTwoKeys.authentication.type,
-    keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
-  })
+
   const document = await createDocument(
     holderDid.uri,
     delegateTwoDid.uri,
     schema,
     registryDelegate,
     registry.identifier,
-    callBackFn  
+    async ({ data }) => ({
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+    })
   )
   console.dir(document, {
     depth: null,
     colors: true,
   })
-  let x = await createStream(
+  await createStream(
     delegateTwoDid.uri,
     authorIdentity,
     async ({ data }) => ({
@@ -225,76 +224,66 @@ async function main() {
   )
   console.log('✅ Credential created!')
 
-  console.log('🖍️ Stream update...')
-  let newContent: any = {
+  // Step 5: Delegate updates the Verifiable Document
+  console.log('\n🖍️ Stream update...\n')
+
+  let updatedContent: Cord.IContent = {
     name: 'Adi',
     age: 23,
-    id: '123456789987654311',
+    id: '123456789987654321',
     gender: 'Male',
     country: 'India',
+    address: {
+      street: 'a',
+      pin: 54032,
+      location: {
+        state: 'karnataka',
+        country: 'india',
+      },
+    },
   }
 
-  const updatedDocument = await Cord.Document.updateStream(
+  console.log('𝌞 Updated content\n', updatedContent)
+
+  const updatedDocument = await updateStream(
     document,
-    newContent,
+    updatedContent,
     schema,
-    callBackFn,
-    {}
-  )
-  console.log('🔖 Document after the updation\n', updatedDocument)
-
-  console.log('⚓ Anchoring the updated document on the blockchain...')
-  const api = Cord.ConfigService.get('api')
-  const { streamHash } = Cord.Stream.fromDocument(updatedDocument)
-  const authorization = Cord.Registry.uriToIdentifier(
-    updatedDocument.authorization
-  )
-  const streamTx = api.tx.stream.update(
-    updatedDocument.identifier.replace('stream:cord:', ''),
-    // updatedDocument.identifier,
-    streamHash,
-    authorization
-  )
-
-  const authorizedStreamTx = await Cord.Did.authorizeTx(
-    delegateTwoDid.uri,
-    streamTx,
     async ({ data }) => ({
-      signature: delegateTwoKeys.assertionMethod.sign(data),
-      keyType: delegateTwoKeys.assertionMethod.type,
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
     }),
-    authorIdentity.address
+    delegateTwoDid.uri,
+    authorIdentity,
+    delegateTwoKeys
   )
-  try{
-    await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
-  }
-  catch(e) {
-    console.log('Error: \n',e.message)
-  }
-  
 
-  
+  console.log('\n✅ Document updated!')
+  console.log('\nUpdated document: \n', updatedDocument)
 
-  // Step 5: Create a Presentation
-  console.log(`\n❄️  Presentation Creation `)
+  // Step 6: Create a Presentation
+  console.log(`\n❄️  Selective Disclosure Presentation Creation `)
   const challenge = getChallenge()
-  const presentation = await createPresentation(
-    updatedDocument,
-    async ({ data }) => ({
+  const presentation = await createPresentation({
+    document: updatedDocument,
+    signCallback: async ({ data }) => ({
       signature: holderKeys.authentication.sign(data),
       keyType: holderKeys.authentication.type,
       keyUri: `${holderDid.uri}${holderDid.authentication[0].id}`,
     }),
-    ['name', 'id'],
-    challenge
-  )
+    // Comment the below line to have a full disclosure
+    selectedAttributes: ['name', 'id', 'address.pin', 'address.location'],
+    challenge: challenge,
+  })
+
   console.dir(presentation, {
     depth: null,
     colors: true,
   })
   console.log('✅ Presentation created!')
 
-  // Step 6: The verifier checks the presentation.
+  // Step 7: The verifier checks the presentation.
   console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
   const isValid = await verifyPresentation(presentation, {
     challenge: challenge,
@@ -302,33 +291,35 @@ async function main() {
   })
 
   if (isValid) {
-    console.log('✅ 301 :Verification successful! 🎉')
+    console.log('✅  Verification successful! 🎉')
   } else {
-    console.log('✅ 301 :Verification failed! 🚫')
+    console.log('✅  Verification failed! 🚫')
   }
 
-  console.log(`\n❄️  Messaging `)
-  const schemaId = Cord.Schema.idToChain(schema.$id)
-  console.log(' Generating the message - Sender -> Receiver')
-  const message = await generateRequestCredentialMessage(
-    holderDid.uri,
-    verifierDid.uri,
-    schemaId
-  )
+  // Uncomment the following section to enable messaging demo
+  //
+  // console.log(`\n❄️  Messaging `)
+  // const schemaId = Cord.Schema.idToChain(schema.$id)
+  // console.log(' Generating the message - Sender -> Receiver')
+  // const message = await generateRequestCredentialMessage(
+  //   holderDid.uri,
+  //   verifierDid.uri,
+  //   schemaId
+  // )
+  //
+  // console.log(' Encrypting the message - Sender -> Receiver')
+  // const encryptedMessage = await encryptMessage(
+  //   message,
+  //   holderDid.uri,
+  //   verifierDid.uri,
+  //   holderKeys.keyAgreement
+  // )
+  //
+  // console.log(' Decrypting the message - Receiver')
+  // await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
-  console.log(' Encrypting the message - Sender -> Receiver')
-  const encryptedMessage = await encryptMessage(
-    message,
-    holderDid.uri,
-    verifierDid.uri,
-    holderKeys.keyAgreement
-  )
-
-  console.log(' Decrypting the message - Receiver')
-  await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
-
-  // Step 7: Revoke a Credential
-  console.log(`\n❄️  Revoke credential - ${document.identifier}`)
+  // Step 8: Revoke a Credential
+  console.log(`\n❄️  Revoke credential - ${updatedDocument.identifier}`)
   await revokeCredential(
     delegateTwoDid.uri,
     authorIdentity,
@@ -336,12 +327,12 @@ async function main() {
       signature: delegateTwoKeys.assertionMethod.sign(data),
       keyType: delegateTwoKeys.assertionMethod.type,
     }),
-    document,
+    updatedDocument,
     false
   )
   console.log(`✅ Credential revoked!`)
 
-  // Step 8: The verifier checks the presentation.
+  // Step 9: The verifier checks the presentation.
   console.log(
     // `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
     `\n❄️  Presentation Verification - ${presentation.identifier} `

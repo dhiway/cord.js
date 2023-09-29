@@ -26,7 +26,7 @@ const DidApiCalls: Record<string, DefinitionCall> = {
 }
 
 export const calls: DefinitionsCall = {
-  Did: [
+  DidApi: [
     {
       methods: {
         ...DidApiCalls,

@@ -29,7 +29,7 @@ export type DidSignatureVerificationInput = {
  * @param input Arbitrary input.
  */
 function verifyDidSignatureDataStructure(input: DidSignature): void {
-  const keyUri = input.keyUri
+  const { keyUri } = input
   if (!isHex(input.signature)) {
     throw new SDKErrors.SignatureMalformedError(
       `Expected signature as a hex string, got ${input.signature}`
@@ -116,7 +116,7 @@ export function signatureToJson({
 export function signatureFromJson(
   input: DidSignature
 ): Pick<SignResponseData, 'keyUri' | 'signature'> {
-  const keyUri = input.keyUri
+  const { keyUri } = input
   const signature = Crypto.coToUInt8(input.signature)
   return { signature, keyUri }
 }

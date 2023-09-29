@@ -37,6 +37,9 @@ export async function verifyPresentation(
     if (stream.revoked) {
       return false
     }
+    if (stream.streamHash !== presentation.documentHash) {
+      return false
+    }
     return trustedIssuerUris.includes(stream.issuer)
   } catch  (err: any) {
     console.log(err);

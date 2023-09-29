@@ -67,7 +67,7 @@ export function fromCredential(
 
   const issuer = input.content.issuer
 
-  const issuanceDate = input.createdAt
+  const issuanceDate = input.issuanceDate
   const expirationDate = input.validUntil
   // if schema is given, add as credential schema
   let credentialSchema: CredentialSchema | undefined
@@ -114,7 +114,7 @@ export function fromCredential(
     }
     VC.proof.push(sSProof)
   }
- 
+
   // add credential proof
   const streamProof: CordStreamProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
@@ -127,7 +127,7 @@ export function fromCredential(
   const cDProof: CredentialDigestProof = {
     type: CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
-    nonces: {...input.contentNonceMap},
+    nonces: { ...input.contentNonceMap },
     contentHashes: [...contentHashes],
   }
   VC.proof.push(cDProof)

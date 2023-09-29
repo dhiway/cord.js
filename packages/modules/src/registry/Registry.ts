@@ -42,9 +42,6 @@ import type { PalletRegistryRegistryAuthorization } from '@cord.network/augment-
  *
  */
 export function verifyRegistryDataStructure(input: IRegistry): void {
-  if (!input.meta.schema) {
-    throw new SDKErrors.SchemaMissingError()
-  }
   if (!input.meta.creator) {
     throw new SDKErrors.CreatorMissingError()
   }
