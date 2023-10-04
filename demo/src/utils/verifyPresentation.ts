@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import {cord_api_query} from '@cord.network/utils'
+import { cord_api_query } from '@cord.network/config'
 
 /**
  * It verifies a presentation by checking the stream on the blockchain and verifying the presentation
