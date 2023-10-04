@@ -143,22 +143,20 @@ async function main() {
   console.log('\n✅ Journal Entry created!')
 
   console.log('\nAnchoring the score on the blockchain...')
-  const scoreHash = await updateScore(
+  const scoreIdentifier = await updateScore(
     journalContent,
     registryAuthority,
     authorIdentity,
     delegateOneDid.uri,
     delegateOneKeys
   )
-  if (scoreHash == undefined) {
-    console.log('\n ❌ Failed with the error: ', scoreHash)
-  } else {
-    console.log(
-      '\n✅ The score has been successfully anchored on the blockchain \n',
-      scoreHash
-    )
-  }
+
+  console.log(
+    '\n✅ The score has been successfully anchored on the blockchain \nIdentifier:',
+    scoreIdentifier
+  )
 }
+
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
   .finally(Cord.disconnect)

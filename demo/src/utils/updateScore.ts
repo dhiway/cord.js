@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { IJournalContent, SCORE_MULTIPLIER } from '@cord.network/types'
+import { IJournalContent, IratingInput, ScoreType } from '@cord.network/types'
 import { Crypto } from '@cord.network/utils'
 
 /**
@@ -20,15 +20,15 @@ export async function updateScore(
   authorKeys: Cord.CordKeyringPair
 ) {
   const api = Cord.ConfigService.get('api')
-  journalContent.rating = Math.round(journalContent.rating * SCORE_MULTIPLIER)
-  const digest = Crypto.coToUInt8(journalContent.toString(), false)
-  const root = Crypto.hash(digest)
-  const h256String = Crypto.u8aToHex(root)
 
+  journalContent.rating = await Cord.Scoring.adjustAndRoundRating(
+    journalContent.rating
+  )
+  const digest = await Cord.Scoring.generateRootHashFromContent(journalContent)
   const authorization = registryAuthority.replace('auth:cord:', '')
-  const ratingInput: any = {
+  const ratingInput: IratingInput = {
     entry: journalContent,
-    digest: h256String,
+    digest: digest,
     creator: authorIdentity.address,
   }
 
@@ -49,7 +49,7 @@ export async function updateScore(
 
   try {
     await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
-    return h256String
+    return Cord.Scoring.getUriForScore(digest)
   } catch (error) {
     return error.message
   }

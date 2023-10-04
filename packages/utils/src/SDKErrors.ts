@@ -210,3 +210,5 @@ export class DecodingMessageError extends SDKError {}
 export class TimeoutError extends SDKError {}
 
 export class CodecMismatchError extends SDKError {}
+
+export class ScoreMissingError extends SDKError {}

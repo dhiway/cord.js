@@ -35,7 +35,7 @@ import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { ConfigService } from '@cord.network/config'
 
-function getHashRoot(leaves: Uint8Array[]): Uint8Array {
+export function getHashRoot(leaves: Uint8Array[]): Uint8Array {
   const result = Crypto.u8aConcat(...leaves)
   return Crypto.hash(result)
 }

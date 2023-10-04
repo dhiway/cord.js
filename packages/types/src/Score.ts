@@ -4,6 +4,7 @@ import { HexString } from '@polkadot/util/types.js'
 export const SCORE_IDENTIFIER: number = 101
 export const SCORE_PREFIX: string = 'score:cord:'
 export const SCORE_MULTIPLIER: number = 10
+export const SCORE_IDENT: number = 11034
 
 export enum ScoreType {
   overall = 'Overall',
@@ -23,6 +24,12 @@ export interface IJournalContent {
   rating: U32
   entry_type: EntryType
   count: U32
+}
+
+export interface IratingInput {
+  entry: IJournalContent,
+  digest: string,
+  creator: string,
 }
 
 export interface IJournal {
