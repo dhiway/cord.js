@@ -31,6 +31,7 @@ export async function resolve(
 ): Promise<DidResolutionResult | null> {
   const { type } = parse(did)
   const api = ConfigService.get('api')
+
   let encodedDid: any
 
   encodedDid = await cord_api_query('did', 'query', did)
