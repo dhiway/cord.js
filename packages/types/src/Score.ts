@@ -15,11 +15,22 @@ export enum EntryType {
   debit = 'Debit',
 }
 
+type AnyJson = null | undefined | boolean | number | string | Array<AnyJson> | { [key: string]: AnyJson };
+
+export interface scoreDetails{
+  entity: string,
+  tid:AnyJson,
+  collector:string,
+  rating_type:string,
+  rating:number,
+  entry_type:string,
+  count: number
+}
+
 export interface IJournalContent {
   entity: string
   tid: string
   collector: string
-  requestor: string
   rating_type: ScoreType
   rating: U32
   entry_type: EntryType

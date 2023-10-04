@@ -1,14 +1,14 @@
-import { IJournalContent, ScoreType } from '@cord.network/types'
+import { ScoreType ,scoreDetails} from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
 import { Identifier, SDKErrors } from '@cord.network/utils'
-import type { PalletScoringScoreEntry } from '@cord.network/augment-api'
+import type { PalletScoringRatingEntry } from '@cord.network/augment-api'
 import type { Option } from '@polkadot/types'
 import * as Did from '@cord.network/did'
 
 export async function fetchJournalFromChain(
   scoreId: string,
   scoreType: ScoreType
-): Promise<IJournalContent | null> {
+): Promise<scoreDetails | null> {
   const api = ConfigService.get('api')
   const cordScoreId = Identifier.uriToIdentifier(scoreId)
   const encodedScoreEntry = await api.query.scoring.journal(
@@ -24,8 +24,8 @@ export async function fetchJournalFromChain(
 }
 
 export function fromChain(
-  encodedEntry: Option<PalletScoringScoreEntry>
-): any | null {
+  encodedEntry: Option<PalletScoringRatingEntry>
+): scoreDetails | null {
   if (encodedEntry.isSome) {
     const unwrapped = encodedEntry.unwrap()
     return {
