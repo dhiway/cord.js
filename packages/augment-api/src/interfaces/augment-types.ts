@@ -326,7 +326,6 @@ declare module '@polkadot/types/types/registry' {
     CrateVersion: CrateVersion;
     CreatedBlock: CreatedBlock;
     Data: Data;
-    Data: Data;
     DeferredOffenceOf: DeferredOffenceOf;
     DefunctVoter: DefunctVoter;
     DelayKind: DelayKind;
