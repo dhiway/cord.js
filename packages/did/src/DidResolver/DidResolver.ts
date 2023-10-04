@@ -36,12 +36,12 @@ export async function resolve(
   encodedDid = await cord_api_query('did', 'query', did)
 
   if (!encodedDid || !encodedDid.response) {
-    const queryFunction = api.call.did?.query
-    const { section, version } = queryFunction?.meta ?? {}
-    if (version > 2)
-      throw new Error(
-        `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
-      )
+    const queryFunction = api.call.didApi?.query
+    // const { section, version } = queryFunction ?? {}
+    // if (version > 2)
+    //   throw new Error(
+    //     `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
+    //   )
 
     encodedDid = await queryFunction(toChain(did))
       .then(linkedInfoFromChain)

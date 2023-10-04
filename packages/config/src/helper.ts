@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import * as ConfigService from './ConfigService';
+import * as ConfigService from './ConfigService'
 import type { SubmittableExtrinsic } from '@cord.network/types'
 
 export async function cord_api_query(

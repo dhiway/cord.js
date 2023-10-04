@@ -174,7 +174,7 @@ export async function signAndSubmitTx(
   tx: SubmittableExtrinsic,
   signer: KeyringPair,
   {
-    nonce = -1,
+    tip,
     ...opts
   }: Partial<SubscriptionPromise.Options> & Partial<{ tip: AnyNumber }> = {}
 ): Promise<any> {
