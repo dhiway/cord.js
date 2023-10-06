@@ -6,10 +6,11 @@
 import '@polkadot/api-base/types/storage';
 
 import type { ApiTypes, AugmentedQuery, QueryableStorageEntry } from '@polkadot/api-base/types';
-import type { Bytes, Null, Option, U8aFixed, Vec, WrapperOpaque, bool, u128, u32, u64 } from '@polkadot/types-codec';
+import type { BTreeSet, Bytes, Null, Option, Struct, U8aFixed, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
+import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, NetworkMembershipMemberData, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmount, PalletBalancesReserveData, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNamesDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistration, PalletImOnlineBoundedOpaqueNetworkState, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStreamStreamCommit, PalletStreamStreamEntry, PalletUniqueUniqueCommit, PalletUniqueUniqueEntry, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordRuntimeRuntimeHoldReason, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmount, PalletBalancesReserveData, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNodeAuthorizationNodeInfo, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletScoreRatingEntry, PalletScoreRatingTypeOf, PalletScoreScoreEntry, PalletStreamStreamCommit, PalletStreamStreamEntry, PalletUniqueUniqueCommit, PalletUniqueUniqueEntry, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -192,7 +193,10 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * Holds on account balances.
        **/
-      holds: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesIdAmount>>, [AccountId32]>;
+      holds: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<{
+    readonly id: CordRuntimeRuntimeHoldReason;
+    readonly amount: u128;
+  } & Struct>>, [AccountId32]>;
       /**
        * The total units of outstanding deactivated balance in the system.
        **/
@@ -277,7 +281,7 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       serviceEndpoints: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<PalletDidServiceEndpointsDidEndpoint>>, [AccountId32, Bytes]>;
     };
-    didNames: {
+    didName: {
       /**
        * Map of name -> ().
        * 
@@ -291,7 +295,7 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * Map of name -> ownership details.
        **/
-      owner: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletDidNamesDidNameDidNameOwnership>>, [Bytes]>;
+      owner: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletDidNameDidNameDidNameOwnership>>, [Bytes]>;
     };
     grandpa: {
       /**
@@ -365,10 +369,9 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       keys: AugmentedQuery<ApiType, () => Observable<Vec<PalletImOnlineSr25519AppSr25519Public>>, []>;
       /**
-       * For each session index, we keep a mapping of `SessionIndex` and `AuthIndex` to
-       * `WrapperOpaque<BoundedOpaqueNetworkState>`.
+       * For each session index, we keep a mapping of `SessionIndex` and `AuthIndex`.
        **/
-      receivedHeartbeats: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<WrapperOpaque<PalletImOnlineBoundedOpaqueNetworkState>>>, [u32, u32]>;
+      receivedHeartbeats: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<bool>>, [u32, u32]>;
     };
     indices: {
       /**
@@ -387,7 +390,7 @@ declare module '@polkadot/api-base/types/storage' {
        * Counter for the related counted storage map
        **/
       counterForMembers: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      members: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<NetworkMembershipMemberData>>, [AccountId32]>;
+      members: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletNetworkMembershipMemberData>>, [AccountId32]>;
       /**
        * maps from a member identifier to a unit tuple
        **/
@@ -400,6 +403,20 @@ declare module '@polkadot/api-base/types/storage' {
        * maps block number to the list of authors set to renew
        **/
       membershipsRenewsOn: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
+    };
+    nodeAuthorization: {
+      /**
+       * The additional adapative connections of each node.
+       **/
+      additionalConnections: AugmentedQuery<ApiType, (arg: OpaquePeerId | object | string | Uint8Array) => Observable<BTreeSet<OpaquePeerId>>, [OpaquePeerId]>;
+      /**
+       * A map that maintains the ownership of each node.
+       **/
+      owners: AugmentedQuery<ApiType, (arg: OpaquePeerId | object | string | Uint8Array) => Observable<Option<PalletNodeAuthorizationNodeInfo>>, [OpaquePeerId]>;
+      /**
+       * The set of well known nodes. This is stored sorted (just by value).
+       **/
+      wellKnownNodes: AugmentedQuery<ApiType, () => Observable<BTreeSet<OpaquePeerId>>, []>;
     };
     offences: {
       /**
@@ -454,6 +471,17 @@ declare module '@polkadot/api-base/types/storage' {
        * It maps from a schema identifier to its details.
        **/
       schemas: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletSchemaSchemaEntry>>, [Bytes]>;
+    };
+    score: {
+      /**
+       * journal entry identifiers stored on chain.
+       **/
+      journal: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: PalletScoreRatingTypeOf | 'Overall' | 'Delivery' | number | Uint8Array) => Observable<Option<PalletScoreRatingEntry>>, [Bytes, PalletScoreRatingTypeOf]>;
+      /**
+       * network score - aggregated and mapped to an entity identifier.
+       **/
+      scores: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: PalletScoreRatingTypeOf | 'Overall' | 'Delivery' | number | Uint8Array) => Observable<Option<PalletScoreScoreEntry>>, [AccountId32, PalletScoreRatingTypeOf]>;
+      transactionIdentifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: PalletScoreRatingTypeOf | 'Overall' | 'Delivery' | number | Uint8Array) => Observable<Option<AccountId32>>, [Bytes, PalletScoreRatingTypeOf]>;
     };
     session: {
       /**
@@ -558,7 +586,7 @@ declare module '@polkadot/api-base/types/storage' {
        * allows light-clients to leverage the changes trie storage tracking mechanism and
        * in case of changes fetch the list of events of interest.
        * 
-       * The value has the type `(T::BlockNumber, EventIndex)` because if we used only just
+       * The value has the type `(BlockNumberFor<T>, EventIndex)` because if we used only just
        * the `EventIndex` then in case if the topic has the same contents on the next block
        * no notification will be triggered thus the event might be lost.
        **/

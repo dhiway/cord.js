@@ -8,6 +8,7 @@ import '@polkadot/api-base/types/events';
 import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
+import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, H256 } from '@polkadot/types/interfaces/runtime';
 import type { CordRuntimeEntitiesValidatorFullIdentification, FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
 
@@ -220,7 +221,7 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Updated: AugmentedEvent<ApiType, [identifier: AccountId32], { identifier: AccountId32 }>;
     };
-    didNames: {
+    didName: {
       /**
        * A name has been banned.
        **/
@@ -354,6 +355,45 @@ declare module '@polkadot/api-base/types/events' {
        **/
       MembershipRevoked: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
     };
+    nodeAuthorization: {
+      /**
+       * The given claim was removed by its owner.
+       **/
+      ClaimRemoved: AugmentedEvent<ApiType, [peerId: OpaquePeerId, who: AccountId32], { peerId: OpaquePeerId, who: AccountId32 }>;
+      /**
+       * The allowed connections were added to a node.
+       **/
+      ConnectionsAdded: AugmentedEvent<ApiType, [nodeId: Bytes, connection: Bytes], { nodeId: Bytes, connection: Bytes }>;
+      /**
+       * The allowed connections were removed from a node.
+       **/
+      ConnectionsRemoved: AugmentedEvent<ApiType, [nodeId: Bytes, connection: Bytes], { nodeId: Bytes, connection: Bytes }>;
+      /**
+       * The given well known node was added.
+       **/
+      NodeAdded: AugmentedEvent<ApiType, [nodeId: Bytes, who: AccountId32], { nodeId: Bytes, who: AccountId32 }>;
+      /**
+       * The given node was claimed by a user.
+       **/
+      NodeClaimed: AugmentedEvent<ApiType, [peerId: OpaquePeerId, who: AccountId32], { peerId: OpaquePeerId, who: AccountId32 }>;
+      /**
+       * The given well known node was removed.
+       **/
+      NodeRemoved: AugmentedEvent<ApiType, [nodeId: Bytes], { nodeId: Bytes }>;
+      /**
+       * The given well known nodes were reset.
+       **/
+      NodesReset: AugmentedEvent<ApiType, [nodes: Vec<ITuple<[OpaquePeerId, AccountId32]>>], { nodes: Vec<ITuple<[OpaquePeerId, AccountId32]>> }>;
+      /**
+       * The given well known node was swapped; first item was removed,
+       * the latter was added.
+       **/
+      NodeSwapped: AugmentedEvent<ApiType, [removed: Bytes, added: Bytes], { removed: Bytes, added: Bytes }>;
+      /**
+       * The node was transferred to another account.
+       **/
+      NodeTransferred: AugmentedEvent<ApiType, [nodeId: Bytes, target: AccountId32], { nodeId: Bytes, target: AccountId32 }>;
+    };
     offences: {
       /**
        * There is an offence reported of the given `kind` happened at the
@@ -446,6 +486,18 @@ declare module '@polkadot/api-base/types/events' {
        * \[schema identifier, digest, author\]
        **/
       Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
+    };
+    score: {
+      /**
+       * Aggregate scores has been updated.
+       * \[entity identifier\]
+       **/
+      AggregateUpdated: AugmentedEvent<ApiType, [entity: AccountId32], { entity: AccountId32 }>;
+      /**
+       * A new journal entry has been added.
+       * \[entry identifier, entity, author\]
+       **/
+      JournalEntry: AugmentedEvent<ApiType, [identifier: Bytes, entity: AccountId32, author: AccountId32], { identifier: Bytes, entity: AccountId32, author: AccountId32 }>;
     };
     session: {
       /**

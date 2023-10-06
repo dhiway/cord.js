@@ -124,6 +124,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NotMember: AugmentedError<ApiType>;
       /**
+       * Prime account is not a member
+       **/
+      PrimeAccountNotMember: AugmentedError<ApiType>;
+      /**
        * Proposal must exist
        **/
       ProposalMissing: AugmentedError<ApiType>;
@@ -275,7 +279,7 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       VerificationKeyNotFound: AugmentedError<ApiType>;
     };
-    didNames: {
+    didName: {
       /**
        * The specified name has already been previously banned.
        **/
@@ -556,6 +560,52 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       OriginNotAuthorized: AugmentedError<ApiType>;
     };
+    nodeAuthorization: {
+      /**
+       * The node is already claimed by a user.
+       **/
+      AlreadyClaimed: AugmentedError<ApiType>;
+      /**
+       * The node is already connected.
+       **/
+      AlreadyConnected: AugmentedError<ApiType>;
+      /**
+       * The node is already joined in the list.
+       **/
+      AlreadyJoined: AugmentedError<ApiType>;
+      /**
+       * The node identifier is not valid
+       **/
+      InvalidNodeIdentifier: AugmentedError<ApiType>;
+      /**
+       * The Utf8 string is not proper.
+       **/
+      InvalidUtf8: AugmentedError<ApiType>;
+      /**
+       * The Node identifier is too long.
+       **/
+      NodeIdTooLong: AugmentedError<ApiType>;
+      /**
+       * The node doesn't exist in the list.
+       **/
+      NotExist: AugmentedError<ApiType>;
+      /**
+       * You are not the owner of the node.
+       **/
+      NotOwner: AugmentedError<ApiType>;
+      /**
+       * The PeerId is too long.
+       **/
+      PeerIdTooLong: AugmentedError<ApiType>;
+      /**
+       * No permisson to perform specific operation.
+       **/
+      PermissionDenied: AugmentedError<ApiType>;
+      /**
+       * Too many well known nodes.
+       **/
+      TooManyNodes: AugmentedError<ApiType>;
+    };
     preimage: {
       /**
        * Preimage has already been noted on-chain.
@@ -703,6 +753,22 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       UnableToPayFees: AugmentedError<ApiType>;
     };
+    score: {
+      CountCannotBeZero: AugmentedError<ApiType>;
+      DigestAlreadyAnchored: AugmentedError<ApiType>;
+      InvalidDigest: AugmentedError<ApiType>;
+      InvalidEntitySignature: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifer Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      InvalidRatingIdentifier: AugmentedError<ApiType>;
+      InvalidRatingValue: AugmentedError<ApiType>;
+      InvalidSignature: AugmentedError<ApiType>;
+      RatingCannotBeZero: AugmentedError<ApiType>;
+      TooManyJournalEntries: AugmentedError<ApiType>;
+      TransactionAlreadyRated: AugmentedError<ApiType>;
+    };
     session: {
       /**
        * Registered duplicate key.
@@ -823,6 +889,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Account is not a member
        **/
       NotMember: AugmentedError<ApiType>;
+      /**
+       * Prime account is not a member
+       **/
+      PrimeAccountNotMember: AugmentedError<ApiType>;
       /**
        * Proposal must exist
        **/

@@ -23,12 +23,14 @@ async function main() {
   console.log(`👦🏻  Bob (${Bob.type}): ${Bob.address}`)
   let tx_batch: any = []
   let startTxPrep = moment()
-  let txCount = 3000
+  const txCount = await Cord.Chain.getMaxBatchable(
+    api.tx.balances.transfer(Alice.address, 5)
+  )
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
   console.log(
     '\nTo see the transactions, Go to https://apps.cord.network -> DEVELOPMENT -> Local Node -> Switch\n'
   )
-  let nonce: any = 0
+  // let nonce: any = 0
   for (let j = 0; j < txCount; j++) {
     process.stdout.write(
       ' 🔖  Extrinsic creation took ' +
