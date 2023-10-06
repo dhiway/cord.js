@@ -5,7 +5,7 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/types/types/registry';
 
-import type { CordAuthorityMembershipCall, CordAuthorityMembershipError, CordAuthorityMembershipEvent, CordRuntimeEntitiesValidatorFullIdentification, CordRuntimeMaxNewKeyAgreementKeys, CordRuntimeOriginCaller, CordRuntimeRuntime, CordRuntimeSessionKeys, FinalityGrandpaEquivocationPrecommit, FinalityGrandpaEquivocationPrevote, FinalityGrandpaPrecommit, FinalityGrandpaPrevote, FrameSupportDispatchDispatchClass, FrameSupportDispatchDispatchInfo, FrameSupportDispatchPays, FrameSupportDispatchPerDispatchClassU32, FrameSupportDispatchPerDispatchClassWeight, FrameSupportDispatchPerDispatchClassWeightsPerClass, FrameSupportDispatchRawOrigin, FrameSupportPreimagesBounded, FrameSupportTokensMiscBalanceStatus, FrameSystemAccountInfo, FrameSystemCall, FrameSystemError, FrameSystemEvent, FrameSystemEventRecord, FrameSystemExtensionsCheckGenesis, FrameSystemExtensionsCheckNonZeroSender, FrameSystemExtensionsCheckNonce, FrameSystemExtensionsCheckSpecVersion, FrameSystemExtensionsCheckTxVersion, FrameSystemExtensionsCheckWeight, FrameSystemLastRuntimeUpgradeInfo, FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, FrameSystemLimitsWeightsPerClass, FrameSystemPhase, NetworkMembershipMemberData, PalletBabeCall, PalletBabeError, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesCall, PalletBalancesError, PalletBalancesEvent, PalletBalancesIdAmount, PalletBalancesReasons, PalletBalancesReserveData, PalletCollectiveCall, PalletCollectiveError, PalletCollectiveEvent, PalletCollectiveRawOrigin, PalletCollectiveVotes, PalletDidCall, PalletDidDidDetails, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidPublicKey, PalletDidDidDetailsDidPublicKeyDetails, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidError, PalletDidEvent, PalletDidNamesCall, PalletDidNamesDidNameDidNameOwnership, PalletDidNamesError, PalletDidNamesEvent, PalletDidOriginDidRawOrigin, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaCall, PalletGrandpaError, PalletGrandpaEvent, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityCall, PalletIdentityError, PalletIdentityEvent, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletIdentityRegistration, PalletImOnlineBoundedOpaqueNetworkState, PalletImOnlineCall, PalletImOnlineError, PalletImOnlineEvent, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Public, PalletImOnlineSr25519AppSr25519Signature, PalletIndicesCall, PalletIndicesError, PalletIndicesEvent, PalletMembershipCall, PalletMembershipError, PalletMembershipEvent, PalletMultisigCall, PalletMultisigError, PalletMultisigEvent, PalletMultisigMultisig, PalletMultisigTimepoint, PalletNetworkMembershipCall, PalletNetworkMembershipCheckNetworkMembership, PalletNetworkMembershipError, PalletNetworkMembershipEvent, PalletOffencesEvent, PalletPreimageCall, PalletPreimageError, PalletPreimageEvent, PalletPreimageRequestStatus, PalletRegistryCall, PalletRegistryError, PalletRegistryEvent, PalletRegistryPermissions, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryCommitActionOf, PalletRegistryRegistryEntry, PalletRemarkCall, PalletRemarkError, PalletRemarkEvent, PalletRuntimeUpgradeCall, PalletSchedulerCall, PalletSchedulerError, PalletSchedulerEvent, PalletSchedulerScheduled, PalletSchemaCall, PalletSchemaError, PalletSchemaEvent, PalletSchemaSchemaEntry, PalletSessionCall, PalletSessionError, PalletSessionEvent, PalletStreamCall, PalletStreamError, PalletStreamEvent, PalletStreamStreamCommit, PalletStreamStreamCommitActionOf, PalletStreamStreamEntry, PalletStreamTimepoint, PalletSudoCall, PalletSudoError, PalletSudoEvent, PalletTimestampCall, PalletUniqueCall, PalletUniqueError, PalletUniqueEvent, PalletUniqueTimepoint, PalletUniqueUniqueCommit, PalletUniqueUniqueCommitActionOf, PalletUniqueUniqueEntry, PalletUtilityCall, PalletUtilityError, PalletUtilityEvent, SpArithmeticArithmeticError, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAllowedSlots, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusBabeDigestsPrimaryPreDigest, SpConsensusBabeDigestsSecondaryPlainPreDigest, SpConsensusBabeDigestsSecondaryVRFPreDigest, SpConsensusGrandpaAppPublic, SpConsensusGrandpaAppSignature, SpConsensusGrandpaEquivocation, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpCoreCryptoKeyTypeId, SpCoreEcdsaPublic, SpCoreEcdsaSignature, SpCoreEd25519Public, SpCoreEd25519Signature, SpCoreOffchainOpaqueNetworkState, SpCoreSr25519Public, SpCoreSr25519Signature, SpCoreSr25519VrfVrfSignature, SpCoreVoid, SpRuntimeBlakeTwo256, SpRuntimeDigest, SpRuntimeDigestDigestItem, SpRuntimeDispatchError, SpRuntimeHeader, SpRuntimeModuleError, SpRuntimeMultiSignature, SpRuntimeTokenError, SpRuntimeTransactionalError, SpSessionMembershipProof, SpStakingOffenceOffenceDetails, SpVersionRuntimeVersion, SpWeightsRuntimeDbWeight, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { CordAuthorityMembershipCall, CordAuthorityMembershipError, CordAuthorityMembershipEvent, CordRuntimeEntitiesValidatorFullIdentification, CordRuntimeMaxNewKeyAgreementKeys, CordRuntimeOriginCaller, CordRuntimeRuntime, CordRuntimeRuntimeHoldReason, CordRuntimeSessionKeys, FinalityGrandpaEquivocationPrecommit, FinalityGrandpaEquivocationPrevote, FinalityGrandpaPrecommit, FinalityGrandpaPrevote, FrameSupportDispatchDispatchClass, FrameSupportDispatchDispatchInfo, FrameSupportDispatchPays, FrameSupportDispatchPerDispatchClassU32, FrameSupportDispatchPerDispatchClassWeight, FrameSupportDispatchPerDispatchClassWeightsPerClass, FrameSupportDispatchRawOrigin, FrameSupportPreimagesBounded, FrameSupportTokensMiscBalanceStatus, FrameSystemAccountInfo, FrameSystemCall, FrameSystemError, FrameSystemEvent, FrameSystemEventRecord, FrameSystemExtensionsCheckGenesis, FrameSystemExtensionsCheckNonZeroSender, FrameSystemExtensionsCheckNonce, FrameSystemExtensionsCheckSpecVersion, FrameSystemExtensionsCheckTxVersion, FrameSystemExtensionsCheckWeight, FrameSystemLastRuntimeUpgradeInfo, FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, FrameSystemLimitsWeightsPerClass, FrameSystemPhase, PalletBabeCall, PalletBabeError, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesCall, PalletBalancesError, PalletBalancesEvent, PalletBalancesIdAmount, PalletBalancesReasons, PalletBalancesReserveData, PalletCollectiveCall, PalletCollectiveError, PalletCollectiveEvent, PalletCollectiveRawOrigin, PalletCollectiveVotes, PalletDidCall, PalletDidDidDetails, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidPublicKey, PalletDidDidDetailsDidPublicKeyDetails, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidError, PalletDidEvent, PalletDidNameCall, PalletDidNameDidNameDidNameOwnership, PalletDidNameError, PalletDidNameEvent, PalletDidOriginDidRawOrigin, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaCall, PalletGrandpaError, PalletGrandpaEvent, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityCall, PalletIdentityError, PalletIdentityEvent, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletIdentityRegistration, PalletImOnlineCall, PalletImOnlineError, PalletImOnlineEvent, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Public, PalletImOnlineSr25519AppSr25519Signature, PalletIndicesCall, PalletIndicesError, PalletIndicesEvent, PalletMembershipCall, PalletMembershipError, PalletMembershipEvent, PalletMultisigCall, PalletMultisigError, PalletMultisigEvent, PalletMultisigMultisig, PalletMultisigTimepoint, PalletNetworkMembershipCall, PalletNetworkMembershipCheckNetworkMembership, PalletNetworkMembershipError, PalletNetworkMembershipEvent, PalletNetworkMembershipMemberData, PalletNodeAuthorizationCall, PalletNodeAuthorizationError, PalletNodeAuthorizationEvent, PalletNodeAuthorizationNodeInfo, PalletOffencesEvent, PalletPreimageCall, PalletPreimageError, PalletPreimageEvent, PalletPreimageRequestStatus, PalletRegistryCall, PalletRegistryError, PalletRegistryEvent, PalletRegistryPermissions, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryCommitActionOf, PalletRegistryRegistryEntry, PalletRemarkCall, PalletRemarkError, PalletRemarkEvent, PalletRuntimeUpgradeCall, PalletSchedulerCall, PalletSchedulerError, PalletSchedulerEvent, PalletSchedulerScheduled, PalletSchemaCall, PalletSchemaError, PalletSchemaEvent, PalletSchemaSchemaEntry, PalletScoreCall, PalletScoreError, PalletScoreEvent, PalletScoreRatingEntry, PalletScoreRatingEntryDetails, PalletScoreRatingEntryType, PalletScoreRatingInput, PalletScoreRatingTypeOf, PalletScoreScoreEntry, PalletSessionCall, PalletSessionError, PalletSessionEvent, PalletStreamCall, PalletStreamError, PalletStreamEvent, PalletStreamStreamCommit, PalletStreamStreamCommitActionOf, PalletStreamStreamEntry, PalletStreamTimepoint, PalletSudoCall, PalletSudoError, PalletSudoEvent, PalletTimestampCall, PalletUniqueCall, PalletUniqueError, PalletUniqueEvent, PalletUniqueTimepoint, PalletUniqueUniqueCommit, PalletUniqueUniqueCommitActionOf, PalletUniqueUniqueEntry, PalletUtilityCall, PalletUtilityError, PalletUtilityEvent, SpArithmeticArithmeticError, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAllowedSlots, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusBabeDigestsPrimaryPreDigest, SpConsensusBabeDigestsSecondaryPlainPreDigest, SpConsensusBabeDigestsSecondaryVRFPreDigest, SpConsensusGrandpaAppPublic, SpConsensusGrandpaAppSignature, SpConsensusGrandpaEquivocation, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpCoreCryptoKeyTypeId, SpCoreEcdsaPublic, SpCoreEcdsaSignature, SpCoreEd25519Public, SpCoreEd25519Signature, SpCoreSr25519Public, SpCoreSr25519Signature, SpCoreSr25519VrfVrfSignature, SpCoreVoid, SpRuntimeDigest, SpRuntimeDigestDigestItem, SpRuntimeDispatchError, SpRuntimeHeader, SpRuntimeModuleError, SpRuntimeMultiSignature, SpRuntimeTokenError, SpRuntimeTransactionalError, SpSessionMembershipProof, SpStakingOffenceOffenceDetails, SpVersionRuntimeVersion, SpWeightsRuntimeDbWeight, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 declare module '@polkadot/types/types/registry' {
   interface InterfaceTypes {
@@ -16,6 +16,7 @@ declare module '@polkadot/types/types/registry' {
     CordRuntimeMaxNewKeyAgreementKeys: CordRuntimeMaxNewKeyAgreementKeys;
     CordRuntimeOriginCaller: CordRuntimeOriginCaller;
     CordRuntimeRuntime: CordRuntimeRuntime;
+    CordRuntimeRuntimeHoldReason: CordRuntimeRuntimeHoldReason;
     CordRuntimeSessionKeys: CordRuntimeSessionKeys;
     FinalityGrandpaEquivocationPrecommit: FinalityGrandpaEquivocationPrecommit;
     FinalityGrandpaEquivocationPrevote: FinalityGrandpaEquivocationPrevote;
@@ -46,7 +47,6 @@ declare module '@polkadot/types/types/registry' {
     FrameSystemLimitsBlockWeights: FrameSystemLimitsBlockWeights;
     FrameSystemLimitsWeightsPerClass: FrameSystemLimitsWeightsPerClass;
     FrameSystemPhase: FrameSystemPhase;
-    NetworkMembershipMemberData: NetworkMembershipMemberData;
     PalletBabeCall: PalletBabeCall;
     PalletBabeError: PalletBabeError;
     PalletBalancesAccountData: PalletBalancesAccountData;
@@ -73,10 +73,10 @@ declare module '@polkadot/types/types/registry' {
     PalletDidDidDetailsDidVerificationKey: PalletDidDidDetailsDidVerificationKey;
     PalletDidError: PalletDidError;
     PalletDidEvent: PalletDidEvent;
-    PalletDidNamesCall: PalletDidNamesCall;
-    PalletDidNamesDidNameDidNameOwnership: PalletDidNamesDidNameDidNameOwnership;
-    PalletDidNamesError: PalletDidNamesError;
-    PalletDidNamesEvent: PalletDidNamesEvent;
+    PalletDidNameCall: PalletDidNameCall;
+    PalletDidNameDidNameDidNameOwnership: PalletDidNameDidNameDidNameOwnership;
+    PalletDidNameError: PalletDidNameError;
+    PalletDidNameEvent: PalletDidNameEvent;
     PalletDidOriginDidRawOrigin: PalletDidOriginDidRawOrigin;
     PalletDidServiceEndpointsDidEndpoint: PalletDidServiceEndpointsDidEndpoint;
     PalletGrandpaCall: PalletGrandpaCall;
@@ -90,7 +90,6 @@ declare module '@polkadot/types/types/registry' {
     PalletIdentityIdentityInfo: PalletIdentityIdentityInfo;
     PalletIdentityJudgement: PalletIdentityJudgement;
     PalletIdentityRegistration: PalletIdentityRegistration;
-    PalletImOnlineBoundedOpaqueNetworkState: PalletImOnlineBoundedOpaqueNetworkState;
     PalletImOnlineCall: PalletImOnlineCall;
     PalletImOnlineError: PalletImOnlineError;
     PalletImOnlineEvent: PalletImOnlineEvent;
@@ -112,6 +111,11 @@ declare module '@polkadot/types/types/registry' {
     PalletNetworkMembershipCheckNetworkMembership: PalletNetworkMembershipCheckNetworkMembership;
     PalletNetworkMembershipError: PalletNetworkMembershipError;
     PalletNetworkMembershipEvent: PalletNetworkMembershipEvent;
+    PalletNetworkMembershipMemberData: PalletNetworkMembershipMemberData;
+    PalletNodeAuthorizationCall: PalletNodeAuthorizationCall;
+    PalletNodeAuthorizationError: PalletNodeAuthorizationError;
+    PalletNodeAuthorizationEvent: PalletNodeAuthorizationEvent;
+    PalletNodeAuthorizationNodeInfo: PalletNodeAuthorizationNodeInfo;
     PalletOffencesEvent: PalletOffencesEvent;
     PalletPreimageCall: PalletPreimageCall;
     PalletPreimageError: PalletPreimageError;
@@ -137,6 +141,15 @@ declare module '@polkadot/types/types/registry' {
     PalletSchemaError: PalletSchemaError;
     PalletSchemaEvent: PalletSchemaEvent;
     PalletSchemaSchemaEntry: PalletSchemaSchemaEntry;
+    PalletScoreCall: PalletScoreCall;
+    PalletScoreError: PalletScoreError;
+    PalletScoreEvent: PalletScoreEvent;
+    PalletScoreRatingEntry: PalletScoreRatingEntry;
+    PalletScoreRatingEntryDetails: PalletScoreRatingEntryDetails;
+    PalletScoreRatingEntryType: PalletScoreRatingEntryType;
+    PalletScoreRatingInput: PalletScoreRatingInput;
+    PalletScoreRatingTypeOf: PalletScoreRatingTypeOf;
+    PalletScoreScoreEntry: PalletScoreScoreEntry;
     PalletSessionCall: PalletSessionCall;
     PalletSessionError: PalletSessionError;
     PalletSessionEvent: PalletSessionEvent;
@@ -181,12 +194,10 @@ declare module '@polkadot/types/types/registry' {
     SpCoreEcdsaSignature: SpCoreEcdsaSignature;
     SpCoreEd25519Public: SpCoreEd25519Public;
     SpCoreEd25519Signature: SpCoreEd25519Signature;
-    SpCoreOffchainOpaqueNetworkState: SpCoreOffchainOpaqueNetworkState;
     SpCoreSr25519Public: SpCoreSr25519Public;
     SpCoreSr25519Signature: SpCoreSr25519Signature;
     SpCoreSr25519VrfVrfSignature: SpCoreSr25519VrfVrfSignature;
     SpCoreVoid: SpCoreVoid;
-    SpRuntimeBlakeTwo256: SpRuntimeBlakeTwo256;
     SpRuntimeDigest: SpRuntimeDigest;
     SpRuntimeDigestDigestItem: SpRuntimeDigestDigestItem;
     SpRuntimeDispatchError: SpRuntimeDispatchError;

@@ -17,6 +17,11 @@ import type {
   SubscriptionPromise,
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
+import { V1Weight, V2Weight, BN } from '@cord.network/types'
+import type {
+  RuntimeDispatchWeightInfoV1,
+  RuntimeDispatchWeightInfoV2,
+} from '@cord.network/augment-api'
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
 
@@ -94,6 +99,63 @@ function defaultResolveOn(): SubscriptionPromise.ResultEvaluator {
 }
 
 /**
+ * Converts the weight information of an extrinsic to a BN (Big Number).
+ *
+ * @param weight - The weight information of an extrinsic.
+ * @returns The weight as a BN.
+ */
+export function convertWeight(weight: V1Weight | V2Weight): BN {
+  if ('refTime' in weight) {
+    // V2 or V1.5 weight
+    return (weight as V2Weight).refTime.toBn()
+  }
+  // V1 weight
+  return (weight as V1Weight).toBn()
+}
+
+/**
+ * Calculates the maximum number of the same extrinsics that can be batched into a block.
+ *
+ * @param tx The extrinsic to be checked.
+ * @returns A promise that resolves to the maximum number of the same extrinsics that can be batched.
+ */
+export async function getMaxBatchable(
+  tx: SubmittableExtrinsic
+): Promise<number> {
+  const api = ConfigService.get('api')
+  // if (!api.hasSubscriptions) {
+  //   throw new SDKErrors.SubscriptionsNotSupportedError()
+  // }
+  //
+  type Weight = RuntimeDispatchWeightInfoV1 | RuntimeDispatchWeightInfoV2
+
+  // Get weight information for the input extrinsic
+  const weightInfo = (await api.call.transactionWeightApi.queryWeightInfo(
+    tx
+  )) as Weight
+
+  const extrinsicRefTime = convertWeight(weightInfo.weight)
+
+  // Get the max block weight and convert it
+  const maxRefTime = convertWeight(api.consts.system.blockWeights.maxBlock)
+
+  // Use only 75% of the max block weight
+  const totalRefTime = maxRefTime.muln(75).divn(100)
+
+  // Initialize variables
+  let remainingRefTime = totalRefTime.clone()
+  let count = 0
+
+  // Calculate how many of the same extrinsics can fit into a batch
+  while (remainingRefTime.gte(extrinsicRefTime)) {
+    remainingRefTime = remainingRefTime.sub(extrinsicRefTime)
+    count += 1
+  }
+
+  return count
+}
+
+/**
  * Submits a signed SubmittableExtrinsic and attaches a callback to monitor the inclusion status of the transaction
  * and possible errors in the execution of extrinsics. Returns a promise to that end which by default resolves upon
  * finalization or rejects if any errors occur during submission or execution of extrinsics. This behavior can be adjusted via optional parameters or via the [[ConfigService]].
@@ -164,9 +226,8 @@ export const dispatchTx = submitSignedTx
  *
  * @param tx The generated unsigned SubmittableExtrinsic to submit.
  * @param signer The [[CordKeyringPair]] used to sign the tx.
- * @param opts.nonce
- * @param opts Partial optional criteria for resolving/rejecting the promise.
- * @param opts.tip Optional amount of Femto to tip the validator.
+ * @param opts - Optional parameters including nonce and subscription options.
+ * @param opts.nonce Optional nonce value for the transaction.
  * @returns Promise result of executing the extrinsic, of type ISubmittableResult.
  */
 export async function signAndSubmitTx(

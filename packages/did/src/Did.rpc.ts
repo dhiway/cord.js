@@ -152,11 +152,11 @@ export function linkedInfoFromChain(
   }
 
   const didName = name.isNone ? undefined : name.unwrap().toHuman()
-  const DidAccount = account.toHuman()
+  const didAccount = account.toHuman()
 
   return {
     document: did,
-    account: DidAccount,
+    account: didAccount,
     didName,
   }
 }

@@ -5,6 +5,9 @@ import { types8 } from './types_8.js'
 export const types9: RegistryTypes = {
   ...types8,
 
+  OpaquePeerId: 'Vec<u8>',
+  PeerId: 'Vec<u8>',
+
   RuntimeDispatchWeightInfo: {
     weight: 'Weight',
     class: 'DispatchClass',
