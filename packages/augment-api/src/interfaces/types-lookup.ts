@@ -2704,6 +2704,7 @@ declare module '@polkadot/types/lookup' {
   type FrameSystemExtensionsCheckWeight = Null;
 
   /** @name CordRuntimeRuntime (392) */
+
   type CordRuntimeRuntime = Null;
 
 } // declare module
