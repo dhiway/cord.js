@@ -10,7 +10,7 @@ import type { BTreeSet, Bytes, Null, Option, Struct, U8aFixed, Vec, bool, u128, 
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeRuntimeHoldReason, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmount, PalletBalancesReserveData, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNodeAuthorizationNodeInfo, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletScoreRatingEntry, PalletScoreRatingTypeOf, PalletScoreScoreEntry, PalletStreamStreamCommit, PalletStreamStreamEntry, PalletUniqueUniqueCommit, PalletUniqueUniqueEntry, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordRuntimeRuntimeHoldReason, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmount, PalletBalancesReserveData, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNodeAuthorizationNodeInfo, PalletPreimageRequestStatus, PalletRegistryRegistryAuthorization, PalletRegistryRegistryCommit, PalletRegistryRegistryEntry, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletScoreRatingEntry, PalletScoreRatingTypeOf, PalletScoreScoreEntry, PalletStreamAttestationDetails, PalletStreamStreamCommit, PalletStreamStreamEntry, PalletUniqueUniqueCommit, PalletUniqueUniqueEntry, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -408,11 +408,11 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * The additional adapative connections of each node.
        **/
-      additionalConnections: AugmentedQuery<ApiType, (arg: OpaquePeerId | object | string | Uint8Array) => Observable<BTreeSet<OpaquePeerId>>, [OpaquePeerId]>;
+      additionalConnections: AugmentedQuery<ApiType, (arg: OpaquePeerId | string | Uint8Array) => Observable<BTreeSet<OpaquePeerId>>, [OpaquePeerId]>;
       /**
        * A map that maintains the ownership of each node.
        **/
-      owners: AugmentedQuery<ApiType, (arg: OpaquePeerId | object | string | Uint8Array) => Observable<Option<PalletNodeAuthorizationNodeInfo>>, [OpaquePeerId]>;
+      owners: AugmentedQuery<ApiType, (arg: OpaquePeerId | string | Uint8Array) => Observable<Option<PalletNodeAuthorizationNodeInfo>>, [OpaquePeerId]>;
       /**
        * The set of well known nodes. This is stored sorted (just by value).
        **/
@@ -520,6 +520,11 @@ declare module '@polkadot/api-base/types/storage' {
       validators: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
     };
     stream: {
+      /**
+       * stream uniques stored on chain.
+       * It maps from a stream identifier and hash to its details.
+       **/
+      attestations: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStreamAttestationDetails>>, [Bytes, H256]>;
       /**
        * stream commits stored on chain.
        * It maps from an identifier to a vector of commits.
