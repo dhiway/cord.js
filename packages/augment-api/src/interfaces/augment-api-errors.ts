@@ -792,6 +792,7 @@ declare module '@polkadot/api-base/types/errors' {
       NoKeys: AugmentedError<ApiType>;
     };
     stream: {
+      AttestationNotFound: AugmentedError<ApiType>;
       AuthorizationDetailsNotFound: AugmentedError<ApiType>;
       DigestHashAlreadyAnchored: AugmentedError<ApiType>;
       ExpiredSignature: AugmentedError<ApiType>;

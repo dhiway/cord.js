@@ -74,16 +74,6 @@ export async function verifyStreamProof(
       status = StreamStatus.invalid
       throw new Error(`credential for credential with id ${streamId} not found`)
     }
-    // if issuer data on proof does not correspond to data on chain, proof is incorrect
-    if (onChain.issuer !== issuerAddress) {
-      status = StreamStatus.invalid
-      throw new Error(
-        `proof not matching on-chain data: proof ${{
-          issuer: issuerAddress,
-        }}`
-      )
-    }
-
     // if documentHash on credential does not correspond to data on chain, proof is incorrect
     if (onChain.streamHash !== credential.credentialHash)
       throw new Error(
@@ -92,8 +82,20 @@ export async function verifyStreamProof(
         }}`
       )
 
+    const onChainDataAttest = await api.query.stream.attestations(streamId, credential.credentialHash)
+    const onChainAttest = Stream.fromChainAttest(onChainDataAttest, streamId);
+    // if issuer data on proof does not correspond to data on chain, proof is incorrect
+    if (onChainAttest.creator !== issuerAddress) {
+      status = StreamStatus.invalid
+      throw new Error(
+        `proof not matching on-chain data: proof ${{
+          issuer: issuerAddress,
+        }}`
+      )
+    }
+
     // if proof data is valid but credential is flagged as revoked, credential is no longer valid
-    if (onChain.revoked) {
+    if (onChainAttest.revoked) {
       status = StreamStatus.revoked
       throw new Error('credential revoked')
     }

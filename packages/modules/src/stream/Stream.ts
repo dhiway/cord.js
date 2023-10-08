@@ -1,6 +1,6 @@
 import type { IStream, IDocument } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
-import * as Did from '@cord.network/did'
+//import * as Did from '@cord.network/did'
 import * as Document from '../document/index.js'
 
 /**
@@ -25,6 +25,7 @@ export function verifyDataStructure(input: IStream): void {
   }
   DataUtils.verifyIsHex(input.streamHash, 256)
 
+    /*
   if (!input.issuer) {
     throw new SDKErrors.IssuerMissingError()
   }
@@ -32,7 +33,8 @@ export function verifyDataStructure(input: IStream): void {
 
   if (typeof input.revoked !== 'boolean') {
     throw new SDKErrors.RevokedTypeError()
-  }
+    }
+    */
 }
 
 /**
@@ -46,11 +48,9 @@ export function fromDocument(document: IDocument): IStream {
   const stream = {
     identifier: document.identifier,
     streamHash: document.documentHash,
-    issuer: document.content.issuer,
     schema: document.content.schemaId,
     authorization: document.authorization,
     registry: document.registry,
-    revoked: false,
   }
   verifyDataStructure(stream)
   return stream

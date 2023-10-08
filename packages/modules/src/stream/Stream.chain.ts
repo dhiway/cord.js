@@ -2,12 +2,13 @@ import { ConfigService } from '@cord.network/config'
 import type { Option } from '@polkadot/types'
 import type {
   IStream,
+  IAttest,
   IDocument,
   IStreamChain,
   StreamId,
 } from '@cord.network/types'
 import * as Did from '@cord.network/did'
-import type { PalletStreamStreamEntry } from '@cord.network/augment-api'
+import type { PalletStreamStreamEntry, PalletStreamAttestationDetails } from '@cord.network/augment-api'
 import { DecoderUtils, Identifier } from '@cord.network/utils'
 
 const log = ConfigService.LoggingFactory.getLogger('Stream')
@@ -51,11 +52,24 @@ export function fromChain(
   const stream: IStream = {
     identifier,
     streamHash: chainStream.digest.toHex(),
-    issuer: Did.fromChain(chainStream.creator),
     schema: DecoderUtils.hexToString(chainStream.schema.toString()),
     registry: DecoderUtils.hexToString(chainStream.registry.toString()) || null,
-    revoked: chainStream.revoked.valueOf(),
   }
   log.info(`Decoded stream: ${JSON.stringify(stream)}`)
   return stream
 }
+
+export function fromChainAttest(
+  encoded: Option<PalletStreamAttestationDetails>,
+  identifier: IDocument['identifier']
+): IAttest {
+  const chainStream = encoded.unwrap()
+  const stream: IAttest = {
+      identifier,
+      creator: Did.fromChain(chainStream.creator),
+      revoked: chainStream.revoked.valueOf()
+  }
+  log.info(`Decoded stream: ${JSON.stringify(stream)}`)
+  return stream
+}
+
