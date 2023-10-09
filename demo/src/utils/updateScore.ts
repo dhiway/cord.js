@@ -20,10 +20,10 @@ export async function updateScore(
 ) {
   const api = Cord.ConfigService.get('api')
 
-  journalContent.rating = await Cord.Scoring.adjustAndRoundRating(
+  journalContent.rating = await Cord.Score.adjustAndRoundRating(
     journalContent.rating
   )
-  const digest = await Cord.Scoring.generateDigestFromJournalContent(
+  const digest = await Cord.Score.generateDigestFromJournalContent(
     journalContent
   )
   const authorization = registryAuthority.replace('auth:cord:', '')
@@ -49,7 +49,7 @@ export async function updateScore(
 
   try {
     await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
-    return Cord.Scoring.getUriForScore(journalContent)
+    return Cord.Score.getUriForScore(journalContent)
   } catch (error) {
     return error.message
   }
