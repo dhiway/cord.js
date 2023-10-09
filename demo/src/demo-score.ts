@@ -131,13 +131,13 @@ async function main() {
 
   console.log(`\n❄️  Journal Entry `)
   let journalContent: IJournalContent = {
-    entity: sellerDid.uri.replace('did:cord:', ''),
+    collector: '3wRLJniUXUicgy7JeqWQWd2zTiUczuxUsebCJ87RMAjTUoHo',
+    entity: '3vyTk3KM35qz2RN7bCVG1g1qVqyvt87bZpRL1Xm5smvTCWtJ',
     tid: UUID.generatev4().toString(),
-    collector: collectorDid.uri.replace('did:cord:', ''),
-    rating_type: ScoreType.overall,
-    rating: 12.116,
     entry_type: EntryType.debit,
-    count: 5,
+    count:5,
+    rating: 12.116,
+    rating_type: ScoreType.overall,
   }
   console.dir(journalContent, { depth: null, colors: true })
   console.log('\n✅ Journal Entry created!')
