@@ -1,4 +1,4 @@
-import { SCORE_MODULUS, IJournalContent } from '@cord.network/types'
+import { SCORE_MODULUS, IJournalContent,IRatingInput,CordKeyringPair } from '@cord.network/types'
 import { Crypto } from '@cord.network/utils'
 import {
   SCORE_IDENT,
@@ -33,6 +33,19 @@ export function generateDigestFromJournalContent(
 export function getUriForScore(journalContent: IJournalContent) {
   const scoreDigest = generateDigestFromJournalContent(journalContent)
   return Identifier.hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
+}
+
+export function fromScore(journalContent: IJournalContent, authorIdentity: CordKeyringPair): IRatingInput {
+    journalContent.rating = adjustAndRoundRating(journalContent.rating)
+    const digest = generateDigestFromJournalContent(
+        journalContent
+      )
+    const ratingInput: IRatingInput = {
+        entry: journalContent,
+        digest: digest,
+        creator: authorIdentity.address,
+      }
+    return ratingInput
 }
 
 export async function fetchAverageScore(

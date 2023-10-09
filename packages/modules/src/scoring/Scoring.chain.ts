@@ -3,10 +3,12 @@ import {
     IScoreDetails,
     SCORE_MODULUS,
     IJournalContent,
+    CordKeyringPair
   } from '@cord.network/types'
   import { ConfigService } from '@cord.network/config'
   import { Identifier, SDKErrors } from '@cord.network/utils'
   import * as Did from '@cord.network/did'
+  import { fromScore } from './Scoring'
   
   export async function fetchJournalFromChain(
     scoreId: string,
@@ -24,6 +26,16 @@ import {
         `There is not a Score of type ${scoreType} with the provided ID "${scoreId}" on chain.`
       )
     } else return decodedScoreEntry
+  }
+
+  export async function toChain(journalContent:IJournalContent,authorization:string,authorIdentity: CordKeyringPair) {
+    const api = ConfigService.get('api')
+    const ratingInput = fromScore(journalContent,authorIdentity)
+    const journalCreationExtrinsic = await api.tx.score.addRating(
+        ratingInput,
+        authorization
+    )
+    return journalCreationExtrinsic
   }
   
   export function fromChain(
