@@ -155,10 +155,6 @@ async function main() {
     '\n✅ The score has been successfully anchored on the blockchain \nIdentifier:',
     scoreIdentifier
   )
-  let x = await Cord.Scoring.fetchAverageScore(sellerDid.uri,'Overall')
-  console.log('x',x)
-  let y = await Cord.Scoring.fetchJournalFromChain('score:cord:Y8ARa4Djnve7csqRDMtNn2D3LjY4mbyiUyV7zKYEv99LPYgY9','Overall')
-  console.log(y)
 }
 
 main()
