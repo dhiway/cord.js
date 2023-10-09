@@ -100,14 +100,14 @@ async function main() {
   )
 
   const api = Cord.ConfigService.get('api')
-  // Step 2: Create a new Stream
-  console.log(`\n✉️  Adding a new Stream`, '\n')
+  // Step 2: Create a new Statement
+  console.log(`\n✉️  Adding a new Statement`, '\n')
   let tx_ext_batch: any = []
   let tx_batch: any = []
 
   let startTxPrep = moment()
   let txCount = 10
-  // let newStreamContent: Cord.IContentStream
+  // let newStatementContent: Cord.IContentStatement
   console.log(`\n ✨ Benchmark ${txCount} transactions `)
 
   let signCallback: Cord.SignCallback = async ({ data }) => ({
@@ -130,14 +130,14 @@ async function main() {
       gender: 'Male',
       country: 'India',
     }
-    let schemaStream = await Cord.Content.fromSchemaAndContent(
+    let schemaStatement = await Cord.Content.fromSchemaAndContent(
       schema,
       content,
       YDid.uri,
       XDid.uri
     )
     const document = await Cord.Document.fromContent({
-      content: schemaStream,
+      content: schemaStatement,
       authorization: registryDelegate,
       registry: registry.identifier,
       signCallback,
@@ -150,26 +150,26 @@ async function main() {
     )
 
     try {
-      // Create a stream object
-      const { streamHash } = Cord.Stream.fromDocument(document)
+      // Create a statement object
+      const { statementHash } = Cord.Statement.fromDocument(document)
       const authorization = Cord.Registry.uriToIdentifier(
         document.authorization
       )
       const schemaId = Cord.Registry.uriToIdentifier(document.content.schemaId)
-      // To create a stream without a schema, use the following line instead:
+      // To create a statement without a schema, use the following line instead:
       // const schemaId = null
       // make sure the registry is not linked with a schema for this to work
-      const streamTx = api.tx.stream.create(streamHash, authorization, schemaId)
+      const statementTx = api.tx.statement.create(statementHash, authorization, schemaId)
 
       // As we are creating an array of extrinsics, the counter needs to be updated manually.
-      const txStream = await Cord.Did.authorizeTx(
+      const txStatement = await Cord.Did.authorizeTx(
         XDid.uri,
-        streamTx,
+        statementTx,
         extSignCallback,
         X.address,
         { txCounter: nextNonce.addn(j) }
       )
-      tx_ext_batch.push(txStream)
+      tx_ext_batch.push(txStatement)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
       console.log('IN ERROR 1')
@@ -217,7 +217,7 @@ async function main() {
       country: 'India',
     }
 
-    let schemaStream = await Cord.Content.fromSchemaAndContent(
+    let schemaStatement = await Cord.Content.fromSchemaAndContent(
       schema,
       content,
       YDid.uri,
@@ -225,7 +225,7 @@ async function main() {
     )
 
     const document = await Cord.Document.fromContent({
-      content: schemaStream,
+      content: schemaStatement,
       authorization: registryDelegate,
       registry: registry.identifier,
       signCallback,
@@ -240,17 +240,17 @@ async function main() {
         's\r'
     )
     try {
-      // Create a stream object
-      const { streamHash } = Cord.Stream.fromDocument(document)
+      // Create a statement object
+      const { statementHash } = Cord.Statement.fromDocument(document)
       const authorization = Cord.Registry.uriToIdentifier(
         document.authorization
       )
       const schemaId = Cord.Registry.uriToIdentifier(document.content.schemaId)
-      // To create a stream without a schema, use the following line instead:
+      // To create a statement without a schema, use the following line instead:
       // const schemaId = null
       // make sure the registry is not linked with a schema for this to work
-      const streamTx = api.tx.stream.create(streamHash, authorization, schemaId)
-      tx_batch.push(streamTx)
+      const statementTx = api.tx.statement.create(statementHash, authorization, schemaId)
+      tx_batch.push(statementTx)
     } catch (e: any) {
       console.log(e.errorCode, '-', e.message)
       console.log('IN ERROR 1')

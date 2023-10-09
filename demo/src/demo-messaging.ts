@@ -12,7 +12,7 @@ import {
 } from './utils/generateRegistry'
 import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
-import { createStream } from './utils/createStream'
+import { createStatement } from './utils/createStatement'
 import { randomUUID } from 'crypto'
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
@@ -207,7 +207,7 @@ async function main() {
     depth: null,
     colors: true,
   })
-  await createStream(
+  await createStatement(
     delegateTwoDid.uri,
     authorIdentity,
     async ({ data }) => ({

@@ -252,11 +252,11 @@ declare module '@polkadot/api-base/types/consts' {
     score: {
       valueLimit: u32 & AugmentedConst<ApiType>;
     };
-    stream: {
+    statement: {
       /**
-       * The maximum number of commits for a stream.
+       * The maximum number of commits for a statement.
        **/
-      maxStreamCommits: u32 & AugmentedConst<ApiType>;
+      maxStatementCommits: u32 & AugmentedConst<ApiType>;
     };
     system: {
       /**

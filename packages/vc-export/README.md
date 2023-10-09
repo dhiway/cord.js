@@ -8,7 +8,7 @@ It provides you with tools to export your existing CORD credentials to the widel
 ## Contents
 
 - exporting
-  - `fromMarkedStream()`: translates `MarkedStream` to `VerifiableCredential`
+  - `fromMarkedStatement()`: translates `MarkedStatement` to `VerifiableCredential`
 - presentation utils
   - `makePresentation()`: creates `VerifiablePresentation` ()
   - `removeProperties()`: derives a new `VerifiableCredential` from an existing one with a reduced set of disclosed attributes
@@ -17,10 +17,10 @@ It provides you with tools to export your existing CORD credentials to the widel
     - holder's self-signed proof over the credential digest
     - credential digest proof that assures the integrity of disclosed attributes, holder identity, evidenceIds and delegations
     - credential proof that assures the credential is attested by the identity disclosed as the `issuer` and not revoked
-  - a function to validate the disclosed stream properties against the schema of a CORD MType, which is a prescriptive schema detailing fields and their data types.
+  - a function to validate the disclosed statement properties against the schema of a CORD MType, which is a prescriptive schema detailing fields and their data types.
 - vc-js suites: tooling to integrate CORD VCs with `vc-js` and `jsonld-signatures^5.0.0`
   - `suites`: contains suites to verify the three CORD proof types that secure a CORD VC.
-    - `CordIntegritySuite`: provides integrity protection for essential components of the credential while allowing for blinding of streams relating to the `credentialSubject`.
+    - `CordIntegritySuite`: provides integrity protection for essential components of the credential while allowing for blinding of statements relating to the `credentialSubject`.
     - `CordSignatureSuite`: verifies the signature over the root hash of a CORD credential.
     - `CordAttestedSuite`: provides lookup functionality to the CORD blockchain to check whether a credential is attested and still valid.
   - `context`: contains a json-ld `@context` definitions for CORD VCs.
@@ -28,20 +28,20 @@ It provides you with tools to export your existing CORD credentials to the widel
 
 ## Examples
 
-### Presenting a CORD `MarkedStream` as a `VerifiableCredential`
+### Presenting a CORD `MarkedStatement` as a `VerifiableCredential`
 
-Given we are in possession of an attested CORD stream and the associated CORD identity:
+Given we are in possession of an attested CORD statement and the associated CORD identity:
 
 ```typescript
 import Cord from '@cordnetwork/sdk'
-import type { MarkedStream, Identity } from '@cordnetwork/sdk'
+import type { MarkedStatement, Identity } from '@cordnetwork/sdk'
 import VCUtils from '@cordnetwork/vc-export'
 
-let credential: MarkedStream
+let credential: MarkedStatement
 let identity: Identity
 
 // turn the CORD credential into a VerifiableCredential
-const VC = VCUtils.fromMarkedStream(credential)
+const VC = VCUtils.fromMarkedStatement(credential)
 
 // produce a reduced copy of the VC where only selected attributes are disclosed
 const nameOnly = VCUtils.presentation.removeProperties(VC, ['name'])
@@ -56,7 +56,7 @@ A verifier can now check the proofs attached to the VerifiableCredential but can
 let result
 presentation.verifiableCredential.proof.foreach((proof) => {
   if (proof.type === VCUtils.types.CORD_ANCHORED_PROOF_TYPE)
-    VCUtils.verification.verifyStreamProof(proof)
+    VCUtils.verification.verifyStatementProof(proof)
 })
 
 if (result && result.verified) {

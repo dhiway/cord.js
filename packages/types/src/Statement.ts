@@ -1,18 +1,18 @@
 /**
  * @packageDocumentation
- * @module IStream
+ * @module IStatement
  */
 import type { DidUri } from './DidDocument'
 import type { ISchema } from './Schema.js'
 import type { IDocument } from './Document.js'
 
-export const STREAM_IDENT: number = 8902
-export const STREAM_PREFIX: string = 'stream:cord:'
-export type StreamId = string
+export const STATEMENT_IDENT: number = 8902
+export const STATEMENT_PREFIX: string = 'statement:cord:'
+export type StatementId = string
 
-export interface IStream {
+export interface IStatement {
   identifier: IDocument['identifier']
-  streamHash: IDocument['documentHash']
+  statementHash: IDocument['documentHash']
   schema: ISchema['$id']
   registry: IDocument['registry']
 }
@@ -23,7 +23,7 @@ export interface IAttest {
   revoked: boolean
 }
 
-export interface IStreamChain {
-  streamHash: IDocument['documentHash']
+export interface IStatementChain {
+  statementHash: IDocument['documentHash']
   schema: ISchema['$id'] | null
 }

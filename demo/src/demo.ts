@@ -12,7 +12,7 @@ import {
 } from './utils/generateRegistry'
 import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
-import { createStream } from './utils/createStream'
+import { createStatement } from './utils/createStatement'
 import { verifyPresentation } from './utils/verifyPresentation'
 import { revokeCredential } from './utils/revokeCredential'
 import { randomUUID } from 'crypto'
@@ -21,7 +21,7 @@ import { encryptMessage } from './utils/encrypt_message'
 import { generateRequestCredentialMessage } from './utils/request_credential_message'
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
-import { updateStream } from './utils/updateDocument'
+import { updateStatement } from './utils/updateDocument'
 import { requestJudgement, setIdentity, setRegistrar, provideJudgement } from './utils/createRegistrar'
 
 // import type {
@@ -228,7 +228,7 @@ async function main() {
     depth: null,
     colors: true,
   })
-  await createStream(
+  await createStatement(
     delegateTwoDid.uri,
     authorIdentity,
     async ({ data }) => ({
@@ -240,7 +240,7 @@ async function main() {
   console.log('✅ Credential created!')
 
   // Step 5: Delegate updates the Verifiable Document
-  console.log('\n🖍️ Stream update...\n')
+  console.log('\n🖍️ Statement update...\n')
 
   let updatedContent: Cord.IContent = {
     name: 'Adi',
@@ -260,7 +260,7 @@ async function main() {
 
   console.log('𝌞 Updated content\n', updatedContent)
 
-  const updatedDocument = await updateStream(
+  const updatedDocument = await updateStatement(
     document,
     updatedContent,
     schema,

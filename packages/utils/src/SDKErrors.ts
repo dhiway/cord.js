@@ -98,7 +98,7 @@ export class HashTypeError extends SDKError {}
 
 export class IdentifierMissingError extends SDKError {}
 
-export class StreamHashMissingError extends SDKError {}
+export class StatementHashMissingError extends SDKError {}
 
 export class IssuerMissingError extends SDKError {}
 

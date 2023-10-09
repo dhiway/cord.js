@@ -753,8 +753,8 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'AddAuthorization' | 'RemoveAuthorization' | 'Create' | 'Update' | 'Archive' | 'Restore';
   }
 
-  /** @name PalletStreamEvent (75) */
-  interface PalletStreamEvent extends Enum {
+  /** @name PalletStatementEvent (75) */
+  interface PalletStatementEvent extends Enum {
     readonly isCreate: boolean;
     readonly asCreate: {
       readonly identifier: Bytes;
@@ -1840,39 +1840,39 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'AddAdminDelegate' | 'AddDelegate' | 'RemoveDelegate' | 'Create' | 'Update' | 'Archive' | 'Restore';
   }
 
-  /** @name PalletStreamCall (234) */
-  interface PalletStreamCall extends Enum {
+  /** @name PalletStatementCall (234) */
+  interface PalletStatementCall extends Enum {
     readonly isCreate: boolean;
     readonly asCreate: {
-      readonly streamDigest: H256;
+      readonly statementDigest: H256;
       readonly authorization: Bytes;
       readonly schemaId: Option<Bytes>;
     } & Struct;
     readonly isUpdate: boolean;
     readonly asUpdate: {
-      readonly streamId: Bytes;
-      readonly streamDigest: H256;
+      readonly statementId: Bytes;
+      readonly statementDigest: H256;
       readonly authorization: Bytes;
     } & Struct;
     readonly isRevoke: boolean;
     readonly asRevoke: {
-      readonly streamId: Bytes;
+      readonly statementId: Bytes;
       readonly authorization: Bytes;
     } & Struct;
     readonly isRestore: boolean;
     readonly asRestore: {
-      readonly streamId: Bytes;
+      readonly statementId: Bytes;
       readonly authorization: Bytes;
     } & Struct;
     readonly isRemove: boolean;
     readonly asRemove: {
-      readonly streamId: Bytes;
+      readonly statementId: Bytes;
       readonly authorization: Bytes;
     } & Struct;
     readonly isDigest: boolean;
     readonly asDigest: {
-      readonly streamId: Bytes;
-      readonly streamDigest: H256;
+      readonly statementId: Bytes;
+      readonly statementDigest: H256;
       readonly authorization: Bytes;
     } & Struct;
     readonly type: 'Create' | 'Update' | 'Revoke' | 'Restore' | 'Remove' | 'Digest';
@@ -2484,23 +2484,23 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'RegistryAlreadyAnchored' | 'RegistryNotFound' | 'UnauthorizedOperation' | 'InvalidIdentifier' | 'InvalidIdentifierLength' | 'InvalidIdentifierPrefix' | 'ArchivedRegistry' | 'RegistryNotArchived' | 'TooManyRegistryEntries' | 'MaxEncodedRegistryLimitExceeded' | 'RegistryAuthoritiesLimitExceeded' | 'MaxRegistryCommitsExceeded' | 'EmptyTransaction' | 'InvalidSchema' | 'SchemaNotFound' | 'DelegateAlreadyAdded' | 'AuthorizationNotFound' | 'RegistrySchemaMismatch';
   }
 
-  /** @name PalletStreamStreamEntry (356) */
-  interface PalletStreamStreamEntry extends Struct {
+  /** @name PalletStatementStatementEntry (356) */
+  interface PalletStatementStatementEntry extends Struct {
     readonly digest: H256;
     readonly schema: Option<Bytes>;
     readonly registry_: Bytes;
   }
 
-  /** @name PalletStreamStreamCommit (358) */
-  interface PalletStreamStreamCommit extends Struct {
-    readonly commit: PalletStreamStreamCommitActionOf;
+  /** @name PalletStatementStatementCommit (358) */
+  interface PalletStatementStatementCommit extends Struct {
+    readonly commit: PalletStatementStatementCommitActionOf;
     readonly digest: H256;
     readonly committedBy: AccountId32;
-    readonly createdAt: PalletStreamTimepoint;
+    readonly createdAt: PalletStatementTimepoint;
   }
 
-  /** @name PalletStreamStreamCommitActionOf (359) */
-  interface PalletStreamStreamCommitActionOf extends Enum {
+  /** @name PalletStatementStatementCommitActionOf (359) */
+  interface PalletStatementStatementCommitActionOf extends Enum {
     readonly isGenesis: boolean;
     readonly isUpdate: boolean;
     readonly isRevoke: boolean;
@@ -2510,33 +2510,33 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Genesis' | 'Update' | 'Revoke' | 'Restore' | 'Remove' | 'Digest';
   }
 
-  /** @name PalletStreamTimepoint (360) */
-  interface PalletStreamTimepoint extends Struct {
+  /** @name PalletStatementTimepoint (360) */
+  interface PalletStatementTimepoint extends Struct {
     readonly height: u32;
     readonly index: u32;
   }
 
-  /** @name PalletStreamAttestationDetails (363) */
-  interface PalletStreamAttestationDetails extends Struct {
+  /** @name PalletStatementAttestationDetails (363) */
+  interface PalletStatementAttestationDetails extends Struct {
     readonly creator: AccountId32;
     readonly revoked: bool;
   }
 
-  /** @name PalletStreamError (364) */
-  interface PalletStreamError extends Enum {
-    readonly isStreamAlreadyAnchored: boolean;
-    readonly isStreamNotFound: boolean;
-    readonly isRevokedStream: boolean;
-    readonly isStreamNotRevoked: boolean;
+  /** @name PalletStatementError (364) */
+  interface PalletStatementError extends Enum {
+    readonly isStatementAlreadyAnchored: boolean;
+    readonly isStatementNotFound: boolean;
+    readonly isRevokedStatement: boolean;
+    readonly isStatementNotRevoked: boolean;
     readonly isUnauthorizedOperation: boolean;
-    readonly isStreamLinkNotFound: boolean;
-    readonly isStreamLinkRevoked: boolean;
+    readonly isStatementLinkNotFound: boolean;
+    readonly isStatementLinkRevoked: boolean;
     readonly isInvalidSignature: boolean;
     readonly isHashAlreadyAnchored: boolean;
     readonly isExpiredSignature: boolean;
-    readonly isInvalidStreamIdentifier: boolean;
+    readonly isInvalidStatementIdentifier: boolean;
     readonly isInvalidIdentifierLength: boolean;
-    readonly isStreamSpaceMismatch: boolean;
+    readonly isStatementSpaceMismatch: boolean;
     readonly isDigestHashAlreadyAnchored: boolean;
     readonly isInvalidTransactionHash: boolean;
     readonly isMetadataLimitExceeded: boolean;
@@ -2545,9 +2545,9 @@ declare module '@polkadot/types/lookup' {
     readonly isTooManyDelegates: boolean;
     readonly isTooManyDelegatesToRemove: boolean;
     readonly isAuthorizationDetailsNotFound: boolean;
-    readonly isMaxStreamCommitsExceeded: boolean;
+    readonly isMaxStatementCommitsExceeded: boolean;
     readonly isAttestationNotFound: boolean;
-    readonly type: 'StreamAlreadyAnchored' | 'StreamNotFound' | 'RevokedStream' | 'StreamNotRevoked' | 'UnauthorizedOperation' | 'StreamLinkNotFound' | 'StreamLinkRevoked' | 'InvalidSignature' | 'HashAlreadyAnchored' | 'ExpiredSignature' | 'InvalidStreamIdentifier' | 'InvalidIdentifierLength' | 'StreamSpaceMismatch' | 'DigestHashAlreadyAnchored' | 'InvalidTransactionHash' | 'MetadataLimitExceeded' | 'MetadataAlreadySet' | 'MetadataNotFound' | 'TooManyDelegates' | 'TooManyDelegatesToRemove' | 'AuthorizationDetailsNotFound' | 'MaxStreamCommitsExceeded' | 'AttestationNotFound';
+    readonly type: 'StatementAlreadyAnchored' | 'StatementNotFound' | 'RevokedStatement' | 'StatementNotRevoked' | 'UnauthorizedOperation' | 'StatementLinkNotFound' | 'StatementLinkRevoked' | 'InvalidSignature' | 'HashAlreadyAnchored' | 'ExpiredSignature' | 'InvalidStatementIdentifier' | 'InvalidIdentifierLength' | 'StatementSpaceMismatch' | 'DigestHashAlreadyAnchored' | 'InvalidTransactionHash' | 'MetadataLimitExceeded' | 'MetadataAlreadySet' | 'MetadataNotFound' | 'TooManyDelegates' | 'TooManyDelegatesToRemove' | 'AuthorizationDetailsNotFound' | 'MaxStatementCommitsExceeded' | 'AttestationNotFound';
   }
 
   /** @name PalletDidNameDidNameDidNameOwnership (365) */

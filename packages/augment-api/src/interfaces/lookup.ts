@@ -710,9 +710,9 @@ export default {
     }
   },
   /**
-   * Lookup75: pallet_stream::pallet::Event<T>
+   * Lookup75: pallet_statement::pallet::Event<T>
    **/
-  PalletStreamEvent: {
+  PalletStatementEvent: {
     _enum: {
       Create: {
         identifier: 'Bytes',
@@ -1882,35 +1882,35 @@ export default {
     }
   },
   /**
-   * Lookup234: pallet_stream::pallet::Call<T>
+   * Lookup234: pallet_statement::pallet::Call<T>
    **/
-  PalletStreamCall: {
+  PalletStatementCall: {
     _enum: {
       create: {
-        streamDigest: 'H256',
+        statementDigest: 'H256',
         authorization: 'Bytes',
         schemaId: 'Option<Bytes>',
       },
       update: {
-        streamId: 'Bytes',
-        streamDigest: 'H256',
+        statementId: 'Bytes',
+        statementDigest: 'H256',
         authorization: 'Bytes',
       },
       revoke: {
-        streamId: 'Bytes',
+        statementId: 'Bytes',
         authorization: 'Bytes',
       },
       restore: {
-        streamId: 'Bytes',
+        statementId: 'Bytes',
         authorization: 'Bytes',
       },
       remove: {
-        streamId: 'Bytes',
+        statementId: 'Bytes',
         authorization: 'Bytes',
       },
       digest: {
-        streamId: 'Bytes',
-        streamDigest: 'H256',
+        statementId: 'Bytes',
+        statementDigest: 'H256',
         authorization: 'Bytes'
       }
     }
@@ -2393,9 +2393,9 @@ export default {
     _enum: ['RegistryAlreadyAnchored', 'RegistryNotFound', 'UnauthorizedOperation', 'InvalidIdentifier', 'InvalidIdentifierLength', 'InvalidIdentifierPrefix', 'ArchivedRegistry', 'RegistryNotArchived', 'TooManyRegistryEntries', 'MaxEncodedRegistryLimitExceeded', 'RegistryAuthoritiesLimitExceeded', 'MaxRegistryCommitsExceeded', 'EmptyTransaction', 'InvalidSchema', 'SchemaNotFound', 'DelegateAlreadyAdded', 'AuthorizationNotFound', 'RegistrySchemaMismatch']
   },
   /**
-   * Lookup356: pallet_stream::types::StreamEntry<primitive_types::H256, cord_primitives::curi::Ss58Identifier, cord_primitives::curi::Ss58Identifier>
+   * Lookup356: pallet_statement::types::StatementEntry<primitive_types::H256, cord_primitives::curi::Ss58Identifier, cord_primitives::curi::Ss58Identifier>
    **/
-  PalletStreamStreamEntry: {
+  PalletStatementStatementEntry: {
     _alias: {
       registry_: 'registry'
     },
@@ -2404,39 +2404,39 @@ export default {
     registry_: 'Bytes'
   },
   /**
-   * Lookup358: pallet_stream::types::StreamCommit<pallet_stream::types::StreamCommitActionOf, primitive_types::H256, sp_core::crypto::AccountId32, BlockNumber>
+   * Lookup358: pallet_statement::types::StatementCommit<pallet_statement::types::StatementCommitActionOf, primitive_types::H256, sp_core::crypto::AccountId32, BlockNumber>
    **/
-  PalletStreamStreamCommit: {
-    commit: 'PalletStreamStreamCommitActionOf',
+  PalletStatementStatementCommit: {
+    commit: 'PalletStatementStatementCommitActionOf',
     digest: 'H256',
     committedBy: 'AccountId32',
-    createdAt: 'PalletStreamTimepoint'
+    createdAt: 'PalletStatementTimepoint'
   },
   /**
-   * Lookup359: pallet_stream::types::StreamCommitActionOf
+   * Lookup359: pallet_statement::types::StatementCommitActionOf
    **/
-  PalletStreamStreamCommitActionOf: {
+  PalletStatementStatementCommitActionOf: {
     _enum: ['Genesis', 'Update', 'Revoke', 'Restore', 'Remove', 'Digest']
   },
   /**
-   * Lookup360: pallet_stream::types::Timepoint<BlockNumber>
+   * Lookup360: pallet_statement::types::Timepoint<BlockNumber>
    **/
-  PalletStreamTimepoint: {
+  PalletStatementTimepoint: {
     height: 'u32',
     index: 'u32'
   },
   /**
-   * Lookup363: pallet_stream::types::AttestationDetails<sp_core::crypto::AccountId32, StatusOf>
+   * Lookup363: pallet_statement::types::AttestationDetails<sp_core::crypto::AccountId32, StatusOf>
    **/
-  PalletStreamAttestationDetails: {
+  PalletStatementAttestationDetails: {
     creator: 'AccountId32',
     revoked: 'bool'
   },
   /**
-   * Lookup364: pallet_stream::pallet::Error<T>
+   * Lookup364: pallet_statement::pallet::Error<T>
    **/
-  PalletStreamError: {
-    _enum: ['StreamAlreadyAnchored', 'StreamNotFound', 'RevokedStream', 'StreamNotRevoked', 'UnauthorizedOperation', 'StreamLinkNotFound', 'StreamLinkRevoked', 'InvalidSignature', 'HashAlreadyAnchored', 'ExpiredSignature', 'InvalidStreamIdentifier', 'InvalidIdentifierLength', 'StreamSpaceMismatch', 'DigestHashAlreadyAnchored', 'InvalidTransactionHash', 'MetadataLimitExceeded', 'MetadataAlreadySet', 'MetadataNotFound', 'TooManyDelegates', 'TooManyDelegatesToRemove', 'AuthorizationDetailsNotFound', 'MaxStreamCommitsExceeded', 'AttestationNotFound']
+  PalletStatementError: {
+    _enum: ['StatementAlreadyAnchored', 'StatementNotFound', 'RevokedStatement', 'StatementNotRevoked', 'UnauthorizedOperation', 'StatementLinkNotFound', 'StatementLinkRevoked', 'InvalidSignature', 'HashAlreadyAnchored', 'ExpiredSignature', 'InvalidStatementIdentifier', 'InvalidIdentifierLength', 'StatementSpaceMismatch', 'DigestHashAlreadyAnchored', 'InvalidTransactionHash', 'MetadataLimitExceeded', 'MetadataAlreadySet', 'MetadataNotFound', 'TooManyDelegates', 'TooManyDelegatesToRemove', 'AuthorizationDetailsNotFound', 'MaxStatementCommitsExceeded', 'AttestationNotFound']
   },
   /**
    * Lookup365: pallet_did_name::did_name::DidNameOwnership<sp_core::crypto::AccountId32, BlockNumber>

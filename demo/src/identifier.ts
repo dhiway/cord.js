@@ -180,7 +180,7 @@ async function main() {
   // console.log('base58:', schemaEncodedHash)
   // console.log(
   //   'base58 Decode:',
-  //   Cord.StreamUtils.hexToString(schemaEncodedHash),
+  //   Cord.StatementUtils.hexToString(schemaEncodedHash),
   //   schemaEncodedHash
   // )
   // // console.log(encodeDerivedAddress(newSchema.hash, 1031))

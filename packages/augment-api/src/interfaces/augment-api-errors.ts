@@ -791,7 +791,7 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NoKeys: AugmentedError<ApiType>;
     };
-    stream: {
+    statement: {
       AttestationNotFound: AugmentedError<ApiType>;
       AuthorizationDetailsNotFound: AugmentedError<ApiType>;
       DigestHashAlreadyAnchored: AugmentedError<ApiType>;
@@ -799,37 +799,37 @@ declare module '@polkadot/api-base/types/errors' {
       HashAlreadyAnchored: AugmentedError<ApiType>;
       InvalidIdentifierLength: AugmentedError<ApiType>;
       InvalidSignature: AugmentedError<ApiType>;
-      InvalidStreamIdentifier: AugmentedError<ApiType>;
+      InvalidStatementIdentifier: AugmentedError<ApiType>;
       InvalidTransactionHash: AugmentedError<ApiType>;
-      MaxStreamCommitsExceeded: AugmentedError<ApiType>;
+      MaxStatementCommitsExceeded: AugmentedError<ApiType>;
       MetadataAlreadySet: AugmentedError<ApiType>;
       MetadataLimitExceeded: AugmentedError<ApiType>;
       MetadataNotFound: AugmentedError<ApiType>;
       /**
-       * Stream idenfier marked inactive
+       * Statement idenfier marked inactive
        **/
-      RevokedStream: AugmentedError<ApiType>;
+      RevokedStatement: AugmentedError<ApiType>;
       /**
-       * Stream idenfier is not unique
+       * Statement idenfier is not unique
        **/
-      StreamAlreadyAnchored: AugmentedError<ApiType>;
+      StatementAlreadyAnchored: AugmentedError<ApiType>;
       /**
-       * Stream link does not exist
+       * Statement link does not exist
        **/
-      StreamLinkNotFound: AugmentedError<ApiType>;
+      StatementLinkNotFound: AugmentedError<ApiType>;
       /**
-       * Stream Link is revoked
+       * Statement Link is revoked
        **/
-      StreamLinkRevoked: AugmentedError<ApiType>;
+      StatementLinkRevoked: AugmentedError<ApiType>;
       /**
-       * Stream idenfier not found
+       * Statement idenfier not found
        **/
-      StreamNotFound: AugmentedError<ApiType>;
+      StatementNotFound: AugmentedError<ApiType>;
       /**
-       * Stream idenfier not marked inactive
+       * Statement idenfier not marked inactive
        **/
-      StreamNotRevoked: AugmentedError<ApiType>;
-      StreamSpaceMismatch: AugmentedError<ApiType>;
+      StatementNotRevoked: AugmentedError<ApiType>;
+      StatementSpaceMismatch: AugmentedError<ApiType>;
       TooManyDelegates: AugmentedError<ApiType>;
       TooManyDelegatesToRemove: AugmentedError<ApiType>;
       /**

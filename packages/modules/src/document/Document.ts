@@ -10,7 +10,7 @@ import type {
   DidResolveKey,
   Hash,
   IDocument,
-  IStream,
+  IStatement,
   IContent,
   IDocumentPresentation,
   ISchema,
@@ -18,7 +18,7 @@ import type {
   IRegistryAuthorization,
   IRegistryAuthorizationDetails,
   IRegistry,
-  StreamId,
+  StatementId,
   RegistryId,
   PresentationOptions,
 } from '@cord.network/types'
@@ -26,7 +26,7 @@ import { Crypto, SDKErrors, DataUtils, jsonabc } from '@cord.network/utils'
 import * as Content from '../content/index.js'
 import { hashContents } from '../content/index.js'
 import { verifyContentAganistSchema } from '../schema/Schema.js'
-import { STREAM_IDENT, STREAM_PREFIX } from '@cord.network/types'
+import { STATEMENT_IDENT, STATEMENT_PREFIX } from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
 import { HexString } from '@polkadot/util/types.js'
 import { Bytes } from '@polkadot/types'
@@ -83,7 +83,7 @@ export function calculateDocumentHash(document: Partial<IDocument>): Hash {
 /**
  * Prepares credential data for signing.
  *
- * @param input - The Stream to prepare the data for.
+ * @param input - The Statement to prepare the data for.
  * @param challenge - An optional challenge to be included in the signing process.
  * @returns The prepared signing data as Uint8Array.
  */
@@ -103,9 +103,9 @@ export function verifyDocumentHash(input: IDocument): void {
 }
 
 /**
- * Verifies the data of the [[ContentStream]] object; used to check that the data was not tampered with, by checking the data against hashes.
+ * Verifies the data of the [[ContentStatement]] object; used to check that the data was not tampered with, by checking the data against hashes.
  *
- * @param input - The [[Stream]] for which to verify data.
+ * @param input - The [[Statement]] for which to verify data.
  */
 
 export function verifyDataIntegrity(
@@ -248,18 +248,18 @@ export async function verifySignature(
 }
 
 /**
- * Calculates the stream Id by hashing it.
+ * Calculates the statement Id by hashing it.
  *
- * @param stream  Stream for which to create the id.
- * @returns Stream id uri.
+ * @param statement Statement for which to create the id.
+ * @returns Statement id uri.
  */
-export function getUriForStream(
-  streamDigest: HexString,
+export function getUriForStatement(
+  statementDigest: HexString,
   registry: RegistryId,
   creator: DidUri
-): StreamId {
+): StatementId {
   const api = ConfigService.get('api')
-  const scaleEncodedDigest = api.createType<H256>('H256', streamDigest).toU8a()
+  const scaleEncodedDigest = api.createType<H256>('H256', statementDigest).toU8a()
   const scaleEncodedRegistry = api.createType<Bytes>('Bytes', registry).toU8a()
   const scaleEncodedCreator = api
     .createType<AccountId>('AccountId', Did.toChain(creator))
@@ -272,7 +272,7 @@ export function getUriForStream(
       ...scaleEncodedCreator,
     ])
   )
-  return Identifier.hashToUri(digest, STREAM_IDENT, STREAM_PREFIX)
+  return Identifier.hashToUri(digest, STATEMENT_IDENT, STATEMENT_PREFIX)
 }
 
 export type Options = {
@@ -330,7 +330,7 @@ export async function fromContent({
   })
 
   const registryIdentifier = Identifier.uriToIdentifier(registry)
-  const streamId = getUriForStream(
+  const statementId = getUriForStatement(
     documentHash,
     registryIdentifier,
     content.issuer
@@ -343,7 +343,7 @@ export async function fromContent({
   })
 
   const document = {
-    identifier: streamId,
+    identifier: statementId,
     content,
     contentHashes,
     contentNonceMap,
@@ -532,7 +532,7 @@ export function isPresentation(input: unknown): input is IDocumentPresentation {
  * @param document - The document to get the hash from.
  * @returns The hash of the credential.
  */
-export function getHash(document: IDocument): IStream['streamHash'] {
+export function getHash(document: IDocument): IStatement['statementHash'] {
   return document.documentHash
 }
 
