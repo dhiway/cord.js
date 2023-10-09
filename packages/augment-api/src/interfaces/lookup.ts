@@ -715,8 +715,7 @@ export default {
   PalletStatementEvent: {
     _enum: {
       Create: {
-        identifier: 'Bytes',
-        digest: 'H256',
+        failedDigests: 'Vec<H256>',
         author: 'AccountId32',
       },
       Update: {
@@ -744,7 +743,7 @@ export default {
     }
   },
   /**
-   * Lookup76: pallet_did_name::pallet::Event<T>
+   * Lookup77: pallet_did_name::pallet::Event<T>
    **/
   PalletDidNameEvent: {
     _enum: {
@@ -765,7 +764,7 @@ export default {
     }
   },
   /**
-   * Lookup79: pallet_unique::pallet::Event<T>
+   * Lookup80: pallet_unique::pallet::Event<T>
    **/
   PalletUniqueEvent: {
     _enum: {
@@ -790,7 +789,7 @@ export default {
     }
   },
   /**
-   * Lookup81: pallet_score::pallet::Event<T>
+   * Lookup82: pallet_score::pallet::Event<T>
    **/
   PalletScoreEvent: {
     _enum: {
@@ -805,7 +804,7 @@ export default {
     }
   },
   /**
-   * Lookup82: pallet_sudo::pallet::Event<T>
+   * Lookup83: pallet_sudo::pallet::Event<T>
    **/
   PalletSudoEvent: {
     _enum: {
@@ -821,7 +820,7 @@ export default {
     }
   },
   /**
-   * Lookup84: frame_system::Phase
+   * Lookup85: frame_system::Phase
    **/
   FrameSystemPhase: {
     _enum: {
@@ -1887,7 +1886,7 @@ export default {
   PalletStatementCall: {
     _enum: {
       create: {
-        statementDigest: 'H256',
+        statementDigests: 'Vec<H256>',
         authorization: 'Bytes',
         schemaId: 'Option<Bytes>',
       },
@@ -2436,7 +2435,7 @@ export default {
    * Lookup364: pallet_statement::pallet::Error<T>
    **/
   PalletStatementError: {
-    _enum: ['StatementAlreadyAnchored', 'StatementNotFound', 'RevokedStatement', 'StatementNotRevoked', 'UnauthorizedOperation', 'StatementLinkNotFound', 'StatementLinkRevoked', 'InvalidSignature', 'HashAlreadyAnchored', 'ExpiredSignature', 'InvalidStatementIdentifier', 'InvalidIdentifierLength', 'StatementSpaceMismatch', 'DigestHashAlreadyAnchored', 'InvalidTransactionHash', 'MetadataLimitExceeded', 'MetadataAlreadySet', 'MetadataNotFound', 'TooManyDelegates', 'TooManyDelegatesToRemove', 'AuthorizationDetailsNotFound', 'MaxStatementCommitsExceeded', 'AttestationNotFound']
+    _enum: ['StatementAlreadyAnchored', 'StatementNotFound', 'RevokedStatement', 'StatementNotRevoked', 'UnauthorizedOperation', 'StatementLinkNotFound', 'StatementLinkRevoked', 'InvalidSignature', 'HashAlreadyAnchored', 'ExpiredSignature', 'InvalidStatementIdentifier', 'InvalidIdentifierLength', 'StatementSpaceMismatch', 'DigestHashAlreadyAnchored', 'InvalidTransactionHash', 'MetadataLimitExceeded', 'MetadataAlreadySet', 'MetadataNotFound', 'TooManyDelegates', 'TooManyDelegatesToRemove', 'AuthorizationDetailsNotFound', 'MaxStatementActivitiesExceeded', 'AttestationNotFound', 'MaxDigestLengthExceeded']
   },
   /**
    * Lookup365: pallet_did_name::did_name::DidNameOwnership<sp_core::crypto::AccountId32, BlockNumber>

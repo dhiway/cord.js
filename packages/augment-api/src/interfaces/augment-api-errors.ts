@@ -801,7 +801,8 @@ declare module '@polkadot/api-base/types/errors' {
       InvalidSignature: AugmentedError<ApiType>;
       InvalidStatementIdentifier: AugmentedError<ApiType>;
       InvalidTransactionHash: AugmentedError<ApiType>;
-      MaxStatementCommitsExceeded: AugmentedError<ApiType>;
+      MaxDigestLengthExceeded: AugmentedError<ApiType>;
+      MaxStatementActivitiesExceeded: AugmentedError<ApiType>;
       MetadataAlreadySet: AugmentedError<ApiType>;
       MetadataLimitExceeded: AugmentedError<ApiType>;
       MetadataNotFound: AugmentedError<ApiType>;

@@ -511,7 +511,7 @@ declare module '@polkadot/api-base/types/events' {
        * A new statement identifier has been created.
        * \[statement identifier, statement digest, controller\]
        **/
-      Create: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      Create: AugmentedEvent<ApiType, [failedDigests: Vec<H256>, author: AccountId32], { failedDigests: Vec<H256>, author: AccountId32 }>;
       /**
        * A statement digest has been added.
        * \[statement identifier, digest, controller\]

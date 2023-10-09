@@ -254,9 +254,9 @@ declare module '@polkadot/api-base/types/consts' {
     };
     statement: {
       /**
-       * The maximum number of commits for a statement.
+       * The maximum number of activity for a statement.
        **/
-      maxStatementCommits: u32 & AugmentedConst<ApiType>;
+      maxStatementActivities: u32 & AugmentedConst<ApiType>;
     };
     system: {
       /**

@@ -521,15 +521,15 @@ declare module '@polkadot/api-base/types/storage' {
     };
     statement: {
       /**
+       * statement activities stored on chain.
+       * It maps from an identifier to a vector of activities.
+       **/
+      activities: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<PalletStatementStatementCommit>>, [Bytes]>;
+      /**
        * statement uniques stored on chain.
        * It maps from a statement identifier and hash to its details.
        **/
       attestations: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStatementAttestationDetails>>, [Bytes, H256]>;
-      /**
-       * statement commits stored on chain.
-       * It maps from an identifier to a vector of commits.
-       **/
-      commits: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<PalletStatementStatementCommit>>, [Bytes]>;
       /**
        * statement hashes stored on chain.
        * It maps from a statement hash to an identifier (resolve from hash).

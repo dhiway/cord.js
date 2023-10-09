@@ -469,7 +469,7 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * See [`Pallet::create`].
        **/
-      create: AugmentedSubmittable<(statementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>]>;
+      create: AugmentedSubmittable<(statementDigests: Vec<H256> | (H256 | string | Uint8Array)[], authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Vec<H256>, Bytes, Option<Bytes>]>;
       /**
        * See [`Pallet::digest`].
        **/

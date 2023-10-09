@@ -757,8 +757,7 @@ declare module '@polkadot/types/lookup' {
   interface PalletStatementEvent extends Enum {
     readonly isCreate: boolean;
     readonly asCreate: {
-      readonly identifier: Bytes;
-      readonly digest: H256;
+      readonly failedDigests: Vec<H256>;
       readonly author: AccountId32;
     } & Struct;
     readonly isUpdate: boolean;
@@ -791,7 +790,7 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Create' | 'Update' | 'Revoke' | 'Restore' | 'Remove' | 'Digest';
   }
 
-  /** @name PalletDidNameEvent (76) */
+  /** @name PalletDidNameEvent (77) */
   interface PalletDidNameEvent extends Enum {
     readonly isDidNameRegistered: boolean;
     readonly asDidNameRegistered: {
@@ -814,7 +813,7 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'DidNameRegistered' | 'DidNameReleased' | 'DidNameBanned' | 'DidNameUnbanned';
   }
 
-  /** @name PalletUniqueEvent (79) */
+  /** @name PalletUniqueEvent (80) */
   interface PalletUniqueEvent extends Enum {
     readonly isCreate: boolean;
     readonly asCreate: {
@@ -841,7 +840,7 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Create' | 'Revoke' | 'Update' | 'Remove';
   }
 
-  /** @name PalletScoreEvent (81) */
+  /** @name PalletScoreEvent (82) */
   interface PalletScoreEvent extends Enum {
     readonly isJournalEntry: boolean;
     readonly asJournalEntry: {
@@ -856,7 +855,7 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'JournalEntry' | 'AggregateUpdated';
   }
 
-  /** @name PalletSudoEvent (82) */
+  /** @name PalletSudoEvent (83) */
   interface PalletSudoEvent extends Enum {
     readonly isSudid: boolean;
     readonly asSudid: {
@@ -873,7 +872,7 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Sudid' | 'KeyChanged' | 'SudoAsDone';
   }
 
-  /** @name FrameSystemPhase (84) */
+  /** @name FrameSystemPhase (85) */
   interface FrameSystemPhase extends Enum {
     readonly isApplyExtrinsic: boolean;
     readonly asApplyExtrinsic: u32;
@@ -1844,7 +1843,7 @@ declare module '@polkadot/types/lookup' {
   interface PalletStatementCall extends Enum {
     readonly isCreate: boolean;
     readonly asCreate: {
-      readonly statementDigest: H256;
+      readonly statementDigests: Vec<H256>;
       readonly authorization: Bytes;
       readonly schemaId: Option<Bytes>;
     } & Struct;
@@ -2545,9 +2544,10 @@ declare module '@polkadot/types/lookup' {
     readonly isTooManyDelegates: boolean;
     readonly isTooManyDelegatesToRemove: boolean;
     readonly isAuthorizationDetailsNotFound: boolean;
-    readonly isMaxStatementCommitsExceeded: boolean;
+    readonly isMaxStatementActivitiesExceeded: boolean;
     readonly isAttestationNotFound: boolean;
-    readonly type: 'StatementAlreadyAnchored' | 'StatementNotFound' | 'RevokedStatement' | 'StatementNotRevoked' | 'UnauthorizedOperation' | 'StatementLinkNotFound' | 'StatementLinkRevoked' | 'InvalidSignature' | 'HashAlreadyAnchored' | 'ExpiredSignature' | 'InvalidStatementIdentifier' | 'InvalidIdentifierLength' | 'StatementSpaceMismatch' | 'DigestHashAlreadyAnchored' | 'InvalidTransactionHash' | 'MetadataLimitExceeded' | 'MetadataAlreadySet' | 'MetadataNotFound' | 'TooManyDelegates' | 'TooManyDelegatesToRemove' | 'AuthorizationDetailsNotFound' | 'MaxStatementCommitsExceeded' | 'AttestationNotFound';
+    readonly isMaxDigestLengthExceeded: boolean;
+    readonly type: 'StatementAlreadyAnchored' | 'StatementNotFound' | 'RevokedStatement' | 'StatementNotRevoked' | 'UnauthorizedOperation' | 'StatementLinkNotFound' | 'StatementLinkRevoked' | 'InvalidSignature' | 'HashAlreadyAnchored' | 'ExpiredSignature' | 'InvalidStatementIdentifier' | 'InvalidIdentifierLength' | 'StatementSpaceMismatch' | 'DigestHashAlreadyAnchored' | 'InvalidTransactionHash' | 'MetadataLimitExceeded' | 'MetadataAlreadySet' | 'MetadataNotFound' | 'TooManyDelegates' | 'TooManyDelegatesToRemove' | 'AuthorizationDetailsNotFound' | 'MaxStatementActivitiesExceeded' | 'AttestationNotFound' | 'MaxDigestLengthExceeded';
   }
 
   /** @name PalletDidNameDidNameDidNameOwnership (365) */
