@@ -22,7 +22,7 @@ export async function createStatement(
   // To create a statement without a schema, use the following line instead:
   // const schemaId = null
   // make sure the registry is not linked with a schema for this to work
-  const statementTx = api.tx.statement.create([statementHash, statementHash, '0xb90c277f5145d7ba4598c69f3c3a8eae725db22207aeb5c93441d30cdfa5f74d', '0xb90c277f5145d7ba4598c69f3c3a8eae725db22207aeb5c93441d30cdfa5f74c'], authorization, schemaId)
+  const statementTx = api.tx.statement.create([statementHash, statementHash, '0xb90c277f5145d7ba4598c69f3c3a8eae725db22207aeb5c93441d30cdfa5f74d', '0xb90c277f5145d7ba4598c69f3c3a8eae725db22207aeb5c93441d30cdfa5f74c', '0x1b4d43b35ecdab95a14504f20a2e40b392047b3f316422e1803e6b442c0501c1'], authorization, schemaId)
 
   const authorizedStatementTx = await Cord.Did.authorizeTx(
     issuer,

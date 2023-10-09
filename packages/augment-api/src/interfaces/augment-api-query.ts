@@ -534,7 +534,7 @@ declare module '@polkadot/api-base/types/storage' {
        * statement hashes stored on chain.
        * It maps from a statement hash to an identifier (resolve from hash).
        **/
-      statementDigests: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<Bytes>>, [H256]>;
+      statementDigests: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [H256, Bytes]>;
       /**
        * statement identifiers stored on chain.
        * It maps from an identifier to its details. Chain will only store the
