@@ -3,11 +3,9 @@ import { Crypto } from '@cord.network/utils'
 import {
   SCORE_IDENT,
   SCORE_PREFIX,
-  ScoreType,
-  IScoreAverageDetails,
 } from '@cord.network/types'
 import { Identifier } from '@cord.network/utils'
-import { fetchScore } from './Scoring.chain'
+
 
 export function adjustAndRoundRating(rating: number): number {
   rating = Math.round(rating * SCORE_MODULUS)
@@ -35,21 +33,4 @@ export function getUriForScore(journalContent: IJournalContent) {
   return Identifier.hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
 }
 
-export async function fetchAverageScore(
-  entityUri: string,
-  scoreType: ScoreType
-): Promise<IScoreAverageDetails> {
-  const pertialEntityUri = entityUri.split('did:cord:').join('')
-  const decodedScoreEntry = await fetchScore(pertialEntityUri, scoreType)
 
-  const actualRating = ComputeActualRating(decodedScoreEntry.rating)
-  const averageRating = ComputeAverageRating(
-    actualRating,
-    decodedScoreEntry.count
-  )
-  return {
-    rating: actualRating,
-    count: decodedScoreEntry.count,
-    average: averageRating,
-  }
-}
