@@ -1,6 +1,7 @@
 import type { Extrinsic } from '@polkadot/types/interfaces'
 import type { SubmittableExtrinsicFunction } from '@polkadot/api/types'
 import { BN } from '@polkadot/util'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 
 import type {
   DidUri,
@@ -11,7 +12,6 @@ import type {
 } from '@cord.network/types'
 
 import { SDKErrors } from '@cord.network/utils'
-import { ConfigService } from '@cord.network/config'
 
 import {
   documentFromChain,
@@ -93,10 +93,18 @@ function increaseNonce(currentNonce: BN, increment = 1): BN {
  */
 export async function getNextNonce(did: DidUri): Promise<BN> {
   const api = ConfigService.get('api')
-  const queried = await api.query.did.did(toChain(did))
-  const currentNonce = queried.isSome
-    ? documentFromChain(queried).lastTxCounter
-    : new BN(0)
+  let queried: any
+
+  queried = await cord_api_query('did', 'did', did)
+
+  if (!queried) {
+    queried = await api.query.did.did(toChain(did))
+    const currentNonce = queried.isSome
+      ? documentFromChain(queried).lastTxCounter
+      : new BN(0)
+    return increaseNonce(currentNonce)
+  }
+  const currentNonce = queried ? new BN(queried.lastTxCounter) : new BN(0)
   return increaseNonce(currentNonce)
 }
 

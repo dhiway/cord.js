@@ -13,11 +13,12 @@ export async function getDidDocFromName(
 
   // Query the owner of the provided didName.
   const encodedDidNameOwner = await api.call.didApi.queryByName(didName)
+  if (encodedDidNameOwner.isSome) {
+    const {
+      document: { uri },
+    } = Cord.Did.linkedInfoFromChain(encodedDidNameOwner)
 
-  const {
-    document: { uri },
-  } = Cord.Did.linkedInfoFromChain(encodedDidNameOwner)
-
-  console.log(` uri: ${uri}`)
-  console.log('✅ DID name resolved!')
+    console.log(` uri: ${uri}`)
+    console.log('✅ DID name resolved!')
+  }
 }

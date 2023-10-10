@@ -1,7 +1,7 @@
 import * as Cord from '@cord.network/sdk'
 import moment from 'moment'
 import Keyring from '@polkadot/keyring'
-import { Crypto } from '@cord.network/utils'
+import { Crypto, cordApiTx } from '@cord.network/utils'
 
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
@@ -74,7 +74,12 @@ async function main() {
   let BatchAuthor = keyring.addFromUri('//Charlie')
   let batchAncStartTime = moment()
   try {
-    api.tx.utility.batchAll(tx_batch).signAndSend(BatchAuthor)
+    const tx = api.tx.utility.batchAll(tx_batch)
+    const value = await cordApiTx(tx, 'signAndSend')
+
+    if (!value) {
+      api.tx.utility.batchAll(tx_batch).signAndSend(BatchAuthor)
+    }
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }

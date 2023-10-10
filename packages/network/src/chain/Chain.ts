@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /**
  * Chain bridges that connects the SDK and the CORD Chain.
  *
@@ -9,7 +10,7 @@
 import { SubmittableResult } from '@polkadot/api'
 import { AnyNumber } from '@polkadot/types/types'
 
-import { ConfigService } from '@cord.network/config'
+import { ConfigService, cordApiTx } from '@cord.network/config'
 import type {
   ISubmittableResult,
   KeyringPair,
@@ -234,10 +235,20 @@ export async function signAndSubmitTx(
   tx: SubmittableExtrinsic,
   signer: KeyringPair,
   {
-    nonce = -1,
+    tip,
     ...opts
-  }: Partial<SubscriptionPromise.Options> & Partial<{ nonce: AnyNumber }> = {}
-): Promise<ISubmittableResult> {
-  const signedTx = await tx.signAsync(signer, { nonce })
-  return submitSignedTx(signedTx, opts)
+  }: Partial<SubscriptionPromise.Options> & Partial<{ tip: AnyNumber }> = {}
+): Promise<any> {
+  try {
+    const submit = await cordApiTx(tx, 'signAndSubmit')
+
+    if (!submit) {
+      const signedTx = await tx.signAsync(signer, { tip, nonce: -1 })
+      return submitSignedTx(signedTx, opts)
+    }
+
+    return submit
+  } catch (error) {
+    return error
+  }
 }

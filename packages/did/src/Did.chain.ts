@@ -21,8 +21,12 @@ import type {
   VerificationKeyRelationship,
 } from '@cord.network/types'
 import { verificationKeyTypes } from '@cord.network/types'
-import { Crypto, SDKErrors, ss58Format } from '@cord.network/utils'
-import { ConfigService } from '@cord.network/config'
+import {
+  Crypto,
+  SDKErrors,
+  ss58Format,
+} from '@cord.network/utils'
+import { ConfigService, cord_api_query } from '@cord.network/config'
 import type {
   PalletDidDidDetails,
   PalletDidDidDetailsDidAuthorizedCallOperation,
@@ -433,6 +437,14 @@ export async function generateDidAuthenticatedTx({
   blockNumber,
 }: AuthorizeCallInput & SigningOptions): Promise<SubmittableExtrinsic> {
   const api = ConfigService.get('api')
+  let number: any
+
+  number = await cord_api_query('system', 'section', 'number')
+
+  if (!number) {
+    number = await api.query.system.number()
+  }
+
   const signableCall =
     api.registry.createType<PalletDidDidDetailsDidAuthorizedCallOperation>(
       api.tx.did.submitDidCall.meta.args[0].type.toString(),
@@ -441,7 +453,7 @@ export async function generateDidAuthenticatedTx({
         did: toChain(did),
         call,
         submitter,
-        blockNumber: blockNumber ?? (await api.query.system.number()),
+        blockNumber: blockNumber ?? number,
       }
     )
   const signature = await sign({

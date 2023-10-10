@@ -3,7 +3,7 @@ import moment from 'moment'
 import Keyring from '@polkadot/keyring'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { ScoreType } from '@cord.network/types'
-import { UUID } from '@cord.network/utils'
+import { UUID, cordApiTx } from '@cord.network/utils'
 
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
@@ -184,7 +184,12 @@ async function main() {
     }
   }
   try {
-    api.tx.utility.batchAll(txBatch).signAndSend(batchTransactionAuthor)
+    const tx = api.tx.utility.batchAll(txBatch)
+    const value = await cordApiTx(tx, 'signAndSend')
+
+    if (!value) {
+      api.tx.utility.batchAll(txBatch).signAndSend(batchTransactionAuthor)
+    }
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }

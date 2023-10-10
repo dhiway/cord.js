@@ -27,9 +27,11 @@ function getChallenge(): string {
 }
 
 async function main() {
-  //const networkAddress = 'ws://127.0.0.1:9944'
-  const networkAddress = 'wss://staging.cord.network'
-  Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
+  const networkAddress = 'ws://127.0.0.1:9944'
+  //const networkAddress = 'wss://staging.cord.network'
+  Cord.ConfigService.set({
+    submitTxResolveOn: Cord.Chain.IS_IN_BLOCK,
+  })
   await Cord.connect(networkAddress)
 
   // Step 1: Setup Authority
@@ -40,8 +42,11 @@ async function main() {
     '//Alice',
     'sr25519'
   )
-  console.log("Alice (AuthorIdentity for this run): ", authorityAuthorIdentity.address);
-  
+  console.log(
+    'Alice (AuthorIdentity for this run): ',
+    authorityAuthorIdentity.address
+  )
+
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
 
@@ -244,27 +249,6 @@ async function main() {
   } else {
     console.log('✅ Verification failed! 🚫')
   }
-
-  console.log(`\n❄️  Messaging `)
-  const schemaId = Cord.Schema.idToChain(schema.$id)
-  console.log(' Generating the message - Sender -> Receiver')
-  const message = await generateRequestCredentialMessage(
-    holderDid.uri,
-    verifierDid.uri,
-    schemaId
-  )
-
-  console.log(' Encrypting the message - Sender -> Receiver')
-  const encryptedMessage = await encryptMessage(
-    message,
-    holderDid.uri,
-    verifierDid.uri,
-    holderKeys.keyAgreement
-  )
-
-  console.log(' Decrypting the message - Receiver')
-  await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
-
   // Step 7: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${document.identifier}`)
   await revokeCredential(
