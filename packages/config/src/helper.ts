@@ -11,11 +11,11 @@ export async function cord_api_query(
   const token = ConfigService.get('token')
 
   if (!url || !token) {
-    return null
+    throw Error('Missing token')
   }
 
   try {
-    const cordApiUrl = `${url}/query/${modules}/${section}/${identifier}`
+    const cordApiUrl = `${url}/api/v1/query/${modules}/${section}/${identifier}`
 
     const resp = await fetch(cordApiUrl, {
       method: 'GET',
@@ -24,10 +24,18 @@ export async function cord_api_query(
         Authorization: `Bearer ${token}`,
       },
     })
-    const data = resp.json()
+
+    if (resp.status === 403) {
+      throw Error('Invalid token')
+    }
+    // if (resp.status !== 200) {
+    //   throw Error('missing resp')
+    // }
+
+    const data = await resp.json()
     return data
   } catch (error) {
-    return error
+    throw Error('Invalid response ')
   }
 }
 
@@ -36,11 +44,11 @@ export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
   const token = ConfigService.get('token')
 
   if (!url || !token) {
-    return null
+    throw Error('Missing token')
   }
 
   try {
-    const cordApiUrl = `${url}/${modules}/extrinsic`
+    const cordApiUrl = `${url}/api/v1/${modules}/extrinsic`
 
     const submit = await fetch(cordApiUrl, {
       body: JSON.stringify({
@@ -52,9 +60,17 @@ export async function cordApiTx(tx: SubmittableExtrinsic, modules: any) {
         Authorization: `Bearer ${token}`,
       },
     })
-    const data = submit.json()
+
+    if (submit.status === 403) {
+      throw Error('Invalid token')
+    }
+    // if (submit.status !== 200) {
+    //   throw Error('missing resp')
+    // }
+
+    const data = await submit.json()
     return data
   } catch (error) {
-    return error
+    throw Error('Invalid response ')
   }
 }

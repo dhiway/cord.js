@@ -137,6 +137,9 @@ export interface DidInfo {
 export function linkedInfoFromChain(
   encoded: Option<RawDidLinkedInfo>
 ): DidInfo {
+  // if (encoded.isNone) {
+  //   throw 'Did not find'
+  // }
   const { identifier, account, name, serviceEndpoints, details } =
     encoded.unwrap()
   const didRec = documentFromChain(details)
@@ -257,6 +260,9 @@ function servicesFromApi(encoded: AnyJson): DidServiceEndpoint[] {
 }
 
 export function linkedInfoFromApi(encoded: Record<string, AnyJson>): DidInfo {
+  // if (encoded.isNone) {
+  //   throw 'Did not find'
+  // }
   const { identifier, account, name, serviceEndpoints, details } = encoded
   const didRec = documentFromApi(details)
   const did: DidDocument = {
