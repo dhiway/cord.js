@@ -14,6 +14,12 @@ export interface Data extends Enum {
   readonly type: 'None' | 'Raw';
 }
 
+/** @name OpaquePeerId */
+export interface OpaquePeerId extends Bytes {}
+
+/** @name PeerId */
+export interface PeerId extends Bytes {}
+
 /** @name RawDidLinkedInfo */
 export interface RawDidLinkedInfo extends Struct {
   readonly identifier: AccountId32;

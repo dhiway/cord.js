@@ -150,10 +150,12 @@ export function ensureOwnerIsSender({ body, sender }: IMessage): void {
       break
     case 'submit-document-stream':
       {
+	/*
         const submitStream = body
         if (!Did.isSameSubject(submitStream.content.stream.issuer, sender)) {
           throw new SDKErrors.IdentityMismatchError('Stream', 'Sender')
         }
+	*/
       }
       break
     case 'submit-credential-document':

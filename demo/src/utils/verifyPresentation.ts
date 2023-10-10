@@ -37,7 +37,9 @@ export async function verifyPresentation(
     if (stream.revoked) {
       return false
     }
-    if (stream.streamHash !== presentation.documentHash) {
+    const attestationOnChain = await api.query.stream.attestations(chainIdentifier, presentation.documentHash)
+    const attest = Cord.Stream.fromChainAttest(attestationOnChain, chainIdentifier)
+    if (attest.revoked) {
       return false
     }
     return trustedIssuerUris.includes(stream.issuer)

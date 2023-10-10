@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableE
 import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletScoreRatingInput, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -19,1739 +19,633 @@ declare module '@polkadot/api-base/types/submittable' {
   interface AugmentedSubmittables<ApiType extends ApiTypes> {
     authorityMembership: {
       /**
-       * Mark an authority member offline.
-       * The authority will be deactivated from current session + 2.
+       * See [`Pallet::go_offline`].
        **/
       goOffline: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Mark an authority member going online.
-       * Authority will be activated from current session + 2.
+       * See [`Pallet::go_online`].
        **/
       goOnline: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Add new authorities to the set.
-       * The new authorities will be active from current session + 2.
+       * See [`Pallet::nominate`].
        **/
       nominate: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Remove authorities from the set.
-       * The removed authorities will be deactivated from current session + 2
+       * See [`Pallet::remove`].
        **/
       remove: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Remove members from blacklist.
+       * See [`Pallet::remove_member_from_blacklist`].
        **/
       removeMemberFromBlacklist: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
     };
     babe: {
       /**
-       * Plan an epoch config change. The epoch config change is recorded and will be enacted on
-       * the next call to `enact_epoch_change`. The config will be activated one epoch after.
-       * Multiple calls to this method will replace any existing planned config change that had
-       * not been enacted yet.
+       * See [`Pallet::plan_config_change`].
        **/
       planConfigChange: AugmentedSubmittable<(config: SpConsensusBabeDigestsNextConfigDescriptor | { V1: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusBabeDigestsNextConfigDescriptor]>;
       /**
-       * Report authority equivocation/misbehavior. This method will verify
-       * the equivocation proof and validate the given key ownership proof
-       * against the extracted offender. If both are valid, the offence will
-       * be reported.
+       * See [`Pallet::report_equivocation`].
        **/
       reportEquivocation: AugmentedSubmittable<(equivocationProof: SpConsensusSlotsEquivocationProof | { offender?: any; slot?: any; firstHeader?: any; secondHeader?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusSlotsEquivocationProof, SpSessionMembershipProof]>;
       /**
-       * Report authority equivocation/misbehavior. This method will verify
-       * the equivocation proof and validate the given key ownership proof
-       * against the extracted offender. If both are valid, the offence will
-       * be reported.
-       * This extrinsic must be called unsigned and it is expected that only
-       * block authors will call it (validated in `ValidateUnsigned`), as such
-       * if the block author is defined it will be defined as the equivocation
-       * reporter.
+       * See [`Pallet::report_equivocation_unsigned`].
        **/
       reportEquivocationUnsigned: AugmentedSubmittable<(equivocationProof: SpConsensusSlotsEquivocationProof | { offender?: any; slot?: any; firstHeader?: any; secondHeader?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusSlotsEquivocationProof, SpSessionMembershipProof]>;
     };
     balances: {
       /**
-       * Set the regular balance of a given account.
-       * 
-       * The dispatch origin for this call is `root`.
+       * See [`Pallet::force_set_balance`].
        **/
       forceSetBalance: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, newFree: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Compact<u128>]>;
       /**
-       * Exactly as `transfer_allow_death`, except the origin must be root and the source account
-       * may be specified.
+       * See [`Pallet::force_transfer`].
        **/
       forceTransfer: AugmentedSubmittable<(source: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, value: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, MultiAddress, Compact<u128>]>;
       /**
-       * Unreserve some balance from a user by force.
-       * 
-       * Can only be called by ROOT.
+       * See [`Pallet::force_unreserve`].
        **/
       forceUnreserve: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, amount: u128 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, u128]>;
       /**
-       * Set the regular balance of a given account; it also takes a reserved balance but this
-       * must be the same as the account's current reserved balance.
-       * 
-       * The dispatch origin for this call is `root`.
-       * 
-       * WARNING: This call is DEPRECATED! Use `force_set_balance` instead.
+       * See [`Pallet::set_balance_deprecated`].
        **/
       setBalanceDeprecated: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, newFree: Compact<u128> | AnyNumber | Uint8Array, oldReserved: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Compact<u128>, Compact<u128>]>;
       /**
-       * Alias for `transfer_allow_death`, provided only for name-wise compatibility.
-       * 
-       * WARNING: DEPRECATED! Will be released in approximately 3 months.
+       * See [`Pallet::transfer`].
        **/
       transfer: AugmentedSubmittable<(dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, value: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Compact<u128>]>;
       /**
-       * Transfer the entire transferable balance from the caller account.
-       * 
-       * NOTE: This function only attempts to transfer _transferable_ balances. This means that
-       * any locked, reserved, or existential deposits (when `keep_alive` is `true`), will not be
-       * transferred by this function. To ensure that this function results in a killed account,
-       * you might need to prepare the account by removing any reference counters, storage
-       * deposits, etc...
-       * 
-       * The dispatch origin of this call must be Signed.
-       * 
-       * - `dest`: The recipient of the transfer.
-       * - `keep_alive`: A boolean to determine if the `transfer_all` operation should send all
-       * of the funds the account has, causing the sender account to be killed (false), or
-       * transfer everything except at least the existential deposit, which will guarantee to
-       * keep the sender account alive (true).
+       * See [`Pallet::transfer_all`].
        **/
       transferAll: AugmentedSubmittable<(dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, keepAlive: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, bool]>;
       /**
-       * Transfer some liquid free balance to another account.
-       * 
-       * `transfer_allow_death` will set the `FreeBalance` of the sender and receiver.
-       * If the sender's account is below the existential deposit as a result
-       * of the transfer, the account will be reaped.
-       * 
-       * The dispatch origin for this call must be `Signed` by the transactor.
+       * See [`Pallet::transfer_allow_death`].
        **/
       transferAllowDeath: AugmentedSubmittable<(dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, value: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Compact<u128>]>;
       /**
-       * Same as the [`transfer_allow_death`] call, but with a check that the transfer will not
-       * kill the origin account.
-       * 
-       * 99% of the time you want [`transfer_allow_death`] instead.
-       * 
-       * [`transfer_allow_death`]: struct.Pallet.html#method.transfer
+       * See [`Pallet::transfer_keep_alive`].
        **/
       transferKeepAlive: AugmentedSubmittable<(dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, value: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Compact<u128>]>;
       /**
-       * Upgrade a specified account.
-       * 
-       * - `origin`: Must be `Signed`.
-       * - `who`: The account to be upgraded.
-       * 
-       * This will waive the transaction fee if at least all but 10% of the accounts needed to
-       * be upgraded. (We let some not have to be upgraded just in order to allow for the
-       * possibililty of churn).
+       * See [`Pallet::upgrade_accounts`].
        **/
       upgradeAccounts: AugmentedSubmittable<(who: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
     };
     council: {
       /**
-       * Close a vote that is either approved, disapproved or whose voting
-       * period has ended.
-       * 
-       * May be called by any signed account in order to finish voting and
-       * close the proposal.
-       * 
-       * If called before the end of the voting period it will only close the
-       * vote if it is has enough votes to be approved or disapproved.
-       * 
-       * If called after the end of the voting period abstentions are counted
-       * as rejections unless there is a prime member set and the prime
-       * member cast an approval.
-       * 
-       * If the close operation completes successfully with disapproval, the
-       * transaction fee will be waived. Otherwise execution of the approved
-       * operation will be charged to the caller.
-       * 
-       * + `proposal_weight_bound`: The maximum amount of weight consumed by
-       * executing the closed proposal.
-       * + `length_bound`: The upper bound for the length of the proposal in
-       * storage. Checked via `storage::read` so it is `size_of::<u32>() ==
-       * 4` larger than the pure length.
-       * 
-       * ## Complexity
-       * - `O(B + M + P1 + P2)` where:
-       * - `B` is `proposal` size in bytes (length-fee-bounded)
-       * - `M` is members-count (code- and governance-bounded)
-       * - `P1` is the complexity of `proposal` preimage.
-       * - `P2` is proposal-count (code-bounded)
+       * See [`Pallet::close`].
        **/
       close: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array, index: Compact<u32> | AnyNumber | Uint8Array, proposalWeightBound: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Compact<u32>, SpWeightsWeightV2Weight, Compact<u32>]>;
       /**
-       * Disapprove a proposal, close, and remove it from the system,
-       * regardless of its current state.
-       * 
-       * Must be called by the Root origin.
-       * 
-       * Parameters:
-       * * `proposal_hash`: The hash of the proposal that should be
-       * disapproved.
-       * 
-       * ## Complexity
-       * O(P) where P is the number of max proposals
+       * See [`Pallet::disapprove_proposal`].
        **/
       disapproveProposal: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
       /**
-       * Dispatch a proposal from a member using the `Member` origin.
-       * 
-       * Origin must be a member of the collective.
-       * 
-       * ## Complexity:
-       * - `O(B + M + P)` where:
-       * - `B` is `proposal` size in bytes (length-fee-bounded)
-       * - `M` members-count (code-bounded)
-       * - `P` complexity of dispatching `proposal`
+       * See [`Pallet::execute`].
        **/
       execute: AugmentedSubmittable<(proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, Compact<u32>]>;
       /**
-       * Add a new proposal to either be voted on or executed directly.
-       * 
-       * Requires the sender to be member.
-       * 
-       * `threshold` determines whether `proposal` is executed directly
-       * (`threshold < 2`) or put up for voting.
-       * 
-       * ## Complexity
-       * - `O(B + M + P1)` or `O(B + M + P2)` where:
-       * - `B` is `proposal` size in bytes (length-fee-bounded)
-       * - `M` is members-count (code- and governance-bounded)
-       * - branching is influenced by `threshold` where:
-       * - `P1` is proposal execution complexity (`threshold < 2`)
-       * - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+       * See [`Pallet::propose`].
        **/
       propose: AugmentedSubmittable<(threshold: Compact<u32> | AnyNumber | Uint8Array, proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Call, Compact<u32>]>;
       /**
-       * Set the collective's membership.
-       * 
-       * - `new_members`: The new member list. Be nice to the chain and
-       * provide it sorted.
-       * - `prime`: The prime member whose vote sets the default.
-       * - `old_count`: The upper bound for the previous number of members in
-       * storage. Used for weight estimation.
-       * 
-       * The dispatch of this call must be `SetMembersOrigin`.
-       * 
-       * NOTE: Does not enforce the expected `MaxMembers` limit on the amount
-       * of members, but       the weight estimations rely on it to estimate
-       * dispatchable weight.
-       * 
-       * # WARNING:
-       * 
-       * The `pallet-collective` can also be managed by logic outside of the
-       * pallet through the implementation of the trait [`ChangeMembers`].
-       * Any call to `set_members` must be careful that the member set
-       * doesn't get out of sync with other logic managing the member set.
-       * 
-       * ## Complexity:
-       * - `O(MP + N)` where:
-       * - `M` old-members-count (code- and governance-bounded)
-       * - `N` new-members-count (code- and governance-bounded)
-       * - `P` proposals-count (code-bounded)
+       * See [`Pallet::set_members`].
        **/
       setMembers: AugmentedSubmittable<(newMembers: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], prime: Option<AccountId32> | null | Uint8Array | AccountId32 | string, oldCount: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>, Option<AccountId32>, u32]>;
       /**
-       * Add an aye or nay vote for the sender to the given proposal.
-       * 
-       * Requires the sender to be a member.
-       * 
-       * Transaction fees will be waived if the member is voting on any
-       * particular proposal for the first time and the call is successful.
-       * Subsequent vote changes will charge a fee.
-       * ## Complexity
-       * - `O(M)` where `M` is members-count (code- and governance-bounded)
+       * See [`Pallet::vote`].
        **/
       vote: AugmentedSubmittable<(proposal: H256 | string | Uint8Array, index: Compact<u32> | AnyNumber | Uint8Array, approve: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Compact<u32>, bool]>;
     };
     councilMembership: {
       /**
-       * Add a member `who` to the set.
-       * 
-       * May only be called from `T::AddOrigin`.
+       * See [`Pallet::add_member`].
        **/
       addMember: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Swap out the sending member for some other key `new`.
-       * 
-       * May only be called from `Signed` origin of a current member.
-       * 
-       * Prime membership is passed from the origin account to `new`, if
-       * extant.
+       * See [`Pallet::change_key`].
        **/
       changeKey: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Remove the prime member if it exists.
-       * 
-       * May only be called from `T::PrimeOrigin`.
+       * See [`Pallet::clear_prime`].
        **/
       clearPrime: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Remove a member `who` from the set.
-       * 
-       * May only be called from `T::RemoveOrigin`.
+       * See [`Pallet::remove_member`].
        **/
       removeMember: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Change the membership to a new set, disregarding the existing
-       * membership. Be nice and pass `members` pre-sorted.
-       * 
-       * May only be called from `T::ResetOrigin`.
+       * See [`Pallet::reset_members`].
        **/
       resetMembers: AugmentedSubmittable<(members: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
       /**
-       * Set the prime member. Must be a current member.
-       * 
-       * May only be called from `T::PrimeOrigin`.
+       * See [`Pallet::set_prime`].
        **/
       setPrime: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Swap out one member `remove` for another `add`.
-       * 
-       * May only be called from `T::SwapOrigin`.
-       * 
-       * Prime membership is *not* passed from `remove` to `add`, if extant.
+       * See [`Pallet::swap_member`].
        **/
       swapMember: AugmentedSubmittable<(remove: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, add: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, MultiAddress]>;
     };
     did: {
       /**
-       * Add a single new key agreement key to the DID.
-       * 
-       * The new key is added to the set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::add_key_agreement_key`].
        **/
       addKeyAgreementKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidEncryptionKey | { x25519: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidEncryptionKey]>;
       /**
-       * Add a new service endpoint under the given DID.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did, ServiceEndpoints, DidEndpointsCount
-       * - Writes: Did, ServiceEndpoints, DidEndpointsCount
-       * # </weight>
+       * See [`Pallet::add_service_endpoint`].
        **/
       addServiceEndpoint: AugmentedSubmittable<(serviceEndpoint: PalletDidServiceEndpointsDidEndpoint | { id?: any; serviceTypes?: any; urls?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidServiceEndpointsDidEndpoint]>;
       /**
-       * Store a new DID on chain, after verifying that the creation
-       * operation has been signed by the CORD account associated with the
-       * identifier of the DID being created and that a DID with the same
-       * identifier has not previously existed on (and then deleted from) the
-       * chain.
-       * 
-       * There must be no DID information stored on chain under the same DID
-       * identifier.
-       * 
-       * The new keys added with this operation are stored under the DID
-       * identifier along with the block number in which the operation was
-       * executed.
-       * 
-       * The dispatch origin can be any CORD account authorised to execute
-       * the extrinsic and it does not have to be tied in any way to the
-       * CORD account identifying the DID subject.
-       * 
-       * Emits `DidCreated`.
-       * 
-       * # <weight>
-       * - The transaction's complexity is mainly dependent on the number of
-       * new key agreement keys and the number of new service endpoints
-       * included in the operation.
-       * ---------
-       * Weight: O(K) + O(N) where K is the number of new key agreement
-       * keys bounded by `MaxNewKeyAgreementKeys`, while N is the number of
-       * new service endpoints bounded by `MaxNumberOfServicesPerDid`.
-       * - Reads: [Origin Account], Did, DidBlacklist
-       * - Writes: Did (with K new key agreement keys), ServiceEndpoints
-       * (with N new service endpoints), DidEndpointsCount
-       * # </weight>
+       * See [`Pallet::create`].
        **/
       create: AugmentedSubmittable<(details: PalletDidDidDetailsDidCreationDetails | { did?: any; submitter?: any; newKeyAgreementKeys?: any; newAssertionKey?: any; newDelegationKey?: any; newServiceDetails?: any } | string | Uint8Array, signature: PalletDidDidDetailsDidSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidSignature]>;
       /**
-       * Store a new DID on chain.
-       * 
-       * The DID identifier is derived from the account ID that submits this
-       * call. The authentication key must correspond to the account ID that
-       * submitted this call. For accounts that use the ed25519 and sr25519
-       * schema, the authentication key must be of the
-       * `DidVerificationKey::ed25519` or `DidVerificationKey::sr25519`
-       * variant and contains the public key. For ecdsa accounts, the
-       * `DidVerificationKey::ecdsa` variant is calculated by hashing the
-       * ecdsa public key.
-       * 
-       * If this call is dispatched by an account id that doesn't correspond
-       * to a public private key pair, the `DidVerificationKey::Account`
-       * variant shall be used (Multisig, Pure Proxy, Governance origins).
-       * The resulting DID can NOT be used for signing data and is therefore
-       * limited to onchain activities.
-       * 
-       * There must be no DID information stored on chain under the same DID
-       * identifier. This call will fail if there exists a DID with the same
-       * identifier or if a DID with the same identifier existed and was
-       * deleted.
-       * 
-       * The origin for this account must be funded and provide the required
-       * deposit and fee.
-       * 
-       * Emits `DidCreated`.
+       * See [`Pallet::create_from_account`].
        **/
       createFromAccount: AugmentedSubmittable<(authenticationKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
       /**
-       * Delete a DID from the chain and all information associated with it,
-       * after verifying that the delete operation has been signed by the DID
-       * subject using the authentication key currently stored on chain.
-       * 
-       * The referenced DID identifier must be present on chain before the
-       * delete operation is evaluated.
-       * 
-       * After it is deleted, a DID with the same identifier cannot be
-       * re-created ever again.
-       * 
-       * As the result of the deletion, all traces of the DID are removed
-       * from the storage, which results in the invalidation of all
-       * assertions issued by the DID subject.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidDeleted`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Kills: Did entry associated to the DID identifier
-       * # </weight>
+       * See [`Pallet::delete`].
        **/
       delete: AugmentedSubmittable<(endpointsToRemove: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
-       * Proxy a dispatchable call of another runtime extrinsic that
-       * supports a DID origin.
-       * 
-       * The referenced DID identifier must be present on chain before the
-       * operation is dispatched.
-       * 
-       * A call submitted through this extrinsic must be signed with the
-       * right DID key, depending on the call. In contrast to the
-       * `submit_did_call` extrinsic, this call doesn't separate the sender
-       * from the DID subject. The key that must be used for this DID call
-       * is required to also be a valid account with enough balance to pay
-       * for fees.
-       * 
-       * The dispatch origin must be a KILT account with enough funds to
-       * execute the extrinsic and must correspond to the required DID
-       * Verification Key.
-       * 
-       * Emits `DidCallDispatched`.
+       * See [`Pallet::dispatch_as`].
        **/
       dispatchAs: AugmentedSubmittable<(didIdentifier: AccountId32 | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, Call]>;
       /**
-       * Remove the DID assertion key.
-       * 
-       * The old key is deleted from the set of public keys if
-       * it is not used in any other part of the DID.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::remove_assertion_key`].
        **/
       removeAssertionKey: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Remove the DID delegation key.
-       * 
-       * The old key is deleted from the set of public keys if
-       * it is not used in any other part of the DID.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::remove_delegation_key`].
        **/
       removeDelegationKey: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Remove a DID key agreement key from both its set of key agreement
-       * keys and as well as its public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::remove_key_agreement_key`].
        **/
       removeKeyAgreementKey: AugmentedSubmittable<(keyId: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
       /**
-       * Remove the service with the provided ID from the DID.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], ServiceEndpoints, DidEndpointsCount
-       * - Writes: Did, ServiceEndpoints, DidEndpointsCount
-       * # </weight>
+       * See [`Pallet::remove_service_endpoint`].
        **/
       removeServiceEndpoint: AugmentedSubmittable<(serviceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Set or update the DID assertion key.
-       * 
-       * If an old key existed, it is deleted from the set of public keys if
-       * it is not used in any other part of the DID. The new key is added to
-       * the set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::set_assertion_key`].
        **/
       setAssertionKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
       /**
-       * Update the DID authentication key.
-       * 
-       * The old key is deleted from the set of public keys if it is
-       * not used in any other part of the DID. The new key is added to the
-       * set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::set_authentication_key`].
        **/
       setAuthenticationKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
       /**
-       * Set or update the DID delegation key.
-       * 
-       * If an old key existed, it is deleted from the set of public keys if
-       * it is not used in any other part of the DID. The new key is added to
-       * the set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::set_delegation_key`].
        **/
       setDelegationKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
       /**
-       * Proxy a dispatchable call of another runtime extrinsic that
-       * supports a DID origin.
-       * 
-       * The referenced DID identifier must be present on chain before the
-       * operation is dispatched.
-       * 
-       * A call submitted through this extrinsic must be signed with the
-       * right DID key, depending on the call. This information is provided
-       * by the `DidAuthorizedCallOperation` parameter, which specifies the
-       * DID subject acting as the origin of the call, the DID's tx counter
-       * (nonce), the dispatchable to call in case signature verification
-       * succeeds, the type of DID key to use to verify the operation
-       * signature, and the block number the operation was targeting for
-       * inclusion, when it was created and signed.
-       * 
-       * In case the signature is incorrect, the nonce is not valid, the
-       * required key is not present for the specified DID, or the block
-       * specified is too old the verification fails and the call is not
-       * dispatched. Otherwise, the call is properly dispatched with a
-       * `DidOrigin` origin indicating the DID subject.
-       * 
-       * A successful dispatch operation results in the tx counter associated
-       * with the given DID to be incremented, to mitigate replay attacks.
-       * 
-       * The dispatch origin can be any CORD account with enough funds to
-       * execute the extrinsic and it does not have to be tied in any way to
-       * the CORD account identifying the DID subject.
-       * 
-       * Emits `DidCallDispatched`.
-       * 
-       * # <weight>
-       * Weight: O(1) + weight of the dispatched call
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * See [`Pallet::submit_did_call`].
        **/
       submitDidCall: AugmentedSubmittable<(didCall: PalletDidDidDetailsDidAuthorizedCallOperation | { did?: any; txCounter?: any; call?: any; blockNumber?: any; submitter?: any } | string | Uint8Array, signature: PalletDidDidDetailsDidSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidSignature]>;
     };
-    didNames: {
+    didName: {
       /**
-       * Ban a name.
-       * 
-       * A banned name cannot be registered by anyone.
-       * 
-       * The origin must be the ban origin.
+       * See [`Pallet::ban`].
        **/
       ban: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Assign the specified name to the owner as specified in the
-       * origin.
-       * 
-       * The name must not have already been registered by someone else and
-       * the owner must not already own another name.
+       * See [`Pallet::register`].
        **/
       register: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Release the provided name from its owner.
-       * 
-       * The origin must be the owner of the specified name.
+       * See [`Pallet::release`].
        **/
       release: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Unban a name.
-       * 
-       * Make a name available again.
-       * 
-       * The origin must be the ban origin.
+       * See [`Pallet::unban`].
        **/
       unban: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
     grandpa: {
       /**
-       * Note that the current authority set of the GRANDPA finality gadget has stalled.
-       * 
-       * This will trigger a forced authority set change at the beginning of the next session, to
-       * be enacted `delay` blocks after that. The `delay` should be high enough to safely assume
-       * that the block signalling the forced change will not be re-orged e.g. 1000 blocks.
-       * The block production rate (which may be slowed down because of finality lagging) should
-       * be taken into account when choosing the `delay`. The GRANDPA voters based on the new
-       * authority will start voting on top of `best_finalized_block_number` for new finalized
-       * blocks. `best_finalized_block_number` should be the highest of the latest finalized
-       * block of all validators of the new authority set.
-       * 
-       * Only callable by root.
+       * See [`Pallet::note_stalled`].
        **/
       noteStalled: AugmentedSubmittable<(delay: u32 | AnyNumber | Uint8Array, bestFinalizedBlockNumber: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
       /**
-       * Report voter equivocation/misbehavior. This method will verify the
-       * equivocation proof and validate the given key ownership proof
-       * against the extracted offender. If both are valid, the offence
-       * will be reported.
+       * See [`Pallet::report_equivocation`].
        **/
       reportEquivocation: AugmentedSubmittable<(equivocationProof: SpConsensusGrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusGrandpaEquivocationProof, SpSessionMembershipProof]>;
       /**
-       * Report voter equivocation/misbehavior. This method will verify the
-       * equivocation proof and validate the given key ownership proof
-       * against the extracted offender. If both are valid, the offence
-       * will be reported.
-       * 
-       * This extrinsic must be called unsigned and it is expected that only
-       * block authors will call it (validated in `ValidateUnsigned`), as such
-       * if the block author is defined it will be defined as the equivocation
-       * reporter.
+       * See [`Pallet::report_equivocation_unsigned`].
        **/
       reportEquivocationUnsigned: AugmentedSubmittable<(equivocationProof: SpConsensusGrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusGrandpaEquivocationProof, SpSessionMembershipProof]>;
     };
     identity: {
       /**
-       * Add a registrar to the system.
-       * 
-       * The dispatch origin for this call must be `T::RegistrarOrigin`.
-       * 
-       * - `account`: the account of the registrar.
-       * 
-       * Emits `RegistrarAdded` if successful.
+       * See [`Pallet::add_registrar`].
        **/
       addRegistrar: AugmentedSubmittable<(account: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Cancel a previous request.
-       * 
-       * Payment: A previously reserved deposit is returned on success.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must have a registered identity.
-       * 
-       * - `reg_index`: The index of the registrar whose judgement is no
-       * longer requested.
-       * 
-       * Emits `JudgementUnrequested` if successful.
+       * See [`Pallet::cancel_request`].
        **/
       cancelRequest: AugmentedSubmittable<(registrar: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Clear an account's identity info and all sub-accounts and return all
-       * deposits.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must have a registered identity.
-       * 
-       * Emits `IdentityCleared` if successful.
+       * See [`Pallet::clear_identity`].
        **/
       clearIdentity: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Remove an account's identity
-       * 
-       * The dispatch origin for this call must match `T::RegistrarOrigin`.
-       * 
-       * - `target`: the account whose identity the judgement is upon. This
-       * must be an account with a registered identity.
-       * 
-       * Emits `IdentityKilled` if successful.
+       * See [`Pallet::kill_identity`].
        **/
       killIdentity: AugmentedSubmittable<(target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Provide a judgement for an account's identity.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must be the account of the registrar whose index is `reg_index`.
-       * 
-       * - `reg_index`: the index of the registrar whose judgement is being
-       * made.
-       * - `target`: the account whose identity the judgement is upon. This
-       * must be an account with a registered identity.
-       * - `judgement`: the judgement of the registrar of index `reg_index`
-       * about `target`.
-       * - `identity`: The hash of the [`IdentityInfo`] for that the
-       * judgement is provided.
-       * 
-       * Emits `JudgementGiven` if successful.
-       * 
-       * ## Complexity
-       * - `O(R + X)`.
-       * - where `R` registrar-count (governance-bounded).
-       * - where `X` additional-field-count (deposit-bounded and
-       * code-bounded).
+       * See [`Pallet::provide_judgement`].
        **/
       provideJudgement: AugmentedSubmittable<(target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, judgement: PalletIdentityJudgement | 'Unknown' | 'Requested' | 'Reasonable' | 'KnownGood' | 'OutOfDate' | 'LowQuality' | 'Erroneous' | number | Uint8Array, digest: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, PalletIdentityJudgement, H256]>;
       /**
-       * Remove a registrar from the system.
-       * 
-       * The dispatch origin for this call must be `T::RegistrarOrigin`.
-       * 
-       * - `account`: the account of the registrar.
-       * 
-       * Emits `RegistrarRemoved` if successful.
+       * See [`Pallet::remove_registrar`].
        **/
       removeRegistrar: AugmentedSubmittable<(account: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Request a judgement from a registrar.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must have a registered identity.
-       * 
-       * - `reg_index`: The index of the registrar whose judgement is
-       * requested.
-       * 
-       * Emits `JudgementRequested` if successful.
+       * See [`Pallet::request_judgement`].
        **/
       requestJudgement: AugmentedSubmittable<(registrar: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Set an account's identity information
-       * 
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `info`: The identity information.
-       * 
-       * Emits `IdentitySet` if successful.
+       * See [`Pallet::set_identity`].
        **/
       setIdentity: AugmentedSubmittable<(info: PalletIdentityIdentityInfo | { additional?: any; display?: any; legal?: any; web?: any; email?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletIdentityIdentityInfo]>;
     };
     imOnline: {
       /**
-       * ## Complexity:
-       * - `O(K + E)` where K is length of `Keys` (heartbeat.validators_len) and E is length of
-       * `heartbeat.network_state.external_address`
-       * - `O(K)`: decoding of length `K`
-       * - `O(E)`: decoding/encoding of length `E`
+       * See [`Pallet::heartbeat`].
        **/
-      heartbeat: AugmentedSubmittable<(heartbeat: PalletImOnlineHeartbeat | { blockNumber?: any; networkState?: any; sessionIndex?: any; authorityIndex?: any; validatorsLen?: any } | string | Uint8Array, signature: PalletImOnlineSr25519AppSr25519Signature | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature]>;
+      heartbeat: AugmentedSubmittable<(heartbeat: PalletImOnlineHeartbeat | { blockNumber?: any; sessionIndex?: any; authorityIndex?: any; validatorsLen?: any } | string | Uint8Array, signature: PalletImOnlineSr25519AppSr25519Signature | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature]>;
     };
     indices: {
       /**
-       * Assign an previously unassigned index.
-       * 
-       * Payment: `Deposit` is reserved from the sender account.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `index`: the index to be claimed. This must not be in use.
-       * 
-       * Emits `IndexAssigned` if successful.
-       * 
-       * ## Complexity
-       * - `O(1)`.
+       * See [`Pallet::claim`].
        **/
       claim: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
-       * Force an index to an account. This doesn't require a deposit. If the index is already
-       * held, then any deposit is reimbursed to its current owner.
-       * 
-       * The dispatch origin for this call must be _Root_.
-       * 
-       * - `index`: the index to be (re-)assigned.
-       * - `new`: the new owner of the index. This function is a no-op if it is equal to sender.
-       * - `freeze`: if set to `true`, will freeze the index so it cannot be transferred.
-       * 
-       * Emits `IndexAssigned` if successful.
-       * 
-       * ## Complexity
-       * - `O(1)`.
+       * See [`Pallet::force_transfer`].
        **/
       forceTransfer: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, index: u32 | AnyNumber | Uint8Array, freeze: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, u32, bool]>;
       /**
-       * Free up an index owned by the sender.
-       * 
-       * Payment: Any previous deposit placed for the index is unreserved in the sender account.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must own the index.
-       * 
-       * - `index`: the index to be freed. This must be owned by the sender.
-       * 
-       * Emits `IndexFreed` if successful.
-       * 
-       * ## Complexity
-       * - `O(1)`.
+       * See [`Pallet::free`].
        **/
       free: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
-       * Freeze an index so it will always point to the sender account. This consumes the
-       * deposit.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the signing account must have a
-       * non-frozen account `index`.
-       * 
-       * - `index`: the index to be frozen in place.
-       * 
-       * Emits `IndexFrozen` if successful.
-       * 
-       * ## Complexity
-       * - `O(1)`.
+       * See [`Pallet::freeze`].
        **/
       freeze: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
-       * Assign an index already owned by the sender to another account. The balance reservation
-       * is effectively transferred to the new account.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `index`: the index to be re-assigned. This must be owned by the sender.
-       * - `new`: the new owner of the index. This function is a no-op if it is equal to sender.
-       * 
-       * Emits `IndexAssigned` if successful.
-       * 
-       * ## Complexity
-       * - `O(1)`.
+       * See [`Pallet::transfer`].
        **/
       transfer: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, u32]>;
     };
     multisig: {
       /**
-       * Register approval for a dispatch to be made from a deterministic composite account if
-       * approved by a total of `threshold - 1` of `other_signatories`.
-       * 
-       * Payment: `DepositBase` will be reserved if this is the first approval, plus
-       * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
-       * is cancelled.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `threshold`: The total number of approvals for this dispatch before it is executed.
-       * - `other_signatories`: The accounts (other than the sender) who can approve this
-       * dispatch. May not be empty.
-       * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
-       * not the first approval, then it must be `Some`, with the timepoint (block number and
-       * transaction index) of the first approval transaction.
-       * - `call_hash`: The hash of the call to be executed.
-       * 
-       * NOTE: If this is the final approval, you will want to use `as_multi` instead.
-       * 
-       * ## Complexity
-       * - `O(S)`.
-       * - Up to one balance-reserve or unreserve operation.
-       * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
-       * signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
-       * - One encode & hash, both of complexity `O(S)`.
-       * - Up to one binary search and insert (`O(logS + S)`).
-       * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
-       * - One event.
-       * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
-       * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+       * See [`Pallet::approve_as_multi`].
        **/
       approveAsMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], maybeTimepoint: Option<PalletMultisigTimepoint> | null | Uint8Array | PalletMultisigTimepoint | { height?: any; index?: any } | string, callHash: U8aFixed | string | Uint8Array, maxWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, Option<PalletMultisigTimepoint>, U8aFixed, SpWeightsWeightV2Weight]>;
       /**
-       * Register approval for a dispatch to be made from a deterministic composite account if
-       * approved by a total of `threshold - 1` of `other_signatories`.
-       * 
-       * If there are enough, then dispatch the call.
-       * 
-       * Payment: `DepositBase` will be reserved if this is the first approval, plus
-       * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
-       * is cancelled.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `threshold`: The total number of approvals for this dispatch before it is executed.
-       * - `other_signatories`: The accounts (other than the sender) who can approve this
-       * dispatch. May not be empty.
-       * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
-       * not the first approval, then it must be `Some`, with the timepoint (block number and
-       * transaction index) of the first approval transaction.
-       * - `call`: The call to be executed.
-       * 
-       * NOTE: Unless this is the final approval, you will generally want to use
-       * `approve_as_multi` instead, since it only requires a hash of the call.
-       * 
-       * Result is equivalent to the dispatched result if `threshold` is exactly `1`. Otherwise
-       * on success, result is `Ok` and the result from the interior call, if it was executed,
-       * may be found in the deposited `MultisigExecuted` event.
-       * 
-       * ## Complexity
-       * - `O(S + Z + Call)`.
-       * - Up to one balance-reserve or unreserve operation.
-       * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
-       * signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
-       * - One call encode & hash, both of complexity `O(Z)` where `Z` is tx-len.
-       * - One encode & hash, both of complexity `O(S)`.
-       * - Up to one binary search and insert (`O(logS + S)`).
-       * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
-       * - One event.
-       * - The weight of the `call`.
-       * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
-       * taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+       * See [`Pallet::as_multi`].
        **/
       asMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], maybeTimepoint: Option<PalletMultisigTimepoint> | null | Uint8Array | PalletMultisigTimepoint | { height?: any; index?: any } | string, call: Call | IMethod | string | Uint8Array, maxWeight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, Option<PalletMultisigTimepoint>, Call, SpWeightsWeightV2Weight]>;
       /**
-       * Immediately dispatch a multi-signature call using a single approval from the caller.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `other_signatories`: The accounts (other than the sender) who are part of the
-       * multi-signature, but do not participate in the approval process.
-       * - `call`: The call to be executed.
-       * 
-       * Result is equivalent to the dispatched result.
-       * 
-       * ## Complexity
-       * O(Z + C) where Z is the length of the call and C its execution weight.
+       * See [`Pallet::as_multi_threshold_1`].
        **/
       asMultiThreshold1: AugmentedSubmittable<(otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>, Call]>;
       /**
-       * Cancel a pre-existing, on-going multisig transaction. Any deposit reserved previously
-       * for this operation will be unreserved on success.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `threshold`: The total number of approvals for this dispatch before it is executed.
-       * - `other_signatories`: The accounts (other than the sender) who can approve this
-       * dispatch. May not be empty.
-       * - `timepoint`: The timepoint (block number and transaction index) of the first approval
-       * transaction for this dispatch.
-       * - `call_hash`: The hash of the call to be executed.
-       * 
-       * ## Complexity
-       * - `O(S)`.
-       * - Up to one balance-reserve or unreserve operation.
-       * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
-       * signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
-       * - One encode & hash, both of complexity `O(S)`.
-       * - One event.
-       * - I/O: 1 read `O(S)`, one remove.
-       * - Storage: removes one item.
+       * See [`Pallet::cancel_as_multi`].
        **/
       cancelAsMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], timepoint: PalletMultisigTimepoint | { height?: any; index?: any } | string | Uint8Array, callHash: U8aFixed | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, PalletMultisigTimepoint, U8aFixed]>;
     };
     networkMembership: {
       /**
-       * Add an author. Only root or council origin can perform this
-       * action.
+       * See [`Pallet::nominate`].
        **/
       nominate: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array, expires: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, bool]>;
       /**
-       * Renew authorship. Only root or council orgin can perform this
-       * action.
+       * See [`Pallet::renew`].
        **/
       renew: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Revoke a membership. Only root or council orgin can perform this
-       * action.
+       * See [`Pallet::revoke`].
        **/
       revoke: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
     };
+    nodeAuthorization: {
+      /**
+       * See [`Pallet::add_connection`].
+       **/
+      addConnection: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, connectionId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * See [`Pallet::add_well_known_node`].
+       **/
+      addWellKnownNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, owner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, MultiAddress]>;
+      /**
+       * See [`Pallet::remove_connection`].
+       **/
+      removeConnection: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, connectionId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * See [`Pallet::remove_well_known_node`].
+       **/
+      removeWellKnownNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * See [`Pallet::swap_well_known_node`].
+       **/
+      swapWellKnownNode: AugmentedSubmittable<(removeId: Bytes | string | Uint8Array, addId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * See [`Pallet::transfer_node`].
+       **/
+      transferNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, owner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, MultiAddress]>;
+    };
     preimage: {
       /**
-       * Register a preimage on-chain.
-       * 
-       * If the preimage was previously requested, no fees or deposits are taken for providing
-       * the preimage. Otherwise, a deposit is taken proportional to the size of the preimage.
+       * See [`Pallet::note_preimage`].
        **/
       notePreimage: AugmentedSubmittable<(bytes: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Request a preimage be uploaded to the chain without paying any fees or deposits.
-       * 
-       * If the preimage requests has already been provided on-chain, we unreserve any deposit
-       * a user may have paid, and take the control of the preimage out of their hands.
+       * See [`Pallet::request_preimage`].
        **/
       requestPreimage: AugmentedSubmittable<(hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
       /**
-       * Clear an unrequested preimage from the runtime storage.
-       * 
-       * If `len` is provided, then it will be a much cheaper operation.
-       * 
-       * - `hash`: The hash of the preimage to be removed from the store.
-       * - `len`: The length of the preimage of `hash`.
+       * See [`Pallet::unnote_preimage`].
        **/
       unnotePreimage: AugmentedSubmittable<(hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
       /**
-       * Clear a previously made request for a preimage.
-       * 
-       * NOTE: THIS MUST NOT BE CALLED ON `hash` MORE TIMES THAN `request_preimage`.
+       * See [`Pallet::unrequest_preimage`].
        **/
       unrequestPreimage: AugmentedSubmittable<(hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
     };
     registry: {
       /**
-       * Addsadds a delegate to the list of authorities for a registry.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: OriginFor<T>
-       * * `registry_id`: The registry to which the delegate is being added.
-       * * `delegate`: The delegate to add to the registry.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::add_admin_delegate`].
        **/
       addAdminDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Adds a delegate to a registry.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the call.
-       * * `registry_id`: The registry to which the delegate is being added.
-       * * `delegate`: The delegate to add to the registry.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::add_delegate`].
        **/
       addDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Archives a registry
-       * 
-       * Arguments:
-       * 
-       * * `origin`: OriginFor<T>
-       * * `registry_id`: The id of the registry to archive.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::archive`].
        **/
       archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Create a new registry.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: OriginFor<T>
-       * * `tx_registry`: The new registry detail
-       * * `tx_schema`: Optional schema identifier. Schema Identifier is used
-       * to restrict the registry
-       * * content to a specific schema type.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::create`].
        **/
       create: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, txSchema: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
       /**
-       * Removes a delegate from a registry.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the call.
-       * * `registry_id`: The registry_id of the registry you want to remove
-       * the delegate from.
-       * * `authorization_id`: The transaction authorization id .
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::remove_delegate`].
        **/
       removeDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorizationId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Restores an archived registry
-       * 
-       * Arguments:
-       * 
-       * * `origin`: OriginFor<T>
-       * * `registry_id`: The id of the registry to be restored.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::restore`].
        **/
       restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Allows the creator or an admin delegate of a registry to update the
-       * registry's details
-       * 
-       * Arguments:
-       * 
-       * * `origin`: OriginFor<T>
-       * * `tx_registry`: The updated registry details
-       * * `registry_id`: The registry ID of the registry to be updated.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::update`].
        **/
       update: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
     };
     remark: {
       /**
-       * Index and store data off chain.
+       * See [`Pallet::store`].
        **/
       store: AugmentedSubmittable<(remark: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
     runtimeUpgrade: {
+      /**
+       * See [`Pallet::set_code`].
+       **/
       setCode: AugmentedSubmittable<(code: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
     scheduler: {
       /**
-       * Cancel an anonymously scheduled task.
+       * See [`Pallet::cancel`].
        **/
       cancel: AugmentedSubmittable<(when: u32 | AnyNumber | Uint8Array, index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
       /**
-       * Cancel a named scheduled task.
+       * See [`Pallet::cancel_named`].
        **/
       cancelNamed: AugmentedSubmittable<(id: U8aFixed | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [U8aFixed]>;
       /**
-       * Anonymously schedule a task.
+       * See [`Pallet::schedule`].
        **/
       schedule: AugmentedSubmittable<(when: u32 | AnyNumber | Uint8Array, maybePeriodic: Option<ITuple<[u32, u32]>> | null | Uint8Array | ITuple<[u32, u32]> | [u32 | AnyNumber | Uint8Array, u32 | AnyNumber | Uint8Array], priority: u8 | AnyNumber | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, Option<ITuple<[u32, u32]>>, u8, Call]>;
       /**
-       * Anonymously schedule a task after a delay.
+       * See [`Pallet::schedule_after`].
        **/
       scheduleAfter: AugmentedSubmittable<(after: u32 | AnyNumber | Uint8Array, maybePeriodic: Option<ITuple<[u32, u32]>> | null | Uint8Array | ITuple<[u32, u32]> | [u32 | AnyNumber | Uint8Array, u32 | AnyNumber | Uint8Array], priority: u8 | AnyNumber | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, Option<ITuple<[u32, u32]>>, u8, Call]>;
       /**
-       * Schedule a named task.
+       * See [`Pallet::schedule_named`].
        **/
       scheduleNamed: AugmentedSubmittable<(id: U8aFixed | string | Uint8Array, when: u32 | AnyNumber | Uint8Array, maybePeriodic: Option<ITuple<[u32, u32]>> | null | Uint8Array | ITuple<[u32, u32]> | [u32 | AnyNumber | Uint8Array, u32 | AnyNumber | Uint8Array], priority: u8 | AnyNumber | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [U8aFixed, u32, Option<ITuple<[u32, u32]>>, u8, Call]>;
       /**
-       * Schedule a named task after a delay.
+       * See [`Pallet::schedule_named_after`].
        **/
       scheduleNamedAfter: AugmentedSubmittable<(id: U8aFixed | string | Uint8Array, after: u32 | AnyNumber | Uint8Array, maybePeriodic: Option<ITuple<[u32, u32]>> | null | Uint8Array | ITuple<[u32, u32]> | [u32 | AnyNumber | Uint8Array, u32 | AnyNumber | Uint8Array], priority: u8 | AnyNumber | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [U8aFixed, u32, Option<ITuple<[u32, u32]>>, u8, Call]>;
     };
     schema: {
       /**
-       * Create a new schema and associates with its identifier.
-       * `create` takes a `InputSchemaOf<T>` and returns a `DispatchResult`
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `tx_schema`: The schema that is being anchored.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::create`].
        **/
       create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
+    score: {
+      /**
+       * See [`Pallet::add_rating`].
+       **/
+      addRating: AugmentedSubmittable<(journal: PalletScoreRatingInput | { entry?: any; digest?: any; creator?: any } | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletScoreRatingInput, Bytes]>;
+    };
     session: {
       /**
-       * Removes any session key(s) of the function caller.
-       * 
-       * This doesn't take effect until the next session.
-       * 
-       * The dispatch origin of this function must be Signed and the account must be either be
-       * convertible to a validator ID using the chain's typical addressing system (this usually
-       * means being a controller account) or directly convertible into a validator ID (which
-       * usually means being a stash account).
-       * 
-       * ## Complexity
-       * - `O(1)` in number of key types. Actual cost depends on the number of length of
-       * `T::Keys::key_ids()` which is fixed.
+       * See [`Pallet::purge_keys`].
        **/
       purgeKeys: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Sets the session key(s) of the function caller to `keys`.
-       * Allows an account to set its session key prior to becoming a validator.
-       * This doesn't take effect until the next session.
-       * 
-       * The dispatch origin of this function must be signed.
-       * 
-       * ## Complexity
-       * - `O(1)`. Actual cost depends on the number of length of `T::Keys::key_ids()` which is
-       * fixed.
+       * See [`Pallet::set_keys`].
        **/
       setKeys: AugmentedSubmittable<(keys: CordRuntimeSessionKeys | { grandpa?: any; babe?: any; imOnline?: any; authorityDiscovery?: any } | string | Uint8Array, proof: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordRuntimeSessionKeys, Bytes]>;
     };
     stream: {
       /**
-       * Create a new stream and associates it with its
-       * controller. The controller (issuer) is the owner of the identifier.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the call.
-       * * `stream_digest`: The digest of the stream.
-       * * `authorization`: AuthorizationIdOf.
-       * * `schema_id`: The schema id of the stream.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::create`].
        **/
       create: AugmentedSubmittable<(streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>]>;
       /**
-       * Adds stream digest information.
-       * `digest` is a function that takes a stream identifier, a stream
-       * digest, and an authorization identifier, and inserts the stream
-       * digest into the `StreamDigests` storage map, and then deposits an
-       * event. This operation can only be performed bythe stream issuer or
-       * delegated authorities.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `stream_id`: The stream identifier.
-       * * `stream_digest`: StreamDigestOf<T>
-       * * `authorization`: The authorization ID of the delegate who is
-       * allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::digest`].
        **/
       digest: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
       /**
-       * Removes a stream from the registry.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `stream_id`: The stream id of the stream to be removed.
-       * * `authorization`: The authorization ID of the delegate who is
-       * allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::remove`].
        **/
       remove: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Restore a previously revoked stream.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `stream_id`: The stream identifier.
-       * * `authorization`: The authorization ID of the delegate who is
-       * allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::restore`].
        **/
       restore: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Revokes a stream.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `stream_id`: The stream identifier.
-       * * `authorization`: The authorization ID of the delegate who is
-       * allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::revoke`].
        **/
       revoke: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Updates the stream identifier with a new digest. The updated digest
-       * represents the changes a stream reference document might have
-       * undergone. Arguments:
-       * 
-       * * `origin`: The origin of the call.
-       * * `stream_id`: The identifier of the stream to be updated.
-       * * `stream_digest`: The hash of the stream reference document.
-       * * `authorization`: The authorization ID of the delegate who is
-       * allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::update`].
        **/
       update: AugmentedSubmittable<(streamId: Bytes | string | Uint8Array, streamDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
     };
     sudo: {
       /**
-       * Authenticates the current sudo key and sets the given AccountId (`new`) as the new sudo
-       * key.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * ## Complexity
-       * - O(1).
+       * See [`Pallet::set_key`].
        **/
       setKey: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Authenticates the sudo key and dispatches a function call with `Root` origin.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * ## Complexity
-       * - O(1).
+       * See [`Pallet::sudo`].
        **/
       sudo: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call]>;
       /**
-       * Authenticates the sudo key and dispatches a function call with `Signed` origin from
-       * a given account.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * ## Complexity
-       * - O(1).
+       * See [`Pallet::sudo_as`].
        **/
       sudoAs: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Call]>;
       /**
-       * Authenticates the sudo key and dispatches a function call with `Root` origin.
-       * This function does not check the weight of the call, and instead allows the
-       * Sudo user to specify the weight of the call.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * ## Complexity
-       * - O(1).
+       * See [`Pallet::sudo_unchecked_weight`].
        **/
       sudoUncheckedWeight: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array, weight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, SpWeightsWeightV2Weight]>;
     };
     system: {
       /**
-       * Kill all storage items with a key that starts with the given prefix.
-       * 
-       * **NOTE:** We rely on the Root origin to provide us the number of subkeys under
-       * the prefix we are removing to accurately calculate the weight of this function.
+       * See [`Pallet::kill_prefix`].
        **/
       killPrefix: AugmentedSubmittable<(prefix: Bytes | string | Uint8Array, subkeys: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u32]>;
       /**
-       * Kill some items from storage.
+       * See [`Pallet::kill_storage`].
        **/
       killStorage: AugmentedSubmittable<(keys: Vec<Bytes> | (Bytes | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Bytes>]>;
       /**
-       * Make some on-chain remark.
-       * 
-       * - `O(1)`
+       * See [`Pallet::remark`].
        **/
       remark: AugmentedSubmittable<(remark: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Make some on-chain remark and emit event.
+       * See [`Pallet::remark_with_event`].
        **/
       remarkWithEvent: AugmentedSubmittable<(remark: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Set the new runtime code.
+       * See [`Pallet::set_code`].
        **/
       setCode: AugmentedSubmittable<(code: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Set the new runtime code without doing any checks of the given `code`.
+       * See [`Pallet::set_code_without_checks`].
        **/
       setCodeWithoutChecks: AugmentedSubmittable<(code: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Set the number of pages in the WebAssembly environment's heap.
+       * See [`Pallet::set_heap_pages`].
        **/
       setHeapPages: AugmentedSubmittable<(pages: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u64]>;
       /**
-       * Set some items of storage.
+       * See [`Pallet::set_storage`].
        **/
       setStorage: AugmentedSubmittable<(items: Vec<ITuple<[Bytes, Bytes]>> | ([Bytes | string | Uint8Array, Bytes | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[Bytes, Bytes]>>]>;
     };
     technicalCommittee: {
       /**
-       * Close a vote that is either approved, disapproved or whose voting
-       * period has ended.
-       * 
-       * May be called by any signed account in order to finish voting and
-       * close the proposal.
-       * 
-       * If called before the end of the voting period it will only close the
-       * vote if it is has enough votes to be approved or disapproved.
-       * 
-       * If called after the end of the voting period abstentions are counted
-       * as rejections unless there is a prime member set and the prime
-       * member cast an approval.
-       * 
-       * If the close operation completes successfully with disapproval, the
-       * transaction fee will be waived. Otherwise execution of the approved
-       * operation will be charged to the caller.
-       * 
-       * + `proposal_weight_bound`: The maximum amount of weight consumed by
-       * executing the closed proposal.
-       * + `length_bound`: The upper bound for the length of the proposal in
-       * storage. Checked via `storage::read` so it is `size_of::<u32>() ==
-       * 4` larger than the pure length.
-       * 
-       * ## Complexity
-       * - `O(B + M + P1 + P2)` where:
-       * - `B` is `proposal` size in bytes (length-fee-bounded)
-       * - `M` is members-count (code- and governance-bounded)
-       * - `P1` is the complexity of `proposal` preimage.
-       * - `P2` is proposal-count (code-bounded)
+       * See [`Pallet::close`].
        **/
       close: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array, index: Compact<u32> | AnyNumber | Uint8Array, proposalWeightBound: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Compact<u32>, SpWeightsWeightV2Weight, Compact<u32>]>;
       /**
-       * Disapprove a proposal, close, and remove it from the system,
-       * regardless of its current state.
-       * 
-       * Must be called by the Root origin.
-       * 
-       * Parameters:
-       * * `proposal_hash`: The hash of the proposal that should be
-       * disapproved.
-       * 
-       * ## Complexity
-       * O(P) where P is the number of max proposals
+       * See [`Pallet::disapprove_proposal`].
        **/
       disapproveProposal: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
       /**
-       * Dispatch a proposal from a member using the `Member` origin.
-       * 
-       * Origin must be a member of the collective.
-       * 
-       * ## Complexity:
-       * - `O(B + M + P)` where:
-       * - `B` is `proposal` size in bytes (length-fee-bounded)
-       * - `M` members-count (code-bounded)
-       * - `P` complexity of dispatching `proposal`
+       * See [`Pallet::execute`].
        **/
       execute: AugmentedSubmittable<(proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, Compact<u32>]>;
       /**
-       * Add a new proposal to either be voted on or executed directly.
-       * 
-       * Requires the sender to be member.
-       * 
-       * `threshold` determines whether `proposal` is executed directly
-       * (`threshold < 2`) or put up for voting.
-       * 
-       * ## Complexity
-       * - `O(B + M + P1)` or `O(B + M + P2)` where:
-       * - `B` is `proposal` size in bytes (length-fee-bounded)
-       * - `M` is members-count (code- and governance-bounded)
-       * - branching is influenced by `threshold` where:
-       * - `P1` is proposal execution complexity (`threshold < 2`)
-       * - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+       * See [`Pallet::propose`].
        **/
       propose: AugmentedSubmittable<(threshold: Compact<u32> | AnyNumber | Uint8Array, proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Call, Compact<u32>]>;
       /**
-       * Set the collective's membership.
-       * 
-       * - `new_members`: The new member list. Be nice to the chain and
-       * provide it sorted.
-       * - `prime`: The prime member whose vote sets the default.
-       * - `old_count`: The upper bound for the previous number of members in
-       * storage. Used for weight estimation.
-       * 
-       * The dispatch of this call must be `SetMembersOrigin`.
-       * 
-       * NOTE: Does not enforce the expected `MaxMembers` limit on the amount
-       * of members, but       the weight estimations rely on it to estimate
-       * dispatchable weight.
-       * 
-       * # WARNING:
-       * 
-       * The `pallet-collective` can also be managed by logic outside of the
-       * pallet through the implementation of the trait [`ChangeMembers`].
-       * Any call to `set_members` must be careful that the member set
-       * doesn't get out of sync with other logic managing the member set.
-       * 
-       * ## Complexity:
-       * - `O(MP + N)` where:
-       * - `M` old-members-count (code- and governance-bounded)
-       * - `N` new-members-count (code- and governance-bounded)
-       * - `P` proposals-count (code-bounded)
+       * See [`Pallet::set_members`].
        **/
       setMembers: AugmentedSubmittable<(newMembers: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], prime: Option<AccountId32> | null | Uint8Array | AccountId32 | string, oldCount: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>, Option<AccountId32>, u32]>;
       /**
-       * Add an aye or nay vote for the sender to the given proposal.
-       * 
-       * Requires the sender to be a member.
-       * 
-       * Transaction fees will be waived if the member is voting on any
-       * particular proposal for the first time and the call is successful.
-       * Subsequent vote changes will charge a fee.
-       * ## Complexity
-       * - `O(M)` where `M` is members-count (code- and governance-bounded)
+       * See [`Pallet::vote`].
        **/
       vote: AugmentedSubmittable<(proposal: H256 | string | Uint8Array, index: Compact<u32> | AnyNumber | Uint8Array, approve: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Compact<u32>, bool]>;
     };
     technicalMembership: {
       /**
-       * Add a member `who` to the set.
-       * 
-       * May only be called from `T::AddOrigin`.
+       * See [`Pallet::add_member`].
        **/
       addMember: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Swap out the sending member for some other key `new`.
-       * 
-       * May only be called from `Signed` origin of a current member.
-       * 
-       * Prime membership is passed from the origin account to `new`, if
-       * extant.
+       * See [`Pallet::change_key`].
        **/
       changeKey: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Remove the prime member if it exists.
-       * 
-       * May only be called from `T::PrimeOrigin`.
+       * See [`Pallet::clear_prime`].
        **/
       clearPrime: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Remove a member `who` from the set.
-       * 
-       * May only be called from `T::RemoveOrigin`.
+       * See [`Pallet::remove_member`].
        **/
       removeMember: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Change the membership to a new set, disregarding the existing
-       * membership. Be nice and pass `members` pre-sorted.
-       * 
-       * May only be called from `T::ResetOrigin`.
+       * See [`Pallet::reset_members`].
        **/
       resetMembers: AugmentedSubmittable<(members: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
       /**
-       * Set the prime member. Must be a current member.
-       * 
-       * May only be called from `T::PrimeOrigin`.
+       * See [`Pallet::set_prime`].
        **/
       setPrime: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Swap out one member `remove` for another `add`.
-       * 
-       * May only be called from `T::SwapOrigin`.
-       * 
-       * Prime membership is *not* passed from `remove` to `add`, if extant.
+       * See [`Pallet::swap_member`].
        **/
       swapMember: AugmentedSubmittable<(remove: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, add: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, MultiAddress]>;
     };
     timestamp: {
       /**
-       * Set the current time.
-       * 
-       * This call should be invoked exactly once per block. It will panic at the finalization
-       * phase, if this call hasn't been invoked by that time.
-       * 
-       * The timestamp should be greater than the previous one by the amount specified by
-       * `MinimumPeriod`.
-       * 
-       * The dispatch origin for this call must be `Inherent`.
-       * 
-       * ## Complexity
-       * - `O(1)` (Note that implementations of `OnTimestampSet` must also be `O(1)`)
-       * - 1 storage read and 1 storage mutation (codec `O(1)`). (because of `DidUpdate::take` in
-       * `on_finalize`)
-       * - 1 event handler `on_timestamp_set`. Must be `O(1)`.
+       * See [`Pallet::set`].
        **/
       set: AugmentedSubmittable<(now: Compact<u64> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u64>]>;
     };
     unique: {
       /**
-       * Create a new unique and associates it with its
-       * controller. The controller (issuer) is the owner of the identifier.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the call.
-       * * `unique_digest`: The digest of the unique.
-       * * `registry_id`: The registry id of the unique.
-       * * `authorization`: AuthorizationIdOf
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::create`].
        **/
       create: AugmentedSubmittable<(uniqueTxn: Bytes | string | Uint8Array, authorization: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
       /**
-       * Removes a unique from the registry.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `unique_id`: The unique id of the unique to be removed.
-       * * `authorization`: The authorization ID of the delegate
-       * who is allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::remove`].
        **/
       remove: AugmentedSubmittable<(uniqueId: Bytes | string | Uint8Array, authorization: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
       /**
-       * Revokes a unique.
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `unique_digest`: The unique identifier.
-       * * `authorization`: The authorization ID of the delegate who is
-       * allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::revoke`].
        **/
       revoke: AugmentedSubmittable<(uniqueTxn: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Updates the unique identifier with a new digest. The updated digest
-       * represents the changes a unique reference document might have
-       * undergone. Arguments:
-       * 
-       * * `origin`: The origin of the call.
-       * * `unique_id`: The identifier of the unique to be updated.
-       * * `unique_digest`: The hash of the unique reference document.
-       * * `authorization`: The authorization ID of the delegate who is
-       * allowed to perform this action.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
+       * See [`Pallet::update`].
        **/
       update: AugmentedSubmittable<(uniqueId: Bytes | string | Uint8Array, uniqueTxn: Bytes | string | Uint8Array, authorization: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Option<Bytes>]>;
     };
     utility: {
       /**
-       * Send a call through an indexed pseudonym of the sender.
-       * 
-       * Filter from origin are passed along. The call will be dispatched with an origin which
-       * use the same filter as the origin of this call.
-       * 
-       * NOTE: If you need to ensure that any account-based filtering is not honored (i.e.
-       * because you expect `proxy` to have been used prior in the call stack and you do not want
-       * the call restrictions to apply to any sub-accounts), then use `as_multi_threshold_1`
-       * in the Multisig pallet instead.
-       * 
-       * NOTE: Prior to version *12, this was called `as_limited_sub`.
-       * 
-       * The dispatch origin for this call must be _Signed_.
+       * See [`Pallet::as_derivative`].
        **/
       asDerivative: AugmentedSubmittable<(index: u16 | AnyNumber | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Call]>;
       /**
-       * Send a batch of dispatch calls.
-       * 
-       * May be called from any origin except `None`.
-       * 
-       * - `calls`: The calls to be dispatched from the same origin. The number of call must not
-       * exceed the constant: `batched_calls_limit` (available in constant metadata).
-       * 
-       * If origin is root then the calls are dispatched without checking origin filter. (This
-       * includes bypassing `frame_system::Config::BaseCallFilter`).
-       * 
-       * ## Complexity
-       * - O(C) where C is the number of calls to be batched.
-       * 
-       * This will return `Ok` in all circumstances. To determine the success of the batch, an
-       * event is deposited. If a call failed and the batch was interrupted, then the
-       * `BatchInterrupted` event is deposited, along with the number of successful calls made
-       * and the error of the failed call. If all were successful, then the `BatchCompleted`
-       * event is deposited.
+       * See [`Pallet::batch`].
        **/
       batch: AugmentedSubmittable<(calls: Vec<Call> | (Call | IMethod | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Call>]>;
       /**
-       * Send a batch of dispatch calls and atomically execute them.
-       * The whole transaction will rollback and fail if any of the calls failed.
-       * 
-       * May be called from any origin except `None`.
-       * 
-       * - `calls`: The calls to be dispatched from the same origin. The number of call must not
-       * exceed the constant: `batched_calls_limit` (available in constant metadata).
-       * 
-       * If origin is root then the calls are dispatched without checking origin filter. (This
-       * includes bypassing `frame_system::Config::BaseCallFilter`).
-       * 
-       * ## Complexity
-       * - O(C) where C is the number of calls to be batched.
+       * See [`Pallet::batch_all`].
        **/
       batchAll: AugmentedSubmittable<(calls: Vec<Call> | (Call | IMethod | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Call>]>;
       /**
-       * Dispatches a function call with a provided origin.
-       * 
-       * The dispatch origin for this call must be _Root_.
-       * 
-       * ## Complexity
-       * - O(1).
+       * See [`Pallet::dispatch_as`].
        **/
       dispatchAs: AugmentedSubmittable<(asOrigin: CordRuntimeOriginCaller | { system: any } | { Void: any } | { Council: any } | { TechnicalCommittee: any } | { Did: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordRuntimeOriginCaller, Call]>;
       /**
-       * Send a batch of dispatch calls.
-       * Unlike `batch`, it allows errors and won't interrupt.
-       * 
-       * May be called from any origin except `None`.
-       * 
-       * - `calls`: The calls to be dispatched from the same origin. The number of call must not
-       * exceed the constant: `batched_calls_limit` (available in constant metadata).
-       * 
-       * If origin is root then the calls are dispatch without checking origin filter. (This
-       * includes bypassing `frame_system::Config::BaseCallFilter`).
-       * 
-       * ## Complexity
-       * - O(C) where C is the number of calls to be batched.
+       * See [`Pallet::force_batch`].
        **/
       forceBatch: AugmentedSubmittable<(calls: Vec<Call> | (Call | IMethod | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Call>]>;
       /**
-       * Dispatch a function call with a specified weight.
-       * 
-       * This function does not check the weight of the call, and instead allows the
-       * Root origin to specify the weight of the call.
-       * 
-       * The dispatch origin for this call must be _Root_.
+       * See [`Pallet::with_weight`].
        **/
       withWeight: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array, weight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, SpWeightsWeightV2Weight]>;
     };

@@ -32,6 +32,10 @@ declare module '@polkadot/api-base/types/consts' {
        * Max number of authorities allowed
        **/
       maxAuthorities: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of nominators for each validator.
+       **/
+      maxNominators: u32 & AugmentedConst<ApiType>;
     };
     balances: {
       /**
@@ -119,7 +123,7 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxTotalKeyAgreementKeys: u32 & AugmentedConst<ApiType>;
     };
-    didNames: {
+    didName: {
       /**
        * The max encoded length of a name.
        **/
@@ -138,6 +142,10 @@ declare module '@polkadot/api-base/types/consts' {
        * Max Authorities in use
        **/
       maxAuthorities: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of nominators for each validator.
+       **/
+      maxNominators: u32 & AugmentedConst<ApiType>;
       /**
        * The maximum number of entries to keep in the set id to session index mapping.
        * 
@@ -205,6 +213,20 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       membershipPeriod: u32 & AugmentedConst<ApiType>;
     };
+    nodeAuthorization: {
+      /**
+       * The maximum length in bytes of PeerId
+       **/
+      maxNodeIdLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum length in bytes of PeerId
+       **/
+      maxPeerIdLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of well known nodes that are allowed to set
+       **/
+      maxWellKnownNodes: u32 & AugmentedConst<ApiType>;
+    };
     registry: {
       maxEncodedRegistryLength: u32 & AugmentedConst<ApiType>;
       maxRegistryAuthorities: u32 & AugmentedConst<ApiType>;
@@ -226,6 +248,9 @@ declare module '@polkadot/api-base/types/consts' {
     };
     schema: {
       maxEncodedSchemaLength: u32 & AugmentedConst<ApiType>;
+    };
+    score: {
+      valueLimit: u32 & AugmentedConst<ApiType>;
     };
     stream: {
       /**

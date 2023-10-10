@@ -22,6 +22,7 @@ import { generateRequestCredentialMessage } from './utils/request_credential_mes
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 import { updateStream } from './utils/updateDocument'
+import { requestJudgement, setIdentity, setRegistrar, provideJudgement } from './utils/createRegistrar'
 
 // import type {
 //   SignCallback,
@@ -45,12 +46,26 @@ async function main() {
     '//Alice',
     'sr25519'
   )
+  // Setup network authority account.
+  const { account: authorityIdentity } = await createAccount()
+  console.log(`🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`)
+  await addAuthority(authorityAuthorIdentity, authorityIdentity.address)
+  await setRegistrar(authorityAuthorIdentity, authorityIdentity.address)
+  console.log('✅ Network Authority created!')
+
   // Setup network member account.
   const { account: authorIdentity } = await createAccount()
   console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
   await addAuthority(authorityAuthorIdentity, authorIdentity.address)
   console.log(`🔏  Member permissions updated`)
+  await setIdentity(authorIdentity)
+  console.log(`🔏  Member identity info updated`)
+  await requestJudgement(authorIdentity, authorityIdentity.address)
+  console.log(`🔏  Member identity judgement requested`)
+  await provideJudgement(authorityIdentity, authorIdentity.address)
+  console.log(`🔏  Member identity judgement provided`)
   console.log('✅ Network Member added!')
+
 
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)

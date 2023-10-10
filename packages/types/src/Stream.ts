@@ -13,9 +13,13 @@ export type StreamId = string
 export interface IStream {
   identifier: IDocument['identifier']
   streamHash: IDocument['documentHash']
-  issuer: DidUri
   schema: ISchema['$id']
   registry: IDocument['registry']
+}
+
+export interface IAttest {
+  identifier: IDocument['identifier']
+  creator: DidUri
   revoked: boolean
 }
 
