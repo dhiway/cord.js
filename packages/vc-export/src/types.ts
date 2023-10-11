@@ -12,7 +12,7 @@ import type {
   JSON_SCHEMA_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_STATEMENT_SIGNATURE_PROOF_TYPE,
   CORD_SELF_SIGNATURE_PROOF_TYPE,
 } from './constants.js'
 
@@ -26,12 +26,12 @@ export interface Proof {
 export type IPublicKeyRecord = Partial<IIdentityPublicKey> &
   Pick<IIdentityPublicKey, 'publicKeyHex' | 'type'>
 
-export interface CordStreamSignatureProof extends Proof {
-  type: typeof CORD_STREAM_SIGNATURE_PROOF_TYPE
+export interface CordStatementSignatureProof extends Proof {
+  type: typeof CORD_STATEMENT_SIGNATURE_PROOF_TYPE
   verificationMethod: string | IPublicKeyRecord
   signature: string
 }
-export interface CordStreamProof extends Proof {
+export interface CordStatementProof extends Proof {
   type: typeof CORD_ANCHORED_PROOF_TYPE
   issuerAddress: string
 }
@@ -72,11 +72,11 @@ export interface VerifiableCredential {
   issuanceDate: string
   // when the credential will expire
   expirationDate?: string
-  // streams about the subjects of the credential
+  // statements about the subjects of the credential
   credentialSubject: Record<string, AnyJson>
   // rootHash  of the credential
   credentialHash: string
-  // Ids / digests of streams that empower the issuer to provide judegment
+  // Ids / digests of statements that empower the issuer to provide judegment
   evidence: string[]
   // digital proof that makes the credential tamper-evident
   proof: Proof | Proof[]

@@ -1,7 +1,7 @@
 import * as Cord from '@cord.network/sdk'
 
 /**
- * It revokes or remove a stream from CORD
+ * It revokes or remove a statement from CORD
  * @param issuer - The DID of the issuer.
  * @param authorAccount - The account that will be used to sign and submit the extrinsic.
  * @param signCallback - A callback function that will be called when the transaction needs to be
@@ -18,12 +18,12 @@ export async function revokeCredential(
   shouldRemove = false
 ): Promise<void> {
   const api = Cord.ConfigService.get('api')
-  const chainIdentifier = Cord.Stream.idToChain(document.identifier)
+  const chainIdentifier = Cord.Statement.idToChain(document.identifier)
   const authorization = Cord.Registry.uriToIdentifier(document.authorization)
 
   const tx = shouldRemove
-    ? api.tx.stream.remove(chainIdentifier, authorization)
-    : api.tx.stream.revoke(chainIdentifier, authorization)
+    ? api.tx.statement.remove(chainIdentifier, authorization)
+    : api.tx.statement.revoke(chainIdentifier, authorization)
 
   const authorizedTx = await Cord.Did.authorizeTx(
     issuer,

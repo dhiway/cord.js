@@ -20,7 +20,7 @@ import {
 } from '../Did.chain.js'
 
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
-  stream: 'assertionMethod',
+  statement: 'assertionMethod',
   schema: 'assertionMethod',
   'registry.addAdminDelegate': 'capabilityDelegation',
   'registry.addDelegate': 'capabilityDelegation',

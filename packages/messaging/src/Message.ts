@@ -9,7 +9,7 @@ import type {
   IMessage,
   MessageBody,
 } from '@cord.network/types'
-import { Stream, Document, Schema } from '@cord.network/modules'
+import { Statement, Document, Schema } from '@cord.network/modules'
 import { DataUtils, SDKErrors, UUID } from '@cord.network/utils'
 import * as Did from '@cord.network/did'
 import {
@@ -32,7 +32,7 @@ export function verifyMessageBody(body: MessageBody): void {
       break
     }
     case 'submit-document-stream': {
-      Stream.verifyDataStructure(body.content.stream)
+      Statement.verifyDataStructure(body.content.statement)
       break
     }
     case 'reject-document-stream': {
@@ -137,10 +137,10 @@ export function ensureOwnerIsSender({ body, sender }: IMessage): void {
   switch (body.type) {
     case 'request-document-stream':
       {
-        const requestStream = body
+        const requestStatement = body
         if (
           !Did.isSameSubject(
-            requestStream.content.document.content.holder,
+            requestStatement.content.document.content.holder,
             sender
           )
         ) {
@@ -151,9 +151,9 @@ export function ensureOwnerIsSender({ body, sender }: IMessage): void {
     case 'submit-document-stream':
       {
 	/*
-        const submitStream = body
-        if (!Did.isSameSubject(submitStream.content.stream.issuer, sender)) {
-          throw new SDKErrors.IdentityMismatchError('Stream', 'Sender')
+        const submitStatement = body
+        if (!Did.isSameSubject(submitStatement.content.stream.issuer, sender)) {
+          throw new SDKErrors.IdentityMismatchError('Statement', 'Sender')
         }
 	*/
       }

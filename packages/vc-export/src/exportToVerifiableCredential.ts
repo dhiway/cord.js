@@ -14,17 +14,17 @@ import {
   JSON_SCHEMA_TYPE,
   CORD_ANCHORED_PROOF_TYPE,
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
-  CORD_STREAM_SIGNATURE_PROOF_TYPE,
+  CORD_STATEMENT_SIGNATURE_PROOF_TYPE,
   CORD_CREDENTIAL_CONTEXT_URL,
   CORD_VERIFIABLE_CREDENTIAL_TYPE,
   CORD_CREDENTIAL_IRI_PREFIX,
 } from './constants.js'
 import type {
-  CordStreamProof,
+  CordStatementProof,
   CredentialDigestProof,
   CredentialSchema,
   Proof,
-  CordStreamSignatureProof,
+  CordStatementSignatureProof,
   VerifiableCredential,
 } from './types.js'
 import { Identifier } from '@cord.network/utils'
@@ -36,11 +36,11 @@ export function fromCredentialIRI(credentialId: string): string {
   return idString
 }
 
-export function toCredentialIRI(streamId: string): string {
-  if (streamId.startsWith(CORD_CREDENTIAL_IRI_PREFIX)) {
-    return streamId
+export function toCredentialIRI(statementId: string): string {
+  if (statementId.startsWith(CORD_CREDENTIAL_IRI_PREFIX)) {
+    return statementId
   }
-  return CORD_CREDENTIAL_IRI_PREFIX + streamId
+  return CORD_CREDENTIAL_IRI_PREFIX + statementId
 }
 
 export function fromCredential(
@@ -59,7 +59,7 @@ export function fromCredential(
   // write root hash to id
   const id = toCredentialIRI(Identifier.uriToIdentifier(identifier))
 
-  // transform & annotate stream to be json-ld and VC conformant
+  // transform & annotate statement to be json-ld and VC conformant
   const { credentialSubject } = Content.toJsonLD(content, false) as Record<
     string,
     Record<string, AnyJson>
@@ -105,8 +105,8 @@ export function fromCredential(
   }
 
   if (issuerSignature) {
-    const sSProof: CordStreamSignatureProof = {
-      type: CORD_STREAM_SIGNATURE_PROOF_TYPE,
+    const sSProof: CordStatementSignatureProof = {
+      type: CORD_STATEMENT_SIGNATURE_PROOF_TYPE,
       proofPurpose: 'assertionMethod',
       signature: issuerSignature?.signature,
       challenge: documentHash,
@@ -116,12 +116,12 @@ export function fromCredential(
   }
 
   // add credential proof
-  const streamProof: CordStreamProof = {
+  const statementProof: CordStatementProof = {
     type: CORD_ANCHORED_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
     issuerAddress: input.content.issuer,
   }
-  VC.proof.push(streamProof)
+  VC.proof.push(statementProof)
 
   // add hashed properties proof
   const cDProof: CredentialDigestProof = {

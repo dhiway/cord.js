@@ -1,7 +1,7 @@
 import * as Cord from '@cord.network/sdk'
 
 /**
- * It verifies a presentation by checking the stream on the blockchain and verifying the presentation
+ * It verifies a presentation by checking the statement on the blockchain and verifying the presentation
  * with the provided challenge
  * @param presentation - The presentation to verify.
  * @param  - `presentation` - The presentation to verify.
@@ -21,16 +21,16 @@ export async function verifyPresentation(
     // Verify the presentation with the provided challenge.
     await Cord.Document.verifyPresentation(presentation, { challenge })
 
-    // Verify the credential by checking the stream on the blockchain.
+    // Verify the credential by checking the statement on the blockchain.
     const api = Cord.ConfigService.get('api')
-    const chainIdentifier = Cord.Stream.idToChain(presentation.identifier)
-    const streamOnChain = await api.query.stream.streams(chainIdentifier)
-    const stream = Cord.Stream.fromChain(streamOnChain, chainIdentifier)
-    if (stream.streamHash !== presentation.documentHash) {
+    const chainIdentifier = Cord.Statement.idToChain(presentation.identifier)
+    const statementOnChain = await api.query.statement.statements(chainIdentifier)
+    const statement = Cord.Statement.fromChain(statementOnChain, chainIdentifier)
+    if (statement.statementHash !== presentation.documentHash) {
       return false
     }
-    const attestationOnChain = await api.query.stream.attestations(chainIdentifier, presentation.documentHash)
-    const attest = Cord.Stream.fromChainAttest(attestationOnChain, chainIdentifier)
+    const attestationOnChain = await api.query.statement.attestations(chainIdentifier, presentation.documentHash)
+    const attest = Cord.Statement.fromChainAttest(attestationOnChain, chainIdentifier)
     if (attest.revoked) {
       return false
     }

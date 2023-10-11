@@ -506,35 +506,35 @@ declare module '@polkadot/api-base/types/events' {
        **/
       NewSession: AugmentedEvent<ApiType, [sessionIndex: u32], { sessionIndex: u32 }>;
     };
-    stream: {
+    statement: {
       /**
-       * A new stream identifier has been created.
-       * \[stream identifier, stream digest, controller\]
+       * A new statement identifier has been created.
+       * \[statement identifier, statement digest, controller\]
        **/
-      Create: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      Create: AugmentedEvent<ApiType, [failedDigests: Vec<H256>, author: AccountId32], { failedDigests: Vec<H256>, author: AccountId32 }>;
       /**
-       * A stream digest has been added.
-       * \[stream identifier, digest, controller\]
+       * A statement digest has been added.
+       * \[statement identifier, digest, controller\]
        **/
       Digest: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
       /**
-       * A stream identifier has been removed.
-       * \[stream identifier,  controller\]
+       * A statement identifier has been removed.
+       * \[statement identifier,  controller\]
        **/
       Remove: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
       /**
-       * A stream identifier status has been restored.
-       * \[stream identifier, controller\]
+       * A statement identifier status has been restored.
+       * \[statement identifier, controller\]
        **/
       Restore: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
       /**
-       * A stream identifier status has been revoked.
-       * \[stream identifier, controller\]
+       * A statement identifier status has been revoked.
+       * \[statement identifier, controller\]
        **/
       Revoke: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
       /**
-       * A stream identifier has been updated.
-       * \[stream identifier, digest, controller\]
+       * A statement identifier has been updated.
+       * \[statement identifier, digest, controller\]
        **/
       Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
     };

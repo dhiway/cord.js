@@ -18,11 +18,11 @@ export const DEFAULT_VERIFIABLEPRESENTATION_TYPE = 'VerifiablePresentation'
 
 export const CORD_VERIFIABLE_CREDENTIAL_TYPE = 'CordCredential2020'
 
-export const CORD_STREAM_SIGNATURE_PROOF_TYPE = 'CordStreamSignature2020'
+export const CORD_STATEMENT_SIGNATURE_PROOF_TYPE = 'CordStatementSignature2020'
 export const CORD_SELF_SIGNATURE_PROOF_TYPE = 'CordSelfSignature2020'
 export const CORD_ANCHORED_PROOF_TYPE = 'CordCredential2020'
 export const CORD_CREDENTIAL_DIGEST_PROOF_TYPE = 'CordCredentialDigest2020'
 
 export const JSON_SCHEMA_TYPE = 'JsonSchemaValidator2018'
 
-export const CORD_CREDENTIAL_IRI_PREFIX = 'stream:cord:'
+export const CORD_CREDENTIAL_IRI_PREFIX = 'statement:cord:'

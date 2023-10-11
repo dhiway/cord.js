@@ -19,7 +19,7 @@ import type {
  * @param signingkeys - Keys which are used to sign.
  * @returns the updated document if the update operation is executed successfully.
  */
-export async function updateStream(
+export async function updateStatement(
   document: Cord.IDocument,
   updatedContent: Cord.IContents,
   schema: Cord.ISchema,
@@ -38,20 +38,20 @@ export async function updateStream(
   )
 
   const api = Cord.ConfigService.get('api')
-  const { streamHash } = Cord.Stream.fromDocument(updatedDocument)
+  const { statementHash } = Cord.Statement.fromDocument(updatedDocument)
   const authorization = Cord.Registry.uriToIdentifier(
     updatedDocument.authorization
   )
 
-  const streamTx = api.tx.stream.update(
-    updatedDocument.identifier.replace('stream:cord:', ''),
-    streamHash,
+  const statementTx = api.tx.statement.update(
+    updatedDocument.identifier.replace('statement:cord:', ''),
+    statementHash,
     authorization
   )
 
-  const authorizedStreamTx = await Cord.Did.authorizeTx(
+  const authorizedStatementTx = await Cord.Did.authorizeTx(
     authorDid,
-    streamTx,
+    statementTx,
     async ({ data }) => ({
       signature: signingkeys.assertionMethod.sign(data),
       keyType: signingkeys.assertionMethod.type,
@@ -60,7 +60,7 @@ export async function updateStream(
   )
 
   try {
-    await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
+    await Cord.Chain.signAndSubmitTx(authorizedStatementTx, authorIdentity)
     return updatedDocument
   } catch (e) {
     console.log('Error: \n', e.message)

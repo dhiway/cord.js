@@ -3,10 +3,10 @@
  * @module VerificationUtils
  */
 
-import { ConfigService, DidResourceUri, Hash, Stream } from "@cord.network/sdk"
-import { CORD_ANCHORED_PROOF_TYPE, CORD_CREDENTIAL_DIGEST_PROOF_TYPE, CORD_SELF_SIGNATURE_PROOF_TYPE, CORD_STREAM_SIGNATURE_PROOF_TYPE } from "./constants"
+import { ConfigService, DidResourceUri, Hash, Statement } from "@cord.network/sdk"
+import { CORD_ANCHORED_PROOF_TYPE, CORD_CREDENTIAL_DIGEST_PROOF_TYPE, CORD_SELF_SIGNATURE_PROOF_TYPE, CORD_STATEMENT_SIGNATURE_PROOF_TYPE } from "./constants"
 import { fromCredentialIRI } from "./exportToVerifiableCredential"
-import { CordSelfSignatureProof, CordStreamProof, CordStreamSignatureProof, CredentialDigestProof, VerifiableCredential } from "./types"
+import { CordSelfSignatureProof, CordStatementProof, CordStatementSignatureProof, CredentialDigestProof, VerifiableCredential } from "./types"
 import { Crypto } from "@cord.network/utils"
 import { makeSigningData } from "./presentationUtils"
 import { signatureFromJson, verifyDidSignature } from "@cord.network/did"
@@ -17,15 +17,15 @@ export interface VerificationResult {
   errors: Error[]
 }
 
-export enum StreamStatus {
+export enum StatementStatus {
   valid = 'valid',
   invalid = 'invalid',
   revoked = 'revoked',
   unknown = 'unknown',
 }
 
-export interface StreamVerificationResult extends VerificationResult {
-  status: StreamStatus
+export interface StatementVerificationResult extends VerificationResult {
+  status: StatementStatus
 }
 
 const CREDENTIAL_MALFORMED_ERROR = (reason: string): Error =>
@@ -43,11 +43,11 @@ const PROOF_MALFORMED_ERROR = (reason: string): Error =>
  * @param proof CORD self signed proof object.
  * @returns Object indicating whether proof could be verified.
  */
-export async function verifyStreamProof(
+export async function verifyStatementProof(
   credential: VerifiableCredential,
-  proof: CordStreamProof
-): Promise<StreamVerificationResult> {
-  let status: StreamStatus = StreamStatus.unknown
+  proof: CordStatementProof
+): Promise<StatementVerificationResult> {
+  let status: StatementStatus = StatementStatus.unknown
   try {
     // check proof
     const type = proof['@type'] || proof.type
@@ -61,32 +61,32 @@ export async function verifyStreamProof(
 
     if (typeof credential.id !== 'string' || !credential.id)
       throw CREDENTIAL_MALFORMED_ERROR(
-        'stream id (=stream hash) missing / invalid'
+        'statement id (=statement hash) missing / invalid'
       )
-    const streamId = fromCredentialIRI(credential.id)
+    const statementId = fromCredentialIRI(credential.id)
 
     const api = await ConfigService.get('api');
-    // query on-chain data by credential id (= stream root hash)
-    const onChainData = await api.query.stream.streams(streamId)
-    const onChain = Stream.fromChain(onChainData, streamId);
+    // query on-chain data by credential id (= statement root hash)
+    const onChainData = await api.query.statement.statements(statementId)
+    const onChain = Statement.fromChain(onChainData, statementId);
     // if not found, credential has not been attested, proof is invalid
     if (!onChain) {
-      status = StreamStatus.invalid
-      throw new Error(`credential for credential with id ${streamId} not found`)
+      status = StatementStatus.invalid
+      throw new Error(`credential for credential with id ${statementId} not found`)
     }
     // if documentHash on credential does not correspond to data on chain, proof is incorrect
-    if (onChain.streamHash !== credential.credentialHash)
+    if (onChain.statementHash !== credential.credentialHash)
       throw new Error(
         `credential hash is not matching on-chain data: proof ${{
           hash: credential.credentialHash,
         }}`
       )
 
-    const onChainDataAttest = await api.query.stream.attestations(streamId, credential.credentialHash)
-    const onChainAttest = Stream.fromChainAttest(onChainDataAttest, streamId);
+    const onChainDataAttest = await api.query.statement.attestations(statementId, credential.credentialHash)
+    const onChainAttest = Statement.fromChainAttest(onChainDataAttest, statementId);
     // if issuer data on proof does not correspond to data on chain, proof is incorrect
     if (onChainAttest.creator !== issuerAddress) {
-      status = StreamStatus.invalid
+      status = StatementStatus.invalid
       throw new Error(
         `proof not matching on-chain data: proof ${{
           issuer: issuerAddress,
@@ -96,7 +96,7 @@ export async function verifyStreamProof(
 
     // if proof data is valid but credential is flagged as revoked, credential is no longer valid
     if (onChainAttest.revoked) {
-      status = StreamStatus.revoked
+      status = StatementStatus.revoked
       throw new Error('credential revoked')
     }
   } catch (e) {
@@ -106,7 +106,7 @@ export async function verifyStreamProof(
       status,
     }
   }
-  return { verified: true, errors: [], status: StreamStatus.valid }
+  return { verified: true, errors: [], status: StatementStatus.valid }
 }
 
 function jsonLDcontents(
@@ -245,15 +245,15 @@ export async function verifyCredentialDigestProof(
   }
 }
 
-export async function verifyStreamSignatureProof(
+export async function verifyStatementSignatureProof(
     credential: VerifiableCredential,
-    proof: CordStreamSignatureProof
+    proof: CordStatementSignatureProof
 ): Promise<VerificationResult> {
   const result: VerificationResult = { verified: true, errors: [] }
   try {
     // check proof
     const type = proof['@type'] ?? proof.type
-    if (type !== CORD_STREAM_SIGNATURE_PROOF_TYPE)
+    if (type !== CORD_STATEMENT_SIGNATURE_PROOF_TYPE)
       throw new Error('Proof type mismatch')
     if (!proof.signature) throw PROOF_MALFORMED_ERROR('signature missing')
     /*TODO: for now, makePresentation takes just one VC. Think more on what should be verified. */ 

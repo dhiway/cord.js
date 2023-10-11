@@ -1,9 +1,9 @@
 /**
  * Schema.
  *
- * * A Schema is a description of the [[Stream]] data structure, based on [JSON Schema](http://json-schema.org/).
+ * * A Schema is a description of the [[Statement]] data structure, based on [JSON Schema](http://json-schema.org/).
  * * Schemas are published and stored by the issuer.
- * * Permissioned users can use a Schema to create a new [[Stream]].
+ * * Permissioned users can use a Schema to create a new [[Statement]].
  *
  * @packageDocumentation
  * @module Schema

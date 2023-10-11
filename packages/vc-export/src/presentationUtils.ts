@@ -50,8 +50,8 @@ export async function updateCredentialDigestProof(
     hasher = (value, nonce?) => blake2AsHex((nonce || '') + value, 256),
   } = options
 
-  // recreate statement digests from partial stream to identify required nonces
-  const streamNonces = {}
+  // recreate statement digests from partial statement to identify required nonces
+  const statementNonces = {}
   const expanded = await jsonld.compact(credential.credentialSubject, {})
   const statements = Object.entries(expanded).map(([key, value]) =>
     JSON.stringify({ [key]: value })
@@ -65,22 +65,22 @@ export async function updateCredentialDigestProof(
   statements.forEach((stmt) => {
     const digest = hasher(stmt)
     if (Object.keys(proof.nonces).includes(digest)) {
-      streamNonces[digest] = proof.nonces[digest]
+      statementNonces[digest] = proof.nonces[digest]
     } else {
       throw new Error(`nonce missing for ${stmt}`)
     }
   })
 
   // return the proof containing nonces which can be mapped via an unsalted hash of the statement
-  return { ...proof, nonces: streamNonces }
+  return { ...proof, nonces: statementNonces }
 }
 
 /**
- * Returns a copy of a CORD Verifiable Credential where all streams about the credential subject that are not whitelisted have been removed.
+ * Returns a copy of a CORD Verifiable Credential where all statements about the credential subject that are not whitelisted have been removed.
  *
  * @param VC The CORD Verifiable Credential as exported with the SDK utils.
  * @param whitelist An array of properties to keep on the credential.
- * @returns A Verifiable Credential containing the original proofs, but with non-whitelisted streams removed.
+ * @returns A Verifiable Credential containing the original proofs, but with non-whitelisted statements removed.
  */
 export async function removeProperties(
   VC: VerifiableCredential,
@@ -104,17 +104,17 @@ export async function removeProperties(
   })
   // find old proof
   let proofs = copied.proof instanceof Array ? copied.proof : [copied.proof]
-  const oldStreamsProof = proofs.filter(
+  const oldStatementsProof = proofs.filter(
     (p): p is CredentialDigestProof =>
       p.type === CORD_CREDENTIAL_DIGEST_PROOF_TYPE
   )
-  if (oldStreamsProof.length !== 1)
+  if (oldStatementsProof.length !== 1)
     throw new Error(
       `expected exactly one proof of type ${CORD_CREDENTIAL_DIGEST_PROOF_TYPE}`
     )
   proofs = proofs.filter((p) => p.type !== CORD_CREDENTIAL_DIGEST_PROOF_TYPE)
   // compute new (reduced) proof
-  proofs.push(await updateCredentialDigestProof(copied, oldStreamsProof[0]))
+  proofs.push(await updateCredentialDigestProof(copied, oldStatementsProof[0]))
   copied.proof = proofs
   return copied
 }

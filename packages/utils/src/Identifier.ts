@@ -5,7 +5,7 @@ import {
   IPublicIdentity,
   SCHEMA_PREFIX,
   REGISTRY_PREFIX,
-  STREAM_PREFIX,
+  STATEMENT_PREFIX,
   SCORE_PREFIX,
   AUTHORIZATION_PREFIX,
 } from '@cord.network/types'
@@ -13,7 +13,7 @@ import {
   ACCOUNT_IDENTIFIER_PREFIX,
   REGISTRY_IDENT,
   SCHEMA_IDENT,
-  STREAM_IDENT,
+  STATEMENT_IDENT,
   SCORE_IDENTIFIER,
   AUTHORIZATION_IDENT,
 } from '@cord.network/types'
@@ -123,8 +123,8 @@ export function uriToIdentifier(identifier: string | null | undefined): string {
     return identifier.split(SCHEMA_PREFIX).join('')
   } else if (identifier.startsWith(REGISTRY_PREFIX)) {
     return identifier.split(REGISTRY_PREFIX).join('')
-  } else if (identifier.startsWith(STREAM_PREFIX)) {
-    return identifier.split(STREAM_PREFIX).join('')
+  } else if (identifier.startsWith(STATEMENT_PREFIX)) {
+    return identifier.split(STATEMENT_PREFIX).join('')
   } else if (identifier.startsWith(SCORE_PREFIX)) {
     return identifier.split(SCORE_PREFIX).join('')
   } else if (identifier.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
@@ -158,7 +158,7 @@ export function checkIdentifier(
   if (
     idfrDecoded !== REGISTRY_IDENT ||
     idfrDecoded !== SCHEMA_IDENT ||
-    idfrDecoded !== STREAM_IDENT ||
+    idfrDecoded !== STATEMENT_IDENT ||
     idfrDecoded !== SCORE_IDENTIFIER ||
     idfrDecoded !== AUTHORIZATION_IDENT
   ) {

@@ -5,15 +5,15 @@ import type {
   VerificationResult,
 } from 'jsonld-signatures'
 import type { JsonLdObj } from 'jsonld/jsonld-spec'
-import type { IPublicKeyRecord, CordStreamSignatureProof } from '../../types.js'
-import { verifyStreamSignatureProof } from '../../verificationUtils.js'
+import type { IPublicKeyRecord, CordStatementSignatureProof } from '../../types.js'
+import { verifyStatementSignatureProof } from '../../verificationUtils.js'
 import CordAbstractSuite from './CordAbstractSuite.js'
-import { CORD_STREAM_SIGNATURE_PROOF_TYPE } from '../../constants.js'
+import { CORD_STATEMENT_SIGNATURE_PROOF_TYPE } from '../../constants.js'
 
-export default class CordStreamSignatureSuite extends CordAbstractSuite {
+export default class CordStatementSignatureSuite extends CordAbstractSuite {
   constructor() {
     super({
-      type: CORD_STREAM_SIGNATURE_PROOF_TYPE,
+      type: CORD_STATEMENT_SIGNATURE_PROOF_TYPE,
       verificationMethod: '<none>',
     })
   }
@@ -32,7 +32,7 @@ export default class CordStreamSignatureSuite extends CordAbstractSuite {
       if (!proof || typeof proof !== 'object')
         throw new TypeError('proof must be a JsonLd object')
       const compactedDoc = await this.compactDoc(document, options)
-      const compactedProof = await this.compactProof<CordStreamSignatureProof>(
+      const compactedProof = await this.compactProof<CordStatementSignatureProof>(
         proof,
         options
       )
@@ -49,7 +49,7 @@ export default class CordStreamSignatureSuite extends CordAbstractSuite {
           dereferenced.document as IPublicKeyRecord
       }
       // note that we currently don't check whether the public key in the proof is linked to the credential subject
-      const { verified, errors } = await verifyStreamSignatureProof(
+      const { verified, errors } = await verifyStatementSignatureProof(
         compactedDoc,
         compactedProof
       )

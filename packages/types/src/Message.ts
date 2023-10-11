@@ -1,6 +1,6 @@
 import type { IDocument, IDocumentPresentation } from './Document.js'
 import type { DidResourceUri, DidUri } from './DidDocument.js'
-import type { IStream } from './Stream'
+import type { IStatement } from './Statement'
 import type { SchemaId } from './Schema.js'
 
 export type MessageBodyType =
@@ -62,16 +62,16 @@ export interface IRequestDocument extends IMessageBodyBase {
   type: 'request-document-stream'
 }
 
-export interface ISubmitStreamContent {
-  stream: IStream
+export interface ISubmitStatementContent {
+  statement: IStatement
 }
 
-export interface ISubmitDocumentStream extends IMessageBodyBase {
-  content: ISubmitStreamContent
+export interface ISubmitDocumentStatement extends IMessageBodyBase {
+  content: ISubmitStatementContent
   type: 'submit-document-stream'
 }
 
-export interface IRejectDocumentStream extends IMessageBodyBase {
+export interface IRejectDocumentStatement extends IMessageBodyBase {
   content: IDocument['identifier']
   type: 'reject-document-stream'
 }
@@ -95,8 +95,8 @@ export type MessageBody =
   | IReject
   //
   | IRequestDocument
-  | ISubmitDocumentStream
-  | IRejectDocumentStream
+  | ISubmitDocumentStatement
+  | IRejectDocumentStatement
   //
   | IRequestCredentialDocument
   | ISubmitCredentialDocument
