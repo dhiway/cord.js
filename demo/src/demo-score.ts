@@ -10,7 +10,7 @@ import { updateScore } from './utils/updateScore'
 import { ScoreType, IJournalContent, EntryType } from '@cord.network/types'
 
 async function main() {
-  const networkAddress = 'ws://127.0.0.1:63554'
+  const networkAddress = 'ws://127.0.0.1:9944'
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
@@ -139,6 +139,7 @@ async function main() {
     rating: 12.116,
     rating_type: ScoreType.overall,
   }
+
   console.dir(journalContent, { depth: null, colors: true })
   console.log('\n✅ Journal Entry created!')
 

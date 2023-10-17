@@ -1,4 +1,9 @@
-import { SCORE_MODULUS, IJournalContent,IRatingInput,CordKeyringPair } from '@cord.network/types'
+import {
+  SCORE_MODULUS,
+  IJournalContent,
+  IRatingInput,
+  CordAddress,
+} from '@cord.network/types'
 import { Crypto } from '@cord.network/utils'
 import {
   SCORE_IDENT,
@@ -6,7 +11,7 @@ import {
   ScoreType,
   IScoreAverageDetails,
 } from '@cord.network/types'
-import { Identifier } from '@cord.network/utils'
+import { Identifier, SDKErrors } from '@cord.network/utils'
 import { fetchScore } from './Scoring.chain'
 
 export function adjustAndRoundRating(rating: number): number {
@@ -35,17 +40,18 @@ export function getUriForScore(journalContent: IJournalContent) {
   return Identifier.hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
 }
 
-export function fromScore(journalContent: IJournalContent, authorIdentity: CordKeyringPair): IRatingInput {
-    journalContent.rating = adjustAndRoundRating(journalContent.rating)
-    const digest = generateDigestFromJournalContent(
-        journalContent
-      )
-    const ratingInput: IRatingInput = {
-        entry: journalContent,
-        digest: digest,
-        creator: authorIdentity.address,
-      }
-    return ratingInput
+export function fromScore(
+  journalContent: IJournalContent,
+  creator: CordAddress
+): IRatingInput {
+  journalContent.rating = adjustAndRoundRating(journalContent.rating)
+  const digest = generateDigestFromJournalContent(journalContent)
+  const ratingInput: IRatingInput = {
+    entry: journalContent,
+    digest: digest,
+    creator: creator,
+  }
+  return ratingInput
 }
 
 export async function fetchAverageScore(
@@ -64,5 +70,43 @@ export async function fetchAverageScore(
     rating: actualRating,
     count: decodedScoreEntry.count,
     average: averageRating,
+  }
+}
+
+export function fromJournalContent(
+  journalContent: IJournalContent,
+  creator: CordAddress
+) {
+  verifyScoreStructure(journalContent)
+  const ratingInput = fromScore(journalContent, creator)
+  const entry = ratingInput.entry
+  const scoreIdentifier = getUriForScore(entry)
+  return {
+    ratingInput,
+    scoreIdentifier,
+  }
+}
+
+export function verifyScoreStructure(input: IJournalContent) {
+  if (!input.collector) {
+    throw new SDKErrors.ScoreCollectorMissingError()
+  }
+  if (!input.entity) {
+    throw new SDKErrors.ScoreEntityMissingError()
+  }
+  if (!input.tid) {
+    throw new SDKErrors.ScoreTidMissingError()
+  }
+  if (!input.entry_type) {
+    throw new SDKErrors.ScoreEntryTypeMissingError()
+  }
+  if (!input.count) {
+    throw new SDKErrors.ScoreCountMissingError()
+  }
+  if (!input.rating) {
+    throw new SDKErrors.ScoreRatingMissingError()
+  }
+  if (!input.rating_type) {
+    throw new SDKErrors.ScoreRatingTypeMissingError()
   }
 }

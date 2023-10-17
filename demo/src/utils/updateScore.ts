@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { IJournalContent, IRatingInput } from '@cord.network/types'
+import { IJournalContent } from '@cord.network/types'
 
 /**
  * This function anchors the score on the blockchain
@@ -18,39 +18,20 @@ export async function updateScore(
   authorDid: Cord.DidUri,
   authorKeys: Cord.CordKeyringPair
 ) {
-  const api = Cord.ConfigService.get('api')
-
-  journalContent.rating = await Cord.Score.adjustAndRoundRating(
-    journalContent.rating
-  )
-  const digest = await Cord.Score.generateDigestFromJournalContent(
-    journalContent
-  )
-  const authorization = registryAuthority.replace('auth:cord:', '')
-  const ratingInput: IRatingInput = {
-    entry: journalContent,
-    digest: digest,
-    creator: authorIdentity.address,
-  }
-  const journalCreationExtrinsic = await api.tx.score.addRating(
-    ratingInput,
-    authorization
-  )
-
-  const authorizedStreamTx = await Cord.Did.authorizeTx(
-    authorDid,
-    journalCreationExtrinsic,
-    async ({ data }) => ({
-      signature: authorKeys.assertionMethod.sign(data),
-      keyType: authorKeys.assertionMethod.type,
-    }),
+  const outputFromScore = Cord.Score.fromJournalContent(
+    journalContent,
     authorIdentity.address
   )
-
   try {
-    await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
-    return Cord.Score.getUriForScore(journalContent)
-  } catch (error) {
-    return error.message
+    const check = await Cord.Score.makeScoreEntryToChain(
+      outputFromScore,
+      registryAuthority,
+      authorDid,
+      authorKeys,
+      authorIdentity
+    )
+    return check
+  } catch (e) {
+    return e.message
   }
 }

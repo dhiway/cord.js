@@ -212,3 +212,17 @@ export class TimeoutError extends SDKError {}
 export class CodecMismatchError extends SDKError {}
 
 export class ScoreMissingError extends SDKError {}
+
+export class ScoreCollectorMissingError extends SDKError {}
+
+export class ScoreEntityMissingError extends SDKError {}
+
+export class ScoreTidMissingError extends SDKError {}
+
+export class ScoreEntryTypeMissingError extends SDKError {}
+
+export class ScoreCountMissingError extends SDKError {}
+
+export class ScoreRatingMissingError extends SDKError {}
+
+export class ScoreRatingTypeMissingError extends SDKError {}
