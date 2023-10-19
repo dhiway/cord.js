@@ -242,3 +242,4 @@ export class ScoreEntityTypeMissMatchError extends SDKError {}
 export class ScoreTidTypeMissMatchError extends SDKError {}
 
 export class ScoreCountTypeMissMatchError extends SDKError {}
+export class ScoreEntryAlreadyPresentError extends SDKError {}

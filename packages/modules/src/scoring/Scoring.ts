@@ -14,6 +14,7 @@ import {
   IRatingData,
 } from '@cord.network/types'
 import { Identifier, SDKErrors } from '@cord.network/utils'
+import { ConfigService } from '@cord.network/config'
 
 export function base10Encode(rating: number): number {
   rating = Math.round(rating * SCORE_MODULUS)
@@ -63,6 +64,11 @@ export function fromRatingEntry(
   const ratingInput = transformRatingEntry(journalContent, creator)
   const entry = ratingInput.entry
   const scoreIdentifier = getUriForScore(entry)
+  const ratingType =
+    ratingInput.entry.rating_type === 'Overall'
+      ? RatingType.overall
+      : RatingType.delivery
+  verifyStoredEntry(scoreIdentifier, ratingType)
   return {
     ratingInput: ratingInput,
     identifier: scoreIdentifier,
@@ -85,7 +91,8 @@ export function verifyScoreStructure(input: IJournalContent) {
   }
 
   if (input.tid) {
-    if (typeof input.tid != 'string') throw new SDKErrors.ScoreTidTypeMissMatchError()
+    if (typeof input.tid != 'string')
+      throw new SDKErrors.ScoreTidTypeMissMatchError()
   } else {
     throw new SDKErrors.ScoreTidMissingError()
   }
@@ -103,7 +110,8 @@ export function verifyScoreStructure(input: IJournalContent) {
   }
 
   if (input.count) {
-    if (typeof input.count != 'number') throw new SDKErrors.ScoreCountTypeMissMatchError()
+    if (typeof input.count != 'number')
+      throw new SDKErrors.ScoreCountTypeMissMatchError()
   } else {
     throw new SDKErrors.ScoreCountMissingError()
   }
@@ -126,5 +134,19 @@ export function verifyScoreStructure(input: IJournalContent) {
       throw new SDKErrors.ScoreRatingTypeMissMatchError()
   } else {
     throw new SDKErrors.ScoreRatingTypeMissingError()
+  }
+}
+
+export async function verifyStoredEntry(
+  scoreIdentifier: string,
+  RatingType: RatingType
+) {
+  const api = ConfigService.get('api')
+  const encodedScoreEntry = await api.query.score.journal(
+    scoreIdentifier.replace('score:cord:', ''),
+    RatingType
+  )
+  if (encodedScoreEntry.isSome) {
+    throw new SDKErrors.ScoreEntryAlreadyPresentError()
   }
 }
