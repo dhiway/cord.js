@@ -18,12 +18,12 @@ export async function updateScore(
   authorDid: Cord.DidUri,
   authorKeys: Cord.CordKeyringPair
 ) {
-  const outputFromScore = Cord.Score.fromJournalContent(
+  const outputFromScore = Cord.Score.fromRatingEntry(
     journalContent,
     authorIdentity.address
   )
   try {
-    const check = await Cord.Score.makeScoreEntryToChain(
+    const check = await Cord.Score.toChain(
       outputFromScore,
       registryAuthority,
       authorDid,

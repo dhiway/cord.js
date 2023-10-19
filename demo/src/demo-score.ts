@@ -7,7 +7,7 @@ import { randomUUID } from 'crypto'
 import { addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 import { updateScore } from './utils/updateScore'
-import { ScoreType, IJournalContent, EntryType } from '@cord.network/types'
+import { RatingEntry, IJournalContent, RatingType } from '@cord.network/types'
 
 async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
@@ -134,10 +134,10 @@ async function main() {
     collector: '3wRLJniUXUicgy7JeqWQWd2zTiUczuxUsebCJ87RMAjTUoHo',
     entity: '3vyTk3KM35qz2RN7bCVG1g1qVqyvt87bZpRL1Xm5smvTCWtJ',
     tid: UUID.generatev4().toString(),
-    entry_type: EntryType.debit,
-    count:5,
+    entry_type: RatingEntry.debit,
+    count: 5,
     rating: 12.116,
-    rating_type: ScoreType.overall,
+    rating_type: RatingType.overall,
   }
 
   console.dir(journalContent, { depth: null, colors: true })

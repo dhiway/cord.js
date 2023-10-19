@@ -4,12 +4,13 @@ export const SCORE_IDENTIFIER: number = 101
 export const SCORE_PREFIX: string = 'score:cord:'
 export const SCORE_MODULUS: number = 10
 export const SCORE_IDENT: number = 11034
+export const MAX_SCORE_PER_ENTRY: number = 5
 
-export enum ScoreType {
+export enum RatingType {
   overall = 'Overall',
   delivery = 'Delivery',
 }
-export enum EntryType {
+export enum RatingEntry {
   credit = 'Credit',
   debit = 'Debit',
 }
@@ -30,6 +31,11 @@ export interface IRatingInput {
   creator: string
 }
 
+export interface IRatingData {
+  ratingInput: IRatingInput
+  identifier: string
+}
+
 export interface IJournal {
   identifier: string
   entry: IJournalContent
@@ -45,20 +51,14 @@ export interface IJournalDetails {
 
 export interface IScoreAggregateDetails {
   entity: IJournalContent['entity']
-  scoreType: ScoreType
+  RatingType: RatingType
   aggregate: {
     count: number
     score: number
   }
 }
 
-export interface IScoreAverageDetails {
-  rating: number
-  count: number
-  average: number
-}
-
-export interface IScoreDetails {
+export interface IEntityScoreDetails {
   rating: number
   count: number
 }

@@ -1,18 +1,17 @@
 import {
-  ScoreType,
-  IScoreDetails,
+  RatingType,
+  IEntityScoreDetails,
   SCORE_MODULUS,
   IJournalContent,
+  IRatingData,
 } from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
 import { Identifier, SDKErrors } from '@cord.network/utils'
-import * as Did from '@cord.network/did'
-import { fromScore } from './Scoring'
 import * as Cord from '@cord.network/sdk'
 
 export async function fetchJournalFromChain(
   scoreId: string,
-  scoreType: ScoreType
+  scoreType: RatingType
 ): Promise<IJournalContent | null> {
   const api = ConfigService.get('api')
   const cordScoreId = Identifier.uriToIdentifier(scoreId)
@@ -28,27 +27,13 @@ export async function fetchJournalFromChain(
   } else return decodedScoreEntry
 }
 
-export async function toChain(
-  journalContent: IJournalContent,
-  authorization: Cord.CordAddress,
-  authorIdentity: any
-) {
-  const api = ConfigService.get('api')
-  const ratingInput = fromScore(journalContent, authorIdentity)
-  const journalCreationExtrinsic = await api.tx.score.addRating(
-    ratingInput,
-    authorization
-  )
-  return journalCreationExtrinsic
-}
-
 export function fromChain(encodedEntry: any): IJournalContent | null {
   if (encodedEntry.isSome) {
     const unwrapped = encodedEntry.unwrap()
     return {
-      entity: Did.fromChain(unwrapped.entry.entity),
+      entity: unwrapped.entry.entity.toString(),
       tid: JSON.stringify(unwrapped.entry.tid.toHuman()),
-      collector: Did.fromChain(unwrapped.entry.collector),
+      collector: unwrapped.entry.collector.toString(),
       rating_type: unwrapped.entry.ratingType.toString(),
       rating: parseInt(unwrapped.entry.rating.toString()) / SCORE_MODULUS,
       entry_type: unwrapped.entry.entryType.toString(),
@@ -61,8 +46,8 @@ export function fromChain(encodedEntry: any): IJournalContent | null {
 
 export async function fetchScore(
   entityUri: string,
-  scoreType: ScoreType
-): Promise<IScoreDetails> {
+  scoreType: RatingType
+): Promise<IEntityScoreDetails> {
   const api = ConfigService.get('api')
   const encoded = await api.query.score.scores(entityUri, scoreType)
   if (encoded.isSome) {
@@ -77,17 +62,17 @@ export async function fetchScore(
     )
 }
 
-export async function makeScoreEntryToChain(
-  ratingInputAndIdentifier: any,
+export async function toChain(
+  ratingData: IRatingData,
   authorization: string,
   authorDid: Cord.DidUri,
   authorKeys: any,
-  authorIdentity: any
+  authorIdentity: Cord.CordKeyringPair
 ) {
   const api = Cord.ConfigService.get('api')
-  const ratingInput = ratingInputAndIdentifier.ratingInput
-  const identifier = ratingInputAndIdentifier.scoreIdentifier
-  const auth = authorization.replace('auth:cord:', '')
+  const ratingInput = ratingData.ratingInput
+  const identifier = ratingData.identifier
+  const auth = Identifier.uriToIdentifier(authorization)
   try {
     const journalCreationExtrinsic = await api.tx.score.addRating(
       ratingInput,

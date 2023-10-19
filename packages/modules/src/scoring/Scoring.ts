@@ -8,22 +8,23 @@ import { Crypto } from '@cord.network/utils'
 import {
   SCORE_IDENT,
   SCORE_PREFIX,
-  ScoreType,
-  IScoreAverageDetails,
+  RatingEntry,
+  RatingType,
+  MAX_SCORE_PER_ENTRY,
+  IRatingData,
 } from '@cord.network/types'
 import { Identifier, SDKErrors } from '@cord.network/utils'
-import { fetchScore } from './Scoring.chain'
 
-export function adjustAndRoundRating(rating: number): number {
+export function base10Encode(rating: number): number {
   rating = Math.round(rating * SCORE_MODULUS)
   return rating
 }
 
-export function ComputeActualRating(rating: number): number {
+export function computeActualRating(rating: number): number {
   return rating / SCORE_MODULUS
 }
 
-export function ComputeAverageRating(rating: number, count: number): number {
+export function computeAverageRating(rating: number, count: number): number {
   return rating / count
 }
 
@@ -40,11 +41,11 @@ export function getUriForScore(journalContent: IJournalContent) {
   return Identifier.hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
 }
 
-export function fromScore(
+export function transformRatingEntry(
   journalContent: IJournalContent,
   creator: CordAddress
 ): IRatingInput {
-  journalContent.rating = adjustAndRoundRating(journalContent.rating)
+  journalContent.rating = base10Encode(journalContent.rating)
   const digest = generateDigestFromJournalContent(journalContent)
   const ratingInput: IRatingInput = {
     entry: journalContent,
@@ -54,59 +55,76 @@ export function fromScore(
   return ratingInput
 }
 
-export async function fetchAverageScore(
-  entityUri: string,
-  scoreType: ScoreType
-): Promise<IScoreAverageDetails> {
-  const pertialEntityUri = entityUri.split('did:cord:').join('')
-  const decodedScoreEntry = await fetchScore(pertialEntityUri, scoreType)
-
-  const actualRating = ComputeActualRating(decodedScoreEntry.rating)
-  const averageRating = ComputeAverageRating(
-    actualRating,
-    decodedScoreEntry.count
-  )
-  return {
-    rating: actualRating,
-    count: decodedScoreEntry.count,
-    average: averageRating,
-  }
-}
-
-export function fromJournalContent(
+export function fromRatingEntry(
   journalContent: IJournalContent,
   creator: CordAddress
-) {
+): IRatingData {
   verifyScoreStructure(journalContent)
-  const ratingInput = fromScore(journalContent, creator)
+  const ratingInput = transformRatingEntry(journalContent, creator)
   const entry = ratingInput.entry
   const scoreIdentifier = getUriForScore(entry)
   return {
-    ratingInput,
-    scoreIdentifier,
+    ratingInput: ratingInput,
+    identifier: scoreIdentifier,
   }
 }
 
 export function verifyScoreStructure(input: IJournalContent) {
-  if (!input.collector) {
+  if (input.collector) {
+    if (typeof input.collector != 'string')
+      throw new SDKErrors.ScoreCollectorTypeMissMatchError()
+  } else {
     throw new SDKErrors.ScoreCollectorMissingError()
   }
-  if (!input.entity) {
+
+  if (input.entity) {
+    if (typeof input.entity != 'string')
+      throw new SDKErrors.ScoreEntityTypeMissMatchError()
+  } else {
     throw new SDKErrors.ScoreEntityMissingError()
   }
-  if (!input.tid) {
+
+  if (input.tid) {
+    if (typeof input.tid != 'string') throw new SDKErrors.ScoreTidTypeMissMatchError()
+  } else {
     throw new SDKErrors.ScoreTidMissingError()
   }
-  if (!input.entry_type) {
-    throw new SDKErrors.ScoreEntryTypeMissingError()
+
+  if (input.entry_type) {
+    if (
+      !(
+        input.entry_type === RatingEntry.credit ||
+        input.entry_type === RatingEntry.debit
+      )
+    )
+      throw new SDKErrors.ScoreRatingEntryTypeMissMatchError()
+  } else {
+    throw new SDKErrors.ScoreRatingEntryTypeMissingError()
   }
-  if (!input.count) {
+
+  if (input.count) {
+    if (typeof input.count != 'number') throw new SDKErrors.ScoreCountTypeMissMatchError()
+  } else {
     throw new SDKErrors.ScoreCountMissingError()
   }
-  if (!input.rating) {
+  if (input.rating) {
+    if (typeof input.rating != 'number')
+      throw new SDKErrors.RatingInputTypeMissMatchError()
+    if (input.rating > input.count * MAX_SCORE_PER_ENTRY)
+      throw new SDKErrors.RatingExceedsMaxValueError()
+  } else {
     throw new SDKErrors.ScoreRatingMissingError()
   }
-  if (!input.rating_type) {
+
+  if (input.rating_type) {
+    if (
+      !(
+        input.rating_type === RatingType.overall ||
+        input.rating_type === RatingType.delivery
+      )
+    )
+      throw new SDKErrors.ScoreRatingTypeMissMatchError()
+  } else {
     throw new SDKErrors.ScoreRatingTypeMissingError()
   }
 }
