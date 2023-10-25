@@ -81,7 +81,7 @@ export async function toChain(
     const authorizedStreamTx = await Cord.Did.authorizeTx(
       authorDid,
       journalCreationExtrinsic,
-      async ({ data }) => ({
+      async ({ data } : any) => ({
         signature: authorKeys.assertionMethod.sign(data),
         keyType: authorKeys.assertionMethod.type,
       }),
