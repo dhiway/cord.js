@@ -32,7 +32,13 @@ export function computeAverageRating(rating: number, count: number): number {
 export function generateDigestFromJournalContent(
   journalContent: IJournalContent
 ) {
-  const digest = Crypto.hash(JSON.stringify(journalContent))
+  const derivedObjectForHash : object = {
+    entity:journalContent.entity,
+    tid:journalContent.tid,
+    entry_type: journalContent.entry_type,
+    rating_type: journalContent.rating_type
+  }
+  const digest = Crypto.hash(JSON.stringify(derivedObjectForHash))
   const hexDigest = Crypto.u8aToHex(digest)
   return hexDigest
 }
