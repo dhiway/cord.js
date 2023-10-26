@@ -210,3 +210,36 @@ export class DecodingMessageError extends SDKError {}
 export class TimeoutError extends SDKError {}
 
 export class CodecMismatchError extends SDKError {}
+
+export class ScoreMissingError extends SDKError {}
+
+export class ScoreCollectorMissingError extends SDKError {}
+
+export class ScoreEntityMissingError extends SDKError {}
+
+export class ScoreTidMissingError extends SDKError {}
+
+export class ScoreRatingEntryTypeMissingError extends SDKError {}
+
+export class ScoreCountMissingError extends SDKError {}
+
+export class ScoreRatingMissingError extends SDKError {}
+
+export class ScoreRatingTypeMissingError extends SDKError {}
+
+export class ScoreRatingEntryTypeMissMatchError extends SDKError {}
+
+export class RatingInputTypeMissMatchError extends SDKError {}
+
+export class ScoreRatingTypeMissMatchError extends SDKError {}
+
+export class RatingExceedsMaxValueError extends SDKError {}
+
+export class ScoreCollectorTypeMissMatchError extends SDKError {}
+
+export class ScoreEntityTypeMissMatchError extends SDKError {}
+
+export class ScoreTidTypeMissMatchError extends SDKError {}
+
+export class ScoreCountTypeMissMatchError extends SDKError {}
+export class ScoreEntryAlreadyPresentError extends SDKError {}
