@@ -9,7 +9,8 @@ import {
 } from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
 import { Identifier, SDKErrors } from '@cord.network/utils'
-import * as Chain from '@cord.network/network/src/chain/Chain'
+// import * as Chain from '@cord.network/network/src/chain/Chain'
+import * as Chain from '../../../network/src/chain/Chain'
 import * as Did from '@cord.network/did'
 
 export async function fetchJournalFromChain(

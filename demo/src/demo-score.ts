@@ -16,7 +16,7 @@ async function main() {
 
   const api = Cord.ConfigService.get('api')
 
-  console.log(`\n❄️   New Member`)
+  console.log(`\n❄️   New Member\n`)
   const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
     '//Alice',
     'sr25519'
@@ -29,7 +29,7 @@ async function main() {
   console.log('✅  Network Member added!')
 
   // Step 2: Setup Identities
-  console.log(`\n❄️   Demo Identities (KeyRing)`)
+  console.log(`\n❄️   Demo Identities (KeyRing)\n`)
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
     authorIdentity
   )
@@ -52,30 +52,37 @@ async function main() {
 
   console.log('✅  Identities created!')
 
-  // Entities
-  console.log(`\n❄️   Demo Entities`)
-  const sellerIdentity = Crypto.makeKeypairFromUri('//Entity', 'sr25519')
+  // Seller Entities
+  console.log(`\n❄️   Demo Seller Entities\n`)
+  const sellerIdentity1 = Crypto.makeKeypairFromUri('//Entity1', 'sr25519')
   console.log(
-    `🏛   Seller Entity (${sellerIdentity.type}): ${sellerIdentity.address}`
-  )
-  await addAuthority(authorityAuthorIdentity, sellerIdentity.address)
-
-  const { mnemonic: sellerMnemonic, document: sellerDid } = await createDid(
-    sellerIdentity
+    `🏛   Seller Entity 1 (${sellerIdentity1.type}): ${sellerIdentity1.address}`
   )
 
+  const sellerIdentity2 = Crypto.makeKeypairFromUri('//Entity2', 'sr25519')
+  console.log(
+    `🏛   Seller Entity 2 (${sellerIdentity2.type}): ${sellerIdentity2.address}`
+  )
+
+  const sellerIdentity3 = Crypto.makeKeypairFromUri('//Entity3', 'sr25519')
+  console.log(
+    `🏛   Seller Entity 3 (${sellerIdentity3.type}): ${sellerIdentity3.address}`
+  )
+
+  const sellerIdentity4 = Crypto.makeKeypairFromUri('//Entity4', 'sr25519')
+  console.log(
+    `🏛   Seller Entity 4 (${sellerIdentity4.type}): ${sellerIdentity4.address}`
+  )
+
+  console.log(`\n❄️   Demo Collector Entity\n`)
   const collectorIdentity = Crypto.makeKeypairFromUri('//BuyerApp', 'sr25519')
   console.log(
     `🧑🏻‍💼  Score Collector (${collectorIdentity.type}): ${collectorIdentity.address}`
   )
-  await addAuthority(authorityAuthorIdentity, collectorIdentity.address)
 
-  const { mnemonic: collectorMnemonic, document: collectorDid } =
-    await createDid(collectorIdentity)
+  console.log('\n✅  Entities created!')
 
-  console.log('✅  Entities created!')
-
-  console.log(`\n❄️  Registry Creation `)
+  console.log(`\n❄️  Registry Creation \n`)
 
   const registryTitle = `Registry v3.${randomUUID().substring(0, 4)}`
   const registryDetails: Cord.IContents = {
@@ -116,7 +123,7 @@ async function main() {
   console.log('\n✅ Registry created!')
 
   // Step 4: Add Delelegate One as Registry Admin
-  console.log(`\n❄️  Registry Admin Delegate Authorization `)
+  console.log(`\n❄️  Registry Admin Delegate Authorization \n`)
   const registryAuthority = await addRegistryAdminDelegate(
     authorIdentity,
     issuerDid.uri,
@@ -129,33 +136,94 @@ async function main() {
   )
   console.log(`\n✅ Registry Authorization - ${registryAuthority} - created!`)
 
-  console.log(`\n❄️  Journal Entry `)
-  let journalContent: IJournalContent = {
-    collector: '3wRLJniUXUicgy7JeqWQWd2zTiUczuxUsebCJ87RMAjTUoHo',
-    entity: '3vyTk3KM35qz2RN7bCVG1g1qVqyvt87bZpRL1Xm5smvTCWtJ',
+  console.log(`\n❄️  Journal Entries \n`)
+
+  let journalEntryArray: Array<IJournalContent> = []
+  let journalContent_1: IJournalContent = {
+    collector: collectorIdentity.address,
+    entity: sellerIdentity1.address,
     tid: UUID.generatev4().toString(),
-    entry_type: RatingEntry.debit,
+    entry_type: RatingEntry.credit,
     count: 5,
     rating: 12.116,
     rating_type: RatingType.overall,
   }
+  journalEntryArray.push(journalContent_1)
 
-  console.dir(journalContent, { depth: null, colors: true })
-  console.log('\n✅ Journal Entry created!')
+  let journalContent_2: IJournalContent = {
+    collector: collectorIdentity.address,
+    entity: sellerIdentity2.address,
+    tid: UUID.generatev4().toString(),
+    entry_type: RatingEntry.debit,
+    count: 15,
+    rating: 60,
+    rating_type: RatingType.overall,
+  }
+  journalEntryArray.push(journalContent_2)
 
-  console.log('\nAnchoring the score on the blockchain...')
-  const scoreIdentifier = await updateScore(
-    journalContent,
-    registryAuthority,
-    authorIdentity,
-    delegateOneDid.uri,
-    delegateOneKeys
-  )
+  let journalContent_3: IJournalContent = {
+    collector: collectorIdentity.address,
+    entity: sellerIdentity3.address,
+    tid: UUID.generatev4().toString(),
+    entry_type: RatingEntry.credit,
+    count: 46,
+    rating: 144.8,
+    rating_type: RatingType.delivery,
+  }
+  journalEntryArray.push(journalContent_3)
+
+  let journalContent_4: IJournalContent = {
+    collector: collectorIdentity.address,
+    entity: sellerIdentity4.address,
+    tid: UUID.generatev4().toString(),
+    entry_type: RatingEntry.debit,
+    count: 96,
+    rating: 117,
+    rating_type: RatingType.delivery,
+  }
+  journalEntryArray.push(journalContent_4)
+
+  console.dir(journalEntryArray, { depth: null, colors: true })
+  console.log('\n✅ Journal Entry Array created!\n')
 
   console.log(
-    '\n✅ The score has been successfully anchored on the blockchain \nIdentifier:',
-    scoreIdentifier
+    '\n✍🏻 BAP signs the journal entry array as a packet and sends it to API\n'
   )
+  const uint8Array = Crypto.sign(
+    journalEntryArray,
+    delegateOneKeys.authentication
+  )
+
+  console.log('\n👨🏻‍⚖️ API verfies the packet\n')
+  Crypto.verify(
+    journalEntryArray,
+    uint8Array,
+    delegateOneKeys.authentication.publicKey
+  )
+  console.log('\n✅ Packet verified!\n')
+
+  console.log(
+    '☎️  API calls the update score method to anchor the rating entry one by one'
+  )
+
+  for (let i: number = 0; i < journalEntryArray.length; i++) {
+    try {
+      console.log(`\nAnchoring the rating ${i + 1} on the blockchain...`)
+      const ratingIdentifier = await updateScore(
+        journalEntryArray[i],
+        registryAuthority,
+        authorIdentity,
+        delegateOneDid.uri,
+        delegateOneKeys
+      )
+      console.log(
+        '\n✅ The rating has been successfully anchored on the blockchain \nIdentifier:',
+        ratingIdentifier
+      )
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
 }
 
 main()
