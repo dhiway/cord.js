@@ -21,6 +21,14 @@ export function base10Encode(rating: number): number {
   return rating
 }
 
+export function transformRatingEntry(
+  journalContent: IJournalContent
+): IJournalContent {
+  journalContent.rating = base10Encode(journalContent.rating)
+  verifyScoreStructure(journalContent)
+  return journalContent
+}
+
 export function computeActualRating(rating: number): number {
   return rating / SCORE_MODULUS
 }
@@ -32,11 +40,11 @@ export function computeAverageRating(rating: number, count: number): number {
 export function generateDigestFromJournalContent(
   journalContent: IJournalContent
 ) {
-  const derivedObjectForHash : object = {
-    entity:journalContent.entity,
-    tid:journalContent.tid,
+  const derivedObjectForHash: object = {
+    entity: journalContent.entity,
+    tid: journalContent.tid,
     entry_type: journalContent.entry_type,
-    rating_type: journalContent.rating_type
+    rating_type: journalContent.rating_type,
   }
   const digest = Crypto.hash(JSON.stringify(derivedObjectForHash))
   const hexDigest = Crypto.u8aToHex(digest)
@@ -48,11 +56,10 @@ export function getUriForScore(journalContent: IJournalContent) {
   return Identifier.hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
 }
 
-export function transformRatingEntry(
+export function transformRatingEntryToInput(
   journalContent: IJournalContent,
   creator: CordAddress
 ): IRatingInput {
-  journalContent.rating = base10Encode(journalContent.rating)
   const digest = generateDigestFromJournalContent(journalContent)
   const ratingInput: IRatingInput = {
     entry: journalContent,
@@ -67,7 +74,7 @@ export function fromRatingEntry(
   creator: CordAddress
 ): IRatingData {
   verifyScoreStructure(journalContent)
-  const ratingInput = transformRatingEntry(journalContent, creator)
+  const ratingInput = transformRatingEntryToInput(journalContent, creator)
   const entry = ratingInput.entry
   const scoreIdentifier = getUriForScore(entry)
   const ratingType =
@@ -121,6 +128,7 @@ export function verifyScoreStructure(input: IJournalContent) {
   } else {
     throw new SDKErrors.ScoreCountMissingError()
   }
+
   if (input.rating) {
     if (typeof input.rating != 'number')
       throw new SDKErrors.RatingInputTypeMissMatchError()

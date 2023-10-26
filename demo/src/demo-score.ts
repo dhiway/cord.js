@@ -6,7 +6,6 @@ import { addRegistryAdminDelegate } from './utils/generateRegistry'
 import { randomUUID } from 'crypto'
 import { addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
-import { updateScore } from './utils/updateScore'
 import { RatingEntry, IJournalContent, RatingType } from '@cord.network/types'
 
 async function main() {
@@ -186,39 +185,57 @@ async function main() {
   console.dir(journalEntryArray, { depth: null, colors: true })
   console.log('\n✅ Journal Entry Array created!\n')
 
+  console.log('♺ BAP Transforms the journal entries to required format\n')
+  let transformedJournalEntryArray: Array<IJournalContent> = []
+  for (let i: number = 0; i < journalEntryArray.length; i++) {
+    transformedJournalEntryArray.push(
+      Cord.Score.transformRatingEntry(journalEntryArray[i])
+    )
+  }
+
   console.log(
-    '\n✍🏻 BAP signs the journal entry array as a packet and sends it to API\n'
+    '✍🏻 BAP signs the journal entry array as a packet and sends it to API\n'
   )
-  const uint8Array = Crypto.sign(
-    journalEntryArray,
-    delegateOneKeys.authentication
+  const signature = Crypto.sign(
+    JSON.stringify(transformedJournalEntryArray),
+    delegateOneKeys.assertionMethod
   )
 
   console.log('\n👨🏻‍⚖️ API verfies the packet\n')
   Crypto.verify(
-    journalEntryArray,
-    uint8Array,
-    delegateOneKeys.authentication.publicKey
+    JSON.stringify(transformedJournalEntryArray),
+    signature,
+    delegateOneKeys.assertionMethod.publicKey
   )
   console.log('\n✅ Packet verified!\n')
 
   console.log(
-    '☎️  API calls the update score method to anchor the rating entry one by one'
+    '☎️  API utilizses the verified transformedJournalEntryArray \n to preparing rating input and anchors it to the chain'
   )
 
-  for (let i: number = 0; i < journalEntryArray.length; i++) {
+  for (let j: number = 0; j < transformedJournalEntryArray.length; j++) {
     try {
-      console.log(`\nAnchoring the rating ${i + 1} on the blockchain...`)
-      const ratingIdentifier = await updateScore(
-        journalEntryArray[i],
-        registryAuthority,
-        authorIdentity,
-        delegateOneDid.uri,
-        delegateOneKeys
+      let outputFromScore = await Cord.Score.fromRatingEntry(
+        transformedJournalEntryArray[j],
+        authorIdentity.address
       )
+      let extrensic = await Cord.Score.toChain(
+        outputFromScore,
+        registryAuthority
+      )
+      const authorizedStreamTx = await Cord.Did.authorizeTx(
+        delegateOneDid.uri,
+        extrensic,
+        async ({ data }: any) => ({
+          signature: delegateOneKeys.assertionMethod.sign(data),
+          keyType: delegateOneKeys.assertionMethod.type,
+        }),
+        authorIdentity.address
+      )
+      await Cord.Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
       console.log(
-        '\n✅ The rating has been successfully anchored on the blockchain \nIdentifier:',
-        ratingIdentifier
+        `\n✅ Rating ${j + 1} has been achored to the blockchain\n`,
+        outputFromScore.identifier
       )
     } catch (error) {
       console.log(error.message)

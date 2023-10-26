@@ -4,14 +4,9 @@ import {
   SCORE_MODULUS,
   IJournalContent,
   IRatingData,
-  DidUri,
-  CordKeyringPair
 } from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
 import { Identifier, SDKErrors } from '@cord.network/utils'
-// import * as Chain from '@cord.network/network/src/chain/Chain'
-import * as Chain from '../../../network/src/chain/Chain'
-import * as Did from '@cord.network/did'
 
 export async function fetchJournalFromChain(
   scoreId: string,
@@ -67,32 +62,21 @@ export async function fetchScore(
 }
 
 export async function toChain(
+  /**
+   * This function rerturns the jornal creation extrinsic
+   */
   ratingData: IRatingData,
-  authorization: string,
-  authorDid: DidUri,
-  authorKeys: any,
-  authorIdentity: CordKeyringPair
+  authorization: string
 ) {
   const api = ConfigService.get('api')
   const ratingInput = ratingData.ratingInput
-  const identifier = ratingData.identifier
   const auth = Identifier.uriToIdentifier(authorization)
   try {
     const journalCreationExtrinsic = await api.tx.score.addRating(
       ratingInput,
       auth
     )
-    const authorizedStreamTx = await Did.authorizeTx(
-      authorDid,
-      journalCreationExtrinsic,
-      async ({ data } : any) => ({
-        signature: authorKeys.assertionMethod.sign(data),
-        keyType: authorKeys.assertionMethod.type,
-      }),
-      authorIdentity.address
-    )
-    await Chain.signAndSubmitTx(authorizedStreamTx, authorIdentity)
-    return identifier
+    return journalCreationExtrinsic
   } catch (e: any) {
     return e.message
   }

@@ -4,7 +4,7 @@ export const SCORE_IDENTIFIER: number = 101
 export const SCORE_PREFIX: string = 'score:cord:'
 export const SCORE_MODULUS: number = 10
 export const SCORE_IDENT: number = 11034
-export const MAX_SCORE_PER_ENTRY: number = 5
+export const MAX_SCORE_PER_ENTRY: number = 50
 
 export enum RatingType {
   overall = 'Overall',
