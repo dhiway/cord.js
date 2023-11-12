@@ -4,14 +4,12 @@ import { assert, u8aConcat, u8aToU8a, stringToU8a } from '@polkadot/util'
 import {
   IPublicIdentity,
   SCHEMA_PREFIX,
-  REGISTRY_PREFIX,
+  SPACE_PREFIX,
   STATEMENT_PREFIX,
   SCORE_PREFIX,
   AUTHORIZATION_PREFIX,
-} from '@cord.network/types'
-import {
   ACCOUNT_IDENTIFIER_PREFIX,
-  REGISTRY_IDENT,
+  SPACE_IDENT,
   SCHEMA_IDENT,
   STATEMENT_IDENT,
   SCORE_IDENTIFIER,
@@ -25,29 +23,54 @@ const defaults = {
 
 const IDFR_PREFIX = stringToU8a('CRDIDFR')
 
+const VALID_IDENTS = new Set([
+  SPACE_IDENT,
+  SCHEMA_IDENT,
+  STATEMENT_IDENT,
+  SCORE_IDENTIFIER,
+  AUTHORIZATION_IDENT,
+])
+
+const VALID_PREFIXES = [
+  SCHEMA_PREFIX,
+  SPACE_PREFIX,
+  STATEMENT_PREFIX,
+  SCORE_PREFIX,
+  ACCOUNT_IDENTIFIER_PREFIX,
+  AUTHORIZATION_PREFIX,
+]
+
 function pphash(key: Uint8Array): Uint8Array {
   return blake2AsU8a(u8aConcat(IDFR_PREFIX, key), 512)
 }
 
-function checkAddressChecksum(
+/* eslint-disable no-bitwise */
+function checkIdentifierChecksum(
   decoded: Uint8Array
 ): [boolean, number, number, number] {
-  const iDfrLength = decoded[0] & 0b0100_0000 ? 2 : 1
-  const iDfrDecoded =
-    iDfrLength === 1
-      ? decoded[0]
-      : ((decoded[0] & 0b0011_1111) << 2) |
-        (decoded[1] >> 6) |
-        ((decoded[1] & 0b0011_1111) << 8)
+  // Determine the length of the identifier (1 or 2 bytes based on the 7th bit)
+  const iDfrLength = (decoded[0] & 0b0100_0000) !== 0 ? 2 : 1
 
-  // 32/33 bytes + 2 bytes checksum + prefix
+  // Decode the identifier from the first 1 or 2 bytes
+  let iDfrDecoded = decoded[0]
+  if (iDfrLength === 2) {
+    // Combine the bits from the first two bytes to form the identifier
+    iDfrDecoded =
+      ((decoded[0] & 0b0011_1111) << 2) |
+      (decoded[1] >> 6) |
+      ((decoded[1] & 0b0011_1111) << 8)
+  }
+
+  // Check if the length indicates a content hash (34/35 bytes + prefix)
   const isContentHash = [34 + iDfrLength, 35 + iDfrLength].includes(
     decoded.length
   )
   const length = decoded.length - (isContentHash ? 2 : 1)
 
-  // calculate the hash and do the checksum byte checks
+  // Calculate the hash for checksum verification
   const hash = pphash(decoded.subarray(0, length))
+
+  // Validate the checksum
   const isValid =
     (decoded[0] & 0b1000_0000) === 0 &&
     ![46, 47].includes(decoded[0]) &&
@@ -59,19 +82,23 @@ function checkAddressChecksum(
   return [isValid, length, iDfrLength, iDfrDecoded]
 }
 
+/* eslint-disable no-bitwise */
 function encodeIdentifier(
   key: HexString | Uint8Array | string,
   iDPrefix: number
 ): string {
   assert(key, 'Invalid key string passed')
 
-  // decode it, this means we can re-encode an identifier
+  // Decode the key to Uint8Array, allowing re-encoding of an identifier
   const u8a = u8aToU8a(key)
 
+  // Validate the identifier prefix
   assert(
     iDPrefix >= 0 && iDPrefix <= 16383 && ![46, 47].includes(iDPrefix),
     'Out of range IdentifierFormat specified'
   )
+
+  // Validate the length of the decoded key
   assert(
     defaults.allowedDecodedLengths.includes(u8a.length),
     () =>
@@ -80,16 +107,20 @@ function encodeIdentifier(
       )}`
   )
 
+  // Prepare the input with the identifier prefix
   const input = u8aConcat(
     iDPrefix < 64
       ? [iDPrefix]
       : [
+          // eslint-disable-next-line no-bitwise
           ((iDPrefix & 0b0000_0000_1111_1100) >> 2) | 0b0100_0000,
+          // eslint-disable-next-line no-bitwise
           (iDPrefix >> 8) | ((iDPrefix & 0b0000_0000_0000_0011) << 6),
         ],
     u8a
   )
 
+  // Encode the input with base58, including the checksum
   return base58Encode(
     u8aConcat(
       input,
@@ -98,76 +129,96 @@ function encodeIdentifier(
   )
 }
 
+/**
+ * @param identifier
+ * @param digest
+ * @param iDPrefix
+ */
 export function hashToIdentifier(
-  identifier: HexString | Uint8Array | string,
+  digest: HexString | Uint8Array | string,
   iDPrefix: number
 ): string {
-  assert(identifier, 'Invalid key string passed')
-  const id = encodeIdentifier(identifier, iDPrefix)
+  assert(digest, 'Invalid digest')
+  const id = encodeIdentifier(digest, iDPrefix)
   return id
 }
 
+/**
+ * @param identifier
+ * @param digest
+ * @param iDPrefix
+ * @param prefix
+ */
 export function hashToUri(
-  identifier: HexString | Uint8Array | string,
+  digest: HexString | Uint8Array | string,
   iDPrefix: number,
   prefix: string
 ): string {
-  assert(identifier, 'Invalid key string passed')
-  const id = encodeIdentifier(identifier, iDPrefix)
+  assert(digest, 'Invalid digest')
+  const id = encodeIdentifier(digest, iDPrefix)
   return `${prefix}${id}`
 }
 
-export function uriToIdentifier(identifier: string | null | undefined): string {
-  assert(identifier, 'Invalid key string passed')
-  if (identifier.startsWith(SCHEMA_PREFIX)) {
-    return identifier.split(SCHEMA_PREFIX).join('')
-  } else if (identifier.startsWith(REGISTRY_PREFIX)) {
-    return identifier.split(REGISTRY_PREFIX).join('')
-  } else if (identifier.startsWith(STATEMENT_PREFIX)) {
-    return identifier.split(STATEMENT_PREFIX).join('')
-  } else if (identifier.startsWith(SCORE_PREFIX)) {
-    return identifier.split(SCORE_PREFIX).join('')
-  } else if (identifier.startsWith(ACCOUNT_IDENTIFIER_PREFIX)) {
-    return identifier.split(ACCOUNT_IDENTIFIER_PREFIX).join('')
-  } else if (identifier.startsWith(AUTHORIZATION_PREFIX)) {
-    return identifier.split(AUTHORIZATION_PREFIX).join('')
-  } else {
-    throw new Error(`Invalid Identifier ${identifier}`)
-  }
+/**
+ * @param identifier
+ * @param digest
+ * @param iDPrefix
+ * @param prefix
+ */
+export function hashToElementUri(
+  digest: HexString | Uint8Array | string,
+  iDPrefix: number,
+  prefix: string
+): string {
+  assert(digest, 'Invalid digest')
+  const id = encodeIdentifier(digest, iDPrefix)
+  return `${prefix}${id}:${digest}`
 }
 
 /**
+ * @param identifier
+ * @param uri
+ */
+export function uriToIdentifier(uri: string | null | undefined): string {
+  assert(uri, 'Invalid URI string passed')
+
+  const foundPrefix = VALID_PREFIXES.find((prefix) => uri!.startsWith(prefix))
+  if (foundPrefix) {
+    return uri!.split(foundPrefix).join('')
+  }
+
+  throw new Error(`Invalid URI ${uri}`)
+}
+
+/**
+ * @param address
+ * @param identifier
  * @name checkIdentifier
  * @summary Validates an identifier.
  * @description
  * From the provided input, validate that the address is a valid input.
  */
 export function checkIdentifier(
-  address: HexString | string
+  identifier: HexString | string
 ): [boolean, string | null] {
   let decoded
 
   try {
-    decoded = base58Decode(address)
+    decoded = base58Decode(identifier)
   } catch (error) {
     return [false, (error as Error).message]
   }
 
-  const [isValid, , , idfrDecoded] = checkAddressChecksum(decoded)
+  const [isValid, , , idfrDecoded] = checkIdentifierChecksum(decoded)
 
-  if (
-    idfrDecoded !== REGISTRY_IDENT ||
-    idfrDecoded !== SCHEMA_IDENT ||
-    idfrDecoded !== STATEMENT_IDENT ||
-    idfrDecoded !== SCORE_IDENTIFIER ||
-    idfrDecoded !== AUTHORIZATION_IDENT
-  ) {
-    return [false, `Prefix mismatch, found ${idfrDecoded}`]
-  } else if (!defaults.allowedEncodedLengths.includes(decoded.length)) {
-    return [false, 'Invalid decoded idenfirer length']
+  if (VALID_IDENTS.has(idfrDecoded)) {
+    if (!defaults.allowedEncodedLengths.includes(decoded.length)) {
+      return [false, 'Invalid decoded identifier length']
+    }
+    return [isValid, isValid ? null : 'Invalid decoded identifier checksum']
   }
 
-  return [isValid, isValid ? null : 'Invalid decoded identifier checksum']
+  return [false, `Prefix mismatch, found ${idfrDecoded}`]
 }
 
 /**

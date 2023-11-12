@@ -15,25 +15,28 @@ import type {
   IDocumentPresentation,
   ISchema,
   SignCallback,
-  IRegistryAuthorization,
-  IRegistryAuthorizationDetails,
-  IRegistry,
   StatementId,
-  RegistryId,
+  SpaceId,
+  AuthorizationId,
   PresentationOptions,
 } from '@cord.network/types'
-import { Crypto, SDKErrors, DataUtils, jsonabc } from '@cord.network/utils'
-import * as Content from '../content/index.js'
-import { hashContents } from '../content/index.js'
-import { verifyContentAganistSchema } from '../schema/Schema.js'
+import {
+  Crypto,
+  SDKErrors,
+  DataUtils,
+  jsonabc,
+  Identifier,
+} from '@cord.network/utils'
 import { STATEMENT_IDENT, STATEMENT_PREFIX } from '@cord.network/types'
-import { Identifier } from '@cord.network/utils'
 import { HexString } from '@polkadot/util/types.js'
 import { Bytes } from '@polkadot/types'
 import type { AccountId, H256 } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { ConfigService } from '@cord.network/config'
+import { verifyContentAganistSchema } from '../schema/Schema.js'
+import { hashContents } from '../content/index.js'
+import * as Content from '../content/index.js'
 
 function getHashRoot(leaves: Uint8Array[]): Uint8Array {
   const result = Crypto.u8aConcat(...leaves)
@@ -46,7 +49,7 @@ function getHashLeaves(
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
-  if (evidenceIds) {
+  if (evidenceIds.length > 0) {
     evidenceIds.forEach((evidence) => {
       result.push(Crypto.coToUInt8(evidence.identifier))
     })
@@ -62,6 +65,9 @@ function getHashLeaves(
  * @returns The document hash.
  */
 
+/**
+ * @param document
+ */
 export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
     document.contentHashes || [],
@@ -97,9 +103,19 @@ export function makeSigningData(
   ])
 }
 
+/**
+ * @param input
+ */
 export function verifyDocumentHash(input: IDocument): void {
   if (input.documentHash !== calculateDocumentHash(input))
     throw new SDKErrors.RootHashUnverifiableError()
+}
+
+type VerifyOptions = {
+  schema?: ISchema
+  challenge?: string
+  didResolveKey?: DidResolveKey
+  selectedAttributes?: string[]
 }
 
 /**
@@ -108,6 +124,11 @@ export function verifyDocumentHash(input: IDocument): void {
  * @param input - The [[Statement]] for which to verify data.
  */
 
+/**
+ * @param input
+ * @param root0
+ * @param root0.selectedAttributes
+ */
 export function verifyDataIntegrity(
   input: IDocument,
   { selectedAttributes }: VerifyOptions = {}
@@ -170,17 +191,21 @@ export function verifyDataStructure(input: IDocument): void {
   }
 }
 
-export function verifyAuthorization(
-  input: IContent,
-  authorizationDetails: IRegistryAuthorizationDetails
-): void {
-  if (input.issuer !== authorizationDetails.delegate) {
-    throw new SDKErrors.IssuerMismatchError()
-  }
-  if (input.schemaId !== authorizationDetails.schema) {
-    throw new SDKErrors.SchemaMismatchError()
-  }
-}
+// /**
+//  * @param input
+//  * @param authorizationDetails
+//  */
+// export function verifyAuthorization(
+//   input: IContent,
+//   authorizationDetails: AuthorizationId
+// ): void {
+//   if (input.issuer !== authorizationDetails.delegate) {
+//     throw new SDKErrors.IssuerMismatchError()
+//   }
+//   if (input.schemaId !== authorizationDetails.schema) {
+//     throw new SDKErrors.SchemaMismatchError()
+//   }
+// }
 
 /**
  *  Checks the [[Document]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
@@ -198,8 +223,9 @@ export function verifyAuthorization(
 // }
 
 /**
+ * .
  * Verifies the signature of the [[IDocumentPresentation]].
- * the signature over the presentation **must** be generated with the DID in order for the verification to be successful.
+ * The signature over the presentation **must** be generated with the DID in order for the verification to be successful.
  *
  * @param input - The [[IPresentation]].
  * @param verificationOpts Additional verification options.
@@ -251,16 +277,24 @@ export async function verifySignature(
  * Calculates the statement Id by hashing it.
  *
  * @param statement Statement for which to create the id.
+ * @param statementDigest
+ * @param registry
+ * @param chainSpace
+ * @param creator
  * @returns Statement id uri.
  */
 export function getUriForStatement(
   statementDigest: HexString,
-  registry: RegistryId,
+  chainSpace: SpaceId,
   creator: DidUri
 ): StatementId {
   const api = ConfigService.get('api')
-  const scaleEncodedDigest = api.createType<H256>('H256', statementDigest).toU8a()
-  const scaleEncodedRegistry = api.createType<Bytes>('Bytes', registry).toU8a()
+  const scaleEncodedDigest = api
+    .createType<H256>('H256', statementDigest)
+    .toU8a()
+  const scaleEncodedRegistry = api
+    .createType<Bytes>('Bytes', chainSpace)
+    .toU8a()
   const scaleEncodedCreator = api
     .createType<AccountId>('AccountId', Did.toChain(creator))
     .toU8a()
@@ -294,16 +328,25 @@ export type Options = {
  * @returns A new [[IDocument]] object.
  */
 
+/**
+ * @param root0
+ * @param root0.content
+ * @param root0.authorization
+ * @param root0.registry
+ * @param root0.signCallback
+ * @param root0.options
+ * @param root0.chainSpace
+ */
 export async function fromContent({
   content,
+  chainSpace,
   authorization,
-  registry,
   signCallback,
   options = {},
 }: {
   content: IContent
-  authorization: IRegistryAuthorization['identifier']
-  registry: IRegistry['identifier']
+  authorization: AuthorizationId
+  chainSpace: SpaceId
   signCallback: SignCallback
   options: Options
 }): Promise<IDocument> {
@@ -329,10 +372,10 @@ export async function fromContent({
     validUntil: validUntilString,
   })
 
-  const registryIdentifier = Identifier.uriToIdentifier(registry)
+  const spaceIdentifier = Identifier.uriToIdentifier(chainSpace)
   const statementId = getUriForStatement(
     documentHash,
-    registryIdentifier,
+    spaceIdentifier,
     content.issuer
   )
   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
@@ -348,8 +391,8 @@ export async function fromContent({
     contentHashes,
     contentNonceMap,
     evidenceIds: evidenceIds || [],
-    authorization: authorization,
-    registry: registry,
+    authorization,
+    chainSpace,
     issuanceDate,
     validFrom: validFromString,
     validUntil: validUntilString,
@@ -361,6 +404,13 @@ export async function fromContent({
   return document
 }
 
+/**
+ * @param document
+ * @param updatedContent
+ * @param schema
+ * @param signCallback
+ * @param options
+ */
 export async function updateFromContent(
   document: IDocument,
   updatedContent: IContent['contents'],
@@ -369,8 +419,8 @@ export async function updateFromContent(
   options: Options
 ) {
   const { evidenceIds, validFrom, validUntil, templates, labels } = options
-  let isUpdateFromOptionsPossible: boolean = false
-  let isUpdateFromContentsPossible: boolean = false
+  let isUpdateFromOptionsPossible = false
+  let isUpdateFromContentsPossible = false
 
   if (document.content.schemaId !== schema.$id) {
     throw new Error(
@@ -411,19 +461,12 @@ export async function updateFromContent(
   const updatedDocument = await fromContent({
     content: newContent,
     authorization: document.authorization,
-    registry: document.registry ?? '',
+    chainSpace: document.chainSpace,
     signCallback,
     options,
   })
   updatedDocument.identifier = document.identifier
   return updatedDocument
-}
-
-type VerifyOptions = {
-  schema?: ISchema
-  challenge?: string
-  didResolveKey?: DidResolveKey
-  selectedAttributes?: string[]
 }
 
 /**
@@ -433,7 +476,7 @@ type VerifyOptions = {
  * @param document - The object to check.
  * @param options - Additional parameter for more verification steps.
  * @param options.schema - Schema to be checked against.
- * @param options.selectedAttributes - Selective disclosure attributes
+ * @param options.selectedAttributes - Selective disclosure attributes.
  */
 export function verifyWellFormed(
   document: IDocument,
@@ -459,6 +502,7 @@ export function verifyWellFormed(
  * @param document - The object to check.
  * @param options - Additional parameter for more verification steps.
  * @param options.schema - Schema to be checked against.
+ * @param options.selectedAttributes
  */
 export async function verifyDocument(
   document: IDocument,
@@ -540,26 +584,26 @@ function filterNestedObject(
   obj: Record<string, any>,
   keysToKeep: string[]
 ): Record<string, any> {
-  const result = {}
+  const result: Record<string, any> = {}
 
-  for (const key in obj) {
+  Object.keys(obj).forEach((key) => {
     // Check if the key is in keysToKeep list.
     if (keysToKeep.includes(key)) {
       result[key] = obj[key]
-    } else if (typeof obj[key] === 'object') {
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
       // Process nested keys.
       const nestedKeys = keysToKeep
-        .filter((k) => k.startsWith(key + '.'))
+        .filter((k) => k.startsWith(`${key}.`))
         .map((k) => k.split('.').slice(1).join('.'))
 
-      if (nestedKeys.length) {
+      if (nestedKeys.length > 0) {
         const nestedObject = filterNestedObject(obj[key], nestedKeys)
         if (Object.keys(nestedObject).length > 0) {
           result[key] = nestedObject
         }
       }
     }
-  }
+  })
 
   return result
 }
@@ -582,7 +626,7 @@ export async function createPresentation({
   selectedAttributes,
   challenge,
 }: PresentationOptions): Promise<IDocumentPresentation> {
-  let presentationDocument = document
+  const presentationDocument = document
 
   if (selectedAttributes && selectedAttributes.length > 0) {
     // Only keep selected attributes

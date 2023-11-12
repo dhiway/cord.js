@@ -106,6 +106,80 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       VestingBalance: AugmentedError<ApiType>;
     };
+    chainSpace: {
+      /**
+       * Archived Space
+       **/
+      ArchivedSpace: AugmentedError<ApiType>;
+      /**
+       * Authorization Id not found
+       **/
+      AuthorizationNotFound: AugmentedError<ApiType>;
+      /**
+       * The new capacity value is lower than the current usage
+       **/
+      CapacityLessThanUsage: AugmentedError<ApiType>;
+      /**
+       * The capacity limit for the space has been exceeded.
+       **/
+      CapacityLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Authority already added
+       **/
+      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      /**
+       * Delegate not found.
+       **/
+      DelegateNotFound: AugmentedError<ApiType>;
+      /**
+       * Empty transaction.
+       **/
+      EmptyTransaction: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier
+       **/
+      InvalidIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Prefix
+       **/
+      InvalidIdentifierPrefix: AugmentedError<ApiType>;
+      /**
+       * Space identifier is not unique
+       **/
+      SpaceAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Space already approved
+       **/
+      SpaceAlreadyApproved: AugmentedError<ApiType>;
+      /**
+       * Space delegation limit exceeded
+       **/
+      SpaceDelegatesLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Space not approved.
+       **/
+      SpaceNotApproved: AugmentedError<ApiType>;
+      /**
+       * Space not Archived
+       **/
+      SpaceNotArchived: AugmentedError<ApiType>;
+      /**
+       * Space identifier not found
+       **/
+      SpaceNotFound: AugmentedError<ApiType>;
+      /**
+       * Type capacity overflow
+       **/
+      TypeCapacityOverflow: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller or delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+    };
     council: {
       /**
        * Members are already initialized!
@@ -378,6 +452,9 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooSoon: AugmentedError<ApiType>;
     };
+    identifier: {
+      MaxEventsHistoryExceeded: AugmentedError<ApiType>;
+    };
     identity: {
       /**
        * Account ID is already named.
@@ -632,68 +709,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooBig: AugmentedError<ApiType>;
     };
-    registry: {
-      ArchivedRegistry: AugmentedError<ApiType>;
-      /**
-       * Authorization Id not found
-       **/
-      AuthorizationNotFound: AugmentedError<ApiType>;
-      /**
-       * Authority already added
-       **/
-      DelegateAlreadyAdded: AugmentedError<ApiType>;
-      /**
-       * Empty transaction.
-       **/
-      EmptyTransaction: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier
-       **/
-      InvalidIdentifier: AugmentedError<ApiType>;
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      InvalidIdentifierPrefix: AugmentedError<ApiType>;
-      /**
-       * Invalid Schema.
-       **/
-      InvalidSchema: AugmentedError<ApiType>;
-      /**
-       * Schema limit exceeds the permitted size.
-       **/
-      MaxEncodedRegistryLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Registry commit entries exceeded
-       **/
-      MaxRegistryCommitsExceeded: AugmentedError<ApiType>;
-      /**
-       * Registry identifier is not unique
-       **/
-      RegistryAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Registry entries exceeded for an identifier
-       **/
-      RegistryAuthoritiesLimitExceeded: AugmentedError<ApiType>;
-      RegistryNotArchived: AugmentedError<ApiType>;
-      /**
-       * Registry identifier not found
-       **/
-      RegistryNotFound: AugmentedError<ApiType>;
-      /**
-       * Registry schema mismatch
-       **/
-      RegistrySchemaMismatch: AugmentedError<ApiType>;
-      /**
-       * Schema not found
-       **/
-      SchemaNotFound: AugmentedError<ApiType>;
-      /**
-       * Registry entries exceeded for an identifier
-       **/
-      TooManyRegistryEntries: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller or delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
-    };
     remark: {
       /**
        * Attempted to call `store` outside of block execution.
@@ -792,28 +807,87 @@ declare module '@polkadot/api-base/types/errors' {
       NoKeys: AugmentedError<ApiType>;
     };
     statement: {
+      /**
+       * Associate digest already present
+       **/
+      AssociateDigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Attestation is not found
+       **/
       AttestationNotFound: AugmentedError<ApiType>;
+      /**
+       * Authorization not found
+       **/
       AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      /**
+       * Bulk Transaction Failed
+       **/
+      BulkTransactionFailed: AugmentedError<ApiType>;
+      /**
+       * Statement digest is not unique
+       **/
       DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Expired Tx Signature
+       **/
       ExpiredSignature: AugmentedError<ApiType>;
+      /**
+       * Statement hash is not unique
+       **/
       HashAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Invalid Schema Identifier Length
+       **/
       InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Invalid creator signature
+       **/
       InvalidSignature: AugmentedError<ApiType>;
+      /**
+       * Invalid Statement Identifier
+       **/
       InvalidStatementIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid transaction hash
+       **/
       InvalidTransactionHash: AugmentedError<ApiType>;
-      MaxDigestLengthExceeded: AugmentedError<ApiType>;
+      MaxDigestLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Maximum number of activities exceeded
+       **/
       MaxStatementActivitiesExceeded: AugmentedError<ApiType>;
+      /**
+       * Metadata already set for the entry
+       **/
       MetadataAlreadySet: AugmentedError<ApiType>;
+      /**
+       * Metadata limit exceeded
+       **/
       MetadataLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Metadata not found for the entry
+       **/
       MetadataNotFound: AugmentedError<ApiType>;
       /**
-       * Statement idenfier marked inactive
+       * Presentation is already anchored.
        **/
-      RevokedStatement: AugmentedError<ApiType>;
+      PresentationDigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Presentation not found
+       **/
+      PresentationNotFound: AugmentedError<ApiType>;
       /**
        * Statement idenfier is not unique
        **/
       StatementAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Statement digest already present on the chain.
+       **/
+      StatementDigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Statement entry not found
+       **/
+      StatementEntryNotFound: AugmentedError<ApiType>;
       /**
        * Statement link does not exist
        **/
@@ -830,8 +904,21 @@ declare module '@polkadot/api-base/types/errors' {
        * Statement idenfier not marked inactive
        **/
       StatementNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement entry marked inactive
+       **/
+      StatementRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement not part of space
+       **/
       StatementSpaceMismatch: AugmentedError<ApiType>;
+      /**
+       * Maximum Number of delegates reached.
+       **/
       TooManyDelegates: AugmentedError<ApiType>;
+      /**
+       * More than the maximum mumber of delegates.
+       **/
       TooManyDelegatesToRemove: AugmentedError<ApiType>;
       /**
        * Only when the author is not the controller/delegate.
@@ -933,51 +1020,6 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many members.
        **/
       TooManyMembers: AugmentedError<ApiType>;
-    };
-    unique: {
-      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
-      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
-      EmptyTransaction: AugmentedError<ApiType>;
-      ExpiredSignature: AugmentedError<ApiType>;
-      HashAlreadyAnchored: AugmentedError<ApiType>;
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      InvalidSignature: AugmentedError<ApiType>;
-      InvalidTransactionHash: AugmentedError<ApiType>;
-      InvalidUniqueIdentifier: AugmentedError<ApiType>;
-      MaxEncodedLimitExceeded: AugmentedError<ApiType>;
-      MaxUniqueCommitsExceeded: AugmentedError<ApiType>;
-      MetadataAlreadySet: AugmentedError<ApiType>;
-      MetadataLimitExceeded: AugmentedError<ApiType>;
-      MetadataNotFound: AugmentedError<ApiType>;
-      RegistryIdMismatch: AugmentedError<ApiType>;
-      /**
-       * Unique idenfier marked inactive
-       **/
-      RevokedUnique: AugmentedError<ApiType>;
-      TooManyDelegates: AugmentedError<ApiType>;
-      TooManyDelegatesToRemove: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller/delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
-      UniqueAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Unique link does not exist
-       **/
-      UniqueLinkNotFound: AugmentedError<ApiType>;
-      /**
-       * Unique Link is revoked
-       **/
-      UniqueLinkRevoked: AugmentedError<ApiType>;
-      /**
-       * Unique idenfier not found
-       **/
-      UniqueNotFound: AugmentedError<ApiType>;
-      /**
-       * Unique idenfier not marked inactive
-       **/
-      UniqueNotRevoked: AugmentedError<ApiType>;
-      UniqueSpaceMismatch: AugmentedError<ApiType>;
     };
     utility: {
       /**

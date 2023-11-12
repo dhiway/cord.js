@@ -58,6 +58,8 @@ export class SchemaIdMissingError extends SDKError {}
 
 export class SchemaError extends SDKError {}
 
+export class StatementError extends SDKError {}
+
 export class SchemaUnknownPropertiesError extends SDKError {}
 
 export class SchemaIdentifierMissingError extends SDKError {}

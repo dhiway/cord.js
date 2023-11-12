@@ -42,13 +42,13 @@
   "devDependencies": {
     "@polkadot/api": "^10.4.0",
     "@polkadot/typegen": "^10.4.0",
-    "glob": "^7.1.1",
     "rimraf": "^3.0.2",
     "ts-node": "^10.4.0",
     "typescript": "^4.8.3",
     "yargs": "^16.2.0"
   },
   "dependencies": {
-    "@cord.network/type-definitions": "workspace:*"
+    "@cord.network/type-definitions": "workspace:*",
+    "glob": "^7.1.1"
   }
 }

@@ -67,6 +67,9 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxReserves: u32 & AugmentedConst<ApiType>;
     };
+    chainSpace: {
+      maxSpaceDelegates: u32 & AugmentedConst<ApiType>;
+    };
     council: {
       /**
        * The maximum weight of a dispatch call that can be proposed and
@@ -156,6 +159,12 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxSetIdSessionEntries: u64 & AugmentedConst<ApiType>;
     };
+    identifier: {
+      /**
+       * The maximum number of activity for a statement.
+       **/
+      maxEventsHistory: u32 & AugmentedConst<ApiType>;
+    };
     identity: {
       /**
        * Maximum number of additional fields that may be stored in an ID.
@@ -227,11 +236,6 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxWellKnownNodes: u32 & AugmentedConst<ApiType>;
     };
-    registry: {
-      maxEncodedRegistryLength: u32 & AugmentedConst<ApiType>;
-      maxRegistryAuthorities: u32 & AugmentedConst<ApiType>;
-      maxRegistryCommitActions: u32 & AugmentedConst<ApiType>;
-    };
     scheduler: {
       /**
        * The maximum weight that may be scheduled per block for any dispatchables.
@@ -254,9 +258,13 @@ declare module '@polkadot/api-base/types/consts' {
     };
     statement: {
       /**
-       * The maximum number of activity for a statement.
+       * Maximum entires supported per batch call
        **/
-      maxStatementActivities: u32 & AugmentedConst<ApiType>;
+      maxDigestsPerBatch: u16 & AugmentedConst<ApiType>;
+      /**
+       * Maximum removals per call
+       **/
+      maxRemoveEntries: u16 & AugmentedConst<ApiType>;
     };
     system: {
       /**
@@ -303,12 +311,6 @@ declare module '@polkadot/api-base/types/consts' {
        * double this period on default settings.
        **/
       minimumPeriod: u64 & AugmentedConst<ApiType>;
-    };
-    unique: {
-      /**
-       * The maximum number of commits for a unique.
-       **/
-      maxUniqueCommits: u32 & AugmentedConst<ApiType>;
     };
     utility: {
       /**

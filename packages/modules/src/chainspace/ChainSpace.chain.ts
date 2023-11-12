@@ -210,3 +210,180 @@
 //   const queriedSpaceAccount = decodeSpace(encoded, spaceId)
 //   return queriedSpaceAccount!.controller
 // }
+
+// export function createChainSpace(creator: DidUri): IChainSpace {
+//   const api = ConfigService.get('api')
+
+//   const chainSpaceString = `ChainSpace v1.${UUID.generatev4()}`
+
+//   const chainSpaceHash = Crypto.hashStr(chainSpaceString)
+//   const chainSpaceId = getUriForChainSpace(chainSpaceHash, creator)
+//   const scaleEncodedRegistry = api
+//     .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceId))
+//     .toU8a()
+//   const scaleEncodedCreator = api
+//     .createType<AccountId>('AccountId', Did.toChain(creator))
+//     .toU8a()
+
+//   const authDigest = blake2AsHex(
+//     Uint8Array.from([...scaleEncodedRegistry, ...scaleEncodedCreator])
+//   )
+
+//   const authorizationId = Identifier.hashToUri(
+//     authDigest,
+//     AUTHORIZATION_IDENT,
+//     AUTHORIZATION_PREFIX
+//   )
+
+//   const chainSpace: IChainSpace = {
+//     identifier: chainSpaceId,
+//     digest: chainSpaceHash,
+//     creator,
+//     authorization: authorizationId,
+//   }
+//   return chainSpace
+// }
+
+// /**
+//  * @param registry
+//  * @param authority
+//  * @param creator
+//  */
+// export function getAuthorizationIdentifier(
+//   registry: IRegistry['identifier'],
+//   authority: DidUri,
+//   creator: DidUri
+// ): AuthorizationId {
+//   const api = ConfigService.get('api')
+
+//   const scaleEncodedRegistry = api
+//     .createType<Bytes>('Bytes', uriToIdentifier(registry))
+//     .toU8a()
+//   const scaleEncodedAuthority = api
+//     .createType<AccountId>('AccountId', Did.toChain(authority))
+//     .toU8a()
+//   const scaleEncodedCreator = api
+//     .createType<AccountId>('AccountId', Did.toChain(creator))
+//     .toU8a()
+
+//   const digest = blake2AsHex(
+//     Uint8Array.from([
+//       ...scaleEncodedRegistry,
+//       ...scaleEncodedAuthority,
+//       ...scaleEncodedCreator,
+//     ])
+//   )
+
+//   const authorizationId = Identifier.hashToUri(
+//     digest,
+//     AUTHORIZATION_IDENT,
+//     AUTHORIZATION_PREFIX
+//   )
+
+//   return authorizationId
+// }
+
+// /**
+//  *  Custom Type Guard to determine input being of type ISpace using the SpaceUtils errorCheck.
+//  *
+//  * @param input The potentially only partial ISpace.
+//  * @returns Boolean whether input is of type ISpace.
+//  */
+// export function isIRegistry(input: unknown): input is IRegistry {
+//   try {
+//     verifyRegistryDataStructure(input as IRegistry)
+//   } catch (error) {
+//     return false
+//   }
+//   return true
+// }
+
+// /**
+//  * Checks on the CORD blockchain whether a Registry is anchored.
+//  *
+//  * @param registry Registry data.
+//  */
+
+// /**
+//  * @param registry
+//  */
+// export async function verifyStored(registry: IRegistry): Promise<void> {
+//   const api = ConfigService.get('api')
+//   const identifier = Identifier.uriToIdentifier(registry.identifier)
+//   const encoded: any = await api.query.registry.registries(identifier)
+//   if (encoded.isNone)
+//     throw new SDKErrors.RegistryIdentifierMissingError(
+//       `Registry with identifier ${identifier} is not registered on chain`
+//     )
+// }
+
+// /**
+//  * Checks on the CORD blockchain whether a schema is registered.
+//  *
+//  * @param schema Schema data.
+//  */
+
+// /**
+//  * @param auth
+//  */
+// export async function verifyAuthorization(
+//   auth: AuthorizationId
+// ): Promise<void> {
+//   const api = ConfigService.get('api')
+//   const identifier = Identifier.uriToIdentifier(auth)
+//   const encoded: any = await api.query.registry.authorizations(identifier)
+//   if (encoded.isNone)
+//     throw new SDKErrors.AuthorizationIdMissingError(
+//       `Authorization with identifier ${identifier} is not registered on chain`
+//     )
+// }
+
+// /**
+//  * Checks on the CORD blockchain whether a Registry is anchored.
+//  *
+//  * @param auth Authorization URI.
+//  */
+
+// /**
+//  * @param auth
+//  */
+// export async function fetchAuthorizationDetailsfromChain(
+//   auth: AuthorizationId
+// ): Promise<Option<PalletRegistryRegistryAuthorization>> {
+//   const api = ConfigService.get('api')
+//   const authorizationId = Identifier.uriToIdentifier(auth)
+//   const registryAuthoriation: Option<PalletRegistryRegistryAuthorization> =
+//     await api.query.registry.authorizations(authorizationId)
+//   if (registryAuthoriation.isNone) {
+//     throw new SDKErrors.AuthorizationIdentifierMissingError(
+//       `Registry Authorization with identifier ${authorizationId} is not registered on chain`
+//     )
+//   } else {
+//     return registryAuthoriation
+//   }
+// }
+
+// /**
+//  * @param encodedEntry
+//  */
+// export function getAuthorizationDetails(
+//   encodedEntry: Option<PalletRegistryRegistryAuthorization>
+// ): IRegistryAuthorizationDetails {
+//   const decodedEntry = encodedEntry.unwrap()
+//   const authorizationDetails: IRegistryAuthorizationDetails = {
+//     delegate: Did.fromChain(decodedEntry.delegate),
+//     schema: DecoderUtils.hexToString(decodedEntry.schema.toString()),
+//   }
+//   return authorizationDetails
+// }
+
+// /**
+//  * Encodes the provided Schema for use in `api.tx.schema.add()`.
+//  *
+//  * @param schema The Schema to write on the blockchain.
+//  * @param details
+//  * @returns Encoded Schema.
+//  */
+// export function toChain(details: IRegistryType): string {
+//   return Crypto.encodeObjectAsStr(details)
+// }

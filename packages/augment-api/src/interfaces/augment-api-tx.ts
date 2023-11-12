@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableE
 import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletScoreRatingInput, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityIdentityInfo, PalletIdentityJudgement, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletScoreRatingInput, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -90,6 +90,56 @@ declare module '@polkadot/api-base/types/submittable' {
        * See [`Pallet::upgrade_accounts`].
        **/
       upgradeAccounts: AugmentedSubmittable<(who: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
+    };
+    chainSpace: {
+      /**
+       * See [`Pallet::add_admin_delegate`].
+       **/
+      addAdminDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * See [`Pallet::add_audit_delegate`].
+       **/
+      addAuditDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * See [`Pallet::add_delegate`].
+       **/
+      addDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * See [`Pallet::approval_restore`].
+       **/
+      approvalRestore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * See [`Pallet::approval_revoke`].
+       **/
+      approvalRevoke: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * See [`Pallet::approve`].
+       **/
+      approve: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, txnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+      /**
+       * See [`Pallet::archive`].
+       **/
+      archive: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * See [`Pallet::create`].
+       **/
+      create: AugmentedSubmittable<(spaceCode: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
+      /**
+       * See [`Pallet::remove_delegate`].
+       **/
+      removeDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, removeAuthorization: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      /**
+       * See [`Pallet::reset_transaction_count`].
+       **/
+      resetTransactionCount: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * See [`Pallet::restore`].
+       **/
+      restore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * See [`Pallet::update_transaction_capacity`].
+       **/
+      updateTransactionCapacity: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, newTxnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
     };
     council: {
       /**
@@ -375,36 +425,6 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       unrequestPreimage: AugmentedSubmittable<(hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
     };
-    registry: {
-      /**
-       * See [`Pallet::add_admin_delegate`].
-       **/
-      addAdminDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
-      /**
-       * See [`Pallet::add_delegate`].
-       **/
-      addDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
-      /**
-       * See [`Pallet::archive`].
-       **/
-      archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * See [`Pallet::create`].
-       **/
-      create: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, txSchema: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
-      /**
-       * See [`Pallet::remove_delegate`].
-       **/
-      removeDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorizationId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * See [`Pallet::restore`].
-       **/
-      restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * See [`Pallet::update`].
-       **/
-      update: AugmentedSubmittable<(txRegistry: Bytes | string | Uint8Array, registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-    };
     remark: {
       /**
        * See [`Pallet::store`].
@@ -467,17 +487,25 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     statement: {
       /**
-       * See [`Pallet::create`].
+       * See [`Pallet::add_presentation`].
        **/
-      create: AugmentedSubmittable<(statementDigests: Vec<H256> | (H256 | string | Uint8Array)[], authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Vec<H256>, Bytes, Option<Bytes>]>;
+      addPresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, presentationType: PalletStatementPresentationTypeOf | 'Other' | 'PDF' | 'JPEG' | 'PNG' | 'GIF' | 'TXT' | 'SVG' | 'JSON' | 'DOCX' | 'XLSX' | 'PPTX' | 'MP3' | 'MP4' | 'XML' | number | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, PalletStatementPresentationTypeOf, Bytes]>;
       /**
-       * See [`Pallet::digest`].
+       * See [`Pallet::register`].
        **/
-      digest: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, statementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      register: AugmentedSubmittable<(digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>]>;
+      /**
+       * See [`Pallet::register_batch`].
+       **/
+      registerBatch: AugmentedSubmittable<(digests: Vec<H256> | (H256 | string | Uint8Array)[], authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Vec<H256>, Bytes, Option<Bytes>]>;
       /**
        * See [`Pallet::remove`].
        **/
       remove: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * See [`Pallet::remove_presentation`].
+       **/
+      removePresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
       /**
        * See [`Pallet::restore`].
        **/
@@ -489,7 +517,7 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * See [`Pallet::update`].
        **/
-      update: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, statementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      update: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, newStatementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
     };
     sudo: {
       /**
@@ -604,24 +632,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * See [`Pallet::set`].
        **/
       set: AugmentedSubmittable<(now: Compact<u64> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u64>]>;
-    };
-    unique: {
-      /**
-       * See [`Pallet::create`].
-       **/
-      create: AugmentedSubmittable<(uniqueTxn: Bytes | string | Uint8Array, authorization: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
-      /**
-       * See [`Pallet::remove`].
-       **/
-      remove: AugmentedSubmittable<(uniqueId: Bytes | string | Uint8Array, authorization: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
-      /**
-       * See [`Pallet::revoke`].
-       **/
-      revoke: AugmentedSubmittable<(uniqueTxn: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * See [`Pallet::update`].
-       **/
-      update: AugmentedSubmittable<(uniqueId: Bytes | string | Uint8Array, uniqueTxn: Bytes | string | Uint8Array, authorization: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Option<Bytes>]>;
     };
     utility: {
       /**

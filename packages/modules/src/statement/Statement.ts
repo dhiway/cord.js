@@ -1,6 +1,5 @@
-import type { IStatement, IDocument } from '@cord.network/types'
+import type { IStatementEntry, IDocument, HexString } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
-//import * as Did from '@cord.network/did'
 import * as Document from '../document/index.js'
 
 /**
@@ -10,31 +9,31 @@ import * as Document from '../document/index.js'
  * @param input The potentially only partial [[IStatement]].
  *
  */
-export function verifyDataStructure(input: IStatement): void {
-  if (!input.identifier) {
-    throw new SDKErrors.IdentifierMissingError()
-  }
-  DataUtils.validateId(input.identifier, 'Statement Identiifier')
-  if (!input.schema) {
-    throw new SDKErrors.SchemaMissingError()
-  }
-  DataUtils.validateId(input.schema, 'Schema Identifier')
-
+export function verifyDataStructure(input: IStatementEntry): void {
   if (!input.statementHash) {
     throw new SDKErrors.StatementHashMissingError()
   }
   DataUtils.verifyIsHex(input.statementHash, 256)
+}
 
-    /*
-  if (!input.issuer) {
-    throw new SDKErrors.IssuerMissingError()
+/**
+ * @param statementHash
+ * @param chainSpace
+ * @param schema
+ */
+export function fromProperties(
+  statementHash: HexString,
+  chainSpace: string,
+  schema?: string
+): IStatementEntry {
+  const statement: IStatementEntry = {
+    statementHash,
+    chainSpace,
+    schema: schema || undefined,
   }
-  Did.validateUri(input.issuer, 'Did')
 
-  if (typeof input.revoked !== 'boolean') {
-    throw new SDKErrors.RevokedTypeError()
-    }
-    */
+  verifyDataStructure(statement)
+  return statement
 }
 
 /**
@@ -44,13 +43,11 @@ export function verifyDataStructure(input: IStatement): void {
  * @returns A new [[Statement]] object.
  *
  */
-export function fromDocument(document: IDocument): IStatement {
+export function fromDocument(document: IDocument): IStatementEntry {
   const statement = {
-    identifier: document.identifier,
     statementHash: document.documentHash,
-    schema: document.content.schemaId,
-    authorization: document.authorization,
-    registry: document.registry,
+    chainSpace: document.chainSpace,
+    schema: document.content.schemaId || undefined,
   }
   verifyDataStructure(statement)
   return statement
@@ -62,9 +59,9 @@ export function fromDocument(document: IDocument): IStatement {
  * @param input The potentially only partial IStatement.
  * @returns Boolean whether input is of type IStatement.
  */
-export function isIStatement(input: unknown): input is IStatement {
+export function isIStatement(input: unknown): input is IStatementEntry {
   try {
-    verifyDataStructure(input as IStatement)
+    verifyDataStructure(input as IStatementEntry)
   } catch (error) {
     return false
   }
@@ -81,12 +78,18 @@ export function isIStatement(input: unknown): input is IStatement {
  * @param document - The document to verify against.
  */
 export function verifyAgainstDocument(
-  statement: IStatement,
+  statement: IStatementEntry,
   document: IDocument
 ): void {
-  const schemaMismatch = document.content.schemaId !== statement.schema
   const documentMismatch = document.documentHash !== statement.statementHash
-  if (documentMismatch || schemaMismatch) {
+
+  const schemaMismatch =
+    statement.schema !== undefined &&
+    document.content.schemaId !== statement.schema
+
+  const chainSpaceMismatch = document.chainSpace !== statement.chainSpace
+
+  if (documentMismatch || schemaMismatch || chainSpaceMismatch) {
     throw new SDKErrors.CredentialUnverifiableError(
       `Some attributes of the statement diverge from the credential: ${[
         'schemaId',
