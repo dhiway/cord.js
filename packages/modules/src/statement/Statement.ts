@@ -10,24 +10,25 @@ import * as Document from '../document/index.js'
  *
  */
 export function verifyDataStructure(input: IStatementEntry): void {
-  if (!input.statementHash) {
+  if (!input.digest) {
     throw new SDKErrors.StatementHashMissingError()
   }
-  DataUtils.verifyIsHex(input.statementHash, 256)
+  DataUtils.verifyIsHex(input.digest, 256)
 }
 
 /**
  * @param statementHash
+ * @param digest
  * @param chainSpace
  * @param schema
  */
 export function fromProperties(
-  statementHash: HexString,
+  digest: HexString,
   chainSpace: string,
   schema?: string
 ): IStatementEntry {
   const statement: IStatementEntry = {
-    statementHash,
+    digest,
     chainSpace,
     schema: schema || undefined,
   }
@@ -45,7 +46,7 @@ export function fromProperties(
  */
 export function fromDocument(document: IDocument): IStatementEntry {
   const statement = {
-    statementHash: document.documentHash,
+    digest: document.documentHash,
     chainSpace: document.chainSpace,
     schema: document.content.schemaId || undefined,
   }
@@ -81,7 +82,7 @@ export function verifyAgainstDocument(
   statement: IStatementEntry,
   document: IDocument
 ): void {
-  const documentMismatch = document.documentHash !== statement.statementHash
+  const documentMismatch = document.documentHash !== statement.digest
 
   const schemaMismatch =
     statement.schema !== undefined &&

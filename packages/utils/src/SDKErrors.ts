@@ -63,8 +63,8 @@ export class StatementError extends SDKError {}
 export class SchemaUnknownPropertiesError extends SDKError {}
 
 export class SchemaIdentifierMissingError extends SDKError {}
-export class RegistryIdentifierMissingError extends SDKError {}
-export class AuthorizationIdentifierMissingError extends SDKError {}
+export class ChainSpaceMissingError extends SDKError {}
+export class AuthorizationMissingError extends SDKError {}
 
 export class SchemaIdMismatchError extends SDKError {
   constructor(fromSchema: string, provided: string) {

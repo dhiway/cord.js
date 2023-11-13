@@ -17,7 +17,7 @@ export interface IChainSpace {
   identifier: SpaceId
   digest: HexString
   creator: DidUri
-  authorization: string
+  authorization: AuthorizationId
 }
 
 export interface ISpaceDetails {
@@ -38,14 +38,14 @@ export const Permission = {
 export type PermissionType = (typeof Permission)[keyof typeof Permission]
 
 export interface ISpaceAuthorization {
-  space: SpaceId
+  chainSpace: SpaceId
   delegate: DidUri
-  permission: PermissionType
+  authorization: AuthorizationId
   delegator: DidUri
 }
 
 export interface ISpaceAuthorizationDetails {
   space: SpaceId
   delegate: DidUri
-  permission: PermissionType
+  permission: PermissionType[]
 }

@@ -11,7 +11,7 @@ export const STATEMENT_PREFIX = 'statement:cord:'
 export type StatementId = string
 
 export interface IStatementEntry {
-  statementHash: IDocument['documentHash']
+  digest: IDocument['documentHash']
   chainSpace: IDocument['chainSpace']
   schema: ISchema['$id'] | undefined
 }

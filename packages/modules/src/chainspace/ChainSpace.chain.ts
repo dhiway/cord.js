@@ -1,389 +1,282 @@
-// /**
-//  * @packageDocumentation
-//  * @module Schema
-//  */
+/**
+ * ChainSpace Creation and Delegation (Authorization) Module Chain Support functions.
+ *
+ * @packageDocumentation
+ * @module ChainSpace
+ */
 
-// import { Option, Struct, Vec, u8 } from '@polkadot/types'
-// import type { AccountId, Hash } from '@polkadot/types/interfaces'
-// import type {
-//   ISpace,
-//   ISpaceDetails,
-//   IPublicIdentity,
-//   SubmittableExtrinsic,
-// } from '@cord.network/types'
-// import { DecoderUtils, Identifier } from '@cord.network/utils'
-// import { ConfigService } from '@cord.network/config'
-// import { ChainApiConnection } from '@cord.network/network'
-// import { Identity } from '../identity/Identity.js'
+import type {
+  DidUri,
+  SpaceId,
+  ChainSpaceIdentifiers,
+  AuthorizationId,
+  AccountId,
+  H256,
+  ISpaceDetails,
+  Option,
+  ISpaceAuthorizationDetails,
+  PermissionType,
+} from '@cord.network/types'
+import { Identifier, SDKErrors } from '@cord.network/utils'
+import {
+  SPACE_IDENT,
+  SPACE_PREFIX,
+  AUTHORIZATION_IDENT,
+  AUTHORIZATION_PREFIX,
+  blake2AsHex,
+  Bytes,
+  Permission,
+} from '@cord.network/types'
+import { ConfigService } from '@cord.network/config'
+import * as Did from '@cord.network/did'
+import type {
+  PalletChainSpaceSpaceDetails,
+  PalletChainSpaceSpaceAuthorization,
+  PalletChainSpacePermissions,
+} from '@cord.network/augment-api'
 
-// const log = ConfigService.LoggingFactory.getLogger('Registry')
+/**
+ * Generates identifiers for a ChainSpace and its associated authorization.
+ *
+ * @param spaceDigest - The digest representing the ChainSpace content.
+ * @param creator - The DID URI of the creator of the ChainSpace.
+ * @returns A Promise resolving to an object containing the ChainSpace ID and Authorization ID.
+ */
+export async function createChainSpaceIdentifiers(
+  spaceDigest: string,
+  creator: DidUri
+): Promise<ChainSpaceIdentifiers> {
+  const api = ConfigService.get('api')
+  const scaleEncodedSpaceDigest = api
+    .createType<H256>('H256', spaceDigest)
+    .toU8a()
+  const scaleEncodedCreator = api
+    .createType<AccountId>('AccountId', Did.toChain(creator))
+    .toU8a()
+  const digest = blake2AsHex(
+    Uint8Array.from([...scaleEncodedSpaceDigest, ...scaleEncodedCreator])
+  )
 
-// /**
-//  * Generate the extrinsic to create the [[ISpace]].
-//  *
-//  * @param entry The space entry to anchor on the chain.
-//  * @returns The [[SubmittableExtrinsic]] for the `create` call.
-//  */
+  const chainSpaceId: SpaceId = Identifier.hashToUri(
+    digest,
+    SPACE_IDENT,
+    SPACE_PREFIX
+  )
 
-// export async function create(entry: ISpace): Promise<SubmittableExtrinsic> {
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   log.debug(() => `Create tx for 'space'`)
-//   const spaceParams = {
-//     digest: entry.spaceHash,
-//     controller: entry.controller,
-//     schema: entry.schema,
-//   }
-//   return api.tx.space.create(spaceParams, entry.controllerSignature)
-// }
+  const scaleEncodedAuthDigest = api
+    .createType<Bytes>('Bytes', Identifier.uriToIdentifier(chainSpaceId))
+    .toU8a()
+  const scaleEncodedAuthDelegate = api
+    .createType<AccountId>('AccountId', Did.toChain(creator))
+    .toU8a()
 
-// /**
-//  * TBD
-//  */
-// export async function archive(
-//   entry: ISpace,
-//   controller: Identity
-// ): Promise<SubmittableExtrinsic> {
-//   const { txSignature, txHash } = controller.signTx(entry.spaceHash)
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   const spaceParams = {
-//     identifier: Identifier.getIdentifierKey(entry.identifier),
-//     digest: txHash,
-//     controller: controller.address,
-//   }
-//   return api.tx.space.archive(spaceParams, txSignature)
-// }
+  const authDigest = blake2AsHex(
+    Uint8Array.from([...scaleEncodedAuthDigest, ...scaleEncodedAuthDelegate])
+  )
 
-// /**
-//  * TBD
-//  */
-// export async function restore(
-//   entry: ISpace,
-//   controller: Identity
-// ): Promise<SubmittableExtrinsic> {
-//   const { txSignature, txHash } = controller.signTx(entry.spaceHash)
+  const authorizationId: AuthorizationId = Identifier.hashToUri(
+    authDigest,
+    AUTHORIZATION_IDENT,
+    AUTHORIZATION_PREFIX
+  )
 
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   const spaceParams = {
-//     identifier: Identifier.getIdentifierKey(entry.identifier),
-//     digest: txHash,
-//     controller: controller.address,
-//   }
-//   return api.tx.space.restore(spaceParams, txSignature)
-// }
+  return { chainSpaceId, authorizationId }
+}
 
-// /**
-//  * TBD
-//  */
-// export async function delegate(
-//   entry: ISpace,
-//   controller: Identity,
-//   delegates: [string]
-// ): Promise<SubmittableExtrinsic> {
-//   const { txSignature, txHash } = controller.signTx(entry.spaceHash)
+/**
+ * Generates an Authorization ID for a ChainSpace delegate.
+ * This function is integral for establishing delegated access within a ChainSpace context.
+ *
+ * The resulting Authorization ID uniquely represents the delegated authority within the ChainSpace,
+ * linking the delegate, the creator, and the specific ChainSpace ID in a secure and verifiable manner.
+ *
+ * @param chainSpaceId - The identifier of the ChainSpace for which the delegation is being created.
+ * @param delegate - The DID URI of the delegate receiving authorization.
+ * @param creator - The DID URI of the creator granting the authorization.
+ * @returns A promise that resolves to the Authorization ID, uniquely representing the delegation within the ChainSpace.
+ */
+export async function createChainSpaceDelegateIdentifier(
+  chainSpaceId: SpaceId,
+  delegate: DidUri,
+  creator: DidUri
+): Promise<AuthorizationId> {
+  const api = ConfigService.get('api')
 
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   const spaceParams = {
-//     identifier: Identifier.getIdentifierKey(entry.identifier),
-//     digest: txHash,
-//     controller: controller.address,
-//   }
-//   return api.tx.space.delegate(spaceParams, delegates, txSignature)
-// }
+  const scaleEncodedSpaceId = api
+    .createType<Bytes>('Bytes', Identifier.uriToIdentifier(chainSpaceId))
+    .toU8a()
+  const scaleEncodedAuthDelegate = api
+    .createType<AccountId>('AccountId', Did.toChain(delegate))
+    .toU8a()
+  const scaleEncodedAuthCreator = api
+    .createType<AccountId>('AccountId', Did.toChain(creator))
+    .toU8a()
 
-// /**
-//  * TBD
-//  */
-// export async function undelegate(
-//   entry: ISpace,
-//   controller: Identity,
-//   delegates: [string]
-// ): Promise<SubmittableExtrinsic> {
-//   const { txSignature, txHash } = controller.signTx(entry.spaceHash)
+  const authDigest = blake2AsHex(
+    Uint8Array.from([
+      ...scaleEncodedSpaceId,
+      ...scaleEncodedAuthDelegate,
+      ...scaleEncodedAuthCreator,
+    ])
+  )
 
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   const spaceParams = {
-//     identifier: Identifier.getIdentifierKey(entry.identifier),
-//     digest: txHash,
-//     controller: controller.address,
-//   }
-//   return api.tx.space.undelegate(spaceParams, delegates, txSignature)
-// }
+  const authorizationId: AuthorizationId = Identifier.hashToUri(
+    authDigest,
+    AUTHORIZATION_IDENT,
+    AUTHORIZATION_PREFIX
+  )
 
-// /**
-//  * TBD
-//  */
-// export async function transfer(
-//   entry: ISpace,
-//   controller: Identity,
-//   transfer: Identity['address']
-// ): Promise<SubmittableExtrinsic> {
-//   const { txSignature, txHash } = controller.signTx(entry.spaceHash)
+  return authorizationId
+}
 
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   const spaceParams = {
-//     identifier: Identifier.getIdentifierKey(entry.identifier),
-//     digest: txHash,
-//     controller: entry.controller,
-//   }
-//   return api.tx.space.transfer(spaceParams, transfer, txSignature)
-// }
+/**
+ * Decodes the details of a ChainSpace from its blockchain representation.
+ * This function is essential for interpreting the on-chain data structure into a more readable and usable format.
+ *
+ * @param encoded - The encoded ChainSpace details as retrieved from the blockchain.
+ * @param space - The identifier of the ChainSpace being decoded.
+ * @returns An `ISpaceDetails` object containing the decoded details of the ChainSpace.
+ */
+function decodeSpaceDetailsfromChain(
+  encoded: Option<PalletChainSpaceSpaceDetails>,
+  space: SpaceId
+): ISpaceDetails {
+  const chainStatement = encoded.unwrap()
+  const decodedDetails: ISpaceDetails = {
+    identifier: space,
+    creator: Did.fromChain(chainStatement.creator),
+    txnCapacity: chainStatement.txnCapacity.toNumber(),
+    txnUsage: chainStatement.txnCount.toNumber(),
+    approved: chainStatement.approved.valueOf(),
+    archive: chainStatement.archive.valueOf(),
+  }
 
-// export interface AnchoredSpaceDetails extends Struct {
-//   readonly spaceHash: Hash
-//   readonly controller: AccountId
-//   readonly schema: Option<Vec<u8>>
-//   readonly archived: boolean
-//   readonly meta: boolean
-// }
+  return decodedDetails
+}
 
-// function decodeSpace(
-//   encodedRegistry: Option<AnchoredSpaceDetails>,
-//   spaceId: string
-// ): ISpaceDetails | null {
-//   DecoderUtils.assertCodecIsType(encodedRegistry, [
-//     'Option<PalletSpaceSpaceSpaceDetails>',
-//   ])
-//   if (encodedRegistry.isSome) {
-//     const anchoredSpace = encodedRegistry.unwrap()
-//     const space: ISpaceDetails = {
-//       identifier: spaceId,
-//       spaceHash: anchoredSpace.spaceHash.toHex(),
-//       schema: DecoderUtils.hexToString(anchoredSpace.schema.toString()) || null,
-//       controller: anchoredSpace.controller.toString(),
-//       archived: anchoredSpace.archived.valueOf(),
-//       meta: anchoredSpace.meta.valueOf(),
-//     }
-//     return space
-//   }
-//   return null
-// }
+/**
+ * Retrieves and decodes the details of a specific ChainSpace from the blockchain.
+ *
+ * This function is key for applications that need to access and display ChainSpace information,
+ * providing a bridge between the blockchain data and the application's user interface or business logic.
+ *
+ * @param chainSpace - The identifier of the ChainSpace for which details are being retrieved.
+ * @returns A Promise that resolves to an `ISpaceDetails` object containing the ChainSpace details, or null if not found.
+ * @throws `ChainSpaceMissingError` if the ChainSpace is not found on the blockchain.
+ */
+export async function getChainSpaceDetailsfromChain(
+  chainSpace: SpaceId
+): Promise<ISpaceDetails | null> {
+  const api = ConfigService.get('api')
+  const spaceId = Identifier.uriToIdentifier(chainSpace)
 
-// async function queryRawHash(
-//   spaceId: string
-// ): Promise<Option<AnchoredSpaceDetails>> {
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   const result = await api.query.space.registries<Option<AnchoredSpaceDetails>>(
-//     spaceId
-//   )
-//   return result
-// }
+  const spaceEntry = await api.query.chainSpace.spaces(spaceId)
+  const spaceDetails = decodeSpaceDetailsfromChain(spaceEntry, chainSpace)
+  if (spaceDetails === null) {
+    throw new SDKErrors.ChainSpaceMissingError(
+      `There is no chain space with the provided ID "${chainSpace}" present on the chain.`
+    )
+  }
+  return spaceDetails
+}
 
-// async function queryRaw(
-//   spaceId: string
-// ): Promise<Option<AnchoredSpaceDetails>> {
-//   const api = await ChainApiConnection.getConnectionOrConnect()
-//   const result = await api.query.space.registries<Option<AnchoredSpaceDetails>>(
-//     spaceId
-//   )
-//   return result
-// }
+/**
+ * Converts encoded blockchain permissions into an array of `PermissionType`.
+ * This function is essential for interpreting the permission data stored on the blockchain,
+ * translating it into a more readable and usable format within the application.
+ *
+ * @param encoded - The encoded permissions from the blockchain, in a bitset format.
+ * @returns An array of `PermissionType`, representing the permissions set in the encoded data.
+ */
+function authorizationPermissionsFromChain(
+  encoded: PalletChainSpacePermissions
+): PermissionType[] {
+  const bitset = encoded.bits.toNumber()
+  const permissions: PermissionType[] = []
+  // eslint-disable-next-line no-bitwise
+  if ((bitset & Permission.ASSERT) > 0) {
+    permissions.push(Permission.ASSERT)
+  }
+  // eslint-disable-next-line no-bitwise
+  if ((bitset & Permission.ADMIN) > 0) {
+    permissions.push(Permission.ADMIN)
+  }
+  // eslint-disable-next-line no-bitwise
+  if ((bitset & Permission.AUDIT) > 0) {
+    permissions.push(Permission.AUDIT)
+  }
+  return permissions
+}
 
-// /**
-//  * @param identifier
-//  * @internal
-//  */
-// export async function queryhash(
-//   space_hash: string
-// ): Promise<ISpaceDetails | null> {
-//   const encoded = await queryRawHash(space_hash)
-//   return decodeSpace(encoded, space_hash)
-// }
+/**
+ * Decodes the details of a space authorization from its blockchain representation.
+ *
+ * @param encoded - The encoded authorization details from the blockchain.
+ * @param authorization - The specific authorization ID being decoded.
+ * @returns An `ISpaceAuthorizationDetails` object containing the decoded authorization details.
+ */
+export function decodeAuthorizationDetailsfromChain(
+  encoded: Option<PalletChainSpaceSpaceAuthorization>,
+  authorization: AuthorizationId
+): ISpaceAuthorizationDetails {
+  const chainAuth = encoded.unwrap()
+  const decodedDetails: ISpaceAuthorizationDetails = {
+    space: chainAuth.spaceId.toString(),
+    delegate: Did.fromChain(chainAuth.delegate),
+    permission: authorizationPermissionsFromChain(chainAuth.permissions),
+  }
+  return decodedDetails
+}
 
-// /**
-//  * @param identifier
-//  * @internal
-//  */
-// export async function query(space_id: string): Promise<ISpaceDetails | null> {
-//   const spaceId: string = Identifier.getIdentifierKey(space_id)
-//   const encoded = await queryRaw(spaceId)
-//   return decodeSpace(encoded, spaceId)
-// }
+/**
+ * Retrieves and decodes the details of a specific authorization from the blockchain.
+ *
+ * @param authorization - The Authorization ID for which details are being retrieved.
+ * @returns A promise that resolves to an `ISpaceDetails` object containing the decoded authorization details.
+ * @throws `ChainSpaceMissingError` if no authorization is found for the provided ID.
+ */
+export async function getAuthorizationDetailsfromChain(
+  authorization: AuthorizationId
+): Promise<ISpaceDetails | null> {
+  const api = ConfigService.get('api')
+  const authId = Identifier.uriToIdentifier(authorization)
 
-// /**
-//  * @param id
-//  * @internal
-//  */
-// export async function getOwner(
-//   spaceId: ISpace['identifier']
-// ): Promise<IPublicIdentity['address'] | null> {
-//   const encoded = await queryRaw(spaceId)
-//   const queriedSpaceAccount = decodeSpace(encoded, spaceId)
-//   return queriedSpaceAccount!.controller
-// }
+  const authEntry = await api.query.chainSpace.spaces(authId)
+  const authDetails = decodeSpaceDetailsfromChain(authEntry, authorization)
+  if (authDetails === null) {
+    throw new SDKErrors.ChainSpaceMissingError(
+      `There is no authorization with the provided ID "${authorization}}" present on the chain.`
+    )
+  }
+  return authDetails
+}
 
-// export function createChainSpace(creator: DidUri): IChainSpace {
-//   const api = ConfigService.get('api')
+/**
+ * Checks the existence of a Chain Space on CORD.
+ *
+ * @param chainSpace - The Chain Space ID to be checked.
+ * @returns A promise that resolves to true if the Chain Space exists, or false otherwise.
+ */
+export async function isChainSpace(chainSpace: SpaceId): Promise<boolean> {
+  const api = ConfigService.get('api')
+  const identifier = Identifier.uriToIdentifier(chainSpace)
+  const encoded = await api.query.chainSpace.spaces(identifier)
 
-//   const chainSpaceString = `ChainSpace v1.${UUID.generatev4()}`
+  return !encoded.isNone
+}
 
-//   const chainSpaceHash = Crypto.hashStr(chainSpaceString)
-//   const chainSpaceId = getUriForChainSpace(chainSpaceHash, creator)
-//   const scaleEncodedRegistry = api
-//     .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceId))
-//     .toU8a()
-//   const scaleEncodedCreator = api
-//     .createType<AccountId>('AccountId', Did.toChain(creator))
-//     .toU8a()
+/**
+ * Checks if a given authorization exists on the blockchain.
+ *
+ * @param authorization - The AuthorizationId to check for existence.
+ * @returns A Promise resolving to a boolean. `true` if the authorization exists, `false` otherwise.
+ */
+export async function isAuthorization(
+  authorization: AuthorizationId
+): Promise<boolean> {
+  const api = ConfigService.get('api')
+  const identifier = Identifier.uriToIdentifier(authorization)
+  const encoded = await api.query.chainSpace.authorizations(identifier)
 
-//   const authDigest = blake2AsHex(
-//     Uint8Array.from([...scaleEncodedRegistry, ...scaleEncodedCreator])
-//   )
-
-//   const authorizationId = Identifier.hashToUri(
-//     authDigest,
-//     AUTHORIZATION_IDENT,
-//     AUTHORIZATION_PREFIX
-//   )
-
-//   const chainSpace: IChainSpace = {
-//     identifier: chainSpaceId,
-//     digest: chainSpaceHash,
-//     creator,
-//     authorization: authorizationId,
-//   }
-//   return chainSpace
-// }
-
-// /**
-//  * @param registry
-//  * @param authority
-//  * @param creator
-//  */
-// export function getAuthorizationIdentifier(
-//   registry: IRegistry['identifier'],
-//   authority: DidUri,
-//   creator: DidUri
-// ): AuthorizationId {
-//   const api = ConfigService.get('api')
-
-//   const scaleEncodedRegistry = api
-//     .createType<Bytes>('Bytes', uriToIdentifier(registry))
-//     .toU8a()
-//   const scaleEncodedAuthority = api
-//     .createType<AccountId>('AccountId', Did.toChain(authority))
-//     .toU8a()
-//   const scaleEncodedCreator = api
-//     .createType<AccountId>('AccountId', Did.toChain(creator))
-//     .toU8a()
-
-//   const digest = blake2AsHex(
-//     Uint8Array.from([
-//       ...scaleEncodedRegistry,
-//       ...scaleEncodedAuthority,
-//       ...scaleEncodedCreator,
-//     ])
-//   )
-
-//   const authorizationId = Identifier.hashToUri(
-//     digest,
-//     AUTHORIZATION_IDENT,
-//     AUTHORIZATION_PREFIX
-//   )
-
-//   return authorizationId
-// }
-
-// /**
-//  *  Custom Type Guard to determine input being of type ISpace using the SpaceUtils errorCheck.
-//  *
-//  * @param input The potentially only partial ISpace.
-//  * @returns Boolean whether input is of type ISpace.
-//  */
-// export function isIRegistry(input: unknown): input is IRegistry {
-//   try {
-//     verifyRegistryDataStructure(input as IRegistry)
-//   } catch (error) {
-//     return false
-//   }
-//   return true
-// }
-
-// /**
-//  * Checks on the CORD blockchain whether a Registry is anchored.
-//  *
-//  * @param registry Registry data.
-//  */
-
-// /**
-//  * @param registry
-//  */
-// export async function verifyStored(registry: IRegistry): Promise<void> {
-//   const api = ConfigService.get('api')
-//   const identifier = Identifier.uriToIdentifier(registry.identifier)
-//   const encoded: any = await api.query.registry.registries(identifier)
-//   if (encoded.isNone)
-//     throw new SDKErrors.RegistryIdentifierMissingError(
-//       `Registry with identifier ${identifier} is not registered on chain`
-//     )
-// }
-
-// /**
-//  * Checks on the CORD blockchain whether a schema is registered.
-//  *
-//  * @param schema Schema data.
-//  */
-
-// /**
-//  * @param auth
-//  */
-// export async function verifyAuthorization(
-//   auth: AuthorizationId
-// ): Promise<void> {
-//   const api = ConfigService.get('api')
-//   const identifier = Identifier.uriToIdentifier(auth)
-//   const encoded: any = await api.query.registry.authorizations(identifier)
-//   if (encoded.isNone)
-//     throw new SDKErrors.AuthorizationIdMissingError(
-//       `Authorization with identifier ${identifier} is not registered on chain`
-//     )
-// }
-
-// /**
-//  * Checks on the CORD blockchain whether a Registry is anchored.
-//  *
-//  * @param auth Authorization URI.
-//  */
-
-// /**
-//  * @param auth
-//  */
-// export async function fetchAuthorizationDetailsfromChain(
-//   auth: AuthorizationId
-// ): Promise<Option<PalletRegistryRegistryAuthorization>> {
-//   const api = ConfigService.get('api')
-//   const authorizationId = Identifier.uriToIdentifier(auth)
-//   const registryAuthoriation: Option<PalletRegistryRegistryAuthorization> =
-//     await api.query.registry.authorizations(authorizationId)
-//   if (registryAuthoriation.isNone) {
-//     throw new SDKErrors.AuthorizationIdentifierMissingError(
-//       `Registry Authorization with identifier ${authorizationId} is not registered on chain`
-//     )
-//   } else {
-//     return registryAuthoriation
-//   }
-// }
-
-// /**
-//  * @param encodedEntry
-//  */
-// export function getAuthorizationDetails(
-//   encodedEntry: Option<PalletRegistryRegistryAuthorization>
-// ): IRegistryAuthorizationDetails {
-//   const decodedEntry = encodedEntry.unwrap()
-//   const authorizationDetails: IRegistryAuthorizationDetails = {
-//     delegate: Did.fromChain(decodedEntry.delegate),
-//     schema: DecoderUtils.hexToString(decodedEntry.schema.toString()),
-//   }
-//   return authorizationDetails
-// }
-
-// /**
-//  * Encodes the provided Schema for use in `api.tx.schema.add()`.
-//  *
-//  * @param schema The Schema to write on the blockchain.
-//  * @param details
-//  * @returns Encoded Schema.
-//  */
-// export function toChain(details: IRegistryType): string {
-//   return Crypto.encodeObjectAsStr(details)
-// }
+  return !encoded.isNone
+}

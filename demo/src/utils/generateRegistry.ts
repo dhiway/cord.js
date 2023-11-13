@@ -13,37 +13,33 @@ import { randomUUID } from 'crypto'
 export async function ensureStoredRegistry(
   authorAccount: Cord.CordKeyringPair,
   creator: Cord.DidUri,
-  schemaUri: Cord.ISchema['$id'],
   signCallback: Cord.SignExtrinsicCallback
-): Promise<Cord.IRegistry> {
+): Promise<Cord.IChainSpace> {
   const api = Cord.ConfigService.get('api')
 
-  const registryTitle = `Registry v3.${randomUUID().substring(0, 4)}`
-  const registryDetails: Cord.IContents = {
-    title: registryTitle,
-    description: 'Registry for demo',
-  }
+  // const registryTitle = `Registry v3.${randomUUID().substring(0, 4)}`
+  // const registryDetails: Cord.IContents = {
+  //   title: registryTitle,
+  //   description: 'Registry for demo',
+  // }
 
-  const registryType: Cord.IRegistryType = {
-    details: registryDetails,
-    schema: schemaUri,
-    creator: creator,
-  }
+  // const registryType: Cord.IRegistryType = {
+  //   details: registryDetails,
+  //   schema: schemaUri,
+  //   creator: creator,
+  // }
 
-  const txRegistry: Cord.IRegistry =
-    Cord.Registry.fromRegistryProperties(registryType)
+  const txRegistry: Cord.IChainSpace = Cord.ChainSpace.createChainSpace(creator)
+
+  console.log(txRegistry, creator)
 
   try {
-    await Cord.Registry.verifyStored(txRegistry)
+    await Cord.ChainSpace.verifyStored(txRegistry.identifier)
     console.log('Registry already stored. Skipping creation')
     return txRegistry
   } catch {
     console.log('Regisrty not present. Creating it now...')
-    // Authorize the tx.
-    const schemaId = Cord.Schema.idToChain(schemaUri)
-    // To create a registry without a schema, use the following line instead:
-    // const schemaId = null
-    const tx = api.tx.registry.create(txRegistry.details, schemaId)
+    const tx = api.tx.chainSpace.create(txRegistry.digest)
     const extrinsic = await Cord.Did.authorizeTx(
       creator,
       tx,
@@ -118,29 +114,19 @@ export async function addRegistryAdminDelegate(
 export async function addRegistryDelegate(
   authorAccount: Cord.CordKeyringPair,
   creator: Cord.DidUri,
-  registryUri: Cord.IRegistry['identifier'],
-  registryDelegate: Cord.DidUri,
+  spaceUri: Cord.IChainSpace['spaceId'],
+  authUri: Cord.IChainSpace['authorizationId'],
+  spaceDelegate: Cord.DidUri,
   signCallback: Cord.SignExtrinsicCallback
 ): Promise<Cord.AuthorizationId> {
   const api = Cord.ConfigService.get('api')
 
-  const authId = Cord.Registry.getAuthorizationIdentifier(
-    registryUri,
-    registryDelegate,
-    creator
-  )
-
   try {
-    await Cord.Registry.verifyAuthorization(authId)
-    console.log('Registry Authorization already stored. Skipping addition')
-    return authId
-  } catch {
-    console.log('Regisrty Authorization not present. Creating it now...')
-    // Authorize the tx.
-    const registryId = Cord.Registry.uriToIdentifier(registryUri)
-    const delegateId = Cord.Did.toChain(registryDelegate)
+    const spaceId = Cord.Identifier.uriToIdentifier(spaceUri)
+    const authId = Cord.Identifier.uriToIdentifier(authUri)
+    const delegateId = Cord.Did.toChain(spaceDelegate)
 
-    const tx = api.tx.registry.addDelegate(registryId, delegateId)
+    const tx = api.tx.registry.addDelegate(spaceId, delegateId, authId)
     const extrinsic = await Cord.Did.authorizeTx(
       creator,
       tx,
@@ -151,5 +137,7 @@ export async function addRegistryDelegate(
     await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return authId
+  } catch {
+    console.log('Regisrty Authorization not present. Creating it now...')
   }
 }

@@ -10,14 +10,13 @@ import type {
   DidResolveKey,
   Hash,
   IDocument,
-  IStatement,
   IContent,
   IDocumentPresentation,
   ISchema,
   SignCallback,
   StatementId,
   SpaceId,
-  AuthorizationId,
+  // AuthorizationId,
   PresentationOptions,
 } from '@cord.network/types'
 import {
@@ -340,12 +339,12 @@ export type Options = {
 export async function fromContent({
   content,
   chainSpace,
-  authorization,
+  // authorization,
   signCallback,
   options = {},
 }: {
   content: IContent
-  authorization: AuthorizationId
+  // authorization: AuthorizationId
   chainSpace: SpaceId
   signCallback: SignCallback
   options: Options
@@ -391,7 +390,7 @@ export async function fromContent({
     contentHashes,
     contentNonceMap,
     evidenceIds: evidenceIds || [],
-    authorization,
+    // authorization,
     chainSpace,
     issuanceDate,
     validFrom: validFromString,
@@ -460,7 +459,7 @@ export async function updateFromContent(
 
   const updatedDocument = await fromContent({
     content: newContent,
-    authorization: document.authorization,
+    // authorization: document.authorization,
     chainSpace: document.chainSpace,
     signCallback,
     options,
@@ -576,7 +575,7 @@ export function isPresentation(input: unknown): input is IDocumentPresentation {
  * @param document - The document to get the hash from.
  * @returns The hash of the credential.
  */
-export function getHash(document: IDocument): IStatement['statementHash'] {
+export function getHash(document: IDocument): IDocument['documentHash'] {
   return document.documentHash
 }
 

@@ -22,7 +22,12 @@ import { generateRequestCredentialMessage } from './utils/request_credential_mes
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 import { updateStatement } from './utils/updateDocument'
-import { requestJudgement, setIdentity, setRegistrar, provideJudgement } from './utils/createRegistrar'
+import {
+  requestJudgement,
+  setIdentity,
+  setRegistrar,
+  provideJudgement,
+} from './utils/createRegistrar'
 
 // import type {
 //   SignCallback,
@@ -48,7 +53,9 @@ async function main() {
   )
   // Setup network authority account.
   const { account: authorityIdentity } = await createAccount()
-  console.log(`🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`)
+  console.log(
+    `🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`
+  )
   await addAuthority(authorityAuthorIdentity, authorityIdentity.address)
   await setRegistrar(authorityAuthorIdentity, authorityIdentity.address)
   console.log('✅ Network Authority created!')
@@ -65,7 +72,6 @@ async function main() {
   await provideJudgement(authorityIdentity, authorIdentity.address)
   console.log(`🔏  Member identity judgement provided`)
   console.log('✅ Network Member added!')
-
 
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
@@ -166,10 +172,21 @@ async function main() {
 
   // Step 3: Create a new Registry
   console.log(`\n❄️  Registry Creation `)
+  // const registry = await ensureStoredRegistry(
+  //   authorIdentity,
+  //   issuerDid.uri,
+  //   async ({ data }) => {
+  //     console.log('Data to be signed:', data) // Log the data
+  //     return {
+  //       signature: issuerKeys.assertionMethod.sign(data),
+  //       keyType: issuerKeys.assertionMethod.type,
+  //     }
+  //   }
+  // )
+
   const registry = await ensureStoredRegistry(
     authorIdentity,
     issuerDid.uri,
-    schema['$id'],
     async ({ data }) => ({
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,
@@ -182,18 +199,18 @@ async function main() {
   console.log('✅ Registry created!')
 
   // Step 4: Add Delelegate One as Registry Admin
-  console.log(`\n❄️  Registry Admin Delegate Authorization `)
-  const registryAuthority = await addRegistryAdminDelegate(
-    authorIdentity,
-    issuerDid.uri,
-    registry['identifier'],
-    delegateOneDid.uri,
-    async ({ data }) => ({
-      signature: issuerKeys.capabilityDelegation.sign(data),
-      keyType: issuerKeys.capabilityDelegation.type,
-    })
-  )
-  console.log(`✅ Registry Authorization - ${registryAuthority} - created!`)
+  // console.log(`\n❄️  Registry Admin Delegate Authorization `)
+  // const registryAuthority = await addRegistryAdminDelegate(
+  //   authorIdentity,
+  //   issuerDid.uri,
+  //   registry['identifier'],
+  //   delegateOneDid.uri,
+  //   async ({ data }) => ({
+  //     signature: issuerKeys.capabilityDelegation.sign(data),
+  //     keyType: issuerKeys.capabilityDelegation.type,
+  //   })
+  // )
+  // console.log(`✅ Registry Authorization - ${registryAuthority} - created!`)
 
   // Step 4: Add Delelegate Two as Registry Delegate
   console.log(`\n❄️  Registry Delegate Authorization `)
@@ -201,6 +218,7 @@ async function main() {
     authorIdentity,
     issuerDid.uri,
     registry['identifier'],
+    registry['authorization'],
     delegateTwoDid.uri,
     async ({ data }) => ({
       signature: issuerKeys.capabilityDelegation.sign(data),

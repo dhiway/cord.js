@@ -1,6 +1,6 @@
 import type { IDocument, IDocumentPresentation } from './Document.js'
 import type { DidResourceUri, DidUri } from './DidDocument.js'
-import type { IStatement } from './Statement'
+import type { IStatementDetails } from './Statement'
 import type { SchemaId } from './Schema.js'
 
 export type MessageBodyType =
@@ -63,7 +63,7 @@ export interface IRequestDocument extends IMessageBodyBase {
 }
 
 export interface ISubmitStatementContent {
-  statement: IStatement
+  statement: IStatementDetails
 }
 
 export interface ISubmitDocumentStatement extends IMessageBodyBase {
