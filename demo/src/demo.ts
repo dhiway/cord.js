@@ -6,10 +6,10 @@ import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
 import { ensureStoredSchema } from './utils/generateSchema'
 import {
-  ensureStoredRegistry,
-  addRegistryAdminDelegate,
-  addRegistryDelegate,
-} from './utils/generateRegistry'
+  ensureStoredChainSpace,
+  addSpaceAuthorization,
+  approveSpace,
+} from './utils/generateChainSpace'
 import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
 import { createStatement } from './utils/createStatement'
@@ -170,21 +170,9 @@ async function main() {
   })
   console.log('✅ Schema created!')
 
-  // Step 3: Create a new Registry
-  console.log(`\n❄️  Registry Creation `)
-  // const registry = await ensureStoredRegistry(
-  //   authorIdentity,
-  //   issuerDid.uri,
-  //   async ({ data }) => {
-  //     console.log('Data to be signed:', data) // Log the data
-  //     return {
-  //       signature: issuerKeys.assertionMethod.sign(data),
-  //       keyType: issuerKeys.assertionMethod.type,
-  //     }
-  //   }
-  // )
-
-  const registry = await ensureStoredRegistry(
+  // Step 3: Create a new Chain Space
+  console.log(`\n❄️  Chain Space Creation `)
+  const space = await ensureStoredChainSpace(
     authorIdentity,
     issuerDid.uri,
     async ({ data }) => ({
@@ -192,40 +180,29 @@ async function main() {
       keyType: issuerKeys.assertionMethod.type,
     })
   )
-  console.dir(registry, {
+  console.dir(space, {
     depth: null,
     colors: true,
   })
   console.log('✅ Registry created!')
 
-  // Step 4: Add Delelegate One as Registry Admin
-  // console.log(`\n❄️  Registry Admin Delegate Authorization `)
-  // const registryAuthority = await addRegistryAdminDelegate(
-  //   authorIdentity,
-  //   issuerDid.uri,
-  //   registry['identifier'],
-  //   delegateOneDid.uri,
-  //   async ({ data }) => ({
-  //     signature: issuerKeys.capabilityDelegation.sign(data),
-  //     keyType: issuerKeys.capabilityDelegation.type,
-  //   })
-  // )
-  // console.log(`✅ Registry Authorization - ${registryAuthority} - created!`)
+  await approveSpace(authorityAuthorIdentity, space['identifier'])
+  console.log(`🔏  Space Approved`)
 
   // Step 4: Add Delelegate Two as Registry Delegate
   console.log(`\n❄️  Registry Delegate Authorization `)
-  const registryDelegate = await addRegistryDelegate(
+  const delegateAuth = await addSpaceAuthorization(
     authorIdentity,
-    issuerDid.uri,
-    registry['identifier'],
-    registry['authorization'],
     delegateTwoDid.uri,
+    issuerDid.uri,
+    space['identifier'],
+    space['authorization'],
     async ({ data }) => ({
       signature: issuerKeys.capabilityDelegation.sign(data),
       keyType: issuerKeys.capabilityDelegation.type,
     })
   )
-  console.log(`✅ Registry Delegation - ${registryDelegate} - created!`)
+  console.log(`✅ Space Delegation - ${delegateAuth} - created!`)
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
@@ -234,12 +211,11 @@ async function main() {
     holderDid.uri,
     delegateTwoDid.uri,
     schema,
-    registryDelegate,
-    registry.identifier,
+    space.identifier,
     async ({ data }) => ({
-      signature: delegateTwoKeys.authentication.sign(data),
-      keyType: delegateTwoKeys.authentication.type,
-      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
     })
   )
   console.dir(document, {
@@ -247,13 +223,14 @@ async function main() {
     colors: true,
   })
   await createStatement(
+    document,
     delegateTwoDid.uri,
+    delegateAuth['authorization'],
     authorIdentity,
     async ({ data }) => ({
       signature: delegateTwoKeys.assertionMethod.sign(data),
       keyType: delegateTwoKeys.assertionMethod.type,
-    }),
-    document
+    })
   )
   console.log('✅ Credential created!')
 

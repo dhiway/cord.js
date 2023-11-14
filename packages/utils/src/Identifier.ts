@@ -32,12 +32,12 @@ const VALID_IDENTS = new Set([
 ])
 
 const VALID_PREFIXES = [
-  SCHEMA_PREFIX,
   SPACE_PREFIX,
+  SCHEMA_PREFIX,
   STATEMENT_PREFIX,
   SCORE_PREFIX,
-  ACCOUNT_IDENTIFIER_PREFIX,
   AUTHORIZATION_PREFIX,
+  ACCOUNT_IDENTIFIER_PREFIX,
 ]
 
 function pphash(key: Uint8Array): Uint8Array {
@@ -180,6 +180,7 @@ export function hashToElementUri(
  * @param uri
  */
 export function uriToIdentifier(uri: string | null | undefined): string {
+  console.log(uri)
   assert(uri, 'Invalid URI string passed')
 
   const foundPrefix = VALID_PREFIXES.find((prefix) => uri!.startsWith(prefix))

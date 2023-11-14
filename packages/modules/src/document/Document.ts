@@ -16,7 +16,6 @@ import type {
   SignCallback,
   StatementId,
   SpaceId,
-  // AuthorizationId,
   PresentationOptions,
 } from '@cord.network/types'
 import {
@@ -33,7 +32,7 @@ import type { AccountId, H256 } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { ConfigService } from '@cord.network/config'
-import { verifyContentAganistSchema } from '../schema/Schema.js'
+import { verifyContentAgainstSchema } from '../schema/Schema.js'
 import { hashContents } from '../content/index.js'
 import * as Content from '../content/index.js'
 
@@ -218,7 +217,7 @@ export function verifyDataStructure(input: IDocument): void {
 //   schema: ISchema
 // ): void {
 //   verifyDataStructure(document)
-//   verifyContentAganistSchema(document.content.contents, schema)
+//   verifyContentAgainstSchema(document.content.contents, schema)
 // }
 
 /**
@@ -339,12 +338,10 @@ export type Options = {
 export async function fromContent({
   content,
   chainSpace,
-  // authorization,
   signCallback,
   options = {},
 }: {
   content: IContent
-  // authorization: AuthorizationId
   chainSpace: SpaceId
   signCallback: SignCallback
   options: Options
@@ -390,7 +387,6 @@ export async function fromContent({
     contentHashes,
     contentNonceMap,
     evidenceIds: evidenceIds || [],
-    // authorization,
     chainSpace,
     issuanceDate,
     validFrom: validFromString,
@@ -491,7 +487,7 @@ export function verifyWellFormed(
     verifyDataIntegrity(document)
   }
   if (schema) {
-    verifyContentAganistSchema(document.content.contents, schema)
+    verifyContentAgainstSchema(document.content.contents, schema)
   }
 }
 

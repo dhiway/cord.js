@@ -27,70 +27,75 @@ async function failproofSubmit(
   }
 }
 
-
 export async function setRegistrar(
   authority: Cord.KeyringPair,
-  registrar: Cord.CordAddress,
+  registrar: Cord.CordAddress
 ) {
   const api = Cord.ConfigService.get('api')
 
-  const callTx = api.tx.identity.addRegistrar(registrar);
-  const sudoTx = api.tx.sudo.sudo(callTx);
+  const callTx = api.tx.identity.addRegistrar(registrar)
+  const sudoTx = api.tx.sudo.sudo(callTx)
 
-
-  await failproofSubmit(sudoTx, authority)
+  await Cord.Chain.signAndSubmitTx(sudoTx, authority)
 }
 
-export async function setIdentity(
-  account: Cord.KeyringPair,
-) {
+export async function setIdentity(account: Cord.KeyringPair) {
   const identityInfo = {
     additional: [[null, null]],
     display: {
-      Raw: "Cord_Demo",
+      Raw: 'Cord_Demo',
     },
     legal: {
-      Raw: "CORD Demo Account"
+      Raw: 'CORD Demo Account',
     },
     web: {
-      Raw: "dhiway.com"
+      Raw: 'dhiway.com',
     },
     email: {
-      Raw: "engineering@dhiway.com"
+      Raw: 'engineering@dhiway.com',
     },
-  };
+  }
 
   const api = Cord.ConfigService.get('api')
 
   const callTx = api.tx.identity.setIdentity(identityInfo)
 
-  await failproofSubmit(callTx, account)
+  await Cord.Chain.signAndSubmitTx(callTx, account)
+
+  // await failproofSubmit(callTx, account)
 }
 
 export async function requestJudgement(
   account: Cord.KeyringPair,
-  registrar: Cord.CordAddress,
+  registrar: Cord.CordAddress
 ) {
-    const api = Cord.ConfigService.get('api')
+  const api = Cord.ConfigService.get('api')
 
   // const identityInfos = await api.query.identity.identityOf(account.address);
   // const identityHash = identityInfos.unwrap().info.hash.toHex();
 
   const callTx = api.tx.identity.requestJudgement(registrar)
 
-  await failproofSubmit(callTx, account)
+  await Cord.Chain.signAndSubmitTx(callTx, account)
+
+  // await failproofSubmit(callTx, account)
 }
 
 export async function provideJudgement(
   registrar: Cord.KeyringPair,
-  account: Cord.CordAddress,
+  account: Cord.CordAddress
 ) {
-    const api = Cord.ConfigService.get('api')
+  const api = Cord.ConfigService.get('api')
 
-  const identityInfos = await api.query.identity.identityOf(account);
-  const identityHash = identityInfos.unwrap().info.hash.toHex();
+  const identityInfos = await api.query.identity.identityOf(account)
+  const identityHash = identityInfos.unwrap().info.hash.toHex()
 
-  const callTx = api.tx.identity.provideJudgement(account, 'Reasonable', identityHash)
+  const callTx = api.tx.identity.provideJudgement(
+    account,
+    'Reasonable',
+    identityHash
+  )
+  await Cord.Chain.signAndSubmitTx(callTx, registrar)
 
-  await failproofSubmit(callTx, registrar)
+  // await failproofSubmit(callTx, registrar)
 }

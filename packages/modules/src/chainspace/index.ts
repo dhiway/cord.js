@@ -1,2 +1,2 @@
 export * from './ChainSpace.js'
-// export * from './Space.chain.js'
+export * from './ChainSpace.chain.js'

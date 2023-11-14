@@ -31,31 +31,31 @@ function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const { schemaId, contents, holder, issuer } = content;
+  const { schemaId, contents, holder, issuer } = content
 
-  if (!schemaId) throw new SDKErrors.SchemaIdentifierMissingError();
+  if (!schemaId) throw new SDKErrors.SchemaIdentifierMissingError()
 
-  const vocabulary = `${schemaId}#`;
-  const result: Record<string, unknown> = {};
+  const vocabulary = `${schemaId}#`
+  const result: Record<string, unknown> = {}
 
-  if (issuer) result['issuer'] = issuer;
-  if (holder) result['holder'] = holder;
+  if (issuer) result.issuer = issuer
+  if (holder) result.holder = holder
 
-  const flattenedContents = DataUtils.flattenObject(contents || {});
+  const flattenedContents = DataUtils.flattenObject(contents || {})
 
   if (!expanded) {
     return {
       ...result,
       '@context': { '@vocab': vocabulary },
       ...contents,
-    };
+    }
   }
 
   Object.entries(flattenedContents).forEach(([key, value]) => {
-    result[vocabulary + key] = value;
-  });
+    result[vocabulary + key] = value
+  })
 
-  return result;
+  return result
 }
 
 /**
@@ -63,6 +63,7 @@ function jsonLDcontents(
  * Where possible these predicates are taken directly from the Verifiable Credentials vocabulary. Properties that are unique to a [[Schema]] are transformed to predicates by prepending the [[Schema]][schema][$id].
  *
  * @param claim A (partial) [[IContent]] from to build a JSON-LD representation from. The `identifier` property is required.
+ * @param content
  * @param expanded Return an expanded instead of a compacted representation. While property transformation is done explicitly in the expanded format, it is otherwise done implicitly via adding JSON-LD's reserved `@context` properties while leaving [[IContent]][contents] property keys untouched.
  * @returns An object which can be serialized into valid JSON-LD representing an [[IContent]].
  */
@@ -103,7 +104,7 @@ function makeStatementsJsonLD(content: PartialContent): string[] {
 export function hashContents(
   content: PartialContent,
   options: Crypto.HashingOptions & {
-    selectedAttributes?: string[],
+    selectedAttributes?: string[]
     canonicalisation?: (content: PartialContent) => string[]
   } = {}
 ): {
@@ -117,8 +118,11 @@ export function hashContents(
   const statements = canonicalisation(content)
 
   let filteredStatements = statements
-  if (options.selectedAttributes && options.selectedAttributes.length) {
-    filteredStatements = DataUtils.filterStatements(statements, options.selectedAttributes);
+  if (options.selectedAttributes && options.selectedAttributes.length > 0) {
+    filteredStatements = DataUtils.filterStatements(
+      statements,
+      options.selectedAttributes
+    )
   }
 
   // iterate over statements to produce salted hashes
@@ -149,6 +153,7 @@ export function hashContents(
  * @param options Object containing optional parameters.
  * @param options.canonicalisation Canonicalisation routine that produces an array of statement strings from the [IContent]. Default produces individual `{"key":"value"}` JSON representations where keys are transformed to expanded JSON-LD.
  * @param options.hasher The hasher to be used. Required but defaults to 256 bit blake2 over `${nonce}${statement}`.
+ * @param attributes
  */
 export function verifyDisclosedAttributes(
   content: PartialContent,
@@ -168,11 +173,14 @@ export function verifyDisclosedAttributes(
   // use canonicalisation algorithm to make hashable statement strings
   const statements = canonicalisation(content)
   let filteredStatements = statements
-  if (attributes && attributes.length) {
-    filteredStatements = DataUtils.filterStatements(statements, attributes);
+  if (attributes && attributes.length > 0) {
+    filteredStatements = DataUtils.filterStatements(statements, attributes)
   }
   // iterate over statements to produce salted hashes
-  const hashed = Crypto.hashStatements(filteredStatements, { ...options, nonces })
+  const hashed = Crypto.hashStatements(filteredStatements, {
+    ...options,
+    nonces,
+  })
   // check resulting hashes
   const digestsInProof = Object.keys(nonces)
   const { verified, errors } = hashed.reduce<{
@@ -239,7 +247,7 @@ export function verifyDataStructure(input: IContent | PartialContent): void {
  * @param schema ISchema to verify inputContent.
  */
 export function verify(inputContent: IContent, schema: ISchema): void {
-  Schema.verifyContentAganistSchema(inputContent.contents, schema)
+  Schema.verifyContentAgainstSchema(inputContent.contents, schema)
   verifyDataStructure(inputContent)
 }
 
@@ -254,6 +262,13 @@ export function verify(inputContent: IContent, schema: ISchema): void {
  * @returns A validated [[Content]] stream.
  */
 
+/**
+ * @param schema
+ * @param nestedSchemas
+ * @param contents
+ * @param holder
+ * @param issuer
+ */
 export function fromNestedSchemaAndContent(
   schema: ISchema,
   nestedSchemas: ISchema[],
@@ -265,9 +280,9 @@ export function fromNestedSchemaAndContent(
 
   const content = {
     schemaId: schema.$id,
-    contents: contents,
-    holder: holder,
-    issuer: issuer,
+    contents,
+    holder,
+    issuer,
   }
   verifyDataStructure(content)
   return content
@@ -279,6 +294,7 @@ export function fromNestedSchemaAndContent(
  * @param schema [[ISchema]] on which the content is based on.
  * @param contents IContent['contents'] to be used as the data of the instantiated Content stream.
  * @param holder The DID to be used as the holder.
+ * @param issuer
  * @returns A Content object.
  */
 export function fromSchemaAndContent(
@@ -288,19 +304,31 @@ export function fromSchemaAndContent(
   issuer: DidUri
 ): IContent {
   Schema.verifyDataStructure(schema)
-  Schema.verifyContentAganistSchema(contents, schema)
+  Schema.verifyContentAgainstSchema(contents, schema)
 
   const content = {
     schemaId: schema.$id,
-    contents: contents,
-    holder: holder,
-    issuer: issuer,
+    contents,
+    holder,
+    issuer,
   }
   verifyDataStructure(content)
   return content
 }
 
 /**
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ *
  *  Custom Type Guard to determine input being of type IContent
  *
  * @param input The potentially only partial IContent.

@@ -15,19 +15,17 @@ export async function ensureStoredSchema(
 ): Promise<Cord.ISchema> {
   const api = Cord.ConfigService.get('api')
 
+  // TODO: Enable required field support within subschemas
   const schema = Cord.Schema.fromProperties(
     'Test Demo Schema v2',
     {
       name: {
         type: 'string',
       },
-      id: {
-        type: 'string',
-      },
       age: {
         type: 'integer',
       },
-      gender: {
+      id: {
         type: 'string',
       },
       country: {
@@ -35,19 +33,30 @@ export async function ensureStoredSchema(
       },
       address: {
         type: 'object',
+        properties: {
+          street: { type: 'string' },
+          pin: { type: 'number' },
+          location: {
+            type: 'object',
+            properties: {
+              state: { type: 'string' },
+              country: { type: 'string' },
+            },
+          },
+        },
       },
     },
-    [ 'name', 'id', 'age' ],
+    ['name', 'id', 'age'],
     creator
   )
 
-  try {
-    await Cord.Schema.verifyStored(schema)
+  const exists = await Cord.Schema.isSchemaStored(schema)
+  if (exists) {
     console.log('Schema already stored. Skipping creation')
     return schema
-  } catch {
+  } else {
     console.log('Schema not present. Creating it now...')
-    // Authorize the tx.
+
     const encodedSchema = Cord.Schema.toChain(schema)
     const tx = api.tx.schema.create(encodedSchema)
     const extrinsic = await Cord.Did.authorizeTx(
@@ -56,7 +65,7 @@ export async function ensureStoredSchema(
       signCallback,
       authorAccount.address
     )
-    // Write to chain then return the Schema.
+
     await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return schema

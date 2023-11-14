@@ -257,7 +257,9 @@ export async function getAuthorizationDetailsfromChain(
  * @param chainSpace - The Chain Space ID to be checked.
  * @returns A promise that resolves to true if the Chain Space exists, or false otherwise.
  */
-export async function isChainSpace(chainSpace: SpaceId): Promise<boolean> {
+export async function isChainSpaceStored(
+  chainSpace: SpaceId
+): Promise<boolean> {
   const api = ConfigService.get('api')
   const identifier = Identifier.uriToIdentifier(chainSpace)
   const encoded = await api.query.chainSpace.spaces(identifier)
@@ -271,7 +273,7 @@ export async function isChainSpace(chainSpace: SpaceId): Promise<boolean> {
  * @param authorization - The AuthorizationId to check for existence.
  * @returns A Promise resolving to a boolean. `true` if the authorization exists, `false` otherwise.
  */
-export async function isAuthorization(
+export async function isAuthorizationStored(
   authorization: AuthorizationId
 ): Promise<boolean> {
   const api = ConfigService.get('api')

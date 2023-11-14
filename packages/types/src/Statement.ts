@@ -2,7 +2,7 @@
  * @packageDocumentation
  * @module IStatement
  */
-import type { DidUri } from './DidDocument'
+import type { DidUri } from './DidDocument.js'
 import type { ISchema } from './Schema.js'
 import type { IDocument } from './Document.js'
 

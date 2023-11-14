@@ -13,8 +13,7 @@ export async function createDocument(
   holder: Cord.DidUri,
   issuer: Cord.DidUri,
   schema: Cord.ISchema,
-  authorization: Cord.AuthorizationId,
-  registry: Cord.RegistryId,
+  chainSpace: Cord.SpaceId,
   signCallback: Cord.SignCallback
 ): Promise<Cord.IDocument> {
   const content = Cord.Content.fromSchemaAndContent(
@@ -36,10 +35,10 @@ export async function createDocument(
     holder,
     issuer
   )
+  console.log(content, chainSpace)
   const document = Cord.Document.fromContent({
     content,
-    authorization,
-    registry,
+    chainSpace,
     signCallback,
     options: {},
   })
