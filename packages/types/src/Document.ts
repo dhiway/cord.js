@@ -30,6 +30,16 @@ export interface IDocument {
   metadata: DocumentMetaData
 }
 
+export interface IDocumentUpdate {
+  identifier: string
+  content: IContent
+  evidenceIds: IDocument[]
+  chainSpace: string
+  validFrom?: string
+  validUntil?: string
+  documentHash: Hash
+  metadata: DocumentMetaData
+}
 export interface IDocumentPresentation extends IDocument {
   selectiveAttributes: string[]
   holderSignature: DidSignature & { challenge?: string }

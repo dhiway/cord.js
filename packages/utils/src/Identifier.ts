@@ -15,6 +15,7 @@ import {
   SCORE_IDENTIFIER,
   AUTHORIZATION_IDENT,
 } from '@cord.network/types'
+import { InvalidURIError, InvalidIdentifierError } from './SDKErrors.js'
 
 const defaults = {
   allowedDecodedLengths: [1, 2, 4, 8, 32, 33],
@@ -176,22 +177,6 @@ export function hashToElementUri(
 }
 
 /**
- * @param identifier
- * @param uri
- */
-export function uriToIdentifier(uri: string | null | undefined): string {
-  console.log(uri)
-  assert(uri, 'Invalid URI string passed')
-
-  const foundPrefix = VALID_PREFIXES.find((prefix) => uri!.startsWith(prefix))
-  if (foundPrefix) {
-    return uri!.split(foundPrefix).join('')
-  }
-
-  throw new Error(`Invalid URI ${uri}`)
-}
-
-/**
  * @param address
  * @param identifier
  * @name checkIdentifier
@@ -220,6 +205,35 @@ export function checkIdentifier(
   }
 
   return [false, `Prefix mismatch, found ${idfrDecoded}`]
+}
+
+/**
+ * @param identifier
+ * @param uri
+ */
+
+/**
+ * @param uri
+ */
+export function uriToIdentifier(uri: string | null | undefined): string {
+  if (typeof uri !== 'string' || !uri) {
+    throw new InvalidURIError('URI must be a non-empty string.')
+  }
+
+  let identifier = uri
+  const foundPrefix = VALID_PREFIXES.find((prefix) => uri.startsWith(prefix))
+  if (foundPrefix) {
+    identifier = uri.split(foundPrefix).join('')
+  }
+
+  const [isValid, errorMessage] = checkIdentifier(identifier)
+  if (!isValid) {
+    throw new InvalidIdentifierError(
+      errorMessage || `Invalid identifier: ${uri}`
+    )
+  }
+
+  return identifier
 }
 
 /**

@@ -65,6 +65,9 @@ export class SchemaUnknownPropertiesError extends SDKError {}
 export class SchemaIdentifierMissingError extends SDKError {}
 export class ChainSpaceMissingError extends SDKError {}
 export class AuthorizationMissingError extends SDKError {}
+export class DocumentContentMalformed extends SDKError {}
+export class InvalidIdentifierError extends SDKError {}
+export class InvalidURIError extends SDKError {}
 
 export class SchemaIdMismatchError extends SDKError {
   constructor(fromSchema: string, provided: string) {

@@ -5,6 +5,7 @@
 import { blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
 import { SDKErrors, Crypto } from '@cord.network/utils'
+import { DidDocument } from '@cord.network/types'
 import {
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -18,8 +19,10 @@ import type {
   CordSelfSignatureProof,
 } from './types.js'
 
-import { DidDocument } from '@cord.network/types'
-
+/**
+ * @param rootHash
+ * @param challenge
+ */
 export function makeSigningData(
   rootHash: string,
   challenge?: string | null
@@ -124,6 +127,9 @@ export async function removeProperties(
  *
  * @param VC The CORD Verifiable Credential as exported with the SDK utils.
  * @param showProperties An array of properties to reveal.
+ * @param creator
+ * @param keys
+ * @param challenge
  * @returns A Verifiable Presentation containing the original VC with its proofs, but not extra signatures.
  */
 export async function makePresentation(
@@ -136,16 +142,15 @@ export async function makePresentation(
   const copied = await removeProperties(VC, showProperties)
 
   if (creator.uri !== VC.credentialSubject.holder) {
-    throw new SDKErrors.CreatorMissingError;
+    throw new SDKErrors.CreatorMissingError()
   }
-//console.log(creator, VC.credentialSubject);
   async function callback(data: any) {
     return {
-    signature: keys.authentication.sign(data.data),
-    keyType: keys.authentication.type,
-    keyUri: `${creator.uri}${creator.authentication[0].id}`,
+      signature: keys.authentication.sign(data.data),
+      keyType: keys.authentication.type,
+      keyUri: `${creator.uri}${creator.authentication[0].id}`,
     }
-  };
+  }
 
   const signature = await callback({
     data: makeSigningData(VC.credentialHash, challenge),
@@ -153,7 +158,7 @@ export async function makePresentation(
   })
 
   const selfSProof: CordSelfSignatureProof = {
-    challenge: challenge,
+    challenge,
     type: CORD_SELF_SIGNATURE_PROOF_TYPE,
     proofPurpose: 'assertionMethod',
     verificationMethod: signature.keyUri,

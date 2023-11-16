@@ -21,18 +21,15 @@ import { encryptMessage } from './utils/encrypt_message'
 import { generateRequestCredentialMessage } from './utils/request_credential_message'
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
-import { updateStatement } from './utils/updateDocument'
+import { updateDocument } from './utils/updateDocument'
+import { updateStatement } from './utils/updateStatement'
+
 import {
   requestJudgement,
   setIdentity,
   setRegistrar,
   provideJudgement,
 } from './utils/createRegistrar'
-
-// import type {
-//   SignCallback,
-//   // DocumenentMetaData,
-// } from '@cord.network/types'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -184,13 +181,13 @@ async function main() {
     depth: null,
     colors: true,
   })
-  console.log('✅ Registry created!')
+  console.log('✅ Chain Space created!')
 
   await approveSpace(authorityAuthorIdentity, space['identifier'])
-  console.log(`🔏  Space Approved`)
+  console.log(`🔏  Chain Space Approved`)
 
   // Step 4: Add Delelegate Two as Registry Delegate
-  console.log(`\n❄️  Registry Delegate Authorization `)
+  console.log(`\n❄️  Space Delegate Authorization `)
   const delegateAuth = await addSpaceAuthorization(
     authorIdentity,
     delegateTwoDid.uri,
@@ -232,45 +229,42 @@ async function main() {
       keyType: delegateTwoKeys.assertionMethod.type,
     })
   )
-  console.log('✅ Credential created!')
+  console.log(`✅ Statement registered - ${document.identifier}`)
 
   // Step 5: Delegate updates the Verifiable Document
-  console.log('\n🖍️ Statement update...\n')
+  console.log(`\n❄️  Verifiable Document Update `)
+  let updateDocumentContent =
+    Cord.Document.extractDocumentContentforUpdate(document)
 
-  let updatedContent: Cord.IContent = {
-    name: 'Adi',
-    age: 23,
-    id: '123456789987654321',
-    gender: 'Male',
-    country: 'India',
-    address: {
-      street: 'a',
-      pin: 54032,
-      location: {
-        state: 'karnataka',
-        country: 'india',
-      },
-    },
-  }
+  const contents = updateDocumentContent.content.contents as Cord.IContents
+  contents.name = 'Alice M'
+  contents.age = 32
+  contents.address.pin = 560100
 
-  console.log('𝌞 Updated content\n', updatedContent)
-
-  const updatedDocument = await updateStatement(
-    document,
-    updatedContent,
+  const updatedDocument = await updateDocument(
+    updateDocumentContent,
     schema,
     async ({ data }) => ({
-      signature: delegateTwoKeys.authentication.sign(data),
-      keyType: delegateTwoKeys.authentication.type,
-      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
-    }),
-    delegateTwoDid.uri,
-    authorIdentity,
-    delegateTwoKeys
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
+    })
   )
-
-  console.log('\n✅ Document updated!')
-  console.log('\nUpdated document: \n', updatedDocument)
+  console.dir(updatedDocument, {
+    depth: null,
+    colors: true,
+  })
+  await updateStatement(
+    updatedDocument,
+    delegateTwoDid.uri,
+    delegateAuth['authorization'],
+    authorIdentity,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    })
+  )
+  console.log(`✅ Statement updated - ${updatedDocument.identifier}`)
 
   // Step 6: Create a Presentation
   console.log(`\n❄️  Selective Disclosure Presentation Creation `)
@@ -295,15 +289,15 @@ async function main() {
 
   // Step 7: The verifier checks the presentation.
   console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
-  const isValid = await verifyPresentation(presentation, {
+  const verificationResult = await verifyPresentation(presentation, {
     challenge: challenge,
     trustedIssuerUris: [delegateTwoDid.uri],
   })
 
-  if (isValid) {
+  if (verificationResult.isValid) {
     console.log('✅  Verification successful! 🎉')
   } else {
-    console.log('✅  Verification failed! 🚫')
+    console.log(`✅  Verification failed! - "${verificationResult.message}" 🚫`)
   }
 
   // Uncomment the following section to enable messaging demo
@@ -338,24 +332,23 @@ async function main() {
       keyType: delegateTwoKeys.assertionMethod.type,
     }),
     updatedDocument,
-    false
+    delegateAuth['authorization']
   )
   console.log(`✅ Credential revoked!`)
 
   // Step 9: The verifier checks the presentation.
-  console.log(
-    // `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
-    `\n❄️  Presentation Verification - ${presentation.identifier} `
-  )
-  const isAgainValid = await verifyPresentation(presentation, {
+  console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
+  let reVerificationResult = await verifyPresentation(presentation, {
     challenge: challenge,
     trustedIssuerUris: [issuerDid.uri],
   })
 
-  if (isAgainValid) {
+  if (reVerificationResult.isValid) {
     console.log('✅ Verification successful! 🎉')
   } else {
-    console.log('✅ Verification failed! 🚫')
+    console.log(
+      `✅  Verification failed! - "${reVerificationResult.message}" 🚫`
+    )
   }
 }
 main()

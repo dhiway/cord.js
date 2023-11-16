@@ -1,26 +1,43 @@
 /**
- * ChainSpace Creation and Delegation (Authorization) Module.
- *
  * @packageDocumentation
  * @module ChainSpace
  * @preferred
  *
- * This module forms part of the CORD Network's ChainSpace system, focusing on the creation and management of ChainSpaces and their delegations.
- * It provides essential functionalities to create new ChainSpaces and to manage delegate authorizations within these spaces.
- * The module leverages decentralized identifiers (DIDs) to ensure secure and verifiable interactions within the CORD environment.
+ * This module provides functionalities for creating and managing ChainSpaces within the CORD blockchain ecosystem.
+ * A ChainSpace is a conceptual space on the CORD blockchain, designated for specific data or assets,
+ * managed and accessed under defined rules and permissions.
  *
- * Key Features:
- * - `createChainSpace`: Generates a new ChainSpace with a unique identifier and authorization ID, based on the creator's DID URI.
- *   This function is crucial for initiating a new ChainSpace where data or assets can be managed securely.
+ * The primary functionalities of this module include:
  *
- * - `createChainSpaceDelegate`: Facilitates the creation of delegate authorizations within a ChainSpace.
- *   This function is used to grant permissions to a delegate, allowing them to act within the ChainSpace on behalf of the creator.
+ * - `createChainSpace`: A function to create a new ChainSpace. This involves generating a unique identifier
+ *   for the ChainSpace and an authorization identifier, which are derived from the creator's DID URI and
+ *   an optional custom description. The ChainSpace thus created serves as a distinct environment or namespace
+ *   within the CORD blockchain where specific data or assets can be stored and managed under the creator's governance.
  *
- * These functions are integral to the CORD Network's approach to decentralized identity and access management,
- * enabling users to create and manage secure, blockchain-based spaces for data and asset control.
+ * - `createChainSpaceDelegate`: A function to authorize a delegate within a ChainSpace. This is crucial for scenarios
+ *   where the creator or owner of a ChainSpace needs to delegate certain permissions or roles to another entity.
+ *   The function facilitates this by creating a delegate authorization, allowing the delegate to perform actions
+ *   or access resources within the ChainSpace on behalf of the creator.
  *
- * Usage of this module is primarily intended for applications that require robust identity verification and authorization mechanisms,
- * particularly in contexts where secure management of digital assets or data is critical.
+ * These functionalities are essential for maintaining the integrity and structured access control of data and assets
+ * within the CORD blockchain. By enabling the creation of distinct ChainSpaces and the delegation of specific
+ * permissions within them, this module plays a critical role in the decentralized governance and management
+ * of resources in the CORD ecosystem.
+ *
+ * Example usage:
+ * ```typescript
+ * // Creating a new ChainSpace
+ * const newChainSpace = await createChainSpace('did:cord:creator');
+ * console.log(newChainSpace.identifier); // Outputs the unique identifier of the new ChainSpace
+ *
+ * // Authorizing a delegate in a ChainSpace
+ * const spaceAuthorization = await createChainSpaceDelegate('space-123', 'did:cord:delegate', 'did:cord:creator');
+ * console.log(spaceAuthorization.authorization); // Outputs the authorization identifier for the delegate
+ * ```
+ *
+ * This module is integral for developers and entities interacting with the CORD blockchain, providing them
+ * with the tools to establish and manage their own dedicated spaces within the blockchain network,
+ * along with the capability to securely delegate responsibilities within these spaces.
  */
 
 import type {

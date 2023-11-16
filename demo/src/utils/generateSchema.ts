@@ -35,7 +35,7 @@ export async function ensureStoredSchema(
         type: 'object',
         properties: {
           street: { type: 'string' },
-          pin: { type: 'number' },
+          pin: { type: 'integer' },
           location: {
             type: 'object',
             properties: {

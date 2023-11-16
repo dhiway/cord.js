@@ -15,15 +15,15 @@ export async function revokeCredential(
   authorAccount: Cord.CordKeyringPair,
   signCallback: Cord.SignExtrinsicCallback,
   document: Cord.IDocument,
-  shouldRemove = false
+  authorization: Cord.AuthorizationId
 ): Promise<void> {
   const api = Cord.ConfigService.get('api')
-  const chainIdentifier = Cord.Statement.idToChain(document.identifier)
-  const authorization = Cord.Registry.uriToIdentifier(document.authorization)
+  const chainIdentifier = Cord.Utils.Identifier.uriToIdentifier(
+    document.identifier
+  )
+  const authorizationId = Cord.Utils.Identifier.uriToIdentifier(authorization)
 
-  const tx = shouldRemove
-    ? api.tx.statement.remove(chainIdentifier, authorization)
-    : api.tx.statement.revoke(chainIdentifier, authorization)
+  const tx = api.tx.statement.revoke(chainIdentifier, authorizationId)
 
   const authorizedTx = await Cord.Did.authorizeTx(
     issuer,

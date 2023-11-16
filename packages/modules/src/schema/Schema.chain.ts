@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module Schema/SchemaChain
+ * @module Schema/Chain
  *
  * This file contains functions and types related to the interaction between the schema definitions and the blockchain.
  * It primarily deals with encoding and decoding schema data for blockchain storage and retrieval, as well as

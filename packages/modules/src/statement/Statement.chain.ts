@@ -29,7 +29,6 @@ export function decodeStatementDetailsfromChain(
     schema:
       DecoderUtils.hexToString(chainStatement.schema.toString()) || undefined,
   }
-
   return statement
 }
 
@@ -59,16 +58,18 @@ export async function getStatementDetailsfromChain(
 
 /**
  * @param statementId
+ * @param statement
  * @param digest
  */
 export async function getStatementStatusfromChain(
-  statementId: StatementId,
+  statement: StatementId,
   digest?: IDocument['documentHash']
 ): Promise<IStatementStatus | null> {
   const api = ConfigService.get('api')
+  const statementId = Identifier.uriToIdentifier(statement)
 
   const statementDetails = await getStatementDetailsfromChain(statementId)
-  if (!statementDetails) {
+  if (statementDetails === null) {
     throw new SDKErrors.StatementError(
       `There is no statement with the provided ID "${statementId}" present on the chain.`
     )
@@ -78,11 +79,11 @@ export async function getStatementStatusfromChain(
   const effectiveDigest = digest || statementDetails.digest
 
   const elementStatusDetails = await api.query.statement.entries(
-    statementId,
+    Identifier.uriToIdentifier(statementId),
     effectiveDigest
   )
 
-  if (elementStatusDetails.isEmpty) {
+  if (elementStatusDetails === null) {
     throw new SDKErrors.StatementError(
       `There is no statement entry with the provided ID "${statementId}" present on the chain.`
     )

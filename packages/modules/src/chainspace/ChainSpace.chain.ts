@@ -1,8 +1,47 @@
 /**
- * ChainSpace Creation and Delegation (Authorization) Module Chain Support functions.
- *
  * @packageDocumentation
- * @module ChainSpace
+ * @module ChainSpace/Chain
+ *
+ * This submodule provides a set of functionalities for interacting with ChainSpaces on the CORD blockchain at a lower level,
+ * particularly focusing on the blockchain representation and data retrieval aspects.
+ * It serves as a bridge between the higher-level ChainSpace abstractions and the underlying blockchain data structures.
+ *
+ * Key functionalities include:
+ *
+ * - `createChainSpaceIdentifiers`: Generates unique identifiers for a ChainSpace and its associated authorization.
+ *   This function is crucial for creating a new ChainSpace and establishing its identity on the blockchain.
+ *
+ * - `createChainSpaceDelegateIdentifier`: Produces an Authorization ID for a ChainSpace delegate.
+ *   This is essential for setting up delegated access within a ChainSpace, ensuring secure and verifiable linkages
+ *   between the delegate, the creator, and the ChainSpace.
+ *
+ * - `decodeSpaceDetailsfromChain` and `getChainSpaceDetailsfromChain`: Functions for decoding and retrieving
+ *   ChainSpace details from their blockchain representation. These are vital for applications that need to access
+ *   and interpret ChainSpace information stored on the blockchain.
+ *
+ * - `authorizationPermissionsFromChain` and `decodeAuthorizationDetailsfromChain`: Translate encoded blockchain
+ *   permissions and authorization details into readable and usable formats. These functions are key for managing
+ *   and interpreting permissions and authorizations within ChainSpaces.
+ *
+ * - `getAuthorizationDetailsfromChain`, `isChainSpaceStored`, and `isAuthorizationStored`: Provide mechanisms
+ *   to retrieve specific authorization details and check the existence of ChainSpaces and authorizations on the blockchain.
+ *
+ * This submodule is integral for developers who need to interact directly with the blockchain layer of ChainSpaces,
+ * providing them with the necessary tools to query, decode, and understand the data and structures stored on the CORD blockchain.
+ *
+ * Example usage:
+ * ```typescript
+ * // Retrieving ChainSpace details from the blockchain
+ * const chainSpaceDetails = await getChainSpaceDetailsfromChain('space-123');
+ * console.log(chainSpaceDetails.creator); // Outputs the DID URI of the ChainSpace creator
+ *
+ * // Checking if a specific authorization exists on the blockchain
+ * const authorizationExists = await isAuthorizationStored('auth-456');
+ * console.log(authorizationExists); // Outputs true if the authorization exists
+ * ```
+ *
+ * This submodule plays a crucial role in the ChainSpace ecosystem, enabling advanced interactions with the blockchain
+ * and providing the foundational operations required for higher-level ChainSpace management and governance functionalities.
  */
 
 import type {

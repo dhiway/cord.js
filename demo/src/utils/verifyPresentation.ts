@@ -16,27 +16,21 @@ export async function verifyPresentation(
     challenge?: string
     trustedIssuerUris?: Cord.DidUri[]
   } = {}
-): Promise<boolean> {
+): Promise<{ isValid: boolean; message: string }> {
   try {
     // Verify the presentation with the provided challenge.
-    await Cord.Document.verifyPresentation(presentation, { challenge })
+    await Cord.Document.verifyPresentation(presentation, {
+      challenge,
+    })
 
-    // Verify the credential by checking the statement on the blockchain.
-    const api = Cord.ConfigService.get('api')
-    const chainIdentifier = Cord.Statement.idToChain(presentation.identifier)
-    const statementOnChain = await api.query.statement.statements(chainIdentifier)
-    const statement = Cord.Statement.fromChain(statementOnChain, chainIdentifier)
-    if (statement.statementHash !== presentation.documentHash) {
-      return false
-    }
-    const attestationOnChain = await api.query.statement.attestations(chainIdentifier, presentation.documentHash)
-    const attest = Cord.Statement.fromChainAttest(attestationOnChain, chainIdentifier)
-    if (attest.revoked) {
-      return false
-    }
+    const { isValid, message } =
+      await Cord.Document.verifyPresentationDocumentStatus(presentation, {
+        challenge,
+        trustedIssuerUris,
+      })
 
-    return trustedIssuerUris.includes(attest.creator)
+    return { isValid, message }
   } catch {
-    return false
+    return { isValid: false, message: 'Verification failed!' }
   }
 }

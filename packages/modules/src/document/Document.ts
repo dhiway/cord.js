@@ -17,12 +17,15 @@ import type {
   StatementId,
   SpaceId,
   PresentationOptions,
+  IDocumentUpdate,
+  // IStatementDetails,
+  IStatementStatus,
 } from '@cord.network/types'
 import {
   Crypto,
   SDKErrors,
   DataUtils,
-  jsonabc,
+  // jsonabc,
   Identifier,
 } from '@cord.network/utils'
 import { STATEMENT_IDENT, STATEMENT_PREFIX } from '@cord.network/types'
@@ -35,6 +38,7 @@ import { ConfigService } from '@cord.network/config'
 import { verifyContentAgainstSchema } from '../schema/Schema.js'
 import { hashContents } from '../content/index.js'
 import * as Content from '../content/index.js'
+import { getStatementStatusfromChain } from '../statement/index.js'
 
 function getHashRoot(leaves: Uint8Array[]): Uint8Array {
   const result = Crypto.u8aConcat(...leaves)
@@ -114,6 +118,7 @@ type VerifyOptions = {
   challenge?: string
   didResolveKey?: DidResolveKey
   selectedAttributes?: string[]
+  trustedIssuerUris?: DidUri[]
 }
 
 /**
@@ -186,6 +191,19 @@ export function verifyDataStructure(input: IDocument): void {
   })
   if (!('contentHashes' in input)) {
     throw new SDKErrors.DataStructureError('content hashes not provided')
+  }
+}
+
+/**
+ * @param input
+ * @param statementDetails
+ */
+export function verifyUpdateDataStructure(
+  input: IDocumentUpdate,
+  statementDetails: IStatementStatus
+): void {
+  if (input.content.issuer !== statementDetails.creator) {
+    throw new SDKErrors.IssuerMismatchError('Issuer Mismatch')
   }
 }
 
@@ -266,7 +284,7 @@ export async function verifySignature(
     message: uint8DocumentHash,
     // check if credential issuer matches signer
     expectedSigner: input.content.issuer,
-    expectedVerificationMethod: 'authentication',
+    expectedVerificationMethod: 'assertionMethod',
     didResolveKey,
   })
 }
@@ -277,18 +295,19 @@ export async function verifySignature(
  * @param statement Statement for which to create the id.
  * @param statementDigest
  * @param registry
+ * @param documentDigest
  * @param chainSpace
  * @param creator
  * @returns Statement id uri.
  */
-export function getUriForStatement(
-  statementDigest: HexString,
+export function getUriForDocument(
+  documentDigest: HexString,
   chainSpace: SpaceId,
   creator: DidUri
 ): StatementId {
   const api = ConfigService.get('api')
   const scaleEncodedDigest = api
-    .createType<H256>('H256', statementDigest)
+    .createType<H256>('H256', documentDigest)
     .toU8a()
   const scaleEncodedRegistry = api
     .createType<Bytes>('Bytes', chainSpace)
@@ -305,6 +324,22 @@ export function getUriForStatement(
     ])
   )
   return Identifier.hashToUri(digest, STATEMENT_IDENT, STATEMENT_PREFIX)
+}
+
+/**
+ * Type Guard to determine input being of type [[IDocument]].
+ *
+ * @param input - A potentially only partial [[IDocument]].
+ *
+ * @returns  Boolean whether input is of type IDocument.
+ */
+export function isIDocument(input: unknown): input is IDocument {
+  try {
+    verifyDataStructure(input as IDocument)
+  } catch (error) {
+    return false
+  }
+  return true
 }
 
 export type Options = {
@@ -369,7 +404,7 @@ export async function fromContent({
   })
 
   const spaceIdentifier = Identifier.uriToIdentifier(chainSpace)
-  const statementId = getUriForStatement(
+  const documentId = getUriForDocument(
     documentHash,
     spaceIdentifier,
     content.issuer
@@ -378,11 +413,11 @@ export async function fromContent({
   const issuerSignature = await signCallback({
     data: uint8Hash,
     did: content.issuer,
-    keyRelationship: 'authentication',
+    keyRelationship: 'assertionMethod',
   })
 
   const document = {
-    identifier: statementId,
+    identifier: documentId,
     content,
     contentHashes,
     contentNonceMap,
@@ -401,66 +436,109 @@ export async function fromContent({
 
 /**
  * @param document
- * @param updatedContent
- * @param schema
- * @param signCallback
- * @param options
+ * @param input
  */
-export async function updateFromContent(
-  document: IDocument,
-  updatedContent: IContent['contents'],
-  schema: ISchema,
-  signCallback: SignCallback,
+export function extractDocumentContentforUpdate(
+  input: unknown
+): IDocumentUpdate {
+  if (!isIDocument(input)) {
+    throw new SDKErrors.DocumentContentMalformed('Document content malformed')
+  }
+
+  const document = input as IDocument
+
+  const {
+    contentHashes,
+    contentNonceMap,
+    issuanceDate,
+    issuerSignature,
+    ...remainingDocumentContent
+  } = document
+
+  return remainingDocumentContent
+}
+
+/**
+ * @param root0
+ * @param root0.content
+ * @param root0.chainSpace
+ * @param root0.signCallback
+ * @param root0.options
+ * @param root0.identifier
+ * @param root0.document
+ * @param root0.schema
+ */
+export async function fromUpdatedContent({
+  document,
+  schema,
+  signCallback,
+  options = {},
+}: {
+  document: IDocumentUpdate
+  schema: ISchema
+  signCallback: SignCallback
   options: Options
-) {
-  const { evidenceIds, validFrom, validUntil, templates, labels } = options
-  let isUpdateFromOptionsPossible = false
-  let isUpdateFromContentsPossible = false
-
-  if (document.content.schemaId !== schema.$id) {
-    throw new Error(
-      'Updating cannot be performed because the schema ID of the document does not correspond to the provided schema argument'
-    )
-  }
-
-  if (
-    JSON.stringify(evidenceIds) !== JSON.stringify(document.evidenceIds) ||
-    JSON.stringify(validFrom) !== JSON.stringify(document.validFrom) ||
-    JSON.stringify(validUntil) !== JSON.stringify(document.validUntil) ||
-    JSON.stringify(templates) !== JSON.stringify(document.metadata.templates) ||
-    JSON.stringify(labels) !== JSON.stringify(document.metadata.labels)
-  ) {
-    isUpdateFromOptionsPossible = true
-  }
-
-  if (
-    JSON.stringify(jsonabc.sortObj(document.content.contents)) !==
-    JSON.stringify(jsonabc.sortObj(updatedContent))
-  ) {
-    isUpdateFromContentsPossible = true
-  }
-
-  if (!(isUpdateFromOptionsPossible || isUpdateFromContentsPossible)) {
-    throw new Error(
-      "For document updating, it's necessary to modify either the contents or the options, or modify both"
-    )
-  }
-
-  const newContent = Content.fromSchemaAndContent(
-    schema,
-    updatedContent,
-    document.content.holder,
-    document.content.issuer
+}): Promise<IDocument> {
+  const statementDetails = await getStatementStatusfromChain(
+    document.identifier,
+    document.documentHash
   )
 
-  const updatedDocument = await fromContent({
-    content: newContent,
-    // authorization: document.authorization,
-    chainSpace: document.chainSpace,
-    signCallback,
-    options,
+  if (statementDetails !== null) {
+    verifyUpdateDataStructure(document, statementDetails)
+  } else {
+    throw new SDKErrors.StatementError('Statement not found')
+  }
+  const { evidenceIds, validFrom, validUntil, templates, labels } = options
+
+  const { hashes: contentHashes, nonceMap: contentNonceMap } =
+    Content.hashContents(document.content)
+
+  const issuanceDate = new Date().toISOString()
+  const validFromString = validFrom
+    ? validFrom.toISOString()
+    : document.validFrom
+  const validUntilString = validUntil
+    ? validUntil.toISOString()
+    : document.validUntil
+
+  const metaData = {
+    templates: templates || document.metadata.templates,
+    labels: labels || document.metadata.labels,
+  }
+
+  const documentHash = calculateDocumentHash({
+    evidenceIds,
+    contentHashes,
+    issuanceDate,
+    validFrom: validFromString,
+    validUntil: validUntilString,
   })
-  updatedDocument.identifier = document.identifier
+
+  const spaceIdentifier = Identifier.uriToIdentifier(document.chainSpace)
+
+  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
+  const issuerSignature = await signCallback({
+    data: uint8Hash,
+    did: document.content.issuer,
+    keyRelationship: 'assertionMethod',
+  })
+
+  const updatedDocument = {
+    identifier: document.identifier,
+    content: document.content,
+    contentHashes,
+    contentNonceMap,
+    evidenceIds: evidenceIds || document.evidenceIds,
+    chainSpace: spaceIdentifier,
+    issuanceDate,
+    validFrom: validFromString,
+    validUntil: validUntilString,
+    documentHash,
+    issuerSignature: signatureToJson(issuerSignature),
+    metadata: metaData,
+  }
+  verifyDataStructure(updatedDocument)
   return updatedDocument
 }
 
@@ -492,6 +570,72 @@ export function verifyWellFormed(
 }
 
 /**
+ * @param document
+ * @param root0
+ * @param root0.schema
+ * @param root0.selectedAttributes
+ */
+
+/**
+ * @param document
+ * @param root0
+ * @param root0.schema
+ * @param root0.selectedAttributes
+ * @param root0.trustedIssuerUris
+ */
+export async function verifyPresentationDocumentStatus(
+  document: IDocument,
+  { trustedIssuerUris }: VerifyOptions = {}
+): Promise<{ isValid: boolean; message: string }> {
+  try {
+    const documentDetails = await getStatementStatusfromChain(
+      document.identifier
+    )
+
+    if (!documentDetails) {
+      return {
+        isValid: false,
+        message: 'Document details could not be found on the chain.',
+      }
+    }
+
+    if (document.documentHash !== documentDetails?.digest) {
+      return { isValid: false, message: 'Document hash does not match.' }
+    }
+
+    if (document.content.issuer !== documentDetails?.creator) {
+      return { isValid: false, message: 'Document creator does not match.' }
+    }
+
+    if (document.chainSpace !== documentDetails?.chainSpace) {
+      return { isValid: false, message: 'Document space does not match.' }
+    }
+    if (documentDetails?.revoked) {
+      return {
+        isValid: false,
+        message: 'Document revoked status does not match.',
+      }
+    }
+
+    return {
+      isValid: true,
+      message: 'Document is valid and matches the chain details.',
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      return {
+        isValid: false,
+        message: `Error verifying document: ${error.message}`,
+      }
+    }
+    return {
+      isValid: false,
+      message: 'An unknown error occurred while verifying the document.',
+    }
+  }
+}
+
+/**
  * Verifies data structure & data integrity of a credential object.
  *
  * @param document - The object to check.
@@ -504,12 +648,6 @@ export async function verifyDocument(
   { schema, selectedAttributes }: VerifyOptions = {}
 ): Promise<void> {
   verifyWellFormed(document, { schema, selectedAttributes })
-  // verifyDataStructure(document)
-  // verifyDataIntegrity(document)
-
-  // if (schema) {
-  //   verifyAgainstSchema(document, schema)
-  // }
 }
 
 /**
@@ -522,6 +660,7 @@ export async function verifyDocument(
  * @param options.schema - Schema which the included document should be checked against.
  * @param options.challenge -  The expected value of the challenge. Verification will fail in case of a mismatch.
  * @param options.didResolveKey - The function used to resolve the holders's key. Defaults to [[resolveKey]].
+ * @param options.trustedIssuerUris
  */
 export async function verifyPresentation(
   presentation: IDocumentPresentation,
@@ -533,22 +672,6 @@ export async function verifyPresentation(
     challenge,
     didResolveKey,
   })
-}
-
-/**
- * Type Guard to determine input being of type [[IDocument]].
- *
- * @param input - A potentially only partial [[IDocument]].
- *
- * @returns  Boolean whether input is of type IDocument.
- */
-export function isIDocument(input: unknown): input is IDocument {
-  try {
-    verifyDataStructure(input as IDocument)
-  } catch (error) {
-    return false
-  }
-  return true
 }
 
 /**
@@ -641,7 +764,7 @@ export async function createPresentation({
   const signature = await signCallback({
     data: makeSigningData(presentationDocument, challenge),
     did: document.content.holder,
-    keyRelationship: 'authentication',
+    keyRelationship: 'assertionMethod',
   })
 
   return {
