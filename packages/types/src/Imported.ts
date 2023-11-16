@@ -1,5 +1,6 @@
 export { Bytes } from '@polkadot/types'
-export { blake2AsHex } from '@polkadot/util-crypto'
+export { blake2AsHex, cryptoWaitReady } from '@polkadot/util-crypto'
+export { hexToBn } from '@polkadot/util'
 
 export type {
   ISubmittableResult,
@@ -13,3 +14,5 @@ export type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 export type { KeyringPair } from '@polkadot/keyring/types'
 export type { AccountId, H256, BlockNumber } from '@polkadot/types/interfaces'
 export type { Option } from '@polkadot/types'
+export type { ApiOptions } from '@polkadot/api/types'
+export { ApiPromise, WsProvider } from '@polkadot/api'
