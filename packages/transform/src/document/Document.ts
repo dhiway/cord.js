@@ -30,7 +30,7 @@ import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { ConfigService } from '@cord.network/config'
 import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
-import { getStatementStatusfromChain } from '@cord.network/statement'
+import { getDocumentStatementStatusfromChain } from './Document.query.js'
 import { verifyContentAgainstSchema } from '../schema/Schema.js'
 import { hashContents } from '../content/index.js'
 import * as Content from '../content/index.js'
@@ -458,7 +458,7 @@ export async function fromUpdatedContent({
   signCallback: SignCallback
   options: Options
 }): Promise<IDocument> {
-  const statementDetails = await getStatementStatusfromChain(
+  const statementDetails = await getDocumentStatementStatusfromChain(
     document.identifier,
     document.documentHash
   )
@@ -567,7 +567,7 @@ export async function verifyPresentationDocumentStatus(
   { trustedIssuerUris }: VerifyOptions = {}
 ): Promise<{ isValid: boolean; message: string }> {
   try {
-    const documentDetails = await getStatementStatusfromChain(
+    const documentDetails = await getDocumentStatementStatusfromChain(
       document.identifier
     )
 
