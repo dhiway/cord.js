@@ -1,6 +1,5 @@
 export { BalanceUtils } from './balance/index.js'
 export * as Schema from './schema/index.js'
-export * as ChainSpace from './chainspace/index.js'
 export * as Content from './content/index.js'
 export * as Statement from './statement/index.js'
 export * as Document from './document/index.js'

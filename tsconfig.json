@@ -52,6 +52,9 @@
       ],
       "@cord.network/identifier": [
         "identifier/src"
+      ],
+      "@cord.network/chain-space": [
+        "chain-space/src"
       ]
     }
   }

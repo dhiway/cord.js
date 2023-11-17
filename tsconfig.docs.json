@@ -23,6 +23,7 @@
       "packages/messaging/src/index.ts",
       "packages/vc-export/src/index.ts",
       "packages/identifiers/src/index.ts",
+      "packages/chain-space/src/index.ts",
       "packages/sdk/src/index.ts"
     ],
     "out": "docs/api",
