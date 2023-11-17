@@ -6,14 +6,19 @@ import {
   IRatingData,
 } from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
-import { Identifier, SDKErrors } from '@cord.network/utils'
+import { SDKErrors } from '@cord.network/utils'
+import { uriToIdentifier } from '@cord.network/identifier'
 
+/**
+ * @param scoreId
+ * @param scoreType
+ */
 export async function fetchJournalFromChain(
   scoreId: string,
   scoreType: RatingType
 ): Promise<IJournalContent | null> {
   const api = ConfigService.get('api')
-  const cordScoreId = Identifier.uriToIdentifier(scoreId)
+  const cordScoreId = uriToIdentifier(scoreId)
   const encodedScoreEntry = await api.query.score.journal(
     cordScoreId,
     scoreType
@@ -26,6 +31,9 @@ export async function fetchJournalFromChain(
   } else return decodedScoreEntry
 }
 
+/**
+ * @param encodedEntry
+ */
 export function fromChain(encodedEntry: any): IJournalContent | null {
   if (encodedEntry.isSome) {
     const unwrapped = encodedEntry.unwrap()
@@ -38,11 +46,14 @@ export function fromChain(encodedEntry: any): IJournalContent | null {
       entry_type: unwrapped.entry.entryType.toString(),
       count: parseInt(unwrapped.entry.count.toString()),
     }
-  } else {
-    return null
   }
+  return null
 }
 
+/**
+ * @param entityUri
+ * @param scoreType
+ */
 export async function fetchScore(
   entityUri: string,
   scoreType: RatingType
@@ -55,22 +66,26 @@ export async function fetchScore(
       rating: JSON.parse(decoded.rating.toString()),
       count: JSON.parse(decoded.count.toString()),
     }
-  } else
-    throw new SDKErrors.ScoreMissingError(
-      `There is not a Score of type ${scoreType} with the provided ID "${entityUri}" on chain.`
-    )
+  }
+  throw new SDKErrors.ScoreMissingError(
+    `There is not a Score of type ${scoreType} with the provided ID "${entityUri}" on chain.`
+  )
 }
 
+/**
+ * @param ratingData
+ * @param authorization
+ */
 export async function toChain(
   /**
-   * This function rerturns the jornal creation extrinsic
+   * This function rerturns the jornal creation extrinsic.
    */
   ratingData: IRatingData,
   authorization: string
 ) {
   const api = ConfigService.get('api')
-  const ratingInput = ratingData.ratingInput
-  const auth = Identifier.uriToIdentifier(authorization)
+  const { ratingInput } = ratingData
+  const auth = uriToIdentifier(authorization)
   try {
     const journalCreationExtrinsic = await api.tx.score.addRating(
       ratingInput,

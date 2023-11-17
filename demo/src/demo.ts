@@ -199,7 +199,7 @@ async function main() {
       keyType: issuerKeys.capabilityDelegation.type,
     })
   )
-  console.log(`✅ Space Delegation - ${delegateAuth} - created!`)
+  console.log(`✅ Space Delegation - ${delegateAuth.authorization} - created!`)
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
@@ -295,9 +295,9 @@ async function main() {
   })
 
   if (verificationResult.isValid) {
-    console.log('✅  Verification successful! 🎉')
+    console.log('✅ Verification successful! 🎉')
   } else {
-    console.log(`✅  Verification failed! - "${verificationResult.message}" 🚫`)
+    console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
   }
 
   // Uncomment the following section to enable messaging demo
@@ -347,7 +347,7 @@ async function main() {
     console.log('✅ Verification successful! 🎉')
   } else {
     console.log(
-      `✅  Verification failed! - "${reVerificationResult.message}" 🚫`
+      `🚫 Verification failed! - "${reVerificationResult.message}" 🚫`
     )
   }
 }

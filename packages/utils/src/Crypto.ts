@@ -20,23 +20,29 @@ import {
   u8aToHex,
   u8aToString,
   u8aToU8a,
-} from '@polkadot/util'
-import {
   blake2AsHex,
   blake2AsU8a,
   randomAsU8a,
   signatureVerify,
-} from '@polkadot/util-crypto'
-import { Keyring } from '@polkadot/api'
+  Keyring,
+  mnemonicGenerate,
+  mnemonicToMiniSecret,
+} from '@cord.network/types'
 import nacl from 'tweetnacl'
 import { v4 as uuid } from 'uuid'
 import jsonabc from './jsonabc.js'
 import * as SDKErrors from './SDKErrors.js'
 import { ss58Format } from './ss58Format.js'
 
-export { mnemonicGenerate, mnemonicToMiniSecret } from '@polkadot/util-crypto'
+export {
+  encodeAddress,
+  decodeAddress,
+  u8aToHex,
+  u8aConcat,
+  mnemonicGenerate,
+  mnemonicToMiniSecret,
+}
 
-export { encodeAddress, decodeAddress, u8aToHex, u8aConcat }
 /**
  * Creates a new public/secret box keypair from a secret.
  *

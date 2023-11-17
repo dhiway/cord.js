@@ -27,8 +27,8 @@ export async function createDocument(
         street: 'a',
         pin: 54032,
         location: {
-          state: 'karnataka',
-          country: 'india',
+          state: 'Karnataka',
+          country: 'India',
         },
       },
     },

@@ -56,7 +56,9 @@ import type {
   ISpaceAuthorizationDetails,
   PermissionType,
 } from '@cord.network/types'
-import { Identifier, SDKErrors } from '@cord.network/utils'
+import { SDKErrors } from '@cord.network/utils'
+import { uriToIdentifier, hashToUri } from '@cord.network/identifier'
+
 import {
   SPACE_IDENT,
   SPACE_PREFIX,
@@ -96,14 +98,10 @@ export async function createChainSpaceIdentifiers(
     Uint8Array.from([...scaleEncodedSpaceDigest, ...scaleEncodedCreator])
   )
 
-  const chainSpaceId: SpaceId = Identifier.hashToUri(
-    digest,
-    SPACE_IDENT,
-    SPACE_PREFIX
-  )
+  const chainSpaceId: SpaceId = hashToUri(digest, SPACE_IDENT, SPACE_PREFIX)
 
   const scaleEncodedAuthDigest = api
-    .createType<Bytes>('Bytes', Identifier.uriToIdentifier(chainSpaceId))
+    .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceId))
     .toU8a()
   const scaleEncodedAuthDelegate = api
     .createType<AccountId>('AccountId', Did.toChain(creator))
@@ -113,7 +111,7 @@ export async function createChainSpaceIdentifiers(
     Uint8Array.from([...scaleEncodedAuthDigest, ...scaleEncodedAuthDelegate])
   )
 
-  const authorizationId: AuthorizationId = Identifier.hashToUri(
+  const authorizationId: AuthorizationId = hashToUri(
     authDigest,
     AUTHORIZATION_IDENT,
     AUTHORIZATION_PREFIX
@@ -142,7 +140,7 @@ export async function createChainSpaceDelegateIdentifier(
   const api = ConfigService.get('api')
 
   const scaleEncodedSpaceId = api
-    .createType<Bytes>('Bytes', Identifier.uriToIdentifier(chainSpaceId))
+    .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceId))
     .toU8a()
   const scaleEncodedAuthDelegate = api
     .createType<AccountId>('AccountId', Did.toChain(delegate))
@@ -159,7 +157,7 @@ export async function createChainSpaceDelegateIdentifier(
     ])
   )
 
-  const authorizationId: AuthorizationId = Identifier.hashToUri(
+  const authorizationId: AuthorizationId = hashToUri(
     authDigest,
     AUTHORIZATION_IDENT,
     AUTHORIZATION_PREFIX
@@ -207,7 +205,7 @@ export async function getChainSpaceDetailsfromChain(
   chainSpace: SpaceId
 ): Promise<ISpaceDetails | null> {
   const api = ConfigService.get('api')
-  const spaceId = Identifier.uriToIdentifier(chainSpace)
+  const spaceId = uriToIdentifier(chainSpace)
 
   const spaceEntry = await api.query.chainSpace.spaces(spaceId)
   const spaceDetails = decodeSpaceDetailsfromChain(spaceEntry, chainSpace)
@@ -278,7 +276,7 @@ export async function getAuthorizationDetailsfromChain(
   authorization: AuthorizationId
 ): Promise<ISpaceDetails | null> {
   const api = ConfigService.get('api')
-  const authId = Identifier.uriToIdentifier(authorization)
+  const authId = uriToIdentifier(authorization)
 
   const authEntry = await api.query.chainSpace.spaces(authId)
   const authDetails = decodeSpaceDetailsfromChain(authEntry, authorization)
@@ -300,7 +298,7 @@ export async function isChainSpaceStored(
   chainSpace: SpaceId
 ): Promise<boolean> {
   const api = ConfigService.get('api')
-  const identifier = Identifier.uriToIdentifier(chainSpace)
+  const identifier = uriToIdentifier(chainSpace)
   const encoded = await api.query.chainSpace.spaces(identifier)
 
   return !encoded.isNone
@@ -316,7 +314,7 @@ export async function isAuthorizationStored(
   authorization: AuthorizationId
 ): Promise<boolean> {
   const api = ConfigService.get('api')
-  const identifier = Identifier.uriToIdentifier(authorization)
+  const identifier = uriToIdentifier(authorization)
   const encoded = await api.query.chainSpace.authorizations(identifier)
 
   return !encoded.isNone

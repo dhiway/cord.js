@@ -18,10 +18,8 @@ export async function createStatement(
 
   // Create a statement object
   const statementDetails = Cord.Statement.fromDocument(document)
-  const authorizationId = Cord.Utils.Identifier.uriToIdentifier(authorization)
-  const schemaId = Cord.Utils.Identifier.uriToIdentifier(
-    document.content.schemaId
-  )
+  const authorizationId = Cord.Identifier.uriToIdentifier(authorization)
+  const schemaId = Cord.Identifier.uriToIdentifier(document.content.schemaId)
   // To create a statement without a schema, use the following line instead:
   // const schemaId = null
   // make sure the registry is not linked with a schema for this to work

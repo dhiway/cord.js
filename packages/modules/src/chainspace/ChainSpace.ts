@@ -85,7 +85,7 @@ export async function createChainSpace(
 ): Promise<IChainSpace> {
   // Use the provided chainSpaceString or generate a unique one
   const chainSpaceDescription =
-    chainSpaceDesc || `ChainSpace v1.${UUID.generatev4()}`
+    chainSpaceDesc || `ChainSpace v1.${UUID.generate()}`
 
   // Create a hash of the ChainSpace string to serve as a unique identifier
   const chainSpaceHash = Crypto.hashStr(chainSpaceDescription)

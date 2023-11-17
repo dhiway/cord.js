@@ -7,8 +7,9 @@ import type {
   Option,
 } from '@cord.network/types'
 import * as Did from '@cord.network/did'
+import { uriToIdentifier } from '@cord.network/identifier'
 import type { PalletStatementStatementDetails } from '@cord.network/augment-api'
-import { DecoderUtils, Identifier, SDKErrors } from '@cord.network/utils'
+import { DecoderUtils, SDKErrors } from '@cord.network/utils'
 
 /**
  * Decodes the statement returned by `api.query.statement.statements()`.
@@ -40,7 +41,7 @@ export async function getStatementDetailsfromChain(
   statement: StatementId
 ): Promise<IStatementDetails | null> {
   const api = ConfigService.get('api')
-  const statementId = Identifier.uriToIdentifier(statement)
+  const statementId = uriToIdentifier(statement)
 
   const statementEntry = await api.query.statement.statements(statementId)
   const decodedDetails = decodeStatementDetailsfromChain(
@@ -66,7 +67,7 @@ export async function getStatementStatusfromChain(
   digest?: IDocument['documentHash']
 ): Promise<IStatementStatus | null> {
   const api = ConfigService.get('api')
-  const statementId = Identifier.uriToIdentifier(statement)
+  const statementId = uriToIdentifier(statement)
 
   const statementDetails = await getStatementDetailsfromChain(statementId)
   if (statementDetails === null) {
@@ -79,7 +80,7 @@ export async function getStatementStatusfromChain(
   const effectiveDigest = digest || statementDetails.digest
 
   const elementStatusDetails = await api.query.statement.entries(
-    Identifier.uriToIdentifier(statementId),
+    uriToIdentifier(statementId),
     effectiveDigest
   )
 

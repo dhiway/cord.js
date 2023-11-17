@@ -19,7 +19,7 @@ export interface IDocument {
   identifier: string
   content: IContent
   contentHashes: Hash[]
-  contentNonceMap: Record<Hash, string>
+  contentNonceMap: Record<HexString, string>
   evidenceIds: IDocument[]
   chainSpace: string
   issuanceDate: string

@@ -18,10 +18,8 @@ export async function revokeCredential(
   authorization: Cord.AuthorizationId
 ): Promise<void> {
   const api = Cord.ConfigService.get('api')
-  const chainIdentifier = Cord.Utils.Identifier.uriToIdentifier(
-    document.identifier
-  )
-  const authorizationId = Cord.Utils.Identifier.uriToIdentifier(authorization)
+  const chainIdentifier = Cord.Identifier.uriToIdentifier(document.identifier)
+  const authorizationId = Cord.Identifier.uriToIdentifier(authorization)
 
   const tx = api.tx.statement.revoke(chainIdentifier, authorizationId)
 

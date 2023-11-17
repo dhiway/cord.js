@@ -1,7 +1,8 @@
-import type { HexString } from '@polkadot/util/types'
-import { base58Decode, base58Encode, blake2AsU8a } from '@polkadot/util-crypto'
-import { assert, u8aConcat, u8aToU8a, stringToU8a } from '@polkadot/util'
+import type { HexString } from '@cord.network/types'
 import {
+  base58Decode,
+  base58Encode,
+  blake2AsU8a,
   IPublicIdentity,
   SCHEMA_PREFIX,
   SPACE_PREFIX,
@@ -14,8 +15,12 @@ import {
   STATEMENT_IDENT,
   SCORE_IDENTIFIER,
   AUTHORIZATION_IDENT,
+  assert,
+  u8aConcat,
+  u8aToU8a,
+  stringToU8a,
 } from '@cord.network/types'
-import { InvalidURIError, InvalidIdentifierError } from './SDKErrors.js'
+import { SDKErrors } from '@cord.network/utils'
 
 const defaults = {
   allowedDecodedLengths: [1, 2, 4, 8, 32, 33],
@@ -209,6 +214,24 @@ export function checkIdentifier(
 
 /**
  * @param identifier
+ * @param imput
+ * @param input
+ */
+export function isValidIdentifier(
+  input: HexString | string
+): [boolean, string | null] {
+  let identifier = input
+  const foundPrefix = VALID_PREFIXES.find((prefix) => input.startsWith(prefix))
+  if (foundPrefix) {
+    identifier = input.split(foundPrefix).join('')
+  }
+  const [isValid, errorMessage] = checkIdentifier(identifier)
+
+  return [isValid, errorMessage]
+}
+
+/**
+ * @param identifier
  * @param uri
  */
 
@@ -217,7 +240,7 @@ export function checkIdentifier(
  */
 export function uriToIdentifier(uri: string | null | undefined): string {
   if (typeof uri !== 'string' || !uri) {
-    throw new InvalidURIError('URI must be a non-empty string.')
+    throw new SDKErrors.InvalidURIError('URI must be a non-empty string.')
   }
 
   let identifier = uri
@@ -225,10 +248,9 @@ export function uriToIdentifier(uri: string | null | undefined): string {
   if (foundPrefix) {
     identifier = uri.split(foundPrefix).join('')
   }
-
   const [isValid, errorMessage] = checkIdentifier(identifier)
   if (!isValid) {
-    throw new InvalidIdentifierError(
+    throw new SDKErrors.InvalidIdentifierError(
       errorMessage || `Invalid identifier: ${uri}`
     )
   }

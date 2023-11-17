@@ -6,7 +6,7 @@
  * @module ConfigService
  */
 
-import type { ApiPromise } from '@polkadot/api'
+import type { ApiPromise } from '@cord.network/types'
 
 import {
   LFService,

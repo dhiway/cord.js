@@ -38,6 +38,7 @@
     "@cord.network/augment-api": "workspace:*",
     "@cord.network/config": "workspace:*",
     "@cord.network/did": "workspace:*",
+    "@cord.network/identifier": "workspace:*",
     "@cord.network/network": "workspace:*",
     "@cord.network/type-definitions": "workspace:*",
     "@cord.network/types": "workspace:*",

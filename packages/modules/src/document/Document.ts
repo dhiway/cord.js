@@ -21,13 +21,7 @@ import type {
   // IStatementDetails,
   IStatementStatus,
 } from '@cord.network/types'
-import {
-  Crypto,
-  SDKErrors,
-  DataUtils,
-  // jsonabc,
-  Identifier,
-} from '@cord.network/utils'
+import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import { STATEMENT_IDENT, STATEMENT_PREFIX } from '@cord.network/types'
 import { HexString } from '@polkadot/util/types.js'
 import { Bytes } from '@polkadot/types'
@@ -35,6 +29,7 @@ import type { AccountId, H256 } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { ConfigService } from '@cord.network/config'
+import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
 import { verifyContentAgainstSchema } from '../schema/Schema.js'
 import { hashContents } from '../content/index.js'
 import * as Content from '../content/index.js'
@@ -207,22 +202,6 @@ export function verifyUpdateDataStructure(
   }
 }
 
-// /**
-//  * @param input
-//  * @param authorizationDetails
-//  */
-// export function verifyAuthorization(
-//   input: IContent,
-//   authorizationDetails: AuthorizationId
-// ): void {
-//   if (input.issuer !== authorizationDetails.delegate) {
-//     throw new SDKErrors.IssuerMismatchError()
-//   }
-//   if (input.schemaId !== authorizationDetails.schema) {
-//     throw new SDKErrors.SchemaMismatchError()
-//   }
-// }
-
 /**
  *  Checks the [[Document]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
  *
@@ -323,7 +302,7 @@ export function getUriForDocument(
       ...scaleEncodedCreator,
     ])
   )
-  return Identifier.hashToUri(digest, STATEMENT_IDENT, STATEMENT_PREFIX)
+  return hashToUri(digest, STATEMENT_IDENT, STATEMENT_PREFIX)
 }
 
 /**
@@ -403,7 +382,7 @@ export async function fromContent({
     validUntil: validUntilString,
   })
 
-  const spaceIdentifier = Identifier.uriToIdentifier(chainSpace)
+  const spaceIdentifier = uriToIdentifier(chainSpace)
   const documentId = getUriForDocument(
     documentHash,
     spaceIdentifier,
@@ -515,7 +494,7 @@ export async function fromUpdatedContent({
     validUntil: validUntilString,
   })
 
-  const spaceIdentifier = Identifier.uriToIdentifier(document.chainSpace)
+  const spaceIdentifier = uriToIdentifier(document.chainSpace)
 
   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
   const issuerSignature = await signCallback({

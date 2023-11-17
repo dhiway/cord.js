@@ -49,6 +49,9 @@
       ],
       "@cord.network/type-definitions": [
         "type-definitions/src"
+      ],
+      "@cord.network/identifier": [
+        "identifier/src"
       ]
     }
   }

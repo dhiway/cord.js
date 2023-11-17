@@ -10,7 +10,9 @@ import type {
   MessageBody,
 } from '@cord.network/types'
 import { Statement, Document, Schema } from '@cord.network/modules'
-import { DataUtils, SDKErrors, UUID } from '@cord.network/utils'
+import { SDKErrors, UUID } from '@cord.network/utils'
+import { checkIdentifier } from '@cord.network/identifier'
+
 import * as Did from '@cord.network/did'
 import {
   hexToU8a,
@@ -44,7 +46,12 @@ export function verifyMessageBody(body: MessageBody): void {
     case 'request-credential-document': {
       body.content.schemas.forEach(
         ({ schemaId, trustedIssuers, requiredProperties }): void => {
-          DataUtils.validateId(schemaId, 'Schema Identiifier')
+          const [isValid, errorMessage] = checkIdentifier(schemaId)
+          if (!isValid) {
+            throw new SDKErrors.InvalidIdentifierError(
+              errorMessage || `Invalid schema identifier: ${schemaId}`
+            )
+          }
           trustedIssuers?.forEach((did) => Did.validateUri(did, 'Did'))
           requiredProperties?.forEach((requiredProps) => {
             if (typeof requiredProps !== 'string')
@@ -66,15 +73,25 @@ export function verifyMessageBody(body: MessageBody): void {
       break
     }
     case 'accept-credential-document': {
-      body.content.forEach((schemaId) =>
-        DataUtils.validateId(schemaId, 'Schema Identiifier')
-      )
+      body.content.forEach((schemaId) => {
+        const [isValid, errorMessage] = checkIdentifier(schemaId)
+        if (!isValid) {
+          throw new SDKErrors.InvalidIdentifierError(
+            errorMessage || `Invalid schema identifier: ${schemaId}`
+          )
+        }
+      })
       break
     }
     case 'reject-credential-document': {
-      body.content.forEach((schemaId) =>
-        DataUtils.validateId(schemaId, 'Schema Identiifier')
-      )
+      body.content.forEach((schemaId) => {
+        const [isValid, errorMessage] = checkIdentifier(schemaId)
+        if (!isValid) {
+          throw new SDKErrors.InvalidIdentifierError(
+            errorMessage || `Invalid schema identifier: ${schemaId}`
+          )
+        }
+      })
       break
     }
     default:
@@ -148,16 +165,16 @@ export function ensureOwnerIsSender({ body, sender }: IMessage): void {
         }
       }
       break
-    case 'submit-document-stream':
-      {
-	/*
-        const submitStatement = body
-        if (!Did.isSameSubject(submitStatement.content.stream.issuer, sender)) {
-          throw new SDKErrors.IdentityMismatchError('Statement', 'Sender')
-        }
-	*/
-      }
-      break
+    // case 'submit-document-stream':
+    //   {
+    //     const submitStatement = body
+    //     if (
+    //       !Did.isSameSubject(submitStatement.content.statement.digest, sender)
+    //     ) {
+    //       throw new SDKErrors.IdentityMismatchError('Statement', 'Sender')
+    //     }
+    //   }
+    //   break
     case 'submit-credential-document':
       {
         const submitContentForSchema = body

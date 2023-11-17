@@ -40,6 +40,7 @@
   "dependencies": {
     "@cord.network/config": "workspace:*",
     "@cord.network/did": "workspace:*",
+    "@cord.network/identifier": "workspace:*",
     "@cord.network/messaging": "workspace:*",
     "@cord.network/modules": "workspace:*",
     "@cord.network/network": "workspace:*",

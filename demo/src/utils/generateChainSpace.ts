@@ -37,7 +37,7 @@ export async function approveSpace(
   spaceUri: Cord.IChainSpace['identifier']
 ) {
   const api = Cord.ConfigService.get('api')
-  const spaceId = Cord.Utils.Identifier.uriToIdentifier(spaceUri)
+  const spaceId = Cord.Identifier.uriToIdentifier(spaceUri)
 
   const callTx = api.tx.chainSpace.approve(spaceId, 1000)
   const sudoTx = api.tx.sudo.sudo(callTx)
@@ -55,8 +55,8 @@ export async function addSpaceAuthorization(
 ): Promise<Cord.AuthorizationId> {
   const api = Cord.ConfigService.get('api')
 
-  const spaceId = Cord.Utils.Identifier.uriToIdentifier(spaceUri)
-  const authId = Cord.Utils.Identifier.uriToIdentifier(authUri)
+  const spaceId = Cord.Identifier.uriToIdentifier(spaceUri)
+  const authId = Cord.Identifier.uriToIdentifier(authUri)
   const delegateId = Cord.Did.toChain(spaceDelegate)
 
   const delegateAuthId = await Cord.ChainSpace.createChainSpaceDelegate(
@@ -88,35 +88,35 @@ export async function addSpaceAuthorization(
   }
 }
 
-export async function addSpaceAdminAuthorization(
-  authorAccount: Cord.CordKeyringPair,
-  creator: Cord.DidUri,
-  spaceUri: Cord.IChainSpace['spaceId'],
-  authUri: Cord.IChainSpace['authorizationId'],
-  spaceDelegate: Cord.DidUri,
-  signCallback: Cord.SignExtrinsicCallback
-): Promise<Cord.AuthorizationId> {
-  const api = Cord.ConfigService.get('api')
+// export async function addSpaceAdminAuthorization(
+//   authorAccount: Cord.CordKeyringPair,
+//   creator: Cord.DidUri,
+//   spaceUri: Cord.IChainSpace['spaceId'],
+//   authUri: Cord.IChainSpace['authorizationId'],
+//   spaceDelegate: Cord.DidUri,
+//   signCallback: Cord.SignExtrinsicCallback
+// ): Promise<Cord.AuthorizationId> {
+//   const api = Cord.ConfigService.get('api')
 
-  const spaceId = Cord.Identifier.uriToIdentifier(spaceUri)
-  const authId = Cord.Identifier.uriToIdentifier(authUri)
-  const delegateId = Cord.Did.toChain(spaceDelegate)
+//   const spaceId = Cord.Identifier.uriToIdentifier(spaceUri)
+//   const authId = Cord.Identifier.uriToIdentifier(authUri)
+//   const delegateId = Cord.Did.toChain(spaceDelegate)
 
-  try {
-    await Cord.Space.isAuthorization(authId)
-    console.log('Authorization already stored. Skipping addition')
-    return authId
-  } catch {
-    console.log('Authorization not present. Creating it now...')
-    const tx = api.tx.chainSpace.addAdminDelegate(spaceId, delegateId, authId)
-    const extrinsic = await Cord.Did.authorizeTx(
-      creator,
-      tx,
-      signCallback,
-      authorAccount.address
-    )
-    await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
+//   try {
+//     await Cord.ChainSpace.isAuthorization(authId)
+//     console.log('Authorization already stored. Skipping addition')
+//     return authId
+//   } catch {
+//     console.log('Authorization not present. Creating it now...')
+//     const tx = api.tx.chainSpace.addAdminDelegate(spaceId, delegateId, authId)
+//     const extrinsic = await Cord.Did.authorizeTx(
+//       creator,
+//       tx,
+//       signCallback,
+//       authorAccount.address
+//     )
+//     await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
 
-    return authId
-  }
-}
+//     return authId
+//   }
+// }

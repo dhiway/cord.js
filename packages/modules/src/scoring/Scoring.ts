@@ -3,9 +3,6 @@ import {
   IJournalContent,
   IRatingInput,
   CordAddress,
-} from '@cord.network/types'
-import { Crypto } from '@cord.network/utils'
-import {
   SCORE_IDENT,
   SCORE_PREFIX,
   RatingEntry,
@@ -13,14 +10,22 @@ import {
   MAX_SCORE_PER_ENTRY,
   IRatingData,
 } from '@cord.network/types'
-import { Identifier, SDKErrors } from '@cord.network/utils'
+import { Crypto, SDKErrors } from '@cord.network/utils'
+import { hashToUri } from '@cord.network/identifier'
+
 import { ConfigService } from '@cord.network/config'
 
+/**
+ * @param rating
+ */
 export function base10Encode(rating: number): number {
   rating = Math.round(rating * SCORE_MODULUS)
   return rating
 }
 
+/**
+ * @param journalContent
+ */
 export function transformRatingEntry(
   journalContent: IJournalContent
 ): IJournalContent {
@@ -29,14 +34,24 @@ export function transformRatingEntry(
   return journalContent
 }
 
+/**
+ * @param rating
+ */
 export function computeActualRating(rating: number): number {
   return rating / SCORE_MODULUS
 }
 
+/**
+ * @param rating
+ * @param count
+ */
 export function computeAverageRating(rating: number, count: number): number {
   return rating / count
 }
 
+/**
+ * @param journalContent
+ */
 export function generateDigestFromJournalContent(
   journalContent: IJournalContent
 ) {
@@ -51,11 +66,18 @@ export function generateDigestFromJournalContent(
   return hexDigest
 }
 
+/**
+ * @param journalContent
+ */
 export function getUriForScore(journalContent: IJournalContent) {
   const scoreDigest = generateDigestFromJournalContent(journalContent)
-  return Identifier.hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
+  return hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
 }
 
+/**
+ * @param journalContent
+ * @param creator
+ */
 export function transformRatingEntryToInput(
   journalContent: IJournalContent,
   creator: CordAddress
@@ -63,19 +85,23 @@ export function transformRatingEntryToInput(
   const digest = generateDigestFromJournalContent(journalContent)
   const ratingInput: IRatingInput = {
     entry: journalContent,
-    digest: digest,
-    creator: creator,
+    digest,
+    creator,
   }
   return ratingInput
 }
 
+/**
+ * @param journalContent
+ * @param creator
+ */
 export function fromRatingEntry(
   journalContent: IJournalContent,
   creator: CordAddress
 ): IRatingData {
   verifyScoreStructure(journalContent)
   const ratingInput = transformRatingEntryToInput(journalContent, creator)
-  const entry = ratingInput.entry
+  const { entry } = ratingInput
   const scoreIdentifier = getUriForScore(entry)
   const ratingType =
     ratingInput.entry.rating_type === 'Overall'
@@ -83,28 +109,31 @@ export function fromRatingEntry(
       : RatingType.delivery
   verifyStoredEntry(scoreIdentifier, ratingType)
   return {
-    ratingInput: ratingInput,
+    ratingInput,
     identifier: scoreIdentifier,
   }
 }
 
+/**
+ * @param input
+ */
 export function verifyScoreStructure(input: IJournalContent) {
   if (input.collector) {
-    if (typeof input.collector != 'string')
+    if (typeof input.collector !== 'string')
       throw new SDKErrors.ScoreCollectorTypeMissMatchError()
   } else {
     throw new SDKErrors.ScoreCollectorMissingError()
   }
 
   if (input.entity) {
-    if (typeof input.entity != 'string')
+    if (typeof input.entity !== 'string')
       throw new SDKErrors.ScoreEntityTypeMissMatchError()
   } else {
     throw new SDKErrors.ScoreEntityMissingError()
   }
 
   if (input.tid) {
-    if (typeof input.tid != 'string')
+    if (typeof input.tid !== 'string')
       throw new SDKErrors.ScoreTidTypeMissMatchError()
   } else {
     throw new SDKErrors.ScoreTidMissingError()
@@ -123,14 +152,14 @@ export function verifyScoreStructure(input: IJournalContent) {
   }
 
   if (input.count) {
-    if (typeof input.count != 'number')
+    if (typeof input.count !== 'number')
       throw new SDKErrors.ScoreCountTypeMissMatchError()
   } else {
     throw new SDKErrors.ScoreCountMissingError()
   }
 
   if (input.rating) {
-    if (typeof input.rating != 'number')
+    if (typeof input.rating !== 'number')
       throw new SDKErrors.RatingInputTypeMissMatchError()
     if (input.rating > input.count * MAX_SCORE_PER_ENTRY)
       throw new SDKErrors.RatingExceedsMaxValueError()
@@ -151,6 +180,10 @@ export function verifyScoreStructure(input: IJournalContent) {
   }
 }
 
+/**
+ * @param scoreIdentifier
+ * @param RatingType
+ */
 export async function verifyStoredEntry(
   scoreIdentifier: string,
   RatingType: RatingType

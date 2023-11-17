@@ -18,8 +18,8 @@ export async function updateStatement(
 
   // Create a statement object
   const statementDetails = Cord.Statement.fromDocument(document)
-  const statementId = Cord.Utils.Identifier.uriToIdentifier(document.identifier)
-  const authorizationId = Cord.Utils.Identifier.uriToIdentifier(authorization)
+  const statementId = Cord.Identifier.uriToIdentifier(document.identifier)
+  const authorizationId = Cord.Identifier.uriToIdentifier(authorization)
 
   const statementTx = api.tx.statement.update(
     statementId,

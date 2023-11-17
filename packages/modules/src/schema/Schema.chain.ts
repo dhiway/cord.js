@@ -36,7 +36,8 @@ import {
 
 import { ConfigService } from '@cord.network/config'
 import * as Did from '@cord.network/did'
-import { SDKErrors, Identifier } from '@cord.network/utils'
+import { SDKErrors } from '@cord.network/utils'
+import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
 import { serializeForHash, verifyDataStructure } from './Schema.js'
 
 /**
@@ -77,7 +78,7 @@ export function getUriForSchema(
   const digest = blake2AsHex(
     Uint8Array.from([...scaleEncodedSchema, ...scaleEncodedCreator])
   )
-  return Identifier.hashToUri(digest, SCHEMA_IDENT, SCHEMA_PREFIX)
+  return hashToUri(digest, SCHEMA_IDENT, SCHEMA_PREFIX)
 }
 
 /**
@@ -217,7 +218,7 @@ export async function fetchFromChain(
   schemaId: ISchema['$id']
 ): Promise<ISchemaDetails | null> {
   const api = ConfigService.get('api')
-  const cordSchemaId = Identifier.uriToIdentifier(schemaId)
+  const cordSchemaId = uriToIdentifier(schemaId)
 
   const schemaEntry = await api.query.schema.schemas(cordSchemaId)
   const decodedSchema = fromChain(schemaEntry, schemaId)
@@ -251,7 +252,7 @@ export async function fetchFromChain(
  */
 export async function isSchemaStored(schema: ISchema): Promise<boolean> {
   const api = ConfigService.get('api')
-  const identifier = Identifier.uriToIdentifier(schema.$id)
+  const identifier = uriToIdentifier(schema.$id)
   const encoded = await api.query.schema.schemas(identifier)
 
   return !encoded.isNone

@@ -37,7 +37,6 @@
   "dependencies": {
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
-    "@polkadot/api": "^10.4.0",
     "typescript-logging": "^1.0.0"
   }
 }

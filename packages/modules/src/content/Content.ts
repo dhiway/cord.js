@@ -52,8 +52,9 @@ import type {
   HexString,
 } from '@cord.network/types'
 import { hexToBn } from '@cord.network/types'
-import { SDKErrors, Identifier, Crypto, DataUtils } from '@cord.network/utils'
+import { SDKErrors, Crypto, DataUtils } from '@cord.network/utils'
 import * as Did from '@cord.network/did'
+import { isValidIdentifier } from '@cord.network/identifier'
 import * as Schema from '../schema/index.js'
 
 const VC_VOCAB = 'https://www.w3.org/2018/credentials/v1'
@@ -323,7 +324,12 @@ export function verifyDataStructure(input: IContent | PartialContent): void {
       }
     })
   }
-  DataUtils.validateId(Identifier.uriToIdentifier(input.schemaId), 'Identifier')
+  const [isValid, errorMessage] = isValidIdentifier(input.schemaId)
+  if (!isValid) {
+    throw new SDKErrors.InvalidIdentifierError(
+      errorMessage || `Invalid schema identifier: ${input.schemaId}`
+    )
+  }
 }
 
 /**
