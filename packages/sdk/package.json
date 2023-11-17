@@ -45,6 +45,7 @@
     "@cord.network/messaging": "workspace:*",
     "@cord.network/modules": "workspace:*",
     "@cord.network/network": "workspace:*",
+    "@cord.network/statement": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*"
   }

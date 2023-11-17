@@ -41,6 +41,7 @@
     "@cord.network/did": "workspace:*",
     "@cord.network/identifier": "workspace:*",
     "@cord.network/network": "workspace:*",
+    "@cord.network/statement": "workspace:*",
     "@cord.network/type-definitions": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",

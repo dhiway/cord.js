@@ -1,6 +1,6 @@
 import type { IStatementEntry, IDocument, HexString } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
-import * as Document from '../document/index.js'
+import { Document } from '@cord.network/modules'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStatement]] object.

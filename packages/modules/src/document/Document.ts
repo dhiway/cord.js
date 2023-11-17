@@ -30,10 +30,10 @@ import * as Did from '@cord.network/did'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { ConfigService } from '@cord.network/config'
 import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
+import { getStatementStatusfromChain } from '@cord.network/statement'
 import { verifyContentAgainstSchema } from '../schema/Schema.js'
 import { hashContents } from '../content/index.js'
 import * as Content from '../content/index.js'
-import { getStatementStatusfromChain } from '../statement/index.js'
 
 function getHashRoot(leaves: Uint8Array[]): Uint8Array {
   const result = Crypto.u8aConcat(...leaves)

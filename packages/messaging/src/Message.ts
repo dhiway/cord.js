@@ -9,9 +9,10 @@ import type {
   IMessage,
   MessageBody,
 } from '@cord.network/types'
-import { Statement, Document, Schema } from '@cord.network/modules'
+import { Document, Schema } from '@cord.network/modules'
 import { SDKErrors, UUID } from '@cord.network/utils'
 import { checkIdentifier } from '@cord.network/identifier'
+import { verifyDataStructure as statementVerifyDataStructure } from '@cord.network/statement'
 
 import * as Did from '@cord.network/did'
 import {
@@ -34,7 +35,7 @@ export function verifyMessageBody(body: MessageBody): void {
       break
     }
     case 'submit-document-stream': {
-      Statement.verifyDataStructure(body.content.statement)
+      statementVerifyDataStructure(body.content.statement)
       break
     }
     case 'reject-document-stream': {

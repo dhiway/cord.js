@@ -55,6 +55,9 @@
       ],
       "@cord.network/chain-space": [
         "chain-space/src"
+      ],
+      "@cord.network/statement": [
+        "statement/src"
       ]
     }
   }
