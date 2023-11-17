@@ -35,20 +35,12 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
-    "@cord.network/augment-api": "workspace:*",
     "@cord.network/chain-space": "workspace:*",
     "@cord.network/config": "workspace:*",
     "@cord.network/did": "workspace:*",
     "@cord.network/identifier": "workspace:*",
-    "@cord.network/network": "workspace:*",
-    "@cord.network/statement": "workspace:*",
     "@cord.network/type-definitions": "workspace:*",
     "@cord.network/types": "workspace:*",
-    "@cord.network/utils": "workspace:*",
-    "@polkadot/api": "^10.4.0",
-    "@polkadot/keyring": "^12.0.0",
-    "@polkadot/types": "^10.4.0",
-    "@polkadot/util": "^12.0.0",
-    "@polkadot/util-crypto": "^12.0.0"
+    "@cord.network/utils": "workspace:*"
   }
 }

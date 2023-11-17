@@ -20,9 +20,6 @@
       "@cord.network/transform": [
         "transform/src"
       ],
-      "@cord.network/messaging": [
-        "messaging/src"
-      ],
       "@cord.network/sdk": [
         "sdk/src"
       ],
