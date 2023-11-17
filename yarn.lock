@@ -1740,6 +1740,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/config@workspace:packages/config"
   dependencies:
+    "@cord.network/type-definitions": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     rimraf: ^3.0.2

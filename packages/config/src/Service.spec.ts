@@ -8,7 +8,7 @@ import { LogLevel, Logger } from 'typescript-logging'
 
 import { SDKErrors } from '@cord.network/utils'
 
-import * as ConfigService from './ConfigService'
+import * as ConfigService from './Service'
 
 describe('Log Configuration', () => {
   let testLogger: Logger

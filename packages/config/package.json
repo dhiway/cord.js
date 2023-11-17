@@ -35,6 +35,7 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
+    "@cord.network/type-definitions": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "typescript-logging": "^1.0.0"

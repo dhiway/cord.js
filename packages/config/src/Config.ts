@@ -14,8 +14,8 @@
  */
 import type { ApiOptions } from '@cord.network/types'
 import { ApiPromise, WsProvider, cryptoWaitReady } from '@cord.network/types'
-import { ConfigService } from '@cord.network/config'
 import { typesBundle } from '@cord.network/type-definitions'
+import * as ConfigService from './Service.js'
 
 /**
  * Initializes the configuration for the CORD SDK and prepares cryptographic modules.
