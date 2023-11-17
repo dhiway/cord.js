@@ -1,5 +1,5 @@
 {
-  "name": "@cord.network/modules",
+  "name": "@cord.network/transform",
   "version": "0.8.0-3",
   "description": "Core Modules",
   "main": "./lib/cjs/index.js",

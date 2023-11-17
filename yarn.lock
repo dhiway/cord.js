@@ -1786,38 +1786,12 @@ __metadata:
   dependencies:
     "@cord.network/did": "workspace:*"
     "@cord.network/identifier": "workspace:*"
-    "@cord.network/modules": "workspace:*"
     "@cord.network/statement": "workspace:*"
+    "@cord.network/transform": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     "@polkadot/util": ^12.0.0
     rimraf: ^3.0.2
-    typescript: ^4.8.3
-  languageName: unknown
-  linkType: soft
-
-"@cord.network/modules@workspace:*, @cord.network/modules@workspace:packages/modules":
-  version: 0.0.0-use.local
-  resolution: "@cord.network/modules@workspace:packages/modules"
-  dependencies:
-    "@cord.network/augment-api": "workspace:*"
-    "@cord.network/chain-space": "workspace:*"
-    "@cord.network/config": "workspace:*"
-    "@cord.network/did": "workspace:*"
-    "@cord.network/identifier": "workspace:*"
-    "@cord.network/network": "workspace:*"
-    "@cord.network/statement": "workspace:*"
-    "@cord.network/type-definitions": "workspace:*"
-    "@cord.network/types": "workspace:*"
-    "@cord.network/utils": "workspace:*"
-    "@polkadot/api": ^10.4.0
-    "@polkadot/keyring": ^12.0.0
-    "@polkadot/types": ^10.4.0
-    "@polkadot/util": ^12.0.0
-    "@polkadot/util-crypto": ^12.0.0
-    "@types/uuid": ^8.0.0
-    rimraf: ^3.0.2
-    testcontainers: ^9.0.0
     typescript: ^4.8.3
   languageName: unknown
   linkType: soft
@@ -1860,9 +1834,9 @@ __metadata:
     "@cord.network/did": "workspace:*"
     "@cord.network/identifier": "workspace:*"
     "@cord.network/messaging": "workspace:*"
-    "@cord.network/modules": "workspace:*"
     "@cord.network/network": "workspace:*"
     "@cord.network/statement": "workspace:*"
+    "@cord.network/transform": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     rimraf: ^3.0.2
@@ -1880,9 +1854,36 @@ __metadata:
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
     "@cord.network/identifier": "workspace:*"
+    "@cord.network/transform": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     rimraf: ^3.0.2
+    typescript: ^4.8.3
+  languageName: unknown
+  linkType: soft
+
+"@cord.network/transform@workspace:*, @cord.network/transform@workspace:packages/transform":
+  version: 0.0.0-use.local
+  resolution: "@cord.network/transform@workspace:packages/transform"
+  dependencies:
+    "@cord.network/augment-api": "workspace:*"
+    "@cord.network/chain-space": "workspace:*"
+    "@cord.network/config": "workspace:*"
+    "@cord.network/did": "workspace:*"
+    "@cord.network/identifier": "workspace:*"
+    "@cord.network/network": "workspace:*"
+    "@cord.network/statement": "workspace:*"
+    "@cord.network/type-definitions": "workspace:*"
+    "@cord.network/types": "workspace:*"
+    "@cord.network/utils": "workspace:*"
+    "@polkadot/api": ^10.4.0
+    "@polkadot/keyring": ^12.0.0
+    "@polkadot/types": ^10.4.0
+    "@polkadot/util": ^12.0.0
+    "@polkadot/util-crypto": ^12.0.0
+    "@types/uuid": ^8.0.0
+    rimraf: ^3.0.2
+    testcontainers: ^9.0.0
     typescript: ^4.8.3
   languageName: unknown
   linkType: soft
@@ -1932,9 +1933,9 @@ __metadata:
   resolution: "@cord.network/vc-export@workspace:packages/vc-export"
   dependencies:
     "@cord.network/did": "workspace:*"
-    "@cord.network/modules": "workspace:*"
     "@cord.network/network": "workspace:*"
     "@cord.network/sdk": "workspace:*"
+    "@cord.network/transform": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     "@digitalbazaar/vc": ^6.0.1

@@ -35,8 +35,8 @@
   "dependencies": {
     "@cord.network/did": "workspace:*",
     "@cord.network/identifier": "workspace:*",
-    "@cord.network/modules": "workspace:*",
     "@cord.network/statement": "workspace:*",
+    "@cord.network/transform": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@polkadot/util": "^12.0.0"

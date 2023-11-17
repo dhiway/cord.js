@@ -9,7 +9,7 @@ import type {
   IMessage,
   MessageBody,
 } from '@cord.network/types'
-import { Document, Schema } from '@cord.network/modules'
+import { Document, Schema } from 'transform/src'
 import { SDKErrors, UUID } from '@cord.network/utils'
 import { checkIdentifier } from '@cord.network/identifier'
 import { verifyDataStructure as statementVerifyDataStructure } from '@cord.network/statement'

@@ -1,4 +1,4 @@
-export * from '@cord.network/modules'
+export * from '@cord.network/transform'
 export { connect, disconnect, init, ConfigService } from '@cord.network/config'
 export { Chain } from '@cord.network/network'
 export * as Message from '@cord.network/messaging'

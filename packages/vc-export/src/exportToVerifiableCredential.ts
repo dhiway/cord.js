@@ -8,7 +8,7 @@
 // import { decodeAddress } from '@polkadot/keyring'
 // import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
-import { Content } from '@cord.network/modules'
+import { Content } from 'transform/src/index.js'
 import type { IDocument, ISchema } from '@cord.network/types'
 import { uriToIdentifier } from '@cord.network/identifier'
 import {

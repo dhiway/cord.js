@@ -17,8 +17,8 @@
       "@cord.network/config": [
         "config/src"
       ],
-      "@cord.network/modules": [
-        "modules/src"
+      "@cord.network/transform": [
+        "transform/src"
       ],
       "@cord.network/messaging": [
         "messaging/src"
