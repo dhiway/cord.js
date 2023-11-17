@@ -58,7 +58,10 @@
       ],
       "@cord.network/statement": [
         "statement/src"
-      ]
+      ],
+      // "@cord.network/network-score": [
+      //   "network-score/src"
+      // ]
     }
   }
 }
