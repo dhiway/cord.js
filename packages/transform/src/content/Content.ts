@@ -181,7 +181,7 @@ export function hashContents(
   } = {}
 ): {
   hashes: HexString[]
-  nonceMap: Record<string, string>
+  nonceMap: Record<`0x${string}`, string>
 } {
   // apply defaults
   const defaults = { canonicalisation: makeStatementsJsonLD }
@@ -206,7 +206,7 @@ export function hashContents(
     .sort((a, b) => hexToBn(a).cmp(hexToBn(b)))
 
   // produce nonce map, where each nonce is keyed with the unsalted hash
-  const nonceMap = {}
+  const nonceMap: Record<`0x${string}`, string> = {}
   processed.forEach(({ digest, nonce, statement }) => {
     // throw if we can't map a digest to a nonce - this should not happen if the nonce map is complete and the credential has not been tampered with
     if (!nonce) throw new SDKErrors.ContentNonceMapMalformedError(statement)

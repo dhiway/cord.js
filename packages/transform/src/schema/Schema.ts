@@ -52,33 +52,64 @@
 
 import type {
   DidUri,
+  HexString,
   IContent,
   ISchema,
   ISchemaMetadata,
   SchemaHash,
 } from '@cord.network/types'
-import { Crypto, JsonSchema, SDKErrors, jsonabc } from '@cord.network/utils'
+import {
+  Crypto,
+  JsonSchema,
+  SDKErrors,
+  jsonabc,
+  Cbor,
+} from '@cord.network/utils'
 import { SchemaModel, MetadataModel, SchemaModelV1 } from './Schema.types.js'
 import { getUriForSchema } from './Schema.chain.js'
 
 /**
- * Serializes a given schema object for hashing.
+ * Serializes a given schema object for hashing or storing using CBOR encoding.
  *
- * This function takes a schema object, either with or without an `$id` property.
- * It removes the `$id` property if present, ensuring that the serialization
- * is consistent and provides a standardized representation of the schema for hashing
- * or comparison purposes.
+ * This function is designed to standardize the representation of a schema object by
+ * removing its `$id` property, if present, and then serializing it. This standardized
+ * serialization is crucial for consistent hashing and comparison of schema objects,
+ * as it ensures that the serialization output is not affected by the presence or
+ * absence of an `$id` property. The serialization is done using CBOR (Concise Binary
+ * Object Representation) encoding, which is a compact and efficient binary format.
  *
- * @param schema - The schema object to be serialized.
- *   This can be a full schema object (including `$id`) or any schema object without `$id`.
- * @returns - The serialized string representation of the schema without the `$id` property.
+ * The process includes sorting the properties of the schema to ensure a deterministic
+ * order, which is essential for consistent hashing. The sorted schema is then encoded
+ * into a CBOR format and converted to a base64 string to facilitate easy storage and
+ * transmission.
+ *
+ * @param schema - The schema object to be serialized. The schema can either include
+ *   the `$id` property or be any schema object without `$id`. The `$id` property is
+ *   disregarded during serialization to ensure consistency.
+ * @returns - A base64 string representing the serialized CBOR encoding of the schema
+ *   without the `$id` property. This string can be used for hashing, comparison, or
+ *   storage.
+ *
+ * @example
+ * ```typescript
+ * const schema = { $id: 'schema:example', title: 'Example Schema', ... };
+ * const serializedSchema = encodeCborSchema(schema);
+ * console.log('Serialized Schema:', serializedSchema);
+ * ```
  */
-export function serializeForHash(
+export function encodeCborSchema(
   schema: ISchema | Omit<ISchema, '$id'>
 ): string {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { $id, ...schemaWithoutId } = schema as ISchema
-  return Crypto.encodeObjectAsStr(schemaWithoutId)
+  const sortedSchema = jsonabc.sortObj(schemaWithoutId)
+
+  const encoder = new Cbor.Encoder({ pack: true, useRecords: true })
+
+  const encodedSchema = encoder.encode(sortedSchema)
+  const cborSchema = encodedSchema.toString('base64')
+
+  return cborSchema
 }
 
 /**
@@ -95,8 +126,8 @@ export function serializeForHash(
 export function getHashForSchema(
   schema: ISchema | Omit<ISchema, '$id'>
 ): SchemaHash {
-  const serializedSchema = serializeForHash(schema)
-  return Crypto.hashStr(serializedSchema)
+  const encodedSchema = encodeCborSchema(schema)
+  return Crypto.hashStr(encodedSchema)
 }
 
 /**
@@ -188,8 +219,8 @@ export function verifyContentAgainstSchema(
 export function verifySchemaStructure(input: ISchema, creator: DidUri): void {
   verifyObjectAgainstSchema(input, SchemaModel)
   const uriFromSchema = getUriForSchema(input, creator)
-  if (uriFromSchema !== input.$id) {
-    throw new SDKErrors.SchemaIdMismatchError(uriFromSchema, input.$id)
+  if (uriFromSchema.uri !== input.$id) {
+    throw new SDKErrors.SchemaIdMismatchError(uriFromSchema.uri, input.$id)
   }
 }
 
@@ -267,6 +298,7 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  * @param required - An array of strings that lists the names of
  *   properties that are required in the schema. This ensures that certain fields must be
  *   present in any data object validated against this schema.
+ * @param schema
  * @param creator - The decentralized identifier (DID) of the creator of the
  *   schema. This is used to generate a unique identifier for the schema.
  * @returns - Returns a fully constructed schema object that can be used for
@@ -275,26 +307,23 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  *   does not conform to the expected structure or standards. This ensures the integrity
  *   and validity of the created schema.
  */
-export function fromProperties(
-  title: ISchema['title'],
-  properties: ISchema['properties'],
-  required: ISchema['required'],
+export function getURIFromProperties(
+  schema: ISchema,
   creator: DidUri
-): ISchema {
-  const schema: Omit<ISchema, '$id'> = {
-    properties,
-    required,
-    title,
-    $schema: SchemaModelV1.$id,
-    type: 'object',
+): { schema: ISchema; digest: HexString; creator: DidUri } {
+  const { $id, ...uriSchema } = schema
+  uriSchema.additionalProperties = false
+  uriSchema.$schema = SchemaModelV1.$id
+
+  const { uri, digest } = getUriForSchema(uriSchema, creator)
+
+  const schemaType = {
+    $id: uri,
+    ...uriSchema,
   }
-  schema.additionalProperties = false
-  const schemaType = jsonabc.sortObj({
-    ...schema,
-    $id: getUriForSchema(schema, creator),
-  })
+
   verifySchemaStructure(schemaType, creator)
-  return schemaType
+  return { schema: schemaType, digest, creator }
 }
 
 /**

@@ -22,12 +22,15 @@ import type {
   IStatementStatus,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
-import { STATEMENT_IDENT, STATEMENT_PREFIX } from '@cord.network/types'
-import { HexString } from '@polkadot/util/types.js'
-import { Bytes } from '@polkadot/types'
+import {
+  STATEMENT_IDENT,
+  STATEMENT_PREFIX,
+  HexString,
+  Bytes,
+  blake2AsHex,
+} from '@cord.network/types'
 import type { AccountId, H256 } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { ConfigService } from '@cord.network/config'
 import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
 import { getDocumentStatementStatusfromChain } from './Document.query.js'
@@ -201,21 +204,6 @@ export function verifyUpdateDataStructure(
     throw new SDKErrors.IssuerMismatchError('Issuer Mismatch')
   }
 }
-
-/**
- *  Checks the [[Document]] with a given [[SchemaType]] to check if the claim meets the [[schema]] structure.
- *
- * @param document A [[Document]] object of an anchored content used for verification.
- * @param schema A [[Schema]] to verify the [[Content]] structure.
- */
-
-// export function verifyAgainstSchema(
-//   document: IDocument,
-//   schema: ISchema
-// ): void {
-//   verifyDataStructure(document)
-//   verifyContentAgainstSchema(document.content.contents, schema)
-// }
 
 /**
  * .

@@ -708,6 +708,14 @@ declare module '@polkadot/api-base/types/errors' {
        * Preimage is too large to store on-chain.
        **/
       TooBig: AugmentedError<ApiType>;
+      /**
+       * Too few hashes were requested to be upgraded (i.e. zero).
+       **/
+      TooFew: AugmentedError<ApiType>;
+      /**
+       * More than `MAX_HASH_UPGRADE_BULK_COUNT` hashes were requested to be upgraded at once.
+       **/
+      TooMany: AugmentedError<ApiType>;
     };
     remark: {
       /**

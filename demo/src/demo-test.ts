@@ -165,10 +165,10 @@ async function main() {
     newSchemaContent,
     issuerDid.uri
   )
-  console.dir(schemaProperties, {
-    depth: null,
-    colors: true,
-  })
+  // console.dir(schemaProperties, {
+  //   depth: null,
+  //   colors: true,
+  // })
 
   const schemaId = await Cord.Schema.storeSchema(
     schemaProperties.schema,

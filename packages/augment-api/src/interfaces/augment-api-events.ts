@@ -581,15 +581,15 @@ declare module '@polkadot/api-base/types/events' {
     };
     sudo: {
       /**
-       * The \[sudoer\] just switched identity; the old key is supplied if one existed.
+       * The sudo key has been updated.
        **/
       KeyChanged: AugmentedEvent<ApiType, [oldSudoer: Option<AccountId32>], { oldSudoer: Option<AccountId32> }>;
       /**
-       * A sudo just took place. \[result\]
+       * A sudo call just took place.
        **/
       Sudid: AugmentedEvent<ApiType, [sudoResult: Result<Null, SpRuntimeDispatchError>], { sudoResult: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A sudo just took place. \[result\]
+       * A [sudo_as](Pallet::sudo_as) call just took place.
        **/
       SudoAsDone: AugmentedEvent<ApiType, [sudoResult: Result<Null, SpRuntimeDispatchError>], { sudoResult: Result<Null, SpRuntimeDispatchError> }>;
     };

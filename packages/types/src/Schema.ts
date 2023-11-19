@@ -85,6 +85,6 @@ export interface ISchema {
  */
 export interface ISchemaDetails {
   schema: ISchema
-  schemaHash: SchemaHash
+  digest: SchemaHash
   creator: DidUri
 }

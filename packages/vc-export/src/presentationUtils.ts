@@ -2,10 +2,9 @@
  * @packageDocumentation
  * @module PresentationUtils
  */
-import { blake2AsHex } from '@polkadot/util-crypto'
 import jsonld from 'jsonld'
 import { SDKErrors, Crypto } from '@cord.network/utils'
-import { DidDocument } from '@cord.network/types'
+import { DidDocument, blake2AsHex } from '@cord.network/types'
 import {
   CORD_CREDENTIAL_DIGEST_PROOF_TYPE,
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
@@ -54,7 +53,7 @@ export async function updateCredentialDigestProof(
   } = options
 
   // recreate statement digests from partial statement to identify required nonces
-  const statementNonces = {}
+  const statementNonces: Record<string, string> = {}
   const expanded = await jsonld.compact(credential.credentialSubject, {})
   const statements = Object.entries(expanded).map(([key, value]) =>
     JSON.stringify({ [key]: value })

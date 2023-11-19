@@ -3,12 +3,7 @@
  * @module VerificationUtils
  */
 
-import {
-  // ConfigService,
-  DidResourceUri,
-  Hash,
-  Statement,
-} from '@cord.network/sdk'
+import { DidResourceUri, Hash, Statement } from '@cord.network/sdk'
 import { Crypto } from '@cord.network/utils'
 import { signatureFromJson, verifyDidSignature } from '@cord.network/did'
 import type { AnyJson } from '@polkadot/types/types'
@@ -66,7 +61,11 @@ export async function verifyStatementProof(
   let status: StatementStatus = StatementStatus.unknown
   try {
     // check proof
-    const type = proof['@type'] || proof.type
+    const type =
+      proof['@type'] !== undefined && proof['@type'] !== null
+        ? proof['@type']
+        : proof.type
+    // const type = proof['@type'] || proof.type
     if (type !== CORD_ANCHORED_PROOF_TYPE)
       throw new Error('Proof type mismatch')
     const { issuerAddress } = proof
@@ -144,19 +143,27 @@ function jsonLDcontents(
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {}
 
-  Object.entries(content || {}).forEach(([key, value]) => {
+  Object.entries(content).forEach(([key, value]) => {
     result[vocabulary + key] = value
   })
+
   return result
 }
 
 function makeStatementsJsonLD(content: Record<string, AnyJson>): string[] {
-  const temp_content: Record<string, AnyJson> = { ...content }
+  const tempContent: Record<string, AnyJson> = { ...content }
   const vocabObj = content['@context']
-  const vocabulary = vocabObj ? vocabObj['@vocab'] : undefined
-  if (!vocabulary) throw new Error('Schema Identifier Missing')
-  delete temp_content['@context']
-  const normalized = jsonLDcontents(temp_content, vocabulary)
+  // const vocabulary = vocabObj ? vocabObj['@vocab'] : undefined
+  const vocabulary =
+    typeof vocabObj === 'object' && vocabObj !== null && '@vocab' in vocabObj
+      ? vocabObj['@vocab']
+      : undefined
+  if (typeof vocabulary !== 'string')
+    throw new Error('Schema Identifier Missing or Not a String')
+  delete tempContent['@context']
+  // if (!vocabulary) throw new Error('Schema Identifier Missing')
+  // delete tempContent['@context']
+  const normalized = jsonLDcontents(tempContent, vocabulary)
   return Object.entries(normalized).map(([key, value]) =>
     JSON.stringify({ [key]: value })
   )
@@ -175,11 +182,11 @@ function getHashLeaves(
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
-  if (evidenceIds) {
-    evidenceIds.forEach((evidence) => {
-      result.push(Crypto.coToUInt8(evidence))
-    })
-  }
+  // if (evidenceIds) {
+  evidenceIds.forEach((evidence) => {
+    result.push(Crypto.coToUInt8(evidence))
+  })
+  // }
   if (createdAt && createdAt !== '') {
     result.push(Crypto.coToUInt8(createdAt))
   }
@@ -206,8 +213,8 @@ export function calculateCredentialHash(
   proof: CredentialDigestProof
 ): Hash {
   const hashes = getHashLeaves(
-    proof.contentHashes || [],
-    document.evidence || [],
+    proof.contentHashes,
+    document.evidence,
     document.issuanceDate || '',
     document.expirationDate || ''
   )

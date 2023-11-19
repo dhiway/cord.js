@@ -78,8 +78,8 @@ export function balanceNumberToString(input: BalanceNumber): string {
   }
   if (
     typeof input === 'number' ||
-    (typeof input === 'bigint' && input.toString) ||
-    (typeof input === 'object' && input instanceof BN && input.toString)
+    typeof input === 'bigint' ||
+    input instanceof BN
   ) {
     return input.toString()
   }

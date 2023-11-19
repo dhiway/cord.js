@@ -14,7 +14,24 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
     $schema: {
       type: 'string',
     },
+    $metadata: {
+      type: 'object',
+      properties: {
+        version: {
+          type: 'string',
+        },
+        slug: {
+          type: 'string',
+        },
+        discoverable: {
+          type: 'boolean',
+        },
+      },
+    },
     title: { type: 'string' },
+    description: {
+      type: 'string',
+    },
     type: { const: 'object', type: 'string' },
     properties: {
       patternProperties: {
