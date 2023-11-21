@@ -62,8 +62,8 @@ import { uriToIdentifier, hashToUri } from '@cord.network/identifier'
 import {
   SPACE_IDENT,
   SPACE_PREFIX,
-  AUTHORIZATION_IDENT,
-  AUTHORIZATION_PREFIX,
+  AUTH_IDENT,
+  AUTH_PREFIX,
   blake2AsHex,
   Bytes,
   Permission,
@@ -113,8 +113,8 @@ export async function createChainSpaceIdentifiers(
 
   const authorizationId: AuthorizationId = hashToUri(
     authDigest,
-    AUTHORIZATION_IDENT,
-    AUTHORIZATION_PREFIX
+    AUTH_IDENT,
+    AUTH_PREFIX
   )
 
   return { chainSpaceId, authorizationId }
@@ -159,8 +159,8 @@ export async function createChainSpaceDelegateIdentifier(
 
   const authorizationId: AuthorizationId = hashToUri(
     authDigest,
-    AUTHORIZATION_IDENT,
-    AUTHORIZATION_PREFIX
+    AUTH_IDENT,
+    AUTH_PREFIX
   )
 
   return authorizationId

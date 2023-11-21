@@ -4,8 +4,8 @@ import { HexString } from './Imported.js'
 export const SPACE_IDENT = 7101
 export const SPACE_PREFIX = 'space:cord:'
 export type SpaceId = string
-export const AUTHORIZATION_IDENT = 10447
-export const AUTHORIZATION_PREFIX = 'auth:cord:'
+export const AUTH_IDENT = 10447
+export const AUTH_PREFIX = 'auth:cord:'
 export type AuthorizationId = string
 
 export interface ChainSpaceIdentifiers {

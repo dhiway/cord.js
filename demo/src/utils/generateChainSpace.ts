@@ -52,7 +52,7 @@ export async function addSpaceAuthorization(
   spaceUri: Cord.IChainSpace['identifier'],
   authUri: Cord.IChainSpace['authorization'],
   signCallback: Cord.SignExtrinsicCallback
-): Promise<Cord.AuthorizationId> {
+): Promise<Cord.ISpaceAuthorization> {
   const api = Cord.ConfigService.get('api')
 
   const spaceId = Cord.Identifier.uriToIdentifier(spaceUri)
@@ -64,13 +64,11 @@ export async function addSpaceAuthorization(
     spaceDelegate,
     creator
   )
-  console.log(delegateAuthId)
   const authorizationExists = await Cord.ChainSpace.isAuthorizationStored(
     delegateAuthId.authorization
   )
   if (authorizationExists) {
     console.log('Authorization already stored. Skipping addition')
-    return authId
   } else {
     console.log('Authorization not present. Creating it now...')
 
@@ -83,9 +81,8 @@ export async function addSpaceAuthorization(
     )
 
     await Cord.Chain.signAndSubmitTx(extrinsic, authorAccount)
-
-    return delegateAuthId
   }
+  return delegateAuthId
 }
 
 // export async function addSpaceAdminAuthorization(

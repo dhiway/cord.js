@@ -7,6 +7,7 @@ import '@polkadot/api-base/types/consts';
 
 import type { ApiTypes, AugmentedConst } from '@polkadot/api-base/types';
 import type { u128, u16, u32, u64 } from '@polkadot/types-codec';
+import type { Codec } from '@polkadot/types-codec/types';
 import type { FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, SpVersionRuntimeVersion, SpWeightsRuntimeDbWeight, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedConst<ApiType extends ApiTypes> = AugmentedConst<ApiType>;
@@ -36,6 +37,10 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum number of nominators for each validator.
        **/
       maxNominators: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     balances: {
       /**
@@ -66,9 +71,17 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum number of named reserves that can exist on an account.
        **/
       maxReserves: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     chainSpace: {
       maxSpaceDelegates: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     council: {
       /**
@@ -76,6 +89,10 @@ declare module '@polkadot/api-base/types/consts' {
        * executed.
        **/
       maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     did: {
       /**
@@ -125,6 +142,10 @@ declare module '@polkadot/api-base/types/consts' {
        * Should be greater than `MaxNewKeyAgreementKeys`.
        **/
       maxTotalKeyAgreementKeys: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     didName: {
       /**
@@ -139,6 +160,10 @@ declare module '@polkadot/api-base/types/consts' {
        * The min encoded length of a name.
        **/
       minNameLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     grandpa: {
       /**
@@ -158,12 +183,20 @@ declare module '@polkadot/api-base/types/consts' {
        * can be zero.
        **/
       maxSetIdSessionEntries: u64 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     identifier: {
       /**
        * The maximum number of activity for a statement.
        **/
       maxEventsHistory: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     identity: {
       /**
@@ -177,6 +210,10 @@ declare module '@polkadot/api-base/types/consts' {
        * the complexity of, e.g., updating judgements.
        **/
       maxRegistrars: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     imOnline: {
       /**
@@ -186,12 +223,20 @@ declare module '@polkadot/api-base/types/consts' {
        * multiple pallets send unsigned transactions.
        **/
       unsignedPriority: u64 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     indices: {
       /**
        * The deposit needed for reserving an index.
        **/
       deposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     mixnet: {
       /**
@@ -240,6 +285,10 @@ declare module '@polkadot/api-base/types/consts' {
        * Priority of unsigned transactions used to register mixnodes.
        **/
       registrationPriority: u64 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     multisig: {
       /**
@@ -261,6 +310,10 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum amount of signatories allowed in the multisig.
        **/
       maxSignatories: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     networkMembership: {
       maxMembersPerBlock: u32 & AugmentedConst<ApiType>;
@@ -269,6 +322,10 @@ declare module '@polkadot/api-base/types/consts' {
        * blocks)
        **/
       membershipPeriod: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     nodeAuthorization: {
       /**
@@ -283,6 +340,10 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum number of well known nodes that are allowed to set
        **/
       maxWellKnownNodes: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     scheduler: {
       /**
@@ -297,12 +358,24 @@ declare module '@polkadot/api-base/types/consts' {
        * higher limit under `runtime-benchmarks` feature.
        **/
       maxScheduledPerBlock: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     schema: {
       maxEncodedSchemaLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     score: {
       valueLimit: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     statement: {
       /**
@@ -313,6 +386,10 @@ declare module '@polkadot/api-base/types/consts' {
        * Maximum removals per call
        **/
       maxRemoveEntries: u16 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     system: {
       /**
@@ -343,6 +420,10 @@ declare module '@polkadot/api-base/types/consts' {
        * Get the chain's current version.
        **/
       version: SpVersionRuntimeVersion & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     technicalCommittee: {
       /**
@@ -350,6 +431,10 @@ declare module '@polkadot/api-base/types/consts' {
        * executed.
        **/
       maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     timestamp: {
       /**
@@ -361,12 +446,20 @@ declare module '@polkadot/api-base/types/consts' {
        * period on default settings.
        **/
       minimumPeriod: u64 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
     utility: {
       /**
        * The limit on the number of batched calls.
        **/
       batchedCallsLimit: u32 & AugmentedConst<ApiType>;
+      /**
+       * Generic const
+       **/
+      [key: string]: Codec;
     };
   } // AugmentedConsts
 } // declare module

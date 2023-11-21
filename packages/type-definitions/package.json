@@ -29,6 +29,9 @@
   "license": "Apache-2.0",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
+  "dependencies": {
+    "@polkadot/types": "^10.11.0"
+  },
   "devDependencies": {
     "rimraf": "^3.0.2",
     "typescript": "^5.2.2"

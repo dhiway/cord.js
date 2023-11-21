@@ -151,27 +151,9 @@ async function main() {
   console.log(`✅ DID name - ${randomDidName} - created!`)
   await getDidDocFromName(randomDidName)
 
-  // Step 2: Create a new Schema
-  console.log(`\n❄️  Schema Creation `)
-  let newSchemaContent = require('../res/schema.json')
-  let newSchemaName = newSchemaContent.title + ':' + UUID.generate()
-  newSchemaContent.title = newSchemaName
-
-  console.dir(newSchemaContent, {
-    depth: null,
-    colors: true,
-  })
-  let schemaProperties = Cord.Schema.getURIFromProperties(
-    newSchemaContent,
-    issuerDid.uri
-  )
-  console.dir(schemaProperties, {
-    depth: null,
-    colors: true,
-  })
-
-  const schemaId = await Cord.Schema.storeSchema(
-    schemaProperties.schema,
+  // Step 3: Create a new Chain Space
+  console.log(`\n❄️  Chain Space Creation `)
+  const space = await ensureStoredChainSpace(
     authorIdentity,
     issuerDid.uri,
     async ({ data }) => ({
@@ -179,203 +161,192 @@ async function main() {
       keyType: issuerKeys.assertionMethod.type,
     })
   )
-  console.dir(schemaId, {
+  console.dir(space, {
     depth: null,
     colors: true,
   })
+  console.log('✅ Chain Space created!')
 
-  const schemaFromChain = await Cord.Schema.fetchFromChain(
-    schemaProperties.schema.$id
+  await approveSpace(authorityAuthorIdentity, space['identifier'])
+  console.log(`🔏  Chain Space Approved`)
+
+  // Step 4: Add Delelegate Two as Registry Delegate
+  console.log(`\n❄️  Space Delegate Authorization `)
+  const delegateAuth = await addSpaceAuthorization(
+    authorIdentity,
+    delegateTwoDid.uri,
+    issuerDid.uri,
+    space['identifier'],
+    space['authorization'],
+    async ({ data }) => ({
+      signature: issuerKeys.capabilityDelegation.sign(data),
+      keyType: issuerKeys.capabilityDelegation.type,
+    })
   )
-  console.dir(schemaFromChain, {
+  console.dir(delegateAuth, {
     depth: null,
     colors: true,
   })
-  console.log('✅ Schema created!')
+  console.log(
+    `✅ Space Authorization - ${delegateAuth.authorization} - created!`
+  )
 
-  // // Step 3: Create a new Chain Space
-  // console.log(`\n❄️  Chain Space Creation `)
-  // const space = await ensureStoredChainSpace(
-  //   authorIdentity,
-  //   issuerDid.uri,
-  //   async ({ data }) => ({
-  //     signature: issuerKeys.assertionMethod.sign(data),
-  //     keyType: issuerKeys.assertionMethod.type,
-  //   })
-  // )
-  // console.dir(space, {
-  //   depth: null,
-  //   colors: true,
-  // })
-  // console.log('✅ Chain Space created!')
+  // Step 5: Create a new Schema
+  console.log(`\n❄️  Schema Creation `)
+  let newSchemaContent = require('../res/schema.json')
+  let newSchemaName = newSchemaContent.title + ':' + UUID.generate()
+  newSchemaContent.title = newSchemaName
 
-  // await approveSpace(authorityAuthorIdentity, space['identifier'])
-  // console.log(`🔏  Chain Space Approved`)
+  let schemaProperties = Cord.Schema.buildFromProperties(
+    newSchemaContent,
+    issuerDid.uri,
+    space.identifier
+  )
+  console.dir(schemaProperties, {
+    depth: null,
+    colors: true,
+  })
 
-  // // Step 4: Add Delelegate Two as Registry Delegate
-  // console.log(`\n❄️  Space Delegate Authorization `)
-  // const delegateAuth = await addSpaceAuthorization(
-  //   authorIdentity,
-  //   delegateTwoDid.uri,
-  //   issuerDid.uri,
-  //   space['identifier'],
-  //   space['authorization'],
-  //   async ({ data }) => ({
-  //     signature: issuerKeys.capabilityDelegation.sign(data),
-  //     keyType: issuerKeys.capabilityDelegation.type,
-  //   })
-  // )
-  // console.log(`✅ Space Delegation - ${delegateAuth.authorization} - created!`)
+  const schemaId = await Cord.Schema.dispatchToChain(
+    schemaProperties.schema,
+    authorIdentity,
+    issuerDid.uri,
+    space.authorization,
+    async ({ data }) => ({
+      signature: issuerKeys.assertionMethod.sign(data),
+      keyType: issuerKeys.assertionMethod.type,
+    })
+  )
 
-  // // Step 4: Delegate creates a new Verifiable Document
-  // console.log(`\n❄️  Verifiable Document Creation `)
+  console.log(`✅ Schema created! ${schemaId}`)
 
-  // const document = await createDocument(
-  //   holderDid.uri,
-  //   delegateTwoDid.uri,
-  //   schema,
-  //   space.identifier,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.assertionMethod.sign(data),
-  //     keyType: delegateTwoKeys.assertionMethod.type,
-  //     keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
-  //   })
-  // )
-  // console.dir(document, {
-  //   depth: null,
-  //   colors: true,
-  // })
-  // await createStatement(
-  //   document,
-  //   delegateTwoDid.uri,
-  //   delegateAuth['authorization'],
-  //   authorIdentity,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.assertionMethod.sign(data),
-  //     keyType: delegateTwoKeys.assertionMethod.type,
-  //   })
-  // )
-  // console.log(`✅ Statement registered - ${document.identifier}`)
+  // Step 4: Delegate creates a new Verifiable Document
+  console.log(`\n❄️  Verifiable Document Creation `)
 
-  // // Step 5: Delegate updates the Verifiable Document
-  // console.log(`\n❄️  Verifiable Document Update `)
-  // let updateDocumentContent =
-  //   Cord.Document.extractDocumentContentforUpdate(document)
+  const document = await createDocument(
+    holderDid.uri,
+    delegateTwoDid.uri,
+    schemaProperties.schema,
+    space.identifier,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
+    })
+  )
+  console.dir(document, {
+    depth: null,
+    colors: true,
+  })
+  await createStatement(
+    document,
+    delegateTwoDid.uri,
+    delegateAuth['authorization'],
+    authorIdentity,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    })
+  )
+  console.log(`✅ Statement registered - ${document.identifier}`)
 
-  // const contents = updateDocumentContent.content.contents as Cord.IContents
-  // contents.name = 'Alice M'
-  // contents.age = 32
-  // contents.address.pin = 560100
+  // Step 5: Delegate updates the Verifiable Document
+  console.log(`\n❄️  Verifiable Document Update `)
+  let updateDocumentContent =
+    Cord.Document.extractDocumentContentforUpdate(document)
 
-  // const updatedDocument = await updateDocument(
-  //   updateDocumentContent,
-  //   schema,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.assertionMethod.sign(data),
-  //     keyType: delegateTwoKeys.assertionMethod.type,
-  //     keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
-  //   })
-  // )
-  // console.dir(updatedDocument, {
-  //   depth: null,
-  //   colors: true,
-  // })
-  // await updateStatement(
-  //   updatedDocument,
-  //   delegateTwoDid.uri,
-  //   delegateAuth['authorization'],
-  //   authorIdentity,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.assertionMethod.sign(data),
-  //     keyType: delegateTwoKeys.assertionMethod.type,
-  //   })
-  // )
-  // console.log(`✅ Statement updated - ${updatedDocument.identifier}`)
+  const contents = updateDocumentContent.content.contents as Cord.IContents
+  contents.name = 'Alice M'
+  contents.age = 32
+  contents.address.pin = 560100
 
-  // // Step 6: Create a Presentation
-  // console.log(`\n❄️  Selective Disclosure Presentation Creation `)
-  // const challenge = getChallenge()
-  // const presentation = await createPresentation({
-  //   document: updatedDocument,
-  //   signCallback: async ({ data }) => ({
-  //     signature: holderKeys.authentication.sign(data),
-  //     keyType: holderKeys.authentication.type,
-  //     keyUri: `${holderDid.uri}${holderDid.authentication[0].id}`,
-  //   }),
-  //   // Comment the below line to have a full disclosure
-  //   selectedAttributes: ['name', 'id', 'address.pin', 'address.location'],
-  //   challenge: challenge,
-  // })
+  const updatedDocument = await updateDocument(
+    updateDocumentContent,
+    schemaProperties.schema,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
+    })
+  )
+  console.dir(updatedDocument, {
+    depth: null,
+    colors: true,
+  })
+  await updateStatement(
+    updatedDocument,
+    delegateTwoDid.uri,
+    delegateAuth['authorization'],
+    authorIdentity,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    })
+  )
+  console.log(`✅ Statement updated - ${updatedDocument.identifier}`)
 
-  // console.dir(presentation, {
-  //   depth: null,
-  //   colors: true,
-  // })
-  // console.log('✅ Presentation created!')
+  // Step 6: Create a Presentation
+  console.log(`\n❄️  Selective Disclosure Presentation Creation `)
+  const challenge = getChallenge()
+  const presentation = await createPresentation({
+    document: updatedDocument,
+    signCallback: async ({ data }) => ({
+      signature: holderKeys.authentication.sign(data),
+      keyType: holderKeys.authentication.type,
+      keyUri: `${holderDid.uri}${holderDid.authentication[0].id}`,
+    }),
+    // Comment the below line to have a full disclosure
+    selectedAttributes: ['name', 'id', 'address.pin', 'address.location'],
+    challenge: challenge,
+  })
 
-  // // Step 7: The verifier checks the presentation.
-  // console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
-  // const verificationResult = await verifyPresentation(presentation, {
-  //   challenge: challenge,
-  //   trustedIssuerUris: [delegateTwoDid.uri],
-  // })
+  console.dir(presentation, {
+    depth: null,
+    colors: true,
+  })
+  console.log('✅ Presentation created!')
 
-  // if (verificationResult.isValid) {
-  //   console.log('✅ Verification successful! 🎉')
-  // } else {
-  //   console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
-  // }
+  // Step 7: The verifier checks the presentation.
+  console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
+  const verificationResult = await verifyPresentation(presentation, {
+    challenge: challenge,
+    trustedIssuerUris: [delegateTwoDid.uri],
+  })
 
-  // // Uncomment the following section to enable messaging demo
-  // //
-  // // console.log(`\n❄️  Messaging `)
-  // // const schemaId = Cord.Schema.idToChain(schema.$id)
-  // // console.log(' Generating the message - Sender -> Receiver')
-  // // const message = await generateRequestCredentialMessage(
-  // //   holderDid.uri,
-  // //   verifierDid.uri,
-  // //   schemaId
-  // // )
-  // //
-  // // console.log(' Encrypting the message - Sender -> Receiver')
-  // // const encryptedMessage = await encryptMessage(
-  // //   message,
-  // //   holderDid.uri,
-  // //   verifierDid.uri,
-  // //   holderKeys.keyAgreement
-  // // )
-  // //
-  // // console.log(' Decrypting the message - Receiver')
-  // // await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
+  if (verificationResult.isValid) {
+    console.log('✅ Verification successful! 🎉')
+  } else {
+    console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
+  }
 
-  // // Step 8: Revoke a Credential
-  // console.log(`\n❄️  Revoke credential - ${updatedDocument.identifier}`)
-  // await revokeCredential(
-  //   delegateTwoDid.uri,
-  //   authorIdentity,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.assertionMethod.sign(data),
-  //     keyType: delegateTwoKeys.assertionMethod.type,
-  //   }),
-  //   updatedDocument,
-  //   delegateAuth['authorization']
-  // )
-  // console.log(`✅ Credential revoked!`)
+  // Step 8: Revoke a Credential
+  console.log(`\n❄️  Revoke credential - ${updatedDocument.identifier}`)
+  await revokeCredential(
+    delegateTwoDid.uri,
+    authorIdentity,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    }),
+    updatedDocument,
+    delegateAuth['authorization']
+  )
+  console.log(`✅ Credential revoked!`)
 
-  // // Step 9: The verifier checks the presentation.
-  // console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
-  // let reVerificationResult = await verifyPresentation(presentation, {
-  //   challenge: challenge,
-  //   trustedIssuerUris: [issuerDid.uri],
-  // })
+  // Step 9: The verifier checks the presentation.
+  console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
+  let reVerificationResult = await verifyPresentation(presentation, {
+    challenge: challenge,
+    trustedIssuerUris: [issuerDid.uri],
+  })
 
-  // if (reVerificationResult.isValid) {
-  //   console.log('✅ Verification successful! 🎉')
-  // } else {
-  //   console.log(
-  //     `🚫 Verification failed! - "${reVerificationResult.message}" 🚫`
-  //   )
-  // }
+  if (reVerificationResult.isValid) {
+    console.log('✅ Verification successful! 🎉')
+  } else {
+    console.log(
+      `🚫 Verification failed! - "${reVerificationResult.message}" 🚫`
+    )
+  }
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))

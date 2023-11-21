@@ -1,13 +1,10 @@
 // Auto-generated via `yarn polkadot-types-from-defs`, do not edit
 /* eslint-disable */
 
-import type { Bytes, Option, Struct, Text, Vec } from '@polkadot/types-codec';
+import type { Option, Struct, Text, Vec } from '@polkadot/types-codec';
 import type { AccountId32, Weight, WeightV1, WeightV2 } from '@polkadot/types/interfaces/runtime';
 import type { DispatchClass } from '@polkadot/types/interfaces/system';
 import type { PalletDidServiceEndpointsDidEndpoint, PalletDidDidDetails } from '@polkadot/types/lookup'
-
-/** @name PeerId */
-export interface PeerId extends Bytes {}
 
 /** @name RawDidLinkedInfo */
 export interface RawDidLinkedInfo extends Struct {

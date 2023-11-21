@@ -8,13 +8,14 @@ import {
   SPACE_PREFIX,
   STATEMENT_PREFIX,
   SCORE_PREFIX,
-  AUTHORIZATION_PREFIX,
-  ACCOUNT_IDENTIFIER_PREFIX,
+  AUTH_PREFIX,
+  ACCOUNT_IDENT,
+  ACCOUNT_PREFIX,
   SPACE_IDENT,
   SCHEMA_IDENT,
   STATEMENT_IDENT,
-  SCORE_IDENTIFIER,
-  AUTHORIZATION_IDENT,
+  SCORE_IDENT,
+  AUTH_IDENT,
   assert,
   u8aConcat,
   u8aToU8a,
@@ -33,8 +34,9 @@ const VALID_IDENTS = new Set([
   SPACE_IDENT,
   SCHEMA_IDENT,
   STATEMENT_IDENT,
-  SCORE_IDENTIFIER,
-  AUTHORIZATION_IDENT,
+  SCORE_IDENT,
+  AUTH_IDENT,
+  ACCOUNT_IDENT,
 ])
 
 const VALID_PREFIXES = [
@@ -42,9 +44,18 @@ const VALID_PREFIXES = [
   SCHEMA_PREFIX,
   STATEMENT_PREFIX,
   SCORE_PREFIX,
-  AUTHORIZATION_PREFIX,
-  ACCOUNT_IDENTIFIER_PREFIX,
+  AUTH_PREFIX,
+  ACCOUNT_PREFIX,
 ]
+
+const IDENT_TO_PREFIX_MAP = new Map([
+  [SPACE_IDENT, SPACE_PREFIX],
+  [SCHEMA_IDENT, SCHEMA_PREFIX],
+  [STATEMENT_IDENT, STATEMENT_PREFIX],
+  [SCORE_IDENT, SCORE_PREFIX],
+  [AUTH_IDENT, AUTH_PREFIX],
+  [ACCOUNT_IDENT, ACCOUNT_PREFIX],
+])
 
 function pphash(key: Uint8Array): Uint8Array {
   return blake2AsU8a(u8aConcat(IDFR_PREFIX, key), 512)
@@ -259,6 +270,49 @@ export function uriToIdentifier(uri: string | null | undefined): string {
 }
 
 /**
+ * Converts a valid identifier into its corresponding URI, or returns the input unchanged if it's already a URI.
+ *
+ * @param identifier - The identifier or URI to be processed.
+ * @returns - The resulting URI if an identifier is provided, or the input unchanged if it's already a URI.
+ * @throws {Error} - Throws an error if the identifier is invalid or if a valid prefix cannot be determined.
+ */
+export function identifierToUri(identifier: string): string {
+  if (typeof identifier !== 'string' || identifier.length === 0) {
+    throw new Error('Input must be a non-empty string.')
+  }
+  console.log(identifier)
+  // Check if the input is already a URI
+  const existingPrefix = VALID_PREFIXES.find((prefix) =>
+    identifier.startsWith(prefix)
+  )
+  if (existingPrefix !== undefined) {
+    return identifier // Return as is, since it's already a URI
+  }
+
+  // Attempt to decode the identifier and extract the prefix
+  let decoded
+  let ident
+  try {
+    decoded = base58Decode(identifier)
+    const [isValid, , , idfrDecoded] = checkIdentifierChecksum(decoded)
+    if (!isValid) {
+      throw new Error('Invalid decoded identifier checksum')
+    }
+
+    ident = idfrDecoded
+    const prefix = IDENT_TO_PREFIX_MAP.get(ident)
+    if (!prefix) {
+      throw new Error(`Invalid or unrecognized identifier: ${ident}`)
+    }
+
+    // Construct and return the URI
+    return `${prefix}${identifier}`
+  } catch (error) {
+    throw new Error(`Error decoding identifier: ${(error as Error).message}`)
+  }
+}
+
+/**
  * Creates Account Identifier from Fetches Account Address.
  *
  * @param address Account address to derive it's identifier.
@@ -268,9 +322,7 @@ export function uriToIdentifier(uri: string | null | undefined): string {
 export function getAccountIdentifierFromAddress(
   address: IPublicIdentity['address']
 ): string {
-  return address.startsWith(ACCOUNT_IDENTIFIER_PREFIX)
-    ? address
-    : ACCOUNT_IDENTIFIER_PREFIX + address
+  return address.startsWith(ACCOUNT_PREFIX) ? address : ACCOUNT_PREFIX + address
 }
 
 /**
@@ -285,5 +337,5 @@ export function getAccountIdentifierFromAddress(
 export function getAccountAddressFromIdentifier(
   address: string
 ): IPublicIdentity['address'] {
-  return address.split(ACCOUNT_IDENTIFIER_PREFIX).join('')
+  return address.split(ACCOUNT_PREFIX).join('')
 }

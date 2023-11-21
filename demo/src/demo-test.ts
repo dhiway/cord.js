@@ -151,27 +151,9 @@ async function main() {
   console.log(`✅ DID name - ${randomDidName} - created!`)
   await getDidDocFromName(randomDidName)
 
-  // Step 2: Create a new Schema
-  console.log(`\n❄️  Schema Creation `)
-  let newSchemaContent = require('../res/schema.json')
-  let newSchemaName = newSchemaContent.title + ':' + UUID.generate()
-  newSchemaContent.title = newSchemaName
-
-  console.dir(newSchemaContent, {
-    depth: null,
-    colors: true,
-  })
-  let schemaProperties = Cord.Schema.getURIFromProperties(
-    newSchemaContent,
-    issuerDid.uri
-  )
-  // console.dir(schemaProperties, {
-  //   depth: null,
-  //   colors: true,
-  // })
-
-  const schemaId = await Cord.Schema.storeSchema(
-    schemaProperties.schema,
+  // Step 3: Create a new Chain Space
+  console.log(`\n❄️  Chain Space Creation `)
+  const space = await ensureStoredChainSpace(
     authorIdentity,
     issuerDid.uri,
     async ({ data }) => ({
@@ -179,10 +161,56 @@ async function main() {
       keyType: issuerKeys.assertionMethod.type,
     })
   )
-  console.dir(schemaId, {
+  console.dir(space, {
     depth: null,
     colors: true,
   })
+  console.log('✅ Chain Space created!')
+
+  await approveSpace(authorityAuthorIdentity, space['identifier'])
+  console.log(`🔏  Chain Space Approved`)
+
+  // Step 4: Add Delelegate Two as Registry Delegate
+  console.log(`\n❄️  Space Delegate Authorization `)
+  const delegateAuth = await addSpaceAuthorization(
+    authorIdentity,
+    delegateTwoDid.uri,
+    issuerDid.uri,
+    space['identifier'],
+    space['authorization'],
+    async ({ data }) => ({
+      signature: issuerKeys.capabilityDelegation.sign(data),
+      keyType: issuerKeys.capabilityDelegation.type,
+    })
+  )
+  console.log(`✅ Space Delegation - ${delegateAuth.authorization} - created!`)
+
+  // Step 5: Create a new Schema
+  console.log(`\n❄️  Schema Creation `)
+  let newSchemaContent = require('../res/schema.json')
+  let newSchemaName = newSchemaContent.title + ':' + UUID.generate()
+  newSchemaContent.title = newSchemaName
+
+  let schemaProperties = Cord.Schema.buildFromProperties(
+    newSchemaContent,
+    issuerDid.uri,
+    space.identifier
+  )
+  console.dir(schemaProperties, {
+    depth: null,
+    colors: true,
+  })
+
+  const schemaId = await Cord.Schema.dispatchToChain(
+    schemaProperties.schema,
+    authorIdentity,
+    issuerDid.uri,
+    space.authorization,
+    async ({ data }) => ({
+      signature: issuerKeys.assertionMethod.sign(data),
+      keyType: issuerKeys.assertionMethod.type,
+    })
+  )
 
   const schemaFromChain = await Cord.Schema.fetchFromChain(
     schemaProperties.schema.$id
@@ -192,40 +220,6 @@ async function main() {
     colors: true,
   })
   console.log('✅ Schema created!')
-
-  // // Step 3: Create a new Chain Space
-  // console.log(`\n❄️  Chain Space Creation `)
-  // const space = await ensureStoredChainSpace(
-  //   authorIdentity,
-  //   issuerDid.uri,
-  //   async ({ data }) => ({
-  //     signature: issuerKeys.assertionMethod.sign(data),
-  //     keyType: issuerKeys.assertionMethod.type,
-  //   })
-  // )
-  // console.dir(space, {
-  //   depth: null,
-  //   colors: true,
-  // })
-  // console.log('✅ Chain Space created!')
-
-  // await approveSpace(authorityAuthorIdentity, space['identifier'])
-  // console.log(`🔏  Chain Space Approved`)
-
-  // // Step 4: Add Delelegate Two as Registry Delegate
-  // console.log(`\n❄️  Space Delegate Authorization `)
-  // const delegateAuth = await addSpaceAuthorization(
-  //   authorIdentity,
-  //   delegateTwoDid.uri,
-  //   issuerDid.uri,
-  //   space['identifier'],
-  //   space['authorization'],
-  //   async ({ data }) => ({
-  //     signature: issuerKeys.capabilityDelegation.sign(data),
-  //     keyType: issuerKeys.capabilityDelegation.type,
-  //   })
-  // )
-  // console.log(`✅ Space Delegation - ${delegateAuth.authorization} - created!`)
 
   // // Step 4: Delegate creates a new Verifiable Document
   // console.log(`\n❄️  Verifiable Document Creation `)

@@ -57,6 +57,7 @@ import type {
   ISchema,
   ISchemaMetadata,
   SchemaHash,
+  SpaceId,
 } from '@cord.network/types'
 import {
   Crypto,
@@ -69,7 +70,7 @@ import { SchemaModel, MetadataModel, SchemaModelV1 } from './Schema.types.js'
 import { getUriForSchema } from './Schema.chain.js'
 
 /**
- * Serializes a given schema object for hashing or storing using CBOR encoding.
+ * (Internal Function) - Serializes a given schema object for hashing or storing using CBOR encoding.
  *
  * This function is designed to standardize the representation of a schema object by
  * removing its `$id` property, if present, and then serializing it. This standardized
@@ -90,12 +91,7 @@ import { getUriForSchema } from './Schema.chain.js'
  *   without the `$id` property. This string can be used for hashing, comparison, or
  *   storage.
  *
- * @example
- * ```typescript
- * const schema = { $id: 'schema:example', title: 'Example Schema', ... };
- * const serializedSchema = encodeCborSchema(schema);
- * console.log('Serialized Schema:', serializedSchema);
- * ```
+ * @internal
  */
 export function encodeCborSchema(
   schema: ISchema | Omit<ISchema, '$id'>
@@ -113,12 +109,13 @@ export function encodeCborSchema(
 }
 
 /**
- * Generates a hash for a given schema object.
+ * (Internal Function) - Generates a hash for a given schema object.
  *
  * This function is used to create a unique hash value for a schema. It first serializes
  * the schema object (excluding the `$id` property if present) and then generates a hash
  * from this serialized string.
  *
+ * @internal
  * @param schema - The schema object to be hashed.
  *   This can be a full schema object (including `$id`) or any schema object without `$id`.
  * @returns - The hash value of the schema as a hexadecimal string.
@@ -131,7 +128,7 @@ export function getHashForSchema(
 }
 
 /**
- * Validates an incoming schema object against a JSON schema model (draft-07).
+ * (Internal Function) - Validates an incoming schema object against a JSON schema model (draft-07).
  *
  * This function takes an object and a JSON schema, then uses a JSON Schema Validator
  * to determine if the object conforms to the schema. It supports validation against
@@ -148,6 +145,8 @@ export function getHashForSchema(
  *   include references to other schemas.
  * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the object does not
  *   conform to the schema. The error includes details about the validation failures.
+ *
+ * @internal
  */
 export function verifyObjectAgainstSchema(
   object: Record<string, any>,
@@ -174,7 +173,7 @@ export function verifyObjectAgainstSchema(
 }
 
 /**
- * Validates the contents of a document against a specified schema.
+ * (Internal Function) - Validates the contents of a document against a specified schema.
  *
  * This function is designed to ensure that the contents of a document conform to a
  * predefined schema. It performs two key validations: first, it validates the schema
@@ -190,6 +189,8 @@ export function verifyObjectAgainstSchema(
  * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the schema itself is invalid
  *   or if the document's contents do not conform to the schema. The error includes details
  *   about the validation failures.
+ *
+ * @internal
  */
 export function verifyContentAgainstSchema(
   contents: IContent['contents'],
@@ -201,44 +202,58 @@ export function verifyContentAgainstSchema(
 }
 
 /**
- * Validates the structure of a given schema and checks for consistency in its identifier.
+ * (Internal Function) - Validates the structure of a given schema and checks for consistency in its identifier.
  *
- * This function serves two primary purposes: firstly, it validates the structure of the
- * provided schema against a predefined schema model, ensuring that the schema adheres to
- * the expected format and rules. Secondly, it verifies that the schema's identifier ($id)
- * is consistent with the expected identifier derived from the schema content and the creator's DID.
+ * This function performs two critical checks: firstly, it validates the structure of the provided schema
+ * against a predefined schema model (SchemaModel), ensuring adherence to the expected format and rules.
+ * Secondly, it verifies that the schema's identifier ($id) is consistent with an identifier generated
+ * from the schema's content, the creator's DID, and the provided space identifier. This ensures that
+ * each schema is uniquely and correctly identified, maintaining integrity in schema management.
  *
- * @param input - The schema to be validated. This schema should conform to
- *   the structure defined by the ISchema interface.
+ * @param input - The schema to be validated. This schema should conform to the structure
+ *                          defined by the ISchema interface.
  * @param creator - The decentralized identifier (DID) of the creator of the schema.
- *   This DID is used in generating the expected schema identifier for comparison.
- * @throws {SDKErrors.SchemaIdMismatchError} - Throws an error if the actual schema identifier
- *   does not match the expected identifier derived from the schema content and creator's DID.
- *   This ensures that the schema's identifier is both unique and correctly formatted.
+ *                          This DID is used in conjunction with the schema content and space identifier
+ *                          to generate the expected schema identifier.
+ * @param space - An identifier for the space (context or category) associated with the schema.
+ *                         This parameter is part of the criteria for generating the expected schema identifier.
+ *
+ * @throws {SDKErrors.SchemaIdMismatchError} Throws an error if the actual schema identifier ($id) does not
+ *         match the expected identifier derived from the schema content, creator's DID, and space identifier.
+ *         This check is crucial to ensure that each schema's identifier is both unique and correctly formatted,
+ *         avoiding conflicts and inconsistencies in schema identification.
+ *
+ * @internal
  */
-export function verifySchemaStructure(input: ISchema, creator: DidUri): void {
+export function verifySchemaStructure(
+  input: ISchema,
+  creator: DidUri,
+  space: SpaceId
+): void {
   verifyObjectAgainstSchema(input, SchemaModel)
-  const uriFromSchema = getUriForSchema(input, creator)
+  const uriFromSchema = getUriForSchema(input, creator, space)
   if (uriFromSchema.uri !== input.$id) {
     throw new SDKErrors.SchemaIdMismatchError(uriFromSchema.uri, input.$id)
   }
 }
 
 /**
- * Validates the structure of a given data input against a predefined schema model.
+ * (Internal Function) - Validates the structure of a given data input against a predefined schema model.
  *
  * @param input - The data input to be validated. This input should be structured
  *   according to the ISchema interface, which defines the expected format and rules for the data.
  * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the data input does not
  *   conform to the schema model. This error includes details about the specific validation
  *   failures, aiding in diagnosing and correcting the structure of the input.
+ *
+ * @internal
  */
 export function verifyDataStructure(input: ISchema): void {
   verifyObjectAgainstSchema(input, SchemaModel)
 }
 
 /**
- * Validates the structure and content of a given data object against a primary schema and
+ * (Internal Function) - Validates the structure and content of a given data object against a primary schema and
  * a set of nested schemas. This function is essential for scenarios where data validation
  * needs to occur against multiple layers of schemas, ensuring both the top-level and
  * nested structures conform to their respective specifications.
@@ -258,6 +273,8 @@ export function verifyDataStructure(input: ISchema): void {
  *   not conform to the primary or any of the nested schemas. This error includes details
  *   about the specific validation failures, aiding in diagnosing and correcting the
  *   structure of the data object.
+ *
+ * @internal
  */
 export function verifyContentAgainstNestedSchemas(
   schema: ISchema,
@@ -270,7 +287,7 @@ export function verifyContentAgainstNestedSchemas(
 }
 
 /**
- * Validates the metadata of a schema against a predefined metadata model. This function
+ * (Internal Function) - Validates the metadata of a schema against a predefined metadata model. This function
  * ensures that the metadata associated with a schema adheres to specific standards and
  * formats as defined in the MetadataModel.
  *
@@ -280,54 +297,80 @@ export function verifyContentAgainstNestedSchemas(
  * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the metadata does not
  *   conform to the MetadataModel. This error includes details about the specific validation
  *   failures, which helps in identifying and correcting issues in the metadata structure.
+ *
+ * @internal
  */
 export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
   verifyObjectAgainstSchema(metadata, MetadataModel)
 }
 
 /**
- * Constructs a schema object from given properties, required fields, and other schema
- * attributes. This function is a key part of schema creation, allowing for the dynamic
- * generation of schemas based on specific requirements and attributes.
+ * Constructs a schema object from given properties, required fields, and other schema attributes. This function
+ * plays a critical role in schema creation, enabling dynamic generation of schemas based on specific requirements
+ * and attributes.
  *
- * @param title - The title of the schema. This is a descriptive name
- *   given to the schema for identification purposes.
- * @param properties - An object defining the properties of the
- *   schema. Each property in this object represents a field in the schema, along with its
- *   type and other attributes.
- * @param required - An array of strings that lists the names of
- *   properties that are required in the schema. This ensures that certain fields must be
- *   present in any data object validated against this schema.
- * @param schema
- * @param creator - The decentralized identifier (DID) of the creator of the
- *   schema. This is used to generate a unique identifier for the schema.
- * @returns - Returns a fully constructed schema object that can be used for
- *   validating data objects and other purposes.
- * @throws {SDKErrors.SchemaStructureError} - Throws an error if the constructed schema
- *   does not conform to the expected structure or standards. This ensures the integrity
- *   and validity of the created schema.
+ * @param schema - An object defining the properties, required fields, and other attributes of the schema.
+ *                           This includes the structure and data types for each field in the schema.
+ * @param creator - The decentralized identifier (DID) of the creator of the schema. Used to generate a
+ *                           unique identifier for the schema, ensuring its uniqueness and traceability.
+ * @param space - An identifier for the space (context or category) within which the schema is created.
+ *                          This helps in organizing and categorizing schemas, especially in systems with a variety
+ *                          of schema types and structures.
+ *
+ * @returns - Returns a fully constructed
+ *          schema object that can be used for validating data objects and other purposes. The returned object
+ *          includes the schema, its cryptographic digest, the space identifier, and the creator's DID.
+ *
+ * @throws {SDKErrors.SchemaStructureError} - Throws an error if the constructed schema does not conform to the
+ *         expected structure or standards, ensuring the integrity and validity of the created schema.
+ *
+ * @example
+ * ```typescript
+ * const properties = {
+ *   title: 'Person',
+ *   type: 'object',
+ *   properties: {
+ *     name: { type: 'string' },
+ *     age: { type: 'integer' },
+ *   },
+ *   required: ['name']
+ * };
+ * const creatorDid = 'did:example:creator';
+ * const spaceId = 'exampleSpaceId';
+ *
+ * try {
+ *   const { schema, digest, space, creator } = buildFromProperties(properties, creatorDid, spaceId);
+ *   console.log('Constructed Schema:', schema);
+ *   console.log('Schema Digest:', digest);
+ *   console.log('Space ID:', space);
+ *   console.log('Creator DID:', creator);
+ * } catch (error) {
+ *   console.error('Error constructing schema:', error);
+ * }
+ * ```
  */
-export function getURIFromProperties(
+export function buildFromProperties(
   schema: ISchema,
-  creator: DidUri
-): { schema: ISchema; digest: HexString; creator: DidUri } {
+  creator: DidUri,
+  space: SpaceId
+): { schema: ISchema; digest: HexString; space: SpaceId; creator: DidUri } {
   const { $id, ...uriSchema } = schema
   uriSchema.additionalProperties = false
   uriSchema.$schema = SchemaModelV1.$id
 
-  const { uri, digest } = getUriForSchema(uriSchema, creator)
+  const { uri, digest } = getUriForSchema(uriSchema, creator, space)
 
   const schemaType = {
     $id: uri,
     ...uriSchema,
   }
 
-  verifySchemaStructure(schemaType, creator)
-  return { schema: schemaType, digest, creator }
+  verifySchemaStructure(schemaType, creator, space)
+  return { schema: schemaType, digest, space, creator }
 }
 
 /**
- * Determines whether a given input conforms to the ISchema interface. This function
+ * (Internal Helper Function) - Determines whether a given input conforms to the ISchema interface. This function
  * serves as a type guard, verifying if the input structure aligns with the expected
  * schema structure defined by ISchema.
  *
@@ -337,6 +380,8 @@ export function getURIFromProperties(
  * @returns - Returns true if the input conforms to the ISchema interface,
  *   indicating that it has the expected structure and properties of a schema. Returns
  *   false otherwise.
+ *
+ * @internal
  */
 export function isISchema(input: unknown): input is ISchema {
   try {

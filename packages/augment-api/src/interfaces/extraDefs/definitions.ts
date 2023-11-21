@@ -2,7 +2,8 @@
 
 import {
   types,
-  cordSignedExtensions as userExtensions,
+  // cordSignedExtensions as userExtensions,
+  // cordApiOptions,
   didApiCalls,
   TransactionWeightApiCalls,
 } from '@cord.network/type-definitions'
@@ -14,7 +15,8 @@ export default {
     ...didApiCalls,
     ...TransactionWeightApiCalls,
   },
-  signedExtensions: {
-    ...userExtensions,
-  },
+  // signedExtensions: {
+  //   ...userExtensions,
+  //   ...cordApiOptions.signedExtensions
+  // },
 }

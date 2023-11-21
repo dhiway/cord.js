@@ -28,7 +28,7 @@
     "build:fixes": "node scripts/fixTypes.mjs",
     "build:ts": "tsc -p tsconfig.build.json",
     "generate:defs": "ts-node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-defs --package @cord.network/augment-api --input ./src/interfaces --endpoint ./metadata/cord.json",
-    "generate:meta": "ts-node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-chain --package @cord.network/augment-api --endpoint ./metadata/cord.json --output ./src/interfaces  --strict",
+    "generate:meta": "ts-node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-chain --package @cord.network/augment-api --endpoint ./metadata/cord.json --output ./src/interfaces",
     "update-metadata": "node ./scripts/fetchMetadata.cjs -o './metadata/cord.json' -e 'wss://staging.cord.network/'"
   },
   "repository": "github:dhiway/cord.js",

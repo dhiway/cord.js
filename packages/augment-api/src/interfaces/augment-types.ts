@@ -5,7 +5,7 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/types/types/registry';
 
-import type { PeerId, RawDidLinkedInfo, RuntimeDispatchWeightInfo, RuntimeDispatchWeightInfoV1, RuntimeDispatchWeightInfoV2 } from '@cord.network/augment-api/extraDefs';
+import type { RawDidLinkedInfo, RuntimeDispatchWeightInfo, RuntimeDispatchWeightInfoV1, RuntimeDispatchWeightInfoV2 } from '@cord.network/augment-api/extraDefs';
 import type { Data, StorageKey } from '@polkadot/types';
 import type { BitVec, Bool, Bytes, F32, F64, I128, I16, I256, I32, I64, I8, ISize, Json, Null, OptionBool, Raw, Text, Type, U128, U16, U256, U32, U64, U8, USize, bool, f32, f64, i128, i16, i256, i32, i64, i8, isize, u128, u16, u256, u32, u64, u8, usize } from '@polkadot/types-codec';
 import type { TAssetConversion } from '@polkadot/types/interfaces/assetConversion';
@@ -799,7 +799,6 @@ declare module '@polkadot/types/types/registry' {
     Peer: Peer;
     PeerEndpoint: PeerEndpoint;
     PeerEndpointAddr: PeerEndpointAddr;
-    PeerId: PeerId;
     PeerInfo: PeerInfo;
     PeerPing: PeerPing;
     PendingChange: PendingChange;

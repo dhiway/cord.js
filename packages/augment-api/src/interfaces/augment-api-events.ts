@@ -47,6 +47,10 @@ declare module '@polkadot/api-base/types/events' {
        * session. [Vec<member_id>]
        **/
       OutgoingAuthorities: AugmentedEvent<ApiType, [Vec<AccountId32>]>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     balances: {
       /**
@@ -135,6 +139,10 @@ declare module '@polkadot/api-base/types/events' {
        * Some amount was withdrawn from the account (e.g. for transaction fees).
        **/
       Withdraw: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     chainSpace: {
       /**
@@ -192,6 +200,10 @@ declare module '@polkadot/api-base/types/events' {
        * \[space identifier \]
        **/
       UpdateCapacity: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     council: {
       /**
@@ -228,6 +240,10 @@ declare module '@polkadot/api-base/types/events' {
        * `MemberCount`).
        **/
       Voted: AugmentedEvent<ApiType, [account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32], { account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     councilMembership: {
       /**
@@ -255,6 +271,10 @@ declare module '@polkadot/api-base/types/events' {
        * Two members were swapped; see the transaction for who.
        **/
       MembersSwapped: AugmentedEvent<ApiType, []>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     did: {
       /**
@@ -277,6 +297,10 @@ declare module '@polkadot/api-base/types/events' {
        * \[DID identifier\]
        **/
       Updated: AugmentedEvent<ApiType, [identifier: AccountId32], { identifier: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     didName: {
       /**
@@ -295,6 +319,10 @@ declare module '@polkadot/api-base/types/events' {
        * A name has been unbanned.
        **/
       DidNameUnbanned: AugmentedEvent<ApiType, [name: Bytes], { name: Bytes }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     grandpa: {
       /**
@@ -309,6 +337,10 @@ declare module '@polkadot/api-base/types/events' {
        * Current authority set has been resumed.
        **/
       Resumed: AugmentedEvent<ApiType, []>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     identity: {
       /**
@@ -330,7 +362,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A judgement was asked from a registrar.
        **/
-      JudgementRequested: AugmentedEvent<ApiType, [who: AccountId32, registrar: AccountId32, digest: H256], { who: AccountId32, registrar: AccountId32, digest: H256 }>;
+      JudgementRequested: AugmentedEvent<ApiType, [who: AccountId32, registrar: AccountId32], { who: AccountId32, registrar: AccountId32 }>;
       /**
        * A judgement request was retracted.
        **/
@@ -338,11 +370,15 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A registrar was added.
        **/
-      RegistrarAdded: AugmentedEvent<ApiType, [registrar: AccountId32], { registrar: AccountId32 }>;
+      RegistrarAdded: AugmentedEvent<ApiType, [registrarIndex: u32], { registrarIndex: u32 }>;
       /**
        * A registrar was removed.
        **/
       RegistrarRemoved: AugmentedEvent<ApiType, [registrar: AccountId32], { registrar: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     imOnline: {
       /**
@@ -357,6 +393,10 @@ declare module '@polkadot/api-base/types/events' {
        * At the end of the session, at least one validator was found to be offline.
        **/
       SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, CordRuntimeEntitiesValidatorFullIdentification]>>], { offline: Vec<ITuple<[AccountId32, CordRuntimeEntitiesValidatorFullIdentification]>> }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     indices: {
       /**
@@ -371,6 +411,10 @@ declare module '@polkadot/api-base/types/events' {
        * A account index has been frozen to its current account ID.
        **/
       IndexFrozen: AugmentedEvent<ApiType, [index: u32, who: AccountId32], { index: u32, who: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     multisig: {
       /**
@@ -389,6 +433,10 @@ declare module '@polkadot/api-base/types/events' {
        * A new multisig operation has begun.
        **/
       NewMultisig: AugmentedEvent<ApiType, [approving: AccountId32, multisig: AccountId32, callHash: U8aFixed], { approving: AccountId32, multisig: AccountId32, callHash: U8aFixed }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     networkMembership: {
       /**
@@ -411,6 +459,10 @@ declare module '@polkadot/api-base/types/events' {
        * A membership was revoked
        **/
       MembershipRevoked: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     nodeAuthorization: {
       /**
@@ -450,6 +502,10 @@ declare module '@polkadot/api-base/types/events' {
        * The node was transferred to another account.
        **/
       NodeTransferred: AugmentedEvent<ApiType, [nodeId: Bytes, target: AccountId32], { nodeId: Bytes, target: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     offences: {
       /**
@@ -458,6 +514,10 @@ declare module '@polkadot/api-base/types/events' {
        * deposited for duplicate slashes. \[kind, timeslot\].
        **/
       Offence: AugmentedEvent<ApiType, [kind: U8aFixed, timeslot: Bytes], { kind: U8aFixed, timeslot: Bytes }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     preimage: {
       /**
@@ -472,12 +532,20 @@ declare module '@polkadot/api-base/types/events' {
        * A preimage has been requested.
        **/
       Requested: AugmentedEvent<ApiType, [hash_: H256], { hash_: H256 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     remark: {
       /**
        * Stored data off chain.
        **/
       Stored: AugmentedEvent<ApiType, [sender: AccountId32, contentHash: H256], { sender: AccountId32, contentHash: H256 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     scheduler: {
       /**
@@ -504,6 +572,10 @@ declare module '@polkadot/api-base/types/events' {
        * Scheduled some task.
        **/
       Scheduled: AugmentedEvent<ApiType, [when: u32, index: u32], { when: u32, index: u32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     schema: {
       /**
@@ -511,6 +583,10 @@ declare module '@polkadot/api-base/types/events' {
        * \[schema identifier, digest, author\]
        **/
       Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     score: {
       /**
@@ -523,6 +599,10 @@ declare module '@polkadot/api-base/types/events' {
        * \[entry identifier, entity, author\]
        **/
       JournalEntry: AugmentedEvent<ApiType, [identifier: Bytes, entity: AccountId32, author: AccountId32], { identifier: Bytes, entity: AccountId32, author: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     session: {
       /**
@@ -530,6 +610,10 @@ declare module '@polkadot/api-base/types/events' {
        * block number as the type might suggest.
        **/
       NewSession: AugmentedEvent<ApiType, [sessionIndex: u32], { sessionIndex: u32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     statement: {
       /**
@@ -578,6 +662,10 @@ declare module '@polkadot/api-base/types/events' {
        * \[statement identifier, digest, controller\]
        **/
       Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     sudo: {
       /**
@@ -592,6 +680,10 @@ declare module '@polkadot/api-base/types/events' {
        * A [sudo_as](Pallet::sudo_as) call just took place.
        **/
       SudoAsDone: AugmentedEvent<ApiType, [sudoResult: Result<Null, SpRuntimeDispatchError>], { sudoResult: Result<Null, SpRuntimeDispatchError> }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     system: {
       /**
@@ -618,6 +710,10 @@ declare module '@polkadot/api-base/types/events' {
        * On on-chain remark happened.
        **/
       Remarked: AugmentedEvent<ApiType, [sender: AccountId32, hash_: H256], { sender: AccountId32, hash_: H256 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     technicalCommittee: {
       /**
@@ -654,6 +750,10 @@ declare module '@polkadot/api-base/types/events' {
        * `MemberCount`).
        **/
       Voted: AugmentedEvent<ApiType, [account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32], { account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32 }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     technicalMembership: {
       /**
@@ -681,6 +781,10 @@ declare module '@polkadot/api-base/types/events' {
        * Two members were swapped; see the transaction for who.
        **/
       MembersSwapped: AugmentedEvent<ApiType, []>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
     utility: {
       /**
@@ -708,6 +812,10 @@ declare module '@polkadot/api-base/types/events' {
        * A single item within a Batch of dispatches has completed with error.
        **/
       ItemFailed: AugmentedEvent<ApiType, [error: SpRuntimeDispatchError], { error: SpRuntimeDispatchError }>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
     };
   } // AugmentedEvents
 } // declare module

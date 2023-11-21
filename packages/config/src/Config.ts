@@ -14,7 +14,10 @@
  */
 import type { ApiOptions } from '@cord.network/types'
 import { ApiPromise, WsProvider, cryptoWaitReady } from '@cord.network/types'
-import { typesBundle } from '@cord.network/type-definitions'
+import {
+  typesBundle,
+  cordSignedExtensions,
+} from '@cord.network/type-definitions'
 import * as ConfigService from './Service.js'
 
 /**
@@ -51,6 +54,7 @@ export async function connect(
   const api = await ApiPromise.create({
     provider,
     typesBundle,
+    signedExtensions: cordSignedExtensions,
     noInitWarn,
     ...apiOpts,
   })

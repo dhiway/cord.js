@@ -1,5 +1,6 @@
 import type { HexString } from './Imported.js'
 import type { DidUri } from './DidDocument.js'
+import { SpaceId } from './ChainSpace.js'
 
 export const SCHEMA_IDENT = 1424
 export const SCHEMA_PREFIX = 'schema:cord:'
@@ -86,5 +87,6 @@ export interface ISchema {
 export interface ISchemaDetails {
   schema: ISchema
   digest: SchemaHash
+  space: SpaceId
   creator: DidUri
 }
