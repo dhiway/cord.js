@@ -53,8 +53,12 @@ import type {
   H256,
   ISpaceDetails,
   Option,
+  ISpaceAuthorization,
   ISpaceAuthorizationDetails,
   PermissionType,
+  IChainSpace,
+  CordKeyringPair,
+  SignExtrinsicCallback,
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import { uriToIdentifier, hashToUri } from '@cord.network/identifier'
@@ -75,6 +79,39 @@ import type {
   PalletChainSpaceSpaceAuthorization,
   PalletChainSpacePermissions,
 } from '@cord.network/augment-api'
+import { Chain } from '@cord.network/network'
+
+/**
+ * Checks the existence of a Chain Space on CORD.
+ *
+ * @param chainSpace - The Chain Space ID to be checked.
+ * @returns A promise that resolves to true if the Chain Space exists, or false otherwise.
+ */
+export async function isChainSpaceStored(
+  chainSpace: SpaceId
+): Promise<boolean> {
+  const api = ConfigService.get('api')
+  const identifier = uriToIdentifier(chainSpace)
+  const encoded = await api.query.chainSpace.spaces(identifier)
+
+  return !encoded.isNone
+}
+
+/**
+ * Checks if a given authorization exists on the blockchain.
+ *
+ * @param authorization - The AuthorizationId to check for existence.
+ * @returns A Promise resolving to a boolean. `true` if the authorization exists, `false` otherwise.
+ */
+export async function isAuthorizationStored(
+  authorization: AuthorizationId
+): Promise<boolean> {
+  const api = ConfigService.get('api')
+  const identifier = uriToIdentifier(authorization)
+  const encoded = await api.query.chainSpace.authorizations(identifier)
+
+  return !encoded.isNone
+}
 
 /**
  * Generates identifiers for a ChainSpace and its associated authorization.
@@ -83,7 +120,7 @@ import type {
  * @param creator - The DID URI of the creator of the ChainSpace.
  * @returns A Promise resolving to an object containing the ChainSpace ID and Authorization ID.
  */
-export async function createChainSpaceIdentifiers(
+export async function getUriForSpace(
   spaceDigest: string,
   creator: DidUri
 ): Promise<ChainSpaceIdentifiers> {
@@ -99,7 +136,7 @@ export async function createChainSpaceIdentifiers(
   )
 
   const chainSpaceId: SpaceId = hashToUri(digest, SPACE_IDENT, SPACE_PREFIX)
-
+  console.log(chainSpaceId)
   const scaleEncodedAuthDigest = api
     .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceId))
     .toU8a()
@@ -121,6 +158,73 @@ export async function createChainSpaceIdentifiers(
 }
 
 /**
+ * @param schema
+ * @param space_digest
+ * @param spaceDigest
+ * @param space
+ * @param authorAccount
+ * @param creator
+ * @param authorization
+ * @param signCallback
+ */
+export async function dispatchToChain(
+  space: IChainSpace,
+  creator: DidUri,
+  authorAccount: CordKeyringPair,
+  signCallback: SignExtrinsicCallback
+): Promise<{ uri: SpaceId; auth: AuthorizationId }> {
+  const returnObject = { uri: space.identifier, auth: space.authorization }
+
+  try {
+    const api = ConfigService.get('api')
+
+    const exists = await isChainSpaceStored(space.identifier)
+    if (!exists) {
+      const tx = api.tx.chainSpace.create(space.digest)
+      const extrinsic = await Did.authorizeTx(
+        creator,
+        tx,
+        signCallback,
+        authorAccount.address
+      )
+
+      await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    }
+
+    return returnObject
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
+  }
+}
+
+/**
+ * @param authority
+ * @param spaceUri
+ * @param capacity
+ */
+export async function sudoApproveChainSpace(
+  authority: CordKeyringPair,
+  spaceUri: IChainSpace['identifier'],
+  capacity: number
+) {
+  try {
+    const api = ConfigService.get('api')
+    const spaceId = uriToIdentifier(spaceUri)
+
+    const tx = api.tx.chainSpace.approve(spaceId, capacity)
+    const sudoExtrinsic = api.tx.sudo.sudo(tx)
+
+    await Chain.signAndSubmitTx(sudoExtrinsic, authority)
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain:"${error}".`
+    )
+  }
+}
+
+/**
  * Generates an Authorization ID for a ChainSpace delegate.
  * This function is integral for establishing delegated access within a ChainSpace context.
  *
@@ -132,7 +236,7 @@ export async function createChainSpaceIdentifiers(
  * @param creator - The DID URI of the creator granting the authorization.
  * @returns A promise that resolves to the Authorization ID, uniquely representing the delegation within the ChainSpace.
  */
-export async function createChainSpaceDelegateIdentifier(
+export async function getUriForAuthorization(
   chainSpaceId: SpaceId,
   delegate: DidUri,
   creator: DidUri
@@ -164,6 +268,73 @@ export async function createChainSpaceDelegateIdentifier(
   )
 
   return authorizationId
+}
+
+async function dispatchDelegateAuthorizationTx(
+  permission: PermissionType,
+  spaceId: string,
+  delegateId: string,
+  authId: string
+) {
+  const api = ConfigService.get('api')
+
+  switch (permission) {
+    case Permission.ASSERT:
+      return api.tx.chainSpace.addDelegate(spaceId, delegateId, authId)
+    case Permission.ADMIN:
+      return api.tx.chainSpace.addAdminDelegate(spaceId, delegateId, authId)
+    case Permission.AUDIT:
+      return api.tx.chainSpace.addAuditDelegate(spaceId, delegateId, authId)
+    default:
+      throw new SDKErrors.InvalidPermissionError(
+        `Permission not valid:"${permission}".`
+      )
+  }
+}
+
+/**
+ * @param request
+ * @param authorAccount
+ * @param authorization
+ * @param signCallback
+ */
+export async function dispatchDelegateAuthorization(
+  request: ISpaceAuthorization,
+  authorAccount: CordKeyringPair,
+  authorization: AuthorizationId,
+  signCallback: SignExtrinsicCallback
+): Promise<AuthorizationId> {
+  try {
+    const authId = uriToIdentifier(request.authorization)
+
+    const authorizationExists = await isAuthorizationStored(authId)
+    if (!authorizationExists) {
+      const spaceId = uriToIdentifier(request.chainSpace)
+      const delegateId = Did.toChain(request.delegate)
+      const delegatorAuth = uriToIdentifier(authorization)
+
+      const tx = await dispatchDelegateAuthorizationTx(
+        request.permission,
+        spaceId,
+        delegateId,
+        delegatorAuth
+      )
+      const extrinsic = await Did.authorizeTx(
+        request.delegator as DidUri,
+        tx,
+        signCallback,
+        authorAccount.address
+      )
+
+      await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    }
+
+    return authId
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching delegate authorization: ${error}`
+    )
+  }
 }
 
 /**
@@ -286,36 +457,4 @@ export async function getAuthorizationDetailsfromChain(
     )
   }
   return authDetails
-}
-
-/**
- * Checks the existence of a Chain Space on CORD.
- *
- * @param chainSpace - The Chain Space ID to be checked.
- * @returns A promise that resolves to true if the Chain Space exists, or false otherwise.
- */
-export async function isChainSpaceStored(
-  chainSpace: SpaceId
-): Promise<boolean> {
-  const api = ConfigService.get('api')
-  const identifier = uriToIdentifier(chainSpace)
-  const encoded = await api.query.chainSpace.spaces(identifier)
-
-  return !encoded.isNone
-}
-
-/**
- * Checks if a given authorization exists on the blockchain.
- *
- * @param authorization - The AuthorizationId to check for existence.
- * @returns A Promise resolving to a boolean. `true` if the authorization exists, `false` otherwise.
- */
-export async function isAuthorizationStored(
-  authorization: AuthorizationId
-): Promise<boolean> {
-  const api = ConfigService.get('api')
-  const identifier = uriToIdentifier(authorization)
-  const encoded = await api.query.chainSpace.authorizations(identifier)
-
-  return !encoded.isNone
 }

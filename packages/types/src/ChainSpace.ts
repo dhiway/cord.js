@@ -40,6 +40,7 @@ export type PermissionType = (typeof Permission)[keyof typeof Permission]
 export interface ISpaceAuthorization {
   chainSpace: SpaceId
   delegate: DidUri
+  permission: PermissionType
   authorization: AuthorizationId
   delegator: DidUri
 }

@@ -30,6 +30,7 @@ import {
   setRegistrar,
   provideJudgement,
 } from './utils/createRegistrar'
+import { Permission } from '@cord.network/types'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -102,10 +103,10 @@ async function main() {
     issuerDid,
     'application/json'
   )
-  console.dir(conformingDidDocument, {
-    depth: null,
-    colors: true,
-  })
+  // console.dir(conformingDidDocument, {
+  //   depth: null,
+  //   colors: true,
+  // })
   // Create Delegate One DID
   const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
     await createDid(authorIdentity)
@@ -153,9 +154,18 @@ async function main() {
 
   // Step 3: Create a new Chain Space
   console.log(`\n❄️  Chain Space Creation `)
-  const space = await ensureStoredChainSpace(
-    authorIdentity,
+  const spaceProperties = await Cord.ChainSpace.buildFromProperties(
+    issuerDid.uri
+  )
+  console.dir(spaceProperties, {
+    depth: null,
+    colors: true,
+  })
+
+  const space = await Cord.ChainSpace.dispatchToChain(
+    spaceProperties,
     issuerDid.uri,
+    authorIdentity,
     async ({ data }) => ({
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,
@@ -167,22 +177,42 @@ async function main() {
   })
   console.log('✅ Chain Space created!')
 
-  await approveSpace(authorityAuthorIdentity, space['identifier'])
+  await Cord.ChainSpace.sudoApproveChainSpace(
+    authorityAuthorIdentity,
+    space.uri,
+    100
+  )
   console.log(`🔏  Chain Space Approved`)
 
   // Step 4: Add Delelegate Two as Registry Delegate
   console.log(`\n❄️  Space Delegate Authorization `)
-  const delegateAuth = await addSpaceAuthorization(
+  const permission: Cord.PermissionType = Permission.ASSERT
+  const spaceAuthProperties =
+    await Cord.ChainSpace.buildFromAuthorizationProperties(
+      space.uri,
+      delegateTwoDid.uri,
+      permission,
+      issuerDid.uri
+    )
+  console.dir(spaceAuthProperties, {
+    depth: null,
+    colors: true,
+  })
+
+  const delegateAuth = await Cord.ChainSpace.dispatchDelegateAuthorization(
+    spaceAuthProperties,
     authorIdentity,
-    delegateTwoDid.uri,
-    issuerDid.uri,
-    space['identifier'],
-    space['authorization'],
+    space.auth,
     async ({ data }) => ({
       signature: issuerKeys.capabilityDelegation.sign(data),
       keyType: issuerKeys.capabilityDelegation.type,
     })
   )
+  console.dir(delegateAuth, {
+    depth: null,
+    colors: true,
+  })
+
   console.log(`✅ Space Delegation - ${delegateAuth.authorization} - created!`)
 
   // Step 5: Create a new Schema
@@ -194,7 +224,7 @@ async function main() {
   let schemaProperties = Cord.Schema.buildFromProperties(
     newSchemaContent,
     issuerDid.uri,
-    space.identifier
+    space.uri
   )
   console.dir(schemaProperties, {
     depth: null,
@@ -205,7 +235,7 @@ async function main() {
     schemaProperties.schema,
     authorIdentity,
     issuerDid.uri,
-    space.authorization,
+    space.auth,
     async ({ data }) => ({
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,

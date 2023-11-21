@@ -68,6 +68,8 @@ export class AuthorizationMissingError extends SDKError {}
 export class DocumentContentMalformed extends SDKError {}
 export class InvalidIdentifierError extends SDKError {}
 export class InvalidURIError extends SDKError {}
+export class CordDispatchError extends SDKError {}
+export class InvalidPermissionError extends SDKError {}
 
 export class SchemaIdMismatchError extends SDKError {
   constructor(fromSchema: string, provided: string) {

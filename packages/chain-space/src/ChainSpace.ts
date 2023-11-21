@@ -45,12 +45,10 @@ import type {
   SpaceId,
   IChainSpace,
   ISpaceAuthorization,
+  PermissionType,
 } from '@cord.network/types'
 import { Crypto, UUID } from '@cord.network/utils'
-import {
-  createChainSpaceIdentifiers,
-  createChainSpaceDelegateIdentifier,
-} from './ChainSpace.chain.js'
+import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
 
 /**
  * Creates a new ChainSpace object.
@@ -79,7 +77,7 @@ import {
  * ```.
  *
  */
-export async function createChainSpace(
+export async function buildFromProperties(
   creator: DidUri,
   chainSpaceDesc?: string
 ): Promise<IChainSpace> {
@@ -87,11 +85,12 @@ export async function createChainSpace(
   const chainSpaceDescription =
     chainSpaceDesc || `ChainSpace v1.${UUID.generate()}`
 
+  console.log(chainSpaceDescription)
   // Create a hash of the ChainSpace string to serve as a unique identifier
   const chainSpaceHash = Crypto.hashStr(chainSpaceDescription)
 
   // Generate the ChainSpace and authorization identifiers
-  const { chainSpaceId, authorizationId } = await createChainSpaceIdentifiers(
+  const { chainSpaceId, authorizationId } = await getUriForSpace(
     chainSpaceHash,
     creator
   )
@@ -112,6 +111,7 @@ export async function createChainSpace(
  *
  * @param chainSpace - The identifier of the ChainSpace for which the delegate is being authorized.
  * @param delegate - The DID URI of the delegate being authorized. This is a decentralized identifier for the entity that is being given certain permissions or roles within the ChainSpace.
+ * @param permission
  * @param creator - The DID URI of the admin or owner of the ChainSpace. This entity is authorizing the delegate.
  * @returns A promise that resolves to an ISpaceAuthorization object.
  *
@@ -128,22 +128,22 @@ export async function createChainSpace(
  * ```.
  *
  */
-export async function createChainSpaceDelegate(
+export async function buildFromAuthorizationProperties(
   chainSpace: SpaceId,
   delegate: DidUri,
+  permission: PermissionType,
   creator: DidUri
 ): Promise<ISpaceAuthorization> {
-  // Generate the authorization identifier for the delegate within the ChainSpace
-  const authorizationId = await createChainSpaceDelegateIdentifier(
+  const authorizationId = await getUriForAuthorization(
     chainSpace,
     delegate,
     creator
   )
 
-  // Return the space authorization object with ChainSpace, delegate, authorization ID, and delegator
   return {
     chainSpace,
     delegate,
+    permission,
     authorization: authorizationId,
     delegator: creator,
   }
