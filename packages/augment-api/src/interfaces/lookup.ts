@@ -1909,7 +1909,7 @@ export default {
         delegate: 'AccountId32',
         authorization: 'Bytes',
       },
-      add_audit_delegate: {
+      add_delegator: {
         spaceId: 'Bytes',
         delegate: 'AccountId32',
         authorization: 'Bytes',

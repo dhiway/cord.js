@@ -280,7 +280,6 @@ export function identifierToUri(identifier: string): string {
   if (typeof identifier !== 'string' || identifier.length === 0) {
     throw new Error('Input must be a non-empty string.')
   }
-  console.log(identifier)
   // Check if the input is already a URI
   const existingPrefix = VALID_PREFIXES.find((prefix) =>
     identifier.startsWith(prefix)

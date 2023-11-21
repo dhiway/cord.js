@@ -136,30 +136,39 @@ export function getUriForSchema(
 }
 
 /**
- * Dispatches a schema to the blockchain for storage and tracking. This function is responsible for
- * taking a given schema object, verifying its uniqueness, and then encoding and submitting it as a transaction
- * on the blockchain. This is crucial in decentralized environments where schemas need to be immutable and
- * verifiable. The function employs several key parameters including the author's blockchain account for
- * transaction signing, the creator's DID for identity verification, and an authorization ID for transaction
- * permissioning. A callback for signing the extrinsic is also used, encapsulating the blockchain's transaction
- * signing logic. The function is asynchronous and returns a promise that resolves to the schema's unique ID
- * once the transaction is successfully processed by the blockchain.
+ * Dispatches a schema to the blockchain for storage and tracking. This function handles
+ * the submission of a schema object to the blockchain, ensuring its uniqueness, immutability,
+ * and verifiability in a decentralized environment. It involves encoding the schema, signing
+ * the transaction using the author's blockchain account, and employing the creator's DID for
+ * identity verification. The function also requires an authorization ID for transaction
+ * permissioning and a callback function for signing the transaction (extrinsic).
  *
- * @param schema - The schema object, typically a structured data format defining data requirements.
- * @param authorAccount - The blockchain account of the author, used to authenticate and sign transactions.
- * @param creator - The decentralized identifier (DID) URI representing the digital identity of the creator.
- * @param authorization - A unique identifier for authorization purposes, often tied to specific permissions.
- * @param signCallback - A callback function that handles the signing of the blockchain transaction (extrinsic).
- * @returns A promise that resolves to the unique ID of the dispatched schema, used for future references.
+ * @param schema - The schema object, typically representing a structured data format
+ *        defining data requirements.
+ * @param creator - The decentralized identifier (DID) URI representing the digital
+ *        identity of the creator.
+ * @param authorAccount - The blockchain account of the author, used for.
+ * @param authorization - A unique identifier for authorization purposes,
+ *        authenticating and signing the transaction.
+ *        often associated with specific permissions.
+ * @param signCallback - A callback function that handles the signing
+ *        of the blockchain transaction (extrinsic).
+ * @returns A promise that resolves to the unique ID of the dispatched schema
+ *          upon successful processing by the blockchain.
+ *
+ * The function employs a try-catch block to handle potential errors during the dispatch process,
+ * such as issues with transaction creation or network failures. In case of an error, it throws
+ * an informative exception.
  *
  * @example
  * ```typescript
  * async function exampleSchemaDispatch() {
- *   const schema = {schema data}; // Replace with actual schema data
- *   const authorAccount = {author's blockchain account}; // Replace with actual account
- *   const creator = 'did:cord:example'; // Replace with actual DID
- *   const authorization = 'authorization-id'; // Replace with actual authorization ID
- *   const signCallback = (tx: any) => {signing logic}; // Replace with actual sign callback function
+ *   // Initialize schema data and necessary parameters
+ *   const schema = { schema data };
+ *   const authorAccount = { author's blockchain account };
+ *   const creator = 'did:cord:example';
+ *   const authorization = 'authorization-id';
+ *   const signCallback = (tx: any) => { /* signing logic };
  *
  *   try {
  *     const schemaId = await dispatchToChain(schema, authorAccount, creator, authorization, signCallback);
@@ -175,32 +184,38 @@ export function getUriForSchema(
  */
 export async function dispatchToChain(
   schema: ISchema,
-  authorAccount: CordKeyringPair,
   creator: DidUri,
+  authorAccount: CordKeyringPair,
   authorization: AuthorizationId,
   signCallback: SignExtrinsicCallback
 ): Promise<SchemaId> {
-  const api = ConfigService.get('api')
+  try {
+    const api = ConfigService.get('api')
 
-  const exists = await isSchemaStored(schema)
-  if (exists) {
+    const exists = await isSchemaStored(schema)
+    if (exists) {
+      return schema.$id
+    }
+
+    const authorizationId = uriToIdentifier(authorization)
+
+    const encodedSchema = encodeCborSchema(schema)
+    const tx = api.tx.schema.create(encodedSchema, authorizationId)
+    const extrinsic = await Did.authorizeTx(
+      creator,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+
     return schema.$id
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
   }
-
-  const authorizationId = uriToIdentifier(authorization)
-
-  const encodedSchema = encodeCborSchema(schema)
-  const tx = api.tx.schema.create(encodedSchema, authorizationId)
-  const extrinsic = await Did.authorizeTx(
-    creator,
-    tx,
-    signCallback,
-    authorAccount.address
-  )
-
-  await Chain.signAndSubmitTx(extrinsic, authorAccount)
-
-  return schema.$id
 }
 
 /**
@@ -284,24 +299,26 @@ function fromChain(
 }
 
 /**
- * Retrieves schema details from the blockchain using a given schema ID. This function is essential for
- * accessing stored schemas in a blockchain environment, where it queries the blockchain to fetch the
- * schema associated with the provided schema ID. It is a key part of the system's interaction with the blockchain,
- * allowing for the retrieval of schema information that is stored in an immutable and secure manner.
+ * Retrieves schema details from the blockchain using a given schema ID. This function plays a crucial role
+ * in accessing stored schemas within a blockchain environment. It queries the blockchain to fetch the schema
+ * associated with the provided schema ID, facilitating the retrieval of schema information stored in an
+ * immutable and secure manner.
  *
  * @param schemaUri - The unique identifier of the schema, formatted as a URI string.
- *                    This ID is used to locate the schema on the blockchain, ensuring that the correct schema
- *                    is retrieved for use or verification within the application.
+ *        This ID is used to locate and retrieve the schema on the blockchain, ensuring accuracy in schema retrieval.
  *
- * @returns A promise that resolves to the schema details (`ISchemaDetails`)
- *          if found, or null if the schema is not present on the blockchain. This provides a clear and
- *          concise mechanism for schema retrieval, aiding in the validation and utilization of schema data.
+ * @returns - A promise that resolves to the schema details (`ISchemaDetails`)
+ *          if found on the blockchain. If the schema is not present, the promise resolves to `null`.
+ *          This approach provides a straightforward method for accessing schema information by their unique identifiers.
  *
- * This function simplifies the process of fetching schema details from the blockchain, abstracting the complexities
- * of blockchain interactions and providing a straightforward method to access schemas by their unique identifiers.
+ * The function employs a `try-catch` block to handle any errors during the blockchain query process. If the
+ * schema is not found or if an error occurs during fetching, appropriate exceptions are thrown to indicate
+ * the issue.
  *
- * @throws {SDKErrors.SchemaError} If the schema with the provided ID is not found on the blockchain. This error
- *         handling ensures robustness in schema retrieval operations and provides clear feedback in case of missing data.
+ * @throws {SDKErrors.SchemaError} - Thrown if the schema with the provided ID is not found on the blockchain,
+ *         providing clarity in cases where the requested data is missing.
+ * @throws {SDKErrors.CordFetchError} - Thrown in case of errors during the fetching process, such as network
+ *         issues or problems with querying the blockchain.
  *
  * @example
  * ```typescript
@@ -325,16 +342,24 @@ function fromChain(
 export async function fetchFromChain(
   schemaUri: ISchema['$id']
 ): Promise<ISchemaDetails | null> {
-  const api = ConfigService.get('api')
-  const cordSchemaId = uriToIdentifier(schemaUri)
+  try {
+    const api = ConfigService.get('api')
+    const cordSchemaId = uriToIdentifier(schemaUri)
 
-  const schemaEntry = await api.query.schema.schemas(cordSchemaId)
-  const decodedSchema = fromChain(schemaEntry, schemaUri)
-  if (decodedSchema === null) {
-    throw new SDKErrors.SchemaError(
-      `There is not a Schema with the provided ID "${schemaUri}" on chain.`
+    const schemaEntry = await api.query.schema.schemas(cordSchemaId)
+    const decodedSchema = fromChain(schemaEntry, schemaUri)
+
+    if (decodedSchema === null) {
+      throw new SDKErrors.SchemaError(
+        `There is not a Schema with the provided URI "${schemaUri}" on chain.`
+      )
+    }
+
+    return decodedSchema
+  } catch (error) {
+    console.error('Error fetching schema from chain:', error)
+    throw new SDKErrors.CordFetchError(
+      `Error occurred while fetching schema from chain: ${error}`
     )
   }
-
-  return decodedSchema
 }

@@ -69,6 +69,8 @@ export class DocumentContentMalformed extends SDKError {}
 export class InvalidIdentifierError extends SDKError {}
 export class InvalidURIError extends SDKError {}
 export class CordDispatchError extends SDKError {}
+export class CordFetchError extends SDKError {}
+export class CordQueryError extends SDKError {}
 export class InvalidPermissionError extends SDKError {}
 
 export class SchemaIdMismatchError extends SDKError {

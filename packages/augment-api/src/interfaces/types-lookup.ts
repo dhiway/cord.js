@@ -1878,8 +1878,8 @@ declare module '@polkadot/types/lookup' {
       readonly delegate: AccountId32;
       readonly authorization: Bytes;
     } & Struct;
-    readonly isAddAuditDelegate: boolean;
-    readonly asAddAuditDelegate: {
+    readonly isAddDelegator: boolean;
+    readonly asAddDelegator: {
       readonly spaceId: Bytes;
       readonly delegate: AccountId32;
       readonly authorization: Bytes;
@@ -1926,7 +1926,7 @@ declare module '@polkadot/types/lookup' {
     readonly asApprovalRestore: {
       readonly spaceId: Bytes;
     } & Struct;
-    readonly type: 'AddDelegate' | 'AddAdminDelegate' | 'AddAuditDelegate' | 'RemoveDelegate' | 'Create' | 'Approve' | 'Archive' | 'Restore' | 'UpdateTransactionCapacity' | 'ResetTransactionCount' | 'ApprovalRevoke' | 'ApprovalRestore';
+    readonly type: 'AddDelegate' | 'AddAdminDelegate' | 'AddDelegator' | 'RemoveDelegate' | 'Create' | 'Approve' | 'Archive' | 'Restore' | 'UpdateTransactionCapacity' | 'ResetTransactionCount' | 'ApprovalRevoke' | 'ApprovalRestore';
   }
 
   /** @name PalletStatementCall (241) */

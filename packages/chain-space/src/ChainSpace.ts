@@ -57,7 +57,7 @@ import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
  * This function generates a unique ChainSpace identifier and an authorization identifier based on the provided creator's DID URI.
  * Users can optionally provide their own ChainSpace description. If not provided, a default description with a unique UUID is used.
  *
- * @param creator - The DID URI of the creator. This is a decentralized identifier for the entity creating the ChainSpace.
+ * @param creatorUri - The DID URI of the creator. This is a decentralized identifier for the entity creating the ChainSpace.
  * @param chainSpaceDesc - (Optional) A custom description to represent the ChainSpace. If not provided, a default description is generated.
  * @returns A promise that resolves to an IChainSpace object.
  *
@@ -78,73 +78,70 @@ import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
  *
  */
 export async function buildFromProperties(
-  creator: DidUri,
+  creatorUri: DidUri,
   chainSpaceDesc?: string
 ): Promise<IChainSpace> {
-  // Use the provided chainSpaceString or generate a unique one
   const chainSpaceDescription =
     chainSpaceDesc || `ChainSpace v1.${UUID.generate()}`
 
-  console.log(chainSpaceDescription)
-  // Create a hash of the ChainSpace string to serve as a unique identifier
   const chainSpaceHash = Crypto.hashStr(chainSpaceDescription)
 
-  // Generate the ChainSpace and authorization identifiers
-  const { chainSpaceId, authorizationId } = await getUriForSpace(
-    chainSpaceHash,
-    creator
-  )
+  const { uri, authUri } = await getUriForSpace(chainSpaceHash, creatorUri)
 
-  // Return the ChainSpace object with its identifier, hash, creator, and authorization ID
   return {
-    identifier: chainSpaceId,
+    uri,
     digest: chainSpaceHash,
-    creator,
-    authorization: authorizationId,
+    creator: creatorUri,
+    authorization: authUri,
   }
 }
 
 /**
- * Creates a delegate authorization for a given ChainSpace.
+ * Constructs an ISpaceAuthorization object for a given ChainSpace to authorize a delegate.
  *
- * This function is used to authorize a delegate within a specific ChainSpace, allowing the delegate to perform actions or access resources within that space on behalf of the creator.
+ * This function is utilized to create an authorization structure within a specific ChainSpace. It assigns
+ * a delegate to perform certain actions or access resources on behalf of the ChainSpace's creator or owner.
+ * The function generates a unique authorization identifier and encapsulates all relevant details into an
+ * ISpaceAuthorization object.
  *
- * @param chainSpace - The identifier of the ChainSpace for which the delegate is being authorized.
- * @param delegate - The DID URI of the delegate being authorized. This is a decentralized identifier for the entity that is being given certain permissions or roles within the ChainSpace.
- * @param permission
- * @param creator - The DID URI of the admin or owner of the ChainSpace. This entity is authorizing the delegate.
- * @returns A promise that resolves to an ISpaceAuthorization object.
+ * @param spaceUri - The unique identifier (URI) of the ChainSpace for which the delegate is being authorized.
+ * @param delegateUri - The decentralized identifier (DID) URI of the delegate. The delegate is the entity
+ *        being granted permissions or roles within the ChainSpace.
+ * @param permission - The type of permission being granted to the delegate.
+ * @param creatorUri - The DID URI of the ChainSpace's admin or owner. This individual or entity is responsible
+ *        for authorizing the delegate.
  *
- * The ISpaceAuthorization object includes:
- * - `chainSpace`: The identifier of the ChainSpace involved.
- * - `delegate`: The DID URI of the delegate.
- * - `authorization`: A unique identifier for this specific authorization.
- * - `delegator`: The DID URI of the creator or owner who is granting the authorization.
+ * @returns - A promise that resolves to an ISpaceAuthorization object containing details
+ *          of the space, delegate, permission granted, the unique authorization identifier, and the delegator.
  *
  * Example usage:
+ * ```typescript
+ * const spaceAuthorization = await buildFromAuthorizationProperties(
+ *   'space:example_uri',
+ *   'did:example:delegateUri',
+ *   PermissionType.EXAMPLE_PERMISSION,
+ *   'did:example:creatorUri'
+ * );
+ * console.log('Authorization ID:', spaceAuthorization.authorization);
  * ```.
- * const spaceAuthorization = await createChainSpaceDelegate('space-123', 'did:example:delegate', 'did:example:creator');
- * console.log(spaceAuthorization.authorization); // Outputs the authorization identifier
- * ```.
- *
  */
 export async function buildFromAuthorizationProperties(
-  chainSpace: SpaceId,
-  delegate: DidUri,
+  spaceUri: SpaceId,
+  delegateUri: DidUri,
   permission: PermissionType,
-  creator: DidUri
+  creatorUri: DidUri
 ): Promise<ISpaceAuthorization> {
   const authorizationId = await getUriForAuthorization(
-    chainSpace,
-    delegate,
-    creator
+    spaceUri,
+    delegateUri,
+    creatorUri
   )
 
   return {
-    chainSpace,
-    delegate,
+    space: spaceUri,
+    delegate: delegateUri,
     permission,
     authorization: authorizationId,
-    delegator: creator,
+    delegator: creatorUri,
   }
 }

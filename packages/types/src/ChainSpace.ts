@@ -9,19 +9,19 @@ export const AUTH_PREFIX = 'auth:cord:'
 export type AuthorizationId = string
 
 export interface ChainSpaceIdentifiers {
-  chainSpaceId: SpaceId
-  authorizationId: AuthorizationId
+  uri: SpaceId
+  authUri: AuthorizationId
 }
 
 export interface IChainSpace {
-  identifier: SpaceId
+  uri: SpaceId
   digest: HexString
   creator: DidUri
   authorization: AuthorizationId
 }
 
 export interface ISpaceDetails {
-  identifier: SpaceId
+  uri: SpaceId
   creator: DidUri
   txnCapacity: number
   txnUsage: number
@@ -32,13 +32,13 @@ export interface ISpaceDetails {
 /* eslint-disable no-bitwise */
 export const Permission = {
   ASSERT: 1 << 0, // 0001
-  ADMIN: 1 << 1, // 0010
-  AUDIT: 1 << 2, // 0100
+  DELEGATE: 1 << 1, // 0010
+  ADMIN: 1 << 2, // 0100
 } as const
 export type PermissionType = (typeof Permission)[keyof typeof Permission]
 
 export interface ISpaceAuthorization {
-  chainSpace: SpaceId
+  space: SpaceId
   delegate: DidUri
   permission: PermissionType
   authorization: AuthorizationId

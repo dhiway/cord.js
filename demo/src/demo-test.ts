@@ -4,12 +4,12 @@ import { generateKeypairs } from './utils/generateKeypairs'
 import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
-import { ensureStoredSchema } from './utils/generateSchema'
-import {
-  ensureStoredChainSpace,
-  addSpaceAuthorization,
-  approveSpace,
-} from './utils/generateChainSpace'
+// import { ensureStoredSchema } from './utils/generateSchema'
+// import {
+//   ensureStoredChainSpace,
+//   addSpaceAuthorization,
+//   approveSpace,
+// } from './utils/generateChainSpace'
 import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
 import { createStatement } from './utils/createStatement'
@@ -30,7 +30,7 @@ import {
   setRegistrar,
   provideJudgement,
 } from './utils/createRegistrar'
-import { Permission } from '@cord.network/types'
+// import { Permission } from '@cord.network/types'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -162,6 +162,7 @@ async function main() {
     colors: true,
   })
 
+  console.log(`\n❄️  Chain Space Properties `)
   const space = await Cord.ChainSpace.dispatchToChain(
     spaceProperties,
     issuerDid.uri,
@@ -177,16 +178,17 @@ async function main() {
   })
   console.log('✅ Chain Space created!')
 
+  console.log(`\n❄️  Chain Space Approval `)
   await Cord.ChainSpace.sudoApproveChainSpace(
     authorityAuthorIdentity,
     space.uri,
     100
   )
-  console.log(`🔏  Chain Space Approved`)
+  console.log(`✅  Chain Space Approved`)
 
   // Step 4: Add Delelegate Two as Registry Delegate
   console.log(`\n❄️  Space Delegate Authorization `)
-  const permission: Cord.PermissionType = Permission.ASSERT
+  const permission: Cord.PermissionType = Cord.Permission.ASSERT
   const spaceAuthProperties =
     await Cord.ChainSpace.buildFromAuthorizationProperties(
       space.uri,
@@ -198,11 +200,11 @@ async function main() {
     depth: null,
     colors: true,
   })
-
+  console.log(`\n❄️  Space Delegation To Chain `)
   const delegateAuth = await Cord.ChainSpace.dispatchDelegateAuthorization(
     spaceAuthProperties,
     authorIdentity,
-    space.auth,
+    space.authorization,
     async ({ data }) => ({
       signature: issuerKeys.capabilityDelegation.sign(data),
       keyType: issuerKeys.capabilityDelegation.type,
@@ -212,8 +214,24 @@ async function main() {
     depth: null,
     colors: true,
   })
+  console.log(`✅ Space Authorization - ${delegateAuth} - added!`)
 
-  console.log(`✅ Space Delegation - ${delegateAuth.authorization} - created!`)
+  console.log(`\n❄️  Query From Chain - Chain Space Details `)
+  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(space.uri)
+  console.dir(spaceFromChain, {
+    depth: null,
+    colors: true,
+  })
+
+  console.log(`\n❄️  Query From Chain - Chain Space Authorization Details `)
+  const spaceAuthFromChain = await Cord.ChainSpace.fetchAuthorizationFromChain(
+    delegateAuth
+  )
+  console.dir(spaceAuthFromChain, {
+    depth: null,
+    colors: true,
+  })
+  console.log(`✅ Chain Space Functions Completed!`)
 
   // Step 5: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
@@ -223,25 +241,26 @@ async function main() {
 
   let schemaProperties = Cord.Schema.buildFromProperties(
     newSchemaContent,
-    issuerDid.uri,
-    space.uri
+    space.uri,
+    issuerDid.uri
   )
   console.dir(schemaProperties, {
     depth: null,
     colors: true,
   })
-
   const schemaId = await Cord.Schema.dispatchToChain(
     schemaProperties.schema,
-    authorIdentity,
     issuerDid.uri,
-    space.auth,
+    authorIdentity,
+    space.authorization,
     async ({ data }) => ({
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,
     })
   )
+  console.log(`✅ Schema - ${schemaId} - added!`)
 
+  console.log(`\n❄️  Query From Chain - Schema `)
   const schemaFromChain = await Cord.Schema.fetchFromChain(
     schemaProperties.schema.$id
   )
@@ -249,7 +268,7 @@ async function main() {
     depth: null,
     colors: true,
   })
-  console.log('✅ Schema created!')
+  console.log('✅ Schema Functions Completed!')
 
   // // Step 4: Delegate creates a new Verifiable Document
   // console.log(`\n❄️  Verifiable Document Creation `)

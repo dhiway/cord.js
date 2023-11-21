@@ -153,9 +153,19 @@ async function main() {
 
   // Step 3: Create a new Chain Space
   console.log(`\n❄️  Chain Space Creation `)
-  const space = await ensureStoredChainSpace(
-    authorIdentity,
+  const spaceProperties = await Cord.ChainSpace.buildFromProperties(
+    issuerDid.uri
+  )
+  console.dir(spaceProperties, {
+    depth: null,
+    colors: true,
+  })
+
+  console.log(`\n❄️  Chain Space Properties `)
+  const space = await Cord.ChainSpace.dispatchToChain(
+    spaceProperties,
     issuerDid.uri,
+    authorIdentity,
     async ({ data }) => ({
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,
@@ -167,17 +177,33 @@ async function main() {
   })
   console.log('✅ Chain Space created!')
 
-  await approveSpace(authorityAuthorIdentity, space['identifier'])
-  console.log(`🔏  Chain Space Approved`)
+  console.log(`\n❄️  Chain Space Approval `)
+  await Cord.ChainSpace.sudoApproveChainSpace(
+    authorityAuthorIdentity,
+    space.uri,
+    100
+  )
+  console.log(`✅  Chain Space Approved`)
 
   // Step 4: Add Delelegate Two as Registry Delegate
   console.log(`\n❄️  Space Delegate Authorization `)
-  const delegateAuth = await addSpaceAuthorization(
+  const permission: Cord.PermissionType = Cord.Permission.ASSERT
+  const spaceAuthProperties =
+    await Cord.ChainSpace.buildFromAuthorizationProperties(
+      space.uri,
+      delegateTwoDid.uri,
+      permission,
+      issuerDid.uri
+    )
+  console.dir(spaceAuthProperties, {
+    depth: null,
+    colors: true,
+  })
+  console.log(`\n❄️  Space Delegation To Chain `)
+  const delegateAuth = await Cord.ChainSpace.dispatchDelegateAuthorization(
+    spaceAuthProperties,
     authorIdentity,
-    delegateTwoDid.uri,
-    issuerDid.uri,
-    space['identifier'],
-    space['authorization'],
+    space.authorization,
     async ({ data }) => ({
       signature: issuerKeys.capabilityDelegation.sign(data),
       keyType: issuerKeys.capabilityDelegation.type,
@@ -187,9 +213,7 @@ async function main() {
     depth: null,
     colors: true,
   })
-  console.log(
-    `✅ Space Authorization - ${delegateAuth.authorization} - created!`
-  )
+  console.log(`✅ Space Authorization - ${delegateAuth} - added!`)
 
   // Step 5: Create a new Schema
   console.log(`\n❄️  Schema Creation `)
@@ -199,8 +223,8 @@ async function main() {
 
   let schemaProperties = Cord.Schema.buildFromProperties(
     newSchemaContent,
-    issuerDid.uri,
-    space.identifier
+    space.uri,
+    issuerDid.uri
   )
   console.dir(schemaProperties, {
     depth: null,
@@ -209,8 +233,8 @@ async function main() {
 
   const schemaId = await Cord.Schema.dispatchToChain(
     schemaProperties.schema,
-    authorIdentity,
     issuerDid.uri,
+    authorIdentity,
     space.authorization,
     async ({ data }) => ({
       signature: issuerKeys.assertionMethod.sign(data),
@@ -218,7 +242,7 @@ async function main() {
     })
   )
 
-  console.log(`✅ Schema created! ${schemaId}`)
+  console.log(`✅ Schema - ${schemaId} - added!`)
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
@@ -227,7 +251,7 @@ async function main() {
     holderDid.uri,
     delegateTwoDid.uri,
     schemaProperties.schema,
-    space.identifier,
+    space.uri,
     async ({ data }) => ({
       signature: delegateTwoKeys.assertionMethod.sign(data),
       keyType: delegateTwoKeys.assertionMethod.type,
@@ -241,7 +265,7 @@ async function main() {
   await createStatement(
     document,
     delegateTwoDid.uri,
-    delegateAuth['authorization'],
+    delegateAuth,
     authorIdentity,
     async ({ data }) => ({
       signature: delegateTwoKeys.assertionMethod.sign(data),
@@ -276,7 +300,7 @@ async function main() {
   await updateStatement(
     updatedDocument,
     delegateTwoDid.uri,
-    delegateAuth['authorization'],
+    delegateAuth,
     authorIdentity,
     async ({ data }) => ({
       signature: delegateTwoKeys.assertionMethod.sign(data),
@@ -329,7 +353,7 @@ async function main() {
       keyType: delegateTwoKeys.assertionMethod.type,
     }),
     updatedDocument,
-    delegateAuth['authorization']
+    delegateAuth
   )
   console.log(`✅ Credential revoked!`)
 

@@ -52,9 +52,9 @@
 
 import type {
   DidUri,
-  HexString,
   IContent,
   ISchema,
+  ISchemaDetails,
   ISchemaMetadata,
   SchemaHash,
   SpaceId,
@@ -305,24 +305,24 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
 }
 
 /**
- * Constructs a schema object from given properties, required fields, and other schema attributes. This function
- * plays a critical role in schema creation, enabling dynamic generation of schemas based on specific requirements
- * and attributes.
+ * Constructs a schema object from specified properties, required fields, and other schema attributes.
+ * This function is pivotal in dynamically generating schemas based on specific requirements and attributes,
+ * facilitating the creation of structured and standardized schema objects.
  *
  * @param schema - An object defining the properties, required fields, and other attributes of the schema.
- *                           This includes the structure and data types for each field in the schema.
- * @param creator - The decentralized identifier (DID) of the creator of the schema. Used to generate a
- *                           unique identifier for the schema, ensuring its uniqueness and traceability.
+ *        This includes the structure and data types for each field within the schema, providing the blueprint
+ *        for the schema's format and content.
  * @param space - An identifier for the space (context or category) within which the schema is created.
- *                          This helps in organizing and categorizing schemas, especially in systems with a variety
- *                          of schema types and structures.
+ *        This categorization aids in organizing and managing schemas, particularly in diverse and complex systems.
+ * @param creator - The decentralized identifier (DID) of the creator of the schema. This DID is used
+ *        to generate a unique identifier for the schema, ensuring its uniqueness and traceability within the system.
  *
- * @returns - Returns a fully constructed
- *          schema object that can be used for validating data objects and other purposes. The returned object
- *          includes the schema, its cryptographic digest, the space identifier, and the creator's DID.
+ * @returns - A fully constructed schema object including the schema itself, its cryptographic
+ *          digest, the space identifier, and the creator's DID. This object can be utilized for data validation
+ *          and various other purposes, serving as a cornerstone in data structuring and management.
  *
- * @throws {SDKErrors.SchemaStructureError} - Throws an error if the constructed schema does not conform to the
- *         expected structure or standards, ensuring the integrity and validity of the created schema.
+ * @throws {SDKErrors.SchemaStructureError} - If the constructed schema fails to conform to the expected structure
+ *         or standards. This error ensures the integrity and compliance of the schema with predefined models.
  *
  * @example
  * ```typescript
@@ -351,9 +351,9 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  */
 export function buildFromProperties(
   schema: ISchema,
-  creator: DidUri,
-  space: SpaceId
-): { schema: ISchema; digest: HexString; space: SpaceId; creator: DidUri } {
+  space: SpaceId,
+  creator: DidUri
+): ISchemaDetails {
   const { $id, ...uriSchema } = schema
   uriSchema.additionalProperties = false
   uriSchema.$schema = SchemaModelV1.$id
@@ -365,8 +365,14 @@ export function buildFromProperties(
     ...uriSchema,
   }
 
+  const schemaDetails: ISchemaDetails = {
+    schema: schemaType,
+    digest,
+    space,
+    creator,
+  }
   verifySchemaStructure(schemaType, creator, space)
-  return { schema: schemaType, digest, space, creator }
+  return schemaDetails
 }
 
 /**

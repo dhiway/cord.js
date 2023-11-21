@@ -50,16 +50,22 @@ export async function connect(
     ...apiOpts
   }: Omit<ApiOptions, 'provider'> = {}
 ): Promise<ApiPromise> {
-  const provider = new WsProvider(blockchainRpcWsUrl)
-  const api = await ApiPromise.create({
-    provider,
-    typesBundle,
-    signedExtensions: cordSignedExtensions,
-    noInitWarn,
-    ...apiOpts,
-  })
-  await init({ api })
-  return api.isReadyOrError
+  try {
+    const provider = new WsProvider(blockchainRpcWsUrl)
+    const api = await ApiPromise.create({
+      provider,
+      typesBundle,
+      signedExtensions: cordSignedExtensions,
+      noInitWarn,
+      ...apiOpts,
+    })
+
+    await init({ api })
+    return api.isReadyOrError
+  } catch (error) {
+    console.error('Error connecting to blockchain:', error)
+    throw error
+  }
 }
 
 /**
