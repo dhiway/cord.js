@@ -150,3 +150,7 @@ export interface DidDocument {
 
   service?: DidServiceEndpoint[]
 }
+
+export interface DidKeyRecord {
+  [key: string]: DidKey
+}

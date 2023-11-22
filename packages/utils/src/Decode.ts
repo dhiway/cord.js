@@ -35,9 +35,10 @@ export function assertCodecIsType(codec: Codec, types: string[]): void {
 }
 
 /**
- * Convert from hex to string
- * @param hex Hex string with prefix `0x`
- * @returns With string back
+ * Convert from hex to string.
+ *
+ * @param hex Hex string with prefix `0x`.
+ * @returns With string back.
  */
 export function hexToString(hex: string): string {
   return Buffer.from(hex.substring(2), 'hex').toString()

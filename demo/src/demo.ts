@@ -6,10 +6,10 @@ import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
 import { ensureStoredSchema } from './utils/generateSchema'
 import {
-  ensureStoredRegistry,
-  addRegistryAdminDelegate,
-  addRegistryDelegate,
-} from './utils/generateRegistry'
+  ensureStoredChainSpace,
+  addSpaceAuthorization,
+  approveSpace,
+} from './utils/generateChainSpace'
 import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
 import { createStatement } from './utils/createStatement'
@@ -21,13 +21,15 @@ import { encryptMessage } from './utils/encrypt_message'
 import { generateRequestCredentialMessage } from './utils/request_credential_message'
 import { getChainCredits, addAuthority } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
-import { updateStatement } from './utils/updateDocument'
-import { requestJudgement, setIdentity, setRegistrar, provideJudgement } from './utils/createRegistrar'
+import { updateDocument } from './utils/updateDocument'
+import { updateStatement } from './utils/updateStatement'
 
-// import type {
-//   SignCallback,
-//   // DocumenentMetaData,
-// } from '@cord.network/types'
+import {
+  requestJudgement,
+  setIdentity,
+  setRegistrar,
+  provideJudgement,
+} from './utils/createRegistrar'
 
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
@@ -48,7 +50,9 @@ async function main() {
   )
   // Setup network authority account.
   const { account: authorityIdentity } = await createAccount()
-  console.log(`🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`)
+  console.log(
+    `🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`
+  )
   await addAuthority(authorityAuthorIdentity, authorityIdentity.address)
   await setRegistrar(authorityAuthorIdentity, authorityIdentity.address)
   console.log('✅ Network Authority created!')
@@ -65,7 +69,6 @@ async function main() {
   await provideJudgement(authorityIdentity, authorIdentity.address)
   console.log(`🔏  Member identity judgement provided`)
   console.log('✅ Network Member added!')
-
 
   // Step 2: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)
@@ -148,66 +151,98 @@ async function main() {
   console.log(`✅ DID name - ${randomDidName} - created!`)
   await getDidDocFromName(randomDidName)
 
-  // Step 2: Create a new Schema
-  console.log(`\n❄️  Schema Creation `)
-  const schema = await ensureStoredSchema(
-    authorIdentity,
+  // Step 3: Create a new Chain Space
+  console.log(`\n❄️  Chain Space Creation `)
+  const spaceProperties = await Cord.ChainSpace.buildFromProperties(
+    issuerDid.uri
+  )
+  console.dir(spaceProperties, {
+    depth: null,
+    colors: true,
+  })
+
+  console.log(`\n❄️  Chain Space Properties `)
+  const space = await Cord.ChainSpace.dispatchToChain(
+    spaceProperties,
     issuerDid.uri,
+    authorIdentity,
     async ({ data }) => ({
       signature: issuerKeys.assertionMethod.sign(data),
       keyType: issuerKeys.assertionMethod.type,
     })
   )
-  console.dir(schema, {
+  console.dir(space, {
     depth: null,
     colors: true,
   })
-  console.log('✅ Schema created!')
+  console.log('✅ Chain Space created!')
 
-  // Step 3: Create a new Registry
-  console.log(`\n❄️  Registry Creation `)
-  const registry = await ensureStoredRegistry(
-    authorIdentity,
-    issuerDid.uri,
-    schema['$id'],
-    async ({ data }) => ({
-      signature: issuerKeys.assertionMethod.sign(data),
-      keyType: issuerKeys.assertionMethod.type,
-    })
+  console.log(`\n❄️  Chain Space Approval `)
+  await Cord.ChainSpace.sudoApproveChainSpace(
+    authorityAuthorIdentity,
+    space.uri,
+    100
   )
-  console.dir(registry, {
-    depth: null,
-    colors: true,
-  })
-  console.log('✅ Registry created!')
-
-  // Step 4: Add Delelegate One as Registry Admin
-  console.log(`\n❄️  Registry Admin Delegate Authorization `)
-  const registryAuthority = await addRegistryAdminDelegate(
-    authorIdentity,
-    issuerDid.uri,
-    registry['identifier'],
-    delegateOneDid.uri,
-    async ({ data }) => ({
-      signature: issuerKeys.capabilityDelegation.sign(data),
-      keyType: issuerKeys.capabilityDelegation.type,
-    })
-  )
-  console.log(`✅ Registry Authorization - ${registryAuthority} - created!`)
+  console.log(`✅  Chain Space Approved`)
 
   // Step 4: Add Delelegate Two as Registry Delegate
-  console.log(`\n❄️  Registry Delegate Authorization `)
-  const registryDelegate = await addRegistryDelegate(
+  console.log(`\n❄️  Space Delegate Authorization `)
+  const permission: Cord.PermissionType = Cord.Permission.ASSERT
+  const spaceAuthProperties =
+    await Cord.ChainSpace.buildFromAuthorizationProperties(
+      space.uri,
+      delegateTwoDid.uri,
+      permission,
+      issuerDid.uri
+    )
+  console.dir(spaceAuthProperties, {
+    depth: null,
+    colors: true,
+  })
+  console.log(`\n❄️  Space Delegation To Chain `)
+  const delegateAuth = await Cord.ChainSpace.dispatchDelegateAuthorization(
+    spaceAuthProperties,
     authorIdentity,
-    issuerDid.uri,
-    registry['identifier'],
-    delegateTwoDid.uri,
+    space.authorization,
     async ({ data }) => ({
       signature: issuerKeys.capabilityDelegation.sign(data),
       keyType: issuerKeys.capabilityDelegation.type,
     })
   )
-  console.log(`✅ Registry Delegation - ${registryDelegate} - created!`)
+  console.dir(delegateAuth, {
+    depth: null,
+    colors: true,
+  })
+  console.log(`✅ Space Authorization - ${delegateAuth} - added!`)
+
+  // Step 5: Create a new Schema
+  console.log(`\n❄️  Schema Creation `)
+  let newSchemaContent = require('../res/schema.json')
+  let newSchemaName = newSchemaContent.title + ':' + UUID.generate()
+  newSchemaContent.title = newSchemaName
+
+  let schemaProperties = Cord.Schema.buildFromProperties(
+    newSchemaContent,
+    space.uri,
+    issuerDid.uri
+  )
+  console.dir(schemaProperties, {
+    depth: null,
+    colors: true,
+  })
+
+  const schemaId = await Cord.Schema.dispatchToChain(
+    schemaProperties.schema,
+    issuerDid.uri,
+    authorIdentity,
+    space.authorization,
+    async ({ data }) => ({
+      signature: issuerKeys.assertionMethod.sign(data),
+      keyType: issuerKeys.assertionMethod.type,
+    })
+  )
+
+  console.log(`✅ Schema - ${schemaId} - added!`)
 
   // Step 4: Delegate creates a new Verifiable Document
   console.log(`\n❄️  Verifiable Document Creation `)
@@ -215,13 +250,12 @@ async function main() {
   const document = await createDocument(
     holderDid.uri,
     delegateTwoDid.uri,
-    schema,
-    registryDelegate,
-    registry.identifier,
+    schemaProperties.schema,
+    space.uri,
     async ({ data }) => ({
-      signature: delegateTwoKeys.authentication.sign(data),
-      keyType: delegateTwoKeys.authentication.type,
-      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
     })
   )
   console.dir(document, {
@@ -229,53 +263,51 @@ async function main() {
     colors: true,
   })
   await createStatement(
+    document,
     delegateTwoDid.uri,
+    delegateAuth,
     authorIdentity,
     async ({ data }) => ({
       signature: delegateTwoKeys.assertionMethod.sign(data),
       keyType: delegateTwoKeys.assertionMethod.type,
-    }),
-    document
+    })
   )
-  console.log('✅ Credential created!')
+  console.log(`✅ Statement registered - ${document.identifier}`)
 
   // Step 5: Delegate updates the Verifiable Document
-  console.log('\n🖍️ Statement update...\n')
+  console.log(`\n❄️  Verifiable Document Update `)
+  let updateDocumentContent =
+    Cord.Document.extractDocumentContentforUpdate(document)
 
-  let updatedContent: Cord.IContent = {
-    name: 'Adi',
-    age: 23,
-    id: '123456789987654321',
-    gender: 'Male',
-    country: 'India',
-    address: {
-      street: 'a',
-      pin: 54032,
-      location: {
-        state: 'karnataka',
-        country: 'india',
-      },
-    },
-  }
+  const contents = updateDocumentContent.content.contents as Cord.IContents
+  contents.name = 'Alice M'
+  contents.age = 32
+  contents.address.pin = 560100
 
-  console.log('𝌞 Updated content\n', updatedContent)
-
-  const updatedDocument = await updateStatement(
-    document,
-    updatedContent,
-    schema,
+  const updatedDocument = await updateDocument(
+    updateDocumentContent,
+    schemaProperties.schema,
     async ({ data }) => ({
-      signature: delegateTwoKeys.authentication.sign(data),
-      keyType: delegateTwoKeys.authentication.type,
-      keyUri: `${delegateTwoDid.uri}${delegateTwoDid.authentication[0].id}`,
-    }),
-    delegateTwoDid.uri,
-    authorIdentity,
-    delegateTwoKeys
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
+    })
   )
-
-  console.log('\n✅ Document updated!')
-  console.log('\nUpdated document: \n', updatedDocument)
+  console.dir(updatedDocument, {
+    depth: null,
+    colors: true,
+  })
+  await updateStatement(
+    updatedDocument,
+    delegateTwoDid.uri,
+    delegateAuth,
+    authorIdentity,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    })
+  )
+  console.log(`✅ Statement updated - ${updatedDocument.identifier}`)
 
   // Step 6: Create a Presentation
   console.log(`\n❄️  Selective Disclosure Presentation Creation `)
@@ -300,38 +332,16 @@ async function main() {
 
   // Step 7: The verifier checks the presentation.
   console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
-  const isValid = await verifyPresentation(presentation, {
+  const verificationResult = await verifyPresentation(presentation, {
     challenge: challenge,
     trustedIssuerUris: [delegateTwoDid.uri],
   })
 
-  if (isValid) {
-    console.log('✅  Verification successful! 🎉')
+  if (verificationResult.isValid) {
+    console.log('✅ Verification successful! 🎉')
   } else {
-    console.log('✅  Verification failed! 🚫')
+    console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
   }
-
-  // Uncomment the following section to enable messaging demo
-  //
-  // console.log(`\n❄️  Messaging `)
-  // const schemaId = Cord.Schema.idToChain(schema.$id)
-  // console.log(' Generating the message - Sender -> Receiver')
-  // const message = await generateRequestCredentialMessage(
-  //   holderDid.uri,
-  //   verifierDid.uri,
-  //   schemaId
-  // )
-  //
-  // console.log(' Encrypting the message - Sender -> Receiver')
-  // const encryptedMessage = await encryptMessage(
-  //   message,
-  //   holderDid.uri,
-  //   verifierDid.uri,
-  //   holderKeys.keyAgreement
-  // )
-  //
-  // console.log(' Decrypting the message - Receiver')
-  // await decryptMessage(encryptedMessage, verifierKeys.keyAgreement)
 
   // Step 8: Revoke a Credential
   console.log(`\n❄️  Revoke credential - ${updatedDocument.identifier}`)
@@ -343,24 +353,23 @@ async function main() {
       keyType: delegateTwoKeys.assertionMethod.type,
     }),
     updatedDocument,
-    false
+    delegateAuth
   )
   console.log(`✅ Credential revoked!`)
 
   // Step 9: The verifier checks the presentation.
-  console.log(
-    // `\n❄️  Presentation Verification (should fail) - ${presentation.identifier} `
-    `\n❄️  Presentation Verification - ${presentation.identifier} `
-  )
-  const isAgainValid = await verifyPresentation(presentation, {
+  console.log(`\n❄️  Presentation Verification - ${presentation.identifier} `)
+  let reVerificationResult = await verifyPresentation(presentation, {
     challenge: challenge,
     trustedIssuerUris: [issuerDid.uri],
   })
 
-  if (isAgainValid) {
+  if (reVerificationResult.isValid) {
     console.log('✅ Verification successful! 🎉')
   } else {
-    console.log('✅ Verification failed! 🚫')
+    console.log(
+      `🚫 Verification failed! - "${reVerificationResult.message}" 🚫`
+    )
   }
 }
 main()

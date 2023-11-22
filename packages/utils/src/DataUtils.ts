@@ -7,84 +7,94 @@
 /**
  * Dummy comment needed for correct doc display, do not remove.
  */
-import { isHex } from '@polkadot/util'
+import { isHex, checkAddress } from '@cord.network/types'
 import type { CordAddress } from '@cord.network/types'
-import { checkAddress } from '@polkadot/util-crypto'
 import * as SDKErrors from './SDKErrors.js'
-import { checkIdentifier } from './Identifier.js'
 import { ss58Format } from './ss58Format.js'
 
+/**
+ * @param obj
+ * @param prefix
+ */
+export function flattenObject(
+  obj: Record<string, any>,
+  prefix = ''
+): Record<string, any> {
+  const flatObject: Record<string, any> = {}
 
-export function flattenObject(obj: Record<string, any>, prefix = ''): Record<string, any> {
-  const flatObject: Record<string, any> = {};
+  Object.keys(obj).forEach((key) => {
+    const newKey = `${prefix}${key}`
 
-  Object.keys(obj).forEach(key => {
-    const newKey = `${prefix}${key}`;
-
-    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-      flatObject[newKey] = obj[key]; // Store the current object
-      const deeper = flattenObject(obj[key], `${newKey}.`); // Recurse deeper
-      for (let prop in deeper) {
-        flatObject[prop] = deeper[prop];
-      }
+    if (
+      typeof obj[key] === 'object' &&
+      obj[key] !== null &&
+      !Array.isArray(obj[key])
+    ) {
+      const deeper = flattenObject(obj[key], `${newKey}.`)
+      Object.assign(flatObject, { [newKey]: obj[key] }, deeper)
     } else {
-      flatObject[newKey] = obj[key];
+      flatObject[newKey] = obj[key]
     }
-  });
+  })
 
-  return flatObject;
+  return flatObject
 }
 
 function extractKeyPartFromStatement(statement: string): string | null {
   try {
-    const obj = JSON.parse(statement);
-    const keys = Object.keys(obj);
+    const obj = JSON.parse(statement)
+    const keys = Object.keys(obj)
     if (keys.length > 0) {
       // Always retain 'issuer' and 'holder'
-      if (keys[0] === 'issuer' || keys[0] === 'holder') return keys[0];
+      if (keys[0] === 'issuer' || keys[0] === 'holder') return keys[0]
 
-      const parts = keys[0].split("#");
-      return parts.length > 1 ? parts[1] : null;
+      const parts = keys[0].split('#')
+      return parts.length > 1 ? parts[1] : null
     }
-    return null;
+    return null
   } catch (error) {
-    return null; // If parsing fails, return null
+    return null // If parsing fails, return null
   }
 }
-
-
-export function filterStatements(statements: string[], selectedAttributes: string[]): string[] {
-  return statements.filter(statement => {
-    const keyPart = extractKeyPartFromStatement(statement);
-    if (!keyPart) return false; // Omit if key extraction fails
-
-    // Always include 'issuer' and 'holder'
-    if (keyPart === 'issuer' || keyPart === 'holder') return true;
-
-    return selectedAttributes.includes(keyPart);
-  });
-}
-
-
 
 /**
- *  Validates the format of the given blake2b hash via regex.
- *
- * @param hash Hash string to validate for correct Format.
- * @param name Contextual name of the address, e.g. "stream owner".
- * @throws [[ERROR_HASH_TYPE]] when hash not of type string or of invalid Format.
- *
- * @returns Boolean whether the given hash string checks out against the Format.
+ * @param statements
+ * @param selectedAttributes
  */
-export function validateId(id: string, name: string): boolean {
-  if (typeof id !== 'string') {
-    throw new SDKErrors.IdentifierInvalidError(id)
-  }
-  if (!checkIdentifier(id)) {
-    throw new SDKErrors.IdentifierInvalidError(id)
-  }
-  return true
+export function filterStatements(
+  statements: string[],
+  selectedAttributes: string[]
+): string[] {
+  return statements.filter((statement) => {
+    const keyPart = extractKeyPartFromStatement(statement)
+    if (!keyPart) return false // Omit if key extraction fails
+
+    // Always include 'issuer' and 'holder'
+    if (keyPart === 'issuer' || keyPart === 'holder') return true
+
+    return selectedAttributes.includes(keyPart)
+  })
 }
+
+// /**
+//  *  Validates the format of the given blake2b hash via regex.
+//  *
+//  * @param hash Hash string to validate for correct Format.
+//  * @param id
+//  * @param name Contextual name of the address, e.g. "stream owner".
+//  * @throws [[ERROR_HASH_TYPE]] when hash not of type string or of invalid Format.
+//  *
+//  * @returns Boolean whether the given hash string checks out against the Format.
+//  */
+// export function validateId(id: string, name: string): boolean {
+//   if (typeof id !== 'string') {
+//     throw new SDKErrors.IdentifierInvalidError(id)
+//   }
+//   if (!checkIdentifier(id)) {
+//     throw new SDKErrors.IdentifierInvalidError(id)
+//   }
+//   return true
+// }
 
 /**
  * Verifies a given address string against the External Address Format (SS58) with our Prefix of 29.
@@ -116,7 +126,7 @@ export function isCordAddress(input: unknown): input is CordAddress {
 }
 
 // re-exporting isHex
-export { isHex } from '@polkadot/util'
+// export { isHex } from '@polkadot/util'
 
 /**
  * Validates the format of a hex string via regex.

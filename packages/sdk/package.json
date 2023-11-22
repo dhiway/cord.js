@@ -25,7 +25,7 @@
   },
   "repository": "github:dhiway/cord-js",
   "engines": {
-    "node": ">=16.0"
+    "node": ">=18.0"
   },
   "author": "",
   "bugs": "https://github.com/dhiway/cord.js/issues",
@@ -33,16 +33,18 @@
   "devDependencies": {
     "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.1.1",
-    "typescript": "^4.8.3",
+    "typescript": "^5.2.2",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
+    "@cord.network/chain-space": "workspace:*",
     "@cord.network/config": "workspace:*",
     "@cord.network/did": "workspace:*",
-    "@cord.network/messaging": "workspace:*",
-    "@cord.network/modules": "workspace:*",
+    "@cord.network/identifier": "workspace:*",
     "@cord.network/network": "workspace:*",
+    "@cord.network/statement": "workspace:*",
+    "@cord.network/transform": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*"
   }

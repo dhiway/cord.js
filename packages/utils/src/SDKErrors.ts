@@ -58,11 +58,20 @@ export class SchemaIdMissingError extends SDKError {}
 
 export class SchemaError extends SDKError {}
 
+export class StatementError extends SDKError {}
+
 export class SchemaUnknownPropertiesError extends SDKError {}
 
 export class SchemaIdentifierMissingError extends SDKError {}
-export class RegistryIdentifierMissingError extends SDKError {}
-export class AuthorizationIdentifierMissingError extends SDKError {}
+export class ChainSpaceMissingError extends SDKError {}
+export class AuthorizationMissingError extends SDKError {}
+export class DocumentContentMalformed extends SDKError {}
+export class InvalidIdentifierError extends SDKError {}
+export class InvalidURIError extends SDKError {}
+export class CordDispatchError extends SDKError {}
+export class CordFetchError extends SDKError {}
+export class CordQueryError extends SDKError {}
+export class InvalidPermissionError extends SDKError {}
 
 export class SchemaIdMismatchError extends SDKError {
   constructor(fromSchema: string, provided: string) {

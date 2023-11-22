@@ -17,11 +17,8 @@
       "@cord.network/config": [
         "config/src"
       ],
-      "@cord.network/modules": [
-        "modules/src"
-      ],
-      "@cord.network/messaging": [
-        "messaging/src"
+      "@cord.network/transform": [
+        "transform/src"
       ],
       "@cord.network/sdk": [
         "sdk/src"
@@ -49,7 +46,19 @@
       ],
       "@cord.network/type-definitions": [
         "type-definitions/src"
-      ]
+      ],
+      "@cord.network/identifier": [
+        "identifier/src"
+      ],
+      "@cord.network/chain-space": [
+        "chain-space/src"
+      ],
+      "@cord.network/statement": [
+        "statement/src"
+      ],
+      // "@cord.network/network-score": [
+      //   "network-score/src"
+      // ]
     }
   }
 }

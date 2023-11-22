@@ -1,13 +1,16 @@
-/**A
+/**
+ * A.
+ *
  * @packageDocumentation////////////////////////////////////////////////////////
  * @module VCExport
  */
 
-//import { decodeAddress } from '@polkadot/keyring'
-//import { u8aToHex } from '@polkadot/util'
+// import { decodeAddress } from '@polkadot/keyring'
+// import { u8aToHex } from '@polkadot/util'
 import type { AnyJson } from '@polkadot/types/types'
-import { Content } from '@cord.network/modules'
+import { Content } from '@cord.network/transform'
 import type { IDocument, ISchema } from '@cord.network/types'
+import { uriToIdentifier } from '@cord.network/identifier'
 import {
   DEFAULT_VERIFIABLE_CREDENTIAL_CONTEXT,
   DEFAULT_VERIFIABLE_CREDENTIAL_TYPE,
@@ -27,8 +30,10 @@ import type {
   CordStatementSignatureProof,
   VerifiableCredential,
 } from './types.js'
-import { Identifier } from '@cord.network/utils'
 
+/**
+ * @param credentialId
+ */
 export function fromCredentialIRI(credentialId: string): string {
   const idString = credentialId.startsWith(CORD_CREDENTIAL_IRI_PREFIX)
     ? credentialId.substring(CORD_CREDENTIAL_IRI_PREFIX.length)
@@ -36,6 +41,9 @@ export function fromCredentialIRI(credentialId: string): string {
   return idString
 }
 
+/**
+ * @param statementId
+ */
 export function toCredentialIRI(statementId: string): string {
   if (statementId.startsWith(CORD_CREDENTIAL_IRI_PREFIX)) {
     return statementId
@@ -43,6 +51,10 @@ export function toCredentialIRI(statementId: string): string {
   return CORD_CREDENTIAL_IRI_PREFIX + statementId
 }
 
+/**
+ * @param input
+ * @param schemaType
+ */
 export function fromCredential(
   input: IDocument,
   schemaType?: ISchema
@@ -57,7 +69,7 @@ export function fromCredential(
   } = input
 
   // write root hash to id
-  const id = toCredentialIRI(Identifier.uriToIdentifier(identifier))
+  const id = toCredentialIRI(uriToIdentifier(identifier))
 
   // transform & annotate statement to be json-ld and VC conformant
   const { credentialSubject } = Content.toJsonLD(content, false) as Record<
@@ -65,9 +77,9 @@ export function fromCredential(
     Record<string, AnyJson>
   >
 
-  const issuer = input.content.issuer
+  const { issuer } = input.content
 
-  const issuanceDate = input.issuanceDate
+  const { issuanceDate } = input
   const expirationDate = input.validUntil
   // if schema is given, add as credential schema
   let credentialSchema: CredentialSchema | undefined

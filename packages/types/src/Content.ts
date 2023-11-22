@@ -7,11 +7,6 @@ import type { DidUri } from './DidDocument'
 
 type ContentPrimitives = string | number | boolean
 
-/**
- * The minimal partial stream from which a JSON-LD representation can be built.
- */
-export type PartialContent = Partial<IContent> & Pick<IContent, 'schemaId'>
-
 export interface IContents {
   [key: string]:
     | ContentPrimitives
@@ -25,3 +20,7 @@ export interface IContent {
   holder: DidUri
   issuer: DidUri
 }
+/**
+ * The minimal partial stream from which a JSON-LD representation can be built.
+ */
+export type PartialContent = Partial<IContent> & Pick<IContent, 'schemaId'>
