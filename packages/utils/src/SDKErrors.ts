@@ -8,8 +8,9 @@
 /* eslint-disable max-classes-per-file */
 
 export class SDKError extends Error {
-  constructor(...args: ConstructorParameters<ErrorConstructor>) {
-    super(...args)
+  constructor(message?: string, options?: ErrorOptions) {
+    super(message, options)
+    // this line is the only reason for using SDKError
     this.name = this.constructor.name
   }
 }

@@ -30,7 +30,7 @@ describe('Log Configuration', () => {
       ConfigService.LoggingFactory.getLogger('test1').getLogLevel()
     ).toEqual(LogLevel.Info)
 
-    ConfigService.modifyLogLevel(-100)
+    ConfigService.modifyLogLevel(5)
     expect(testLogger.getLogLevel()).toEqual(0)
     ConfigService.modifyLogLevel(initialLevel)
     expect(testLogger.getLogLevel()).toEqual(initialLevel)
