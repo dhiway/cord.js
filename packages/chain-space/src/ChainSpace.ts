@@ -68,14 +68,13 @@ import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
  * - `authorization`: An identifier for authorization purposes, linked to this specific ChainSpace.
  *
  * Example usage:
- * ```.
+ * ```
  * const chainSpace = await createChainSpace('did:example:123');
  * console.log(chainSpace.identifier); // Outputs the ChainSpace identifier.
  *
  * const customChainSpace = await createChainSpace('did:example:456', 'MyCustomChainSpace');
  * console.log(customChainSpace.identifier); // Outputs the identifier for the custom ChainSpace
  * ```.
- *
  */
 export async function buildFromProperties(
   creatorUri: DidUri,
