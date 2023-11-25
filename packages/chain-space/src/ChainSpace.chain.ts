@@ -36,7 +36,7 @@
 import type {
   DidUri,
   SpaceId,
-  ChainSpaceIdentifiers,
+  ChainSpaceDetails,
   AuthorizationId,
   AccountId,
   H256,
@@ -47,6 +47,9 @@ import type {
   IChainSpace,
   CordKeyringPair,
   SignExtrinsicCallback,
+  SpaceDigest,
+  AuthorizationUri,
+  SpaceUri,
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import { uriToIdentifier, hashToUri } from '@cord.network/identifier'
@@ -80,7 +83,7 @@ import { Chain } from '@cord.network/network'
  *
  * @throws {SDKErrors.CordQueryError} - Thrown when an error occurs during the query to the blockchain.
  */
-export async function isChainSpaceStored(spaceUri: SpaceId): Promise<boolean> {
+export async function isChainSpaceStored(spaceUri: SpaceUri): Promise<boolean> {
   try {
     const api = ConfigService.get('api')
     const identifier = uriToIdentifier(spaceUri)
@@ -106,7 +109,7 @@ export async function isChainSpaceStored(spaceUri: SpaceId): Promise<boolean> {
  * @throws {SDKErrors.CordQueryError} - Thrown when an error occurs during the query to the blockchain.
  */
 export async function isAuthorizationStored(
-  authorizationUri: AuthorizationId
+  authorizationUri: AuthorizationUri
 ): Promise<boolean> {
   try {
     const api = ConfigService.get('api')
@@ -144,9 +147,9 @@ export async function isAuthorizationStored(
  * Note: This function is part of the internal logic of the module and is not intended for external use.
  */
 export async function getUriForSpace(
-  spaceDigest: string,
+  spaceDigest: SpaceDigest,
   creatorUri: DidUri
-): Promise<ChainSpaceIdentifiers> {
+): Promise<ChainSpaceDetails> {
   const api = ConfigService.get('api')
   const scaleEncodedSpaceDigest = api
     .createType<H256>('H256', spaceDigest)
@@ -158,7 +161,7 @@ export async function getUriForSpace(
     Uint8Array.from([...scaleEncodedSpaceDigest, ...scaleEncodedCreator])
   )
 
-  const chainSpaceUri: SpaceId = hashToUri(digest, SPACE_IDENT, SPACE_PREFIX)
+  const chainSpaceUri = hashToUri(digest, SPACE_IDENT, SPACE_PREFIX) as SpaceUri
   const scaleEncodedAuthDigest = api
     .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceUri))
     .toU8a()
@@ -170,13 +173,18 @@ export async function getUriForSpace(
     Uint8Array.from([...scaleEncodedAuthDigest, ...scaleEncodedAuthDelegate])
   )
 
-  const authorizationUri: AuthorizationId = hashToUri(
+  const authorizationUri = hashToUri(
     authDigest,
     AUTH_IDENT,
     AUTH_PREFIX
-  )
+  ) as AuthorizationUri
 
-  return { uri: chainSpaceUri, authUri: authorizationUri }
+  const chainSpaceDetails = {
+    uri: chainSpaceUri,
+    authorizationUri,
+  }
+
+  return chainSpaceDetails
 }
 
 /**
@@ -222,10 +230,10 @@ export async function dispatchToChain(
   creatorUri: DidUri,
   authorAccount: CordKeyringPair,
   signCallback: SignExtrinsicCallback
-): Promise<{ uri: SpaceId; authorization: AuthorizationId }> {
+): Promise<{ uri: SpaceUri; authorization: AuthorizationUri }> {
   const returnObject = {
     uri: chainSpace.uri,
-    authorization: chainSpace.authorization,
+    authorization: chainSpace.authorizationUri,
   }
 
   try {
@@ -284,7 +292,7 @@ export async function dispatchToChain(
  */
 export async function sudoApproveChainSpace(
   authority: CordKeyringPair,
-  spaceUri: IChainSpace['uri'],
+  spaceUri: SpaceUri,
   capacity: number
 ) {
   try {
@@ -328,7 +336,7 @@ export async function getUriForAuthorization(
   spaceUri: SpaceId,
   delegateUri: DidUri,
   creatorUri: DidUri
-): Promise<AuthorizationId> {
+): Promise<AuthorizationUri> {
   const api = ConfigService.get('api')
 
   const scaleEncodedSpaceId = api
@@ -349,13 +357,13 @@ export async function getUriForAuthorization(
     ])
   )
 
-  const authorizationId: AuthorizationId = hashToUri(
+  const authorizationUri = hashToUri(
     authDigest,
     AUTH_IDENT,
     AUTH_PREFIX
-  )
+  ) as AuthorizationUri
 
-  return authorizationId
+  return authorizationUri
 }
 
 /**
@@ -446,35 +454,32 @@ function dispatchDelegateAuthorizationTx(
 export async function dispatchDelegateAuthorization(
   request: ISpaceAuthorization,
   authorAccount: CordKeyringPair,
-  authorizationUri: AuthorizationId,
+  authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback
 ): Promise<AuthorizationId> {
   try {
-    const authId = uriToIdentifier(request.authorization)
+    const spaceId = uriToIdentifier(request.uri)
+    const delegateId = Did.toChain(request.delegateUri)
+    const delegatorAuthId = uriToIdentifier(authorizationUri)
 
-    const authorizationExists = await isAuthorizationStored(authId)
-    if (!authorizationExists) {
-      const spaceId = uriToIdentifier(request.space)
-      const delegateId = Did.toChain(request.delegate)
-      const delegatorAuthId = uriToIdentifier(authorizationUri)
+    console.log(request.permission, spaceId, delegateId, delegatorAuthId)
 
-      const tx = dispatchDelegateAuthorizationTx(
-        request.permission,
-        spaceId,
-        delegateId,
-        delegatorAuthId
-      )
-      const extrinsic = await Did.authorizeTx(
-        request.delegator as DidUri,
-        tx,
-        signCallback,
-        authorAccount.address
-      )
+    const tx = dispatchDelegateAuthorizationTx(
+      request.permission,
+      spaceId,
+      delegateId,
+      delegatorAuthId
+    )
+    const extrinsic = await Did.authorizeTx(
+      request.delegatorUri as DidUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
 
-      await Chain.signAndSubmitTx(extrinsic, authorAccount)
-    }
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
-    return request.authorization
+    return request.authorizationUri
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
       `Error dispatching delegate authorization: ${error}`
@@ -506,12 +511,12 @@ export async function dispatchDelegateAuthorization(
  */
 function decodeSpaceDetailsfromChain(
   encoded: Option<PalletChainSpaceSpaceDetails>,
-  spaceUri: SpaceId
+  spaceUri: SpaceUri
 ): ISpaceDetails {
   const chainStatement = encoded.unwrap()
   const decodedDetails: ISpaceDetails = {
     uri: spaceUri,
-    creator: Did.fromChain(chainStatement.creator),
+    creatorUri: Did.fromChain(chainStatement.creator),
     txnCapacity: chainStatement.txnCapacity.toNumber(),
     txnUsage: chainStatement.txnCount.toNumber(),
     approved: chainStatement.approved.valueOf(),
@@ -551,7 +556,7 @@ function decodeSpaceDetailsfromChain(
  * ```.
  */
 export async function fetchFromChain(
-  spaceUri: SpaceId
+  spaceUri: SpaceUri
 ): Promise<ISpaceDetails | null> {
   try {
     const api = ConfigService.get('api')
@@ -626,6 +631,7 @@ function authorizationPermissionsFromChain(
  * @param authorization - The specific authorization ID for which the details are
  *        being decoded. This ID is used to identify the correct authorization record on the blockchain.
  *
+ * @param authorizationUri
  * @returns - Returns an `ISpaceAuthorization` object containing the decoded
  *          authorization details. This object includes fields such as the space ID, delegate DID,
  *          permissions, authorization ID, and delegator DID, making it easier to work with
@@ -639,15 +645,15 @@ function authorizationPermissionsFromChain(
  */
 function decodeAuthorizationDetailsfromChain(
   encoded: Option<PalletChainSpaceSpaceAuthorization>,
-  authorization: AuthorizationId
+  authorizationUri: AuthorizationUri
 ): ISpaceAuthorization {
   const chainAuth = encoded.unwrap()
   const decodedDetails: ISpaceAuthorization = {
-    space: chainAuth.spaceId.toString(),
-    delegate: Did.fromChain(chainAuth.delegate),
+    uri: chainAuth.spaceId.toString() as SpaceUri,
+    delegateUri: Did.fromChain(chainAuth.delegate),
     permission: authorizationPermissionsFromChain(chainAuth.permissions),
-    authorization,
-    delegator: Did.fromChain(chainAuth.delegator),
+    authorizationUri,
+    delegatorUri: Did.fromChain(chainAuth.delegator),
   }
   return decodedDetails
 }
@@ -662,6 +668,7 @@ function decodeAuthorizationDetailsfromChain(
  *
  * @param authorization - The unique identifier of the authorization to be fetched.
  *
+ * @param authorizationUri
  * @returns A promise that resolves to the authorization details
  *          if found. The function returns `null` if the authorization details could not be decoded
  *          or if the authorization is not found on the chain.
@@ -682,19 +689,19 @@ function decodeAuthorizationDetailsfromChain(
  * ```.
  */
 export async function fetchAuthorizationFromChain(
-  authorization: AuthorizationId
+  authorizationUri: AuthorizationUri
 ): Promise<ISpaceAuthorization | null> {
   try {
     const api = ConfigService.get('api')
-    const authId = uriToIdentifier(authorization)
+    const authId = uriToIdentifier(authorizationUri)
 
     const authEntry = await api.query.chainSpace.authorizations(authId)
     const authDetails: ISpaceAuthorization =
-      decodeAuthorizationDetailsfromChain(authEntry, authorization)
+      decodeAuthorizationDetailsfromChain(authEntry, authorizationUri)
 
     if (authDetails === null) {
       throw new SDKErrors.AuthorizationMissingError(
-        `There is no authorization with the provided ID "${authorization}" present on the chain.`
+        `There is no authorization with the provided ID "${authorizationUri}" present on the chain.`
       )
     }
 

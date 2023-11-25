@@ -10,7 +10,7 @@ import { getDidDocFromName } from './utils/queryDidName'
 //   addSpaceAuthorization,
 //   approveSpace,
 // } from './utils/generateChainSpace'
-import { createDocument } from './utils/createDocument'
+// import { createDocument } from './utils/createDocument'
 import { createPresentation } from './utils/createPresentation'
 import { createStatement } from './utils/createStatement'
 import { verifyPresentation } from './utils/verifyPresentation'
@@ -30,6 +30,7 @@ import {
   setRegistrar,
   provideJudgement,
 } from './utils/createRegistrar'
+import { SignCallback } from '@cord.network/types'
 // import { Permission } from '@cord.network/types'
 
 function getChallenge(): string {
@@ -270,24 +271,86 @@ async function main() {
   })
   console.log('✅ Schema Functions Completed!')
 
-  // // Step 4: Delegate creates a new Verifiable Document
-  // console.log(`\n❄️  Verifiable Document Creation `)
+  // Step 4: Delegate creates a new Verifiable Document
+  console.log(`\n❄️  Verifiable Document Creation `)
 
-  // const document = await createDocument(
-  //   holderDid.uri,
-  //   delegateTwoDid.uri,
-  //   schema,
-  //   space.identifier,
-  //   async ({ data }) => ({
+  const content: Cord.IContent = Cord.Content.buildFromContentProperties(
+    schemaProperties.schema,
+    ['VerifiableDocument', 'TestCredential'],
+    {
+      name: 'Alice',
+      age: 29,
+      id: '123456789987654321',
+      country: 'India',
+      address: {
+        street: 'a',
+        pin: 54032,
+        location: {
+          state: 'Karnataka',
+          country: 'India',
+        },
+      },
+    },
+    holderDid.uri,
+    delegateTwoDid.uri
+  )
+  console.dir(content, {
+    depth: null,
+    colors: true,
+  })
+
+  console.log(space.uri)
+  const chainSpaceUri = space.uri
+  // Can also me called like this
+  // const docSignCallback = async ({ data }) => {
+  //   return {
   //     signature: delegateTwoKeys.assertionMethod.sign(data),
   //     keyType: delegateTwoKeys.assertionMethod.type,
   //     keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
-  //   })
-  // )
-  // console.dir(document, {
-  //   depth: null,
-  //   colors: true,
+  //   }
+  // }
+
+  // const document = await Cord.Document.buildFromContentProperties({
+  //   content: content,
+  //   spaceUri: chainSpaceUri,
+  //   signCallback: docSignCallback,
+  //   options: {},
   // })
+
+  const document = await Cord.Document.buildFromContentProperties({
+    content: content,
+    spaceUri: chainSpaceUri,
+    signCallback: async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+      keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
+    }),
+    options: {},
+  })
+  console.dir(document, {
+    depth: null,
+    colors: true,
+  })
+
+  const statementEntry = Cord.Statement.buildFromDocumentProperties(
+    document,
+    issuerDid.uri
+  )
+  console.dir(statementEntry, {
+    depth: null,
+    colors: true,
+  })
+
+  const statement = await Cord.Statement.dispatchRegisterToChain(
+    statementEntry,
+    issuerDid.uri,
+    authorIdentity,
+    space.authorization,
+    async ({ data }) => ({
+      signature: issuerKeys.assertionMethod.sign(data),
+      keyType: issuerKeys.assertionMethod.type,
+    })
+  )
   // await createStatement(
   //   document,
   //   delegateTwoDid.uri,
@@ -298,7 +361,7 @@ async function main() {
   //     keyType: delegateTwoKeys.assertionMethod.type,
   //   })
   // )
-  // console.log(`✅ Statement registered - ${document.identifier}`)
+  console.log(`✅ Statement element registered - ${statement}`)
 
   // // Step 5: Delegate updates the Verifiable Document
   // console.log(`\n❄️  Verifiable Document Update `)

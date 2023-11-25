@@ -42,10 +42,11 @@
 
 import type {
   DidUri,
-  SpaceId,
   IChainSpace,
   ISpaceAuthorization,
   PermissionType,
+  SpaceUri,
+  AuthorizationUri,
 } from '@cord.network/types'
 import { Crypto, UUID } from '@cord.network/utils'
 import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
@@ -68,7 +69,7 @@ import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
  * - `authorization`: An identifier for authorization purposes, linked to this specific ChainSpace.
  *
  * Example usage:
- * ```
+ * ```typescript
  * const chainSpace = await createChainSpace('did:example:123');
  * console.log(chainSpace.identifier); // Outputs the ChainSpace identifier.
  *
@@ -85,13 +86,16 @@ export async function buildFromProperties(
 
   const chainSpaceHash = Crypto.hashStr(chainSpaceDescription)
 
-  const { uri, authUri } = await getUriForSpace(chainSpaceHash, creatorUri)
+  const { uri, authorizationUri } = await getUriForSpace(
+    chainSpaceHash,
+    creatorUri
+  )
 
   return {
     uri,
     digest: chainSpaceHash,
-    creator: creatorUri,
-    authorization: authUri,
+    creatorUri,
+    authorizationUri,
   }
 }
 
@@ -125,22 +129,22 @@ export async function buildFromProperties(
  * ```.
  */
 export async function buildFromAuthorizationProperties(
-  spaceUri: SpaceId,
+  spaceUri: SpaceUri,
   delegateUri: DidUri,
   permission: PermissionType,
   creatorUri: DidUri
 ): Promise<ISpaceAuthorization> {
-  const authorizationId = await getUriForAuthorization(
+  const authorizationUri = (await getUriForAuthorization(
     spaceUri,
     delegateUri,
     creatorUri
-  )
+  )) as AuthorizationUri
 
   return {
-    space: spaceUri,
-    delegate: delegateUri,
+    uri: spaceUri,
+    delegateUri,
     permission,
-    authorization: authorizationId,
-    delegator: creatorUri,
+    authorizationUri,
+    delegatorUri: creatorUri,
   }
 }

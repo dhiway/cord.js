@@ -28,13 +28,13 @@ import type {
   AccountId,
   CordKeyringPair,
   SignExtrinsicCallback,
-  HexString,
   AuthorizationId,
   SpaceId,
+  SchemaUri,
 } from '@cord.network/types'
 import type { PalletSchemaSchemaEntry } from '@cord.network/augment-api'
 import {
-  SchemaHash,
+  SchemaDigest,
   DidUri,
   ISchema,
   SCHEMA_PREFIX,
@@ -109,7 +109,7 @@ export function getUriForSchema(
   schema: ISchema | Omit<ISchema, '$id'>,
   creator: DidUri,
   space: SpaceId
-): { uri: ISchema['$id']; digest: HexString } {
+): { uri: SchemaUri; digest: SchemaDigest } {
   const api = ConfigService.get('api')
   const serializedSchema = encodeCborSchema(schema)
   const digest = Crypto.hashStr(serializedSchema)
@@ -130,7 +130,11 @@ export function getUriForSchema(
       ...scaleEncodedCreator,
     ])
   )
-  const schemaUri = hashToUri(IdDigest, SCHEMA_IDENT, SCHEMA_PREFIX)
+  const schemaUri = hashToUri(
+    IdDigest,
+    SCHEMA_IDENT,
+    SCHEMA_PREFIX
+  ) as SchemaUri
 
   return { uri: schemaUri, digest }
 }
@@ -290,9 +294,9 @@ function fromChain(
     const { schema, digest, creator, space } = unwrapped
     return {
       schema: schemaInputFromChain(schema, schemaUri),
-      digest: digest.toHex() as SchemaHash,
-      space: identifierToUri(DecoderUtils.hexToString(space.toString())),
-      creator: Did.fromChain(creator),
+      digest: digest.toHex() as SchemaDigest,
+      spaceUri: identifierToUri(DecoderUtils.hexToString(space.toString())),
+      creatorUri: Did.fromChain(creator),
     }
   }
   return null

@@ -2,7 +2,7 @@
  * @packageDocumentation
  * @module IContent
  */
-import type { SchemaId } from './Schema'
+import type { SchemaUri } from './Schema'
 import type { DidUri } from './DidDocument'
 
 type ContentPrimitives = string | number | boolean
@@ -15,12 +15,13 @@ export interface IContents {
 }
 
 export interface IContent {
-  schemaId: SchemaId
+  schemaUri: SchemaUri
+  type: string[]
   contents: IContents
-  holder: DidUri
-  issuer: DidUri
+  holderUri: DidUri
+  issuerUri: DidUri
 }
 /**
  * The minimal partial stream from which a JSON-LD representation can be built.
  */
-export type PartialContent = Partial<IContent> & Pick<IContent, 'schemaId'>
+export type PartialContent = Partial<IContent> & Pick<IContent, 'schemaUri'>

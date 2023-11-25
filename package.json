@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "check": "tsc -p tsconfig.json --noEmit",
-    "build": "yarn workspaces foreach -Apt --exclude '{root-workspace}' run build",
+    "build": "yarn workspaces foreach -Apt --exclude '{root-workspace}' --exclude '@cord.network/vc-export' run build",
     "build:docs": "typedoc --skipErrorChecking --theme default --out docs/api --tsconfig tsconfig.docs.json && touch docs/.nojekyll",
     "bundle": "yarn workspace @cord.network/sdk run bundle",
     "clean": "rimraf tests/dist && yarn workspaces foreach -p --exclude '{root-workspace}' run clean",

@@ -2,44 +2,55 @@ import type { HexString } from './Imported.js'
 import type { DidSignature } from './DidDocument'
 import type { IContent } from './Content.js'
 import type { SignCallback } from './CryptoCallbacks'
+import { SpaceUri } from './ChainSpace.js'
 
 export type Hash = HexString
+export type DocumentUri = `doc:${string}`
+export type DocumentId = string
 
 export type NonceHash = {
   hash: Hash
   nonce?: string
 }
 
-export type DocumentMetaData = {
-  templates?: string[]
-  labels?: string[]
+export interface IDocumentContent extends IContent {
+  issuanceDate: string
+  expirationDate?: string
+  spaceUri: SpaceUri
+}
+
+// TODO: Integrate Evidence layer
+export interface IDocumentEvidence {
+  type: string[]
+  evidenceDocuments: string[]
+  subjectPresence: string
+  documentPresence: string
 }
 
 export interface IDocument {
-  identifier: string
-  content: IContent
+  uri: DocumentUri
+  content: IDocumentContent
   contentHashes: Hash[]
   contentNonceMap: Record<HexString, string>
-  evidenceIds: IDocument[]
-  chainSpace: string
-  issuanceDate: string
-  validFrom?: string
-  validUntil?: string
-  documentHash: Hash
+  evidenceUri: IDocument[]
   issuerSignature: DidSignature
-  metadata: DocumentMetaData
 }
 
+export type PartialDocument = Omit<
+  IDocument,
+  'contentHashes' | 'contentNonceMap'
+>
+
 export interface IDocumentUpdate {
-  identifier: string
-  content: IContent
-  evidenceIds: IDocument[]
-  chainSpace: string
-  validFrom?: string
-  validUntil?: string
-  documentHash: Hash
-  metadata: DocumentMetaData
+  uri: DocumentUri
+  content: IDocumentContent
+  evidenceUri: IDocument[]
 }
+
+export interface IUpdatedDocument extends IDocument {
+  parentUri: DocumentUri
+}
+
 export interface IDocumentPresentation extends IDocument {
   selectiveAttributes: string[]
   holderSignature: DidSignature & { challenge?: string }

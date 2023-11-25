@@ -1,6 +1,15 @@
-import type { IStatementEntry, IDocument, HexString } from '@cord.network/types'
+import type {
+  IStatementEntry,
+  IDocument,
+  HexString,
+  SchemaUri,
+  SpaceUri,
+  DidUri,
+} from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { Document } from '@cord.network/transform'
+import { checkIdentifier } from '@cord.network/identifier'
+import { getUriForStatement } from './Statement.chain.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStatement]] object.
@@ -13,6 +22,12 @@ export function verifyDataStructure(input: IStatementEntry): void {
   if (!input.digest) {
     throw new SDKErrors.StatementHashMissingError()
   }
+
+  checkIdentifier(input.spaceUri)
+  if (input.schemaUri) {
+    checkIdentifier(input.schemaUri)
+  }
+
   DataUtils.verifyIsHex(input.digest, 256)
 }
 
@@ -20,17 +35,25 @@ export function verifyDataStructure(input: IStatementEntry): void {
  * @param statementHash
  * @param digest
  * @param chainSpace
+ * @param docUri
  * @param schema
+ * @param spaceUri
+ * @param creator
+ * @param schemaUri
  */
-export function fromProperties(
+export function buildFromProperties(
   digest: HexString,
-  chainSpace: string,
-  schema?: string
+  spaceUri: SpaceUri,
+  creator: DidUri,
+  schemaUri?: SchemaUri
 ): IStatementEntry {
+  const stmtUri = getUriForStatement(digest, spaceUri, creator)
+
   const statement: IStatementEntry = {
+    element: stmtUri,
     digest,
-    chainSpace,
-    schema: schema || undefined,
+    spaceUri,
+    schemaUri: schemaUri || undefined,
   }
 
   verifyDataStructure(statement)
@@ -41,14 +64,21 @@ export function fromProperties(
  * Builds a new instance of an [[Statement]], from a complete set of input required for an statement.
  *
  * @param document - The base request for statement.
+ * @param creator
  * @returns A new [[Statement]] object.
  *
  */
-export function fromDocument(document: IDocument): IStatementEntry {
+export function buildFromDocumentProperties(
+  document: IDocument,
+  creator: DidUri
+): IStatementEntry {
+  const digest = Document.getDocumentDigest(document)
+  const stmtUri = getUriForStatement(digest, document.content.spaceUri, creator)
   const statement = {
-    digest: document.documentHash,
-    chainSpace: document.chainSpace,
-    schema: document.content.schemaId || undefined,
+    element: stmtUri,
+    digest,
+    spaceUri: document.content.spaceUri,
+    schemaUri: document.content.schemaUri || undefined,
   }
   verifyDataStructure(statement)
   return statement
@@ -82,13 +112,14 @@ export function verifyAgainstDocument(
   statement: IStatementEntry,
   document: IDocument
 ): void {
-  const documentMismatch = document.documentHash !== statement.digest
+  const documentMismatch =
+    Document.getDocumentDigest(document) !== statement.digest
 
   const schemaMismatch =
-    statement.schema !== undefined &&
-    document.content.schemaId !== statement.schema
+    statement.schemaUri !== undefined &&
+    document.content.schemaUri !== statement.schemaUri
 
-  const chainSpaceMismatch = document.chainSpace !== statement.chainSpace
+  const chainSpaceMismatch = document.content.spaceUri !== statement.spaceUri
 
   if (documentMismatch || schemaMismatch || chainSpaceMismatch) {
     throw new SDKErrors.CredentialUnverifiableError(

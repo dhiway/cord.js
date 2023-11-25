@@ -6,6 +6,8 @@ import {
   signatureFromJson,
 } from '@cord.network/did'
 import type {
+  AccountId,
+  H256,
   DidUri,
   DidResolveKey,
   Hash,
@@ -18,8 +20,11 @@ import type {
   SpaceId,
   PresentationOptions,
   IDocumentUpdate,
-  // IStatementDetails,
+  IUpdatedDocument,
   IStatementStatus,
+  SpaceUri,
+  DocumentUri,
+  // IDocumentEvidence,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import {
@@ -29,14 +34,32 @@ import {
   Bytes,
   blake2AsHex,
 } from '@cord.network/types'
-import type { AccountId, H256 } from '@polkadot/types/interfaces'
+// import type { AccountId, H256 } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
 import { ConfigService } from '@cord.network/config'
-import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
-import { getDocumentStatementStatusfromChain } from './Document.query.js'
+import {
+  hashToUri,
+  // uriToIdentifier,
+  hexToDocumentUri,
+  documentUriToHex,
+  identifierToUri,
+} from '@cord.network/identifier'
+import { fetchDocumentElementStatus } from './Document.query.js'
 import { verifyContentAgainstSchema } from '../schema/Schema.js'
 import { hashContents } from '../content/index.js'
 import * as Content from '../content/index.js'
+
+/**
+ * Gets the hash of the document.
+ *
+ * @param document - The document to get the hash from.
+ * @returns The hash of the credential.
+ */
+export function getDocumentDigest(document: IDocument): HexString {
+  const documentDigest = documentUriToHex(document.uri)
+
+  return documentDigest
+}
 
 function getHashRoot(leaves: Uint8Array[]): Uint8Array {
   const result = Crypto.u8aConcat(...leaves)
@@ -45,13 +68,13 @@ function getHashRoot(leaves: Uint8Array[]): Uint8Array {
 
 function getHashLeaves(
   contentHashes: Hash[],
-  evidenceIds: IDocument[]
+  evidenceUris: IDocument[]
 ): Uint8Array[] {
   const result = contentHashes.map((item) => Crypto.coToUInt8(item))
 
-  if (evidenceIds.length > 0) {
-    evidenceIds.forEach((evidence) => {
-      result.push(Crypto.coToUInt8(evidence.identifier))
+  if (evidenceUris.length > 0) {
+    evidenceUris.forEach((evidence) => {
+      result.push(Crypto.coToUInt8(evidence.uri))
     })
   }
 
@@ -71,17 +94,9 @@ function getHashLeaves(
 export function calculateDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
     document.contentHashes || [],
-    document.evidenceIds || []
+    document.evidenceUri || []
   )
-  if (document.issuanceDate) {
-    hashes.push(Crypto.coToUInt8(document.issuanceDate))
-  }
-  if (document.validFrom) {
-    hashes.push(Crypto.coToUInt8(document.validFrom))
-  }
-  if (document.validUntil) {
-    hashes.push(Crypto.coToUInt8(document.validUntil))
-  }
+
   const root = getHashRoot(hashes)
   return Crypto.u8aToHex(root)
 }
@@ -97,8 +112,9 @@ export function makeSigningData(
   input: IDocument,
   challenge?: string
 ): Uint8Array {
+  const documentHash = documentUriToHex(input.uri)
   return new Uint8Array([
-    ...Crypto.coToUInt8(input.documentHash),
+    ...Crypto.coToUInt8(documentHash),
     ...Crypto.coToUInt8(challenge),
   ])
 }
@@ -107,7 +123,9 @@ export function makeSigningData(
  * @param input
  */
 export function verifyDocumentHash(input: IDocument): void {
-  if (input.documentHash !== calculateDocumentHash(input))
+  const documentHash = documentUriToHex(input.uri)
+
+  if (documentHash !== calculateDocumentHash(input))
     throw new SDKErrors.RootHashUnverifiableError()
 }
 
@@ -165,16 +183,16 @@ export function verifyDataIntegrity(
  * @param input - A potentially only partial [[IDocument]].
  *
  */
-export function verifyDataStructure(input: IDocument): void {
+export function verifyDataStructure(input: IDocument | IUpdatedDocument): void {
   if (!('content' in input)) {
     throw new SDKErrors.ContentMissingError()
   } else {
     Content.verifyDataStructure(input.content)
   }
-  if (!input.content.holder) {
+  if (!input.content.holderUri) {
     throw new SDKErrors.HolderMissingError()
   }
-  if (!Array.isArray(input.evidenceIds)) {
+  if (!Array.isArray(input.evidenceUri)) {
     throw new SDKErrors.EvidenceMissingError()
   }
   if (!('contentNonceMap' in input)) {
@@ -195,13 +213,25 @@ export function verifyDataStructure(input: IDocument): void {
 /**
  * @param input
  * @param statementDetails
+ * @param chainSpace
  */
 export function verifyUpdateDataStructure(
   input: IDocumentUpdate,
   statementDetails: IStatementStatus
 ): void {
-  if (input.content.issuer !== statementDetails.creator) {
-    throw new SDKErrors.IssuerMismatchError('Issuer Mismatch')
+  if (statementDetails.revoked) {
+    throw new SDKErrors.StatementRevokedError('Statement Revoked on chain')
+  }
+
+  if (input.content.spaceUri !== identifierToUri(statementDetails.spaceUri)) {
+    throw new SDKErrors.ChainSpaceMismatchError('Chain Space Mismatch')
+  }
+
+  if (
+    statementDetails.schemaUri &&
+    identifierToUri(statementDetails.schemaUri) === input.content.schemaUri
+  ) {
+    throw new SDKErrors.SchemaMismatchError('Schema Mismatch')
   }
 }
 
@@ -237,20 +267,19 @@ export async function verifySignature(
     ...signatureFromJson(holderSignature),
     message: signingData,
     // check if credential owner matches signer
-    expectedSigner: input.content.holder,
+    expectedSigner: input.content.holderUri,
     expectedVerificationMethod: 'authentication',
     didResolveKey,
   })
   // verify Issuer Signature
   const { issuerSignature } = input
-  const uint8DocumentHash = new Uint8Array([
-    ...Crypto.coToUInt8(input.documentHash),
-  ])
+  const documentHash = documentUriToHex(input.uri)
+  const uint8DocumentHash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
   await verifyDidSignature({
     ...signatureFromJson(issuerSignature),
     message: uint8DocumentHash,
     // check if credential issuer matches signer
-    expectedSigner: input.content.issuer,
+    expectedSigner: input.content.issuerUri,
     expectedVerificationMethod: 'assertionMethod',
     didResolveKey,
   })
@@ -310,11 +339,8 @@ export function isIDocument(input: unknown): input is IDocument {
 }
 
 export type Options = {
-  evidenceIds?: IDocument[]
-  validFrom?: Date
+  evidenceUri?: IDocument[]
   validUntil?: Date
-  templates?: string[]
-  labels?: string[]
 }
 
 /**
@@ -336,66 +362,60 @@ export type Options = {
  * @param root0.signCallback
  * @param root0.options
  * @param root0.chainSpace
+ * @param root0.spaceUri
+ * @param root0.chainSpaceUri
+ * @param root0.docSignCallback
  */
-export async function fromContent({
+export async function buildFromContentProperties({
   content,
-  chainSpace,
+  spaceUri,
   signCallback,
   options = {},
 }: {
   content: IContent
-  chainSpace: SpaceId
+  spaceUri: SpaceUri
   signCallback: SignCallback
   options: Options
 }): Promise<IDocument> {
-  const { evidenceIds, validFrom, validUntil, templates, labels } = options
-
-  const { hashes: contentHashes, nonceMap: contentNonceMap } =
-    Content.hashContents(content)
+  const { evidenceUri = [], validUntil } = options
 
   const issuanceDate = new Date().toISOString()
-  const validFromString = validFrom ? validFrom.toISOString() : undefined
-  const validUntilString = validUntil ? validUntil.toISOString() : undefined
+  const expirationDate = validUntil ? validUntil.toISOString() : undefined
 
-  const metaData = {
-    templates: templates || [],
-    labels: labels || [],
+  console.log('before', spaceUri)
+
+  const documentContent = {
+    ...content,
+    spaceUri,
+    issuanceDate,
+    expirationDate,
   }
+  console.log(spaceUri, documentContent)
+  console.log(documentContent)
+
+  const { hashes: contentHashes, nonceMap: contentNonceMap } =
+    Content.hashContents(documentContent)
 
   const documentHash = calculateDocumentHash({
-    evidenceIds,
+    evidenceUri,
     contentHashes,
-    issuanceDate,
-    validFrom: validFromString,
-    validUntil: validUntilString,
   })
 
-  const spaceIdentifier = uriToIdentifier(chainSpace)
-  const documentId = getUriForDocument(
-    documentHash,
-    spaceIdentifier,
-    content.issuer
-  )
+  const docUri = hexToDocumentUri(documentHash) as DocumentUri
   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
   const issuerSignature = await signCallback({
     data: uint8Hash,
-    did: content.issuer,
+    did: content.issuerUri,
     keyRelationship: 'assertionMethod',
   })
 
   const document = {
-    identifier: documentId,
-    content,
+    uri: docUri,
+    content: documentContent,
     contentHashes,
     contentNonceMap,
-    evidenceIds: evidenceIds || [],
-    chainSpace,
-    issuanceDate,
-    validFrom: validFromString,
-    validUntil: validUntilString,
-    documentHash,
+    evidenceUri,
     issuerSignature: signatureToJson(issuerSignature),
-    metadata: metaData,
   }
   verifyDataStructure(document)
   return document
@@ -405,9 +425,7 @@ export async function fromContent({
  * @param document
  * @param input
  */
-export function extractDocumentContentforUpdate(
-  input: unknown
-): IDocumentUpdate {
+export function prepareDocumentForUpdate(input: unknown): IDocumentUpdate {
   if (!isIDocument(input)) {
     throw new SDKErrors.DocumentContentMalformed('Document content malformed')
   }
@@ -417,7 +435,6 @@ export function extractDocumentContentforUpdate(
   const {
     contentHashes,
     contentNonceMap,
-    issuanceDate,
     issuerSignature,
     ...remainingDocumentContent
   } = document
@@ -435,75 +452,59 @@ export function extractDocumentContentforUpdate(
  * @param root0.document
  * @param root0.schema
  */
-export async function fromUpdatedContent({
+export async function updateFromProperties({
   document,
-  schema,
   signCallback,
   options = {},
 }: {
   document: IDocumentUpdate
-  schema: ISchema
   signCallback: SignCallback
   options: Options
-}): Promise<IDocument> {
-  const statementDetails = await getDocumentStatementStatusfromChain(
-    document.identifier,
-    document.documentHash
+}): Promise<IUpdatedDocument> {
+  const { evidenceUri, validUntil } = options
+
+  const statementDetails = await fetchDocumentElementStatus(
+    document.uri,
+    document.content.spaceUri
   )
-
-  if (statementDetails !== null) {
-    verifyUpdateDataStructure(document, statementDetails)
-  } else {
-    throw new SDKErrors.StatementError('Statement not found')
+  if (statementDetails === null) {
+    throw new SDKErrors.StatementError(`No associated statement found.`)
   }
-  const { evidenceIds, validFrom, validUntil, templates, labels } = options
-
-  const { hashes: contentHashes, nonceMap: contentNonceMap } =
-    Content.hashContents(document.content)
 
   const issuanceDate = new Date().toISOString()
-  const validFromString = validFrom
-    ? validFrom.toISOString()
-    : document.validFrom
-  const validUntilString = validUntil
+  const expirationDate = validUntil
     ? validUntil.toISOString()
-    : document.validUntil
+    : document.content.expirationDate
 
-  const metaData = {
-    templates: templates || document.metadata.templates,
-    labels: labels || document.metadata.labels,
-  }
+  const documentContent = { ...document, issuanceDate, expirationDate }
+
+  verifyUpdateDataStructure(documentContent, statementDetails)
+
+  const { hashes: contentHashes, nonceMap: contentNonceMap } =
+    Content.hashContents(documentContent.content)
 
   const documentHash = calculateDocumentHash({
-    evidenceIds,
+    evidenceUri,
     contentHashes,
-    issuanceDate,
-    validFrom: validFromString,
-    validUntil: validUntilString,
   })
 
-  const spaceIdentifier = uriToIdentifier(document.chainSpace)
+  const docUri = hexToDocumentUri(documentHash) as DocumentUri
 
   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
   const issuerSignature = await signCallback({
     data: uint8Hash,
-    did: document.content.issuer,
+    did: document.content.issuerUri,
     keyRelationship: 'assertionMethod',
   })
 
   const updatedDocument = {
-    identifier: document.identifier,
+    uri: docUri,
+    parentUri: document.uri,
     content: document.content,
     contentHashes,
     contentNonceMap,
-    evidenceIds: evidenceIds || document.evidenceIds,
-    chainSpace: spaceIdentifier,
-    issuanceDate,
-    validFrom: validFromString,
-    validUntil: validUntilString,
-    documentHash,
+    evidenceUri: evidenceUri || document.evidenceUri,
     issuerSignature: signatureToJson(issuerSignature),
-    metadata: metaData,
   }
   verifyDataStructure(updatedDocument)
   return updatedDocument
@@ -555,8 +556,9 @@ export async function verifyPresentationDocumentStatus(
   { trustedIssuerUris }: VerifyOptions = {}
 ): Promise<{ isValid: boolean; message: string }> {
   try {
-    const documentDetails = await getDocumentStatementStatusfromChain(
-      document.identifier
+    const documentDetails = await fetchDocumentElementStatus(
+      document.uri,
+      document.content.spaceUri
     )
 
     if (!documentDetails) {
@@ -566,17 +568,16 @@ export async function verifyPresentationDocumentStatus(
       }
     }
 
-    if (document.documentHash !== documentDetails?.digest) {
-      return { isValid: false, message: 'Document hash does not match.' }
+    const documentDigest = documentUriToHex(document.uri)
+    const documentDetailDigest = documentUriToHex(documentDetails.uri)
+
+    if (documentDigest !== documentDetailDigest) {
+      return {
+        isValid: false,
+        message: 'Document digest does not match with Statement.',
+      }
     }
 
-    if (document.content.issuer !== documentDetails?.creator) {
-      return { isValid: false, message: 'Document creator does not match.' }
-    }
-
-    if (document.chainSpace !== documentDetails?.chainSpace) {
-      return { isValid: false, message: 'Document space does not match.' }
-    }
     if (documentDetails?.revoked) {
       return {
         isValid: false,
@@ -655,16 +656,6 @@ export function isPresentation(input: unknown): input is IDocumentPresentation {
   )
 }
 
-/**
- * Gets the hash of the document.
- *
- * @param document - The document to get the hash from.
- * @returns The hash of the credential.
- */
-export function getHash(document: IDocument): IDocument['documentHash'] {
-  return document.documentHash
-}
-
 function filterNestedObject(
   obj: Record<string, any>,
   keysToKeep: string[]
@@ -730,7 +721,7 @@ export async function createPresentation({
 
   const signature = await signCallback({
     data: makeSigningData(presentationDocument, challenge),
-    did: document.content.holder,
+    did: document.content.holderUri,
     keyRelationship: 'assertionMethod',
   })
 

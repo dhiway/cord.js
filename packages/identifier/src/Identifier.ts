@@ -1,4 +1,8 @@
-import type { HexString } from '@cord.network/types'
+import type {
+  HexString,
+  StatementDigest,
+  StatementUri,
+} from '@cord.network/types'
 import {
   base58Decode,
   base58Encode,
@@ -337,4 +341,109 @@ export function getAccountAddressFromIdentifier(
   address: string
 ): IPublicIdentity['address'] {
   return address.split(ACCOUNT_PREFIX).join('')
+}
+
+/**
+ * @param input
+ */
+export function hexToDocumentUri(input: HexString | string): string {
+  if (!input.startsWith('0x')) {
+    throw new SDKErrors.InvalidInputError('Input must start with 0x')
+  }
+  const docUri = input.slice(2)
+
+  return `doc:${docUri}`
+}
+
+/**
+ * @param docUri
+ */
+export function documentUriToHex(docUri: string): HexString {
+  if (!docUri.startsWith('doc:') || docUri.substring(4).startsWith('0x')) {
+    throw new SDKErrors.InvalidInputError(
+      'Input must start with "doc:" and not be followed by "0x"'
+    )
+  }
+  const docHex = docUri.split(':')[1]
+
+  return `0x${docHex}`
+}
+
+/**
+ * @param statementId
+ * @param idDigest
+ * @param digest
+ */
+export function buildStatementUri(
+  idDigest: HexString,
+  digest: HexString
+): StatementUri {
+  if (!digest.startsWith('0x') || !idDigest.startsWith('0x')) {
+    throw new SDKErrors.InvalidInputError('Digest must start with 0x')
+  }
+  const prefix = hashToUri(idDigest, STATEMENT_IDENT, STATEMENT_PREFIX)
+  const suffix = digest.slice(2)
+
+  const statementUri = `${prefix}:${suffix}` as StatementUri
+  return statementUri
+}
+
+/**
+ * @param stmtUri
+ * @param digest
+ */
+export function updateStatementUri(
+  stmtUri: StatementUri,
+  digest: HexString
+): StatementUri {
+  const parts = stmtUri.split(':')
+
+  if (parts.length !== 4 || parts[0] !== 'stmt' || parts[1] !== 'cord') {
+    throw new SDKErrors.InvalidIdentifierError('Invalid statementUri format')
+  }
+
+  if (!digest.startsWith('0x')) {
+    throw new SDKErrors.InvalidInputError('Digest must start with 0x')
+  }
+  const suffix = digest.slice(2)
+
+  const statementUri = `stmt:cord:${parts[2]}:${suffix}` as StatementUri
+  return statementUri
+}
+
+/**
+ * @param statementUri
+ */
+export function uriToStatementIdAndDigest(statementUri: StatementUri): {
+  identifier: string
+  digest: StatementDigest
+} {
+  const parts = statementUri.split(':')
+
+  if (parts.length !== 4 || parts[0] !== 'stmt' || parts[1] !== 'cord') {
+    throw new SDKErrors.InvalidIdentifierError('Invalid statementUri format')
+  }
+
+  const identifier = parts[2]
+  const suffix = parts[3]
+
+  const digest = `0x${suffix}` as StatementDigest
+
+  return { identifier, digest }
+}
+
+/**
+ * @param statementUri
+ */
+export function statementUriToIdUri(statementUri: StatementUri): StatementUri {
+  const parts = statementUri.split(':')
+
+  if (parts.length !== 4 || parts[0] !== 'stmt' || parts[1] !== 'cord') {
+    throw new SDKErrors.InvalidIdentifierError('Invalid statementUri format')
+  }
+
+  const identifier = parts[2]
+  const statementId = `stmt:cord:${identifier}` as StatementUri
+
+  return statementId
 }

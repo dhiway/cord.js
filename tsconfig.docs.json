@@ -19,7 +19,7 @@
       "packages/did/src/index.ts",
       "packages/transform/src/index.ts",
       "packages/statement/src/index.ts",
-      "packages/vc-export/src/index.ts",
+      // "packages/vc-export/src/index.ts",
       "packages/identifier/src/index.ts",
       "packages/chain-space/src/index.ts",
       "packages/sdk/src/index.ts"
