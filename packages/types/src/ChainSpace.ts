@@ -18,6 +18,7 @@ export interface ChainSpaceDetails {
 
 export interface IChainSpace {
   uri: SpaceUri
+  desc: string
   digest: SpaceDigest
   creatorUri: DidUri
   authorizationUri: AuthorizationUri
