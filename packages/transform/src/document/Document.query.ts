@@ -160,7 +160,6 @@ export async function fetchDocumentElementStatus(
 ): Promise<IStatementStatus | null> {
   const api = ConfigService.get('api')
 
-  console.log(docUri, spaceUri)
   const digest = documentUriToHex(docUri)
   const spaceId = uriToIdentifier(spaceUri)
 

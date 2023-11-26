@@ -115,7 +115,6 @@ export function buildFromUpdateProperties(
   statementDetails: IStatementEntry
   document: IDocument | PartialDocument
 } {
-  console.log('Build From Update', document, document.uri)
   const digest = documentUriToHex(document.uri)
   const stmtUri = updateStatementUri(document.elementUri!, digest)
   const updatedDocument = { ...document }

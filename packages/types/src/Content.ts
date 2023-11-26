@@ -2,8 +2,9 @@
  * @packageDocumentation
  * @module IContent
  */
-import type { SchemaUri } from './Schema'
-import type { DidUri } from './DidDocument'
+import type { SchemaUri } from './Schema.js'
+import type { DidUri } from './DidDocument.js'
+import type { SpaceUri } from './ChainSpace.js'
 
 type ContentPrimitives = string | number | boolean
 
@@ -20,6 +21,9 @@ export interface IContent {
   contents: IContents
   holderUri: DidUri
   issuerUri: DidUri
+  spaceUri?: SpaceUri
+  issuanceDate?: string
+  expirationDate?: string
 }
 /**
  * The minimal partial stream from which a JSON-LD representation can be built.

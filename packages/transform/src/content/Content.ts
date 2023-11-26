@@ -90,7 +90,16 @@ function jsonLDcontents(
   content: PartialContent,
   expanded = true
 ): Record<string, unknown> {
-  const { schemaUri, contents, holderUri, issuerUri } = content
+  const {
+    schemaUri,
+    type,
+    contents,
+    holderUri,
+    issuerUri,
+    issuanceDate,
+    expirationDate,
+    spaceUri,
+  } = content
 
   if (!schemaUri)
     throw new SDKErrors.SchemaIdentifierMissingError(
@@ -102,6 +111,10 @@ function jsonLDcontents(
 
   if (issuerUri) result.issuer = issuerUri
   if (holderUri) result.holder = holderUri
+  if (type) result.type = type
+  if (spaceUri) result.spaceUri = spaceUri
+  if (issuanceDate) result.issuanceDate = issuanceDate
+  if (expirationDate) result.expirationDate = expirationDate
 
   const flattenedContents = DataUtils.flattenObject(contents || {})
 
@@ -223,7 +236,6 @@ export function hashContents(
   const canonicalisation = options.canonicalisation || defaults.canonicalisation
   // use canonicalisation algorithm to make hashable statement strings
   const statements = canonicalisation(content)
-  console.log(statements)
   let filteredStatements = statements
   if (options.selectedAttributes && options.selectedAttributes.length > 0) {
     filteredStatements = DataUtils.filterStatements(

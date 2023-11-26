@@ -359,7 +359,6 @@ export function hexToDocumentUri(input: HexString | string): string {
  * @param docUri
  */
 export function documentUriToHex(docUri: string): HexString {
-  console.log(docUri)
   if (!docUri.startsWith('doc:')) {
     throw new SDKErrors.InvalidInputError('Input must start with "doc:"')
   }

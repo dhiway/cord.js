@@ -283,7 +283,7 @@ async function main() {
       id: '123456789987654321',
       country: 'India',
       address: {
-        street: 'a',
+        street: 'Gandhinagar 2nd',
         pin: 54032,
         location: {
           state: 'Karnataka',
@@ -403,7 +403,7 @@ async function main() {
     updatedStatementEntry.statementDetails,
     delegateTwoDid.uri,
     authorIdentity,
-    delegateAuth,
+    delegateAuth as Cord.AuthorizationUri,
     async ({ data }) => ({
       signature: delegateTwoKeys.assertionMethod.sign(data),
       keyType: delegateTwoKeys.assertionMethod.type,

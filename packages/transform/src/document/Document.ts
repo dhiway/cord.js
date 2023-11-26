@@ -251,7 +251,6 @@ export function verifyUpdateDataStructure(
     throw new SDKErrors.ChainSpaceMismatchError('Chain Space Mismatch')
   }
 
-  console.log(statementDetails.schemaUri, input.content.schemaUri)
   if (
     statementDetails.schemaUri &&
     statementDetails.schemaUri === identifierToUri(input.content.schemaUri)
@@ -390,76 +389,16 @@ export type Options = {
 /**
  * Builds a new  [[IDocument]] object, from a complete set of required parameters.
  *
+ * @param content.content
  * @param content An `IContent` object to build the document for.
  * @param option Container for different options that can be passed to this method.
  * @param authorization The authrization id of the Issuer, which should be used in anchoring the document.
  * @param registry Identifier of the registry this document is linked to.
  * @param option.evidenceIds Array of [[Document]] objects the Issuer include as evidenceIds.
+ * @param content.spaceUri
+ * @param content.signCallback
+ * @param content.options
  * @returns A new [[IDocument]] object.
- */
-
-// /**
-//  * @param root0
-//  * @param root0.content
-//  * @param root0.authorization
-//  * @param root0.registry
-//  * @param root0.signCallback
-//  * @param root0.options
-//  * @param root0.chainSpace
-//  * @param root0.spaceUri
-//  * @param root0.chainSpaceUri
-//  * @param root0.docSignCallback
-//  */
-// export async function buildFromContentProperties({
-//   content,
-//   spaceUri,
-//   signCallback,
-//   options = {},
-// }: {
-//   content: IContent
-//   spaceUri: SpaceUri
-//   signCallback: SignCallback
-//   options: Options
-// }): Promise<PartialDocument> {
-//   const { evidenceUri = [], validUntil } = options
-
-//   const issuanceDate = new Date().toISOString()
-//   const expirationDate = validUntil ? validUntil.toISOString() : undefined
-
-//   const documentContent = {
-//     ...content,
-//     spaceUri,
-//     issuanceDate,
-//     expirationDate,
-//   }
-
-//   const serializedDocument = Crypto.encodeObjectAsStr(documentContent)
-//   const documentHash = Crypto.hashStr(serializedDocument)
-
-//   const docUri = hexToDocumentUri(documentHash) as DocumentUri
-//   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
-//   const issuerSignature = await signCallback({
-//     data: uint8Hash,
-//     did: content.issuerUri,
-//     keyRelationship: 'assertionMethod',
-//   })
-
-//   const document = {
-//     uri: docUri,
-//     content: documentContent,
-//     evidenceUri,
-//     issuerSignature: signatureToJson(issuerSignature),
-//   }
-//   verifyDataStructure(document)
-//   return document
-// }
-
-/**
- * @param root0
- * @param root0.content
- * @param root0.spaceUri
- * @param root0.signCallback
- * @param root0.options
  */
 export async function buildFromContentProperties({
   content,
@@ -472,7 +411,7 @@ export async function buildFromContentProperties({
   signCallback: SignCallback
   options: Options
 }): Promise<IDocument | PartialDocument> {
-  const { evidenceUri = [], validUntil, selectiveDisclosure = true } = options
+  const { evidenceUri = [], validUntil, selectiveDisclosure = false } = options
 
   const issuanceDate = new Date().toISOString()
   const expirationDate = validUntil ? validUntil.toISOString() : undefined
@@ -586,7 +525,6 @@ export async function updateFromDocumentProperties({
     ? validUntil.toISOString()
     : document.content.expirationDate
 
-  console.log(updateDocument)
   const documentContent = { ...updateDocument, issuanceDate, expirationDate }
 
   verifyUpdateDataStructure(documentContent, statementDetails)
@@ -618,12 +556,11 @@ export async function updateFromDocumentProperties({
 
   const updatedDocument = {
     uri: docUri,
-    elementUri: stmtUri,
-    // statementUri: statementDetails.uri,
     content: document.content,
     evidenceUri: evidenceUri || document.evidenceUri,
     ...(selectiveDisclosure && { contentHashes, contentNonceMap }),
     issuerSignature: signatureToJson(issuerSignature),
+    elementUri: stmtUri,
   }
   verifyDataStructure(updatedDocument)
   return updatedDocument
