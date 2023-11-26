@@ -29,6 +29,7 @@
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
+    "@types/uuid": "^9.0.7",
     "rimraf": "^3.0.2",
     "typescript": "^5.2.2"
   },

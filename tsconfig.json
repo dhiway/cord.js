@@ -17,17 +17,11 @@
       "@cord.network/config": [
         "config/src"
       ],
-      "@cord.network/transform": [
-        "transform/src"
-      ],
       "@cord.network/sdk": [
         "sdk/src"
       ],
       "@cord.network/types": [
         "types/src"
-      ],
-      "@cord.network/vc-export": [
-        "vc-export/src"
       ],
       "@cord.network/utils": [
         "utils/src"

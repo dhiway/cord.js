@@ -4,8 +4,9 @@ import { SpaceId } from './ChainSpace.js'
 
 export const SCHEMA_IDENT = 1424
 export const SCHEMA_PREFIX = 'schema:cord:'
+export type SchemaUri = `${typeof SCHEMA_PREFIX}${string}`
 export type SchemaId = string
-export type SchemaHash = HexString
+export type SchemaDigest = HexString
 
 export type InstanceType =
   | 'boolean'
@@ -64,7 +65,7 @@ interface ObjectPattern extends TypePattern {
 }
 
 export interface ISchema {
-  $id: SchemaId
+  $id: SchemaUri
   $schema: string
   title: string
   properties: {
@@ -86,7 +87,7 @@ export interface ISchema {
  */
 export interface ISchemaDetails {
   schema: ISchema
-  digest: SchemaHash
-  space: SpaceId
-  creator: DidUri
+  digest: SchemaDigest
+  spaceUri: SpaceId
+  creatorUri: DidUri
 }

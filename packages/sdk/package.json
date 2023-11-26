@@ -43,8 +43,8 @@
     "@cord.network/did": "workspace:*",
     "@cord.network/identifier": "workspace:*",
     "@cord.network/network": "workspace:*",
+    "@cord.network/schema": "workspace:*",
     "@cord.network/statement": "workspace:*",
-    "@cord.network/transform": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*"
   }

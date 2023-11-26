@@ -32,6 +32,46 @@ export class BlockchainApiMissingError extends SDKError {
   }
 }
 export class InputContentsMalformedError extends SDKError {}
+export class NestedContentUnverifiableError extends SDKError {}
+export class ContentHashMissingError extends SDKError {}
+export class ContentNonceMapMissingError extends SDKError {}
+export class ContentMissingError extends SDKError {}
+export class ContentTypeMissingError extends SDKError {}
+export class ContentUnverifiableError extends SDKError {}
+export class ContentNonceMapMalformedError extends SDKError {
+  constructor(statement?: string) {
+    if (statement) {
+      super(`Nonce map malformed or incomplete for statement "${statement}"`)
+    } else {
+      super(`Nonce map malformed or incomplete`)
+    }
+  }
+}
+// Schema Errors
+export class SchemaError extends SDKError {}
+export class SchemaUnknownPropertiesError extends SDKError {}
+export class SchemaMismatchError extends SDKError {}
+export class SchemaMissingError extends SDKError {}
+export class SchemaIdentifierMissingError extends SDKError {}
+export class SchemaIdMismatchError extends SDKError {
+  constructor(fromSchema: string, provided: string) {
+    super(
+      `Provided $id "${provided}" does not match schema $id "${fromSchema}"`
+    )
+  }
+}
+
+// ChainSPace Errors
+export class ChainSpaceMismatchError extends SDKError {}
+
+// Statement Errors
+export class StatementRevokedError extends SDKError {}
+export class StatementCreatorMismatchError extends SDKError {}
+
+export class IdentifierMissingError extends SDKError {}
+export class InvalidIdentifierError extends SDKError {}
+export class InvalidURIError extends SDKError {}
+export class InvalidInputError extends SDKError {}
 
 export class EncryptionError extends SDKError {}
 
@@ -55,58 +95,26 @@ export class SignatureUnverifiableError extends SDKError {}
 
 export class ObjectUnverifiableError extends SDKError {}
 
-export class SchemaIdMissingError extends SDKError {}
-
-export class SchemaError extends SDKError {}
-
 export class StatementError extends SDKError {}
-
-export class SchemaUnknownPropertiesError extends SDKError {}
-
-export class SchemaIdentifierMissingError extends SDKError {}
 export class ChainSpaceMissingError extends SDKError {}
 export class AuthorizationMissingError extends SDKError {}
 export class DocumentContentMalformed extends SDKError {}
-export class InvalidIdentifierError extends SDKError {}
-export class InvalidURIError extends SDKError {}
 export class CordDispatchError extends SDKError {}
 export class CordFetchError extends SDKError {}
 export class CordQueryError extends SDKError {}
 export class InvalidPermissionError extends SDKError {}
 
-export class SchemaIdMismatchError extends SDKError {
-  constructor(fromSchema: string, provided: string) {
-    super(
-      `Provided $id "${provided}" does not match schema $id "${fromSchema}"`
-    )
-  }
-}
-
-export class NestedContentUnverifiableError extends SDKError {}
-
 export class RootHashUnverifiableError extends SDKError {}
-
-export class ContentHashMissingError extends SDKError {}
-
 export class RevokedTypeError extends SDKError {}
 
 export class HolderMissingError extends SDKError {}
 
 export class IssuerMismatchError extends SDKError {}
-
-export class SchemaMismatchError extends SDKError {}
-
 export class SubjectMissingError extends SDKError {}
 
 export class EvidenceMissingError extends SDKError {}
 
-export class ContentNonceMapMissingError extends SDKError {}
-
-export class ContentMissingError extends SDKError {}
-
 export class HashTypeError extends SDKError {}
-
-export class IdentifierMissingError extends SDKError {}
 
 export class StatementHashMissingError extends SDKError {}
 
@@ -114,19 +122,9 @@ export class IssuerMissingError extends SDKError {}
 
 export class CredentialUnverifiableError extends SDKError {}
 
-export class ContentNonceMapMalformedError extends SDKError {
-  constructor(statement?: string) {
-    if (statement) {
-      super(`Nonce map malformed or incomplete for statement "${statement}"`)
-    } else {
-      super(`Nonce map malformed or incomplete`)
-    }
-  }
-}
 export class CreatorMissingError extends SDKError {}
 export class RegistryInputMalformedError extends SDKError {}
 export class DelegateMissingError extends SDKError {}
-export class SchemaMissingError extends SDKError {}
 export class AuthorizationIdMissingError extends SDKError {}
 
 export class DataStructureError extends SDKError {}
@@ -203,8 +201,6 @@ export class NoProofForStatementError extends SDKError {
     super(`No matching proof found for statement:\n${statement}`)
   }
 }
-
-export class ContentUnverifiableError extends SDKError {}
 
 export class SubscriptionsNotSupportedError extends SDKError {
   constructor(options?: ErrorOptions) {

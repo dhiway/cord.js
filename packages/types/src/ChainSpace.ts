@@ -3,26 +3,29 @@ import { HexString } from './Imported.js'
 
 export const SPACE_IDENT = 7101
 export const SPACE_PREFIX = 'space:cord:'
+export type SpaceUri = `${typeof SPACE_PREFIX}${string}`
 export type SpaceId = string
+export type SpaceDigest = HexString
 export const AUTH_IDENT = 10447
 export const AUTH_PREFIX = 'auth:cord:'
+export type AuthorizationUri = `${typeof AUTH_PREFIX}${string}`
 export type AuthorizationId = string
 
-export interface ChainSpaceIdentifiers {
-  uri: SpaceId
-  authUri: AuthorizationId
+export interface ChainSpaceDetails {
+  uri: SpaceUri
+  authorizationUri: AuthorizationUri
 }
 
 export interface IChainSpace {
-  uri: SpaceId
-  digest: HexString
-  creator: DidUri
-  authorization: AuthorizationId
+  uri: SpaceUri
+  digest: SpaceDigest
+  creatorUri: DidUri
+  authorizationUri: AuthorizationUri
 }
 
 export interface ISpaceDetails {
-  uri: SpaceId
-  creator: DidUri
+  uri: SpaceUri
+  creatorUri: DidUri
   txnCapacity: number
   txnUsage: number
   approved: boolean
@@ -38,15 +41,15 @@ export const Permission = {
 export type PermissionType = (typeof Permission)[keyof typeof Permission]
 
 export interface ISpaceAuthorization {
-  space: SpaceId
-  delegate: DidUri
+  uri: SpaceUri
+  delegateUri: DidUri
   permission: PermissionType
-  authorization: AuthorizationId
-  delegator: DidUri
+  authorizationUri: AuthorizationUri
+  delegatorUri: DidUri
 }
 
 export interface ISpaceAuthorizationDetails {
-  space: SpaceId
-  delegate: DidUri
+  uri: SpaceUri
+  delegateUri: DidUri
   permission: PermissionType[]
 }

@@ -1,6 +1,17 @@
-import type { IStatementEntry, IDocument, HexString } from '@cord.network/types'
+import type {
+  IStatementEntry,
+  HexString,
+  SchemaUri,
+  SpaceUri,
+  DidUri,
+  StatementUri,
+} from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
-import { Document } from '@cord.network/transform'
+import { checkIdentifier, updateStatementUri } from '@cord.network/identifier'
+import {
+  getUriForStatement,
+  fetchStatementStatusfromChain,
+} from './Statement.chain.js'
 
 /**
  *  Checks whether the input meets all the required criteria of an [[IStatement]] object.
@@ -13,6 +24,11 @@ export function verifyDataStructure(input: IStatementEntry): void {
   if (!input.digest) {
     throw new SDKErrors.StatementHashMissingError()
   }
+
+  checkIdentifier(input.spaceUri)
+  if (input.schemaUri) {
+    checkIdentifier(input.schemaUri)
+  }
   DataUtils.verifyIsHex(input.digest, 256)
 }
 
@@ -21,16 +37,24 @@ export function verifyDataStructure(input: IStatementEntry): void {
  * @param digest
  * @param chainSpace
  * @param schema
+ * @param spaceUri
+ * @param creatorUri
+ * @param schemaUri
  */
-export function fromProperties(
+export function buildFromProperties(
   digest: HexString,
-  chainSpace: string,
-  schema?: string
+  spaceUri: SpaceUri,
+  creatorUri: DidUri,
+  schemaUri?: SchemaUri
 ): IStatementEntry {
+  const stmtUri = getUriForStatement(digest, spaceUri, creatorUri)
+
   const statement: IStatementEntry = {
+    elementUri: stmtUri,
     digest,
-    chainSpace,
-    schema: schema || undefined,
+    creatorUri,
+    spaceUri,
+    schemaUri: schemaUri || undefined,
   }
 
   verifyDataStructure(statement)
@@ -38,17 +62,27 @@ export function fromProperties(
 }
 
 /**
- * Builds a new instance of an [[Statement]], from a complete set of input required for an statement.
- *
- * @param document - The base request for statement.
- * @returns A new [[Statement]] object.
- *
+ * @param stmtUri
+ * @param digest
+ * @param spaceUri
+ * @param creatorUri
+ * @param schemaUri
  */
-export function fromDocument(document: IDocument): IStatementEntry {
+export function buildFromUpdateProperties(
+  stmtUri: StatementUri,
+  digest: HexString,
+  spaceUri: SpaceUri,
+  creatorUri: DidUri,
+  schemaUri?: SchemaUri
+): IStatementEntry {
+  const statementUri = updateStatementUri(stmtUri, digest)
+
   const statement = {
-    digest: document.documentHash,
-    chainSpace: document.chainSpace,
-    schema: document.content.schemaId || undefined,
+    elementUri: statementUri,
+    digest,
+    creatorUri,
+    spaceUri,
+    schemaUri: schemaUri || undefined,
   }
   verifyDataStructure(statement)
   return statement
@@ -70,35 +104,89 @@ export function isIStatement(input: unknown): input is IStatementEntry {
 }
 
 /**
- * Verifies whether the data of the given attestation matches the one from the corresponding credential. It is valid if:
- * * the [[Credential]] object has valid data (see [[Credential.verifyDataIntegrity]]);
- * and
- * * the hash of the [[Credential]] object, and the hash of the [[Statement]].
- *
- * @param statement - The statement to verify.
- * @param document - The document to verify against.
+ * @param document
+ * @param root0
+ * @param root0.trustedIssuerUris
+ * @param stmtUri
+ * @param digest
+ * @param creator
+ * @param spaceuri
+ * @param schemaUri
  */
-export function verifyAgainstDocument(
-  statement: IStatementEntry,
-  document: IDocument
-): void {
-  const documentMismatch = document.documentHash !== statement.digest
+export async function verifyAgainstProperties(
+  stmtUri: StatementUri,
+  digest: HexString,
+  creator?: DidUri,
+  spaceuri?: SpaceUri,
+  schemaUri?: SchemaUri
+): Promise<{ isValid: boolean; message: string }> {
+  // try {
+  console.log(stmtUri)
+  const statementStatus = await fetchStatementStatusfromChain(stmtUri)
 
-  const schemaMismatch =
-    statement.schema !== undefined &&
-    document.content.schemaId !== statement.schema
-
-  const chainSpaceMismatch = document.chainSpace !== statement.chainSpace
-
-  if (documentMismatch || schemaMismatch || chainSpaceMismatch) {
-    throw new SDKErrors.CredentialUnverifiableError(
-      `Some attributes of the statement diverge from the credential: ${[
-        'schemaId',
-        'statementHash',
-      ]
-        .filter((_, i) => [schemaMismatch, documentMismatch][i])
-        .join(', ')}`
-    )
+  if (!statementStatus) {
+    return {
+      isValid: false,
+      message: `Statement details for "${digest}" not found.`,
+    }
   }
-  Document.verifyDataIntegrity(document)
+
+  if (digest !== statementStatus.digest) {
+    return {
+      isValid: false,
+      message: 'Digest does not match with Statement Digest.',
+    }
+  }
+
+  if (statementStatus?.revoked) {
+    return {
+      isValid: false,
+      message: `Statement "${stmtUri}" Revoked.`,
+    }
+  }
+
+  if (creator) {
+    if (creator !== statementStatus.creatorUri) {
+      return {
+        isValid: false,
+        message: 'Statement and Digest creator does not match.',
+      }
+    }
+  }
+
+  if (spaceuri) {
+    if (spaceuri !== statementStatus.spaceUri) {
+      return {
+        isValid: false,
+        message: 'Statement and Digest space details does not match.',
+      }
+    }
+  }
+
+  if (schemaUri) {
+    if (schemaUri !== statementStatus.schemaUri) {
+      return {
+        isValid: false,
+        message: 'Statement and Digest schema details does not match.',
+      }
+    }
+  }
+
+  return {
+    isValid: true,
+    message:
+      'Digest properties provided are valid and matches the statement details.',
+  }
+  // } catch (error) {
+  //   if (error instanceof Error) {
+  //     return {
+  //       isValid: false,
+  //       message: `Error verifying properties: ${error}`,
+  //     }
+  //   }
+  //   return {
+  //     isValid: false,
+  //     message: 'An unknown error occurred while verifying the properties.',
+  //   }
+  // }
 }
