@@ -5,10 +5,15 @@ import type {
   SchemaUri,
   SpaceUri,
   DidUri,
+  IUpdatedDocument,
 } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { Document } from '@cord.network/transform'
-import { checkIdentifier } from '@cord.network/identifier'
+import {
+  checkIdentifier,
+  documentUriToHex,
+  updateStatementUri,
+} from '@cord.network/identifier'
 import { getUriForStatement } from './Statement.chain.js'
 
 /**
@@ -39,19 +44,21 @@ export function verifyDataStructure(input: IStatementEntry): void {
  * @param schema
  * @param spaceUri
  * @param creator
+ * @param creatorUri
  * @param schemaUri
  */
 export function buildFromProperties(
   digest: HexString,
   spaceUri: SpaceUri,
-  creator: DidUri,
+  creatorUri: DidUri,
   schemaUri?: SchemaUri
 ): IStatementEntry {
-  const stmtUri = getUriForStatement(digest, spaceUri, creator)
+  const stmtUri = getUriForStatement(digest, spaceUri, creatorUri)
 
   const statement: IStatementEntry = {
-    element: stmtUri,
+    elementUri: stmtUri,
     digest,
+    creatorUri,
     spaceUri,
     schemaUri: schemaUri || undefined,
   }
@@ -65,18 +72,47 @@ export function buildFromProperties(
  *
  * @param document - The base request for statement.
  * @param creator
+ * @param creatorUri
  * @returns A new [[Statement]] object.
  *
  */
 export function buildFromDocumentProperties(
   document: IDocument,
-  creator: DidUri
+  creatorUri: DidUri
 ): IStatementEntry {
   const digest = Document.getDocumentDigest(document)
-  const stmtUri = getUriForStatement(digest, document.content.spaceUri, creator)
-  const statement = {
-    element: stmtUri,
+  const stmtUri = getUriForStatement(
     digest,
+    document.content.spaceUri,
+    creatorUri
+  )
+  const statement = {
+    elementUri: stmtUri,
+    digest,
+    creatorUri,
+    spaceUri: document.content.spaceUri,
+    schemaUri: document.content.schemaUri || undefined,
+  }
+  verifyDataStructure(statement)
+  return statement
+}
+
+/**
+ * @param document
+ * @param creator
+ * @param creatorUri
+ */
+export function buildFromUpdateProperties(
+  document: IUpdatedDocument,
+  creatorUri: DidUri
+): IStatementEntry {
+  console.log('Build From Update', document, document.uri)
+  const digest = documentUriToHex(document.uri)
+  const stmtUri = updateStatementUri(document.statementUri, digest)
+  const statement = {
+    elementUri: stmtUri,
+    digest,
+    creatorUri,
     spaceUri: document.content.spaceUri,
     schemaUri: document.content.schemaUri || undefined,
   }

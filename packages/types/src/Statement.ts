@@ -14,8 +14,9 @@ export type StatementId = string
 export type StatementDigest = HexString
 
 export interface IStatementEntry {
-  element: StatementUri
+  elementUri: StatementUri
   digest: HexString
+  creatorUri: DidUri
   spaceUri: SpaceUri
   schemaUri?: SchemaUri | undefined
 }

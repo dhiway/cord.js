@@ -87,6 +87,7 @@ export function getUriForStatement(
  * @param document
  * @param stmtEntry
  * @param creator
+ * @param creatorUri
  * @param authorAccount
  * @param authorization
  * @param authorizationUri
@@ -94,30 +95,22 @@ export function getUriForStatement(
  */
 export async function dispatchRegisterToChain(
   stmtEntry: IStatementEntry,
-  creator: DidUri,
+  creatorUri: DidUri,
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback
 ): Promise<StatementUri> {
   try {
     const api = ConfigService.get('api')
-
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
-
     const schemaId =
       stmtEntry.schemaUri !== undefined
         ? stmtEntry.schemaUri && uriToIdentifier(stmtEntry.schemaUri)
         : undefined
 
-    const stmtUri = getUriForStatement(
-      stmtEntry.digest,
-      stmtEntry.spaceUri,
-      creator
-    )
     const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
-
     if (exists) {
-      return stmtUri
+      return stmtEntry.elementUri
     }
 
     const tx = schemaId
@@ -125,7 +118,7 @@ export async function dispatchRegisterToChain(
       : api.tx.statement.register(stmtEntry.digest, authorizationId, null)
 
     const extrinsic = await Did.authorizeTx(
-      creator,
+      creatorUri,
       tx,
       signCallback,
       authorAccount.address
@@ -133,7 +126,129 @@ export async function dispatchRegisterToChain(
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
-    return stmtUri
+    return stmtEntry.elementUri
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
+  }
+}
+
+/**
+ * @param stmtEntry
+ * @param creator
+ * @param creatorUri
+ * @param authorAccount
+ * @param authorizationUri
+ * @param signCallback
+ */
+export async function dispatchUpdateToChain(
+  stmtEntry: IStatementEntry,
+  creatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<StatementUri> {
+  try {
+    const api = ConfigService.get('api')
+    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
+
+    const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
+
+    if (exists) {
+      return stmtEntry.elementUri
+    }
+
+    const stmtIdDigest = uriToStatementIdAndDigest(stmtEntry.elementUri)
+    const tx = api.tx.statement.update(
+      stmtIdDigest.identifier,
+      stmtEntry.digest,
+      authorizationId
+    )
+
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+
+    return stmtEntry.elementUri
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
+  }
+}
+
+/**
+ * @param stmtEntry
+ * @param statementUri
+ * @param creatorUri
+ * @param authorAccount
+ * @param authorizationUri
+ * @param signCallback
+ */
+export async function dispatchRevokeToChain(
+  statementUri: StatementUri,
+  creatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<void> {
+  try {
+    const api = ConfigService.get('api')
+    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
+
+    const stmtId = uriToIdentifier(statementUri)
+    const tx = api.tx.statement.revoke(stmtId, authorizationId)
+
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
+  }
+}
+
+/**
+ * @param statementUri
+ * @param creatorUri
+ * @param authorAccount
+ * @param authorizationUri
+ * @param signCallback
+ */
+export async function dispatchRestoreToChain(
+  statementUri: StatementUri,
+  creatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<void> {
+  try {
+    const api = ConfigService.get('api')
+    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
+
+    const stmtId = uriToIdentifier(statementUri)
+    const tx = api.tx.statement.restore(stmtId, authorizationId)
+
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${error}".`

@@ -3,6 +3,7 @@ import type { DidSignature } from './DidDocument'
 import type { IContent } from './Content.js'
 import type { SignCallback } from './CryptoCallbacks'
 import { SpaceUri } from './ChainSpace.js'
+import { StatementUri } from './Statement.js'
 
 export type Hash = HexString
 export type DocumentUri = `doc:${string}`
@@ -48,7 +49,7 @@ export interface IDocumentUpdate {
 }
 
 export interface IUpdatedDocument extends IDocument {
-  parentUri: DocumentUri
+  statementUri: StatementUri
 }
 
 export interface IDocumentPresentation extends IDocument {

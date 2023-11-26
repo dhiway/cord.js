@@ -351,27 +351,88 @@ async function main() {
       keyType: issuerKeys.assertionMethod.type,
     })
   )
-  // await createStatement(
-  //   document,
-  //   delegateTwoDid.uri,
-  //   delegateAuth['authorization'],
-  //   authorIdentity,
+
+  console.log(`✅ Statement element registered - ${statement}`)
+
+  // Step 5: Delegate updates the Verifiable Document
+  console.log(`\n❄️  Verifiable Document Update `)
+  let documentContent = Cord.Document.prepareDocumentForUpdate(document)
+
+  console.dir(documentContent, {
+    depth: null,
+    colors: true,
+  })
+  // const contents = documentContent.content.contents as Cord.IContents
+  documentContent.content.contents.name = 'Alice M'
+  documentContent.content.contents.age = 32
+  documentContent.content.contents.address.pin = 560100
+
+  const updatedDocumentEntry = await Cord.Document.updateFromDocumentProperties(
+    {
+      document: documentContent,
+      updater: delegateTwoDid.uri,
+      signCallback: async ({ data }) => ({
+        signature: delegateTwoKeys.assertionMethod.sign(data),
+        keyType: delegateTwoKeys.assertionMethod.type,
+        keyUri: `${delegateTwoDid.uri}${
+          delegateTwoDid?.assertionMethod![0].id
+        }`,
+      }),
+      options: {},
+    }
+  )
+  console.dir(updatedDocumentEntry, {
+    depth: null,
+    colors: true,
+  })
+
+  const updatedStatementEntry = Cord.Statement.buildFromUpdateProperties(
+    updatedDocumentEntry,
+    delegateTwoDid.uri
+  )
+  console.dir(updatedStatementEntry, {
+    depth: null,
+    colors: true,
+  })
+
+  const updatedStatement = await Cord.Statement.dispatchUpdateToChain(
+    updatedStatementEntry,
+    delegateTwoDid.uri,
+    authorIdentity,
+    delegateAuth,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    })
+  )
+
+  console.log(`✅ Statement element registered - ${updatedStatement}`)
+
+  const stmtUri = Cord.Identifier.elementUriToStatementUri(
+    updatedStatementEntry.elementUri
+  )
+  await Cord.Statement.dispatchRevokeToChain(
+    updatedStatementEntry,
+    delegateTwoDid.uri,
+    authorIdentity,
+    delegateAuth,
+    async ({ data }) => ({
+      signature: delegateTwoKeys.assertionMethod.sign(data),
+      keyType: delegateTwoKeys.assertionMethod.type,
+    })
+  )
+
+  console.log(`✅ Statement element registered - ${updatedStatement}`)
+
+  // const updatedDocument = await Cord.Document.updateFromDocumentProperties(
+  //   documentContent,
   //   async ({ data }) => ({
   //     signature: delegateTwoKeys.assertionMethod.sign(data),
   //     keyType: delegateTwoKeys.assertionMethod.type,
+  //     keyUri: `${delegateTwoDid.uri}${delegateTwoDid?.assertionMethod![0].id}`,
   //   })
+  //   options: {},
   // )
-  console.log(`✅ Statement element registered - ${statement}`)
-
-  // // Step 5: Delegate updates the Verifiable Document
-  // console.log(`\n❄️  Verifiable Document Update `)
-  // let updateDocumentContent =
-  //   Cord.Document.extractDocumentContentforUpdate(document)
-
-  // const contents = updateDocumentContent.content.contents as Cord.IContents
-  // contents.name = 'Alice M'
-  // contents.age = 32
-  // contents.address.pin = 560100
 
   // const updatedDocument = await updateDocument(
   //   updateDocumentContent,

@@ -66,6 +66,7 @@ export class ChainSpaceMismatchError extends SDKError {}
 
 // Statement Errors
 export class StatementRevokedError extends SDKError {}
+export class StatementCreatorMismatchError extends SDKError {}
 
 export class IdentifierMissingError extends SDKError {}
 export class InvalidIdentifierError extends SDKError {}

@@ -359,12 +359,17 @@ export function hexToDocumentUri(input: HexString | string): string {
  * @param docUri
  */
 export function documentUriToHex(docUri: string): HexString {
-  if (!docUri.startsWith('doc:') || docUri.substring(4).startsWith('0x')) {
-    throw new SDKErrors.InvalidInputError(
-      'Input must start with "doc:" and not be followed by "0x"'
-    )
+  console.log(docUri)
+  if (!docUri.startsWith('doc:')) {
+    throw new SDKErrors.InvalidInputError('Input must start with "doc:"')
   }
-  const docHex = docUri.split(':')[1]
+
+  const parts = docUri.split(':')
+  if (parts.length !== 2 || parts[1].startsWith('0x')) {
+    throw new SDKErrors.InvalidInputError('Invalid format of docUri')
+  }
+
+  const docHex = parts[1]
 
   return `0x${docHex}`
 }
@@ -398,7 +403,7 @@ export function updateStatementUri(
 ): StatementUri {
   const parts = stmtUri.split(':')
 
-  if (parts.length !== 4 || parts[0] !== 'stmt' || parts[1] !== 'cord') {
+  if (parts[0] !== 'stmt' || parts[1] !== 'cord') {
     throw new SDKErrors.InvalidIdentifierError('Invalid statementUri format')
   }
 
@@ -435,7 +440,9 @@ export function uriToStatementIdAndDigest(statementUri: StatementUri): {
 /**
  * @param statementUri
  */
-export function statementUriToIdUri(statementUri: StatementUri): StatementUri {
+export function elementUriToStatementUri(
+  statementUri: StatementUri
+): StatementUri {
   const parts = statementUri.split(':')
 
   if (parts.length !== 4 || parts[0] !== 'stmt' || parts[1] !== 'cord') {

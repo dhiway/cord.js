@@ -227,9 +227,10 @@ export function verifyUpdateDataStructure(
     throw new SDKErrors.ChainSpaceMismatchError('Chain Space Mismatch')
   }
 
+  console.log(statementDetails.schemaUri, input.content.schemaUri)
   if (
     statementDetails.schemaUri &&
-    identifierToUri(statementDetails.schemaUri) === input.content.schemaUri
+    statementDetails.schemaUri === identifierToUri(input.content.schemaUri)
   ) {
     throw new SDKErrors.SchemaMismatchError('Schema Mismatch')
   }
@@ -451,13 +452,16 @@ export function prepareDocumentForUpdate(input: unknown): IDocumentUpdate {
  * @param root0.identifier
  * @param root0.document
  * @param root0.schema
+ * @param root0.updater
  */
-export async function updateFromProperties({
+export async function updateFromDocumentProperties({
   document,
+  updater,
   signCallback,
   options = {},
 }: {
   document: IDocumentUpdate
+  updater: DidUri
   signCallback: SignCallback
   options: Options
 }): Promise<IUpdatedDocument> {
@@ -470,13 +474,17 @@ export async function updateFromProperties({
   if (statementDetails === null) {
     throw new SDKErrors.StatementError(`No associated statement found.`)
   }
+  console.log('Statement Detail', statementDetails)
+  const updateDocument = { ...document }
+  updateDocument.content.issuerUri = updater
 
   const issuanceDate = new Date().toISOString()
   const expirationDate = validUntil
     ? validUntil.toISOString()
     : document.content.expirationDate
 
-  const documentContent = { ...document, issuanceDate, expirationDate }
+  console.log(updateDocument)
+  const documentContent = { ...updateDocument, issuanceDate, expirationDate }
 
   verifyUpdateDataStructure(documentContent, statementDetails)
 
@@ -499,7 +507,7 @@ export async function updateFromProperties({
 
   const updatedDocument = {
     uri: docUri,
-    parentUri: document.uri,
+    statementUri: statementDetails.uri,
     content: document.content,
     contentHashes,
     contentNonceMap,
