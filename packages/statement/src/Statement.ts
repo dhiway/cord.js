@@ -5,7 +5,7 @@ import type {
   SchemaUri,
   SpaceUri,
   DidUri,
-  IUpdatedDocument,
+  PartialDocument,
 } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { Document } from '@cord.network/transform'
@@ -77,15 +77,21 @@ export function buildFromProperties(
  *
  */
 export function buildFromDocumentProperties(
-  document: IDocument,
+  document: IDocument | PartialDocument,
   creatorUri: DidUri
-): IStatementEntry {
-  const digest = Document.getDocumentDigest(document)
+): {
+  statementDetails: IStatementEntry
+  document: IDocument | PartialDocument
+} {
+  const digest = documentUriToHex(document.uri)
   const stmtUri = getUriForStatement(
     digest,
     document.content.spaceUri,
     creatorUri
   )
+  const updatedDocument = { ...document }
+  updatedDocument.elementUri = stmtUri
+
   const statement = {
     elementUri: stmtUri,
     digest,
@@ -94,7 +100,7 @@ export function buildFromDocumentProperties(
     schemaUri: document.content.schemaUri || undefined,
   }
   verifyDataStructure(statement)
-  return statement
+  return { statementDetails: statement, document: updatedDocument }
 }
 
 /**
@@ -103,12 +109,18 @@ export function buildFromDocumentProperties(
  * @param creatorUri
  */
 export function buildFromUpdateProperties(
-  document: IUpdatedDocument,
+  document: IDocument | PartialDocument,
   creatorUri: DidUri
-): IStatementEntry {
+): {
+  statementDetails: IStatementEntry
+  document: IDocument | PartialDocument
+} {
   console.log('Build From Update', document, document.uri)
   const digest = documentUriToHex(document.uri)
-  const stmtUri = updateStatementUri(document.statementUri, digest)
+  const stmtUri = updateStatementUri(document.elementUri!, digest)
+  const updatedDocument = { ...document }
+  updatedDocument.elementUri = stmtUri
+
   const statement = {
     elementUri: stmtUri,
     digest,
@@ -117,7 +129,7 @@ export function buildFromUpdateProperties(
     schemaUri: document.content.schemaUri || undefined,
   }
   verifyDataStructure(statement)
-  return statement
+  return { statementDetails: statement, document: updatedDocument }
 }
 
 /**
@@ -146,10 +158,9 @@ export function isIStatement(input: unknown): input is IStatementEntry {
  */
 export function verifyAgainstDocument(
   statement: IStatementEntry,
-  document: IDocument
+  document: IDocument | PartialDocument
 ): void {
-  const documentMismatch =
-    Document.getDocumentDigest(document) !== statement.digest
+  const documentMismatch = documentUriToHex(document.uri) !== statement.digest
 
   const schemaMismatch =
     statement.schemaUri !== undefined &&

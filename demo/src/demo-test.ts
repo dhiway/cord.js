@@ -226,7 +226,7 @@ async function main() {
 
   console.log(`\n❄️  Query From Chain - Chain Space Authorization Details `)
   const spaceAuthFromChain = await Cord.ChainSpace.fetchAuthorizationFromChain(
-    delegateAuth
+    delegateAuth as Cord.AuthorizationUri
   )
   console.dir(spaceAuthFromChain, {
     depth: null,
@@ -341,8 +341,10 @@ async function main() {
     colors: true,
   })
 
+  console.log(issuerDid.uri, authorIdentity, space.authorization)
+
   const statement = await Cord.Statement.dispatchRegisterToChain(
-    statementEntry,
+    statementEntry.statementDetails,
     issuerDid.uri,
     authorIdentity,
     space.authorization,
@@ -356,7 +358,9 @@ async function main() {
 
   // Step 5: Delegate updates the Verifiable Document
   console.log(`\n❄️  Verifiable Document Update `)
-  let documentContent = Cord.Document.prepareDocumentForUpdate(document)
+  let documentContent = Cord.Document.prepareDocumentForUpdate(
+    statementEntry.document
+  )
 
   console.dir(documentContent, {
     depth: null,
@@ -396,7 +400,7 @@ async function main() {
   })
 
   const updatedStatement = await Cord.Statement.dispatchUpdateToChain(
-    updatedStatementEntry,
+    updatedStatementEntry.statementDetails,
     delegateTwoDid.uri,
     authorIdentity,
     delegateAuth,
@@ -408,19 +412,19 @@ async function main() {
 
   console.log(`✅ Statement element registered - ${updatedStatement}`)
 
-  const stmtUri = Cord.Identifier.elementUriToStatementUri(
-    updatedStatementEntry.elementUri
-  )
-  await Cord.Statement.dispatchRevokeToChain(
-    updatedStatementEntry,
-    delegateTwoDid.uri,
-    authorIdentity,
-    delegateAuth,
-    async ({ data }) => ({
-      signature: delegateTwoKeys.assertionMethod.sign(data),
-      keyType: delegateTwoKeys.assertionMethod.type,
-    })
-  )
+  // const stmtUri = Cord.Identifier.elementUriToStatementUri(
+  //   updatedStatemen.elementUri
+  // )
+  // await Cord.Statement.dispatchRevokeToChain(
+  //   updatedStatementEntry,
+  //   delegateTwoDid.uri,
+  //   authorIdentity,
+  //   delegateAuth,
+  //   async ({ data }) => ({
+  //     signature: delegateTwoKeys.assertionMethod.sign(data),
+  //     keyType: delegateTwoKeys.assertionMethod.type,
+  //   })
+  // )
 
   console.log(`✅ Statement element registered - ${updatedStatement}`)
 

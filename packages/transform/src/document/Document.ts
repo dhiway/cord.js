@@ -20,11 +20,10 @@ import type {
   SpaceId,
   PresentationOptions,
   IDocumentUpdate,
-  IUpdatedDocument,
+  PartialDocument,
   IStatementStatus,
   SpaceUri,
   DocumentUri,
-  // IDocumentEvidence,
 } from '@cord.network/types'
 import { Crypto, SDKErrors, DataUtils } from '@cord.network/utils'
 import {
@@ -34,19 +33,17 @@ import {
   Bytes,
   blake2AsHex,
 } from '@cord.network/types'
-// import type { AccountId, H256 } from '@polkadot/types/interfaces'
 import * as Did from '@cord.network/did'
 import { ConfigService } from '@cord.network/config'
 import {
   hashToUri,
-  // uriToIdentifier,
   hexToDocumentUri,
   documentUriToHex,
   identifierToUri,
+  updateStatementUri,
 } from '@cord.network/identifier'
 import { fetchDocumentElementStatus } from './Document.query.js'
 import { verifyContentAgainstSchema } from '../schema/Schema.js'
-import { hashContents } from '../content/index.js'
 import * as Content from '../content/index.js'
 
 /**
@@ -91,7 +88,7 @@ function getHashLeaves(
 /**
  * @param document
  */
-export function calculateDocumentHash(document: Partial<IDocument>): Hash {
+export function calculateSdrDocumentHash(document: Partial<IDocument>): Hash {
   const hashes = getHashLeaves(
     document.contentHashes || [],
     document.evidenceUri || []
@@ -122,10 +119,10 @@ export function makeSigningData(
 /**
  * @param input
  */
-export function verifyDocumentHash(input: IDocument): void {
+export function verifySdrDocumentHash(input: IDocument): void {
   const documentHash = documentUriToHex(input.uri)
 
-  if (documentHash !== calculateDocumentHash(input))
+  if (documentHash !== calculateSdrDocumentHash(input))
     throw new SDKErrors.RootHashUnverifiableError()
 }
 
@@ -135,6 +132,19 @@ type VerifyOptions = {
   didResolveKey?: DidResolveKey
   selectedAttributes?: string[]
   trustedIssuerUris?: DidUri[]
+}
+
+/**
+ * @param input
+ */
+export function verifyDocumentHash(input: PartialDocument): void {
+  const documentHash = documentUriToHex(input.uri)
+
+  const serializedDocument = Crypto.encodeObjectAsStr(input.content)
+  const calculatedHash = Crypto.hashStr(serializedDocument)
+
+  if (documentHash !== calculatedHash)
+    throw new SDKErrors.RootHashUnverifiableError()
 }
 
 /**
@@ -149,31 +159,32 @@ type VerifyOptions = {
  * @param root0.selectedAttributes
  */
 export function verifyDataIntegrity(
-  input: IDocument,
+  input: IDocument | PartialDocument,
   { selectedAttributes }: VerifyOptions = {}
 ): void {
-  // check document hash
-  verifyDocumentHash(input)
+  const selectiveDisclosure = input.content.type.includes('SelectiveDisclosure')
 
-  // verify properties against selective disclosure proof
-  if (selectedAttributes) {
-    Content.verifyDisclosedAttributes(
-      input.content,
-      {
-        nonces: input.contentNonceMap,
-        hashes: input.contentHashes,
-      },
-      selectedAttributes
-    )
+  if (selectiveDisclosure) {
+    const checkInput = input as IDocument
+    verifySdrDocumentHash(checkInput)
+    if (selectedAttributes) {
+      Content.verifyDisclosedAttributes(
+        input.content,
+        {
+          nonces: checkInput.contentNonceMap,
+          hashes: checkInput.contentHashes,
+        },
+        selectedAttributes
+      )
+    } else {
+      Content.verifyDisclosedAttributes(input.content, {
+        nonces: checkInput.contentNonceMap,
+        hashes: checkInput.contentHashes,
+      })
+    }
   } else {
-    Content.verifyDisclosedAttributes(input.content, {
-      nonces: input.contentNonceMap,
-      hashes: input.contentHashes,
-    })
+    verifyDocumentHash(input as PartialDocument)
   }
-
-  // TODO - check evidences
-  // input.evidenceIds.forEach(verifyDataIntegrity)
 }
 
 /**
@@ -183,30 +194,43 @@ export function verifyDataIntegrity(
  * @param input - A potentially only partial [[IDocument]].
  *
  */
-export function verifyDataStructure(input: IDocument | IUpdatedDocument): void {
+export function verifyDataStructure(input: IDocument | PartialDocument): void {
   if (!('content' in input)) {
     throw new SDKErrors.ContentMissingError()
   } else {
     Content.verifyDataStructure(input.content)
   }
-  if (!input.content.holderUri) {
+  if (!('holderUri' in input.content)) {
     throw new SDKErrors.HolderMissingError()
+  }
+  if (!('issuerUri' in input.content)) {
+    throw new SDKErrors.IssuerMissingError()
   }
   if (!Array.isArray(input.evidenceUri)) {
     throw new SDKErrors.EvidenceMissingError()
   }
-  if (!('contentNonceMap' in input)) {
-    throw new SDKErrors.ContentNonceMapMissingError()
+  if (input.content.type.includes('SelectiveDisclosure')) {
+    if (!('contentNonceMap' in input) || !('contentHashes' in input)) {
+      throw new SDKErrors.DataStructureError(
+        'Content hashes or noncemap not provided'
+      )
+    }
   }
-  if (typeof input.contentNonceMap !== 'object')
-    throw new SDKErrors.ContentNonceMapMalformedError()
-  Object.entries(input.contentNonceMap).forEach(([digest, nonce]) => {
-    DataUtils.verifyIsHex(digest, 256)
-    if (!digest || typeof nonce !== 'string' || !nonce)
+  if ('contentNonceMap' in input) {
+    if (typeof input.contentNonceMap !== 'object')
       throw new SDKErrors.ContentNonceMapMalformedError()
-  })
-  if (!('contentHashes' in input)) {
-    throw new SDKErrors.DataStructureError('content hashes not provided')
+    Object.entries(input.contentNonceMap).forEach(([digest, nonce]) => {
+      DataUtils.verifyIsHex(digest, 256)
+      if (!digest || typeof nonce !== 'string' || !nonce)
+        throw new SDKErrors.ContentNonceMapMalformedError()
+    })
+    if (!('contentHashes' in input)) {
+      throw new SDKErrors.DataStructureError('content hashes not provided')
+    }
+  }
+  if ('uri' in input) {
+    const digest = documentUriToHex(input.uri)
+    DataUtils.verifyIsHex(digest, 256)
   }
 }
 
@@ -339,9 +363,28 @@ export function isIDocument(input: unknown): input is IDocument {
   return true
 }
 
+/**
+ * @param input
+ */
+export function isAnchoredIDocument(input: unknown): input is IDocument {
+  try {
+    const validateInput = input as IDocument
+    if (!('elementUri' in validateInput)) {
+      throw new SDKErrors.DocumentContentMalformed(
+        'Document not anchored - missing Element URI'
+      )
+    }
+    verifyDataStructure(validateInput)
+  } catch (error) {
+    return false
+  }
+  return true
+}
+
 export type Options = {
   evidenceUri?: IDocument[]
   validUntil?: Date
+  selectiveDisclosure?: boolean
 }
 
 /**
@@ -355,17 +398,68 @@ export type Options = {
  * @returns A new [[IDocument]] object.
  */
 
+// /**
+//  * @param root0
+//  * @param root0.content
+//  * @param root0.authorization
+//  * @param root0.registry
+//  * @param root0.signCallback
+//  * @param root0.options
+//  * @param root0.chainSpace
+//  * @param root0.spaceUri
+//  * @param root0.chainSpaceUri
+//  * @param root0.docSignCallback
+//  */
+// export async function buildFromContentProperties({
+//   content,
+//   spaceUri,
+//   signCallback,
+//   options = {},
+// }: {
+//   content: IContent
+//   spaceUri: SpaceUri
+//   signCallback: SignCallback
+//   options: Options
+// }): Promise<PartialDocument> {
+//   const { evidenceUri = [], validUntil } = options
+
+//   const issuanceDate = new Date().toISOString()
+//   const expirationDate = validUntil ? validUntil.toISOString() : undefined
+
+//   const documentContent = {
+//     ...content,
+//     spaceUri,
+//     issuanceDate,
+//     expirationDate,
+//   }
+
+//   const serializedDocument = Crypto.encodeObjectAsStr(documentContent)
+//   const documentHash = Crypto.hashStr(serializedDocument)
+
+//   const docUri = hexToDocumentUri(documentHash) as DocumentUri
+//   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
+//   const issuerSignature = await signCallback({
+//     data: uint8Hash,
+//     did: content.issuerUri,
+//     keyRelationship: 'assertionMethod',
+//   })
+
+//   const document = {
+//     uri: docUri,
+//     content: documentContent,
+//     evidenceUri,
+//     issuerSignature: signatureToJson(issuerSignature),
+//   }
+//   verifyDataStructure(document)
+//   return document
+// }
+
 /**
  * @param root0
  * @param root0.content
- * @param root0.authorization
- * @param root0.registry
+ * @param root0.spaceUri
  * @param root0.signCallback
  * @param root0.options
- * @param root0.chainSpace
- * @param root0.spaceUri
- * @param root0.chainSpaceUri
- * @param root0.docSignCallback
  */
 export async function buildFromContentProperties({
   content,
@@ -377,13 +471,15 @@ export async function buildFromContentProperties({
   spaceUri: SpaceUri
   signCallback: SignCallback
   options: Options
-}): Promise<IDocument> {
-  const { evidenceUri = [], validUntil } = options
+}): Promise<IDocument | PartialDocument> {
+  const { evidenceUri = [], validUntil, selectiveDisclosure = true } = options
 
   const issuanceDate = new Date().toISOString()
   const expirationDate = validUntil ? validUntil.toISOString() : undefined
 
-  console.log('before', spaceUri)
+  if (selectiveDisclosure) {
+    content.type.push('SelectiveDisclosure')
+  }
 
   const documentContent = {
     ...content,
@@ -391,16 +487,21 @@ export async function buildFromContentProperties({
     issuanceDate,
     expirationDate,
   }
-  console.log(spaceUri, documentContent)
-  console.log(documentContent)
 
-  const { hashes: contentHashes, nonceMap: contentNonceMap } =
-    Content.hashContents(documentContent)
-
-  const documentHash = calculateDocumentHash({
-    evidenceUri,
-    contentHashes,
-  })
+  let contentHashes
+  let contentNonceMap
+  let documentHash
+  if (selectiveDisclosure) {
+    ;({ hashes: contentHashes, nonceMap: contentNonceMap } =
+      Content.hashContents(documentContent))
+    documentHash = calculateSdrDocumentHash({
+      evidenceUri,
+      contentHashes,
+    })
+  } else {
+    const serializedDocument = Crypto.encodeObjectAsStr(documentContent)
+    documentHash = Crypto.hashStr(serializedDocument)
+  }
 
   const docUri = hexToDocumentUri(documentHash) as DocumentUri
   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
@@ -410,12 +511,11 @@ export async function buildFromContentProperties({
     keyRelationship: 'assertionMethod',
   })
 
-  const document = {
+  const document: IDocument | PartialDocument = {
     uri: docUri,
     content: documentContent,
-    contentHashes,
-    contentNonceMap,
     evidenceUri,
+    ...(selectiveDisclosure && { contentHashes, contentNonceMap }),
     issuerSignature: signatureToJson(issuerSignature),
   }
   verifyDataStructure(document)
@@ -427,20 +527,21 @@ export async function buildFromContentProperties({
  * @param input
  */
 export function prepareDocumentForUpdate(input: unknown): IDocumentUpdate {
-  if (!isIDocument(input)) {
-    throw new SDKErrors.DocumentContentMalformed('Document content malformed')
+  if (!isAnchoredIDocument(input)) {
+    throw new SDKErrors.DocumentContentMalformed(
+      'Document not anchored - missing Element URI'
+    )
   }
 
-  const document = input as IDocument
+  const update: Partial<IDocument> = { ...input }
 
-  const {
-    contentHashes,
-    contentNonceMap,
-    issuerSignature,
-    ...remainingDocumentContent
-  } = document
+  if (input.content.type.includes('SelectiveDisclosure')) {
+    delete update.contentHashes
+    delete update.contentNonceMap
+  }
+  delete update.issuerSignature
 
-  return remainingDocumentContent
+  return update as IDocumentUpdate
 }
 
 /**
@@ -464,8 +565,11 @@ export async function updateFromDocumentProperties({
   updater: DidUri
   signCallback: SignCallback
   options: Options
-}): Promise<IUpdatedDocument> {
+}): Promise<IDocument | PartialDocument> {
   const { evidenceUri, validUntil } = options
+  const selectiveDisclosure = document.content.type.includes(
+    'SelectiveDisclosure'
+  )
 
   const statementDetails = await fetchDocumentElementStatus(
     document.uri,
@@ -474,7 +578,6 @@ export async function updateFromDocumentProperties({
   if (statementDetails === null) {
     throw new SDKErrors.StatementError(`No associated statement found.`)
   }
-  console.log('Statement Detail', statementDetails)
   const updateDocument = { ...document }
   updateDocument.content.issuerUri = updater
 
@@ -488,15 +591,23 @@ export async function updateFromDocumentProperties({
 
   verifyUpdateDataStructure(documentContent, statementDetails)
 
-  const { hashes: contentHashes, nonceMap: contentNonceMap } =
-    Content.hashContents(documentContent.content)
-
-  const documentHash = calculateDocumentHash({
-    evidenceUri,
-    contentHashes,
-  })
+  let contentHashes
+  let contentNonceMap
+  let documentHash
+  if (selectiveDisclosure) {
+    ;({ hashes: contentHashes, nonceMap: contentNonceMap } =
+      Content.hashContents(documentContent.content))
+    documentHash = calculateSdrDocumentHash({
+      evidenceUri,
+      contentHashes,
+    })
+  } else {
+    const serializedDocument = Crypto.encodeObjectAsStr(documentContent.content)
+    documentHash = Crypto.hashStr(serializedDocument)
+  }
 
   const docUri = hexToDocumentUri(documentHash) as DocumentUri
+  const stmtUri = updateStatementUri(documentContent.elementUri!, '0x000')
 
   const uint8Hash = new Uint8Array([...Crypto.coToUInt8(documentHash)])
   const issuerSignature = await signCallback({
@@ -507,11 +618,11 @@ export async function updateFromDocumentProperties({
 
   const updatedDocument = {
     uri: docUri,
-    statementUri: statementDetails.uri,
+    elementUri: stmtUri,
+    // statementUri: statementDetails.uri,
     content: document.content,
-    contentHashes,
-    contentNonceMap,
     evidenceUri: evidenceUri || document.evidenceUri,
+    ...(selectiveDisclosure && { contentHashes, contentNonceMap }),
     issuerSignature: signatureToJson(issuerSignature),
   }
   verifyDataStructure(updatedDocument)
@@ -719,7 +830,7 @@ export async function createPresentation({
       selectedAttributes
     )
   }
-  presentationDocument.contentNonceMap = hashContents(
+  presentationDocument.contentNonceMap = Content.hashContents(
     presentationDocument.content,
     {
       nonces: presentationDocument.contentNonceMap,

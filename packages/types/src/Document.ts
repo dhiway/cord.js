@@ -35,6 +35,7 @@ export interface IDocument {
   contentNonceMap: Record<HexString, string>
   evidenceUri: IDocument[]
   issuerSignature: DidSignature
+  elementUri?: StatementUri | undefined
 }
 
 export type PartialDocument = Omit<
@@ -46,11 +47,12 @@ export interface IDocumentUpdate {
   uri: DocumentUri
   content: IDocumentContent
   evidenceUri: IDocument[]
+  elementUri?: StatementUri | undefined
 }
 
-export interface IUpdatedDocument extends IDocument {
-  statementUri: StatementUri
-}
+// export interface IUpdatedDocument extends IDocument {
+//   statementUri: StatementUri
+// }
 
 export interface IDocumentPresentation extends IDocument {
   selectiveAttributes: string[]
