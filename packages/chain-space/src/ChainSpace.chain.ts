@@ -125,7 +125,7 @@ export async function isAuthorizationStored(
 }
 
 /**
- * (Internal Function) - Generates unique URIs for a ChainSpace and its associated authorization based on the space digest and creator URI.
+ * Generates unique URIs for a ChainSpace and its associated authorization based on the space digest and creator URI.
  * This internal function computes the ChainSpace URI and the authorization URI by hashing the space digest and
  * creator URI. These URIs serve as unique identifiers within the blockchain system.
  *
@@ -311,7 +311,7 @@ export async function sudoApproveChainSpace(
 }
 
 /**
- * (Internal Function) - Generates a unique URI for an authorization based on the space URI, delegate URI, and creator URI.
+ * Generates a unique URI for an authorization based on the space URI, delegate URI, and creator URI.
  * This is an internal function used to create a standardized and unique identifier for an authorization
  * within the system, ensuring that each authorization can be distinctly referenced.
  *
@@ -367,7 +367,7 @@ export async function getUriForAuthorization(
 }
 
 /**
- * (Internal Function) - Constructs a transaction for delegate authorization based on the specified permission type.
+ * Constructs a transaction for delegate authorization based on the specified permission type.
  * This is an internal function used within the module to handle the creation of specific
  * transaction types for delegate authorization in the blockchain system.
  *
@@ -486,7 +486,7 @@ export async function dispatchDelegateAuthorization(
 }
 
 /**
- * (Internal Function) - Decodes the details of a space from its blockchain-encoded representation.
+ * Decodes the details of a space from its blockchain-encoded representation.
  *
  * This internal function is used to translate space details stored on the blockchain
  * into a more application-friendly format defined by the `ISpaceDetails` interface.
@@ -578,7 +578,7 @@ export async function fetchFromChain(
 }
 
 /**
- * (Internal Function) - Decodes a numeric permission bitset from the blockchain into a `PermissionType`.
+ * Decodes a numeric permission bitset from the blockchain into a `PermissionType`.
  *
  * This internal function interprets the encoded permission data from the blockchain
  * and translates it into a `PermissionType`, which is a numeric value representing
@@ -626,7 +626,7 @@ function authorizationPermissionsFromChain(
  * @param encoded - The encoded authorization details
  *        retrieved from the blockchain. This data is typically in a format specific to the blockchain
  *        and needs to be decoded for application use.
- * @param authorization - The specific authorization ID for which the details are
+ * @param authorizationUri - The specific authorization ID for which the details are
  *        being decoded. This ID is used to identify the correct authorization record on the blockchain.
  *
  * @returns - Returns an `ISpaceAuthorization` object containing the decoded

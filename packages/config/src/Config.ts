@@ -2,16 +2,22 @@
  * @packageDocumentation
  * @module CordConfig
  *
- * This module provides the necessary functionalities to establish and manage connections with the CORD blockchain.
- * It includes methods to initialize cryptographic modules, connect to the blockchain network, and disconnect when
- * required. The module plays a crucial role in enabling interactions with the CORD blockchain, facilitating various
- * operations such as identity creation and transaction processing.
+ * The `CordConfig` module is an integral part of the CORD SDK, offering functionalities to configure and manage
+ * connections with the CORD blockchain. Essential for establishing a secure and efficient communication channel,
+ * this module enables operations like identity management, transaction processing, and smart contract interactions.
  *
- *  * ## Example
+ * Features of `CordConfig` include:
+ * - Initialization of cryptographic modules for SDK setup.
+ * - Connection management using WebSocket for interacting with the CORD blockchain network.
+ * - Cryptographic readiness checks ensuring secure blockchain interactions.
+ * - Disconnection utilities for clean closure of blockchain connections.
  *
- * To connect to the blockchain:
- * ```Cord.connect('ws://localhost:9944');```.
+ * ## Usage
+ *
+ * To use the `CordConfig` module, import it into your project and utilize its functions for blockchain
+ * interactions.
  */
+
 import type { ApiOptions } from '@cord.network/types'
 import { ApiPromise, WsProvider, cryptoWaitReady } from '@cord.network/types'
 import {
@@ -21,13 +27,29 @@ import {
 import * as ConfigService from './Service.js'
 
 /**
- * Initializes the configuration for the CORD SDK and prepares cryptographic modules.
- * This function is essential for setting up the environment before interacting with the blockchain.
+ * Initializes the CORD SDK configuration and prepares cryptographic modules.
  *
- * @param configs - Configuration options to initialize the SDK.
- * @returns A promise that resolves once the cryptographic modules are ready.
+ * @remarks
+ * Essential for setting up the environment before blockchain interaction, ensuring all necessary configurations are in place.
+ *
+ * @example
+ * ```typescript
+ * import { init } from './CordConfig';
+ *
+ * const config = { logLevel: 2 };
+ * init(config).then(() => {
+ *   console.log('CORD SDK initialized and ready.');
+ * }).catch(error => {
+ *   console.error('Initialization failed:', error);
+ * });
+ * ```
+ *
+ * @param configs - Configuration options for initializing the SDK.
+ * @returns A promise resolving once cryptographic modules are ready.
+ *
+ * @internal
  */
-export async function init<K extends Partial<ConfigService.configOpts>>(
+async function init<K extends Partial<ConfigService.configOpts>>(
   configs?: K
 ): Promise<void> {
   ConfigService.set(configs || {})
@@ -35,13 +57,27 @@ export async function init<K extends Partial<ConfigService.configOpts>>(
 }
 
 /**
- * Establishes a connection to the CORD blockchain using a WebSocket URL.
- * This function initializes the connection and makes the API instance available for SDK functions.
+ * Establishes a connection to the CORD blockchain via WebSocket URL.
  *
- * @param blockchainRpcWsUrl - The WebSocket URL of the CORD blockchain RPC endpoint.
- * @param apiOpts - Additional options for the API connection.
- * @param apiOpts.noInitWarn - Flag to suppress initialization warnings.
- * @returns A promise that resolves to the ApiPromise instance, indicating a ready or errored state.
+ * @remarks
+ * Initializes the connection and makes the API instance available for SDK functionalities.
+ *
+ * @example
+ * ```typescript
+ * import { connect } from './CordConfig';
+ *
+ * const wsUrl = 'ws://localhost:9944';
+ * connect(wsUrl).then(api => {
+ *   console.log('Connected to CORD blockchain:', api);
+ * }).catch(error => {
+ *   console.error('Connection failed:', error);
+ * });
+ * ```
+ *
+ * @param blockchainRpcWsUrl - WebSocket URL for the CORD blockchain RPC endpoint.
+ * @param apiOpts.noInitWarn
+ * @param apiOpts - Additional API connection options.
+ * @returns A promise resolving to the ApiPromise instance.
  */
 export async function connect(
   blockchainRpcWsUrl: string,
@@ -70,9 +106,23 @@ export async function connect(
 
 /**
  * Disconnects from the CORD blockchain and clears the cached connection.
- * This function should be called to cleanly close the connection when it's no longer needed.
  *
- * @returns A promise that resolves to a boolean indicating whether a connection was active and has been disconnected.
+ * @remarks
+ * Should be invoked to cleanly close the connection when no longer needed.
+ *
+ * @example
+ * ```typescript
+ * import { connect, disconnect } from './CordConfig';
+ *
+ * const wsUrl = 'ws://localhost:9944';
+ * connect(wsUrl).then(() => disconnect()).then(disconnected => {
+ *   console.log('Disconnected:', disconnected);
+ * }).catch(error => {
+ *   console.error('Error:', error);
+ * });
+ * ```
+ *
+ * @returns A promise resolving to a boolean indicating successful disconnection.
  */
 export async function disconnect(): Promise<boolean> {
   if (!ConfigService.isSet('api')) return false
