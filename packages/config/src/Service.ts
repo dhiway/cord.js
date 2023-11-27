@@ -98,7 +98,7 @@ let configuration: Partial<configOpts> = { ...defaultConfig }
  *
  * @param configOpt - The key of the configuration option to retrieve.
  * @returns The value of the configuration option.
- * @throws {@link SDKErrors.BlockchainApiMissingError} | Generic not configured error.
+ * @throws {SDKErrors.BlockchainApiMissingError} | Generic not configured error.
  */
 export function get<K extends keyof configOpts>(configOpt: K): configOpts[K] {
   if (typeof configuration[configOpt] === 'undefined') {

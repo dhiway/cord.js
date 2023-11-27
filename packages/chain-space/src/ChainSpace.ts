@@ -1,6 +1,7 @@
 /**
  * @packageDocumentation
  * @module ChainSpace
+ * @preferred
  *
  * The `ChainSpace` module, a key component of the CORD SDK, offers functionalities for creating and managing
  * distinct spaces within the CORD blockchain, known as ChainSpaces. These ChainSpaces are designed as specific

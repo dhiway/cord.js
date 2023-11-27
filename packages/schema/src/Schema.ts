@@ -52,7 +52,6 @@
 
 import type {
   DidUri,
-  IContent,
   ISchema,
   ISchemaDetails,
   ISchemaMetadata,
@@ -173,34 +172,34 @@ export function verifyObjectAgainstSchema(
   )
 }
 
-/**
- * (Internal Function) - Validates the contents of a document against a specified schema.
- *
- * This function is designed to ensure that the contents of a document conform to a
- * predefined schema. It performs two key validations: first, it validates the schema
- * itself against a standard schema model to ensure the schema's structure is correct;
- * second, it validates the actual contents of the document against the provided schema.
- *
- * @param contents - The contents of the document to be validated.
- *   This is typically a JSON object representing the data structure of the document.
- * @param schema - The schema against which the document's contents are to be validated.
- *   This schema defines the expected structure, types, and constraints of the document's contents.
- * @param [messages] - An optional array to store error messages. If provided,
- *   validation errors will be pushed into this array.
- * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the schema itself is invalid
- *   or if the document's contents do not conform to the schema. The error includes details
- *   about the validation failures.
- *
- * @internal
- */
-export function verifyContentAgainstSchema(
-  contents: IContent['contents'],
-  schema: ISchema,
-  messages?: string[]
-): void {
-  verifyObjectAgainstSchema(schema, SchemaModel, messages)
-  verifyObjectAgainstSchema(contents, schema, messages)
-}
+// /**
+//  * (Internal Function) - Validates the contents of a document against a specified schema.
+//  *
+//  * This function is designed to ensure that the contents of a document conform to a
+//  * predefined schema. It performs two key validations: first, it validates the schema
+//  * itself against a standard schema model to ensure the schema's structure is correct;
+//  * second, it validates the actual contents of the document against the provided schema.
+//  *
+//  * @param contents - The contents of the document to be validated.
+//  *   This is typically a JSON object representing the data structure of the document.
+//  * @param schema - The schema against which the document's contents are to be validated.
+//  *   This schema defines the expected structure, types, and constraints of the document's contents.
+//  * @param [messages] - An optional array to store error messages. If provided,
+//  *   validation errors will be pushed into this array.
+//  * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the schema itself is invalid
+//  *   or if the document's contents do not conform to the schema. The error includes details
+//  *   about the validation failures.
+//  *
+//  * @internal
+//  */
+// export function verifyContentAgainstSchema(
+//   contents: string,
+//   schema: ISchema,
+//   messages?: string[]
+// ): void {
+//   verifyObjectAgainstSchema(schema, SchemaModel, messages)
+//   verifyObjectAgainstSchema(contents, schema, messages)
+// }
 
 /**
  * (Internal Function) - Validates the structure of a given schema and checks for consistency in its identifier.

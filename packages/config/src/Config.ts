@@ -49,7 +49,7 @@ import * as ConfigService from './Service.js'
  *
  * @internal
  */
-async function init<K extends Partial<ConfigService.configOpts>>(
+export async function init<K extends Partial<ConfigService.configOpts>>(
   configs?: K
 ): Promise<void> {
   ConfigService.set(configs || {})
