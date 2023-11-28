@@ -3,78 +3,71 @@
  * @module ChainSpace
  * @preferred
  *
- * This module provides functionalities for creating and managing ChainSpaces within the CORD blockchain ecosystem.
- * A ChainSpace is a conceptual space on the CORD blockchain, designated for specific data or assets,
- * managed and accessed under defined rules and permissions.
+ * The `ChainSpace` module, a key component of the CORD SDK, offers functionalities for creating and managing
+ * distinct spaces within the CORD blockchain, known as ChainSpaces. These ChainSpaces are designed as specific
+ * areas on the blockchain, each dedicated to particular data or assets, and operate under well-defined rules
+ * and permissions.
  *
- * The primary functionalities of this module include:
+ * Key functionalities include:
+ * - `createChainSpace`: This function generates a new ChainSpace, equipping it with a unique identifier and
+ *   authorization identifier. It's essential for establishing a distinct space on the blockchain for specific
+ *   data or asset management.
+ * - `createChainSpaceDelegate`: This function facilitates the authorization of a delegate within a ChainSpace.
+ *   It enables the delegate to perform certain actions on behalf of the ChainSpace's creator, ensuring controlled
+ *   delegation within these blockchain spaces.
  *
- * - `createChainSpace`: A function to create a new ChainSpace. This involves generating a unique identifier
- *   for the ChainSpace and an authorization identifier, which are derived from the creator's DID URI and
- *   an optional custom description. The ChainSpace thus created serves as a distinct environment or namespace
- *   within the CORD blockchain where specific data or assets can be stored and managed under the creator's governance.
+ * These features play a crucial role in maintaining a structured and secure approach to resource management on the
+ * CORD blockchain, upholding data integrity and facilitating controlled access.
  *
- * - `createChainSpaceDelegate`: A function to authorize a delegate within a ChainSpace. This is crucial for scenarios
- *   where the creator or owner of a ChainSpace needs to delegate certain permissions or roles to another entity.
- *   The function facilitates this by creating a delegate authorization, allowing the delegate to perform actions
- *   or access resources within the ChainSpace on behalf of the creator.
- *
- * These functionalities are essential for maintaining the integrity and structured access control of data and assets
- * within the CORD blockchain. By enabling the creation of distinct ChainSpaces and the delegation of specific
- * permissions within them, this module plays a critical role in the decentralized governance and management
- * of resources in the CORD ecosystem.
- *
- * Example usage:
+ * @example
  * ```typescript
- * // Creating a new ChainSpace
+ * // Example: Creating a new ChainSpace
  * const newChainSpace = await createChainSpace('did:cord:creator');
- * console.log(newChainSpace.identifier); // Outputs the unique identifier of the new ChainSpace
+ * console.log('New ChainSpace Identifier:', newChainSpace.uri);
  *
- * // Authorizing a delegate in a ChainSpace
- * const spaceAuthorization = await createChainSpaceDelegate('space-123', 'did:cord:delegate', 'did:cord:creator');
- * console.log(spaceAuthorization.authorization); // Outputs the authorization identifier for the delegate
+ * // Example: Authorizing a delegate in a ChainSpace
+ * const delegateAuthorization = await createChainSpaceDelegate('space:example_uri', 'did:cord:delegate', 'did:cord:creator');
+ * console.log('Delegate Authorization ID:', delegateAuthorization.authorizationUri);
  * ```
- *
- * This module is integral for developers and entities interacting with the CORD blockchain, providing them
- * with the tools to establish and manage their own dedicated spaces within the blockchain network,
- * along with the capability to securely delegate responsibilities within these spaces.
  */
 
 import type {
   DidUri,
-  SpaceId,
   IChainSpace,
   ISpaceAuthorization,
   PermissionType,
+  SpaceUri,
+  AuthorizationUri,
 } from '@cord.network/types'
 import { Crypto, UUID } from '@cord.network/utils'
 import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
 
 /**
- * Creates a new ChainSpace object.
+ * Creates a new ChainSpace object in the CORD blockchain.
  *
- * ChainSpace is a conceptual space in the CORD blockchain where specific data or assets are stored and managed.
- * This function generates a unique ChainSpace identifier and an authorization identifier based on the provided creator's DID URI.
- * Users can optionally provide their own ChainSpace description. If not provided, a default description with a unique UUID is used.
+ * @remarks
+ * This function is designed to create a distinct ChainSpace on the CORD blockchain. A ChainSpace is a conceptual area
+ * within the blockchain, designated for managing specific data or assets under defined rules and permissions.
+ * The function generates a unique identifier and an authorization identifier for the new ChainSpace, based on the
+ * creator's DID URI and an optional custom description.
  *
- * @param creatorUri - The DID URI of the creator. This is a decentralized identifier for the entity creating the ChainSpace.
- * @param chainSpaceDesc - (Optional) A custom description to represent the ChainSpace. If not provided, a default description is generated.
- * @returns A promise that resolves to an IChainSpace object.
+ * @param creatorUri - The decentralized identifier (DID) URI of the entity creating the ChainSpace.
+ * @param chainSpaceDesc - (Optional) A custom description to represent the ChainSpace. If not provided, a default
+ *        description is generated, incorporating a unique UUID.
+ * @returns A promise that resolves to an IChainSpace object, encompassing the ChainSpace's identifier, description, hash digest,
+ *          creator's DID, and authorization URI.
  *
- * The IChainSpace object includes:
- * - `identifier`: A unique identifier for the ChainSpace, derived from its hash.
- * - `digest`: The hash of the ChainSpace string, serving as a unique content identifier.
- * - `creator`: The DID URI of the creator, passed as a parameter.
- * - `authorization`: An identifier for authorization purposes, linked to this specific ChainSpace.
+ * @example
+ * ```typescript
+ * const creatorUri = 'did:cord:creator';
+ * const customDesc = 'MyCustomChainSpace';
  *
- * Example usage:
+ * buildFromProperties(creatorUri, customDesc).then(chainSpace => {
+ *   console.log('Created ChainSpace URI:', chainSpace.uri);
+ * }).catch(error => {
+ *   console.error('Error creating ChainSpace:', error);
+ * });
  * ```
- * const chainSpace = await createChainSpace('did:example:123');
- * console.log(chainSpace.identifier); // Outputs the ChainSpace identifier.
- *
- * const customChainSpace = await createChainSpace('did:example:456', 'MyCustomChainSpace');
- * console.log(customChainSpace.identifier); // Outputs the identifier for the custom ChainSpace
- * ```.
  */
 export async function buildFromProperties(
   creatorUri: DidUri,
@@ -85,62 +78,67 @@ export async function buildFromProperties(
 
   const chainSpaceHash = Crypto.hashStr(chainSpaceDescription)
 
-  const { uri, authUri } = await getUriForSpace(chainSpaceHash, creatorUri)
-
-  return {
-    uri,
-    digest: chainSpaceHash,
-    creator: creatorUri,
-    authorization: authUri,
-  }
-}
-
-/**
- * Constructs an ISpaceAuthorization object for a given ChainSpace to authorize a delegate.
- *
- * This function is utilized to create an authorization structure within a specific ChainSpace. It assigns
- * a delegate to perform certain actions or access resources on behalf of the ChainSpace's creator or owner.
- * The function generates a unique authorization identifier and encapsulates all relevant details into an
- * ISpaceAuthorization object.
- *
- * @param spaceUri - The unique identifier (URI) of the ChainSpace for which the delegate is being authorized.
- * @param delegateUri - The decentralized identifier (DID) URI of the delegate. The delegate is the entity
- *        being granted permissions or roles within the ChainSpace.
- * @param permission - The type of permission being granted to the delegate.
- * @param creatorUri - The DID URI of the ChainSpace's admin or owner. This individual or entity is responsible
- *        for authorizing the delegate.
- *
- * @returns - A promise that resolves to an ISpaceAuthorization object containing details
- *          of the space, delegate, permission granted, the unique authorization identifier, and the delegator.
- *
- * Example usage:
- * ```typescript
- * const spaceAuthorization = await buildFromAuthorizationProperties(
- *   'space:example_uri',
- *   'did:example:delegateUri',
- *   PermissionType.EXAMPLE_PERMISSION,
- *   'did:example:creatorUri'
- * );
- * console.log('Authorization ID:', spaceAuthorization.authorization);
- * ```.
- */
-export async function buildFromAuthorizationProperties(
-  spaceUri: SpaceId,
-  delegateUri: DidUri,
-  permission: PermissionType,
-  creatorUri: DidUri
-): Promise<ISpaceAuthorization> {
-  const authorizationId = await getUriForAuthorization(
-    spaceUri,
-    delegateUri,
+  const { uri, authorizationUri } = await getUriForSpace(
+    chainSpaceHash,
     creatorUri
   )
 
   return {
-    space: spaceUri,
-    delegate: delegateUri,
+    uri,
+    desc: chainSpaceDescription,
+    digest: chainSpaceHash,
+    creatorUri,
+    authorizationUri,
+  }
+}
+
+/**
+ * Authorizes a delegate within a ChainSpace, allowing them to perform actions on behalf of the creator.
+ *
+ * @remarks
+ * This function facilitates the delegation of permissions or roles to another entity within a specific ChainSpace.
+ * It is instrumental in managing the decentralized governance and control within the ChainSpace, enabling
+ * the ChainSpace's creator or owner to grant specific permissions to a delegate.
+ *
+ * @param spaceUri - The unique identifier (URI) of the ChainSpace for which the delegation is being set up.
+ * @param delegateUri - The decentralized identifier (DID) URI of the delegate, the entity being authorized.
+ * @param permission - The type of permission being granted to the delegate, defining their role and actions within the ChainSpace.
+ * @param creatorUri - The DID URI of the ChainSpace's creator or owner, responsible for authorizing the delegate.
+ * @returns A promise that resolves to an ISpaceAuthorization object, encapsulating the details of the granted authorization.
+ *
+ * @example
+ * ```typescript
+ * const spaceUri = 'space:example_uri';
+ * const delegateUri = 'did:example:delegateUri';
+ * const permission = PermissionType.EXAMPLE_PERMISSION;
+ * const creatorUri = 'did:example:creatorUri';
+ *
+ * buildFromAuthorizationProperties(spaceUri, delegateUri, permission, creatorUri)
+ *   .then(spaceAuth => {
+ *     console.log('Authorization URI:', spaceAuth.authorizationUri);
+ *   })
+ *   .catch(error => {
+ *     console.error('Error creating authorization:', error);
+ *   });
+ * ```
+ */
+export async function buildFromAuthorizationProperties(
+  spaceUri: SpaceUri,
+  delegateUri: DidUri,
+  permission: PermissionType,
+  creatorUri: DidUri
+): Promise<ISpaceAuthorization> {
+  const authorizationUri = (await getUriForAuthorization(
+    spaceUri,
+    delegateUri,
+    creatorUri
+  )) as AuthorizationUri
+
+  return {
+    uri: spaceUri,
+    delegateUri,
     permission,
-    authorization: authorizationId,
-    delegator: creatorUri,
+    authorizationUri,
+    delegatorUri: creatorUri,
   }
 }

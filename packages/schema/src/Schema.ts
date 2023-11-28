@@ -52,12 +52,12 @@
 
 import type {
   DidUri,
-  IContent,
   ISchema,
   ISchemaDetails,
   ISchemaMetadata,
-  SchemaHash,
+  SchemaDigest,
   SpaceId,
+  SpaceUri,
 } from '@cord.network/types'
 import {
   Crypto,
@@ -122,7 +122,7 @@ export function encodeCborSchema(
  */
 export function getHashForSchema(
   schema: ISchema | Omit<ISchema, '$id'>
-): SchemaHash {
+): SchemaDigest {
   const encodedSchema = encodeCborSchema(schema)
   return Crypto.hashStr(encodedSchema)
 }
@@ -172,34 +172,34 @@ export function verifyObjectAgainstSchema(
   )
 }
 
-/**
- * (Internal Function) - Validates the contents of a document against a specified schema.
- *
- * This function is designed to ensure that the contents of a document conform to a
- * predefined schema. It performs two key validations: first, it validates the schema
- * itself against a standard schema model to ensure the schema's structure is correct;
- * second, it validates the actual contents of the document against the provided schema.
- *
- * @param contents - The contents of the document to be validated.
- *   This is typically a JSON object representing the data structure of the document.
- * @param schema - The schema against which the document's contents are to be validated.
- *   This schema defines the expected structure, types, and constraints of the document's contents.
- * @param [messages] - An optional array to store error messages. If provided,
- *   validation errors will be pushed into this array.
- * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the schema itself is invalid
- *   or if the document's contents do not conform to the schema. The error includes details
- *   about the validation failures.
- *
- * @internal
- */
-export function verifyContentAgainstSchema(
-  contents: IContent['contents'],
-  schema: ISchema,
-  messages?: string[]
-): void {
-  verifyObjectAgainstSchema(schema, SchemaModel, messages)
-  verifyObjectAgainstSchema(contents, schema, messages)
-}
+// /**
+//  * (Internal Function) - Validates the contents of a document against a specified schema.
+//  *
+//  * This function is designed to ensure that the contents of a document conform to a
+//  * predefined schema. It performs two key validations: first, it validates the schema
+//  * itself against a standard schema model to ensure the schema's structure is correct;
+//  * second, it validates the actual contents of the document against the provided schema.
+//  *
+//  * @param contents - The contents of the document to be validated.
+//  *   This is typically a JSON object representing the data structure of the document.
+//  * @param schema - The schema against which the document's contents are to be validated.
+//  *   This schema defines the expected structure, types, and constraints of the document's contents.
+//  * @param [messages] - An optional array to store error messages. If provided,
+//  *   validation errors will be pushed into this array.
+//  * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the schema itself is invalid
+//  *   or if the document's contents do not conform to the schema. The error includes details
+//  *   about the validation failures.
+//  *
+//  * @internal
+//  */
+// export function verifyContentAgainstSchema(
+//   contents: string,
+//   schema: ISchema,
+//   messages?: string[]
+// ): void {
+//   verifyObjectAgainstSchema(schema, SchemaModel, messages)
+//   verifyObjectAgainstSchema(contents, schema, messages)
+// }
 
 /**
  * (Internal Function) - Validates the structure of a given schema and checks for consistency in its identifier.
@@ -253,40 +253,6 @@ export function verifyDataStructure(input: ISchema): void {
 }
 
 /**
- * (Internal Function) - Validates the structure and content of a given data object against a primary schema and
- * a set of nested schemas. This function is essential for scenarios where data validation
- * needs to occur against multiple layers of schemas, ensuring both the top-level and
- * nested structures conform to their respective specifications.
- *
- * @param schema - The primary schema against which the top-level structure of
- *   the data object is validated. This schema defines the overall structure and rules
- *   that the data object must adhere to.
- * @param nestedSchemas - An array of nested schemas for validating the
- *   deeper structures within the data object. Each nested schema corresponds to a
- *   specific part of the data object's structure and defines rules for that part.
- * @param contents - The data object to be validated. This object
- *   should be structured according to the rules defined in the primary and nested schemas.
- * @param [messages] - An optional array to collect error messages. If provided,
- *   any validation errors will be added to this array, allowing for custom handling or
- *   logging of errors.
- * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the data object does
- *   not conform to the primary or any of the nested schemas. This error includes details
- *   about the specific validation failures, aiding in diagnosing and correcting the
- *   structure of the data object.
- *
- * @internal
- */
-export function verifyContentAgainstNestedSchemas(
-  schema: ISchema,
-  nestedSchemas: ISchema[],
-  contents: Record<string, any>,
-  messages?: string[]
-): void {
-  verifyObjectAgainstSchema(schema, SchemaModel, messages)
-  verifyObjectAgainstSchema(contents, schema, messages, nestedSchemas)
-}
-
-/**
  * (Internal Function) - Validates the metadata of a schema against a predefined metadata model. This function
  * ensures that the metadata associated with a schema adheres to specific standards and
  * formats as defined in the MetadataModel.
@@ -317,6 +283,8 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  * @param creator - The decentralized identifier (DID) of the creator of the schema. This DID is used
  *        to generate a unique identifier for the schema, ensuring its uniqueness and traceability within the system.
  *
+ * @param spaceUri
+ * @param creatorUri
  * @returns - A fully constructed schema object including the schema itself, its cryptographic
  *          digest, the space identifier, and the creator's DID. This object can be utilized for data validation
  *          and various other purposes, serving as a cornerstone in data structuring and management.
@@ -351,14 +319,14 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  */
 export function buildFromProperties(
   schema: ISchema,
-  space: SpaceId,
-  creator: DidUri
+  spaceUri: SpaceUri,
+  creatorUri: DidUri
 ): ISchemaDetails {
   const { $id, ...uriSchema } = schema
   uriSchema.additionalProperties = false
   uriSchema.$schema = SchemaModelV1.$id
 
-  const { uri, digest } = getUriForSchema(uriSchema, creator, space)
+  const { uri, digest } = getUriForSchema(uriSchema, creatorUri, spaceUri)
 
   const schemaType = {
     $id: uri,
@@ -368,10 +336,10 @@ export function buildFromProperties(
   const schemaDetails: ISchemaDetails = {
     schema: schemaType,
     digest,
-    space,
-    creator,
+    spaceUri,
+    creatorUri,
   }
-  verifySchemaStructure(schemaType, creator, space)
+  verifySchemaStructure(schemaType, creatorUri, spaceUri)
   return schemaDetails
 }
 

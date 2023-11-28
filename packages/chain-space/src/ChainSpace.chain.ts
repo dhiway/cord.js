@@ -1,42 +1,29 @@
 /**
  * @packageDocumentation
  * @module ChainSpace/Chain
+ * @preferred
  *
- * The ChainSpace/Chain submodule of the CORD blockchain system provides an essential interface for
- * managing and interacting with Chain Spaces at a granular level. It bridges the high-level
- * abstractions of Chain Spaces with the intricate details of blockchain data structures,
- * facilitating direct interaction with the blockchain's lower-level mechanisms.
+ * The `ChainSpace/Chain` submodule is a vital component of the CORD SDK, facilitating direct interactions with
+ * Chain Spaces on the CORD blockchain. This module bridges the high-level abstractions of Chain Spaces with the
+ * underlying blockchain data structures, enabling the creation, querying, and manipulation of Chain Spaces and
+ * their associated authorizations.
  *
- * This module is instrumental in creating, querying, and manipulating Chain Spaces and their
- * associated authorizations, ensuring a robust and decentralized management of these entities
- * within the CORD ecosystem.
+ * Key functionalities include:
+ * - Creation and dispatch of Chain Spaces to the blockchain.
+ * - Querying the blockchain for the existence of Chain Spaces and authorizations.
+ * - Generation of unique URIs for Chain Spaces and authorizations.
+ * - Administration functions like sudo approvals for Chain Spaces.
  *
- * Key Functionalities:
- * - `dispatchToChain`: Creates and dispatches a new Chain Space to the blockchain. This function
- *   checks for pre-existing Chain Spaces to avoid duplicates and oversees the entire process of
- *   transaction construction, signing, and submission.
- * - `isChainSpaceStored`: Efficiently queries the blockchain to verify the existence of a Chain Space
- *   based on its unique URI, facilitating integrity checks and data validation.
- * - `isAuthorizationStored`: Ascertains the presence of specific authorizations on the blockchain,
- *   playing a key role in managing access controls and delegation mechanisms.
- * - `getUriForSpace`: Generates distinct URIs for Chain Spaces and their authorizations, leveraging
- *   space digest and creator URI for creating unique and identifiable Chain Space entities.
- * - `sudoApproveChainSpace`: Empowers administrators or superusers with sudo privileges to approve
- *   Chain Spaces, an essential function for overseeing and controlling space allocations.
- * - `getUriForAuthorization`: Constructs unique URIs for authorizations, essential for unambiguous
- *   referencing and tracking of authorization entities in the system.
- * - `dispatchDelegateAuthorization`: Facilitates the delegation of authorizations for Chain Spaces,
- *   encompassing the nuances of transaction preparation and execution.
- *
- * As a core component of the CORD blockchain's infrastructure, this module plays a pivotal role in
- * maintaining the efficiency, security, and decentralization of Chain Space management.
+ * This module is essential for the structured management of Chain Spaces, offering robust and decentralized
+ * control within the CORD ecosystem.
  */
+
 /* eslint-disable no-bitwise */
 
 import type {
   DidUri,
   SpaceId,
-  ChainSpaceIdentifiers,
+  ChainSpaceDetails,
   AuthorizationId,
   AccountId,
   H256,
@@ -47,6 +34,9 @@ import type {
   IChainSpace,
   CordKeyringPair,
   SignExtrinsicCallback,
+  SpaceDigest,
+  AuthorizationUri,
+  SpaceUri,
 } from '@cord.network/types'
 import { SDKErrors } from '@cord.network/utils'
 import { uriToIdentifier, hashToUri } from '@cord.network/identifier'
@@ -72,15 +62,24 @@ import { Chain } from '@cord.network/network'
 /**
  * Checks the existence of a Chain Space on the CORD blockchain.
  *
- * This function queries the blockchain to determine whether a Chain Space with the given URI exists.
- * It returns `true` if the Chain Space exists and `false` otherwise.
+ * @remarks
+ * Queries the blockchain to determine if a Chain Space with the given URI exists, returning `true` if it does, and `false` otherwise.
+ *
+ * @example
+ * ```typescript
+ * const spaceUri = 'space:example_uri';
+ * isChainSpaceStored(spaceUri).then(exists => {
+ *   console.log(`Chain Space ${exists ? 'exists' : 'does not exist'} on the blockchain.`);
+ * }).catch(error => {
+ *   console.error('Error querying Chain Space existence:', error);
+ * });
+ * ```
  *
  * @param spaceUri - The URI of the Chain Space to be checked.
- * @returns - A promise that resolves to `true` if the Chain Space exists, or `false` otherwise.
- *
- * @throws {SDKErrors.CordQueryError} - Thrown when an error occurs during the query to the blockchain.
+ * @returns A promise resolving to `true` if the Chain Space exists, or `false` otherwise.
+ * @throws {SDKErrors.CordQueryError} - Thrown on error during the blockchain query.
  */
-export async function isChainSpaceStored(spaceUri: SpaceId): Promise<boolean> {
+export async function isChainSpaceStored(spaceUri: SpaceUri): Promise<boolean> {
   try {
     const api = ConfigService.get('api')
     const identifier = uriToIdentifier(spaceUri)
@@ -97,16 +96,25 @@ export async function isChainSpaceStored(spaceUri: SpaceId): Promise<boolean> {
 /**
  * Checks if a given authorization exists on the CORD blockchain.
  *
- * This function queries the blockchain to determine whether an authorization with the given ID exists.
- * It returns `true` if the authorization exists and `false` otherwise.
+ * @remarks
+ * Queries the blockchain to verify the presence of an authorization, identified by the given URI.
  *
- * @param authorizationUri - The AuthorizationId to check for existence on the blockchain.
- * @returns - A promise that resolves to `true` if the authorization exists, `false` otherwise.
+ * @example
+ * ```typescript
+ * const authorizationUri = 'auth:example_uri';
+ * isAuthorizationStored(authorizationUri).then(exists => {
+ *   console.log(`Authorization ${exists ? 'exists' : 'does not exist'} on the blockchain.`);
+ * }).catch(error => {
+ *   console.error('Error querying authorization existence:', error);
+ * });
+ * ```
  *
- * @throws {SDKErrors.CordQueryError} - Thrown when an error occurs during the query to the blockchain.
+ * @param authorizationUri - The URI of the authorization to check.
+ * @returns A promise resolving to `true` if the authorization exists, `false` otherwise.
+ * @throws {SDKErrors.CordQueryError} - Thrown on error during the blockchain query.
  */
 export async function isAuthorizationStored(
-  authorizationUri: AuthorizationId
+  authorizationUri: AuthorizationUri
 ): Promise<boolean> {
   try {
     const api = ConfigService.get('api')
@@ -122,31 +130,31 @@ export async function isAuthorizationStored(
 }
 
 /**
- * (Internal Function) - Generates unique URIs for a ChainSpace and its associated authorization based on the space digest and creator URI.
- * This internal function computes the ChainSpace URI and the authorization URI by hashing the space digest and
- * creator URI. These URIs serve as unique identifiers within the blockchain system.
+ * Generates unique URIs for a ChainSpace and its associated authorization.
  *
- * @param spaceDigest - The digest of the space, typically a hash value representing the
- *        content or configuration of the space.
- * @param creatorUri - The decentralized identifier (DID) URI of the creator of the space.
- *        This identifier contributes to the uniqueness of the generated URIs.
+ * @remarks
+ * Utilizes the ChainSpace's digest and creator URI to create unique and identifiable URIs for the ChainSpace and its authorization.
  *
- * @returns - A promise that resolves to an object containing two URIs:
- *          `uri`, which is the unique identifier for the ChainSpace, and `authUri`, which is the unique
- *          identifier for the associated authorization.
+ * @example
+ * ```typescript
+ * const spaceDigest = 'example_digest';
+ * const creatorUri = 'did:cord:creator_uri';
+ * getUriForSpace(spaceDigest, creatorUri).then(({ uri, authorizationUri }) => {
+ *   console.log(`ChainSpace URI: ${uri}, Authorization URI: ${authorizationUri}`);
+ * }).catch(error => {
+ *   console.error('Error generating URIs:', error);
+ * });
+ * ```
  *
- * The function operates by encoding the provided space digest and creator URI into binary format,
- * computing a BLAKE2 hash of the combined binary data, and then converting these hashes into URIs
- * using the `hashToUri` function. This process ensures unique and consistent identifiers for both
- * the ChainSpace and its authorization.
- *
+ * @param spaceDigest - The digest representing the content or configuration of the ChainSpace.
+ * @param creatorUri - The DID URI of the creator of the ChainSpace.
+ * @returns A promise resolving to an object containing the ChainSpace URI and authorization URI.
  * @internal
- * Note: This function is part of the internal logic of the module and is not intended for external use.
  */
 export async function getUriForSpace(
-  spaceDigest: string,
+  spaceDigest: SpaceDigest,
   creatorUri: DidUri
-): Promise<ChainSpaceIdentifiers> {
+): Promise<ChainSpaceDetails> {
   const api = ConfigService.get('api')
   const scaleEncodedSpaceDigest = api
     .createType<H256>('H256', spaceDigest)
@@ -158,7 +166,7 @@ export async function getUriForSpace(
     Uint8Array.from([...scaleEncodedSpaceDigest, ...scaleEncodedCreator])
   )
 
-  const chainSpaceUri: SpaceId = hashToUri(digest, SPACE_IDENT, SPACE_PREFIX)
+  const chainSpaceUri = hashToUri(digest, SPACE_IDENT, SPACE_PREFIX) as SpaceUri
   const scaleEncodedAuthDigest = api
     .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceUri))
     .toU8a()
@@ -170,37 +178,29 @@ export async function getUriForSpace(
     Uint8Array.from([...scaleEncodedAuthDigest, ...scaleEncodedAuthDelegate])
   )
 
-  const authorizationUri: AuthorizationId = hashToUri(
+  const authorizationUri = hashToUri(
     authDigest,
     AUTH_IDENT,
     AUTH_PREFIX
-  )
+  ) as AuthorizationUri
 
-  return { uri: chainSpaceUri, authUri: authorizationUri }
+  const chainSpaceDetails = {
+    uri: chainSpaceUri,
+    authorizationUri,
+  }
+
+  return chainSpaceDetails
 }
 
 /**
- * Dispatches a ChainSpace creation transaction to the blockchain.
+ * Dispatches a ChainSpace creation transaction to the CORD blockchain.
  *
- * This function is responsible for creating a new ChainSpace on the blockchain. It checks if the
- * ChainSpace with the given URI already exists on the chain. If it does not exist, the function
- * constructs and submits a transaction to create the ChainSpace. The transaction is authorized
- * by the creator and signed by the provided author account.
+ * @remarks
+ * Responsible for creating a new ChainSpace on the blockchain. It first checks if the ChainSpace with the
+ * given URI already exists to avoid duplicates. If not, it constructs and submits a transaction to create
+ * the ChainSpace. The transaction requires authorization from the creator and is signed by the specified author account.
  *
- * @param chainSpace - The ChainSpace object containing the necessary information
- *        for creating the ChainSpace on the blockchain. This includes the URI, digest, and authorization.
- * @param creatorUri - The DID URI of the creator of the ChainSpace. This identifier is
- *        used to authorize the transaction.
- * @param authorAccount - The blockchain account used to sign and submit the transaction.
- * @param signCallback - A callback function that handles the signing of the transaction.
- *
- * @returns - A promise that resolves to an object
- *          containing the URI and authorization ID of the dispatched ChainSpace.
- *
- * @throws {SDKErrors.CordDispatchError} - Thrown when there is an error during the dispatch process,
- *         such as issues with constructing the transaction, signing, or submission to the blockchain.
- *
- * Example usage:
+ * @example
  * ```typescript
  * const chainSpace: IChainSpace = {
  *   // ... initialization of chainSpace properties ...
@@ -216,16 +216,23 @@ export async function getUriForSpace(
  *   console.error('Error dispatching ChainSpace:', error);
  * }
  * ```
+ *
+ * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
+ * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @param signCallback - The callback function for signing the transaction.
+ * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
+ * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  */
 export async function dispatchToChain(
   chainSpace: IChainSpace,
   creatorUri: DidUri,
   authorAccount: CordKeyringPair,
   signCallback: SignExtrinsicCallback
-): Promise<{ uri: SpaceId; authorization: AuthorizationId }> {
+): Promise<{ uri: SpaceUri; authorization: AuthorizationUri }> {
   const returnObject = {
     uri: chainSpace.uri,
-    authorization: chainSpace.authorization,
+    authorization: chainSpace.authorizationUri,
   }
 
   try {
@@ -253,38 +260,31 @@ export async function dispatchToChain(
 }
 
 /**
- * Approves a space in the blockchain system using a sudo (superuser do) operation.
- * This function is typically used by administrators or superusers to approve a space
- * with a specified capacity. It utilizes the `sudo` functionality to execute an operation
- * that would otherwise be restricted.
+ * Approves a ChainSpace on the CORD blockchain using sudo privileges.
  *
- * @param authority - The superuser's blockchain account, which has the necessary
- *        permissions to perform sudo operations. This account is used to sign and submit the transaction.
- * @param spaceUri - The URI of the space that is being approved. This identifier
- *        is used to locate the space on the blockchain.
- * @param capacity - The capacity to be approved for the space. This value sets the limit
- *        or quota for the space's transaction capacity.
+ * @remarks
+ * Allows administrators or superusers to approve ChainSpaces, crucial for overseeing space allocations.
  *
- * @throws {SDKErrors.CordDispatchError} - Thrown when there is an error during the dispatch process,
- *         such as issues with constructing the transaction, signing, or submission to the blockchain.
- *
- * Example usage:
+ * @example
  * ```typescript
- * const authority: CordKeyringPair = // ... initialization ...
- * const spaceUri: IChainSpace['uri'] = 'space:example_uri';
- * const capacity: number = 100;
+ * const authority = 'authority_account';
+ * const spaceUri = 'space:example_uri';
+ * const capacity = 100;
+ * sudoApproveChainSpace(authority, spaceUri, capacity).then(() => {
+ *   console.log('ChainSpace approved successfully');
+ * }).catch(error => {
+ *   console.error('Error approving ChainSpace:', error);
+ * });
+ * ```
  *
- * try {
- *   await sudoApproveChainSpace(authority, spaceUri, capacity);
- *   console.log('Space approved successfully');
- * } catch (error) {
- *   console.error('Error approving space:', error);
- * }
- * ```.
+ * @param authority - The account with sudo privileges to approve the ChainSpace.
+ * @param spaceUri - The URI of the ChainSpace to be approved.
+ * @param capacity - The approved capacity for the ChainSpace.
+ * @throws {SDKErrors.CordDispatchError} - Thrown on error during the dispatch process.
  */
 export async function sudoApproveChainSpace(
   authority: CordKeyringPair,
-  spaceUri: IChainSpace['uri'],
+  spaceUri: SpaceUri,
   capacity: number
 ) {
   try {
@@ -303,32 +303,34 @@ export async function sudoApproveChainSpace(
 }
 
 /**
- * (Internal Function) - Generates a unique URI for an authorization based on the space URI, delegate URI, and creator URI.
- * This is an internal function used to create a standardized and unique identifier for an authorization
- * within the system, ensuring that each authorization can be distinctly referenced.
+ * Generates a unique URI for an authorization within a ChainSpace.
  *
- * @param spaceUri - The URI of the space associated with the authorization. This identifier
- *        is used as part of the input for generating the unique authorization URI.
- * @param delegateUri - The decentralized identifier (DID) URI of the delegate involved in the
- *        authorization. It contributes to the uniqueness of the generated authorization URI.
- * @param creatorUri - The DID URI of the creator of the authorization. This identifier is
- *        also used to ensure the uniqueness of the authorization URI.
+ * @remarks
+ * Constructs a standardized URI for an authorization entity, ensuring unambiguous referencing within the system.
  *
- * @returns - A promise that resolves to the unique AuthorizationId, which
- *          serves as a standardized identifier for the authorization within the system.
+ * @example
+ * ```typescript
+ * const spaceUri = 'space:example_uri';
+ * const delegateUri = 'did:example:delegate_uri';
+ * const creatorUri = 'did:example:creator_uri';
+ * getUriForAuthorization(spaceUri, delegateUri, creatorUri).then(authorizationUri => {
+ *   console.log(`Authorization URI: ${authorizationUri}`);
+ * }).catch(error => {
+ *   console.error('Error generating authorization URI:', error);
+ * });
+ * ```
  *
- * The function operates by encoding the provided URIs into a binary format and then combining them.
- * It then computes a BLAKE2 hash of the combined binary data, which is subsequently converted into
- * a URI format using `hashToUri`. This process ensures that each authorization has a distinct and
- * consistent identifier that can be used for referencing and retrieval within the blockchain system.
- *
+ * @param spaceUri - The URI of the ChainSpace.
+ * @param delegateUri - The DID URI of the delegate involved in the authorization.
+ * @param creatorUri - The DID URI of the creator of the authorization.
+ * @returns A promise resolving to the unique authorization URI.
  * @internal
  */
 export async function getUriForAuthorization(
   spaceUri: SpaceId,
   delegateUri: DidUri,
   creatorUri: DidUri
-): Promise<AuthorizationId> {
+): Promise<AuthorizationUri> {
   const api = ConfigService.get('api')
 
   const scaleEncodedSpaceId = api
@@ -349,31 +351,30 @@ export async function getUriForAuthorization(
     ])
   )
 
-  const authorizationId: AuthorizationId = hashToUri(
+  const authorizationUri = hashToUri(
     authDigest,
     AUTH_IDENT,
     AUTH_PREFIX
-  )
+  ) as AuthorizationUri
 
-  return authorizationId
+  return authorizationUri
 }
 
 /**
- * (Internal Function) - Constructs a transaction for delegate authorization based on the specified permission type.
- * This is an internal function used within the module to handle the creation of specific
- * transaction types for delegate authorization in the blockchain system.
+ * Dispatches a delegate authorization request to the CORD blockchain.
  *
- * @param permission - The type of permission being granted, determining
- *        the specific transaction type to be created (e.g., addDelegate, addDelegator, addAdminDelegate).
+ * @remarks
+ * This function handles the submission of delegate authorization requests to the CORD blockchain. It manages
+ * the process of transaction preparation, signing, and submission, facilitating the delegation of specific
+ * permissions within a ChainSpace. The function ensures that the authorization is correctly dispatched to
+ * the blockchain with the necessary signatures.
+ *
+ *
+ * @param permission - The type of permission being granted.
  * @param spaceId - The identifier of the space to which the delegate authorization is being added.
  * @param delegateId - The decentralized identifier (DID) of the delegate receiving the authorization.
  * @param authId - The identifier of the specific authorization transaction being constructed.
- *
- * @returns The constructed transaction object, ready for signing and submission to the blockchain.
- *          The exact type of transaction depends on the provided permission.
- *
- * @throws {SDKErrors.InvalidPermissionError} - Thrown if an invalid permission type is provided, indicating
- *         a configuration or usage error within the module.
+ * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  *
  * @internal
  */
@@ -400,81 +401,70 @@ function dispatchDelegateAuthorizationTx(
 }
 
 /**
- * Dispatches a delegate authorization transaction to the blockchain.
+ * Dispatches a delegate authorization transaction to the CORD blockchain.
  *
- * This function is responsible for submitting a delegate authorization request to the blockchain.
- * It first checks if the authorization already exists on-chain. If it does not, the function
- * constructs and submits a transaction to authorize a delegate for a specific space.
- * The transaction is signed using the provided `authorAccount` and is authorized by the
- * `request.delegator` using the capabilityDelegation key.
+ * @remarks
+ * This function manages the process of submitting a delegate authorization request to the blockchain. It checks if
+ * the specified authorization already exists. If it does not, the function constructs and submits a transaction to
+ * authorize a delegate for a specific space. The transaction is authorized by the delegator's DID and signed using
+ * the provided blockchain account.
  *
- * @param request - The space authorization request containing all the necessary
- *        information to dispatch the authorization. This includes the space ID, delegate DID, permission
- *        type, authorization ID, and delegator DID.
+ * @example
+ * ```typescript
+ * const request: ISpaceAuthorization = {
+ *   uri: 'space:example_uri',
+ *   delegateUri: 'did:example:delegateUri',
+ *   permission: PermissionType.EXAMPLE_PERMISSION,
+ *   authorizationUri: 'auth:example_uri',
+ *   delegatorUri: 'did:example:creatorUri'
+ * };
+ * const authorAccount: CordKeyringPair = {  ...  };
+ * const authorizationUri: AuthorizationUri = 'auth:example_uri';
+ * const signCallback: SignExtrinsicCallback = (tx) => {  ...  };
+ *
+ * dispatchDelegateAuthorization(request, authorAccount, authorizationUri, signCallback)
+ *   .then(authorizationId => {
+ *     console.log('Authorization dispatched with ID:', authorizationId);
+ *   })
+ *   .catch(error => {
+ *     console.error('Error dispatching authorization:', error);
+ *   });
+ * ```
+ *
+ * @param request - The space authorization request containing necessary information for dispatching the authorization.
  * @param authorAccount - The blockchain account used to sign and submit the transaction.
  * @param authorizationUri - The URI of the authorization used for delegating permissions.
  * @param signCallback - A callback function that handles the signing of the transaction.
- *
- * @returns - A promise that resolves to the authorization ID once the transaction
- *          is successfully processed by the blockchain.
- *
- * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process, such as
- *         issues with constructing the transaction, signing, or submission to the blockchain.
- *
- * Example usage:
- * ```typescript
- * const request: ISpaceAuthorization = {
- *   // ... initialization of request properties ...
- * };
- * const authorAccount: CordKeyringPair = // ... initialization ...
- * const authorizationUri: AuthorizationId = // ... initialization ...
- * const signCallback: SignExtrinsicCallback = // ... implementation ...
- *
- * try {
- *   const authorizationId = await dispatchDelegateAuthorization(
- *     request,
- *     authorAccount,
- *     authorizationUri,
- *     signCallback
- *   );
- *   console.log('Authorization dispatched with ID:', authorizationId);
- * } catch (error) {
- *   console.error('Error dispatching authorization:', error);
- * }
- * ```
+ * @returns A promise resolving to the authorization ID after successful processing by the blockchain.
+ * @throws {SDKErrors.CordDispatchError} - Thrown on error during the dispatch process.
  */
 export async function dispatchDelegateAuthorization(
   request: ISpaceAuthorization,
   authorAccount: CordKeyringPair,
-  authorizationUri: AuthorizationId,
+  authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback
 ): Promise<AuthorizationId> {
   try {
-    const authId = uriToIdentifier(request.authorization)
+    const spaceId = uriToIdentifier(request.uri)
+    const delegateId = Did.toChain(request.delegateUri)
+    const delegatorAuthId = uriToIdentifier(authorizationUri)
 
-    const authorizationExists = await isAuthorizationStored(authId)
-    if (!authorizationExists) {
-      const spaceId = uriToIdentifier(request.space)
-      const delegateId = Did.toChain(request.delegate)
-      const delegatorAuthId = uriToIdentifier(authorizationUri)
+    const tx = dispatchDelegateAuthorizationTx(
+      request.permission,
+      spaceId,
+      delegateId,
+      delegatorAuthId
+    )
+    const extrinsic = await Did.authorizeTx(
+      request.delegatorUri as DidUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
 
-      const tx = dispatchDelegateAuthorizationTx(
-        request.permission,
-        spaceId,
-        delegateId,
-        delegatorAuthId
-      )
-      const extrinsic = await Did.authorizeTx(
-        request.delegator as DidUri,
-        tx,
-        signCallback,
-        authorAccount.address
-      )
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
-      await Chain.signAndSubmitTx(extrinsic, authorAccount)
-    }
-
-    return request.authorization
+    return request.authorizationUri
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
       `Error dispatching delegate authorization: ${error}`
@@ -483,35 +473,32 @@ export async function dispatchDelegateAuthorization(
 }
 
 /**
- * (Internal Function) - Decodes the details of a space from its blockchain-encoded representation.
+ * Decodes the details of a space from its blockchain-encoded representation.
  *
- * This internal function is used to translate space details stored on the blockchain
- * into a more application-friendly format defined by the `ISpaceDetails` interface.
- * It takes the blockchain-specific encoded data and converts it into a structured
- * object that is easier to work with within the application.
+ * @remarks
+ * This internal function is pivotal for converting blockchain-specific encoded data into a structured
+ * format that aligns with the `ISpaceDetails` interface. It is used to interpret and transform data
+ * stored on the blockchain into a format that is more accessible and meaningful for application use.
  *
- * @param encoded - The encoded space details
- *        retrieved from the blockchain. This data is typically in a format specific
- *        to the blockchain and needs to be decoded for application use.
- * @param spaceUri - The unique identifier of the space for which the details
- *        are being decoded. This URI is used to identify the correct space record on
- *        the blockchain.
+ * @param encoded - The blockchain-encoded representation of space details. This data is typically
+ *        stored in a format specific to the blockchain and requires decoding to be used in applications.
+ * @param spaceUri - The unique identifier (URI) of the space. This URI helps in identifying the correct
+ *        space record on the blockchain for which details are to be decoded.
  *
- * @returns - An `ISpaceDetails` object containing the decoded space details.
- *          This object includes fields such as the space URI, creator DID, transaction capacity,
- *          transaction usage, approval status, and archival status, making it easier to
- *          work with space data within the application.
+ * @returns An `ISpaceDetails` object containing the decoded space details, including the space URI,
+ *          creator's DID, transaction capacity, transaction usage, approval status, and archival status.
+ *          This structured format simplifies interaction with space data within the application context.
  *
  * @internal
  */
 function decodeSpaceDetailsfromChain(
   encoded: Option<PalletChainSpaceSpaceDetails>,
-  spaceUri: SpaceId
+  spaceUri: SpaceUri
 ): ISpaceDetails {
   const chainStatement = encoded.unwrap()
   const decodedDetails: ISpaceDetails = {
     uri: spaceUri,
-    creator: Did.fromChain(chainStatement.creator),
+    creatorUri: Did.fromChain(chainStatement.creator),
     txnCapacity: chainStatement.txnCapacity.toNumber(),
     txnUsage: chainStatement.txnCount.toNumber(),
     approved: chainStatement.approved.valueOf(),
@@ -524,34 +511,37 @@ function decodeSpaceDetailsfromChain(
 /**
  * Fetches space details from the blockchain based on a given space URI.
  *
- * This function queries CORD to retrieve details about a specific space.
- * It uses the provided `spaceUri` to fetch the corresponding space entry from the blockchain.
- * If the space details are found, they are decoded and returned. If no space is found
- * with the provided URI, an error is thrown.
+ * @remarks
+ * This function queries the CORD blockchain to retrieve details about a specific space, identified by the `spaceUri`.
+ * It decodes the blockchain data into a more accessible format. If the space details are not found or cannot be decoded,
+ * the function throws an error.
  *
- * @param spaceUri - The unique identifier of the space to be fetched.
+ * @param spaceUri - The unique identifier (URI) of the space to be fetched.
  *
- * @returns - A promise that resolves to the space details
- *          if found. The function throws an error if the space details could not be decoded
- *          or if the space is not found on the chain.
+ * @returns A promise that resolves to the space details if found. The details include information such as
+ *          the space URI, creator DID, transaction capacity, and other relevant data.
  *
  * @throws {SDKErrors.ChainSpaceMissingError} - Thrown when no space is found with the provided URI.
- * @throws {SDKErrors.CordFetchError} - Thrown when an error occurs during the fetching process,
- *         such as network issues or problems with querying the blockchain.
+ * @throws {SDKErrors.CordFetchError} - Thrown when an error occurs during the fetching process.
  *
- * Example usage:
+ * @example
  * ```typescript
  * const spaceUri = 'space:example_uri';
- * try {
- *   const spaceDetails = await fetchFromChain(spaceUri);
- *   console.log('Space Details:', spaceDetails);
- * } catch (error) {
- *   console.error('Error fetching space from chain:', error);
- * }
- * ```.
+ * fetchFromChain(spaceUri)
+ *   .then(spaceDetails => {
+ *     console.log('Space Details:', spaceDetails);
+ *   })
+ *   .catch(error => {
+ *     if (error instanceof SDKErrors.ChainSpaceMissingError) {
+ *       console.error('Space not found:', spaceUri);
+ *     } else {
+ *       console.error('Error fetching space from chain:', error);
+ *     }
+ *   });
+ * ```
  */
 export async function fetchFromChain(
-  spaceUri: SpaceId
+  spaceUri: SpaceUri
 ): Promise<ISpaceDetails | null> {
   try {
     const api = ConfigService.get('api')
@@ -575,23 +565,28 @@ export async function fetchFromChain(
 }
 
 /**
- * (Internal Function) - Decodes a numeric permission bitset from the blockchain into a `PermissionType`.
+ * Decodes a numeric permission bitset from the blockchain into a `PermissionType`.
  *
- * This internal function interprets the encoded permission data from the blockchain
- * and translates it into a `PermissionType`, which is a numeric value representing
- * the combined set of permissions. The function checks for specific permissions
- * (ASSERT, DELEGATE, ADMIN) within the bitset and combines them into a single value
- * using bitwise operations.
+ * @remarks
+ * This internal function is used for interpreting encoded permission data from the blockchain. It converts
+ * the bitset representation of permissions into a `PermissionType`, a numeric value that aggregates
+ * various permissions. The function identifies individual permissions like ASSERT, DELEGATE, and ADMIN
+ * within the bitset and combines them using bitwise operations to form a single permission value.
  *
- * @param encoded - The encoded permission data from the blockchain.
- *        This typically comes in the form of a bitset where each bit represents a different permission.
+ * @param encoded - The blockchain-encoded permission data. This data is typically represented as a bitset,
+ *        with each bit indicating the presence of a specific permission.
  *
- * @returns - The combined permissions represented as a single numeric value.
- *          Each bit in this value corresponds to a specific permission, as defined in the `Permission` constant.
+ * @returns The aggregated `PermissionType` value, where each bit corresponds to a specific permission defined
+ *          in the `Permission` constant. This numeric value encapsulates the combined set of permissions.
  *
- * Example:
- * A bitset value of `0b0000_0111` would translate to a `PermissionType` value
- * representing ASSERT, DELEGATE, and ADMIN permissions combined.
+ * @example
+ * ```typescript
+ * // Example bitset representing combined permissions
+ * const encodedPermissions = { bits: 0b00000111 };
+ * const permissionType = authorizationPermissionsFromChain(encodedPermissions);
+ * console.log('Combined Permission Type:', permissionType);
+ * // Output: Combined Permission Type: 7 (which includes ASSERT, DELEGATE, ADMIN)
+ * ```
  *
  * @internal
  */
@@ -616,85 +611,90 @@ function authorizationPermissionsFromChain(
 }
 
 /**
- * (Internal Function) - Decodes the details of a space authorization from its blockchain representation. This internal
- * function is used to translate the blockchain-specific data format into a more user-friendly
- * and application-oriented format defined by the `ISpaceAuthorization` interface.
+ * Decodes the details of a space authorization from its blockchain representation.
  *
- * @param encoded - The encoded authorization details
- *        retrieved from the blockchain. This data is typically in a format specific to the blockchain
- *        and needs to be decoded for application use.
- * @param authorization - The specific authorization ID for which the details are
- *        being decoded. This ID is used to identify the correct authorization record on the blockchain.
+ * @remarks
+ * This internal function is crucial for translating blockchain-specific encoded data of space authorizations into
+ * a more user-friendly and application-oriented format. It adheres to the `ISpaceAuthorization` interface, which
+ * facilitates easier interaction with authorization data within applications. This process involves unwrapping the
+ * encoded data and reformatting it into a structured object.
  *
- * @returns - Returns an `ISpaceAuthorization` object containing the decoded
- *          authorization details. This object includes fields such as the space ID, delegate DID,
- *          permissions, authorization ID, and delegator DID, making it easier to work with
- *          authorization data within the application.
+ * @param encoded - The encoded authorization details retrieved from the blockchain, typically in a format unique
+ *        to the blockchain that requires decoding for application use.
+ * @param authorizationUri - The unique identifier for the authorization being decoded. This ID is essential for
+ *        pinpointing the correct authorization record on the blockchain.
  *
- * This function is essential for processing and utilizing authorization data within the system,
- * converting it from a blockchain-centric representation to a structured format that aligns with
- * the application's data models.
+ * @returns An `ISpaceAuthorization` object containing the decoded details of the space authorization. This object
+ *          includes information such as the space URI, delegate DID, permissions granted, authorization ID, and
+ *          delegator DID. The structured format of this object is tailored for easy integration and use within
+ *          application workflows.
  *
  * @internal
  */
 function decodeAuthorizationDetailsfromChain(
   encoded: Option<PalletChainSpaceSpaceAuthorization>,
-  authorization: AuthorizationId
+  authorizationUri: AuthorizationUri
 ): ISpaceAuthorization {
   const chainAuth = encoded.unwrap()
   const decodedDetails: ISpaceAuthorization = {
-    space: chainAuth.spaceId.toString(),
-    delegate: Did.fromChain(chainAuth.delegate),
+    uri: chainAuth.spaceId.toString() as SpaceUri,
+    delegateUri: Did.fromChain(chainAuth.delegate),
     permission: authorizationPermissionsFromChain(chainAuth.permissions),
-    authorization,
-    delegator: Did.fromChain(chainAuth.delegator),
+    authorizationUri,
+    delegatorUri: Did.fromChain(chainAuth.delegator),
   }
   return decodedDetails
 }
 
 /**
- * Fetches authorization details from CORD chain based on a given authorization ID.
+ * Fetches authorization details from the CORD chain based on a given authorization ID.
  *
- * This function queries CORD to retrieve details about a specific authorization.
- * It uses the provided `authorization` ID to fetch the corresponding entry from the chain.
- * If the authorization details are found, they are decoded and returned. If no authorization
- * is found with the provided ID, an error is thrown.
+ * @remarks
+ * This function queries the CORD blockchain to retrieve details about a specific authorization, using the provided
+ * authorization URI. It is designed to fetch and decode the authorization details stored on the blockchain. If the
+ * authorization details are not found or cannot be decoded, the function throws an error.
  *
- * @param authorization - The unique identifier of the authorization to be fetched.
+ * @param authorizationUri - The unique identifier (URI) of the authorization to be fetched.
  *
- * @returns A promise that resolves to the authorization details
- *          if found. The function returns `null` if the authorization details could not be decoded
- *          or if the authorization is not found on the chain.
+ * @returns A promise that resolves to the authorization details if found. These details are represented as an
+ *          `ISpaceAuthorization` object, which includes information such as the space ID, delegate DID, permissions,
+ *          authorization ID, and delegator DID. The function returns `null` if the authorization details are not found
+ *          or cannot be decoded.
  *
- * @throws {SDKErrors.AuthorizationMissingError} Thrown when no authorization is found with the provided ID.
- * @throws {SDKErrors.CordFetchError} Thrown when an error occurs during the fetching process,
- *         such as network issues or problems with querying the blockchain.
+ * @throws {SDKErrors.AuthorizationMissingError} - Thrown when no authorization is found with the provided ID.
+ * @throws {SDKErrors.CordFetchError} - Thrown when an error occurs during the fetching process, such as issues with
+ *         network connectivity or problems querying the blockchain.
  *
- * Example usage:
+ * @example
  * ```typescript
- * const authorizationId = 'auth:cord:example_id';
- * try {
- *   const authorizationDetails = await fetchAuthorizationFromChain(authorizationId);
- *   console.log('Authorization Details:', authorizationDetails);
- * } catch (error) {
- *   console.error('Error fetching authorization:', error);
- * }
- * ```.
+ * const authorizationUri = 'auth:cord:example_id';
+ * fetchAuthorizationFromChain(authorizationUri)
+ *   .then(authorizationDetails => {
+ *     console.log('Authorization Details:', authorizationDetails);
+ *   })
+ *   .catch(error => {
+ *     if (error instanceof SDKErrors.AuthorizationMissingError) {
+ *       console.error('Authorization not found:', authorizationUri);
+ *     } else {
+ *       console.error('Error fetching authorization:', error);
+ *     }
+ *   });
+ * ```
  */
 export async function fetchAuthorizationFromChain(
-  authorization: AuthorizationId
+  authorizationUri: AuthorizationUri
 ): Promise<ISpaceAuthorization | null> {
   try {
     const api = ConfigService.get('api')
-    const authId = uriToIdentifier(authorization)
+    const authId = uriToIdentifier(authorizationUri)
 
     const authEntry = await api.query.chainSpace.authorizations(authId)
     const authDetails: ISpaceAuthorization =
-      decodeAuthorizationDetailsfromChain(authEntry, authorization)
+      decodeAuthorizationDetailsfromChain(authEntry, authorizationUri)
 
     if (authDetails === null) {
       throw new SDKErrors.AuthorizationMissingError(
-        `There is no authorization with the provided ID "${authorization}" present on the chain.`
+        `There is no authorization with the provided ID "${authorizationUri}" present on the chain.`
       )
     }
 

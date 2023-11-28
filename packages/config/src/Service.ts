@@ -1,9 +1,27 @@
 /**
- * The ConfigService is used for setting up the node address,
- * the logging level as well as storing custom configuration options.
- *
  * @packageDocumentation
  * @module ConfigService
+ *
+ * The `ConfigService` module in the CORD SDK is responsible for managing configuration settings
+ * necessary for the operation of various components within the SDK. It offers functionalities to set, retrieve,
+ * and modify configurations that include connection parameters, logging levels, and other SDK-wide settings.
+ *
+ * This module plays a crucial role in customizing the behavior of the CORD SDK to suit different operational
+ * environments and use cases. It ensures that different parts of the SDK can access shared configuration settings
+ * in a consistent manner, thereby facilitating a cohesive operation.
+ *
+ * Key functionalities include:
+ * - Setting and retrieving configuration options for the SDK.
+ * - Modifying log levels to control the verbosity of SDK logging.
+ * - Resetting configurations to their default values.
+ * - Checking the presence of specific configuration settings.
+ *
+ * Configuration settings are crucial for the proper initialization and operation of the SDK components.
+ * The `ConfigService` provides a centralized and convenient way to manage these settings throughout the SDK's lifecycle.
+ *
+ * Usage of the `ConfigService` is straightforward - configurations can be set or modified at any point,
+ * and the changes will be reflected across the SDK. This allows for dynamic adjustments according to the
+ * application's runtime requirements.
  */
 
 import type { ApiPromise } from '@cord.network/types'
@@ -33,10 +51,20 @@ export type configOpts = {
 } & { [key: string]: any }
 
 /**
- * Changes all existing Loggers of our default Factory with id 0 to the intended Level.
+ * Modifies the log level for all existing loggers in the default factory.
  *
- * @param level The intended LogLevel. LogLevel has a range of 0 to 5.
- * @returns The new set level.
+ * @remarks
+ * The log level is constrained between 0 (Trace) and 5 (Fatal).
+ * If an out-of-range level is provided, it is clamped to the nearest valid value.
+ *
+ * @example
+ * ```typescript
+ * // Set the log level to Debug
+ * modifyLogLevel(LogLevel.Debug);
+ * ```
+ *
+ * @param level - The intended log level.
+ * @returns The actual log level that was set.
  */
 export function modifyLogLevel(level: LogLevel): LogLevel {
   // eslint-disable-next-line no-nested-ternary
@@ -57,10 +85,20 @@ const defaultConfig: Partial<configOpts> = {
 let configuration: Partial<configOpts> = { ...defaultConfig }
 
 /**
- * Get the value set for a configuration.
+ * Retrieves the value of a specified configuration option.
  *
- * @param configOpt Key of the configuration.
- * @returns Value for this key.
+ * @remarks
+ * Throws an error if the requested configuration option is not set.
+ *
+ * @example
+ * ```typescript
+ * // Retrieve the current API instance
+ * const apiInstance = get('api');
+ * ```
+ *
+ * @param configOpt - The key of the configuration option to retrieve.
+ * @returns The value of the configuration option.
+ * @throws {SDKErrors.BlockchainApiMissingError} | Generic not configured error.
  */
 export function get<K extends keyof configOpts>(configOpt: K): configOpts[K] {
   if (typeof configuration[configOpt] === 'undefined') {
@@ -81,9 +119,18 @@ function setLogLevel(logLevel: LogLevel | undefined): void {
 }
 
 /**
- * Set values for one or multiple configurations.
+ * Sets one or more configuration options.
  *
- * @param opts Object of configurations as key-value pairs.
+ * @remarks
+ * This method allows setting multiple configuration options at once. It also updates the log level if provided.
+ *
+ * @example
+ * ```typescript
+ * // Set multiple configuration options
+ * set({ logLevel: LogLevel.Info, customConfig: 'myValue' });
+ * ```
+ *
+ * @param opts - An object containing key-value pairs of configuration options.
  */
 export function set<K extends Partial<configOpts>>(opts: K): void {
   configuration = { ...configuration, ...opts }
@@ -91,9 +138,18 @@ export function set<K extends Partial<configOpts>>(opts: K): void {
 }
 
 /**
- * Set the value for a configuration to its default (which may be `undefined`).
+ * Resets a configuration option to its default value.
  *
- * @param key Key identifying the configuration option.
+ * @remarks
+ * If the default value is not defined, the configuration option is removed.
+ *
+ * @example
+ * ```typescript
+ * // Reset a custom configuration option
+ * unset('customConfig');
+ * ```
+ *
+ * @param key - The key of the configuration option to reset.
  */
 export function unset<K extends keyof configOpts>(key: K): void {
   if (Object.prototype.hasOwnProperty.call(defaultConfig, key)) {
@@ -104,10 +160,20 @@ export function unset<K extends keyof configOpts>(key: K): void {
 }
 
 /**
- * Indicates whether a configuration option is set.
+ * Checks whether a specific configuration option is set.
  *
- * @param key Key identifying the configuration option.
- * @returns True if this value is set, false otherwise.
+ * @example
+ * ```typescript
+ * // Verify if the 'api' configuration is set
+ * if (isSet('api')) {
+ *   console.log('API configuration is set.');
+ * } else {
+ *   console.log('API configuration is not set.');
+ * }
+ * ```
+ *
+ * @param key - The key of the configuration option to check.
+ * @returns `true` if the configuration option is set, otherwise `false`.
  */
 export function isSet<K extends keyof configOpts>(key: K): boolean {
   return typeof configuration[key] !== 'undefined'
@@ -118,8 +184,20 @@ export function isSet<K extends keyof configOpts>(key: K): boolean {
 const options = new LoggerFactoryOptions().addLogGroupRule(
   new LogGroupRule(new RegExp('.+'), get('logLevel'))
 )
-// Create a named logging factory and pass in the options and export the factory.
-// Named is since version 0.2.+ (it's recommended for future usage)
+
+/**
+ * Factory for creating loggers with predefined log group rules.
+ *
+ * @remarks
+ * This factory is configured based on the defined log level. It supports dynamic log level adjustment.
+ *
+ * @example
+ * ```typescript
+ * // Create a logger and log an informational message
+ * const logger = LoggingFactory.getLogger('myLogger');
+ * logger.info('This is an informational message');
+ * ```
+ */
 export const LoggingFactory = LFService.createNamedLoggerFactory(
   'LoggerFactory',
   options
