@@ -22,7 +22,8 @@
     "style:fix": "yarn style --write",
     "test": "jest --coverage --group=unit --detectOpenHandles",
     "test:ci": "yarn test --ci --forceExit",
-    "test:watch": "yarn test --watch"
+    "test:watch": "yarn test --watch",
+    "demo":"tsx --no-cache demo/src/demo.ts"
   },
   "husky": {
     "hooks": {
