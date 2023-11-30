@@ -3,7 +3,7 @@ import type {
   OverrideVersionedType,
 } from '@polkadot/types/types'
 
-import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types.js'
+// import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types.js'
 import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'
 import { types9 } from './types_9.js'
@@ -33,10 +33,10 @@ const defaultTypesBundle: OverrideVersionedType[] = [
   },
 ]
 
-// Current runtime version: 9000
-export const signedExtensions: ExtDef = {
-  ...cordSignedExtensions,
-}
+// // Current runtime version: 9000
+// export const signedExtensions: ExtDef = {
+//   ...cordSignedExtensions,
+// }
 
 export const typesBundle: OverrideBundleType = {
   chain: {

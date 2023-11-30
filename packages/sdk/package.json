@@ -25,7 +25,7 @@
   },
   "repository": "github:dhiway/cord-js",
   "engines": {
-    "node": ">=20.0"
+    "node": ">=18.0"
   },
   "author": "",
   "bugs": "https://github.com/dhiway/cord.js/issues",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.1.1",
-    "typescript": "^5.2.2",
+    "typescript": "^5.1.6",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.9.2"
   },

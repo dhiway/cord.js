@@ -27,32 +27,32 @@
     "build:types": "yarn generate:defs && yarn generate:meta && yarn build:fixes",
     "build:fixes": "node scripts/fixTypes.mjs",
     "build:ts": "tsc -p tsconfig.build.json",
-    "generate:defs": "ts-node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-defs --package @cord.network/augment-api --input ./src/interfaces --endpoint ./metadata/cord.json",
-    "generate:meta": "ts-node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-chain --package @cord.network/augment-api --endpoint ./metadata/cord.json --output ./src/interfaces",
+    "generate:defs": "ts-node --experimental-specifier-resolution=node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-defs --package @cord.network/augment-api --input ./src/interfaces --endpoint ./metadata/cord.json",
+    "generate:meta": "ts-node --experimental-specifier-resolution=node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-chain --package @cord.network/augment-api --endpoint ./metadata/cord.json --output ./src/interfaces --strict",
     "update-metadata": "node ./scripts/fetchMetadata.cjs -o './metadata/cord.json' -e 'wss://staging.cord.network/'"
   },
   "repository": "github:dhiway/cord.js",
   "engines": {
-    "node": ">=20.0"
+    "node": ">=18.0"
   },
   "author": "Dhiway <info@dhiway.com>",
   "license": "Apache-2.0",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
-    "@polkadot/api": "^10.11.0",
-    "@polkadot/typegen": "^10.11.0",
+    "@polkadot/api": "^10.10.1",
+    "@polkadot/typegen": "^10.10.1",
     "@types/node": "^20.8.4",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
+    "typescript": "^5.1.6",
     "yargs": "^16.2.0"
   },
   "dependencies": {
     "@cord.network/type-definitions": "workspace:*",
-    "@polkadot/rpc-augment": "10.11.1",
-    "@polkadot/rpc-core": "10.11.1",
-    "@polkadot/rpc-provider": "10.11.1",
+    "@polkadot/rpc-augment": "^10.10.1",
+    "@polkadot/rpc-core": "^10.10.1",
+    "@polkadot/rpc-provider": "^10.10.1",
     "glob": "^7.1.1"
   }
 }

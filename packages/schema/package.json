@@ -23,7 +23,7 @@
   },
   "repository": "github:dhiway/cord.js",
   "engines": {
-    "node": ">=20.0"
+    "node": ">=18.0"
   },
   "author": "",
   "bugs": "https://github.com/dhiway/cord.js/issues",
@@ -32,7 +32,7 @@
     "@types/uuid": "^9.0.0",
     "rimraf": "^3.0.2",
     "testcontainers": "^9.0.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@cord.network/augment-api": "workspace:*",

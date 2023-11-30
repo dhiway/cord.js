@@ -23,7 +23,7 @@
   },
   "repository": "github:dhiway/cord.js",
   "engines": {
-    "node": ">=20.0"
+    "node": ">=18.0"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -31,7 +31,7 @@
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
     "rimraf": "^3.0.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@cord.network/augment-api": "workspace:*",
@@ -39,11 +39,11 @@
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@digitalbazaar/security-context": "^1.0.0",
-    "@polkadot/api": "^10.11.0",
-    "@polkadot/keyring": "^12.6.0",
-    "@polkadot/types": "^10.11.0",
-    "@polkadot/types-codec": "^10.11.0",
-    "@polkadot/util": "^12.6.0",
-    "@polkadot/util-crypto": "^12.6.0"
+    "@polkadot/api": "^10.10.1",
+    "@polkadot/keyring": "^12.5.1",
+    "@polkadot/types": "^10.10.1",
+    "@polkadot/types-codec": "^10.10.1",
+    "@polkadot/util": "^12.5.1",
+    "@polkadot/util-crypto": "^12.5.1"
   }
 }
