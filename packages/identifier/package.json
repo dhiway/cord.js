@@ -23,14 +23,14 @@
   },
   "repository": "github:dhiway/cord-js",
   "engines": {
-    "node": ">=20.0"
+    "node": ">=18.0"
   },
   "author": "Dhiway",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
     "rimraf": "^3.0.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@cord.network/types": "workspace:*",

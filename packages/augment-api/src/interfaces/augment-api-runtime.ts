@@ -34,10 +34,6 @@ declare module '@polkadot/api-base/types/calls' {
        * The API to query account nonce (aka transaction index)
        **/
       accountNonce: AugmentedCall<ApiType, (accountId: AccountId | string | Uint8Array) => Observable<Index>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0x687ad44ad37f03c2/1 */
     authorityDiscoveryApi: {
@@ -45,10 +41,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Retrieve authority identifiers of the current and next authority set.
        **/
       authorities: AugmentedCall<ApiType, () => Observable<Vec<AuthorityId>>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0xcbca25e39f142387/2 */
     babeApi: {
@@ -76,10 +68,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Submits an unsigned extrinsic to report an equivocation.
        **/
       submitReportEquivocationUnsignedExtrinsic: AugmentedCall<ApiType, (equivocationProof: BabeEquivocationProof | { offender?: any; slotNumber?: any; firstHeader?: any; secondHeader?: any } | string | Uint8Array, keyOwnerProof: OpaqueKeyOwnershipProof | string | Uint8Array) => Observable<Option<Null>>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0x40fe3ad401f8959a/6 */
     blockBuilder: {
@@ -99,10 +87,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Generate inherent extrinsics.
        **/
       inherentExtrinsics: AugmentedCall<ApiType, (inherent: InherentData | { data?: any } | string | Uint8Array) => Observable<Vec<Extrinsic>>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0xdf6acb689907609b/4 */
     core: {
@@ -118,10 +102,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Returns the version of the runtime.
        **/
       version: AugmentedCall<ApiType, () => Observable<RuntimeVersion>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0xa02708c798d60bce/1 */
     didApi: {
@@ -133,10 +113,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Return the information relative to the owner of the provided didName, if any.
        **/
       queryByName: AugmentedCall<ApiType, (name: Text | string) => Observable<Option<RawDidLinkedInfo>>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0xed99c5acb25eedf5/3 */
     grandpaApi: {
@@ -156,10 +132,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Submits an unsigned extrinsic to report an equivocation.
        **/
       submitReportEquivocationUnsignedExtrinsic: AugmentedCall<ApiType, (equivocationProof: GrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: OpaqueKeyOwnershipProof | string | Uint8Array) => Observable<Option<Null>>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0x37e397fc7c91f5e4/2 */
     metadata: {
@@ -175,10 +147,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Returns the supported metadata versions.
        **/
       metadataVersions: AugmentedCall<ApiType, () => Observable<Vec<u32>>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0xf78b278be53f454c/2 */
     offchainWorkerApi: {
@@ -186,10 +154,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Starts the off-chain task for given block header.
        **/
       offchainWorker: AugmentedCall<ApiType, (header: Header | { parentHash?: any; number?: any; stateRoot?: any; extrinsicsRoot?: any; digest?: any } | string | Uint8Array) => Observable<Null>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0xab3c0572291feb8b/1 */
     sessionKeys: {
@@ -201,10 +165,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Generate a set of session keys with optionally using the given seed.
        **/
       generateSessionKeys: AugmentedCall<ApiType, (seed: Option<Bytes> | null | Uint8Array | Bytes | string) => Observable<Bytes>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0xd2bc9897eed08f15/3 */
     taggedTransactionQueue: {
@@ -212,10 +172,6 @@ declare module '@polkadot/api-base/types/calls' {
        * Validate the transaction.
        **/
       validateTransaction: AugmentedCall<ApiType, (source: TransactionSource | 'InBlock' | 'Local' | 'External' | number | Uint8Array, tx: Extrinsic | IExtrinsic | string | Uint8Array, blockHash: BlockHash | string | Uint8Array) => Observable<TransactionValidity>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
     /** 0x5c8cda05c5979c32/1 */
     transactionWeightApi: {
@@ -223,10 +179,6 @@ declare module '@polkadot/api-base/types/calls' {
        * The transaction weight info
        **/
       queryWeightInfo: AugmentedCall<ApiType, (uxt: Extrinsic | IExtrinsic | string | Uint8Array) => Observable<RuntimeDispatchInfo>>;
-      /**
-       * Generic call
-       **/
-      [key: string]: DecoratedCallBase<ApiType>;
     };
   } // AugmentedCalls
 } // declare module
