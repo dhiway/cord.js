@@ -20,22 +20,21 @@ import {
 } from '../Did.chain.js'
 
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
-  statement: 'assertionMethod',
-  schema: 'assertionMethod',
+  statement: 'authentication',
+  schema: 'authentication',
   'chainSpace.addAdminDelegate': 'capabilityDelegation',
   'chainSpace.addAuditDelegate': 'capabilityDelegation',
   'chainSpace.addDelegate': 'capabilityDelegation',
   'chainSpace.removeDelegate': 'capabilityDelegation',
-  'chainSpace.create': 'assertionMethod',
-  'chainSpace.archive': 'assertionMethod',
-  'chainSpace.restore': 'assertionMethod',
-  unique: 'assertionMethod',
+  'chainSpace.create': 'authentication',
+  'chainSpace.archive': 'authentication',
+  'chainSpace.restore': 'authentication',
   did: 'authentication',
   'did.create': undefined,
   'did.submitDidCall': undefined,
   didLookup: 'authentication',
   didName: 'authentication',
-  score: 'assertionMethod',
+  score: 'authentication',
 }
 
 function getKeyRelationshipForMethod(
