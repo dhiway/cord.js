@@ -34,6 +34,7 @@ import type {
   SpaceUri,
   DidUri,
   StatementUri,
+  PartialStatementEntry,
 } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { checkIdentifier, updateStatementUri } from '@cord.network/identifier'
@@ -178,17 +179,15 @@ export function buildFromUpdateProperties(
   stmtUri: StatementUri,
   digest: HexString,
   spaceUri: SpaceUri,
-  creatorUri: DidUri,
-  schemaUri?: SchemaUri
-): IStatementEntry {
+  creatorUri: DidUri
+): PartialStatementEntry {
   const statementUri = updateStatementUri(stmtUri, digest)
-
+  // TODO fetch on-chain data and compare the update inputs
   const statement = {
     elementUri: statementUri,
     digest,
     creatorUri,
     spaceUri,
-    schemaUri: schemaUri || undefined,
   }
   verifyDataStructure(statement)
   return statement
@@ -251,7 +250,6 @@ export async function verifyAgainstProperties(
   schemaUri?: SchemaUri
 ): Promise<{ isValid: boolean; message: string }> {
   try {
-    console.log(stmtUri)
     const statementStatus = await fetchStatementDetailsfromChain(stmtUri)
 
     if (!statementStatus) {

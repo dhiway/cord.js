@@ -231,7 +231,7 @@ async function main() {
     depth: null,
     colors: true,
   })
-  const schemaId = await Cord.Schema.dispatchToChain(
+  const schemaUri = await Cord.Schema.dispatchToChain(
     schemaProperties.schema,
     issuerDid.uri,
     authorIdentity,
@@ -241,7 +241,7 @@ async function main() {
       keyType: issuerKeys.authentication.type,
     })
   )
-  console.log(`✅ Schema - ${schemaId} - added!`)
+  console.log(`✅ Schema - ${schemaUri} - added!`)
 
   console.log(`\n❄️  Query From Chain - Schema `)
   const schemaFromChain = await Cord.Schema.fetchFromChain(
@@ -269,7 +269,8 @@ async function main() {
   const statementEntry = Cord.Statement.buildFromProperties(
     credHash,
     space.uri,
-    issuerDid.uri
+    issuerDid.uri,
+    schemaUri
   )
   console.dir(statementEntry, {
     depth: null,
@@ -325,7 +326,8 @@ async function main() {
     statementEntry.elementUri,
     credHash,
     issuerDid.uri,
-    space.uri
+    space.uri,
+    schemaUri
   )
 
   if (verificationResult.isValid) {
@@ -344,10 +346,12 @@ async function main() {
 
   if (anotherVerificationResult.isValid) {
     console.log(
-      `✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
+      `\n✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
     )
   } else {
-    console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
+    console.log(
+      `\n🚫 Verification failed! - "${verificationResult.message}" 🚫`
+    )
   }
 
   console.log(`\n❄️  Revoke Statement - ${updatedStatementEntry.elementUri}`)
