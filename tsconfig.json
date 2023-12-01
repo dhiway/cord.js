@@ -26,9 +26,9 @@
       "@cord.network/types": [
         "types/src"
       ],
-      "@cord.network/vc-export": [
-        "vc-export/src"
-      ],
+      // "@cord.network/vc-export": [
+      //   "vc-export/src"
+      // ],
       "@cord.network/utils": [
         "utils/src"
       ],

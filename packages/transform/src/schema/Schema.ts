@@ -56,8 +56,9 @@ import type {
   ISchema,
   ISchemaDetails,
   ISchemaMetadata,
-  SchemaHash,
+  SchemaDigest,
   SpaceId,
+  SpaceUri,
 } from '@cord.network/types'
 import {
   Crypto,
@@ -122,7 +123,7 @@ export function encodeCborSchema(
  */
 export function getHashForSchema(
   schema: ISchema | Omit<ISchema, '$id'>
-): SchemaHash {
+): SchemaDigest {
   const encodedSchema = encodeCborSchema(schema)
   return Crypto.hashStr(encodedSchema)
 }
@@ -253,40 +254,6 @@ export function verifyDataStructure(input: ISchema): void {
 }
 
 /**
- * (Internal Function) - Validates the structure and content of a given data object against a primary schema and
- * a set of nested schemas. This function is essential for scenarios where data validation
- * needs to occur against multiple layers of schemas, ensuring both the top-level and
- * nested structures conform to their respective specifications.
- *
- * @param schema - The primary schema against which the top-level structure of
- *   the data object is validated. This schema defines the overall structure and rules
- *   that the data object must adhere to.
- * @param nestedSchemas - An array of nested schemas for validating the
- *   deeper structures within the data object. Each nested schema corresponds to a
- *   specific part of the data object's structure and defines rules for that part.
- * @param contents - The data object to be validated. This object
- *   should be structured according to the rules defined in the primary and nested schemas.
- * @param [messages] - An optional array to collect error messages. If provided,
- *   any validation errors will be added to this array, allowing for custom handling or
- *   logging of errors.
- * @throws {SDKErrors.ObjectUnverifiableError} - Throws an error if the data object does
- *   not conform to the primary or any of the nested schemas. This error includes details
- *   about the specific validation failures, aiding in diagnosing and correcting the
- *   structure of the data object.
- *
- * @internal
- */
-export function verifyContentAgainstNestedSchemas(
-  schema: ISchema,
-  nestedSchemas: ISchema[],
-  contents: Record<string, any>,
-  messages?: string[]
-): void {
-  verifyObjectAgainstSchema(schema, SchemaModel, messages)
-  verifyObjectAgainstSchema(contents, schema, messages, nestedSchemas)
-}
-
-/**
  * (Internal Function) - Validates the metadata of a schema against a predefined metadata model. This function
  * ensures that the metadata associated with a schema adheres to specific standards and
  * formats as defined in the MetadataModel.
@@ -317,6 +284,8 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  * @param creator - The decentralized identifier (DID) of the creator of the schema. This DID is used
  *        to generate a unique identifier for the schema, ensuring its uniqueness and traceability within the system.
  *
+ * @param spaceUri
+ * @param creatorUri
  * @returns - A fully constructed schema object including the schema itself, its cryptographic
  *          digest, the space identifier, and the creator's DID. This object can be utilized for data validation
  *          and various other purposes, serving as a cornerstone in data structuring and management.
@@ -351,14 +320,14 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  */
 export function buildFromProperties(
   schema: ISchema,
-  space: SpaceId,
-  creator: DidUri
+  spaceUri: SpaceUri,
+  creatorUri: DidUri
 ): ISchemaDetails {
   const { $id, ...uriSchema } = schema
   uriSchema.additionalProperties = false
   uriSchema.$schema = SchemaModelV1.$id
 
-  const { uri, digest } = getUriForSchema(uriSchema, creator, space)
+  const { uri, digest } = getUriForSchema(uriSchema, creatorUri, spaceUri)
 
   const schemaType = {
     $id: uri,
@@ -368,10 +337,10 @@ export function buildFromProperties(
   const schemaDetails: ISchemaDetails = {
     schema: schemaType,
     digest,
-    space,
-    creator,
+    spaceUri,
+    creatorUri,
   }
-  verifySchemaStructure(schemaType, creator, space)
+  verifySchemaStructure(schemaType, creatorUri, spaceUri)
   return schemaDetails
 }
 

@@ -2,31 +2,37 @@
  * @packageDocumentation
  * @module IStatement
  */
-import type { DidUri } from './DidDocument.js'
-import type { ISchema } from './Schema.js'
-import type { IDocument } from './Document.js'
+import type { SchemaUri } from './Schema.js'
+import { DidUri } from './DidDocument.js'
+import { HexString } from './Imported.js'
+import { SpaceUri } from './ChainSpace.js'
 
 export const STATEMENT_IDENT = 8902
 export const STATEMENT_PREFIX = 'stmt:cord:'
+export type StatementUri = `${typeof STATEMENT_PREFIX}${string}`
 export type StatementId = string
+export type StatementDigest = HexString
 
 export interface IStatementEntry {
-  digest: IDocument['documentHash']
-  chainSpace: IDocument['chainSpace']
-  schema: ISchema['$id'] | undefined
+  elementUri: StatementUri
+  digest: HexString
+  creatorUri: DidUri
+  spaceUri: SpaceUri
+  schemaUri?: SchemaUri | undefined
 }
 
 export interface IStatementDetails {
-  identifier: StatementId
-  digest: IDocument['documentHash']
-  chainSpace: IDocument['chainSpace']
-  schema: ISchema['$id'] | undefined
+  uri: StatementUri
+  digest: StatementDigest
+  spaceUri: SpaceUri
+  schemaUri?: SchemaUri | undefined
 }
 
 export interface IStatementStatus {
-  identifier: StatementId
-  digest: IDocument['documentHash']
-  creator: DidUri
-  chainSpace: IDocument['chainSpace']
+  uri: StatementUri
+  digest: StatementDigest
+  spaceUri: string
+  creatorUri: DidUri
+  schemaUri?: string | undefined
   revoked: boolean
 }

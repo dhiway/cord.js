@@ -16,8 +16,9 @@ export async function createDocument(
   chainSpace: Cord.SpaceId,
   signCallback: Cord.SignCallback
 ): Promise<Cord.IDocument> {
-  const content = Cord.Content.fromSchemaAndContent(
+  const content = Cord.Content.buildFromContentProperties(
     schema,
+    ['VerifiableDocument', 'TestCredential'],
     {
       name: 'Alice',
       age: 29,
@@ -36,9 +37,9 @@ export async function createDocument(
     issuer
   )
   console.log(content, chainSpace)
-  const document = Cord.Document.fromContent({
+  const document = Cord.Document.buildFromProperties({
     content,
-    chainSpace,
+    spaceUri: chainSpace,
     signCallback,
     options: {},
   })
