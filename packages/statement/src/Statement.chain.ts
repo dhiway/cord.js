@@ -590,7 +590,6 @@ export async function fetchStatementDetailsfromChain(
     )
   }
 
-  console.log(statementDetails)
   const schemaUri =
     statementDetails.schemaUri !== undefined
       ? identifierToUri(statementDetails.schemaUri)

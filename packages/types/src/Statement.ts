@@ -21,6 +21,8 @@ export interface IStatementEntry {
   schemaUri?: SchemaUri | undefined
 }
 
+export type PartialStatementEntry = Omit<IStatementEntry, 'schemaUri'>
+
 export interface IStatementDetails {
   uri: StatementUri
   digest: StatementDigest
