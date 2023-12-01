@@ -1,27 +1,205 @@
-// import {
-//   SCORE_MODULUS,
-//   IJournalContent,
-//   IRatingInput,
-//   CordAddress,
-//   SCORE_IDENT,
-//   SCORE_PREFIX,
-//   RatingEntry,
-//   RatingType,
-//   MAX_SCORE_PER_ENTRY,
-//   IRatingData,
-// } from '@cord.network/types'
-// import { Crypto, SDKErrors } from '@cord.network/utils'
-// import { hashToUri } from '@cord.network/identifier'
+import {
+  IRatingContent,
+  IRatingTransformed,
+  IRatingEntry,
+  EntityTypeOf,
+  RatingTypeOf,
+  DidUri,
+  IRatingChainEntry,
+  IRatingDispatch,
+  RatingEntryUri,
+  SpaceUri,
+} from '@cord.network/types'
+import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
+import { getUriForRatingEntry } from './Scoring.chain.js'
 
-// import { ConfigService } from '@cord.network/config'
+function validateRatingContent(
+  ratingContent: IRatingContent | IRatingTransformed
+): void {
+  const allFieldsFilled = Object.entries(ratingContent).every(
+    ([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        throw new SDKErrors.RatingContentError(
+          `Field '${key}' cannot be empty.`
+        )
+      }
+      return true
+    }
+  )
 
-// /**
-//  * @param rating
-//  */
-// export function base10Encode(rating: number): number {
-//   rating = Math.round(rating * SCORE_MODULUS)
-//   return rating
-// }
+  if (!allFieldsFilled) {
+    throw new SDKErrors.RatingContentError('All fields must be filled.')
+  }
+
+  if ('totalRating' in ratingContent) {
+    if (ratingContent.totalRating > ratingContent.countOfTxn * 5) {
+      throw new SDKErrors.RatingContentError(
+        `Total rating cannot exceed ${ratingContent.countOfTxn * 5}.`
+      )
+    }
+  } else if (ratingContent.totalEncodedRating > ratingContent.countOfTxn * 50) {
+    throw new SDKErrors.RatingContentError(
+      `Total encoded rating cannot exceed ${ratingContent.countOfTxn * 50}.`
+    )
+  }
+
+  if (!Object.values(EntityTypeOf).includes(ratingContent.entityType)) {
+    throw new SDKErrors.RatingContentError(
+      `Invalid entityType: ${ratingContent.entityType}.`
+    )
+  }
+
+  if (!Object.values(RatingTypeOf).includes(ratingContent.ratingType)) {
+    throw new SDKErrors.RatingContentError(
+      `Invalid ratingType: ${ratingContent.ratingType}.`
+    )
+  }
+}
+
+function encodeRatingValue(totalRating: number, modulus = 10): number {
+  return Math.round(totalRating * modulus)
+}
+
+/**
+ * @param entry
+ * @param messageId
+ */
+export async function buildFromContentProperties(
+  entry: IRatingContent,
+  messageId?: string
+): Promise<IRatingEntry> {
+  try {
+    validateRatingContent(entry)
+
+    const msgId = messageId || `msg-${UUID.generate()}`
+
+    const entryTransform: IRatingTransformed = {
+      ...entry,
+      totalEncodedRating: encodeRatingValue(entry.totalRating),
+    }
+
+    const ratingEntry = { entryTransform, msgId }
+    const entryDigest = Crypto.hashObjectAsHexStr(ratingEntry)
+
+    const transformedEntry: IRatingEntry = {
+      entry: entryTransform,
+      messageId: msgId,
+      entryDigest,
+    }
+
+    return transformedEntry
+  } catch (error) {
+    throw new SDKErrors.RatingContentError(
+      `Rating content transformation error: "${error}".`
+    )
+  }
+}
+
+/**
+ * @param entry
+ * @param messageId
+ * @param rating
+ * @param chainSpace
+ * @param creatorUri
+ */
+export async function buildFromRatingProperties(
+  rating: IRatingEntry,
+  chainSpace: SpaceUri,
+  creatorUri: DidUri
+): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
+  try {
+    validateRatingContent(rating.entry)
+
+    if (
+      !chainSpace ||
+      !creatorUri ||
+      !rating.messageId ||
+      !rating.entryDigest
+    ) {
+      throw new SDKErrors.RatingPropertiesError(
+        'Required fields cannot be empty.'
+      )
+    }
+
+    if (!/^0x[0-9a-fA-F]+$/.test(rating.entryDigest)) {
+      throw new SDKErrors.RatingPropertiesError(
+        'Invalid HexString for entryDigest.'
+      )
+    }
+    const partialRating: IRatingChainEntry = {
+      ...rating.entry,
+    }
+
+    const ratingUri = await getUriForRatingEntry(rating, chainSpace, creatorUri)
+
+    const ratingEntry: IRatingDispatch = {
+      entryUri: ratingUri,
+      entry: partialRating,
+      chainSpace,
+      messageId: rating.messageId,
+      entryDigest: rating.entryDigest,
+      creatorUri,
+    }
+
+    return { uri: ratingUri, details: ratingEntry }
+  } catch (error) {
+    throw new SDKErrors.RatingPropertiesError(
+      `Rating content transformation error: "${error}".`
+    )
+  }
+}
+
+/**
+ * @param rating
+ * @param chainSpace
+ * @param creatorUri
+ */
+export async function buildFromAmendRatingProperties(
+  rating: IRatingEntry,
+  chainSpace: SpaceUri,
+  creatorUri: DidUri
+): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
+  try {
+    validateRatingContent(rating.entry)
+
+    if (
+      !chainSpace ||
+      !creatorUri ||
+      !rating.messageId ||
+      !rating.entryDigest
+    ) {
+      throw new SDKErrors.RatingPropertiesError(
+        'Required fields cannot be empty.'
+      )
+    }
+
+    if (!/^0x[0-9a-fA-F]+$/.test(rating.entryDigest)) {
+      throw new SDKErrors.RatingPropertiesError(
+        'Invalid HexString for entryDigest.'
+      )
+    }
+    const partialRating: IRatingChainEntry = {
+      ...rating.entry,
+    }
+
+    const ratingUri = await getUriForRatingEntry(rating, chainSpace, creatorUri)
+
+    const ratingEntry: IRatingDispatch = {
+      entryUri: ratingUri,
+      entry: partialRating,
+      chainSpace,
+      messageId: rating.messageId,
+      entryDigest: rating.entryDigest,
+      creatorUri,
+    }
+
+    return { uri: ratingUri, details: ratingEntry }
+  } catch (error) {
+    throw new SDKErrors.RatingPropertiesError(
+      `Rating content transformation error: "${error}".`
+    )
+  }
+}
 
 // /**
 //  * @param journalContent

@@ -430,6 +430,28 @@ declare module '@polkadot/api-base/types/events' {
        **/
       MembershipRevoked: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
     };
+    networkScore: {
+      /**
+       * Aggregate scores has been updated.
+       * \[entity identifier\]
+       **/
+      AggregateScoreUpdated: AugmentedEvent<ApiType, [entity: Bytes], { entity: Bytes }>;
+      /**
+       * A new rating entry has been added.
+       * \[rating entry identifier, entity, provider\]
+       **/
+      RatingEntryAdded: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32 }>;
+      /**
+       * A rating entry has been revised (after amend).
+       * \[rating entry identifier, entity, \]
+       **/
+      RatingEntryRevised: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32 }>;
+      /**
+       * A rating entry has been amended.
+       * \[rating entry identifier, entity, \]
+       **/
+      RatingEntryRevoked: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32 }>;
+    };
     nodeAuthorization: {
       /**
        * The given claim was removed by its owner.
@@ -529,23 +551,6 @@ declare module '@polkadot/api-base/types/events' {
        * \[schema identifier, digest, author\]
        **/
       Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
-    };
-    score: {
-      /**
-       * Aggregate scores has been updated.
-       * \[entity identifier\]
-       **/
-      AggregateScoreUpdated: AugmentedEvent<ApiType, [entity: Bytes], { entity: Bytes }>;
-      /**
-       * A new rating entry has been added.
-       * \[rating entry identifier, entity\]
-       **/
-      RatingEntryAdded: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes], { identifier: Bytes, entity: Bytes }>;
-      /**
-       * A rating entry has been amended.
-       * \[rating entry identifier, entity, \]
-       **/
-      RatingEntryRevoked: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes], { identifier: Bytes, entity: Bytes }>;
     };
     session: {
       /**

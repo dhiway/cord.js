@@ -852,23 +852,31 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'DidNameRegistered' | 'DidNameReleased' | 'DidNameBanned' | 'DidNameUnbanned';
   }
 
-  /** @name PalletScoreEvent (81) */
-  interface PalletScoreEvent extends Enum {
+  /** @name PalletNetworkScoreEvent (81) */
+  interface PalletNetworkScoreEvent extends Enum {
     readonly isRatingEntryAdded: boolean;
     readonly asRatingEntryAdded: {
       readonly identifier: Bytes;
       readonly entity: Bytes;
+      readonly provider: AccountId32;
     } & Struct;
     readonly isRatingEntryRevoked: boolean;
     readonly asRatingEntryRevoked: {
       readonly identifier: Bytes;
       readonly entity: Bytes;
+      readonly provider: AccountId32;
+    } & Struct;
+    readonly isRatingEntryRevised: boolean;
+    readonly asRatingEntryRevised: {
+      readonly identifier: Bytes;
+      readonly entity: Bytes;
+      readonly provider: AccountId32;
     } & Struct;
     readonly isAggregateScoreUpdated: boolean;
     readonly asAggregateScoreUpdated: {
       readonly entity: Bytes;
     } & Struct;
-    readonly type: 'RatingEntryAdded' | 'RatingEntryRevoked' | 'AggregateScoreUpdated';
+    readonly type: 'RatingEntryAdded' | 'RatingEntryRevoked' | 'RatingEntryRevised' | 'AggregateScoreUpdated';
   }
 
   /** @name PalletAssetEvent (83) */
@@ -2043,17 +2051,17 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Register' | 'Release' | 'Ban' | 'Unban';
   }
 
-  /** @name PalletScoreCall (246) */
-  interface PalletScoreCall extends Enum {
+  /** @name PalletNetworkScoreCall (246) */
+  interface PalletNetworkScoreCall extends Enum {
     readonly isRegisterRating: boolean;
     readonly asRegisterRating: {
-      readonly entry: PalletScoreRatingInputEntry;
+      readonly entry: PalletNetworkScoreRatingInputEntry;
       readonly digest: H256;
       readonly messageId: Bytes;
       readonly authorization: Bytes;
     } & Struct;
-    readonly isAmendRating: boolean;
-    readonly asAmendRating: {
+    readonly isRevokeRating: boolean;
+    readonly asRevokeRating: {
       readonly entryIdentifier: Bytes;
       readonly messageId: Bytes;
       readonly digest: H256;
@@ -2061,34 +2069,34 @@ declare module '@polkadot/types/lookup' {
     } & Struct;
     readonly isReviseRating: boolean;
     readonly asReviseRating: {
-      readonly entry: PalletScoreRatingInputEntry;
+      readonly entry: PalletNetworkScoreRatingInputEntry;
       readonly digest: H256;
       readonly messageId: Bytes;
-      readonly amendRefId: Bytes;
+      readonly debitRefId: Bytes;
       readonly authorization: Bytes;
     } & Struct;
-    readonly type: 'RegisterRating' | 'AmendRating' | 'ReviseRating';
+    readonly type: 'RegisterRating' | 'RevokeRating' | 'ReviseRating';
   }
 
-  /** @name PalletScoreRatingInputEntry (247) */
-  interface PalletScoreRatingInputEntry extends Struct {
+  /** @name PalletNetworkScoreRatingInputEntry (247) */
+  interface PalletNetworkScoreRatingInputEntry extends Struct {
     readonly entityUid: Bytes;
     readonly providerUid: Bytes;
     readonly countOfTxn: u64;
     readonly totalRating: u64;
-    readonly entityType: PalletScoreEntityTypeOf;
-    readonly ratingType: PalletScoreRatingTypeOf;
+    readonly entityType: PalletNetworkScoreEntityTypeOf;
+    readonly ratingType: PalletNetworkScoreRatingTypeOf;
   }
 
-  /** @name PalletScoreEntityTypeOf (248) */
-  interface PalletScoreEntityTypeOf extends Enum {
+  /** @name PalletNetworkScoreEntityTypeOf (248) */
+  interface PalletNetworkScoreEntityTypeOf extends Enum {
     readonly isRetail: boolean;
     readonly isLogistic: boolean;
     readonly type: 'Retail' | 'Logistic';
   }
 
-  /** @name PalletScoreRatingTypeOf (249) */
-  interface PalletScoreRatingTypeOf extends Enum {
+  /** @name PalletNetworkScoreRatingTypeOf (249) */
+  interface PalletNetworkScoreRatingTypeOf extends Enum {
     readonly isOverall: boolean;
     readonly isDelivery: boolean;
     readonly type: 'Overall' | 'Delivery';
@@ -2572,12 +2580,14 @@ declare module '@polkadot/types/lookup' {
   interface CordIdentifierIdentifierTypeOf extends Enum {
     readonly isAsset: boolean;
     readonly isAuth: boolean;
+    readonly isChainSpace: boolean;
     readonly isDid: boolean;
+    readonly isRating: boolean;
     readonly isRegistry: boolean;
     readonly isStatement: boolean;
     readonly isSchema: boolean;
     readonly isTemplate: boolean;
-    readonly type: 'Asset' | 'Auth' | 'Did' | 'Registry' | 'Statement' | 'Schema' | 'Template';
+    readonly type: 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template';
   }
 
   /** @name CordIdentifierEventEntry (356) */
@@ -2606,7 +2616,9 @@ declare module '@polkadot/types/lookup' {
     readonly isRotate: boolean;
     readonly isUsage: boolean;
     readonly isTransfer: boolean;
-    readonly type: 'Archive' | 'Authorization' | 'Capacity' | 'CouncilRevoke' | 'CouncilRestore' | 'Deauthorization' | 'Approved' | 'Genesis' | 'Update' | 'Revoke' | 'Restore' | 'Remove' | 'PartialRemove' | 'PresentationAdded' | 'PresentationRemoved' | 'Rotate' | 'Usage' | 'Transfer';
+    readonly isDebit: boolean;
+    readonly isCredit: boolean;
+    readonly type: 'Archive' | 'Authorization' | 'Capacity' | 'CouncilRevoke' | 'CouncilRestore' | 'Deauthorization' | 'Approved' | 'Genesis' | 'Update' | 'Revoke' | 'Restore' | 'Remove' | 'PartialRemove' | 'PresentationAdded' | 'PresentationRemoved' | 'Rotate' | 'Usage' | 'Transfer' | 'Debit' | 'Credit';
   }
 
   /** @name CordIdentifierTimepoint (358) */
@@ -2842,33 +2854,34 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'InsufficientFunds' | 'AlreadyExists' | 'NotFound' | 'OwnerAlreadyExists' | 'OwnerNotFound' | 'Banned' | 'NotBanned' | 'AlreadyBanned' | 'NotAuthorized' | 'NameTooShort' | 'NameExceedsMaxLength' | 'NamePrefixTooShort' | 'NamePrefixTooLong' | 'InvalidSuffix' | 'SuffixTooLong' | 'InvalidFormat';
   }
 
-  /** @name PalletScoreRatingEntry (391) */
-  interface PalletScoreRatingEntry extends Struct {
-    readonly entry: PalletScoreRatingInputEntry;
+  /** @name PalletNetworkScoreRatingEntry (391) */
+  interface PalletNetworkScoreRatingEntry extends Struct {
+    readonly entry: PalletNetworkScoreRatingInputEntry;
     readonly digest: H256;
     readonly messageId: Bytes;
     readonly space: Bytes;
-    readonly creator: AccountId32;
-    readonly entryType: PalletScoreEntryTypeOf;
+    readonly providerId: AccountId32;
+    readonly creatorId: AccountId32;
+    readonly entryType: PalletNetworkScoreEntryTypeOf;
     readonly referenceId: Option<Bytes>;
-    readonly createdAt: u32;
+    readonly createdAt: u64;
   }
 
-  /** @name PalletScoreEntryTypeOf (392) */
-  interface PalletScoreEntryTypeOf extends Enum {
+  /** @name PalletNetworkScoreEntryTypeOf (392) */
+  interface PalletNetworkScoreEntryTypeOf extends Enum {
     readonly isCredit: boolean;
     readonly isDebit: boolean;
     readonly type: 'Credit' | 'Debit';
   }
 
-  /** @name PalletScoreAggregatedEntryOf (394) */
-  interface PalletScoreAggregatedEntryOf extends Struct {
+  /** @name PalletNetworkScoreAggregatedEntryOf (394) */
+  interface PalletNetworkScoreAggregatedEntryOf extends Struct {
     readonly countOfTxn: u64;
     readonly totalRating: u64;
   }
 
-  /** @name PalletScoreError (396) */
-  interface PalletScoreError extends Enum {
+  /** @name PalletNetworkScoreError (396) */
+  interface PalletNetworkScoreError extends Enum {
     readonly isUnauthorizedOperation: boolean;
     readonly isInvalidIdentifierLength: boolean;
     readonly isInvalidDigest: boolean;
