@@ -78,9 +78,12 @@ function exportToJsonDidDocument(did: DidDocument): ConformingDidDocument {
 }
 
 function exportToJsonLdDidDocument(did: DidDocument): JsonLDDidDocument {
-  const document = exportToJsonDidDocument(did)
-  document['@context'] = [W3C_DID_CONTEXT_URL, CORD_DID_CONTEXT_URL]
-  return document as JsonLDDidDocument
+  const conformingDocument = exportToJsonDidDocument(did)
+  const jsonLdDocument: JsonLDDidDocument = {
+    ...conformingDocument,
+    '@context': [W3C_DID_CONTEXT_URL, CORD_DID_CONTEXT_URL],
+  }
+  return jsonLdDocument
 }
 
 /**

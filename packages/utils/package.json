@@ -23,22 +23,23 @@
   },
   "repository": "github:dhiway/cord-js",
   "engines": {
-    "node": ">=16.0"
+    "node": ">=20.0"
   },
   "author": "Dhiway",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
+    "@types/uuid": "^9.0.7",
     "rimraf": "^3.0.2",
-    "typescript": "^4.8.3"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@cord.network/types": "workspace:*",
-    "@polkadot/api": "^10.4.0",
-    "@polkadot/keyring": "^12.0.0",
-    "@polkadot/util": "^12.0.0",
-    "@polkadot/util-crypto": "^12.0.0",
-    "cbor-web": "^9.0.0",
+    "@polkadot/api": "^10.11.0",
+    "@polkadot/keyring": "^12.6.0",
+    "@polkadot/util": "^12.6.0",
+    "@polkadot/util-crypto": "^12.6.0",
+    "cbor-x": "^1.5.4",
     "tweetnacl": "^1.0.3",
     "uuid": "^9.0.0"
   }

@@ -45,6 +45,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Session keys not provided
        **/
       SessionKeysNotAdded: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     babe: {
       /**
@@ -63,6 +67,10 @@ declare module '@polkadot/api-base/types/errors' {
        * A key ownership proof provided as part of an equivocation report is invalid.
        **/
       InvalidKeyOwnershipProof: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     balances: {
       /**
@@ -105,6 +113,88 @@ declare module '@polkadot/api-base/types/errors' {
        * Vesting balance too high to send value.
        **/
       VestingBalance: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
+    };
+    chainSpace: {
+      /**
+       * Archived Space
+       **/
+      ArchivedSpace: AugmentedError<ApiType>;
+      /**
+       * Authorization Id not found
+       **/
+      AuthorizationNotFound: AugmentedError<ApiType>;
+      /**
+       * The new capacity value is lower than the current usage
+       **/
+      CapacityLessThanUsage: AugmentedError<ApiType>;
+      /**
+       * The capacity limit for the space has been exceeded.
+       **/
+      CapacityLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Authority already added
+       **/
+      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      /**
+       * Delegate not found.
+       **/
+      DelegateNotFound: AugmentedError<ApiType>;
+      /**
+       * Empty transaction.
+       **/
+      EmptyTransaction: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier
+       **/
+      InvalidIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Prefix
+       **/
+      InvalidIdentifierPrefix: AugmentedError<ApiType>;
+      /**
+       * Space identifier is not unique
+       **/
+      SpaceAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Space already approved
+       **/
+      SpaceAlreadyApproved: AugmentedError<ApiType>;
+      /**
+       * Space delegation limit exceeded
+       **/
+      SpaceDelegatesLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Space not approved.
+       **/
+      SpaceNotApproved: AugmentedError<ApiType>;
+      /**
+       * Space not Archived
+       **/
+      SpaceNotArchived: AugmentedError<ApiType>;
+      /**
+       * Space identifier not found
+       **/
+      SpaceNotFound: AugmentedError<ApiType>;
+      /**
+       * Type capacity overflow
+       **/
+      TypeCapacityOverflow: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller or delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     council: {
       /**
@@ -151,6 +241,10 @@ declare module '@polkadot/api-base/types/errors' {
        * The given weight bound for the proposal was too low.
        **/
       WrongProposalWeight: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     councilMembership: {
       /**
@@ -165,6 +259,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many members.
        **/
       TooManyMembers: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     did: {
       /**
@@ -278,6 +376,10 @@ declare module '@polkadot/api-base/types/errors' {
        * of verification keys.
        **/
       VerificationKeyNotFound: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     didName: {
       /**
@@ -345,6 +447,10 @@ declare module '@polkadot/api-base/types/errors' {
        * A suffix that is too long is being claimed.
        **/
       SuffixTooLong: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     grandpa: {
       /**
@@ -377,6 +483,17 @@ declare module '@polkadot/api-base/types/errors' {
        * Cannot signal forced change so soon after last.
        **/
       TooSoon: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
+    };
+    identifier: {
+      MaxEventsHistoryExceeded: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     identity: {
       /**
@@ -387,6 +504,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Empty index.
        **/
       EmptyIndex: AugmentedError<ApiType>;
+      /**
+       * The index is invalid.
+       **/
+      InvalidIndex: AugmentedError<ApiType>;
       /**
        * Invalid judgement.
        **/
@@ -439,6 +560,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Maximum amount of registrars reached. Cannot add any more.
        **/
       TooManyRegistrars: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     imOnline: {
       /**
@@ -449,6 +574,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Non existent public key.
        **/
       InvalidKey: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     indices: {
       /**
@@ -471,6 +600,10 @@ declare module '@polkadot/api-base/types/errors' {
        * The index is permanent and may not be freed/changed.
        **/
       Permanent: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     multisig: {
       /**
@@ -529,6 +662,10 @@ declare module '@polkadot/api-base/types/errors' {
        * A different timepoint was given to the multisig operation that is underway.
        **/
       WrongTimepoint: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     networkMembership: {
       /**
@@ -559,6 +696,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Origin is not authorized
        **/
       OriginNotAuthorized: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     nodeAuthorization: {
       /**
@@ -605,6 +746,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many well known nodes.
        **/
       TooManyNodes: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     preimage: {
       /**
@@ -631,68 +776,18 @@ declare module '@polkadot/api-base/types/errors' {
        * Preimage is too large to store on-chain.
        **/
       TooBig: AugmentedError<ApiType>;
-    };
-    registry: {
-      ArchivedRegistry: AugmentedError<ApiType>;
       /**
-       * Authorization Id not found
+       * Too few hashes were requested to be upgraded (i.e. zero).
        **/
-      AuthorizationNotFound: AugmentedError<ApiType>;
+      TooFew: AugmentedError<ApiType>;
       /**
-       * Authority already added
+       * More than `MAX_HASH_UPGRADE_BULK_COUNT` hashes were requested to be upgraded at once.
        **/
-      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      TooMany: AugmentedError<ApiType>;
       /**
-       * Empty transaction.
+       * Generic error
        **/
-      EmptyTransaction: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier
-       **/
-      InvalidIdentifier: AugmentedError<ApiType>;
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      InvalidIdentifierPrefix: AugmentedError<ApiType>;
-      /**
-       * Invalid Schema.
-       **/
-      InvalidSchema: AugmentedError<ApiType>;
-      /**
-       * Schema limit exceeds the permitted size.
-       **/
-      MaxEncodedRegistryLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Registry commit entries exceeded
-       **/
-      MaxRegistryCommitsExceeded: AugmentedError<ApiType>;
-      /**
-       * Registry identifier is not unique
-       **/
-      RegistryAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Registry entries exceeded for an identifier
-       **/
-      RegistryAuthoritiesLimitExceeded: AugmentedError<ApiType>;
-      RegistryNotArchived: AugmentedError<ApiType>;
-      /**
-       * Registry identifier not found
-       **/
-      RegistryNotFound: AugmentedError<ApiType>;
-      /**
-       * Registry schema mismatch
-       **/
-      RegistrySchemaMismatch: AugmentedError<ApiType>;
-      /**
-       * Schema not found
-       **/
-      SchemaNotFound: AugmentedError<ApiType>;
-      /**
-       * Registry entries exceeded for an identifier
-       **/
-      TooManyRegistryEntries: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller or delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
+      [key: string]: AugmentedError<ApiType>;
     };
     remark: {
       /**
@@ -703,6 +798,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Attempting to store empty data.
        **/
       Empty: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     scheduler: {
       /**
@@ -725,6 +824,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Given target block number is in the past.
        **/
       TargetBlockNumberInPast: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     schema: {
       /**
@@ -752,6 +855,10 @@ declare module '@polkadot/api-base/types/errors' {
        * The paying account was unable to pay the fees for creating a schema.
        **/
       UnableToPayFees: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     score: {
       CountCannotBeZero: AugmentedError<ApiType>;
@@ -768,6 +875,10 @@ declare module '@polkadot/api-base/types/errors' {
       RatingCannotBeZero: AugmentedError<ApiType>;
       TooManyJournalEntries: AugmentedError<ApiType>;
       TransactionAlreadyRated: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     session: {
       /**
@@ -790,58 +901,143 @@ declare module '@polkadot/api-base/types/errors' {
        * No keys are associated with this account.
        **/
       NoKeys: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
-    stream: {
+    statement: {
+      /**
+       * Associate digest already present
+       **/
+      AssociateDigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Attestation is not found
+       **/
       AttestationNotFound: AugmentedError<ApiType>;
+      /**
+       * Authorization not found
+       **/
       AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      /**
+       * Bulk Transaction Failed
+       **/
+      BulkTransactionFailed: AugmentedError<ApiType>;
+      /**
+       * Statement digest is not unique
+       **/
       DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Expired Tx Signature
+       **/
       ExpiredSignature: AugmentedError<ApiType>;
+      /**
+       * Statement hash is not unique
+       **/
       HashAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Invalid Schema Identifier Length
+       **/
       InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Invalid creator signature
+       **/
       InvalidSignature: AugmentedError<ApiType>;
-      InvalidStreamIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid Statement Identifier
+       **/
+      InvalidStatementIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid transaction hash
+       **/
       InvalidTransactionHash: AugmentedError<ApiType>;
-      MaxStreamCommitsExceeded: AugmentedError<ApiType>;
+      MaxDigestLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Maximum number of activities exceeded
+       **/
+      MaxStatementActivitiesExceeded: AugmentedError<ApiType>;
+      /**
+       * Metadata already set for the entry
+       **/
       MetadataAlreadySet: AugmentedError<ApiType>;
+      /**
+       * Metadata limit exceeded
+       **/
       MetadataLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Metadata not found for the entry
+       **/
       MetadataNotFound: AugmentedError<ApiType>;
       /**
-       * Stream idenfier marked inactive
+       * Presentation is already anchored.
        **/
-      RevokedStream: AugmentedError<ApiType>;
+      PresentationDigestAlreadyAnchored: AugmentedError<ApiType>;
       /**
-       * Stream idenfier is not unique
+       * Presentation not found
        **/
-      StreamAlreadyAnchored: AugmentedError<ApiType>;
+      PresentationNotFound: AugmentedError<ApiType>;
       /**
-       * Stream link does not exist
+       * Statement idenfier is not unique
        **/
-      StreamLinkNotFound: AugmentedError<ApiType>;
+      StatementAlreadyAnchored: AugmentedError<ApiType>;
       /**
-       * Stream Link is revoked
+       * Statement digest already present on the chain.
        **/
-      StreamLinkRevoked: AugmentedError<ApiType>;
+      StatementDigestAlreadyAnchored: AugmentedError<ApiType>;
       /**
-       * Stream idenfier not found
+       * Statement entry not found
        **/
-      StreamNotFound: AugmentedError<ApiType>;
+      StatementEntryNotFound: AugmentedError<ApiType>;
       /**
-       * Stream idenfier not marked inactive
+       * Statement link does not exist
        **/
-      StreamNotRevoked: AugmentedError<ApiType>;
-      StreamSpaceMismatch: AugmentedError<ApiType>;
+      StatementLinkNotFound: AugmentedError<ApiType>;
+      /**
+       * Statement Link is revoked
+       **/
+      StatementLinkRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement idenfier not found
+       **/
+      StatementNotFound: AugmentedError<ApiType>;
+      /**
+       * Statement idenfier not marked inactive
+       **/
+      StatementNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement entry marked inactive
+       **/
+      StatementRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement not part of space
+       **/
+      StatementSpaceMismatch: AugmentedError<ApiType>;
+      /**
+       * Maximum Number of delegates reached.
+       **/
       TooManyDelegates: AugmentedError<ApiType>;
+      /**
+       * More than the maximum mumber of delegates.
+       **/
       TooManyDelegatesToRemove: AugmentedError<ApiType>;
       /**
        * Only when the author is not the controller/delegate.
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     sudo: {
       /**
        * Sender must be the Sudo account
        **/
       RequireSudo: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     system: {
       /**
@@ -872,6 +1068,10 @@ declare module '@polkadot/api-base/types/errors' {
        * and the new runtime.
        **/
       SpecVersionNeedsToIncrease: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     technicalCommittee: {
       /**
@@ -918,6 +1118,10 @@ declare module '@polkadot/api-base/types/errors' {
        * The given weight bound for the proposal was too low.
        **/
       WrongProposalWeight: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
     technicalMembership: {
       /**
@@ -932,57 +1136,20 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many members.
        **/
       TooManyMembers: AugmentedError<ApiType>;
-    };
-    unique: {
-      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
-      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
-      EmptyTransaction: AugmentedError<ApiType>;
-      ExpiredSignature: AugmentedError<ApiType>;
-      HashAlreadyAnchored: AugmentedError<ApiType>;
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      InvalidSignature: AugmentedError<ApiType>;
-      InvalidTransactionHash: AugmentedError<ApiType>;
-      InvalidUniqueIdentifier: AugmentedError<ApiType>;
-      MaxEncodedLimitExceeded: AugmentedError<ApiType>;
-      MaxUniqueCommitsExceeded: AugmentedError<ApiType>;
-      MetadataAlreadySet: AugmentedError<ApiType>;
-      MetadataLimitExceeded: AugmentedError<ApiType>;
-      MetadataNotFound: AugmentedError<ApiType>;
-      RegistryIdMismatch: AugmentedError<ApiType>;
       /**
-       * Unique idenfier marked inactive
+       * Generic error
        **/
-      RevokedUnique: AugmentedError<ApiType>;
-      TooManyDelegates: AugmentedError<ApiType>;
-      TooManyDelegatesToRemove: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller/delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
-      UniqueAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Unique link does not exist
-       **/
-      UniqueLinkNotFound: AugmentedError<ApiType>;
-      /**
-       * Unique Link is revoked
-       **/
-      UniqueLinkRevoked: AugmentedError<ApiType>;
-      /**
-       * Unique idenfier not found
-       **/
-      UniqueNotFound: AugmentedError<ApiType>;
-      /**
-       * Unique idenfier not marked inactive
-       **/
-      UniqueNotRevoked: AugmentedError<ApiType>;
-      UniqueSpaceMismatch: AugmentedError<ApiType>;
+      [key: string]: AugmentedError<ApiType>;
     };
     utility: {
       /**
        * Too many calls batched.
        **/
       TooManyCalls: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
     };
   } // AugmentedErrors
 } // declare module

@@ -8,8 +8,9 @@
 /* eslint-disable max-classes-per-file */
 
 export class SDKError extends Error {
-  constructor(...args: ConstructorParameters<ErrorConstructor>) {
-    super(...args)
+  constructor(message?: string, options?: ErrorOptions) {
+    super(message, options)
+    // this line is the only reason for using SDKError
     this.name = this.constructor.name
   }
 }
@@ -31,6 +32,46 @@ export class BlockchainApiMissingError extends SDKError {
   }
 }
 export class InputContentsMalformedError extends SDKError {}
+export class NestedContentUnverifiableError extends SDKError {}
+export class ContentHashMissingError extends SDKError {}
+export class ContentNonceMapMissingError extends SDKError {}
+export class ContentMissingError extends SDKError {}
+export class ContentTypeMissingError extends SDKError {}
+export class ContentUnverifiableError extends SDKError {}
+export class ContentNonceMapMalformedError extends SDKError {
+  constructor(statement?: string) {
+    if (statement) {
+      super(`Nonce map malformed or incomplete for statement "${statement}"`)
+    } else {
+      super(`Nonce map malformed or incomplete`)
+    }
+  }
+}
+// Schema Errors
+export class SchemaError extends SDKError {}
+export class SchemaUnknownPropertiesError extends SDKError {}
+export class SchemaMismatchError extends SDKError {}
+export class SchemaMissingError extends SDKError {}
+export class SchemaIdentifierMissingError extends SDKError {}
+export class SchemaIdMismatchError extends SDKError {
+  constructor(fromSchema: string, provided: string) {
+    super(
+      `Provided $id "${provided}" does not match schema $id "${fromSchema}"`
+    )
+  }
+}
+
+// ChainSPace Errors
+export class ChainSpaceMismatchError extends SDKError {}
+
+// Statement Errors
+export class StatementRevokedError extends SDKError {}
+export class StatementCreatorMismatchError extends SDKError {}
+
+export class IdentifierMissingError extends SDKError {}
+export class InvalidIdentifierError extends SDKError {}
+export class InvalidURIError extends SDKError {}
+export class InvalidInputError extends SDKError {}
 
 export class EncryptionError extends SDKError {}
 
@@ -54,69 +95,36 @@ export class SignatureUnverifiableError extends SDKError {}
 
 export class ObjectUnverifiableError extends SDKError {}
 
-export class SchemaIdMissingError extends SDKError {}
-
-export class SchemaError extends SDKError {}
-
-export class SchemaUnknownPropertiesError extends SDKError {}
-
-export class SchemaIdentifierMissingError extends SDKError {}
-export class RegistryIdentifierMissingError extends SDKError {}
-export class AuthorizationIdentifierMissingError extends SDKError {}
-
-export class SchemaIdMismatchError extends SDKError {
-  constructor(fromSchema: string, provided: string) {
-    super(
-      `Provided $id "${provided}" does not match schema $id "${fromSchema}"`
-    )
-  }
-}
-
-export class NestedContentUnverifiableError extends SDKError {}
+export class StatementError extends SDKError {}
+export class ChainSpaceMissingError extends SDKError {}
+export class AuthorizationMissingError extends SDKError {}
+export class DocumentContentMalformed extends SDKError {}
+export class CordDispatchError extends SDKError {}
+export class CordFetchError extends SDKError {}
+export class CordQueryError extends SDKError {}
+export class InvalidPermissionError extends SDKError {}
 
 export class RootHashUnverifiableError extends SDKError {}
-
-export class ContentHashMissingError extends SDKError {}
-
 export class RevokedTypeError extends SDKError {}
 
 export class HolderMissingError extends SDKError {}
 
 export class IssuerMismatchError extends SDKError {}
-
-export class SchemaMismatchError extends SDKError {}
-
 export class SubjectMissingError extends SDKError {}
 
 export class EvidenceMissingError extends SDKError {}
 
-export class ContentNonceMapMissingError extends SDKError {}
-
-export class ContentMissingError extends SDKError {}
-
 export class HashTypeError extends SDKError {}
 
-export class IdentifierMissingError extends SDKError {}
-
-export class StreamHashMissingError extends SDKError {}
+export class StatementHashMissingError extends SDKError {}
 
 export class IssuerMissingError extends SDKError {}
 
 export class CredentialUnverifiableError extends SDKError {}
 
-export class ContentNonceMapMalformedError extends SDKError {
-  constructor(statement?: string) {
-    if (statement) {
-      super(`Nonce map malformed or incomplete for statement "${statement}"`)
-    } else {
-      super(`Nonce map malformed or incomplete`)
-    }
-  }
-}
 export class CreatorMissingError extends SDKError {}
 export class RegistryInputMalformedError extends SDKError {}
 export class DelegateMissingError extends SDKError {}
-export class SchemaMissingError extends SDKError {}
 export class AuthorizationIdMissingError extends SDKError {}
 
 export class DataStructureError extends SDKError {}
@@ -194,8 +202,6 @@ export class NoProofForStatementError extends SDKError {
   }
 }
 
-export class ContentUnverifiableError extends SDKError {}
-
 export class SubscriptionsNotSupportedError extends SDKError {
   constructor(options?: ErrorOptions) {
     super(
@@ -210,3 +216,36 @@ export class DecodingMessageError extends SDKError {}
 export class TimeoutError extends SDKError {}
 
 export class CodecMismatchError extends SDKError {}
+
+export class ScoreMissingError extends SDKError {}
+
+export class ScoreCollectorMissingError extends SDKError {}
+
+export class ScoreEntityMissingError extends SDKError {}
+
+export class ScoreTidMissingError extends SDKError {}
+
+export class ScoreRatingEntryTypeMissingError extends SDKError {}
+
+export class ScoreCountMissingError extends SDKError {}
+
+export class ScoreRatingMissingError extends SDKError {}
+
+export class ScoreRatingTypeMissingError extends SDKError {}
+
+export class ScoreRatingEntryTypeMissMatchError extends SDKError {}
+
+export class RatingInputTypeMissMatchError extends SDKError {}
+
+export class ScoreRatingTypeMissMatchError extends SDKError {}
+
+export class RatingExceedsMaxValueError extends SDKError {}
+
+export class ScoreCollectorTypeMissMatchError extends SDKError {}
+
+export class ScoreEntityTypeMissMatchError extends SDKError {}
+
+export class ScoreTidTypeMissMatchError extends SDKError {}
+
+export class ScoreCountTypeMissMatchError extends SDKError {}
+export class ScoreEntryAlreadyPresentError extends SDKError {}

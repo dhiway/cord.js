@@ -13,15 +13,13 @@
     "entryPointStrategy": "resolve",
     "entryPoints": [
       "packages/types/src/index.ts",
-      "packages/augment-api/src/index.ts",
       "packages/utils/src/index.ts",
       "packages/config/src/index.ts",
       "packages/network/src/index.ts",
       "packages/did/src/index.ts",
-      "packages/type-definitions/src/index.ts",
-      "packages/modules/src/index.ts",
-      "packages/messaging/src/index.ts",
-      "packages/vc-export/src/index.ts",
+      "packages/statement/src/index.ts",
+      "packages/identifier/src/index.ts",
+      "packages/chain-space/src/index.ts",
       "packages/sdk/src/index.ts"
     ],
     "out": "docs/api",
@@ -37,8 +35,13 @@
     "excludeExternals": true,
     "excludePrivate": true,
     "hideGenerator": true,
-    "name": "API Documentation",
-    "listInvalidSymbolLinks": true,
-    "readme": "README.md"
+    "excludeInternal": true,
+    "categorizeByGroup": true,
+    "name": "CORD.js Documentation",
+    "readme": "README.md",
+    "navigation": {
+      "includeCategories": true,
+      "includeGroups": true
+    },
   }
 }

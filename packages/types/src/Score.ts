@@ -1,22 +1,38 @@
 import { HexString } from '@polkadot/util/types.js'
-import type { IPublicIdentity } from './PublicIdentity.js'
 
-export const SCORE_IDENTIFIER: number = 101
-export const SCORE_PREFIX: string = 'score:cord:'
+export const SCORE_IDENT = 11034
+export const SCORE_PREFIX = 'score:cord:'
+export const SCORE_MODULUS = 10
+export const MAX_SCORE_PER_ENTRY = 50
 
-export enum ScoreType {
-  overall = 'overall',
-  delivery = 'delivery',
+export enum RatingType {
+  overall = 'Overall',
+  delivery = 'Delivery',
+}
+export enum RatingEntry {
+  credit = 'Credit',
+  debit = 'Debit',
 }
 
 export interface IJournalContent {
-  entity: IPublicIdentity['address']
-  uid: string
+  entity: string
   tid: string
-  collector: IPublicIdentity['address']
-  requestor: IPublicIdentity['address']
-  scoreType: ScoreType
-  score: number
+  collector: string
+  ratingType: string
+  rating: number
+  entryType: string
+  count: number
+}
+
+export interface IRatingInput {
+  entry: IJournalContent
+  digest: string
+  creator: string
+}
+
+export interface IRatingData {
+  ratingInput: IRatingInput
+  identifier: string
 }
 
 export interface IJournal {
@@ -34,17 +50,14 @@ export interface IJournalDetails {
 
 export interface IScoreAggregateDetails {
   entity: IJournalContent['entity']
-  scoreType: ScoreType
+  RatingType: RatingType
   aggregate: {
     count: number
     score: number
   }
 }
-export interface IScoreAverageDetails {
-  entity: IJournalContent['entity']
-  scoreType: ScoreType
-  average: {
-    count: number
-    score: number
-  }
+
+export interface IEntityScoreDetails {
+  rating: number
+  count: number
 }

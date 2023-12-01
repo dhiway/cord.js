@@ -143,8 +143,8 @@ async function main() {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 6: Create a new Stream
-  console.log(`\n❄️  Stream Creation `)
+  // Step 6: Create a new Statement
+  console.log(`\n❄️  Statement Creation `)
   console.log(`🔗 ${newSpace.identifier} `)
   console.log(`🔗 ${newSchema.identifier} `)
 
@@ -155,61 +155,61 @@ async function main() {
     country: 'India',
     credit: 1000,
   }
-  let schemaStream = Cord.Content.fromSchemaAndContent(
+  let schemaStatement = Cord.Content.fromSchemaAndContent(
     newSchema,
     content,
     employeeIdentity.address,
     holderIdentity.address
   )
-  console.dir(schemaStream, { depth: null, colors: true })
+  console.dir(schemaStatement, { depth: null, colors: true })
 
-  let newStreamContent = Cord.ContentStream.fromContent(
-    schemaStream,
+  let newStatementContent = Cord.ContentStatement.fromContent(
+    schemaStatement,
     employeeIdentity,
     { space: newSpace.identifier }
   )
-  console.dir(newStreamContent, { depth: null, colors: true })
+  console.dir(newStatementContent, { depth: null, colors: true })
 
-  let newStream = Cord.Stream.fromContentStream(newStreamContent)
+  let newStatement = Cord.Statement.fromContentStatement(newStatementContent)
 
-  let streamCreationExtrinsic = await Cord.Stream.create(newStream)
-  console.dir(newStream, { depth: null, colors: true })
+  let statementCreationExtrinsic = await Cord.Statement.create(newStatement)
+  console.dir(newStatement, { depth: null, colors: true })
 
   try {
-    await Cord.Chain.signAndSubmitTx(streamCreationExtrinsic, entityIdentity, {
+    await Cord.Chain.signAndSubmitTx(statementCreationExtrinsic, entityIdentity, {
       resolveOn: Cord.Chain.IS_IN_BLOCK,
       rejectOn: Cord.Chain.IS_ERROR,
     })
-    console.log('✅ Stream created!')
+    console.log('✅ Statement created!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
 
-  // Step 7: Add Stream Metadata
-  console.log(`\n❄️  Stream Metadata addition `)
-  console.log(`🔗 ${newStreamContent.identifier}`)
+  // Step 7: Add Statement Metadata
+  console.log(`\n❄️  Statement Metadata addition `)
+  console.log(`🔗 ${newStatementContent.identifier}`)
 
-  let streamMeta = Cord.Meta.fromMetaProperties(
-    newStreamContent.identifier,
-    JSON.stringify(newStreamContent),
+  let statementMeta = Cord.Meta.fromMetaProperties(
+    newStatementContent.identifier,
+    JSON.stringify(newStatementContent),
     employeeIdentity
   )
-  let streamMetaCreationExtrinsic = await Cord.Meta.setMetadata(streamMeta)
-  console.dir(streamMeta, {
+  let statementMetaCreationExtrinsic = await Cord.Meta.setMetadata(statementMeta)
+  console.dir(statementMeta, {
     depth: null,
     colors: true,
   })
 
   try {
     await Cord.Chain.signAndSubmitTx(
-      streamMetaCreationExtrinsic,
+      statementMetaCreationExtrinsic,
       entityIdentity,
       {
         resolveOn: Cord.Chain.IS_IN_BLOCK,
         rejectOn: Cord.Chain.IS_ERROR,
       }
     )
-    console.log('✅ Stream metadata added!')
+    console.log('✅ Statement metadata added!')
   } catch (e: any) {
     console.log(e.errorCode, '-', e.message)
   }
@@ -233,13 +233,13 @@ async function main() {
     console.dir(spaceMetaData, { depth: null, colors: true })
   }
 
-  console.log(`\n❄️  Stream Metadata `)
-  console.log(`🔗 ${newStreamContent.identifier}`)
-  const streamMetaData = await Cord.Meta.query(newStreamContent.identifier)
-  if (!streamMetaData) {
+  console.log(`\n❄️  Statement Metadata `)
+  console.log(`🔗 ${newStatementContent.identifier}`)
+  const statementMetaData = await Cord.Meta.query(newStatementContent.identifier)
+  if (!statementMetaData) {
     console.log(`Space metadata not anchored on CORD`)
   } else {
-    console.dir(streamMetaData, { depth: null, colors: true })
+    console.dir(statementMetaData, { depth: null, colors: true })
   }
 
   // Step 9: Clear Space metadata

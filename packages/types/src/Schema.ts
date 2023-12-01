@@ -1,11 +1,20 @@
-import type { HexString } from '@polkadot/util/types'
+import type { HexString } from './Imported.js'
+import type { DidUri } from './DidDocument.js'
+import { SpaceId } from './ChainSpace.js'
 
-export const SCHEMA_IDENT: number = 1424
-export const SCHEMA_PREFIX: string = 'schema:cord:'
+export const SCHEMA_IDENT = 1424
+export const SCHEMA_PREFIX = 'schema:cord:'
+export type SchemaUri = `${typeof SCHEMA_PREFIX}${string}`
 export type SchemaId = string
-export type SchemaHash = HexString
+export type SchemaDigest = HexString
 
-export type InstanceType = 'boolean' | 'integer' | 'number' | 'string' | 'array'
+export type InstanceType =
+  | 'boolean'
+  | 'integer'
+  | 'number'
+  | 'string'
+  | 'array'
+  | 'object'
 
 interface TypePattern {
   type: InstanceType
@@ -41,8 +50,22 @@ interface ArrayPattern extends TypePattern {
   maxItems?: number
 }
 
+interface ObjectPattern extends TypePattern {
+  type: 'object'
+  properties: {
+    [key: string]:
+      | BooleanPattern
+      | NumberPattern
+      | StringPattern
+      | ArrayPattern
+      | ObjectPattern
+      | RefPattern
+  }
+  required?: string[]
+}
+
 export interface ISchema {
-  $id: SchemaId
+  $id: SchemaUri
   $schema: string
   title: string
   properties: {
@@ -51,9 +74,20 @@ export interface ISchema {
       | NumberPattern
       | StringPattern
       | ArrayPattern
+      | ObjectPattern
       | RefPattern
   }
   type: 'object'
   required: string[]
   additionalProperties?: false
+}
+
+/**
+ * The details of a Schema that are stored on chain.
+ */
+export interface ISchemaDetails {
+  schema: ISchema
+  digest: SchemaDigest
+  spaceUri: SpaceId
+  creatorUri: DidUri
 }

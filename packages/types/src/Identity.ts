@@ -5,7 +5,8 @@ import type { Index } from '@polkadot/types/interfaces'
 import { AnyNumber } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types.js'
 
-export const ACCOUNT_IDENTIFIER_PREFIX = 'id:cord:'
+export const ACCOUNT_IDENT = 29
+export const ACCOUNT_PREFIX = 'id:cord:'
 
 export interface IIdentity {
   readonly signKeyringPair: KeyringPair

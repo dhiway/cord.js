@@ -6,21 +6,12 @@
   ],
   "scripts": {
     "check": "tsc -p tsconfig.json --noEmit",
-    "build": "yarn workspaces foreach -p -t --exclude '{root-workspace}' run build",
-    "build:docs": "typedoc --theme default --out docs/api --tsconfig tsconfig.docs.json && touch docs/.nojekyll",
+    "build": "yarn workspaces foreach -Apt --exclude '{root-workspace}' run build",
+    "build:docs": "typedoc --skipErrorChecking --theme default --out docs/api --tsconfig tsconfig.docs.json && touch docs/.nojekyll",
     "bundle": "yarn workspace @cord.network/sdk run bundle",
     "clean": "rimraf tests/dist && yarn workspaces foreach -p --exclude '{root-workspace}' run clean",
     "clean:docs": "rimraf docs/api",
-    "demo": "tsx --no-cache demo/src/demo.ts",
-    "demo-staging": "tsx --no-cache demo/src/demo-staging.ts",
-    "demo-sparknet": "tsx --no-cache demo/src/demo-sparknet.ts",
-    "demo-vc": "tsx --no-cache --no-warnings demo/src/demo-vc.ts",
-    "demo-messaging": "tsx --no-cache --no-warnings demo/src/demo-messaging.ts",
-    "demo-meta": "tsx --no-cache --no-warnings demo/src/demo-meta.ts",
-    "demo-score": "tsx --no-cache --no-warnings demo/src/demo-score.ts",
-    "demo-score-batch": "tsx --no-cache --no-warnings demo/src/demo-score-batch.ts",
-    "bench": "tsx demo/src/bench.ts",
-    "stream-bench": "tsx --no-cache --no-warnings demo/src/stream-bench.ts",
+    "func-test": "tsx --no-cache demo/src/func-test.ts",
     "set:version": "yarn workspaces foreach -pt exec npm version --no-git-tag-version",
     "prepublish": "yarn workspaces foreach -p --no-private exec cp -f ../../LICENSE .",
     "publish": "yarn workspaces foreach -pt --no-private npm publish",
@@ -45,7 +36,8 @@
     ]
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.20.2",
+    "@babel/core": "^7.23.3",
+    "@babel/preset-env": "^7.23.3",
     "@commitlint/cli": "^9.0.1",
     "@commitlint/config-conventional": "^9.0.1",
     "@playwright/test": "^1.21.1",
@@ -68,9 +60,12 @@
     "ts-jest": "^29.1.1",
     "ts-jest-resolver": "^2.0.1",
     "tsx": "^3.4.3",
-    "typedoc": "^0.23.0",
-    "typescript": "^4.8.3"
+    "typedoc": "^0.25.3",
+    "typescript": "^5.2.2"
+  },
+  "resolutions": {
+    "typescript": "5.2.2"
   },
   "version": "0.8.0-7",
-  "packageManager": "yarn@3.3.1"
+  "packageManager": "yarn@4.0.2"
 }

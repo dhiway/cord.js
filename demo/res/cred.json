@@ -1,0 +1,24 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1"
+  ],
+  "id": "http://example.dway.in/credentials/3732",
+  "type": ["VerifiableCredential", "UniversityDegreeCredential"],
+  "issuer": "did:cord:3yuH8SE1rPjYyzTS8np2Zpka2KXagbkcCV6dNBU75wcvjc1p",
+  "issuanceDate": "2010-01-01T19:23:24Z",
+  "credentialSubject": {
+    "id": "did:cord:3yT76V5nBADwojuHcgqnUWm27RpRP7cXEUA6kFo24deFxLev",
+    "degree": {
+      "type": "BachelorDegree",
+      "name": "Bachelor of Science and Arts"
+    }
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2021-11-13T18:19:39Z",
+    "verificationMethod": "did:cord:3yuH8SE1rPjYyzTS8np2Zpka2KXagbkcCV6dNBU75wcvjc1p#0xfffff01dde2773a43c61bb28ab61b72b7656584eb1ea367b3bd8b4be55d63c41",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z58DAdFfa9SkqZMVPxAQpic7ndSayn1PzZs6ZjWp1CktyGesjuTSwRdoWhAfGFCF5bppETSTojQCrfFPP2oumHKtz"
+  }
+}

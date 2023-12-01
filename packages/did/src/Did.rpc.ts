@@ -10,6 +10,7 @@ import type {
   DidDocument,
   DidEncryptionKey,
   DidKey,
+  DidKeyRecord,
   DidServiceEndpoint,
   DidUri,
   DidVerificationKey,
@@ -59,14 +60,14 @@ function documentFromChain(encoded: PalletDidDidDetails): RpcDocument {
     lastTxCounter,
   } = encoded
 
-  const keys: Record<string, DidKey> = [...publicKeys.entries()]
+  const keys: DidKeyRecord = [...publicKeys.entries()]
     .map(([keyId, keyDetails]) =>
       didPublicKeyDetailsFromChain(keyId, keyDetails)
     )
     .reduce((res, key) => {
       res[resourceIdToChain(key.id)] = key
       return res
-    }, {})
+    }, {} as DidKeyRecord)
 
   const authentication = keys[authenticationKey.toHex()] as DidVerificationKey
 

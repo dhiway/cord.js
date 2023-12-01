@@ -3,29 +3,29 @@ import type { RegistryTypes } from '@polkadot/types/types'
 export const types7: RegistryTypes = {
   // Chain Types
   IdentifierOf: 'Vec<u8>',
-  StreamIdOf: 'IdentifierOf',
-  StreamDigestOf: 'Hash',
+  StatementIdOf: 'IdentifierOf',
+  StatementDigestOf: 'Hash',
   SchemaIdOf: 'IdentifierOf',
   SchemaDigestOf: 'Hash',
   SwarmIdOf: 'IdentifierOf',
 
-  // Streams
+  // Statements
   CreatorOf: 'AccountId',
-  StreamEntry: {
-    digest: 'StreamDigestOf',
+  StatementEntry: {
+    digest: 'StatementDigestOf',
     creator: 'CreatorOf',
     schema: 'Option<SchemaIdOf>',
-    linked: 'Option<StreamIdOf>',
+    linked: 'Option<StatementIdOf>',
     swarm: 'Option<SwarmIdOf>',
     revoked: 'bool',
     counter: 'u64',
   },
-  StreamCommitOf: {
+  StatementCommitOf: {
     _enum: ['Genesis', 'Update', 'Status'],
   },
-  StreamCommit: {
-    commit: 'StreamCommitOf',
-    digest: 'StreamDigestOf',
+  StatementCommit: {
+    commit: 'StatementCommitOf',
+    digest: 'StatementDigestOf',
     block: 'BlockNumber',
   },
 
