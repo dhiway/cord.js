@@ -9,7 +9,7 @@ import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableE
 import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletAssetAssetInputEntry, PalletAssetAssetIssuanceEntry, PalletAssetAssetTransferEntry, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityBitFlags, PalletIdentityJudgement, PalletIdentitySimpleIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMixnetRegistration, PalletMultisigTimepoint, PalletScoreRatingInputEntry, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpMixnetAppSignature, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletAssetAssetInputEntry, PalletAssetAssetIssuanceEntry, PalletAssetAssetTransferEntry, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityBitFlags, PalletIdentityJudgement, PalletIdentitySimpleIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMixnetRegistration, PalletMultisigTimepoint, PalletNetworkScoreRatingInputEntry, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpMixnetAppSignature, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -401,6 +401,20 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       revoke: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
     };
+    networkScore: {
+      /**
+       * See [`Pallet::register_rating`].
+       **/
+      registerRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalRating?: any; entityType?: any; ratingType?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes]>;
+      /**
+       * See [`Pallet::revise_rating`].
+       **/
+      reviseRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalRating?: any; entityType?: any; ratingType?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, debitRefId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes, Bytes]>;
+      /**
+       * See [`Pallet::revoke_rating`].
+       **/
+      revokeRating: AugmentedSubmittable<(entryIdentifier: Bytes | string | Uint8Array, messageId: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Bytes]>;
+    };
     nodeAuthorization: {
       /**
        * See [`Pallet::add_connection`].
@@ -492,20 +506,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * See [`Pallet::create`].
        **/
       create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-    };
-    score: {
-      /**
-       * See [`Pallet::amend_rating`].
-       **/
-      amendRating: AugmentedSubmittable<(entryIdentifier: Bytes | string | Uint8Array, messageId: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Bytes]>;
-      /**
-       * See [`Pallet::register_rating`].
-       **/
-      registerRating: AugmentedSubmittable<(entry: PalletScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalRating?: any; entityType?: any; ratingType?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletScoreRatingInputEntry, H256, Bytes, Bytes]>;
-      /**
-       * See [`Pallet::revise_rating`].
-       **/
-      reviseRating: AugmentedSubmittable<(entry: PalletScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalRating?: any; entityType?: any; ratingType?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, amendRefId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletScoreRatingInputEntry, H256, Bytes, Bytes, Bytes]>;
     };
     session: {
       /**

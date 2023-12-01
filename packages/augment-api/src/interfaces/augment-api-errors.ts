@@ -691,6 +691,76 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       OriginNotAuthorized: AugmentedError<ApiType>;
     };
+    networkScore: {
+      /**
+       * Stream digest is not unique
+       **/
+      DigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Rating Entity mismatch
+       **/
+      EntityMismatch: AugmentedError<ApiType>;
+      /**
+       * Invalid digest
+       **/
+      InvalidDigest: AugmentedError<ApiType>;
+      /**
+       * Invalid entity signature
+       **/
+      InvalidEntitySignature: AugmentedError<ApiType>;
+      /**
+       * Invalid rating or entry type
+       **/
+      InvalidEntryOrRatingType: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifer Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Invalid Rating Identifier
+       **/
+      InvalidRatingIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid rating value - should be between 1 and 50
+       **/
+      InvalidRatingValue: AugmentedError<ApiType>;
+      /**
+       * Invalid creator signature
+       **/
+      InvalidSignature: AugmentedError<ApiType>;
+      /**
+       * Transaction already rated
+       **/
+      MessageIdAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * Rating idenfier already exist
+       **/
+      RatingIdentifierAlreadyAdded: AugmentedError<ApiType>;
+      /**
+       * Rating identifier not found
+       **/
+      RatingIdentifierNotFound: AugmentedError<ApiType>;
+      /**
+       * Referenced rating identifier not found
+       **/
+      ReferenceIdentifierNotFound: AugmentedError<ApiType>;
+      /**
+       * Refrenced identifer is not a debit transaction
+       **/
+      ReferenceNotAmendIdentifier: AugmentedError<ApiType>;
+      /**
+       * Rating Space mismatch
+       **/
+      SpaceMismatch: AugmentedError<ApiType>;
+      /**
+       * Exceeds the maximum allowed entries in a single transaction
+       **/
+      TooManyJournalEntries: AugmentedError<ApiType>;
+      /**
+       * Unauthorized operation
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+    };
     nodeAuthorization: {
       /**
        * The node is already claimed by a user.
@@ -829,76 +899,6 @@ declare module '@polkadot/api-base/types/errors' {
        * The paying account was unable to pay the fees for creating a schema.
        **/
       UnableToPayFees: AugmentedError<ApiType>;
-    };
-    score: {
-      /**
-       * Stream digest is not unique
-       **/
-      DigestAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Rating Entity mismatch
-       **/
-      EntityMismatch: AugmentedError<ApiType>;
-      /**
-       * Invalid digest
-       **/
-      InvalidDigest: AugmentedError<ApiType>;
-      /**
-       * Invalid entity signature
-       **/
-      InvalidEntitySignature: AugmentedError<ApiType>;
-      /**
-       * Invalid rating or entry type
-       **/
-      InvalidEntryOrRatingType: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifer Length
-       **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * Invalid Rating Identifier
-       **/
-      InvalidRatingIdentifier: AugmentedError<ApiType>;
-      /**
-       * Invalid rating value - should be between 1 and 50
-       **/
-      InvalidRatingValue: AugmentedError<ApiType>;
-      /**
-       * Invalid creator signature
-       **/
-      InvalidSignature: AugmentedError<ApiType>;
-      /**
-       * Transaction already rated
-       **/
-      MessageIdAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * Rating idenfier already exist
-       **/
-      RatingIdentifierAlreadyAdded: AugmentedError<ApiType>;
-      /**
-       * Rating identifier not found
-       **/
-      RatingIdentifierNotFound: AugmentedError<ApiType>;
-      /**
-       * Referenced rating identifier not found
-       **/
-      ReferenceIdentifierNotFound: AugmentedError<ApiType>;
-      /**
-       * Refrenced identifer is not a debit transaction
-       **/
-      ReferenceNotAmendIdentifier: AugmentedError<ApiType>;
-      /**
-       * Rating Space mismatch
-       **/
-      SpaceMismatch: AugmentedError<ApiType>;
-      /**
-       * Exceeds the maximum allowed entries in a single transaction
-       **/
-      TooManyJournalEntries: AugmentedError<ApiType>;
-      /**
-       * Unauthorized operation
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
     };
     session: {
       /**

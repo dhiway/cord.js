@@ -1679,6 +1679,7 @@ __metadata:
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
     "@cord.network/identifier": "workspace:*"
+    "@cord.network/network": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     rimraf: "npm:^3.0.2"

@@ -777,17 +777,24 @@ export default {
     }
   },
   /**
-   * Lookup81: pallet_score::pallet::Event<T>
+   * Lookup81: pallet_network_score::pallet::Event<T>
    **/
-  PalletScoreEvent: {
+  PalletNetworkScoreEvent: {
     _enum: {
       RatingEntryAdded: {
         identifier: 'Bytes',
         entity: 'Bytes',
+        provider: 'AccountId32',
       },
       RatingEntryRevoked: {
         identifier: 'Bytes',
         entity: 'Bytes',
+        provider: 'AccountId32',
+      },
+      RatingEntryRevised: {
+        identifier: 'Bytes',
+        entity: 'Bytes',
+        provider: 'AccountId32',
       },
       AggregateScoreUpdated: {
         entity: 'Bytes'
@@ -2043,52 +2050,52 @@ export default {
     }
   },
   /**
-   * Lookup246: pallet_score::pallet::Call<T>
+   * Lookup246: pallet_network_score::pallet::Call<T>
    **/
-  PalletScoreCall: {
+  PalletNetworkScoreCall: {
     _enum: {
       register_rating: {
-        entry: 'PalletScoreRatingInputEntry',
+        entry: 'PalletNetworkScoreRatingInputEntry',
         digest: 'H256',
         messageId: 'Bytes',
         authorization: 'Bytes',
       },
-      amend_rating: {
+      revoke_rating: {
         entryIdentifier: 'Bytes',
         messageId: 'Bytes',
         digest: 'H256',
         authorization: 'Bytes',
       },
       revise_rating: {
-        entry: 'PalletScoreRatingInputEntry',
+        entry: 'PalletNetworkScoreRatingInputEntry',
         digest: 'H256',
         messageId: 'Bytes',
-        amendRefId: 'Bytes',
+        debitRefId: 'Bytes',
         authorization: 'Bytes'
       }
     }
   },
   /**
-   * Lookup247: pallet_score::types::RatingInputEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, pallet_score::types::EntityTypeOf, pallet_score::types::RatingTypeOf>
+   * Lookup247: pallet_network_score::types::RatingInputEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, pallet_network_score::types::EntityTypeOf, pallet_network_score::types::RatingTypeOf>
    **/
-  PalletScoreRatingInputEntry: {
+  PalletNetworkScoreRatingInputEntry: {
     entityUid: 'Bytes',
     providerUid: 'Bytes',
     countOfTxn: 'u64',
     totalRating: 'u64',
-    entityType: 'PalletScoreEntityTypeOf',
-    ratingType: 'PalletScoreRatingTypeOf'
+    entityType: 'PalletNetworkScoreEntityTypeOf',
+    ratingType: 'PalletNetworkScoreRatingTypeOf'
   },
   /**
-   * Lookup248: pallet_score::types::EntityTypeOf
+   * Lookup248: pallet_network_score::types::EntityTypeOf
    **/
-  PalletScoreEntityTypeOf: {
+  PalletNetworkScoreEntityTypeOf: {
     _enum: ['Retail', 'Logistic']
   },
   /**
-   * Lookup249: pallet_score::types::RatingTypeOf
+   * Lookup249: pallet_network_score::types::RatingTypeOf
    **/
-  PalletScoreRatingTypeOf: {
+  PalletNetworkScoreRatingTypeOf: {
     _enum: ['Overall', 'Delivery']
   },
   /**
@@ -2504,7 +2511,7 @@ export default {
    * Lookup354: cord_identifier::types::IdentifierTypeOf
    **/
   CordIdentifierIdentifierTypeOf: {
-    _enum: ['Asset', 'Auth', 'Did', 'Registry', 'Statement', 'Schema', 'Template']
+    _enum: ['Asset', 'Auth', 'ChainSpace', 'Did', 'Rating', 'Registry', 'Statement', 'Schema', 'Template']
   },
   /**
    * Lookup356: cord_identifier::types::EventEntry<cord_identifier::types::CallTypeOf>
@@ -2517,7 +2524,7 @@ export default {
    * Lookup357: cord_identifier::types::CallTypeOf
    **/
   CordIdentifierCallTypeOf: {
-    _enum: ['Archive', 'Authorization', 'Capacity', 'CouncilRevoke', 'CouncilRestore', 'Deauthorization', 'Approved', 'Genesis', 'Update', 'Revoke', 'Restore', 'Remove', 'PartialRemove', 'PresentationAdded', 'PresentationRemoved', 'Rotate', 'Usage', 'Transfer']
+    _enum: ['Archive', 'Authorization', 'Capacity', 'CouncilRevoke', 'CouncilRestore', 'Deauthorization', 'Approved', 'Genesis', 'Update', 'Revoke', 'Restore', 'Remove', 'PartialRemove', 'PresentationAdded', 'PresentationRemoved', 'Rotate', 'Usage', 'Transfer', 'Debit', 'Credit']
   },
   /**
    * Lookup358: cord_identifier::types::Timepoint
@@ -2668,35 +2675,36 @@ export default {
     _enum: ['InsufficientFunds', 'AlreadyExists', 'NotFound', 'OwnerAlreadyExists', 'OwnerNotFound', 'Banned', 'NotBanned', 'AlreadyBanned', 'NotAuthorized', 'NameTooShort', 'NameExceedsMaxLength', 'NamePrefixTooShort', 'NamePrefixTooLong', 'InvalidSuffix', 'SuffixTooLong', 'InvalidFormat']
   },
   /**
-   * Lookup391: pallet_score::types::RatingEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, pallet_score::types::EntityTypeOf, pallet_score::types::RatingTypeOf, cord_primitives::curi::Ss58Identifier, primitive_types::H256, bounded_collections::bounded_vec::BoundedVec<T, S>, cord_primitives::curi::Ss58Identifier, sp_core::crypto::AccountId32, pallet_score::types::EntryTypeOf, BlockNumber>
+   * Lookup391: pallet_network_score::types::RatingEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, pallet_network_score::types::EntityTypeOf, pallet_network_score::types::RatingTypeOf, cord_primitives::curi::Ss58Identifier, primitive_types::H256, bounded_collections::bounded_vec::BoundedVec<T, S>, cord_primitives::curi::Ss58Identifier, sp_core::crypto::AccountId32, sp_core::crypto::AccountId32, pallet_network_score::types::EntryTypeOf, Moment>
    **/
-  PalletScoreRatingEntry: {
-    entry: 'PalletScoreRatingInputEntry',
+  PalletNetworkScoreRatingEntry: {
+    entry: 'PalletNetworkScoreRatingInputEntry',
     digest: 'H256',
     messageId: 'Bytes',
     space: 'Bytes',
-    creator: 'AccountId32',
-    entryType: 'PalletScoreEntryTypeOf',
+    providerId: 'AccountId32',
+    creatorId: 'AccountId32',
+    entryType: 'PalletNetworkScoreEntryTypeOf',
     referenceId: 'Option<Bytes>',
-    createdAt: 'u32'
+    createdAt: 'u64'
   },
   /**
-   * Lookup392: pallet_score::types::EntryTypeOf
+   * Lookup392: pallet_network_score::types::EntryTypeOf
    **/
-  PalletScoreEntryTypeOf: {
+  PalletNetworkScoreEntryTypeOf: {
     _enum: ['Credit', 'Debit']
   },
   /**
-   * Lookup394: pallet_score::types::AggregatedEntryOf
+   * Lookup394: pallet_network_score::types::AggregatedEntryOf
    **/
-  PalletScoreAggregatedEntryOf: {
+  PalletNetworkScoreAggregatedEntryOf: {
     countOfTxn: 'u64',
     totalRating: 'u64'
   },
   /**
-   * Lookup396: pallet_score::pallet::Error<T>
+   * Lookup396: pallet_network_score::pallet::Error<T>
    **/
-  PalletScoreError: {
+  PalletNetworkScoreError: {
     _enum: ['UnauthorizedOperation', 'InvalidIdentifierLength', 'InvalidDigest', 'InvalidSignature', 'InvalidRatingIdentifier', 'MessageIdAlreadyExists', 'InvalidRatingValue', 'TooManyJournalEntries', 'InvalidEntitySignature', 'DigestAlreadyAnchored', 'RatingIdentifierAlreadyAdded', 'InvalidEntryOrRatingType', 'RatingIdentifierNotFound', 'ReferenceIdentifierNotFound', 'ReferenceNotAmendIdentifier', 'EntityMismatch', 'SpaceMismatch']
   },
   /**

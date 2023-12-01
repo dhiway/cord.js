@@ -10,7 +10,7 @@ import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u32, u64
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetAssetDistributionEntry, PalletAssetAssetEntry, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmountRuntimeFreezeReason, PalletBalancesIdAmountRuntimeHoldReason, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMixnetBoundedMixnode, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletScoreAggregatedEntryOf, PalletScoreRatingEntry, PalletScoreRatingTypeOf, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpMixnetAppPublic, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetAssetDistributionEntry, PalletAssetAssetEntry, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmountRuntimeFreezeReason, PalletBalancesIdAmountRuntimeHoldReason, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMixnetBoundedMixnode, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpCoreCryptoKeyTypeId, SpMixnetAppPublic, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -364,7 +364,7 @@ declare module '@polkadot/api-base/types/storage' {
       state: AugmentedQuery<ApiType, () => Observable<PalletGrandpaStoredState>, []>;
     };
     identifier: {
-      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'Did' | 'Registry' | 'Statement' | 'Schema' | 'Template' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
+      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
     };
     identity: {
       /**
@@ -461,6 +461,18 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       membershipsRenewsOn: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
     };
+    networkScore: {
+      /**
+       * aggregated network score - aggregated and mapped to an entity
+       * identifier.
+       **/
+      aggregateScores: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: PalletNetworkScoreRatingTypeOf | 'Overall' | 'Delivery' | number | Uint8Array) => Observable<Option<PalletNetworkScoreAggregatedEntryOf>>, [Bytes, PalletNetworkScoreRatingTypeOf]>;
+      messageIdentifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<Bytes>>, [Bytes, AccountId32]>;
+      /**
+       * rating entry identifiers with rating details stored on chain.
+       **/
+      ratingEntries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletNetworkScoreRatingEntry>>, [Bytes]>;
+    };
     nodeAuthorization: {
       /**
        * The additional adapative connections of each node.
@@ -518,18 +530,6 @@ declare module '@polkadot/api-base/types/storage' {
        * It maps from a schema identifier to its details.
        **/
       schemas: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletSchemaSchemaEntry>>, [Bytes]>;
-    };
-    score: {
-      /**
-       * aggregated network score - aggregated and mapped to an entity
-       * identifier.
-       **/
-      aggregateScores: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: PalletScoreRatingTypeOf | 'Overall' | 'Delivery' | number | Uint8Array) => Observable<Option<PalletScoreAggregatedEntryOf>>, [Bytes, PalletScoreRatingTypeOf]>;
-      messageIdentifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [Bytes, Bytes]>;
-      /**
-       * rating entry identifiers with rating details stored on chain.
-       **/
-      ratingEntries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletScoreRatingEntry>>, [Bytes]>;
     };
     session: {
       /**

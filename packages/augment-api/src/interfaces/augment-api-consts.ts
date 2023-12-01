@@ -274,6 +274,10 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       membershipPeriod: u32 & AugmentedConst<ApiType>;
     };
+    networkScore: {
+      maxEncodedValueLength: u32 & AugmentedConst<ApiType>;
+      maxRatingValue: u32 & AugmentedConst<ApiType>;
+    };
     nodeAuthorization: {
       /**
        * The maximum length in bytes of PeerId
@@ -304,10 +308,6 @@ declare module '@polkadot/api-base/types/consts' {
     };
     schema: {
       maxEncodedSchemaLength: u32 & AugmentedConst<ApiType>;
-    };
-    score: {
-      maxEncodedValueLength: u32 & AugmentedConst<ApiType>;
-      maxRatingValue: u32 & AugmentedConst<ApiType>;
     };
     statement: {
       /**
