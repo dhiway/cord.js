@@ -151,8 +151,8 @@ async function main() {
     issuerDid.uri,
     authorIdentity,
     async ({ data }) => ({
-      signature: issuerKeys.assertionMethod.sign(data),
-      keyType: issuerKeys.assertionMethod.type,
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
     })
   )
   console.dir(space, {
@@ -237,8 +237,8 @@ async function main() {
     authorIdentity,
     space.authorization,
     async ({ data }) => ({
-      signature: issuerKeys.assertionMethod.sign(data),
-      keyType: issuerKeys.assertionMethod.type,
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
     })
   )
   console.log(`✅ Schema - ${schemaId} - added!`)
@@ -282,8 +282,8 @@ async function main() {
     authorIdentity,
     space.authorization,
     async ({ data }) => ({
-      signature: issuerKeys.assertionMethod.sign(data),
-      keyType: issuerKeys.assertionMethod.type,
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
     })
   )
 
@@ -314,8 +314,8 @@ async function main() {
     authorIdentity,
     delegateAuth as Cord.AuthorizationUri,
     async ({ data }) => ({
-      signature: delegateTwoKeys.assertionMethod.sign(data),
-      keyType: delegateTwoKeys.assertionMethod.type,
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
     })
   )
   console.log(`✅ Statement element registered - ${updatedStatement}`)
@@ -357,8 +357,8 @@ async function main() {
     authorIdentity,
     delegateAuth,
     async ({ data }) => ({
-      signature: delegateTwoKeys.assertionMethod.sign(data),
-      keyType: delegateTwoKeys.assertionMethod.type,
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
     })
   )
   console.log(`✅ Statement revoked!`)
@@ -388,8 +388,8 @@ async function main() {
     authorIdentity,
     delegateAuth,
     async ({ data }) => ({
-      signature: delegateTwoKeys.assertionMethod.sign(data),
-      keyType: delegateTwoKeys.assertionMethod.type,
+      signature: delegateTwoKeys.authentication.sign(data),
+      keyType: delegateTwoKeys.authentication.type,
     })
   )
   console.log(`✅ Statement revoked!`)
