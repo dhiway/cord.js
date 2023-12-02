@@ -5,13 +5,36 @@ import {
   EntityTypeOf,
   RatingTypeOf,
   DidUri,
-  IRatingChainEntry,
+  blake2AsHex,
+  RATING_IDENT,
+  RATING_PREFIX,
   IRatingDispatch,
   RatingEntryUri,
   SpaceUri,
+  SignCallback,
+  RatingPartialEntry,
+  IRatingRevokeEntry,
+  PartialDispatchEntry,
 } from '@cord.network/types'
+import type {
+  AccountId,
+  H256,
+  Bytes,
+  SpaceId,
+  HexString,
+  // CordAddress,
+} from '@cord.network/types'
+import {
+  isDidSignature,
+  verifyDidSignature,
+  resolveKey,
+  signatureToJson,
+  signatureFromJson,
+} from '@cord.network/did'
+import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
 import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
-import { getUriForRatingEntry } from './Scoring.chain.js'
+import { ConfigService } from '@cord.network/config'
+import * as Did from '@cord.network/did'
 
 function validateRatingContent(
   ratingContent: IRatingContent | IRatingTransformed
@@ -61,30 +84,139 @@ function encodeRatingValue(totalRating: number, modulus = 10): number {
 }
 
 /**
+ * @param input
+ * @param root0
+ * @param root0.challenge
+ * @param root0.didResolveKey
+ * @param didResolveKey
+ * @param providerUri
+ * @param providerDid
+ */
+export async function verifySignature(
+  input: IRatingEntry | RatingPartialEntry,
+  providerDid: DidUri,
+  didResolveKey = resolveKey
+): Promise<void> {
+  isDidSignature(input.providerSignature)
+
+  const { entryDigest, providerSignature } = input
+  const signingData = new Uint8Array([...Crypto.coToUInt8(entryDigest)])
+
+  await verifyDidSignature({
+    ...signatureFromJson(providerSignature),
+    message: signingData,
+    expectedSigner: providerDid,
+    expectedVerificationMethod: 'assertionMethod',
+    didResolveKey,
+  })
+}
+
+function generateCommonFields(messageId?: string): {
+  msgId: string
+  transactionTime: string
+} {
+  const msgId = messageId || `msg-${UUID.generate()}`
+  const transactionTime = new Date().toISOString()
+  return { msgId, transactionTime }
+}
+
+async function hashAndSign(
+  entry: any,
+  provider: DidUri,
+  signCallback: SignCallback
+) {
+  const entryDigest = Crypto.hashObjectAsHexStr(entry)
+  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(entryDigest)])
+  const providerSignature = await signCallback({
+    data: uint8Hash,
+    did: provider,
+    keyRelationship: 'assertionMethod',
+  })
+  return { entryDigest, providerSignature }
+}
+
+/**
+ * @param spaceDigest
  * @param entry
+ * @param entryDigest
+ * @param entryUid
+ * @param entityUid
+ * @param entryMsgId
+ * @param chainSpace
+ * @param providerUri
+ * @param creatorUri
+ */
+export async function getUriForRatingEntry(
+  entryDigest: HexString,
+  entityUid: string,
+  entryMsgId: string,
+  chainSpace: SpaceId,
+  providerUri: DidUri
+): Promise<RatingEntryUri> {
+  const api = ConfigService.get('api')
+  const scaleEncodedRatingEntryDigest = api
+    .createType<H256>('H256', entryDigest)
+    .toU8a()
+  const scaleEncodedEntityUid = api
+    .createType<Bytes>('Bytes', entityUid)
+    .toU8a()
+  const scaleEncodedMessageId = api
+    .createType<Bytes>('Bytes', entryMsgId)
+    .toU8a()
+  const scaleEncodedChainSpace = api
+    .createType<Bytes>('Bytes', uriToIdentifier(chainSpace))
+    .toU8a()
+  const scaleEncodedProvider = api
+    .createType<AccountId>('AccountId', Did.toChain(providerUri))
+    .toU8a()
+  const digest = blake2AsHex(
+    Uint8Array.from([
+      ...scaleEncodedRatingEntryDigest,
+      ...scaleEncodedEntityUid,
+      ...scaleEncodedMessageId,
+      ...scaleEncodedChainSpace,
+      ...scaleEncodedProvider,
+    ])
+  )
+  return hashToUri(digest, RATING_IDENT, RATING_PREFIX) as RatingEntryUri
+}
+
+/**
+ * @param entry
+ * @param provider
+ * @param signCallback
  * @param messageId
  */
 export async function buildFromContentProperties(
   entry: IRatingContent,
+  provider: DidUri,
+  signCallback: SignCallback,
   messageId?: string
 ): Promise<IRatingEntry> {
   try {
     validateRatingContent(entry)
 
-    const msgId = messageId || `msg-${UUID.generate()}`
+    const { msgId, transactionTime } = generateCommonFields(messageId)
+    const { totalRating, ...restOfEntry } = entry
 
     const entryTransform: IRatingTransformed = {
-      ...entry,
-      totalEncodedRating: encodeRatingValue(entry.totalRating),
+      ...restOfEntry,
+      ...(entry.referenceId && { referenceId: entry.referenceId }),
+      providerDid: Did.toChain(provider),
+      totalEncodedRating: encodeRatingValue(totalRating),
     }
-
-    const ratingEntry = { entryTransform, msgId }
-    const entryDigest = Crypto.hashObjectAsHexStr(ratingEntry)
+    const { entryDigest, providerSignature } = await hashAndSign(
+      { entryTransform, msgId, transactionTime },
+      provider,
+      signCallback
+    )
 
     const transformedEntry: IRatingEntry = {
       entry: entryTransform,
       messageId: msgId,
       entryDigest,
+      providerSignature: signatureToJson(providerSignature),
+      ...(entry.referenceId && { referenceId: entry.referenceId }),
     }
 
     return transformedEntry
@@ -95,9 +227,105 @@ export async function buildFromContentProperties(
   }
 }
 
+// Refactored buildFromRevokeContentProperties function
 /**
- * @param entry
+ * @param entryUri
+ * @param entityuid
+ * @param entityUid
+ * @param provider
+ * @param signCallback
  * @param messageId
+ */
+export async function buildFromRevokeProperties(
+  entryUri: RatingEntryUri,
+  entityUid: string,
+  provider: DidUri,
+  signCallback: SignCallback,
+  messageId?: string
+): Promise<IRatingRevokeEntry> {
+  try {
+    const { msgId, transactionTime } = generateCommonFields(messageId)
+    const entryTransform = { entryUri, msgId, provider, transactionTime }
+
+    const { entryDigest, providerSignature } = await hashAndSign(
+      entryTransform,
+      provider,
+      signCallback
+    )
+
+    const transformedEntry: IRatingRevokeEntry = {
+      entryUri,
+      entry: {
+        messageId: msgId,
+        entryDigest,
+        referenceId: entryUri,
+        providerSignature: signatureToJson(providerSignature),
+      },
+      entityUid,
+      providerDid: provider,
+    }
+
+    return transformedEntry
+  } catch (error) {
+    throw new SDKErrors.RatingContentError(
+      `Rating content transformation error: "${error}".`
+    )
+  }
+}
+
+// Utility function for validation of required fields
+function validateRequiredFields(fields: any[]): void {
+  const isFieldEmpty = (field: any): boolean => {
+    return field === null || field === undefined || field === ''
+  }
+
+  if (fields.some(isFieldEmpty)) {
+    throw new SDKErrors.RatingPropertiesError(
+      'Required fields cannot be empty.'
+    )
+  }
+}
+
+// Utility function for validating HexString format
+function validateHexString(entryDigest: string): void {
+  if (!/^0x[0-9a-fA-F]+$/.test(entryDigest)) {
+    throw new SDKErrors.RatingPropertiesError(
+      'Invalid HexString for entryDigest.'
+    )
+  }
+}
+
+// Utility function for creating the ratingUri and common parts of the return object
+async function createRatingObject(
+  entryDigest: HexString,
+  entityUid: string,
+  messageId: string,
+  chainSpace: SpaceUri,
+  providerUri: DidUri,
+  creatorUri: DidUri
+): Promise<{ uri: RatingEntryUri; details: any }> {
+  const ratingUri = await getUriForRatingEntry(
+    entryDigest,
+    entityUid,
+    messageId,
+    chainSpace,
+    providerUri
+  )
+
+  return {
+    uri: ratingUri,
+    details: {
+      entryUri: ratingUri,
+      chainSpace,
+      messageId,
+      entryDigest,
+      creatorUri,
+    },
+  }
+}
+
+// Refactored buildFromRatingProperties function
+/**
  * @param rating
  * @param chainSpace
  * @param creatorUri
@@ -109,39 +337,30 @@ export async function buildFromRatingProperties(
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     validateRatingContent(rating.entry)
+    verifySignature(rating, Did.getDidUri(rating.entry.providerDid))
 
-    if (
-      !chainSpace ||
-      !creatorUri ||
-      !rating.messageId ||
-      !rating.entryDigest
-    ) {
-      throw new SDKErrors.RatingPropertiesError(
-        'Required fields cannot be empty.'
-      )
-    }
-
-    if (!/^0x[0-9a-fA-F]+$/.test(rating.entryDigest)) {
-      throw new SDKErrors.RatingPropertiesError(
-        'Invalid HexString for entryDigest.'
-      )
-    }
-    const partialRating: IRatingChainEntry = {
-      ...rating.entry,
-    }
-
-    const ratingUri = await getUriForRatingEntry(rating, chainSpace, creatorUri)
-
-    const ratingEntry: IRatingDispatch = {
-      entryUri: ratingUri,
-      entry: partialRating,
+    validateRequiredFields([
       chainSpace,
-      messageId: rating.messageId,
-      entryDigest: rating.entryDigest,
       creatorUri,
-    }
+      rating.messageId,
+      rating.entryDigest,
+    ])
+    validateHexString(rating.entryDigest)
 
-    return { uri: ratingUri, details: ratingEntry }
+    const { uri, details } = await createRatingObject(
+      rating.entryDigest,
+      rating.entry.entityUid,
+      rating.messageId,
+      chainSpace,
+      Did.getDidUri(rating.entry.providerDid),
+      creatorUri
+    )
+
+    const { providerId, entityId, ...chainEntry } = rating.entry
+
+    details.entry = chainEntry
+
+    return { uri, details }
   } catch (error) {
     throw new SDKErrors.RatingPropertiesError(
       `Rating content transformation error: "${error}".`
@@ -149,57 +368,159 @@ export async function buildFromRatingProperties(
   }
 }
 
+// Refactored buildFromAmendRatingProperties function
 /**
  * @param rating
  * @param chainSpace
  * @param creatorUri
  */
 export async function buildFromAmendRatingProperties(
-  rating: IRatingEntry,
+  rating: IRatingRevokeEntry,
   chainSpace: SpaceUri,
   creatorUri: DidUri
-): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
+): Promise<{ uri: RatingEntryUri; details: PartialDispatchEntry }> {
   try {
-    validateRatingContent(rating.entry)
+    verifySignature(rating.entry, rating.providerDid)
 
-    if (
-      !chainSpace ||
-      !creatorUri ||
-      !rating.messageId ||
-      !rating.entryDigest
-    ) {
-      throw new SDKErrors.RatingPropertiesError(
-        'Required fields cannot be empty.'
-      )
-    }
-
-    if (!/^0x[0-9a-fA-F]+$/.test(rating.entryDigest)) {
-      throw new SDKErrors.RatingPropertiesError(
-        'Invalid HexString for entryDigest.'
-      )
-    }
-    const partialRating: IRatingChainEntry = {
-      ...rating.entry,
-    }
-
-    const ratingUri = await getUriForRatingEntry(rating, chainSpace, creatorUri)
-
-    const ratingEntry: IRatingDispatch = {
-      entryUri: ratingUri,
-      entry: partialRating,
+    validateRequiredFields([
       chainSpace,
-      messageId: rating.messageId,
-      entryDigest: rating.entryDigest,
       creatorUri,
-    }
+      rating.entry.messageId,
+      rating.entry.entryDigest,
+    ])
+    validateHexString(rating.entry.entryDigest)
 
-    return { uri: ratingUri, details: ratingEntry }
+    const { uri, details } = await createRatingObject(
+      rating.entry.entryDigest,
+      rating.entityUid,
+      rating.entry.messageId,
+      chainSpace,
+      Did.getDidUri(rating.providerDid),
+      creatorUri
+    )
+
+    return { uri, details }
   } catch (error) {
     throw new SDKErrors.RatingPropertiesError(
       `Rating content transformation error: "${error}".`
     )
   }
 }
+
+// /**
+//  * @param entry
+//  * @param messageId
+//  * @param rating
+//  * @param chainSpace
+//  * @param creatorUri
+//  */
+// export async function buildFromRatingProperties(
+//   rating: IRatingEntry,
+//   chainSpace: SpaceUri,
+//   creatorUri: DidUri
+// ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
+//   try {
+//     validateRatingContent(rating.entry)
+//     verifySignature(rating)
+
+//     if (
+//       !chainSpace ||
+//       !creatorUri ||
+//       !rating.messageId ||
+//       !rating.entryDigest
+//     ) {
+//       throw new SDKErrors.RatingPropertiesError(
+//         'Required fields cannot be empty.'
+//       )
+//     }
+
+//     if (!/^0x[0-9a-fA-F]+$/.test(rating.entryDigest)) {
+//       throw new SDKErrors.RatingPropertiesError(
+//         'Invalid HexString for entryDigest.'
+//       )
+//     }
+//     const partialRating: IRatingChainEntry = {
+//       ...rating.entry,
+//     }
+
+//     const ratingUri = await getUriForRatingEntry(
+//       rating.entryDigest,
+//       rating.messageId,
+//       chainSpace,
+//       rating.providerUri,
+//       creatorUri
+//     )
+
+//     const ratingEntry: IRatingDispatch = {
+//       entryUri: ratingUri,
+//       entry: partialRating,
+//       chainSpace,
+//       messageId: rating.messageId,
+//       entryDigest: rating.entryDigest,
+//       creatorUri,
+//     }
+
+//     return { uri: ratingUri, details: ratingEntry }
+//   } catch (error) {
+//     throw new SDKErrors.RatingPropertiesError(
+//       `Rating content transformation error: "${error}".`
+//     )
+//   }
+// }
+
+// /**
+//  * @param rating
+//  * @param chainSpace
+//  * @param creatorUri
+//  */
+// export async function buildFromAmendRatingProperties(
+//   rating: IRatingRevokeEntry,
+//   chainSpace: SpaceUri,
+//   creatorUri: DidUri
+// ): Promise<{ uri: RatingEntryUri; details: PartialDispatchEntry }> {
+//   try {
+//     verifySignature(rating.entry)
+
+//     if (
+//       !chainSpace ||
+//       !creatorUri ||
+//       !rating.entry.messageId ||
+//       !rating.entry.entryDigest
+//     ) {
+//       throw new SDKErrors.RatingPropertiesError(
+//         'Required fields cannot be empty.'
+//       )
+//     }
+
+//     if (!/^0x[0-9a-fA-F]+$/.test(rating.entry.entryDigest)) {
+//       throw new SDKErrors.RatingPropertiesError(
+//         'Invalid HexString for entryDigest.'
+//       )
+//     }
+
+//     const ratingUri = (await getUriForRatingEntry(
+//       rating.entry.entryDigest,
+//       rating.entry.messageId,
+//       chainSpace,
+//       rating.entry.providerUri,
+//       creatorUri
+//     )) as RatingEntryUri
+
+//     const ratingEntry: PartialDispatchEntry = {
+//       entryUri: ratingUri,
+//       chainSpace,
+//       messageId: rating.entry.messageId,
+//       entryDigest: rating.entry.entryDigest,
+//       creatorUri,
+//     }
+
+//     return { uri: ratingUri, details: ratingEntry }
+//   } catch (error) {
+//     throw new SDKErrors.RatingPropertiesError(
+//       `Rating content transformation error: "${error}".`
+//     )
+//   }
+// }
 
 // /**
 //  * @param journalContent

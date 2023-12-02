@@ -1,6 +1,7 @@
 import { HexString } from '@polkadot/util/types.js'
 import { SpaceUri } from './ChainSpace.js'
-import { DidUri } from './DidDocument.js'
+import { DidUri, DidSignature } from './DidDocument.js'
+import { CordAddress } from './Address.js'
 
 export const RATING_IDENT = 11034
 export const RATING_PREFIX = 'rating:cord:'
@@ -13,8 +14,8 @@ export enum RatingTypeOf {
 }
 
 export enum EntityTypeOf {
-  overall = 'Retail',
-  delivery = 'Logistic',
+  retail = 'Retail',
+  logistic = 'Logistic',
 }
 
 export enum EntryTypeOf {
@@ -27,10 +28,11 @@ export interface IRatingContent {
   entityId: string
   providerUid: string
   providerId: string
-  countOfTxn: number
-  totalRating: number
   entityType: EntityTypeOf
   ratingType: RatingTypeOf
+  referenceId?: RatingEntryUri
+  countOfTxn: number
+  totalRating: number
 }
 
 export interface IRatingTransformed {
@@ -38,22 +40,35 @@ export interface IRatingTransformed {
   entityId: string
   providerUid: string
   providerId: string
-  countOfTxn: number
-  totalEncodedRating: number
+  providerDid: CordAddress
   entityType: EntityTypeOf
   ratingType: RatingTypeOf
+  referenceId?: RatingEntryUri
+  countOfTxn: number
+  totalEncodedRating: number
 }
 
 export interface IRatingEntry {
   entry: IRatingTransformed
   messageId: string
+  referenceId?: RatingEntryUri
   entryDigest: HexString
+  providerSignature: DidSignature
 }
+
+export type RatingPartialEntry = Omit<IRatingEntry, 'entry'>
 
 export type IRatingChainEntry = Omit<
   IRatingTransformed,
   'providerId' | 'entityId'
 >
+
+export interface IRatingRevokeEntry {
+  entryUri: RatingEntryUri
+  entry: RatingPartialEntry
+  entityUid: string
+  providerDid: DidUri
+}
 
 export interface IRatingDispatch {
   entryUri: RatingEntryUri
@@ -64,58 +79,4 @@ export interface IRatingDispatch {
   creatorUri: DidUri
 }
 
-// export interface IRatingEntryDetails {
-//   ratingEntry: IRatingChainEntry
-//   entryDigest: HexString
-//   messageId: string
-//   chainSpace: SpaceUri
-//   creatorUri: DidUri
-//   entryType: EntryTypeOf
-//   referenceId?: RatingEntryUri
-//   createdAt: Bl
-//   entity: string
-//   tid: string
-//   collector: string
-//   ratingType: string
-//   rating: number
-//   entryType: string
-//   count: number
-// }
-
-// export interface IRatingInput {
-//   entry: IJournalContent
-//   digest: string
-//   creator: string
-// }
-
-// export interface IRatingData {
-//   ratingInput: IRatingInput
-//   identifier: string
-// }
-
-// export interface IJournal {
-//   identifier: string
-//   entry: IJournalContent
-//   digest: HexString
-//   entitySignature: string
-// }
-
-// export interface IJournalDetails {
-//   identifier: IJournal['identifier']
-//   entry: IJournal['entry']
-//   digest: IJournal['digest']
-// }
-
-// export interface IScoreAggregateDetails {
-//   entity: IJournalContent['entity']
-//   RatingType: RatingType
-//   aggregate: {
-//     count: number
-//     score: number
-//   }
-// }
-
-// export interface IEntityScoreDetails {
-//   rating: number
-//   count: number
-// }
+export type PartialDispatchEntry = Omit<IRatingDispatch, 'entry'>

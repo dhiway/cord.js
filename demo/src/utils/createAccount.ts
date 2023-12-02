@@ -1,5 +1,3 @@
-import { mnemonicGenerate } from '@polkadot/util-crypto'
-
 import * as Cord from '@cord.network/sdk'
 
 /**
@@ -8,13 +6,15 @@ import * as Cord from '@cord.network/sdk'
  * mnemonic will be generated.
  * @returns An object with two properties: account and mnemonic.
  */
-export function createAccount(mnemonic = mnemonicGenerate()): {
+export function createAccount(
+  mnemonic = Cord.Utils.Crypto.mnemonicGenerate()
+): {
   account: Cord.CordKeyringPair
   mnemonic: string
 } {
   const keyring = new Cord.Utils.Keyring({
     ss58Format: 29,
-    type: 'sr25519',
+    type: 'ed25519',
   })
   return {
     account: keyring.addFromMnemonic(mnemonic) as Cord.CordKeyringPair,

@@ -405,11 +405,11 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * See [`Pallet::register_rating`].
        **/
-      registerRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalRating?: any; entityType?: any; ratingType?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes]>;
+      registerRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalEncodedRating?: any; entityType?: any; ratingType?: any; providerDid?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes]>;
       /**
        * See [`Pallet::revise_rating`].
        **/
-      reviseRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalRating?: any; entityType?: any; ratingType?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, debitRefId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes, Bytes]>;
+      reviseRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityUid?: any; providerUid?: any; countOfTxn?: any; totalEncodedRating?: any; entityType?: any; ratingType?: any; providerDid?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, debitRefId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes, Bytes]>;
       /**
        * See [`Pallet::revoke_rating`].
        **/

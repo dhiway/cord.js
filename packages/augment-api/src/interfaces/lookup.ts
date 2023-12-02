@@ -785,16 +785,19 @@ export default {
         identifier: 'Bytes',
         entity: 'Bytes',
         provider: 'AccountId32',
+        creator: 'AccountId32',
       },
       RatingEntryRevoked: {
         identifier: 'Bytes',
         entity: 'Bytes',
         provider: 'AccountId32',
+        creator: 'AccountId32',
       },
       RatingEntryRevised: {
         identifier: 'Bytes',
         entity: 'Bytes',
         provider: 'AccountId32',
+        creator: 'AccountId32',
       },
       AggregateScoreUpdated: {
         entity: 'Bytes'
@@ -2076,15 +2079,16 @@ export default {
     }
   },
   /**
-   * Lookup247: pallet_network_score::types::RatingInputEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, pallet_network_score::types::EntityTypeOf, pallet_network_score::types::RatingTypeOf>
+   * Lookup247: pallet_network_score::types::RatingInputEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, sp_core::crypto::AccountId32, pallet_network_score::types::EntityTypeOf, pallet_network_score::types::RatingTypeOf>
    **/
   PalletNetworkScoreRatingInputEntry: {
     entityUid: 'Bytes',
     providerUid: 'Bytes',
     countOfTxn: 'u64',
-    totalRating: 'u64',
+    totalEncodedRating: 'u64',
     entityType: 'PalletNetworkScoreEntityTypeOf',
-    ratingType: 'PalletNetworkScoreRatingTypeOf'
+    ratingType: 'PalletNetworkScoreRatingTypeOf',
+    providerDid: 'AccountId32'
   },
   /**
    * Lookup248: pallet_network_score::types::EntityTypeOf
@@ -2675,14 +2679,13 @@ export default {
     _enum: ['InsufficientFunds', 'AlreadyExists', 'NotFound', 'OwnerAlreadyExists', 'OwnerNotFound', 'Banned', 'NotBanned', 'AlreadyBanned', 'NotAuthorized', 'NameTooShort', 'NameExceedsMaxLength', 'NamePrefixTooShort', 'NamePrefixTooLong', 'InvalidSuffix', 'SuffixTooLong', 'InvalidFormat']
   },
   /**
-   * Lookup391: pallet_network_score::types::RatingEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, pallet_network_score::types::EntityTypeOf, pallet_network_score::types::RatingTypeOf, cord_primitives::curi::Ss58Identifier, primitive_types::H256, bounded_collections::bounded_vec::BoundedVec<T, S>, cord_primitives::curi::Ss58Identifier, sp_core::crypto::AccountId32, sp_core::crypto::AccountId32, pallet_network_score::types::EntryTypeOf, Moment>
+   * Lookup391: pallet_network_score::types::RatingEntry<bounded_collections::bounded_vec::BoundedVec<T, S>, sp_core::crypto::AccountId32, pallet_network_score::types::EntityTypeOf, pallet_network_score::types::RatingTypeOf, cord_primitives::curi::Ss58Identifier, primitive_types::H256, bounded_collections::bounded_vec::BoundedVec<T, S>, cord_primitives::curi::Ss58Identifier, sp_core::crypto::AccountId32, pallet_network_score::types::EntryTypeOf, Moment>
    **/
   PalletNetworkScoreRatingEntry: {
     entry: 'PalletNetworkScoreRatingInputEntry',
     digest: 'H256',
     messageId: 'Bytes',
     space: 'Bytes',
-    providerId: 'AccountId32',
     creatorId: 'AccountId32',
     entryType: 'PalletNetworkScoreEntryTypeOf',
     referenceId: 'Option<Bytes>',
@@ -2699,7 +2702,7 @@ export default {
    **/
   PalletNetworkScoreAggregatedEntryOf: {
     countOfTxn: 'u64',
-    totalRating: 'u64'
+    totalEncodedRating: 'u64'
   },
   /**
    * Lookup396: pallet_network_score::pallet::Error<T>

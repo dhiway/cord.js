@@ -270,7 +270,7 @@ async function main() {
     credHash,
     space.uri,
     issuerDid.uri,
-    schemaUri
+    schemaUri as Cord.SchemaUri
   )
   console.dir(statementEntry, {
     depth: null,
@@ -327,7 +327,7 @@ async function main() {
     credHash,
     issuerDid.uri,
     space.uri,
-    schemaUri
+    schemaUri as Cord.SchemaUri
   )
 
   if (verificationResult.isValid) {
@@ -359,7 +359,7 @@ async function main() {
     updatedStatementEntry.elementUri,
     delegateTwoDid.uri,
     authorIdentity,
-    delegateAuth,
+    delegateAuth as Cord.AuthorizationUri,
     async ({ data }) => ({
       signature: delegateTwoKeys.authentication.sign(data),
       keyType: delegateTwoKeys.authentication.type,
@@ -390,7 +390,7 @@ async function main() {
     updatedStatementEntry.elementUri,
     delegateTwoDid.uri,
     authorIdentity,
-    delegateAuth,
+    delegateAuth as Cord.AuthorizationUri,
     async ({ data }) => ({
       signature: delegateTwoKeys.authentication.sign(data),
       keyType: delegateTwoKeys.authentication.type,

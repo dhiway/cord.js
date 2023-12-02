@@ -38,8 +38,12 @@ import type {
   AuthorizationUri,
   SpaceUri,
 } from '@cord.network/types'
-import { SDKErrors } from '@cord.network/utils'
-import { uriToIdentifier, hashToUri } from '@cord.network/identifier'
+import { SDKErrors, DecoderUtils } from '@cord.network/utils'
+import {
+  uriToIdentifier,
+  hashToUri,
+  identifierToUri,
+} from '@cord.network/identifier'
 
 import {
   SPACE_IDENT,
@@ -637,7 +641,9 @@ function decodeAuthorizationDetailsfromChain(
 ): ISpaceAuthorization {
   const chainAuth = encoded.unwrap()
   const decodedDetails: ISpaceAuthorization = {
-    uri: chainAuth.spaceId.toString() as SpaceUri,
+    uri: identifierToUri(
+      DecoderUtils.hexToString(chainAuth.spaceId.toString())
+    ) as SpaceUri,
     delegateUri: Did.fromChain(chainAuth.delegate),
     permission: authorizationPermissionsFromChain(chainAuth.permissions),
     authorizationUri,
