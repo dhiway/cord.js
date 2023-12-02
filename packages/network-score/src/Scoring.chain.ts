@@ -6,7 +6,6 @@ import {
   SignExtrinsicCallback,
   AuthorizationId,
   RatingEntryUri,
-  PartialDispatchEntry,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
 import type { PalletNetworkScoreRatingEntry } from '@cord.network/augment-api'
@@ -38,8 +37,10 @@ export async function isRatingStored(
 
     return !encoded.isNone
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error)
     throw new SDKErrors.CordQueryError(
-      `Error querying rating entries: ${error}`
+      `Error querying rating entries: ${errorMessage}`
     )
   }
 }
@@ -84,8 +85,10 @@ export async function dispatchRatingToChain(
 
     return ratingEntry.entryUri
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error)
     throw new SDKErrors.CordDispatchError(
-      `Error dispatching to chain: "${error}".`
+      `Error dispatching to chain: "${errorMessage}".`
     )
   }
 }
@@ -99,8 +102,8 @@ export async function dispatchRatingToChain(
  * @param authorizationUri
  * @param signCallback
  */
-export async function dispatchAmendRatingToChain(
-  ratingEntry: PartialDispatchEntry,
+export async function dispatchRevokeRatingToChain(
+  ratingEntry: IRatingDispatch,
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback
@@ -115,12 +118,18 @@ export async function dispatchAmendRatingToChain(
 
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
-    const exists = await isRatingStored(ratingEntry.entryUri)
+    const exists = await isRatingStored(
+      ratingEntry.entry.referenceId as RatingEntryUri
+    )
+    console.log(exists, ratingEntry.entry.referenceId)
+
     if (!exists) {
       throw new SDKErrors.CordDispatchError(`Rating Entry not found on chain.`)
     }
 
-    const ratingEntryId: RatingEntryId = uriToIdentifier(ratingEntry.entryUri)
+    const ratingEntryId: RatingEntryId = uriToIdentifier(
+      ratingEntry.entry.referenceId
+    )
 
     const tx = api.tx.networkScore.revokeRating(
       ratingEntryId,
@@ -140,8 +149,10 @@ export async function dispatchAmendRatingToChain(
 
     return ratingEntry.entryUri
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error)
     throw new SDKErrors.CordDispatchError(
-      `Error dispatching to chain: "${error}".`
+      `Error dispatching to chain: "${errorMessage}".`
     )
   }
 }
@@ -174,8 +185,8 @@ export async function dispatchReviseRatingToChain(
 
     const tx = api.tx.networkScore.reviseRating(
       ratingEntry.entry,
-      ratingEntry.messageId,
       ratingEntry.entryDigest,
+      ratingEntry.messageId,
       refEntryId,
       authorizationId
     )
@@ -191,8 +202,10 @@ export async function dispatchReviseRatingToChain(
 
     return ratingEntry.entryUri
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error)
     throw new SDKErrors.CordDispatchError(
-      `Error dispatching to chain: "${error}".`
+      `Error dispatching to chain: "${errorMessage}".`
     )
   }
 }

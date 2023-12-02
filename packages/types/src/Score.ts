@@ -30,7 +30,7 @@ export interface IRatingContent {
   providerId: string
   entityType: EntityTypeOf
   ratingType: RatingTypeOf
-  referenceId?: RatingEntryUri
+  referenceId?: string
   countOfTxn: number
   totalRating: number
 }
@@ -43,7 +43,7 @@ export interface IRatingTransformed {
   providerDid: CordAddress
   entityType: EntityTypeOf
   ratingType: RatingTypeOf
-  referenceId?: RatingEntryUri
+  referenceId?: string
   countOfTxn: number
   totalEncodedRating: number
 }
@@ -64,7 +64,7 @@ export type IRatingChainEntry = Omit<
 >
 
 export interface IRatingRevokeEntry {
-  entryUri: RatingEntryUri
+  // entryUri: RatingEntryUri
   entry: RatingPartialEntry
   entityUid: string
   providerDid: DidUri
@@ -80,4 +80,4 @@ export interface IRatingDispatch {
   authorSignature: DidSignature
 }
 
-export type PartialDispatchEntry = Omit<IRatingDispatch, 'entry'>
+// export type PartialDispatchEntry = Omit<IRatingDispatch, 'entry'>

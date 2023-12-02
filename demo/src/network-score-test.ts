@@ -85,7 +85,7 @@ async function main() {
     colors: true,
   })
 
-  const space = await Cord.ChainSpace.dispatchToChain(
+  const chainSpace = await Cord.ChainSpace.dispatchToChain(
     spaceProperties,
     chainSpaceAdminDid.uri,
     networkAuthorIdentity,
@@ -98,7 +98,7 @@ async function main() {
 
   await Cord.ChainSpace.sudoApproveChainSpace(
     devAuthorIdentity,
-    space.uri,
+    chainSpace.uri,
     1000
   )
 
@@ -106,7 +106,7 @@ async function main() {
   const permission: Cord.PermissionType = Cord.Permission.ASSERT
   const spaceAuthProperties =
     await Cord.ChainSpace.buildFromAuthorizationProperties(
-      space.uri,
+      chainSpace.uri,
       networkAuthorDid.uri,
       permission,
       chainSpaceAdminDid.uri
@@ -119,7 +119,7 @@ async function main() {
   const delegateAuth = await Cord.ChainSpace.dispatchDelegateAuthorization(
     spaceAuthProperties,
     networkAuthorIdentity,
-    space.authorization,
+    chainSpace.authorization,
     async ({ data }) => ({
       signature: chainSpaceAdminKeys.capabilityDelegation.sign(data),
       keyType: chainSpaceAdminKeys.capabilityDelegation.type,
@@ -128,7 +128,7 @@ async function main() {
   console.log(`✅ Chain Space Authorization Approved! 🎉`)
 
   console.log(`\n🌐  Query From Chain - Chain Space `)
-  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(space.uri)
+  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(chainSpace.uri)
   console.dir(spaceFromChain, {
     depth: null,
     colors: true,
@@ -171,9 +171,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
       keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${
-        networkProviderDid.assertionMethod![0].id
-      }`,
+      keyUri:
+        `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
     })
   )
   console.log(`\n❄️  Rating Information to API endpoint (/write-ratings) `)
@@ -184,14 +183,13 @@ async function main() {
 
   let dispatchEntry = await Cord.Score.buildFromRatingProperties(
     transformedEntry,
-    space.uri,
+    chainSpace.uri,
     networkAuthorDid.uri,
     async ({ data }) => ({
       signature: networkAuthorKeys.assertionMethod.sign(data),
       keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri: `${networkAuthorDid.uri}${
-        networkAuthorDid.assertionMethod![0].id
-      }`,
+      keyUri:
+        `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod[0].id}` as Cord.DidResourceUri,
     })
   )
 
@@ -217,8 +215,124 @@ async function main() {
     console.log(`🚫 Ledger Anchoring failed! " 🚫`)
   }
 
+  console.log(`\n❄️  Amend Rating Entry `)
+  console.log(`\n❄️  Revoke Rating - Debit Entry `)
+
+  const revokeRatingEntry = await Cord.Score.buildFromRevokeProperties(
+    ratingUri,
+    transformedEntry.entry.entityUid,
+    networkProviderDid.uri,
+    async ({ data }) => ({
+      signature: networkProviderKeys.assertionMethod.sign(data),
+      keyType: networkProviderKeys.assertionMethod.type,
+      keyUri:
+        `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+    })
+  )
+  console.dir(revokeRatingEntry, {
+    depth: null,
+    colors: true,
+  })
+
+  const revokeRatingDispatchEntry =
+    await Cord.Score.buildFromRevokeRatingProperties(
+      revokeRatingEntry,
+      chainSpace.uri,
+      networkAuthorDid.uri,
+      async ({ data }) => ({
+        signature: networkAuthorKeys.assertionMethod.sign(data),
+        keyType: networkAuthorKeys.assertionMethod.type,
+        keyUri:
+          `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+      })
+    )
+
+  console.dir(revokeRatingDispatchEntry, {
+    depth: null,
+    colors: true,
+  })
+
+  let revokedRatingUri = await Cord.Score.dispatchRevokeRatingToChain(
+    revokeRatingDispatchEntry.details,
+    networkAuthorIdentity,
+    delegateAuth as Cord.AuthorizationUri,
+    async ({ data }) => ({
+      signature: networkAuthorKeys.authentication.sign(data),
+      keyType: networkAuthorKeys.authentication.type,
+    })
+  )
+
+  if (Cord.Identifier.isValidIdentifier(revokedRatingUri)) {
+    console.log('✅ Rating Debit successful! 🎉')
+  } else {
+    console.log(`🚫 Debit Anchoring failed! " 🚫`)
+  }
+
+  console.log(`\n❄️  Revised Rating - Credit Entry `)
+
+  let revidedRatingContent: Cord.IRatingContent = {
+    ...ratingContent,
+    referenceId: revokedRatingUri,
+  }
+  console.dir(revidedRatingContent, {
+    depth: null,
+    colors: true,
+  })
+
+  let transformedRevisedEntry = await Cord.Score.buildFromContentProperties(
+    revidedRatingContent,
+    networkProviderDid.uri,
+    async ({ data }) => ({
+      signature: networkProviderKeys.assertionMethod.sign(data),
+      keyType: networkProviderKeys.assertionMethod.type,
+      keyUri:
+        `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+    })
+  )
+  console.log(`\n❄️  Rating Information to API endpoint (/write-ratings) `)
+  console.dir(transformedRevisedEntry, {
+    depth: null,
+    colors: true,
+  })
+
+  let dispatchRevisedEntry = await Cord.Score.buildFromRatingProperties(
+    transformedRevisedEntry,
+    chainSpace.uri,
+    networkAuthorDid.uri,
+    async ({ data }) => ({
+      signature: networkAuthorKeys.assertionMethod.sign(data),
+      keyType: networkAuthorKeys.assertionMethod.type,
+      keyUri:
+        `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+    })
+  )
+
+  console.log(`\n❄️  Rating Information to Ledger (API -> Ledger) `)
+  console.dir(dispatchRevisedEntry, {
+    depth: null,
+    colors: true,
+  })
+
+  let revisedRatingUri = await Cord.Score.dispatchReviseRatingToChain(
+    dispatchRevisedEntry.details,
+    networkAuthorIdentity,
+    delegateAuth as Cord.AuthorizationUri,
+    async ({ data }) => ({
+      signature: networkAuthorKeys.authentication.sign(data),
+      keyType: networkAuthorKeys.authentication.type,
+    })
+  )
+
+  if (Cord.Identifier.isValidIdentifier(revisedRatingUri)) {
+    console.log('✅ Rating revision successful! 🎉')
+  } else {
+    console.log(`🚫 Revision Anchoring failed! " 🚫`)
+  }
+
   console.log(`\n🌐  Query From Chain - Chain Space Usage `)
-  const spaceUsageFromChain = await Cord.ChainSpace.fetchFromChain(space.uri)
+  const spaceUsageFromChain = await Cord.ChainSpace.fetchFromChain(
+    chainSpace.uri
+  )
   console.dir(spaceUsageFromChain, {
     depth: null,
     colors: true,

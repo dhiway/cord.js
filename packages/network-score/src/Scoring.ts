@@ -12,9 +12,7 @@ import {
   RatingEntryUri,
   SpaceUri,
   SignCallback,
-  // RatingPartialEntry,
   IRatingRevokeEntry,
-  PartialDispatchEntry,
   SignResponseData,
 } from '@cord.network/types'
 import type {
@@ -32,7 +30,11 @@ import {
   signatureToJson,
   signatureFromJson,
 } from '@cord.network/did'
-import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
+import {
+  hashToUri,
+  isValidIdentifier,
+  uriToIdentifier,
+} from '@cord.network/identifier'
 import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import * as Did from '@cord.network/did'
@@ -219,10 +221,22 @@ export async function buildFromContentProperties(
 
     const entryTransform: IRatingTransformed = {
       ...restOfEntry,
-      ...(entry.referenceId && { referenceId: entry.referenceId }),
+      ...(entry.referenceId !== undefined && {
+        referenceId: entry.referenceId,
+      }),
       providerDid: Did.toChain(provider),
       totalEncodedRating: encodeRatingValue(totalRating),
     }
+    if (entry.referenceId) {
+      const [isValid, error] = isValidIdentifier(entry.referenceId)
+      if (!isValid) {
+        throw new SDKErrors.InvalidIdentifierError(
+          error || `Invalid identifier: ${entry.referenceId}`
+        )
+      }
+      entryTransform.referenceId = uriToIdentifier(entry.referenceId)
+    }
+    console.log('Entry Transform', entryTransform)
     const { entryDigest, providerSignature } = await hashAndSign(
       { entryTransform, msgId, transactionTime },
       provider,
@@ -234,7 +248,6 @@ export async function buildFromContentProperties(
       messageId: msgId,
       entryDigest,
       providerSignature: signatureToJson(providerSignature),
-      ...(entry.referenceId && { referenceId: entry.referenceId }),
     }
 
     return transformedEntry
@@ -272,7 +285,6 @@ export async function buildFromRevokeProperties(
     )
 
     const transformedEntry: IRatingRevokeEntry = {
-      entryUri,
       entry: {
         messageId: msgId,
         entryDigest,
@@ -412,12 +424,12 @@ export async function buildFromRatingProperties(
  * @param authorUri
  * @param signCallback
  */
-export async function buildFromAmendRatingProperties(
+export async function buildFromRevokeRatingProperties(
   rating: IRatingRevokeEntry,
   chainSpace: SpaceUri,
   authorUri: DidUri,
   signCallback: SignCallback
-): Promise<{ uri: RatingEntryUri; details: PartialDispatchEntry }> {
+): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     verifySignature(
       rating.entry.entryDigest,
@@ -449,6 +461,8 @@ export async function buildFromAmendRatingProperties(
       authorSignature
     )
 
+    details.entry = rating.entry
+
     return { uri, details }
   } catch (error) {
     throw new SDKErrors.RatingPropertiesError(
@@ -456,293 +470,3 @@ export async function buildFromAmendRatingProperties(
     )
   }
 }
-
-// /**
-//  * @param entry
-//  * @param messageId
-//  * @param rating
-//  * @param chainSpace
-//  * @param creatorUri
-//  */
-// export async function buildFromRatingProperties(
-//   rating: IRatingEntry,
-//   chainSpace: SpaceUri,
-//   creatorUri: DidUri
-// ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
-//   try {
-//     validateRatingContent(rating.entry)
-//     verifySignature(rating)
-
-//     if (
-//       !chainSpace ||
-//       !creatorUri ||
-//       !rating.messageId ||
-//       !rating.entryDigest
-//     ) {
-//       throw new SDKErrors.RatingPropertiesError(
-//         'Required fields cannot be empty.'
-//       )
-//     }
-
-//     if (!/^0x[0-9a-fA-F]+$/.test(rating.entryDigest)) {
-//       throw new SDKErrors.RatingPropertiesError(
-//         'Invalid HexString for entryDigest.'
-//       )
-//     }
-//     const partialRating: IRatingChainEntry = {
-//       ...rating.entry,
-//     }
-
-//     const ratingUri = await getUriForRatingEntry(
-//       rating.entryDigest,
-//       rating.messageId,
-//       chainSpace,
-//       rating.providerUri,
-//       creatorUri
-//     )
-
-//     const ratingEntry: IRatingDispatch = {
-//       entryUri: ratingUri,
-//       entry: partialRating,
-//       chainSpace,
-//       messageId: rating.messageId,
-//       entryDigest: rating.entryDigest,
-//       creatorUri,
-//     }
-
-//     return { uri: ratingUri, details: ratingEntry }
-//   } catch (error) {
-//     throw new SDKErrors.RatingPropertiesError(
-//       `Rating content transformation error: "${error}".`
-//     )
-//   }
-// }
-
-// /**
-//  * @param rating
-//  * @param chainSpace
-//  * @param creatorUri
-//  */
-// export async function buildFromAmendRatingProperties(
-//   rating: IRatingRevokeEntry,
-//   chainSpace: SpaceUri,
-//   creatorUri: DidUri
-// ): Promise<{ uri: RatingEntryUri; details: PartialDispatchEntry }> {
-//   try {
-//     verifySignature(rating.entry)
-
-//     if (
-//       !chainSpace ||
-//       !creatorUri ||
-//       !rating.entry.messageId ||
-//       !rating.entry.entryDigest
-//     ) {
-//       throw new SDKErrors.RatingPropertiesError(
-//         'Required fields cannot be empty.'
-//       )
-//     }
-
-//     if (!/^0x[0-9a-fA-F]+$/.test(rating.entry.entryDigest)) {
-//       throw new SDKErrors.RatingPropertiesError(
-//         'Invalid HexString for entryDigest.'
-//       )
-//     }
-
-//     const ratingUri = (await getUriForRatingEntry(
-//       rating.entry.entryDigest,
-//       rating.entry.messageId,
-//       chainSpace,
-//       rating.entry.providerUri,
-//       creatorUri
-//     )) as RatingEntryUri
-
-//     const ratingEntry: PartialDispatchEntry = {
-//       entryUri: ratingUri,
-//       chainSpace,
-//       messageId: rating.entry.messageId,
-//       entryDigest: rating.entry.entryDigest,
-//       creatorUri,
-//     }
-
-//     return { uri: ratingUri, details: ratingEntry }
-//   } catch (error) {
-//     throw new SDKErrors.RatingPropertiesError(
-//       `Rating content transformation error: "${error}".`
-//     )
-//   }
-// }
-
-// /**
-//  * @param journalContent
-//  */
-// export function transformRatingEntry(
-//   journalContent: IJournalContent
-// ): IJournalContent {
-//   journalContent.rating = base10Encode(journalContent.rating)
-//   verifyScoreStructure(journalContent)
-//   return journalContent
-// }
-
-// /**
-//  * @param rating
-//  */
-// export function computeActualRating(rating: number): number {
-//   return rating / SCORE_MODULUS
-// }
-
-// /**
-//  * @param rating
-//  * @param count
-//  */
-// export function computeAverageRating(rating: number, count: number): number {
-//   return rating / count
-// }
-
-// /**
-//  * @param journalContent
-//  */
-// export function generateDigestFromJournalContent(
-//   journalContent: IJournalContent
-// ) {
-//   const derivedObjectForHash: object = {
-//     entity: journalContent.entity,
-//     tid: journalContent.tid,
-//     entry_type: journalContent.entry_type,
-//     rating_type: journalContent.rating_type,
-//   }
-//   const digest = Crypto.hash(JSON.stringify(derivedObjectForHash))
-//   const hexDigest = Crypto.u8aToHex(digest)
-//   return hexDigest
-// }
-
-// /**
-//  * @param journalContent
-//  */
-// export function getUriForScore(journalContent: IJournalContent) {
-//   const scoreDigest = generateDigestFromJournalContent(journalContent)
-//   return hashToUri(scoreDigest, SCORE_IDENT, SCORE_PREFIX)
-// }
-
-// /**
-//  * @param journalContent
-//  * @param creator
-//  */
-// export function transformRatingEntryToInput(
-//   journalContent: IJournalContent,
-//   creator: CordAddress
-// ): IRatingInput {
-//   const digest = generateDigestFromJournalContent(journalContent)
-//   const ratingInput: IRatingInput = {
-//     entry: journalContent,
-//     digest,
-//     creator,
-//   }
-//   return ratingInput
-// }
-
-// /**
-//  * @param journalContent
-//  * @param creator
-//  */
-// export function fromRatingEntry(
-//   journalContent: IJournalContent,
-//   creator: CordAddress
-// ): IRatingData {
-//   verifyScoreStructure(journalContent)
-//   const ratingInput = transformRatingEntryToInput(journalContent, creator)
-//   const { entry } = ratingInput
-//   const scoreIdentifier = getUriForScore(entry)
-//   const ratingType =
-//     ratingInput.entry.rating_type === 'Overall'
-//       ? RatingType.overall
-//       : RatingType.delivery
-//   verifyStoredEntry(scoreIdentifier, ratingType)
-//   return {
-//     ratingInput,
-//     identifier: scoreIdentifier,
-//   }
-// }
-
-// /**
-//  * @param input
-//  */
-// export function verifyScoreStructure(input: IJournalContent) {
-//   if (input.collector) {
-//     if (typeof input.collector !== 'string')
-//       throw new SDKErrors.ScoreCollectorTypeMissMatchError()
-//   } else {
-//     throw new SDKErrors.ScoreCollectorMissingError()
-//   }
-
-//   if (input.entity) {
-//     if (typeof input.entity !== 'string')
-//       throw new SDKErrors.ScoreEntityTypeMissMatchError()
-//   } else {
-//     throw new SDKErrors.ScoreEntityMissingError()
-//   }
-
-//   if (input.tid) {
-//     if (typeof input.tid !== 'string')
-//       throw new SDKErrors.ScoreTidTypeMissMatchError()
-//   } else {
-//     throw new SDKErrors.ScoreTidMissingError()
-//   }
-
-//   if (input.entry_type) {
-//     if (
-//       !(
-//         input.entry_type === RatingEntry.credit ||
-//         input.entry_type === RatingEntry.debit
-//       )
-//     )
-//       throw new SDKErrors.ScoreRatingEntryTypeMissMatchError()
-//   } else {
-//     throw new SDKErrors.ScoreRatingEntryTypeMissingError()
-//   }
-
-//   if (input.count) {
-//     if (typeof input.count !== 'number')
-//       throw new SDKErrors.ScoreCountTypeMissMatchError()
-//   } else {
-//     throw new SDKErrors.ScoreCountMissingError()
-//   }
-
-//   if (input.rating) {
-//     if (typeof input.rating !== 'number')
-//       throw new SDKErrors.RatingInputTypeMissMatchError()
-//     if (input.rating > input.count * MAX_SCORE_PER_ENTRY)
-//       throw new SDKErrors.RatingExceedsMaxValueError()
-//   } else {
-//     throw new SDKErrors.ScoreRatingMissingError()
-//   }
-
-//   if (input.rating_type) {
-//     if (
-//       !(
-//         input.rating_type === RatingType.overall ||
-//         input.rating_type === RatingType.delivery
-//       )
-//     )
-//       throw new SDKErrors.ScoreRatingTypeMissMatchError()
-//   } else {
-//     throw new SDKErrors.ScoreRatingTypeMissingError()
-//   }
-// }
-
-// /**
-//  * @param scoreIdentifier
-//  * @param RatingType
-//  */
-// export async function verifyStoredEntry(
-//   scoreIdentifier: string,
-//   RatingType: RatingType
-// ) {
-//   const api = ConfigService.get('api')
-//   const encodedScoreEntry = await api.query.score.journal(
-//     scoreIdentifier.replace('score:cord:', ''),
-//     RatingType
-//   )
-//   if (encodedScoreEntry.isSome) {
-//     throw new SDKErrors.ScoreEntryAlreadyPresentError()
-//   }
-// }
