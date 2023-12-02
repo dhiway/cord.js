@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$metadata": {
+      "version": "1.0.0",
+      "slug": "ondc-network-rating-demo-schema",
+      "discoverable": true
+  },
+  "title": "ONDC Network Rating Schema v1",
+  "description": "Test Schema",
+  "properties": {
+    "entityUid": { "type": "string" },
+    "entityId": { "type": "string" },
+    "providerUid": { "type": "string" },
+    "providerId": { "type": "string" },
+    "entityType": { 
+      "type": "string",
+      "enum": ["Retail", "Logistic"]  
+    },
+    "ratingType": {
+      "type": "string",
+      "enum": ["Overall", "Delivery"] 
+    },
+    "referenceId": { "type": "string" },
+    "countOfTxn": { "type": "number" },
+    "totalRating": { "type": "number" }
+  },
+  "required": ["entityUid", "entityId", "providerUid", "providerId", "entityType", "ratingType", "countOfTxn", "totalRating"],
+  "additionalProperties": false,
+  "type": "object"
+}

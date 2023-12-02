@@ -2899,10 +2899,10 @@ declare module '@polkadot/types/lookup' {
     readonly isInvalidEntryOrRatingType: boolean;
     readonly isRatingIdentifierNotFound: boolean;
     readonly isReferenceIdentifierNotFound: boolean;
-    readonly isReferenceNotAmendIdentifier: boolean;
+    readonly isReferenceNotDebitIdentifier: boolean;
     readonly isEntityMismatch: boolean;
     readonly isSpaceMismatch: boolean;
-    readonly type: 'UnauthorizedOperation' | 'InvalidIdentifierLength' | 'InvalidDigest' | 'InvalidSignature' | 'InvalidRatingIdentifier' | 'MessageIdAlreadyExists' | 'InvalidRatingValue' | 'TooManyJournalEntries' | 'InvalidEntitySignature' | 'DigestAlreadyAnchored' | 'RatingIdentifierAlreadyAdded' | 'InvalidEntryOrRatingType' | 'RatingIdentifierNotFound' | 'ReferenceIdentifierNotFound' | 'ReferenceNotAmendIdentifier' | 'EntityMismatch' | 'SpaceMismatch';
+    readonly type: 'UnauthorizedOperation' | 'InvalidIdentifierLength' | 'InvalidDigest' | 'InvalidSignature' | 'InvalidRatingIdentifier' | 'MessageIdAlreadyExists' | 'InvalidRatingValue' | 'TooManyJournalEntries' | 'InvalidEntitySignature' | 'DigestAlreadyAnchored' | 'RatingIdentifierAlreadyAdded' | 'InvalidEntryOrRatingType' | 'RatingIdentifierNotFound' | 'ReferenceIdentifierNotFound' | 'ReferenceNotDebitIdentifier' | 'EntityMismatch' | 'SpaceMismatch';
   }
 
   /** @name PalletAssetAssetEntry (397) */

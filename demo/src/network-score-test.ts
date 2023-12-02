@@ -33,7 +33,7 @@ async function main() {
     Cord.Utils.Crypto.mnemonicGenerate()
   )
   console.log(
-    `🏦 Network Member (${devAuthorIdentity.type}): ${devAuthorIdentity.address}`
+    `🔐 Network Member (${devAuthorIdentity.type}): ${devAuthorIdentity.address}`
   )
   await addNetworkMember(devAuthorIdentity, networkAuthorIdentity.address)
   console.log('✅ Network Membership Approved! 🎉\n')
@@ -42,20 +42,20 @@ async function main() {
     await createDid(networkAuthorIdentity)
   const chainSpaceAdminKeys = generateKeypairs(chainSpaceAdminMnemonic)
   console.log(
-    `🏛  Network Score Admin (${chainSpaceAdminDid.authentication[0].type}): ${chainSpaceAdminDid.uri}`
+    `🔐  Network Score Admin (${chainSpaceAdminDid.authentication[0].type}): ${chainSpaceAdminDid.uri}`
   )
   const { mnemonic: networkProviderMnemonic, document: networkProviderDid } =
     await createDid(networkAuthorIdentity)
   const networkProviderKeys = generateKeypairs(networkProviderMnemonic)
   console.log(
-    `🏛  Network Participant (Provider) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
+    `🔐  Network Participant (Provider) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
   )
 
   const { mnemonic: networkAuthorMnemonic, document: networkAuthorDid } =
     await createDid(networkAuthorIdentity)
   const networkAuthorKeys = generateKeypairs(networkAuthorMnemonic)
   console.log(
-    `🏦 Network Author (API -> Node) (${networkAuthorDid.authentication[0].type}): ${networkAuthorDid.uri}`
+    `🔐 Network Author (API -> Node) (${networkAuthorDid.authentication[0].type}): ${networkAuthorDid.uri}`
   )
 
   console.log('✅ Network Members created! 🎉')
@@ -142,13 +142,12 @@ async function main() {
     depth: null,
     colors: true,
   })
+
   console.log(`✅ Initial Setup Completed! 🎊`)
 
   console.log(`\n⏳ Network Rating Transaction Flow`)
 
-  console.log(
-    `\n❄️  Rating Captured by Network Participants (Market Place / Providers) `
-  )
+  console.log(`\n💠  Write Rating - (Genesis) Credit Entry `)
   let ratingContent: Cord.IRatingContent = {
     entityUid: Cord.Utils.UUID.generate(),
     entityId: 'Gupta Kirana Store',
@@ -175,7 +174,7 @@ async function main() {
         `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
     })
   )
-  console.log(`\n❄️  Rating Information to API endpoint (/write-ratings) `)
+  console.log(`\n🌐  Rating Information to API endpoint (/write-ratings) `)
   console.dir(transformedEntry, {
     depth: null,
     colors: true,
@@ -193,7 +192,7 @@ async function main() {
     })
   )
 
-  console.log(`\n❄️  Rating Information to Ledger (API -> Ledger) `)
+  console.log(`\n🌐  Rating Information to Ledger (API -> Ledger) `)
   console.dir(dispatchEntry, {
     depth: null,
     colors: true,
@@ -215,9 +214,15 @@ async function main() {
     console.log(`🚫 Ledger Anchoring failed! " 🚫`)
   }
 
-  console.log(`\n❄️  Amend Rating Entry `)
-  console.log(`\n❄️  Revoke Rating - Debit Entry `)
-
+  console.log(`\n💠  Revoke Rating - Debit Entry `)
+  const revokeInput = {
+    entryUri: ratingUri,
+    entityUid: transformedEntry.entry.entityUid,
+  }
+  console.dir(revokeInput, {
+    depth: null,
+    colors: true,
+  })
   const revokeRatingEntry = await Cord.Score.buildFromRevokeProperties(
     ratingUri,
     transformedEntry.entry.entityUid,
@@ -228,6 +233,9 @@ async function main() {
       keyUri:
         `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
     })
+  )
+  console.log(
+    `\n🌐  Rating Revoke (Debit) Information to API endpoint (/amend-ratings) `
   )
   console.dir(revokeRatingEntry, {
     depth: null,
@@ -246,7 +254,9 @@ async function main() {
           `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod[0].id}` as Cord.DidResourceUri,
       })
     )
-
+  console.log(
+    `\n🌐  Rating Revoke (Debit) Information to Ledger (API -> Ledger) `
+  )
   console.dir(revokeRatingDispatchEntry, {
     depth: null,
     colors: true,
@@ -263,12 +273,12 @@ async function main() {
   )
 
   if (Cord.Identifier.isValidIdentifier(revokedRatingUri)) {
-    console.log('✅ Rating Debit successful! 🎉')
+    console.log('✅ Rating Revoke (Debit) successful! 🎉')
   } else {
     console.log(`🚫 Debit Anchoring failed! " 🚫`)
   }
 
-  console.log(`\n❄️  Revised Rating - Credit Entry `)
+  console.log(`\n💠  Revised Rating - Credit Entry `)
 
   let revidedRatingContent: Cord.IRatingContent = {
     ...ratingContent,
@@ -289,7 +299,9 @@ async function main() {
         `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
     })
   )
-  console.log(`\n❄️  Rating Information to API endpoint (/write-ratings) `)
+  console.log(
+    `\n🌐  Rating Revised(Credit) Information to API endpoint (/write-ratings) `
+  )
   console.dir(transformedRevisedEntry, {
     depth: null,
     colors: true,
@@ -307,7 +319,9 @@ async function main() {
     })
   )
 
-  console.log(`\n❄️  Rating Information to Ledger (API -> Ledger) `)
+  console.log(
+    `\n🌐  Rating Revised(Credit) Information to Ledger (API -> Ledger) `
+  )
   console.dir(dispatchRevisedEntry, {
     depth: null,
     colors: true,
@@ -324,7 +338,7 @@ async function main() {
   )
 
   if (Cord.Identifier.isValidIdentifier(revisedRatingUri)) {
-    console.log('✅ Rating revision successful! 🎉')
+    console.log('✅ Rating Revision(Credit) successful! 🎉')
   } else {
     console.log(`🚫 Revision Anchoring failed! " 🚫`)
   }

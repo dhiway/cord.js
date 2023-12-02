@@ -121,7 +121,6 @@ export async function dispatchRevokeRatingToChain(
     const exists = await isRatingStored(
       ratingEntry.entry.referenceId as RatingEntryUri
     )
-    console.log(exists, ratingEntry.entry.referenceId)
 
     if (!exists) {
       throw new SDKErrors.CordDispatchError(`Rating Entry not found on chain.`)

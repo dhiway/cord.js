@@ -236,7 +236,7 @@ export async function buildFromContentProperties(
       }
       entryTransform.referenceId = uriToIdentifier(entry.referenceId)
     }
-    console.log('Entry Transform', entryTransform)
+
     const { entryDigest, providerSignature } = await hashAndSign(
       { entryTransform, msgId, transactionTime },
       provider,
