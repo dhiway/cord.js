@@ -76,7 +76,8 @@ export interface IRatingDispatch {
   chainSpace: SpaceUri
   messageId: string
   entryDigest: HexString
-  creatorUri: DidUri
+  authorUri: DidUri
+  authorSignature: DidSignature
 }
 
 export type PartialDispatchEntry = Omit<IRatingDispatch, 'entry'>

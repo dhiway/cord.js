@@ -173,7 +173,9 @@ async function main() {
     async ({ data }) => ({
       signature: networkParticipantKeys.assertionMethod.sign(data),
       keyType: networkParticipantKeys.assertionMethod.type,
-      keyUri: `${networkParticipantDid.uri}${networkParticipantDid.assertionMethod[0].id}`,
+      keyUri: `${networkParticipantDid.uri}${
+        networkParticipantDid.assertionMethod![0].id
+      }`,
     })
   )
   console.log(`\n❄️  Rating Information to API endpoint (/write-ratings) `)

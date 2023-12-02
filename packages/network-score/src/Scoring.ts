@@ -12,9 +12,10 @@ import {
   RatingEntryUri,
   SpaceUri,
   SignCallback,
-  RatingPartialEntry,
+  // RatingPartialEntry,
   IRatingRevokeEntry,
   PartialDispatchEntry,
+  SignResponseData,
 } from '@cord.network/types'
 import type {
   AccountId,
@@ -22,7 +23,7 @@ import type {
   Bytes,
   SpaceId,
   HexString,
-  // CordAddress,
+  DidSignature,
 } from '@cord.network/types'
 import {
   isDidSignature,
@@ -88,22 +89,25 @@ function encodeRatingValue(totalRating: number, modulus = 10): number {
  * @param root0
  * @param root0.challenge
  * @param root0.didResolveKey
+ * @param digest
+ * @param signature
  * @param didResolveKey
  * @param providerUri
  * @param providerDid
  */
 export async function verifySignature(
-  input: IRatingEntry | RatingPartialEntry,
+  digest: HexString,
+  signature: DidSignature,
   providerDid: DidUri,
   didResolveKey = resolveKey
 ): Promise<void> {
-  isDidSignature(input.providerSignature)
+  isDidSignature(signature)
 
-  const { entryDigest, providerSignature } = input
-  const signingData = new Uint8Array([...Crypto.coToUInt8(entryDigest)])
+  // const { entryDigest, providerSignature } = input
+  const signingData = new Uint8Array([...Crypto.coToUInt8(digest)])
 
   await verifyDidSignature({
-    ...signatureFromJson(providerSignature),
+    ...signatureFromJson(signature),
     message: signingData,
     expectedSigner: providerDid,
     expectedVerificationMethod: 'assertionMethod',
@@ -133,6 +137,20 @@ async function hashAndSign(
     keyRelationship: 'assertionMethod',
   })
   return { entryDigest, providerSignature }
+}
+
+async function digestSignature(
+  digest: HexString,
+  author: DidUri,
+  signCallback: SignCallback
+) {
+  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(digest)])
+  const authorSignature = await signCallback({
+    data: uint8Hash,
+    did: author,
+    keyRelationship: 'assertionMethod',
+  })
+  return authorSignature
 }
 
 /**
@@ -302,7 +320,8 @@ async function createRatingObject(
   messageId: string,
   chainSpace: SpaceUri,
   providerUri: DidUri,
-  creatorUri: DidUri
+  authorUri: DidUri,
+  authorSig: SignResponseData
 ): Promise<{ uri: RatingEntryUri; details: any }> {
   const ratingUri = await getUriForRatingEntry(
     entryDigest,
@@ -312,6 +331,8 @@ async function createRatingObject(
     providerUri
   )
 
+  const authorSignature = signatureToJson(authorSig)
+
   return {
     uri: ratingUri,
     details: {
@@ -319,7 +340,8 @@ async function createRatingObject(
       chainSpace,
       messageId,
       entryDigest,
-      creatorUri,
+      authorUri,
+      authorSignature,
     },
   }
 }
@@ -329,23 +351,36 @@ async function createRatingObject(
  * @param rating
  * @param chainSpace
  * @param creatorUri
+ * @param authorUri
+ * @param signCallback
  */
 export async function buildFromRatingProperties(
   rating: IRatingEntry,
   chainSpace: SpaceUri,
-  creatorUri: DidUri
+  authorUri: DidUri,
+  signCallback: SignCallback
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     validateRatingContent(rating.entry)
-    verifySignature(rating, Did.getDidUri(rating.entry.providerDid))
+    verifySignature(
+      rating.entryDigest,
+      rating.providerSignature,
+      Did.getDidUri(rating.entry.providerDid)
+    )
 
     validateRequiredFields([
       chainSpace,
-      creatorUri,
+      authorUri,
       rating.messageId,
       rating.entryDigest,
     ])
     validateHexString(rating.entryDigest)
+
+    const authorSignature = await digestSignature(
+      rating.entryDigest,
+      authorUri,
+      signCallback
+    )
 
     const { uri, details } = await createRatingObject(
       rating.entryDigest,
@@ -353,7 +388,8 @@ export async function buildFromRatingProperties(
       rating.messageId,
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
-      creatorUri
+      authorUri,
+      authorSignature
     )
 
     const { providerId, entityId, ...chainEntry } = rating.entry
@@ -373,22 +409,35 @@ export async function buildFromRatingProperties(
  * @param rating
  * @param chainSpace
  * @param creatorUri
+ * @param authorUri
+ * @param signCallback
  */
 export async function buildFromAmendRatingProperties(
   rating: IRatingRevokeEntry,
   chainSpace: SpaceUri,
-  creatorUri: DidUri
+  authorUri: DidUri,
+  signCallback: SignCallback
 ): Promise<{ uri: RatingEntryUri; details: PartialDispatchEntry }> {
   try {
-    verifySignature(rating.entry, rating.providerDid)
+    verifySignature(
+      rating.entry.entryDigest,
+      rating.entry.providerSignature,
+      Did.getDidUri(rating.providerDid)
+    )
 
     validateRequiredFields([
       chainSpace,
-      creatorUri,
+      authorUri,
       rating.entry.messageId,
       rating.entry.entryDigest,
     ])
     validateHexString(rating.entry.entryDigest)
+
+    const authorSignature = await digestSignature(
+      rating.entry.entryDigest,
+      authorUri,
+      signCallback
+    )
 
     const { uri, details } = await createRatingObject(
       rating.entry.entryDigest,
@@ -396,7 +445,8 @@ export async function buildFromAmendRatingProperties(
       rating.entry.messageId,
       chainSpace,
       Did.getDidUri(rating.providerDid),
-      creatorUri
+      authorUri,
+      authorSignature
     )
 
     return { uri, details }

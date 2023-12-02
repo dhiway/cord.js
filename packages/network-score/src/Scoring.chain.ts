@@ -16,6 +16,7 @@ import { uriToIdentifier } from '@cord.network/identifier'
 import { Chain } from '@cord.network/network'
 import { ConfigService } from '@cord.network/config'
 import { SDKErrors } from '@cord.network/utils'
+import { verifySignature } from './Scoring.js'
 
 // function decodeRatingValue(encodedRating: number, modulus = 10): number {
 //   return encodedRating / modulus
@@ -73,7 +74,7 @@ export async function dispatchRatingToChain(
     )
 
     const extrinsic = await Did.authorizeTx(
-      ratingEntry.creatorUri,
+      ratingEntry.authorUri,
       tx,
       signCallback,
       authorAccount.address
@@ -106,6 +107,12 @@ export async function dispatchAmendRatingToChain(
 ): Promise<RatingEntryUri> {
   try {
     const api = ConfigService.get('api')
+    verifySignature(
+      ratingEntry.entryDigest,
+      ratingEntry.authorSignature,
+      Did.getDidUri(ratingEntry.authorUri)
+    )
+
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
     const exists = await isRatingStored(ratingEntry.entryUri)
@@ -123,7 +130,7 @@ export async function dispatchAmendRatingToChain(
     )
 
     const extrinsic = await Did.authorizeTx(
-      ratingEntry.creatorUri,
+      ratingEntry.authorUri,
       tx,
       signCallback,
       authorAccount.address
@@ -174,7 +181,7 @@ export async function dispatchReviseRatingToChain(
     )
 
     const extrinsic = await Did.authorizeTx(
-      ratingEntry.creatorUri,
+      ratingEntry.authorUri,
       tx,
       signCallback,
       authorAccount.address
