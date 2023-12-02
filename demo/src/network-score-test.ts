@@ -280,17 +280,22 @@ async function main() {
 
   console.log(`\n💠  Revised Rating - Credit Entry `)
 
-  let revidedRatingContent: Cord.IRatingContent = {
+  let revisedRatingContent: Cord.IRatingContent = {
     ...ratingContent,
     referenceId: revokedRatingUri,
+    countOfTxn: 80,
+    totalRating: 280,
   }
-  console.dir(revidedRatingContent, {
+  // revisedRatingContent.countOfTxn = 80
+  // revisedRatingContent.totalRating = 280
+
+  console.dir(revisedRatingContent, {
     depth: null,
     colors: true,
   })
 
   let transformedRevisedEntry = await Cord.Score.buildFromContentProperties(
-    revidedRatingContent,
+    revisedRatingContent,
     networkProviderDid.uri,
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
