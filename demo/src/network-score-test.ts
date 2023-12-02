@@ -28,7 +28,7 @@ async function main() {
   )
   console.log(`\n🌐 Network Score Initial Setup`)
 
-  console.log(`\n🌐  Particpants `)
+  console.log(`\n🎎 Particpants `)
   const { account: networkAuthorIdentity } = await createAccount(
     Cord.Utils.Crypto.mnemonicGenerate()
   )
@@ -36,7 +36,7 @@ async function main() {
     `🏦 Network Member (${devAuthorIdentity.type}): ${devAuthorIdentity.address}`
   )
   await addNetworkMember(devAuthorIdentity, networkAuthorIdentity.address)
-  console.log('✅ Network Membership Approved! 🎉')
+  console.log('✅ Network Membership Approved! 🎉\n')
 
   const { mnemonic: chainSpaceAdminMnemonic, document: chainSpaceAdminDid } =
     await createDid(networkAuthorIdentity)
@@ -44,20 +44,18 @@ async function main() {
   console.log(
     `🏛  Network Score Admin (${chainSpaceAdminDid.authentication[0].type}): ${chainSpaceAdminDid.uri}`
   )
-  const {
-    mnemonic: networkParticipantMnemonic,
-    document: networkParticipantDid,
-  } = await createDid(networkAuthorIdentity)
-  const networkParticipantKeys = generateKeypairs(networkParticipantMnemonic)
-  console.log(
-    `🏛  Network Participant (Provider) (${networkParticipantDid.authentication[0].type}): ${networkParticipantDid.uri}`
-  )
-
   const { mnemonic: networkProviderMnemonic, document: networkProviderDid } =
     await createDid(networkAuthorIdentity)
   const networkProviderKeys = generateKeypairs(networkProviderMnemonic)
   console.log(
-    `🏦 Network Author (API -> Node) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
+    `🏛  Network Participant (Provider) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
+  )
+
+  const { mnemonic: networkAuthorMnemonic, document: networkAuthorDid } =
+    await createDid(networkAuthorIdentity)
+  const networkAuthorKeys = generateKeypairs(networkAuthorMnemonic)
+  console.log(
+    `🏦 Network Author (API -> Node) (${networkAuthorDid.authentication[0].type}): ${networkAuthorDid.uri}`
   )
 
   console.log('✅ Network Members created! 🎉')
@@ -96,7 +94,7 @@ async function main() {
       keyType: chainSpaceAdminKeys.authentication.type,
     })
   )
-  console.log('✅ Chain Space created! ☃️')
+  console.log('✅ Chain Space created! 🎉')
 
   await Cord.ChainSpace.sudoApproveChainSpace(
     devAuthorIdentity,
@@ -104,12 +102,12 @@ async function main() {
     1000
   )
 
-  console.log(`\n🌐  Space Delegate Authorization `)
+  console.log(`\n🌐  Chain Space Authorization (Author) `)
   const permission: Cord.PermissionType = Cord.Permission.ASSERT
   const spaceAuthProperties =
     await Cord.ChainSpace.buildFromAuthorizationProperties(
       space.uri,
-      networkProviderDid.uri,
+      networkAuthorDid.uri,
       permission,
       chainSpaceAdminDid.uri
     )
@@ -127,16 +125,16 @@ async function main() {
       keyType: chainSpaceAdminKeys.capabilityDelegation.type,
     })
   )
-  console.log(`✅ Space Authorization added!`)
+  console.log(`✅ Chain Space Authorization Approved! 🎉`)
 
-  console.log(`\n🌐  Query From Chain - Chain Space Details `)
+  console.log(`\n🌐  Query From Chain - Chain Space `)
   const spaceFromChain = await Cord.ChainSpace.fetchFromChain(space.uri)
   console.dir(spaceFromChain, {
     depth: null,
     colors: true,
   })
 
-  console.log(`\n🌐  Query From Chain - Chain Space Authorization Details `)
+  console.log(`\n🌐  Query From Chain - Chain Space Authorization `)
   const spaceAuthFromChain = await Cord.ChainSpace.fetchAuthorizationFromChain(
     delegateAuth as Cord.AuthorizationUri
   )
@@ -144,9 +142,9 @@ async function main() {
     depth: null,
     colors: true,
   })
-  console.log(`✅ Initial Setup Completed!`)
+  console.log(`✅ Initial Setup Completed! 🎊`)
 
-  console.log(`\n🌐  Network Rating Transaction`)
+  console.log(`\n⏳ Network Rating Transaction Flow`)
 
   console.log(
     `\n❄️  Rating Captured by Network Participants (Market Place / Providers) `
@@ -169,12 +167,12 @@ async function main() {
 
   let transformedEntry = await Cord.Score.buildFromContentProperties(
     ratingContent,
-    networkParticipantDid.uri,
+    networkProviderDid.uri,
     async ({ data }) => ({
-      signature: networkParticipantKeys.assertionMethod.sign(data),
-      keyType: networkParticipantKeys.assertionMethod.type,
-      keyUri: `${networkParticipantDid.uri}${
-        networkParticipantDid.assertionMethod![0].id
+      signature: networkProviderKeys.assertionMethod.sign(data),
+      keyType: networkProviderKeys.assertionMethod.type,
+      keyUri: `${networkProviderDid.uri}${
+        networkProviderDid.assertionMethod![0].id
       }`,
     })
   )
@@ -187,7 +185,14 @@ async function main() {
   let dispatchEntry = await Cord.Score.buildFromRatingProperties(
     transformedEntry,
     space.uri,
-    networkProviderDid.uri
+    networkAuthorDid.uri,
+    async ({ data }) => ({
+      signature: networkAuthorKeys.assertionMethod.sign(data),
+      keyType: networkAuthorKeys.assertionMethod.type,
+      keyUri: `${networkAuthorDid.uri}${
+        networkAuthorDid.assertionMethod![0].id
+      }`,
+    })
   )
 
   console.log(`\n❄️  Rating Information to Ledger (API -> Ledger) `)
@@ -201,8 +206,8 @@ async function main() {
     networkAuthorIdentity,
     delegateAuth as Cord.AuthorizationUri,
     async ({ data }) => ({
-      signature: networkProviderKeys.authentication.sign(data),
-      keyType: networkProviderKeys.authentication.type,
+      signature: networkAuthorKeys.authentication.sign(data),
+      keyType: networkAuthorKeys.authentication.type,
     })
   )
 
@@ -218,171 +223,6 @@ async function main() {
     depth: null,
     colors: true,
   })
-
-  // console.dir(ratingUri, {
-  //   depth: null,
-  //   colors: true,
-  // })
-
-  // let newCredContent = require('../res/cred.json')
-  // newCredContent.issuanceDate = new Date().toISOString()
-  // const serializedCred = Cord.Utils.Crypto.encodeObjectAsStr(newCredContent)
-  // const credHash = Cord.Utils.Crypto.hashStr(serializedCred)
-
-  // console.dir(newCredContent, {
-  //   depth: null,
-  //   colors: true,
-  // })
-
-  // const statementEntry = Cord.Statement.buildFromProperties(
-  //   credHash,
-  //   space.uri,
-  //   issuerDid.uri,
-  //   schemaUri as Cord.SchemaUri
-  // )
-  // console.dir(statementEntry, {
-  //   depth: null,
-  //   colors: true,
-  // })
-
-  // const statement = await Cord.Statement.dispatchRegisterToChain(
-  //   statementEntry,
-  //   issuerDid.uri,
-  //   authorIdentity,
-  //   space.authorization,
-  //   async ({ data }) => ({
-  //     signature: issuerKeys.authentication.sign(data),
-  //     keyType: issuerKeys.authentication.type,
-  //   })
-  // )
-
-  // console.log(`✅ Statement element registered - ${statement}`)
-
-  // console.log(`\n❄️  Statement Updation `)
-  // let updateCredContent = newCredContent
-  // updateCredContent.issuanceDate = new Date().toISOString()
-  // updateCredContent.name = 'Bachelor of Science'
-  // const serializedUpCred =
-  //   Cord.Utils.Crypto.encodeObjectAsStr(updateCredContent)
-  // const upCredHash = Cord.Utils.Crypto.hashStr(serializedUpCred)
-
-  // const updatedStatementEntry = Cord.Statement.buildFromUpdateProperties(
-  //   statementEntry.elementUri,
-  //   upCredHash,
-  //   space.uri,
-  //   delegateTwoDid.uri
-  // )
-  // console.dir(updatedStatementEntry, {
-  //   depth: null,
-  //   colors: true,
-  // })
-
-  // const updatedStatement = await Cord.Statement.dispatchUpdateToChain(
-  //   updatedStatementEntry,
-  //   delegateTwoDid.uri,
-  //   authorIdentity,
-  //   delegateAuth as Cord.AuthorizationUri,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.authentication.sign(data),
-  //     keyType: delegateTwoKeys.authentication.type,
-  //   })
-  // )
-  // console.log(`✅ Statement element registered - ${updatedStatement}`)
-
-  // console.log(`\n❄️  Statement verification `)
-  // const verificationResult = await Cord.Statement.verifyAgainstProperties(
-  //   statementEntry.elementUri,
-  //   credHash,
-  //   issuerDid.uri,
-  //   space.uri,
-  //   schemaUri as Cord.SchemaUri
-  // )
-
-  // if (verificationResult.isValid) {
-  //   console.log(`✅ Verification successful! "${statementEntry.elementUri}" 🎉`)
-  // } else {
-  //   console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
-  // }
-
-  // const anotherVerificationResult =
-  //   await Cord.Statement.verifyAgainstProperties(
-  //     updatedStatementEntry.elementUri,
-  //     upCredHash,
-  //     delegateTwoDid.uri,
-  //     space.uri
-  //   )
-
-  // if (anotherVerificationResult.isValid) {
-  //   console.log(
-  //     `\n✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
-  //   )
-  // } else {
-  //   console.log(
-  //     `\n🚫 Verification failed! - "${verificationResult.message}" 🚫`
-  //   )
-  // }
-
-  // console.log(`\n❄️  Revoke Statement - ${updatedStatementEntry.elementUri}`)
-  // await Cord.Statement.dispatchRevokeToChain(
-  //   updatedStatementEntry.elementUri,
-  //   delegateTwoDid.uri,
-  //   authorIdentity,
-  //   delegateAuth as Cord.AuthorizationUri,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.authentication.sign(data),
-  //     keyType: delegateTwoKeys.authentication.type,
-  //   })
-  // )
-  // console.log(`✅ Statement revoked!`)
-
-  // console.log(`\n❄️  Statement Re-verification `)
-  // const reVerificationResult = await Cord.Statement.verifyAgainstProperties(
-  //   updatedStatementEntry.elementUri,
-  //   upCredHash,
-  //   issuerDid.uri,
-  //   space.uri
-  // )
-
-  // if (reVerificationResult.isValid) {
-  //   console.log(
-  //     `✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
-  //   )
-  // } else {
-  //   console.log(
-  //     `🚫 Verification failed! - "${reVerificationResult.message}" 🚫`
-  //   )
-  // }
-
-  // console.log(`\n❄️  Restore Statement - ${updatedStatementEntry.elementUri}`)
-  // await Cord.Statement.dispatchRestoreToChain(
-  //   updatedStatementEntry.elementUri,
-  //   delegateTwoDid.uri,
-  //   authorIdentity,
-  //   delegateAuth as Cord.AuthorizationUri,
-  //   async ({ data }) => ({
-  //     signature: delegateTwoKeys.authentication.sign(data),
-  //     keyType: delegateTwoKeys.authentication.type,
-  //   })
-  // )
-  // console.log(`✅ Statement revoked!`)
-
-  // console.log(`\n❄️  Statement Re-verification `)
-  // const reReVerificationResult = await Cord.Statement.verifyAgainstProperties(
-  //   updatedStatementEntry.elementUri,
-  //   upCredHash,
-  //   delegateTwoDid.uri,
-  //   space.uri
-  // )
-
-  // if (reReVerificationResult.isValid) {
-  //   console.log(
-  //     `✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
-  //   )
-  // } else {
-  //   console.log(
-  //     `🚫 Verification failed! - "${reReVerificationResult.message}" 🚫`
-  //   )
-  // }
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
