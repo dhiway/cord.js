@@ -3,7 +3,7 @@ import { SpaceUri } from './ChainSpace.js'
 import { DidUri, DidSignature } from './DidDocument.js'
 import { CordAddress } from './Address.js'
 
-export const RATING_IDENT = 11034
+export const RATING_IDENT = 6077
 export const RATING_PREFIX = 'rating:cord:'
 export type RatingEntryUri = `${typeof RATING_PREFIX}${string}`
 export type RatingEntryId = string

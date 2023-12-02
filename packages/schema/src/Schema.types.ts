@@ -55,7 +55,7 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
   type: 'object',
   properties: {
     $id: {
-      pattern: '^schema:cord:m[0-9a-zA-Z]+$',
+      pattern: '^schema:cord:s[0-9a-zA-Z]+$',
       type: 'string',
     },
     $schema: {

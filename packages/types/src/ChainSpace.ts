@@ -1,12 +1,12 @@
 import type { DidUri } from './DidDocument'
 import { HexString } from './Imported.js'
 
-export const SPACE_IDENT = 7101
+export const SPACE_IDENT = 3390
 export const SPACE_PREFIX = 'space:cord:'
 export type SpaceUri = `${typeof SPACE_PREFIX}${string}`
 export type SpaceId = string
 export type SpaceDigest = HexString
-export const AUTH_IDENT = 10447
+export const AUTH_IDENT = 2092
 export const AUTH_PREFIX = 'auth:cord:'
 export type AuthorizationUri = `${typeof AUTH_PREFIX}${string}`
 export type AuthorizationId = string
