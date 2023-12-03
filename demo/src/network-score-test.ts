@@ -3,20 +3,8 @@ import { generateKeypairs } from './utils/generateKeypairs'
 import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
-import { randomUUID } from 'crypto'
 import { addNetworkMember } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
-
-import {
-  requestJudgement,
-  setIdentity,
-  setRegistrar,
-  provideJudgement,
-} from './utils/createRegistrar'
-
-function getChallenge(): string {
-  return Cord.Utils.UUID.generate()
-}
 
 async function main() {
   const networkAddress = 'ws://127.0.0.1:9944'
@@ -364,7 +352,10 @@ async function main() {
 
   console.log(`\n🌐  Query From Chain - Aggregate Score `)
   const aggregateScoreFromChain =
-    await Cord.Score.fetchEntityAggregateScorefromChain(ratingContent.entityUid)
+    await Cord.Score.fetchEntityAggregateScorefromChain(
+      ratingContent.entityUid,
+      Cord.RatingTypeOf.overall
+    )
   console.dir(aggregateScoreFromChain, {
     depth: null,
     colors: true,

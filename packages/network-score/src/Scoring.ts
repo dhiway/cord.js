@@ -1,3 +1,44 @@
+/**
+ * @packageDocumentation
+ * @module NetworkScore
+ *
+ * Network Scoring System Module.
+ *
+ * Overview:
+ * This module offers a comprehensive suite of functionalities to interact with a blockchain-based rating system.
+ * It is part of the Cord Network ecosystem and is designed to facilitate various operations related to ratings,
+ * such as creation, revocation, and revision of rating entries, as well as fetching and aggregating rating data
+ * from the blockchain. The module integrates with the Cord Network's blockchain API and types, providing an interface
+ * for rating-related transactions and data handling on the blockchain.
+ *
+ * Key Functionalities:
+ * - Creating and dispatching new rating entries to the blockchain.
+ * - Revoking existing ratings, allowing for the removal of obsolete or incorrect ratings.
+ * - Revising ratings to update or correct their details.
+ * - Fetching detailed rating entries and aggregated score data from the blockchain.
+ * - Validating rating contents and signatures to ensure data integrity and authenticity.
+ * - Encoding and decoding rating values and other data for blockchain compatibility.
+ * - Generating unique URIs and message IDs for rating entries for identification and tracking.
+ * - Handling digital signatures for secure transactions.
+ *
+ * Usage:
+ * This module is primarily used by Rating Authors or Ledger/API Providers within the Cord Network ecosystem.
+ * It enables these entities to manage rating data effectively, ensuring that the ratings are accurately represented
+ * and securely stored on the blockchain. The module's functions are designed to be used in a variety of scenarios,
+ * from creating new ratings and modifying existing ones to retrieving comprehensive rating information for analysis
+ * and presentation purposes.
+ *
+ * Implementation:
+ * The module comprises several internal functions that handle the various aspects of rating data management,
+ * including validating content, encoding and decoding values, managing digital signatures, and interacting
+ * with the Cord Network blockchain API. These functions are designed to work together seamlessly, providing
+ * a robust and efficient toolset for rating management on the blockchain.
+ *
+ * The module's functionality is exposed through a set of exportable functions, which can be integrated into
+ * broader applications within the Cord Network ecosystem or other blockchain-based systems that require
+ * sophisticated rating management capabilities.
+ */
+
 import {
   IRatingContent,
   IRatingTransformed,
@@ -538,22 +579,30 @@ async function createRatingObject(
 }
 
 /**
- * Builds a rating entry from provided properties and author's signature.
+ * Constructs a rating entry for dispatch to a blockchain, complete with validation and digital signature.
  *
- * This function constructs a rating entry using the given properties and validates its content.
- * It verifies the signature of the rating entry and creates a unique URI for it. The resulting
- * object includes the rating entry URI and its details, which can be dispatched to the chain.
+ * This function is responsible for taking a raw rating entry, validating its content, and ensuring it is correctly signed.
+ * It generates a unique URI for the rating, which encapsulates its identity on the blockchain.
+ * The function is primarily used by Rating Authors or Ledger/API Providers to ensure that the ratings
+ * they produce are valid, signed, and ready for dispatch to the specified blockchain space.
  *
- * This function is used by Rating Authors (Ledger/API Providers).
+ * @param rating - The raw rating entry that needs to be processed.
+ *                                It should include all necessary details like entityUid, messageId, entryDigest, and providerSignature.
+ * @param chainSpace - Identifier for the blockchain space where the rating will be stored.
+ *                                This helps in routing the rating to the correct blockchain environment.
+ * @param authorUri - The Decentralized Identifier (DID) URI of the author.
+ *                             This is used for signing the rating and linking it to its author.
+ * @param signCallback - A callback function that will be used for signing the rating.
+ *                                      This function should adhere to the necessary cryptographic standards for signature generation.
  *
- * @param rating - The rating entry to be constructed.
- * @param chainSpace - The identifier of the chain space where the rating is stored.
- * @param authorUri - The DID URI of the author who signed the rating entry.
- * @param signCallback - The callback function for signing.
- * @returns A promise that resolves to an object containing the rating entry URI and its details.
- * @throws {SDKErrors.RatingPropertiesError} If there is an error in the rating content or signature.
+ * @returns - A promise that resolves to an object containing:
+ *    - `uri`: A unique URI representing the rating entry on the blockchain.
+ *    - `details`: An object containing the processed rating entry details ready for dispatch.
+ *
+ * @throws {SDKErrors.RatingPropertiesError} - Thrown if there's an issue with the rating's content, signature, or any required fields.
  *
  * @example
+ * // Example of a rating entry object
  * const ratingEntry = {
  *   entry: {
  *     entityUid: 'entity123',
@@ -567,6 +616,7 @@ async function createRatingObject(
  *   // ... other rating entry properties ...
  * };
  *
+ * // Usage
  * const chainSpace = 'chainSpace123';
  * const authorUri = 'did:example:author123';
  *
@@ -629,51 +679,46 @@ export async function buildFromRatingProperties(
 }
 
 /**
- * Builds a rating entry for revoking a rating from the provided properties.
+ * Constructs a revocation entry for a previously submitted rating on the blockchain.
  *
- * This function creates a rating entry to revoke a previously submitted rating based on the provided properties. It verifies the signature of the original rating, validates required fields, and generates the necessary signatures for the revocation entry.
+ * This function handles the process of revoking a rating. It takes a rating revocation entry,
+ * verifies the signature of the original rating, validates required fields, and generates the necessary
+ * signatures for the revocation entry. This is essential for maintaining the integrity and trustworthiness
+ * of the rating system, especially in decentralized environments.
  *
- * @param rating - The rating revoke entry to build.
- * @param chainSpace - The chain space where the rating is being revoked, represented as a Space URI.
- * @param authorUri - The URI of the author revoking the rating.
- * @param signCallback - A callback function for signing the rating entry.
+ * This function is specifically designed for use by Rating Authors or Ledger/API Providers.
  *
- * @returns An object containing the rating entry URI and details.
+ * @param rating - The rating revoke entry to process.
+ *                                      This includes the original rating's digest, signature, and other relevant details.
+ * @param chainSpace - The identifier of the blockchain space (as a URI) where the rating is being revoked.
+ *                                This helps in pinpointing the exact location on the blockchain where the rating resides.
+ * @param authorUri - The Decentralized Identifier (DID) URI of the author who is revoking the rating.
+ *                             This identifier is crucial for associating the revocation with the correct author.
+ * @param signCallback - A callback function that handles the signing of the revocation entry.
+ *                                      The signature ensures the authenticity and integrity of the revocation request.
  *
- * @throws {SDKErrors.RatingPropertiesError} If there's an error in the transformation process, such as missing or invalid fields, or signature verification failure.
+ * @returns - A promise that resolves to an object containing:
+ *    - `uri`: A unique URI for the revocation entry on the blockchain.
+ *    - `details`: An object with the details of the revocation, ready for dispatch to the blockchain.
+ *
+ * @throws {SDKErrors.RatingPropertiesError} - Thrown if there is an issue with the revocation's content,
+ *                                             such as invalid fields or signature verification failure.
  *
  * @example
- * // Example rating revoke entry
- * const rating = {
- *   entry: {
- *     entryDigest: '0x1234567890abcdef', // Digest of the original rating entry
- *     providerSignature: {...}, // Signature object of the original rating entry provider
- *     messageId: 'msg-123', // Message ID of the original rating entry
- *   },
- *   entityUid: 'entity-uid-123', // Entity UID associated with the rating
- *   providerDid: 'did:example:provider', // DID of the provider associated with the rating
+ * // Example usage of the function
+ * const ratingRevokeEntry = {
+ *   // ... rating revoke entry properties ...
  * };
+ * const chainSpace = 'chainSpace123';
+ * const authorUri = 'did:example:author123';
  *
- * // Chain space where the rating is revoked
- * const chainSpace = 'space-uri-123';
- *
- * // URI of the author revoking the rating
- * const authorUri = 'did:example:author';
- *
- * // Callback function to sign the rating entry
- * const signCallback = async ({ data, did, keyRelationship }) => {
- *   // Sign and return a signature object
- *   const signature = await signData(data, did, keyRelationship);
- *   return signature;
- * };
- *
- * // Build the rating entry for revoking the rating
- * const { uri, details } = await buildFromRevokeRatingProperties(
- *   rating,
- *   chainSpace,
- *   authorUri,
- *   signCallback
- * );
+ * try {
+ *   const result = await buildFromRevokeRatingProperties(ratingRevokeEntry, chainSpace, authorUri, signCallback);
+ *   console.log('Revocation entry URI:', result.uri);
+ *   console.log('Revocation entry details:', result.details);
+ * } catch (error) {
+ *   console.error('Error building revocation entry:', error);
+ * }
  */
 export async function buildFromRevokeRatingProperties(
   rating: IRatingRevokeEntry,
