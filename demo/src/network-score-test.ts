@@ -170,8 +170,9 @@ async function main() {
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
       keyType: networkProviderKeys.assertionMethod.type,
-      keyUri:
-        `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+      keyUri: `${networkProviderDid.uri}${
+        networkProviderDid.assertionMethod![0].id
+      }` as Cord.DidResourceUri,
     })
   )
   console.log(`\n🌐  Rating Information to API endpoint (/write-ratings) `)
@@ -187,8 +188,9 @@ async function main() {
     async ({ data }) => ({
       signature: networkAuthorKeys.assertionMethod.sign(data),
       keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri:
-        `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+      keyUri: `${networkAuthorDid.uri}${
+        networkAuthorDid.assertionMethod![0].id
+      }` as Cord.DidResourceUri,
     })
   )
 
@@ -230,8 +232,9 @@ async function main() {
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
       keyType: networkProviderKeys.assertionMethod.type,
-      keyUri:
-        `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+      keyUri: `${networkProviderDid.uri}${
+        networkProviderDid.assertionMethod![0].id
+      }` as Cord.DidResourceUri,
     })
   )
   console.log(
@@ -250,8 +253,9 @@ async function main() {
       async ({ data }) => ({
         signature: networkAuthorKeys.assertionMethod.sign(data),
         keyType: networkAuthorKeys.assertionMethod.type,
-        keyUri:
-          `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+        keyUri: `${networkAuthorDid.uri}${
+          networkAuthorDid.assertionMethod![0].id
+        }` as Cord.DidResourceUri,
       })
     )
   console.log(
@@ -286,8 +290,6 @@ async function main() {
     countOfTxn: 80,
     totalRating: 280,
   }
-  // revisedRatingContent.countOfTxn = 80
-  // revisedRatingContent.totalRating = 280
 
   console.dir(revisedRatingContent, {
     depth: null,
@@ -300,8 +302,9 @@ async function main() {
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
       keyType: networkProviderKeys.assertionMethod.type,
-      keyUri:
-        `${networkProviderDid.uri}${networkProviderDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+      keyUri: `${networkProviderDid.uri}${
+        networkProviderDid.assertionMethod![0].id
+      }` as Cord.DidResourceUri,
     })
   )
   console.log(
@@ -319,8 +322,9 @@ async function main() {
     async ({ data }) => ({
       signature: networkAuthorKeys.assertionMethod.sign(data),
       keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri:
-        `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod[0].id}` as Cord.DidResourceUri,
+      keyUri: `${networkAuthorDid.uri}${
+        networkAuthorDid.assertionMethod![0].id
+      }` as Cord.DidResourceUri,
     })
   )
 
@@ -347,6 +351,24 @@ async function main() {
   } else {
     console.log(`🚫 Revision Anchoring failed! " 🚫`)
   }
+
+  console.log(`\n🌐  Query From Chain - Rating Entry `)
+  const ratingEntryFromChain = await Cord.Score.fetchRatingDetailsfromChain(
+    revisedRatingUri,
+    'Asia/Kolkata'
+  )
+  console.dir(ratingEntryFromChain, {
+    depth: null,
+    colors: true,
+  })
+
+  console.log(`\n🌐  Query From Chain - Aggregate Score `)
+  const aggregateScoreFromChain =
+    await Cord.Score.fetchEntityAggregateScorefromChain(ratingContent.entityUid)
+  console.dir(aggregateScoreFromChain, {
+    depth: null,
+    colors: true,
+  })
 
   console.log(`\n🌐  Query From Chain - Chain Space Usage `)
   const spaceUsageFromChain = await Cord.ChainSpace.fetchFromChain(

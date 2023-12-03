@@ -6,20 +6,28 @@ import {
   SignExtrinsicCallback,
   AuthorizationId,
   RatingEntryUri,
+  IRatingChainStatus,
+  IRatingChainEntryDetails,
+  RatingTypeOf,
+  EntityTypeOf,
+  EntryTypeOf,
+  IAggregateScore,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
-import type { PalletNetworkScoreRatingEntry } from '@cord.network/augment-api'
+import type {
+  PalletNetworkScoreRatingEntry,
+  PalletNetworkScoreEntityTypeOf,
+  PalletNetworkScoreRatingTypeOf,
+  PalletNetworkScoreEntryTypeOf,
+  PalletNetworkScoreAggregatedEntryOf,
+} from '@cord.network/augment-api'
 
 import * as Did from '@cord.network/did'
-import { uriToIdentifier } from '@cord.network/identifier'
+import { uriToIdentifier, identifierToUri } from '@cord.network/identifier'
 import { Chain } from '@cord.network/network'
 import { ConfigService } from '@cord.network/config'
-import { SDKErrors } from '@cord.network/utils'
+import { SDKErrors, DecoderUtils, DataUtils } from '@cord.network/utils'
 import { verifySignature } from './Scoring.js'
-
-// function decodeRatingValue(encodedRating: number, modulus = 10): number {
-//   return encodedRating / modulus
-// }
 
 /**
  * @param spaceUri
@@ -207,4 +215,161 @@ export async function dispatchReviseRatingToChain(
       `Error dispatching to chain: "${errorMessage}".`
     )
   }
+}
+
+// Helper function to extract the index from the Rust enum representation
+function extractEnumIndex(enumObject: { index: number }): number {
+  return enumObject.index
+}
+// TypeScript Enum Mappings
+const EntityTypeMapping: Record<number, EntityTypeOf> = {
+  0: EntityTypeOf.retail,
+  1: EntityTypeOf.logistic,
+}
+
+const RatingTypeMapping: Record<number, RatingTypeOf> = {
+  0: RatingTypeOf.overall,
+  1: RatingTypeOf.delivery,
+}
+
+const EntryTypeMapping: Record<number, EntryTypeOf> = {
+  0: EntryTypeOf.credit,
+  1: EntryTypeOf.debit,
+}
+
+// Decoding Functions
+function decodeEntityType(
+  encodedType: PalletNetworkScoreEntityTypeOf
+): EntityTypeOf {
+  const index = extractEnumIndex(encodedType)
+  return EntityTypeMapping[index]
+}
+
+function decodeRatingType(
+  encodedType: PalletNetworkScoreRatingTypeOf
+): RatingTypeOf {
+  const index = extractEnumIndex(encodedType)
+  return RatingTypeMapping[index]
+}
+
+function decodeEntryType(
+  encodedType: PalletNetworkScoreEntryTypeOf
+): EntryTypeOf {
+  const index = extractEnumIndex(encodedType)
+  return EntryTypeMapping[index]
+}
+
+function decodeRatingValue(encodedRating: number, modulus = 10): number {
+  return encodedRating / modulus
+}
+
+function decodeEntryDetailsfromChain(
+  encoded: Option<PalletNetworkScoreRatingEntry>,
+  stmtUri: RatingEntryUri,
+  timeZone = 'GMT'
+): IRatingChainStatus {
+  const chainEntry = encoded.unwrap()
+  const encodedEntry = chainEntry.entry
+  const decodedEntry: IRatingChainEntryDetails = {
+    entityUid: DecoderUtils.hexToString(encodedEntry.entityUid.toString()),
+    providerUid: DecoderUtils.hexToString(encodedEntry.providerUid.toString()),
+    entityType: decodeEntityType(encodedEntry.entityType),
+    ratingType: decodeRatingType(encodedEntry.ratingType),
+    countOfTxn: encodedEntry.countOfTxn.toNumber(),
+    totalRating: decodeRatingValue(encodedEntry.totalEncodedRating.toNumber()),
+  }
+  let referenceId: RatingEntryUri | undefined
+  if (chainEntry.referenceId.isSome) {
+    referenceId = identifierToUri(
+      DecoderUtils.hexToString(chainEntry.referenceId.unwrap().toString())
+    ) as RatingEntryUri
+  }
+
+  const decodedDetails: IRatingChainStatus = {
+    entryUri: identifierToUri(stmtUri) as RatingEntryUri,
+    entry: decodedEntry,
+    digest: chainEntry.digest.toHex(),
+    messageId: DecoderUtils.hexToString(chainEntry.messageId.toString()),
+    space: identifierToUri(
+      DecoderUtils.hexToString(chainEntry.space.toString())
+    ),
+    creatorUri: Did.fromChain(chainEntry.creatorId),
+    entryType: decodeEntryType(chainEntry.entryType),
+    referenceId,
+    createdAt: DataUtils.convertUnixTimeToDateTime(
+      chainEntry.createdAt.toNumber(),
+      timeZone
+    ),
+  }
+
+  return decodedDetails
+}
+
+/**
+ * @param stmtUri
+ * @param ratingUri
+ * @param timeZone
+ */
+export async function fetchRatingDetailsfromChain(
+  ratingUri: RatingEntryUri,
+  timeZone = 'GMT'
+): Promise<IRatingChainStatus | null> {
+  const api = ConfigService.get('api')
+  const rtngId = uriToIdentifier(ratingUri)
+
+  const chainEntry = await api.query.networkScore.ratingEntries(rtngId)
+  if (chainEntry.isNone) {
+    return null
+  }
+
+  const entryDetails = decodeEntryDetailsfromChain(
+    chainEntry,
+    ratingUri,
+    timeZone
+  )
+
+  return entryDetails
+}
+
+/**
+ * @param entity
+ * @param ratingType
+ */
+export async function fetchEntityAggregateScorefromChain(
+  entity: string,
+  ratingType?: RatingTypeOf
+): Promise<IAggregateScore[] | null> {
+  const api = ConfigService.get('api')
+  const decodedEntries: IAggregateScore[] = []
+
+  if (ratingType !== undefined) {
+    const specificItem = await api.query.networkScore.aggregateScores(
+      entity,
+      ratingType
+    )
+    if (!specificItem.isNone) {
+      const value: PalletNetworkScoreAggregatedEntryOf = specificItem.unwrap()
+      decodedEntries.push({
+        entityUid: entity,
+        ratingType: ratingType.toString() as RatingTypeOf,
+        countOfTxn: value.countOfTxn.toNumber(),
+        totalRating: decodeRatingValue(value.totalEncodedRating.toNumber()),
+      })
+    }
+  } else {
+    const entries = await api.query.networkScore.aggregateScores.entries(entity)
+    entries.forEach(([compositeKey, optionValue]) => {
+      if (!optionValue.isNone) {
+        const value: PalletNetworkScoreAggregatedEntryOf = optionValue.unwrap()
+        const [decodedEntityUri, decodedRatingType] = compositeKey.args
+        decodedEntries.push({
+          entityUid: DecoderUtils.hexToString(decodedEntityUri.toString()),
+          ratingType: decodeRatingType(decodedRatingType),
+          countOfTxn: value.countOfTxn.toNumber(),
+          totalRating: decodeRatingValue(value.totalEncodedRating.toNumber()),
+        })
+      }
+    })
+  }
+  return decodedEntries.length > 0 ? decodedEntries : null
 }

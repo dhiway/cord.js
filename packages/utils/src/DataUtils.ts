@@ -141,3 +141,41 @@ export function verifyIsHex(input: unknown, bitLength?: number): void {
     )
   }
 }
+
+/**
+ * @param unixTime
+ * @param timeZone
+ */
+export function convertUnixTimeToDateTime(
+  unixTime: number,
+  timeZone: string
+): string {
+  const date = new Date(unixTime)
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone,
+    hour12: false,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+  }
+
+  const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date)
+  // const milliseconds = date.getMilliseconds().toString().padStart(3, '0')
+
+  // return `${formattedDate}.${milliseconds}`
+  return `${formattedDate}`
+}
+
+/**
+ * @param dateTimeStr
+ */
+export function convertDateTimeToUnixTime(dateTimeStr: string): number {
+  // Note: The dateTimeStr format should match the output of convertUnixTimeToDateTime
+  const date = new Date(dateTimeStr)
+
+  return date.getTime()
+}

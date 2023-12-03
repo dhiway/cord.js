@@ -1,5 +1,5 @@
 import { HexString } from '@polkadot/util/types.js'
-import { SpaceUri } from './ChainSpace.js'
+import { SpaceId, SpaceUri } from './ChainSpace.js'
 import { DidUri, DidSignature } from './DidDocument.js'
 import { CordAddress } from './Address.js'
 
@@ -64,7 +64,6 @@ export type IRatingChainEntry = Omit<
 >
 
 export interface IRatingRevokeEntry {
-  // entryUri: RatingEntryUri
   entry: RatingPartialEntry
   entityUid: string
   providerDid: DidUri
@@ -80,4 +79,25 @@ export interface IRatingDispatch {
   authorSignature: DidSignature
 }
 
-// export type PartialDispatchEntry = Omit<IRatingDispatch, 'entry'>
+export interface IAggregateScore {
+  entityUid: string
+  ratingType: RatingTypeOf
+  countOfTxn: number
+  totalRating: number
+}
+
+export type IRatingChainEntryDetails = Omit<
+  IRatingContent,
+  'providerId' | 'entityId' | 'providerDid' | 'referenceId'
+>
+export interface IRatingChainStatus {
+  entryUri: RatingEntryUri
+  entry: IRatingChainEntryDetails
+  digest: HexString
+  messageId: string
+  space: SpaceId
+  creatorUri: DidUri
+  entryType: EntryTypeOf
+  referenceId?: RatingEntryUri
+  createdAt: string
+}
