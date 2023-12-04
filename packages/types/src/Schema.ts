@@ -2,7 +2,7 @@ import type { HexString } from './Imported.js'
 import type { DidUri } from './DidDocument.js'
 import { SpaceId } from './ChainSpace.js'
 
-export const SCHEMA_IDENT = 1424
+export const SCHEMA_IDENT = 7366
 export const SCHEMA_PREFIX = 'schema:cord:'
 export type SchemaUri = `${typeof SCHEMA_PREFIX}${string}`
 export type SchemaId = string

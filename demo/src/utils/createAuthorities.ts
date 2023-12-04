@@ -54,7 +54,7 @@ export async function getChainCredits(
  * @param authorAccount - The account that will be used to sign the transaction.
  * @param authority - The address of the authority to add.
  */
-export async function addAuthority(
+export async function addNetworkMember(
   authorAccount: Cord.KeyringPair,
   authority: Cord.CordAddress
 ) {

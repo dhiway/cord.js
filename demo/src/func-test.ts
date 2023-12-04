@@ -5,7 +5,7 @@ import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
 import { randomUUID } from 'crypto'
-import { addAuthority } from './utils/createAuthorities'
+import { addNetworkMember } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 
 import {
@@ -37,14 +37,14 @@ async function main() {
   console.log(
     `🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`
   )
-  await addAuthority(authorityAuthorIdentity, authorityIdentity.address)
+  await addNetworkMember(authorityAuthorIdentity, authorityIdentity.address)
   await setRegistrar(authorityAuthorIdentity, authorityIdentity.address)
   console.log('✅ Network Authority created!')
 
   // Setup network member account.
   const { account: authorIdentity } = await createAccount()
   console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
-  await addAuthority(authorityAuthorIdentity, authorIdentity.address)
+  await addNetworkMember(authorityAuthorIdentity, authorIdentity.address)
   console.log(`🔏  Member permissions updated`)
   await setIdentity(authorIdentity)
   console.log(`🔏  Member identity info updated`)
@@ -270,7 +270,7 @@ async function main() {
     credHash,
     space.uri,
     issuerDid.uri,
-    schemaUri
+    schemaUri as Cord.SchemaUri
   )
   console.dir(statementEntry, {
     depth: null,
@@ -327,7 +327,7 @@ async function main() {
     credHash,
     issuerDid.uri,
     space.uri,
-    schemaUri
+    schemaUri as Cord.SchemaUri
   )
 
   if (verificationResult.isValid) {
@@ -359,7 +359,7 @@ async function main() {
     updatedStatementEntry.elementUri,
     delegateTwoDid.uri,
     authorIdentity,
-    delegateAuth,
+    delegateAuth as Cord.AuthorizationUri,
     async ({ data }) => ({
       signature: delegateTwoKeys.authentication.sign(data),
       keyType: delegateTwoKeys.authentication.type,
@@ -390,7 +390,7 @@ async function main() {
     updatedStatementEntry.elementUri,
     delegateTwoDid.uri,
     authorIdentity,
-    delegateAuth,
+    delegateAuth as Cord.AuthorizationUri,
     async ({ data }) => ({
       signature: delegateTwoKeys.authentication.sign(data),
       keyType: delegateTwoKeys.authentication.type,

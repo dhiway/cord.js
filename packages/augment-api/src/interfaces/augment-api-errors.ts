@@ -747,7 +747,7 @@ declare module '@polkadot/api-base/types/errors' {
       /**
        * Refrenced identifer is not a debit transaction
        **/
-      ReferenceNotAmendIdentifier: AugmentedError<ApiType>;
+      ReferenceNotDebitIdentifier: AugmentedError<ApiType>;
       /**
        * Rating Space mismatch
        **/

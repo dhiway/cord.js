@@ -859,18 +859,21 @@ declare module '@polkadot/types/lookup' {
       readonly identifier: Bytes;
       readonly entity: Bytes;
       readonly provider: AccountId32;
+      readonly creator: AccountId32;
     } & Struct;
     readonly isRatingEntryRevoked: boolean;
     readonly asRatingEntryRevoked: {
       readonly identifier: Bytes;
       readonly entity: Bytes;
       readonly provider: AccountId32;
+      readonly creator: AccountId32;
     } & Struct;
     readonly isRatingEntryRevised: boolean;
     readonly asRatingEntryRevised: {
       readonly identifier: Bytes;
       readonly entity: Bytes;
       readonly provider: AccountId32;
+      readonly creator: AccountId32;
     } & Struct;
     readonly isAggregateScoreUpdated: boolean;
     readonly asAggregateScoreUpdated: {
@@ -2083,9 +2086,10 @@ declare module '@polkadot/types/lookup' {
     readonly entityUid: Bytes;
     readonly providerUid: Bytes;
     readonly countOfTxn: u64;
-    readonly totalRating: u64;
+    readonly totalEncodedRating: u64;
     readonly entityType: PalletNetworkScoreEntityTypeOf;
     readonly ratingType: PalletNetworkScoreRatingTypeOf;
+    readonly providerDid: AccountId32;
   }
 
   /** @name PalletNetworkScoreEntityTypeOf (248) */
@@ -2860,7 +2864,6 @@ declare module '@polkadot/types/lookup' {
     readonly digest: H256;
     readonly messageId: Bytes;
     readonly space: Bytes;
-    readonly providerId: AccountId32;
     readonly creatorId: AccountId32;
     readonly entryType: PalletNetworkScoreEntryTypeOf;
     readonly referenceId: Option<Bytes>;
@@ -2877,7 +2880,7 @@ declare module '@polkadot/types/lookup' {
   /** @name PalletNetworkScoreAggregatedEntryOf (394) */
   interface PalletNetworkScoreAggregatedEntryOf extends Struct {
     readonly countOfTxn: u64;
-    readonly totalRating: u64;
+    readonly totalEncodedRating: u64;
   }
 
   /** @name PalletNetworkScoreError (396) */
@@ -2896,10 +2899,10 @@ declare module '@polkadot/types/lookup' {
     readonly isInvalidEntryOrRatingType: boolean;
     readonly isRatingIdentifierNotFound: boolean;
     readonly isReferenceIdentifierNotFound: boolean;
-    readonly isReferenceNotAmendIdentifier: boolean;
+    readonly isReferenceNotDebitIdentifier: boolean;
     readonly isEntityMismatch: boolean;
     readonly isSpaceMismatch: boolean;
-    readonly type: 'UnauthorizedOperation' | 'InvalidIdentifierLength' | 'InvalidDigest' | 'InvalidSignature' | 'InvalidRatingIdentifier' | 'MessageIdAlreadyExists' | 'InvalidRatingValue' | 'TooManyJournalEntries' | 'InvalidEntitySignature' | 'DigestAlreadyAnchored' | 'RatingIdentifierAlreadyAdded' | 'InvalidEntryOrRatingType' | 'RatingIdentifierNotFound' | 'ReferenceIdentifierNotFound' | 'ReferenceNotAmendIdentifier' | 'EntityMismatch' | 'SpaceMismatch';
+    readonly type: 'UnauthorizedOperation' | 'InvalidIdentifierLength' | 'InvalidDigest' | 'InvalidSignature' | 'InvalidRatingIdentifier' | 'MessageIdAlreadyExists' | 'InvalidRatingValue' | 'TooManyJournalEntries' | 'InvalidEntitySignature' | 'DigestAlreadyAnchored' | 'RatingIdentifierAlreadyAdded' | 'InvalidEntryOrRatingType' | 'RatingIdentifierNotFound' | 'ReferenceIdentifierNotFound' | 'ReferenceNotDebitIdentifier' | 'EntityMismatch' | 'SpaceMismatch';
   }
 
   /** @name PalletAssetAssetEntry (397) */

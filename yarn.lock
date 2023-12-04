@@ -1672,7 +1672,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/network-score@workspace:packages/network-score":
+"@cord.network/network-score@workspace:*, @cord.network/network-score@workspace:packages/network-score":
   version: 0.0.0-use.local
   resolution: "@cord.network/network-score@workspace:packages/network-score"
   dependencies:
@@ -1730,6 +1730,7 @@ __metadata:
     "@cord.network/did": "workspace:*"
     "@cord.network/identifier": "workspace:*"
     "@cord.network/network": "workspace:*"
+    "@cord.network/network-score": "workspace:*"
     "@cord.network/schema": "workspace:*"
     "@cord.network/statement": "workspace:*"
     "@cord.network/types": "workspace:*"

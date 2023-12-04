@@ -438,19 +438,19 @@ declare module '@polkadot/api-base/types/events' {
       AggregateScoreUpdated: AugmentedEvent<ApiType, [entity: Bytes], { entity: Bytes }>;
       /**
        * A new rating entry has been added.
-       * \[rating entry identifier, entity, provider\]
+       * \[rating entry identifier, entity, provider, creator\]
        **/
-      RatingEntryAdded: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32 }>;
+      RatingEntryAdded: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32 }>;
       /**
        * A rating entry has been revised (after amend).
-       * \[rating entry identifier, entity, \]
+       * \[rating entry identifier, entity, creator \]
        **/
-      RatingEntryRevised: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32 }>;
+      RatingEntryRevised: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32 }>;
       /**
        * A rating entry has been amended.
-       * \[rating entry identifier, entity, \]
+       * \[rating entry identifier, entity, creator\]
        **/
-      RatingEntryRevoked: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32 }>;
+      RatingEntryRevoked: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32 }>;
     };
     nodeAuthorization: {
       /**
