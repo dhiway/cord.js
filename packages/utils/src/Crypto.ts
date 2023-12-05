@@ -8,6 +8,7 @@
 
 import { decodeAddress, encodeAddress } from '@polkadot/keyring'
 import type {
+  HexString,
   CordEncryptionKeypair,
   KeyringPair,
   CordKeyringPair,
@@ -23,25 +24,28 @@ import {
 import {
   blake2AsHex,
   blake2AsU8a,
-  naclBoxPairFromSecret,
   randomAsU8a,
   signatureVerify,
 } from '@polkadot/util-crypto'
 import { Keyring } from '@polkadot/api'
 import nacl from 'tweetnacl'
 import { v4 as uuid } from 'uuid'
-import type { HexString } from '@polkadot/util/types'
 import jsonabc from './jsonabc.js'
 import * as SDKErrors from './SDKErrors.js'
 import { ss58Format } from './ss58Format.js'
 
-export {
-  naclBoxPairFromSecret,
-  mnemonicGenerate,
-  mnemonicToMiniSecret,
-} from '@polkadot/util-crypto'
+export { mnemonicGenerate, mnemonicToMiniSecret } from '@polkadot/util-crypto'
 
 export { encodeAddress, decodeAddress, u8aToHex, u8aConcat }
+/**
+ * Creates a new public/secret box keypair from a secret.
+ *
+ * @param secret The secret.
+ * @returns An object containing a box `publicKey` & `secretKey` generated from the supplied secret.
+ */
+export function naclBoxPairFromSecret(secret: Uint8Array): nacl.BoxKeyPair {
+  return nacl.box.keyPair.fromSecretKey(secret)
+}
 
 /**
  * Types accepted by hashing and crypto functions.
@@ -138,6 +142,7 @@ export function hash(value: CryptoInput, bitLength?: BitLength): Uint8Array {
  * Create the blake2b and return the result as a hex string.
  *
  * @param value Value to be hashed.
+ * @param bitLength
  * @returns Blake2b hash as hex string.
  */
 export function hashStr(value: CryptoInput, bitLength?: BitLength): HexString {
@@ -170,6 +175,7 @@ export function encodeObjectAsStr(
  * Hashes numbers, booleans, and objects by stringifying them. Object keys are sorted to yield consistent hashing.
  *
  * @param value Object or value to be hashed.
+ * @param bitLength
  * @param nonce Optional nonce to obscure hashed values that could be guessed.
  * @returns Blake2b hash as hex string.
  */

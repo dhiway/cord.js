@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import {cord_api_query} from '@cord.network/utils'
+import { cord_api_query } from '@cord.network/config'
 
 /**
  * It verifies a presentation by checking the stream on the blockchain and verifying the presentation
@@ -35,6 +35,9 @@ export async function verifyPresentation(
       stream = Cord.Stream.fromChain(streamOnChain, chainIdentifier)
     }
     if (stream.revoked) {
+      return false
+    }
+    if (stream.streamHash !== presentation.documentHash) {
       return false
     }
     return trustedIssuerUris.includes(stream.issuer)

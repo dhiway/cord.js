@@ -28,6 +28,7 @@ const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   'registry.create': 'assertionMethod',
   'registry.archive': 'assertionMethod',
   'registry.restore': 'assertionMethod',
+  unique: 'assertionMethod',
   did: 'authentication',
   'did.create': undefined,
   'did.submitDidCall': undefined,
@@ -90,7 +91,7 @@ function increaseNonce(currentNonce: BN, increment = 1): BN {
  * @param did The DID data.
  * @returns The next valid nonce, i.e., the nonce currently stored on the blockchain + 1, wrapping around the max value when reached.
  */
-async function getNextNonce(did: DidUri): Promise<BN> {
+export async function getNextNonce(did: DidUri): Promise<BN> {
   const api = ConfigService.get('api')
   let queried: any
 

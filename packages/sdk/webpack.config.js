@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
 const TerserPlugin = require('terser-webpack-plugin')
-const webpack = require('webpack')
 
 module.exports = {
   mode: 'production',
   // build two different bundles from the transpiled js
   entry: {
-    'api': './lib/cjs/index.js',
-    'api.min': './lib/cjs/index.js',
+    sdk: './lib/cjs/index.js',
+    'sdk.min': './lib/cjs/index.js',
   },
   output: {
     filename: '[name].umd.js',
@@ -17,17 +16,9 @@ module.exports = {
     library: 'cord',
     umdNamedDefine: true,
   },
-resolve: {
+  resolve: {
     extensions: ['.ts', '.js', '.d.ts', '.mjs', '.json'],
     symlinks: false,
-    // Explicit fallbacks to include these in bundle
-    fallback: {
-      buffer: require.resolve('buffer'),
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-      url: require.resolve('url'),
-      util: require.resolve('util'),
-    },
   },
   stats: {
     errorDetails: true,
@@ -35,13 +26,6 @@ resolve: {
   optimization: {
     minimize: true,
     // only minimize the *.min* bundle output
-    // only minimize the *.min* bundle output
     minimizer: [new TerserPlugin({ include: /\.min\.umd\.js$/ })],
   },
-  plugins: [
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
-      Buffer: ['buffer', 'Buffer'],
-    }),
-  ],
 }

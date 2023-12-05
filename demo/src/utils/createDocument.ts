@@ -23,12 +23,15 @@ export async function createDocument(
       name: 'Alice',
       age: 29,
       id: '123456789987654321',
-      gender: 'Female',
       country: 'India',
       address: {
         street: 'a',
-	pin: 54032
-      }
+        pin: 54032,
+        location: {
+          state: 'karnataka',
+          country: 'india',
+        },
+      },
     },
     holder,
     issuer
@@ -38,6 +41,7 @@ export async function createDocument(
     authorization,
     registry,
     signCallback,
+    options: {},
   })
   return document
 }

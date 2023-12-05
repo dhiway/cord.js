@@ -21,6 +21,8 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
     project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
+    extraFileExtensions: ['.json'],
   },
   plugins: [
     '@typescript-eslint',
@@ -37,7 +39,7 @@ module.exports = {
         devDependencies: [
           '**/*.test.ts',
           '**/*.spec.ts',
-          '**/__integrationtests__/*',
+          'tests/**/*',
           '**/webpack.config.js',
         ],
       },
@@ -141,7 +143,7 @@ module.exports = {
         'jsdoc/check-tag-names': [
           'warn',
           {
-            definedTags: ['group', 'packageDocumentation'],
+            definedTags: ['packageDocumentation'],
           },
         ],
         '@typescript-eslint/no-var-requires': 'off',
@@ -152,30 +154,19 @@ module.exports = {
       },
     },
     {
-      files: ['**/__integrationtests__/*.ts'],
-      rules: {
-        'import/extensions': 'off',
-        'jsdoc/require-jsdoc': 'off',
-        'no-console': 'off',
-      },
-    },
-    {
       files: ['**/augment-api/src/interfaces/**/*.ts'],
       rules: {
         'license-header/header': 'off',
       },
     },
     {
-      files: ['tests/*'],
+      files: ['tests/**/*'],
       rules: {
+        'import/extensions': 'off',
+        'jsdoc/require-jsdoc': 'off',
         'no-console': 'off',
         '@typescript-eslint/explicit-function-return-type': 'off',
-        'import/no-extraneous-dependencies': [
-          'error',
-          {
-            devDependencies: ['tests/*', 'tests/bundle.spec.ts'],
-          },
-        ],
+        'import/no-extraneous-dependencies': 'off',
       },
     },
   ],

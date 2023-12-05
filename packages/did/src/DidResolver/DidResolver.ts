@@ -29,18 +29,20 @@ import { exportToDidDocument } from '../DidDocumentExporter/DidDocumentExporter.
 export async function resolve(
   did: DidUri
 ): Promise<DidResolutionResult | null> {
+  const { type } = parse(did)
   const api = ConfigService.get('api')
+
   let encodedDid: any
 
   encodedDid = await cord_api_query('did', 'query', did)
 
   if (!encodedDid || !encodedDid.response) {
-    const queryFunction = api.call.did?.query
-    const { section, version } = queryFunction?.meta ?? {}
-    if (version > 2)
-      throw new Error(
-        `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
-      )
+    const queryFunction = api.call.didApi?.query
+    // const { section, version } = queryFunction ?? {}
+    // if (version > 2)
+    //   throw new Error(
+    //     `This version of the sdk supports runtime api '${section}' <=v2 , but the blockchain runtime implements ${version}. Please upgrade!`
+    //   )
 
     encodedDid = await queryFunction(toChain(did))
       .then(linkedInfoFromChain)
@@ -51,7 +53,7 @@ export async function resolve(
 
   const { document, didName }: any = encodedDid
 
-  if (document) {
+  if (type === 'full' && document) {
     return {
       document,
       metadata: {
@@ -79,6 +81,9 @@ export async function resolve(
     }
   }
 
+  if (type === 'full') {
+    return null
+  }
   // If a DID with same subject is present, return the resolution metadata accordingly.
   if (document) {
     return {
@@ -92,7 +97,7 @@ export async function resolve(
   // If no DID details nor deletion info is found,
   // Metadata will simply contain `deactivated: false`.
   return {
-    document: document,
+    document,
     metadata: {
       deactivated: false,
     },

@@ -14,6 +14,59 @@ import * as SDKErrors from './SDKErrors.js'
 import { checkIdentifier } from './Identifier.js'
 import { ss58Format } from './ss58Format.js'
 
+
+export function flattenObject(obj: Record<string, any>, prefix = ''): Record<string, any> {
+  const flatObject: Record<string, any> = {};
+
+  Object.keys(obj).forEach(key => {
+    const newKey = `${prefix}${key}`;
+
+    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+      flatObject[newKey] = obj[key]; // Store the current object
+      const deeper = flattenObject(obj[key], `${newKey}.`); // Recurse deeper
+      for (let prop in deeper) {
+        flatObject[prop] = deeper[prop];
+      }
+    } else {
+      flatObject[newKey] = obj[key];
+    }
+  });
+
+  return flatObject;
+}
+
+function extractKeyPartFromStatement(statement: string): string | null {
+  try {
+    const obj = JSON.parse(statement);
+    const keys = Object.keys(obj);
+    if (keys.length > 0) {
+      // Always retain 'issuer' and 'holder'
+      if (keys[0] === 'issuer' || keys[0] === 'holder') return keys[0];
+
+      const parts = keys[0].split("#");
+      return parts.length > 1 ? parts[1] : null;
+    }
+    return null;
+  } catch (error) {
+    return null; // If parsing fails, return null
+  }
+}
+
+
+export function filterStatements(statements: string[], selectedAttributes: string[]): string[] {
+  return statements.filter(statement => {
+    const keyPart = extractKeyPartFromStatement(statement);
+    if (!keyPart) return false; // Omit if key extraction fails
+
+    // Always include 'issuer' and 'holder'
+    if (keyPart === 'issuer' || keyPart === 'holder') return true;
+
+    return selectedAttributes.includes(keyPart);
+  });
+}
+
+
+
 /**
  *  Validates the format of the given blake2b hash via regex.
  *

@@ -54,5 +54,6 @@ export interface ISchema {
       | RefPattern
   }
   type: 'object'
+  required: string[]
   additionalProperties?: false
 }
