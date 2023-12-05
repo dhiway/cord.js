@@ -119,9 +119,11 @@ function servicesFromChain(
  * DidName is the type of nickname for a DID.
  */
 export type DidName = string
+export type DidAccount = string
 
 export interface DidInfo {
   document: DidDocument
+  account: DidAccount
   didName?: DidName
 }
 
@@ -135,7 +137,11 @@ export interface DidInfo {
 export function linkedInfoFromChain(
   encoded: Option<RawDidLinkedInfo>
 ): DidInfo {
-  const { identifier, name, serviceEndpoints, details } = encoded.unwrap()
+  // if (encoded.isNone) {
+  //   throw 'Did not find'
+  // }
+  const { identifier, account, name, serviceEndpoints, details } =
+    encoded.unwrap()
   const didRec = documentFromChain(details)
   const did: DidDocument = {
     uri: fromChain(identifier),
@@ -151,39 +157,38 @@ export function linkedInfoFromChain(
   }
 
   const didName = name.isNone ? undefined : name.unwrap().toHuman()
+  const DidAccount = account.toHuman()
 
   return {
     document: did,
+    account: DidAccount,
     didName,
   }
 }
 
 interface PalletDidDidDetailsApi extends Struct {
-  readonly authenticationKey: string;
-  readonly keyAgreementKeys: string;
-  readonly delegationKey: string | undefined;
-  readonly assertionKey: string | undefined;
-  readonly publicKeys: any; /* todo */
-  readonly lastTxCounter: number;
+  readonly authenticationKey: string
+  readonly keyAgreementKeys: string
+  readonly delegationKey: string | undefined
+  readonly assertionKey: string | undefined
+  readonly publicKeys: any /* todo */
+  readonly lastTxCounter: number
 }
 
 interface PalletDidServiceEndpointsApi extends Struct {
-  readonly id: string;
-  readonly serviceTypes: string[];
-  readonly urls: string[];
+  readonly id: string
+  readonly serviceTypes: string[]
+  readonly urls: string[]
 }
 
-function didPublicKeyDetailsFromApi(
-  keyId: string,
-  keyDetails: any
-): DidKey {
-  const key = keyDetails.key.publicVerificationKey 
+function didPublicKeyDetailsFromApi(keyId: string, keyDetails: any): DidKey {
+  const key = keyDetails.key.publicVerificationKey
     ? keyDetails.key.publicVerificationKey
     : keyDetails.key.publicEncryptionKey
   return {
     id: `#${keyId}`,
     type: Object.keys(key)[0].toLowerCase() as DidKey['type'],
-    publicKey: hexToU8a(Object.entries(key)[0][1] as HexString)
+    publicKey: hexToU8a(Object.entries(key)[0][1] as HexString),
   }
 }
 
@@ -201,7 +206,10 @@ function documentFromApi(encoded: AnyJson): RpcDocument {
 
   const keys: Record<string, DidKey> = [...Object.entries(publicKeys)]
     .map(([keyId, keyDetails]) =>
-      didPublicKeyDetailsFromApi(keyId, (keyDetails as unknown) as PalletDidDidDetailsDidPublicKeyDetails)
+      didPublicKeyDetailsFromApi(
+        keyId,
+        keyDetails as unknown as PalletDidDidDetailsDidPublicKeyDetails
+      )
     )
     .reduce((res, key) => {
       res[resourceIdToChain(key.id)] = key
@@ -245,17 +253,17 @@ function serviceFromApi(
   }
 }
 
-function servicesFromApi(
-  encoded: AnyJson
-): DidServiceEndpoint[] {
-  const e: PalletDidServiceEndpointsApi[] = encoded as unknown as PalletDidServiceEndpointsApi[]
+function servicesFromApi(encoded: AnyJson): DidServiceEndpoint[] {
+  const e: PalletDidServiceEndpointsApi[] =
+    encoded as unknown as PalletDidServiceEndpointsApi[]
   return e.map((encodedValue) => serviceFromApi(encodedValue))
 }
 
-export function linkedInfoFromApi(
-  encoded: Record<string, AnyJson>
-): DidInfo {
-  const { identifier, name, serviceEndpoints, details } = encoded
+export function linkedInfoFromApi(encoded: Record<string, AnyJson>): DidInfo {
+  // if (encoded.isNone) {
+  //   throw 'Did not find'
+  // }
+  const { identifier, account, name, serviceEndpoints, details } = encoded
   const didRec = documentFromApi(details)
   const did: DidDocument = {
     uri: fromChain(identifier as string),
@@ -270,8 +278,11 @@ export function linkedInfoFromApi(
     did.service = service
   }
 
+  const DidAccount = account
+
   return {
     document: did,
-    didName: name ? name as string : undefined,
+    account: DidAccount as DidAccount,
+    didName: name ? (name as string) : undefined,
   }
 }

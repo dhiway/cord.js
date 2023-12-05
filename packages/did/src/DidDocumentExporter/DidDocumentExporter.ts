@@ -5,6 +5,7 @@ import type {
   ConformingDidDocument,
   DidResourceUri,
   JsonLDDidDocument,
+  UriFragment,
 } from '@cord.network/types'
 import {
   encryptionKeyTypesMap,
@@ -23,6 +24,12 @@ function exportToJsonDidDocument(did: DidDocument): ConformingDidDocument {
     service = [],
   } = did
 
+  function toAbsoluteUri(keyId: UriFragment): DidResourceUri {
+    if (keyId.startsWith(controller)) {
+      return keyId as DidResourceUri
+    }
+    return `${controller}${keyId}`
+  }
 
   const verificationMethod: ConformingDidDocument['verificationMethod'] = [
     ...authentication,
@@ -37,7 +44,7 @@ function exportToJsonDidDocument(did: DidDocument): ConformingDidDocument {
       }))
     )
     .map(({ id, type, publicKey }) => ({
-      id: `${controller}${id}` as DidResourceUri,
+      id: toAbsoluteUri(id),
       controller,
       type,
       publicKeyBase58: base58Encode(publicKey),
@@ -51,15 +58,15 @@ function exportToJsonDidDocument(did: DidDocument): ConformingDidDocument {
   return {
     id: controller,
     verificationMethod,
-    authentication: [authentication[0].id],
+    authentication: [toAbsoluteUri(authentication[0].id)],
     ...(assertionMethod[0] && {
-      assertionMethod: [assertionMethod[0].id],
+      assertionMethod: [toAbsoluteUri(assertionMethod[0].id)],
     }),
     ...(capabilityDelegation[0] && {
-      capabilityDelegation: [capabilityDelegation[0].id],
+      capabilityDelegation: [toAbsoluteUri(capabilityDelegation[0].id)],
     }),
     ...(keyAgreement.length > 0 && {
-      keyAgreement: [keyAgreement[0].id],
+      keyAgreement: [toAbsoluteUri(keyAgreement[0].id)],
     }),
     ...(service.length > 0 && {
       service: service.map((endpoint) => ({

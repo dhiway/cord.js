@@ -2,7 +2,7 @@ import * as Cord from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { generateKeypairs } from './generateKeypairs'
 import { hexToU8a } from '@polkadot/util'
-import { cord_api_query } from '@cord.network/utils'
+import { cord_api_query } from '@cord.network/config'
 
 /**
  * It creates a DID on chain, and returns the mnemonic and DID document
@@ -40,6 +40,7 @@ export async function createDid(
         },
       ],
     },
+    submitterAccount.address,
     async ({ data }) => ({
       signature: authentication.sign(data),
       keyType: authentication.type,

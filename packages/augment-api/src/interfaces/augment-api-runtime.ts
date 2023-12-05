@@ -5,18 +5,19 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/api-base/types/calls';
 
-import type { RawDidLinkedInfo } from './extraDefs/index.js';
+import type { RawDidLinkedInfo } from '@cord.network/augment-api/extraDefs';
 import type { ApiTypes, AugmentedCall, DecoratedCallBase } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Text, Vec, u32 } from '@polkadot/types-codec';
-import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
+import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { BabeEquivocationProof, BabeGenesisConfiguration, Epoch, OpaqueKeyOwnershipProof } from '@polkadot/types/interfaces/babe';
 import type { CheckInherentsResult, InherentData } from '@polkadot/types/interfaces/blockbuilder';
 import type { BlockHash } from '@polkadot/types/interfaces/chain';
 import type { AuthorityId } from '@polkadot/types/interfaces/consensus';
 import type { Extrinsic } from '@polkadot/types/interfaces/extrinsics';
 import type { AuthorityList, GrandpaEquivocationProof, SetId } from '@polkadot/types/interfaces/grandpa';
-import type { FeeDetails, RuntimeDispatchInfo } from '@polkadot/types/interfaces/payment';
-import type { AccountId, AccountId32, Balance, Block, Call, Header, Index, KeyTypeId, Slot, Weight } from '@polkadot/types/interfaces/runtime';
+import type { OpaqueMetadata } from '@polkadot/types/interfaces/metadata';
+import type { RuntimeDispatchInfo } from '@polkadot/types/interfaces/payment';
+import type { AccountId, AccountId32, Block, Header, Index, KeyTypeId, Slot } from '@polkadot/types/interfaces/runtime';
 import type { RuntimeVersion } from '@polkadot/types/interfaces/state';
 import type { ApplyExtrinsicResult } from '@polkadot/types/interfaces/system';
 import type { TransactionSource, TransactionValidity } from '@polkadot/types/interfaces/txqueue';
@@ -102,8 +103,8 @@ declare module '@polkadot/api-base/types/calls' {
        **/
       version: AugmentedCall<ApiType, () => Observable<RuntimeVersion>>;
     };
-    /** 0x26609555c0656603/1 */
-    did: {
+    /** 0xa02708c798d60bce/1 */
+    didApi: {
       /**
        * Return the information relative to the owner of the provided DID, if present.
        **/
@@ -132,6 +133,21 @@ declare module '@polkadot/api-base/types/calls' {
        **/
       submitReportEquivocationUnsignedExtrinsic: AugmentedCall<ApiType, (equivocationProof: GrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: OpaqueKeyOwnershipProof | string | Uint8Array) => Observable<Option<Null>>>;
     };
+    /** 0x37e397fc7c91f5e4/2 */
+    metadata: {
+      /**
+       * Returns the metadata of a runtime
+       **/
+      metadata: AugmentedCall<ApiType, () => Observable<OpaqueMetadata>>;
+      /**
+       * Returns the metadata at a given version.
+       **/
+      metadataAtVersion: AugmentedCall<ApiType, (version: u32 | AnyNumber | Uint8Array) => Observable<Option<OpaqueMetadata>>>;
+      /**
+       * Returns the supported metadata versions.
+       **/
+      metadataVersions: AugmentedCall<ApiType, () => Observable<Vec<u32>>>;
+    };
     /** 0xf78b278be53f454c/2 */
     offchainWorkerApi: {
       /**
@@ -157,24 +173,12 @@ declare module '@polkadot/api-base/types/calls' {
        **/
       validateTransaction: AugmentedCall<ApiType, (source: TransactionSource | 'InBlock' | 'Local' | 'External' | number | Uint8Array, tx: Extrinsic | IExtrinsic | string | Uint8Array, blockHash: BlockHash | string | Uint8Array) => Observable<TransactionValidity>>;
     };
-    /** 0xf3ff14d5ab527059/3 */
-    transactionPaymentCallApi: {
+    /** 0x5c8cda05c5979c32/1 */
+    transactionWeightApi: {
       /**
-       * The call fee details
+       * The transaction weight info
        **/
-      queryCallFeeDetails: AugmentedCall<ApiType, (call: Call | IMethod | string | Uint8Array, len: u32 | AnyNumber | Uint8Array) => Observable<FeeDetails>>;
-      /**
-       * The call info
-       **/
-      queryCallInfo: AugmentedCall<ApiType, (call: Call | IMethod | string | Uint8Array, len: u32 | AnyNumber | Uint8Array) => Observable<RuntimeDispatchInfo>>;
-      /**
-       * Query the output of the current LengthToFee given some input
-       **/
-      queryLengthToFee: AugmentedCall<ApiType, (length: u32 | AnyNumber | Uint8Array) => Observable<Balance>>;
-      /**
-       * Query the output of the current WeightToFee given some input
-       **/
-      queryWeightToFee: AugmentedCall<ApiType, (weight: Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => Observable<Balance>>;
+      queryWeightInfo: AugmentedCall<ApiType, (uxt: Extrinsic | IExtrinsic | string | Uint8Array) => Observable<RuntimeDispatchInfo>>;
     };
   } // AugmentedCalls
 } // declare module

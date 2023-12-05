@@ -60,7 +60,7 @@ export async function addAuthority(
 ) {
   const api = Cord.ConfigService.get('api')
 
-  const callTx = api.tx.extrinsicAuthorship.add([authority])
+  const callTx = api.tx.networkMembership.nominate(authority, false)
 
   const sudoTx = await api.tx.sudo.sudo(callTx)
 

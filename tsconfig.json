@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.build.json",
   "include": [
+    ".eslintrc.js",
     "packages/**/*",
     "jest-setup/*",
     "docs/*"
@@ -8,6 +9,7 @@
   "compilerOptions": {
     "baseUrl": "./packages",
     "sourceMap": true,
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@cord.network/network": [
         "network/src"
@@ -41,6 +43,9 @@
       ],
       "@cord.network/augment-api": [
         "augment-api/src"
+      ],
+      "@cord.network/augment-api/extraDefs": [
+        "augment-api/src/interfaces/extraDefs"
       ],
       "@cord.network/type-definitions": [
         "type-definitions/src"

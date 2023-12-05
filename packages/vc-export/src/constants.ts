@@ -25,4 +25,4 @@ export const CORD_CREDENTIAL_DIGEST_PROOF_TYPE = 'CordCredentialDigest2020'
 
 export const JSON_SCHEMA_TYPE = 'JsonSchemaValidator2018'
 
-export const CORD_CREDENTIAL_IRI_PREFIX = 'cred:cord:'
+export const CORD_CREDENTIAL_IRI_PREFIX = 'stream:cord:'
