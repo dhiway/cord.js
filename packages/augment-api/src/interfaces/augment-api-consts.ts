@@ -13,10 +13,6 @@ export type __AugmentedConst<ApiType extends ApiTypes> = AugmentedConst<ApiType>
 
 declare module '@polkadot/api-base/types/consts' {
   interface AugmentedConsts<ApiType extends ApiTypes> {
-    asset: {
-      maxAssetDistribution: u32 & AugmentedConst<ApiType>;
-      maxEncodedValueLength: u32 & AugmentedConst<ApiType>;
-    };
     babe: {
       /**
        * The amount of time, in slots, that each epoch should last.

@@ -11,56 +11,6 @@ export type __AugmentedError<ApiType extends ApiTypes> = AugmentedError<ApiType>
 
 declare module '@polkadot/api-base/types/errors' {
   interface AugmentedErrors<ApiType extends ApiTypes> {
-    asset: {
-      /**
-       * Asset already added
-       **/
-      AssetIdAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * Asset identifier not found
-       **/
-      AssetIdNotFound: AugmentedError<ApiType>;
-      /**
-       * asset instance not found
-       **/
-      AssetInstanceNotFound: AugmentedError<ApiType>;
-      /**
-       * Asset is not active
-       **/
-      AssetNotActive: AugmentedError<ApiType>;
-      /**
-       * distribution limit exceeded
-       **/
-      DistributionLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Not enough balance
-       **/
-      InsufficientBalance: AugmentedError<ApiType>;
-      /**
-       * Invalid asset type
-       **/
-      InvalidAssetType: AugmentedError<ApiType>;
-      /**
-       * Invalid asset value - should be greater than zero
-       **/
-      InvalidAssetValue: AugmentedError<ApiType>;
-      /**
-       * Invalid digest
-       **/
-      InvalidDigest: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifer Length
-       **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * Invalid creator signature
-       **/
-      InvalidSignature: AugmentedError<ApiType>;
-      /**
-       * Unauthorized operation
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
-    };
     authorityMembership: {
       /**
        * The authority entry already exists.
