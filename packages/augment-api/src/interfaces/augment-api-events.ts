@@ -16,24 +16,6 @@ export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>
 
 declare module '@polkadot/api-base/types/events' {
   interface AugmentedEvents<ApiType extends ApiTypes> {
-    asset: {
-      /**
-       * A new asset entry has been added.
-       * \[asset entry identifier, issuer\]
-       **/
-      Create: AugmentedEvent<ApiType, [identifier: Bytes, issuer: AccountId32], { identifier: Bytes, issuer: AccountId32 }>;
-      /**
-       * A new asset entry has been added.
-       * \[asset entry identifier, instance identifier\]
-       **/
-      Issue: AugmentedEvent<ApiType, [identifier: Bytes, instance: Bytes], { identifier: Bytes, instance: Bytes }>;
-      /**
-       * A asset has been transfered.
-       * \[asset entry identifier, instance identifier, owner, beneficiary,
-       * \]
-       **/
-      Transfer: AugmentedEvent<ApiType, [identifier: Bytes, instance: Bytes, from: AccountId32, to: AccountId32], { identifier: Bytes, instance: Bytes, from: AccountId32, to: AccountId32 }>;
-    };
     authorityMembership: {
       /**
        * List of members who will enter the set of authorities at the next

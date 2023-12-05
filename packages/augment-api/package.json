@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/augment-api",
-  "version": "0.9.0-1beta5",
+  "version": "0.9.0",
   "description": "",
   "types": "./lib/index.d.ts",
   "type": "module",
