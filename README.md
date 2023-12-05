@@ -46,11 +46,9 @@ Follow the instructions under the topic -  "Run the node"
 
 ```
 
-$ yarn demo
+$ npx tsx src/func-test.ts
 
-$ yarn demo-vc
-
-$ yarn bench
+$ npx tsx src/network-score-test.ts
 
 ```
 The output of these runs are self-explanatory. For reference of how this is structured,
