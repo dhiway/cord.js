@@ -1,7 +1,3 @@
-/**
- * @module @@cord.network/did
- */
-
 export * from './DidDetails/index.js'
 export * from './DidDocumentExporter/index.js'
 export * from './DidResolver/index.js'
