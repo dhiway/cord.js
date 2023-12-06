@@ -20,9 +20,11 @@
       "packages/statement/src/index.ts",
       "packages/identifier/src/index.ts",
       "packages/chain-space/src/index.ts",
+      "packages/schema/src/index.ts",
+      "packages/network-score/src/index.ts",
       "packages/sdk/src/index.ts"
     ],
-    "out": "docs/api",
+    "out": "docs",
     "theme": "default",
     "exclude": [
       "**/*spec.ts",
@@ -37,11 +39,13 @@
     "hideGenerator": true,
     "excludeInternal": true,
     "categorizeByGroup": true,
-    "name": "CORD.js Documentation",
+    "excludeNotDocumented": true,
+    "includeVersion": true,
+    "name": "SDK Documentation",
     "readme": "README.md",
     "navigation": {
       "includeCategories": true,
-      "includeGroups": true
+      "includeGroups": true,
     },
   }
 }
