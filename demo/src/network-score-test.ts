@@ -1,5 +1,4 @@
 import * as Cord from '@cord.network/sdk'
-import { generateKeypairs } from './utils/generateKeypairs'
 import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
@@ -28,20 +27,20 @@ async function main() {
 
   const { mnemonic: chainSpaceAdminMnemonic, document: chainSpaceAdminDid } =
     await createDid(networkAuthorIdentity)
-  const chainSpaceAdminKeys = generateKeypairs(chainSpaceAdminMnemonic)
+  const chainSpaceAdminKeys = Cord.Utils.Keys.generateKeypairs(chainSpaceAdminMnemonic)
   console.log(
     `🔐  Network Score Admin (${chainSpaceAdminDid.authentication[0].type}): ${chainSpaceAdminDid.uri}`
   )
   const { mnemonic: networkProviderMnemonic, document: networkProviderDid } =
     await createDid(networkAuthorIdentity)
-  const networkProviderKeys = generateKeypairs(networkProviderMnemonic)
+  const networkProviderKeys = Cord.Utils.Keys.generateKeypairs(networkProviderMnemonic)
   console.log(
     `🔐  Network Participant (Provider) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
   )
 
   const { mnemonic: networkAuthorMnemonic, document: networkAuthorDid } =
     await createDid(networkAuthorIdentity)
-  const networkAuthorKeys = generateKeypairs(networkAuthorMnemonic)
+  const networkAuthorKeys = Cord.Utils.Keys.generateKeypairs(networkAuthorMnemonic)
   console.log(
     `🔐 Network Author (API -> Node) (${networkAuthorDid.authentication[0].type}): ${networkAuthorDid.uri}`
   )
