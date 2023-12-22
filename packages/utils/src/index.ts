@@ -1,6 +1,7 @@
 export * as jsonabc from './jsonabc.js'
 
 export * as Crypto from './Crypto.js'
+export * as Keys from './Keys.js'
 export * as Balance from './Balance.js'
 export * as UUID from './UUID.js'
 export * as DataUtils from './DataUtils.js'
