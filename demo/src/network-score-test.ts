@@ -17,7 +17,7 @@ async function main() {
   console.log(`\n🌐 Network Score Initial Setup`)
 
   console.log(`\n🎎 Particpants `)
-  const { account: networkAuthorIdentity } = await createAccount(
+  const { account: networkAuthorIdentity } = createAccount(
     Cord.Utils.Crypto.mnemonicGenerate()
   )
   console.log(
@@ -76,7 +76,7 @@ async function main() {
   const chainSpace = await Cord.ChainSpace.dispatchToChain(
     spaceProperties,
     chainSpaceAdminDid.uri,
-    networkAuthorIdentity,
+    devAuthorIdentity,
     async ({ data }) => ({
       signature: chainSpaceAdminKeys.authentication.sign(data),
       keyType: chainSpaceAdminKeys.authentication.type,
@@ -158,9 +158,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
       keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${
-        networkProviderDid.assertionMethod![0].id
-      }` as Cord.DidResourceUri,
+      keyUri: `${networkProviderDid.uri}${networkProviderDid.assertionMethod![0].id
+        }` as Cord.DidResourceUri,
     })
   )
   console.log(`\n🌐  Rating Information to API endpoint (/write-ratings) `)
@@ -176,9 +175,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkAuthorKeys.assertionMethod.sign(data),
       keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri: `${networkAuthorDid.uri}${
-        networkAuthorDid.assertionMethod![0].id
-      }` as Cord.DidResourceUri,
+      keyUri: `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod![0].id
+        }` as Cord.DidResourceUri,
     })
   )
 
@@ -220,9 +218,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
       keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${
-        networkProviderDid.assertionMethod![0].id
-      }` as Cord.DidResourceUri,
+      keyUri: `${networkProviderDid.uri}${networkProviderDid.assertionMethod![0].id
+        }` as Cord.DidResourceUri,
     })
   )
   console.log(
@@ -241,9 +238,8 @@ async function main() {
       async ({ data }) => ({
         signature: networkAuthorKeys.assertionMethod.sign(data),
         keyType: networkAuthorKeys.assertionMethod.type,
-        keyUri: `${networkAuthorDid.uri}${
-          networkAuthorDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
+        keyUri: `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod![0].id
+          }` as Cord.DidResourceUri,
       })
     )
   console.log(
@@ -290,9 +286,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkProviderKeys.assertionMethod.sign(data),
       keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${
-        networkProviderDid.assertionMethod![0].id
-      }` as Cord.DidResourceUri,
+      keyUri: `${networkProviderDid.uri}${networkProviderDid.assertionMethod![0].id
+        }` as Cord.DidResourceUri,
     })
   )
   console.log(
@@ -310,9 +305,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkAuthorKeys.assertionMethod.sign(data),
       keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri: `${networkAuthorDid.uri}${
-        networkAuthorDid.assertionMethod![0].id
-      }` as Cord.DidResourceUri,
+      keyUri: `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod![0].id
+        }` as Cord.DidResourceUri,
     })
   )
 

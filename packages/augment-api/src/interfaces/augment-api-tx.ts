@@ -21,15 +21,15 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * See [`Pallet::create`].
        **/
-      create: AugmentedSubmittable<(entry: PalletAssetAssetInputEntry | { assetType?: any; assetDesc?: any; assetQty?: any; assetValue?: any; assetTag?: any; assetMeta?: any } | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetInputEntry, SpRuntimeMultiSignature]>;
+      create: AugmentedSubmittable<(entry: PalletAssetAssetInputEntry | { assetType?: any; assetDesc?: any; assetQty?: any; assetValue?: any; assetTag?: any; assetMeta?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetInputEntry, H256, SpRuntimeMultiSignature]>;
       /**
        * See [`Pallet::issue`].
        **/
-      issue: AugmentedSubmittable<(entry: PalletAssetAssetIssuanceEntry | { assetId?: any; newAssetOwner?: any; assetIssuanceQty?: any } | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetIssuanceEntry, SpRuntimeMultiSignature]>;
+      issue: AugmentedSubmittable<(entry: PalletAssetAssetIssuanceEntry | { assetId?: any; assetOwner?: any; assetIssuanceQty?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetIssuanceEntry, H256, SpRuntimeMultiSignature]>;
       /**
        * See [`Pallet::transfer`].
        **/
-      transfer: AugmentedSubmittable<(entry: PalletAssetAssetTransferEntry | { assetId?: any; assetInstanceId?: any; newAssetOwner?: any } | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetTransferEntry, SpRuntimeMultiSignature]>;
+      transfer: AugmentedSubmittable<(entry: PalletAssetAssetTransferEntry | { assetId?: any; assetInstanceId?: any; assetOwner?: any; newAssetOwner?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetTransferEntry, H256, SpRuntimeMultiSignature]>;
     };
     authorityMembership: {
       /**
@@ -552,6 +552,10 @@ declare module '@polkadot/api-base/types/submittable' {
       update: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, newStatementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
     };
     sudo: {
+      /**
+       * See [`Pallet::remove_key`].
+       **/
+      removeKey: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
        * See [`Pallet::set_key`].
        **/
