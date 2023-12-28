@@ -33,26 +33,26 @@
   },
   "repository": "github:dhiway/cord.js",
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.0"
   },
   "author": "Dhiway <info@dhiway.com>",
   "license": "Apache-2.0",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
-    "@polkadot/api": "^10.10.1",
-    "@polkadot/typegen": "^10.10.1",
-    "@types/node": "^20.8.4",
+    "@polkadot/api": "^10.11.1",
+    "@polkadot/typegen": "^10.11.1",
+    "@types/node": "^20.10.5",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
+    "typescript": "^5.3.0",
     "yargs": "^16.2.0"
   },
   "dependencies": {
     "@cord.network/type-definitions": "workspace:*",
-    "@polkadot/rpc-augment": "^10.10.1",
-    "@polkadot/rpc-core": "^10.10.1",
-    "@polkadot/rpc-provider": "^10.10.1",
+    "@polkadot/rpc-augment": "^10.11.1",
+    "@polkadot/rpc-core": "^10.11.1",
+    "@polkadot/rpc-provider": "^10.11.1",
     "glob": "^7.1.1"
   }
 }

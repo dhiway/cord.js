@@ -33,10 +33,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       DistributionLimitExceeded: AugmentedError<ApiType>;
       /**
-       * Not enough balance
-       **/
-      InsufficientBalance: AugmentedError<ApiType>;
-      /**
        * Invalid asset type
        **/
       InvalidAssetType: AugmentedError<ApiType>;
@@ -56,6 +52,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Invalid creator signature
        **/
       InvalidSignature: AugmentedError<ApiType>;
+      /**
+       * Not enough balance
+       **/
+      OverIssuanceLimit: AugmentedError<ApiType>;
       /**
        * Unauthorized operation
        **/
@@ -1043,7 +1043,7 @@ declare module '@polkadot/api-base/types/errors' {
     };
     sudo: {
       /**
-       * Sender must be the Sudo account
+       * Sender must be the Sudo account.
        **/
       RequireSudo: AugmentedError<ApiType>;
     };
