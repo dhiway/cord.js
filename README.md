@@ -2,22 +2,9 @@
 
 Provides a collection of classes and methods to interact with the Cord network.
 
-- [Install the SDK](#install-the-sdk)
 - [Build to see changes](#build-to-see-changes)
+- [To consume SDK in your project](#to-consume-sdk-in-your-project)
 
-## Install the SDK
-
-Install the SDK by running the following commands:
-
-```bash
-npm install @cord.network/sdk
-```
-
-Or with `yarn`:
-
-```bash
-yarn add @cord.network/sdk
-```
 
 ## Build to see changes
 
@@ -53,4 +40,20 @@ $ npx tsx demo/src/network-score-test.ts
 ```
 The output of these runs are self-explanatory. For reference of how this is structured,
 you can refer to the source of the demo scripts.
+
+
+## To consume SDK in your project
+
+Install the SDK by running the following commands in your project directory
+
+```bash
+npm install @cord.network/sdk
+```
+
+Or with `yarn`:
+
+```bash
+yarn add @cord.network/sdk
+```
+
 
