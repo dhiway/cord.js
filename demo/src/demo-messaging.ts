@@ -1,6 +1,5 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
-import { generateKeypairs } from './utils/generateKeypairs'
 import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
@@ -54,7 +53,7 @@ async function main() {
   const { mnemonic: verifierMnemonic, document: verifierDid } = await createDid(
     authorIdentity
   )
-  const verifierKeys = generateKeypairs(verifierMnemonic)
+  const verifierKeys = Cord.Utils.Keys.generateKeypairs(verifierMnemonic)
 
   console.log(
     `🏢  Verifier (${verifierDid.assertionMethod![0].type}): ${verifierDid.uri}`
@@ -63,7 +62,7 @@ async function main() {
   const { mnemonic: holderMnemonic, document: holderDid } = await createDid(
     authorIdentity
   )
-  const holderKeys = generateKeypairs(holderMnemonic)
+  const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic)
   console.log(
     `👩‍⚕️  Holder (${holderDid.assertionMethod![0].type}): ${holderDid.uri}`
   )
@@ -71,7 +70,7 @@ async function main() {
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
     authorIdentity
   )
-  const issuerKeys = generateKeypairs(issuerMnemonic)
+  const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic)
   console.log(
     `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`
   )
@@ -86,7 +85,7 @@ async function main() {
   // Create Delegate One DID
   const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
     await createDid(authorIdentity)
-  const delegateOneKeys = generateKeypairs(delegateOneMnemonic)
+  const delegateOneKeys = Cord.Utils.Keys.generateKeypairs(delegateOneMnemonic)
   console.log(
     `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${
       delegateOneDid.uri
@@ -95,7 +94,7 @@ async function main() {
   // Create Delegate Two DID
   const { mnemonic: delegateTwoMnemonic, document: delegateTwoDid } =
     await createDid(authorIdentity)
-  const delegateTwoKeys = generateKeypairs(delegateTwoMnemonic)
+  const delegateTwoKeys = Cord.Utils.Keys.generateKeypairs(delegateTwoMnemonic)
   console.log(
     `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${
       delegateTwoDid.uri
@@ -104,7 +103,7 @@ async function main() {
   // Create Delegate 3 DID
   const { mnemonic: delegate3Mnemonic, document: delegate3Did } =
     await createDid(authorIdentity)
-  const delegate3Keys = generateKeypairs(delegate3Mnemonic)
+  const delegate3Keys = Cord.Utils.Keys.generateKeypairs(delegate3Mnemonic)
   console.log(
     `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${
       delegate3Did.uri

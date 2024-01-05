@@ -1,6 +1,5 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
-import { generateKeypairs } from './utils/generateKeypairs'
 import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
@@ -55,7 +54,7 @@ async function main() {
 
   const { mnemonic: XMnemonic, document: XDid } = await createDid(X)
   const { mnemonic: YMnemonic, document: YDid } = await createDid(X)
-  const XKeys = await generateKeypairs(XMnemonic)
+  const XKeys = await Cord.Utils.Keys.generateKeypairs(XMnemonic)
 
   // // Step 2: Create a DID name for Issuer
   console.log(`\n❄️  DID name Creation `)
