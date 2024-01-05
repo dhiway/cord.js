@@ -1,6 +1,5 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID, Crypto } from '@cord.network/utils'
-import { generateKeypairs } from './utils/generateKeypairs'
 import { createDid } from './utils/generateDid'
 import { addRegistryAdminDelegate } from './utils/generateRegistry'
 import { randomUUID } from 'crypto'
@@ -32,7 +31,7 @@ async function main() {
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
     authorIdentity
   )
-  const issuerKeys = generateKeypairs(issuerMnemonic)
+  const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic)
   console.log(
     `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`
   )
@@ -41,7 +40,7 @@ async function main() {
   const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
     await createDid(authorIdentity)
 
-  const delegateOneKeys = generateKeypairs(delegateOneMnemonic)
+  const delegateOneKeys = Cord.Utils.Keys.generateKeypairs(delegateOneMnemonic)
 
   console.log(
     `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${
