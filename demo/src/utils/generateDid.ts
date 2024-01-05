@@ -1,6 +1,5 @@
 import * as Cord from '@cord.network/sdk'
 import { mnemonicGenerate } from '@polkadot/util-crypto'
-import { generateKeypairs } from './generateKeypairs'
 
 /**
  * It creates a DID on chain, and returns the mnemonic and DID document
@@ -21,7 +20,7 @@ export async function createDid(
     keyAgreement,
     assertionMethod,
     capabilityDelegation,
-  } = generateKeypairs(mnemonic)
+  } = Cord.Utils.Keys.generateKeypairs(mnemonic)
   // Get tx that will create the DID on chain and DID-URI that can be used to resolve the DID Document.
   const didCreationTx = await Cord.Did.getStoreTx(
     {
