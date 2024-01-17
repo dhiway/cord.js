@@ -90,5 +90,25 @@ export const typesBundle: OverrideBundleType = {
       },
       types: defaultTypesBundle,
     },
+    'Confidex-Alpha': {
+      runtime: {
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
+      },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
+      types: defaultTypesBundle,
+    },
+    'NPCI-Alpha': {
+      runtime: {
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
+      },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
+      types: defaultTypesBundle,
+    },
   },
 }
