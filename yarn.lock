@@ -1595,6 +1595,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cord.network/asset@workspace:*, @cord.network/asset@workspace:packages/asset":
+  version: 0.0.0-use.local
+  resolution: "@cord.network/asset@workspace:packages/asset"
+  dependencies:
+    "@cord.network/config": "workspace:*"
+    "@cord.network/did": "workspace:*"
+    "@cord.network/identifier": "workspace:*"
+    "@cord.network/network": "workspace:*"
+    "@cord.network/types": "workspace:*"
+    "@cord.network/utils": "workspace:*"
+    rimraf: "npm:^3.0.2"
+    typescript: "npm:^5.3.0"
+  languageName: unknown
+  linkType: soft
+
 "@cord.network/augment-api@workspace:*, @cord.network/augment-api@workspace:packages/augment-api":
   version: 0.0.0-use.local
   resolution: "@cord.network/augment-api@workspace:packages/augment-api"
@@ -1726,6 +1741,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/sdk@workspace:packages/sdk"
   dependencies:
+    "@cord.network/asset": "workspace:*"
     "@cord.network/chain-space": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"

@@ -52,6 +52,9 @@
       ],
       "@cord.network/network-score": [
         "network-score/src"
+      ],
+      "@cord.network/asset": [
+        "asset/src"
       ]
     }
   }

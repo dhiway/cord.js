@@ -35,6 +35,7 @@ const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   didLookup: 'authentication',
   didName: 'authentication',
   networkScore: 'authentication',
+  asset: 'authentication',
 }
 
 function getKeyRelationshipForMethod(
