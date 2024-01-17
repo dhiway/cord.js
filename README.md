@@ -14,7 +14,7 @@ Clone this repo and navigate into it.
 yarn
 ```
 
-Note that **before you see your changes from the SDK, you have to build it**, by executing a `build`:
+Note that **before you see your changes from the SDK, you have to build it** by executing a `build`:
 
 ```
 yarn build
@@ -23,19 +23,19 @@ yarn build
 ## Experiment the SDK methods
 
 
-Once the build of the package is complete (with `yarn build`), one can try below methods to check
+Once the build of the package is complete (with `yarn build`), one can try the below methods to check
 if methods are working.
 
 Note:
-Make sure that the cord instance in running locally by following the README.md under the CORD repo.
-Follow the instructions under the topic -  "Run the node"
+Ensure the cord instance is running locally by following the README.md under the CORD repo.
+Follow the instructions under the topic -  "Run the node."
 
 
 ```
 
-$ npx tsx demo/src/func-test.ts
+$ yarn tsx demo/src/func-test.ts
 
-$ npx tsx demo/src/network-score-test.ts
+$ yarn tsx demo/src/network-score-test.ts
 
 ```
 The output of these runs are self-explanatory. For reference of how this is structured,
