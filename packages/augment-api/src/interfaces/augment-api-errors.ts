@@ -33,6 +33,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       DistributionLimitExceeded: AugmentedError<ApiType>;
       /**
+       * Asset is not active
+       **/
+      InstanceNotActive: AugmentedError<ApiType>;
+      /**
        * Invalid asset type
        **/
       InvalidAssetType: AugmentedError<ApiType>;

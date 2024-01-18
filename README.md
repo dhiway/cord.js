@@ -33,9 +33,11 @@ Follow the instructions under the topic -  "Run the node."
 
 ```
 
-$ yarn tsx demo/src/func-test.ts
+$ yarn demo-statement
 
-$ yarn tsx demo/src/network-score-test.ts
+$ yarn demo-network-score
+
+$ yarn demo-asset
 
 ```
 The output of these runs are self-explanatory. For reference of how this is structured,

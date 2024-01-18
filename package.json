@@ -11,7 +11,6 @@
     "bundle": "yarn workspace @cord.network/sdk run bundle",
     "clean": "rimraf tests/dist && yarn workspaces foreach -Ap --exclude '{root-workspace}' run clean",
     "clean:docs": "rimraf docs/api",
-    "func-test": "tsx --no-cache demo/src/func-test.ts",
     "set:version": "yarn workspaces foreach -pt exec npm version --no-git-tag-version",
     "prepublish": "yarn workspaces foreach -Ap --no-private exec cp -f ../../LICENSE .",
     "publish": "yarn workspaces foreach -Apt --no-private npm publish",
@@ -22,7 +21,10 @@
     "style:fix": "yarn style --write",
     "test": "jest --coverage --group=unit --detectOpenHandles",
     "test:ci": "yarn test --ci --forceExit",
-    "test:watch": "yarn test --watch"
+    "test:watch": "yarn test --watch",
+    "demo-statement": "tsx --no-cache demo/src/func-test.ts",
+    "demo-network-score": "tsx --no-cache demo/src/network-score-test.ts",
+    "demo-asset": "tsx --no-cache demo/src/asset-tx.ts"
   },
   "husky": {
     "hooks": {
