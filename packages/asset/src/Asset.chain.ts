@@ -1,4 +1,3 @@
-
 import {
   AssetUri,
   IAssetEntry,
@@ -9,11 +8,10 @@ import {
   SignExtrinsicCallback,
   AuthorizationId,
   ASSET_PREFIX,
+  DidUri,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
-import type {
-  PalletAssetAssetEntry,
-} from '@cord.network/augment-api'
+import type { PalletAssetAssetEntry } from '@cord.network/augment-api'
 
 import * as Did from '@cord.network/did'
 import { uriToIdentifier } from '@cord.network/identifier'
@@ -21,9 +19,7 @@ import { Chain } from '@cord.network/network'
 import { ConfigService } from '@cord.network/config'
 import { SDKErrors } from '@cord.network/utils'
 
-export async function isAssetStored(
-  assetUri: AssetUri
-): Promise<boolean> {
+export async function isAssetStored(assetUri: AssetUri): Promise<boolean> {
   try {
     const api = ConfigService.get('api')
     const identifier = uriToIdentifier(assetUri)
@@ -91,9 +87,7 @@ export async function dispatchIssueToChain(
 
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
-    const exists = await isAssetStored(
-      assetEntry.entry.assetId as AssetUri
-    )
+    const exists = await isAssetStored(assetEntry.entry.assetId as AssetUri)
 
     if (!exists) {
       throw new SDKErrors.CordDispatchError(`Asset Entry not found on chain.`)
@@ -124,7 +118,6 @@ export async function dispatchIssueToChain(
   }
 }
 
-
 export async function dispatchTransferToChain(
   assetEntry: IAssetTransfer,
   authorAccount: CordKeyringPair,
@@ -133,10 +126,7 @@ export async function dispatchTransferToChain(
   try {
     const api = ConfigService.get('api')
 
-    const tx = api.tx.asset.transfer(
-    	  assetEntry.entry,
-	  assetEntry.digest,
-    )
+    const tx = api.tx.asset.transfer(assetEntry.entry, assetEntry.digest)
 
     const extrinsic = await Did.authorizeTx(
       assetEntry.owner,
@@ -157,3 +147,46 @@ export async function dispatchTransferToChain(
   }
 }
 
+export async function dispatchRevokeAssetToChain(
+  assetId: AssetUri,
+  assetInstanceId: string,
+  assetOwnerDid: DidUri,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<void> {
+  try {
+    const api = ConfigService.get('api')
+
+    let encodedAssetInstanceDetail = await api.query.asset.issuance(
+      assetId,
+      assetInstanceId
+    )
+    let assetInstanceDetail = JSON.parse(encodedAssetInstanceDetail.toString())
+
+    if (assetOwnerDid != assetInstanceDetail.assetInstanceOwner) {
+      throw new SDKErrors.AssetOwnerMismatch(`Error: Assset owner mismatch`)
+    }
+    if (assetInstanceDetail.assetInstanceStatus != 'ACTIVE') {
+      throw new SDKErrors.AssetInstanceNotActiveError(
+        `Error: Asset Instance is not active`
+      )
+    }
+
+    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
+    const tx = api.tx.asset.revoke(assetId, assetInstanceId, authorizationId)
+
+    const extrinsic = await Did.authorizeTx(
+      assetOwnerDid,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
+  }
+}
