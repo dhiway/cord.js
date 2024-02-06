@@ -9,7 +9,7 @@ import {
   AuthorizationId,
   ASSET_PREFIX,
   DidUri,
-  AssetTypeOf,
+  AssetStatusOf,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
 import type { PalletAssetAssetEntry } from '@cord.network/augment-api'
@@ -152,7 +152,7 @@ export async function dispatchAssetStatusChangeToChain(
   assetId: AssetUri,
   assetIssuerDidUri: DidUri,
   authorAccount: CordKeyringPair,
-  newStatus: AssetTypeOf,
+  newStatus: AssetStatusOf,
   signCallback: SignExtrinsicCallback,
   assetInstanceId?: string
 ): Promise<void> {
