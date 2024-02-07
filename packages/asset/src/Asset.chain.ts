@@ -173,7 +173,7 @@ export async function dispatchAssetStatusChangeToChain(
       let assetInstanceDetail = JSON.parse(
         encodedAssetInstanceDetail.toString()
       )
-      if (assetIssuerDidUri !== assetInstanceDetail.assetInstanceOwner) {
+      if (assetIssuerDidUri !== assetInstanceDetail.assetInstanceIssuer) {
         throw new SDKErrors.AssetIssuerMismatch(`Error: Assset issuer mismatch`)
       }
       if (assetInstanceDetail.assetInstanceStatus === newStatus) {
@@ -188,7 +188,7 @@ export async function dispatchAssetStatusChangeToChain(
         throw new SDKErrors.AssetNotFound(`Error: Assset Not Found`)
       }
       let assetDetail = JSON.parse(encodedAssetDetail.toString())
-      if (assetIssuerDidUri !== assetDetail.assetInstanceOwner) {
+      if (assetIssuerDidUri !== assetDetail.assetIssuer) {
         throw new SDKErrors.AssetIssuerMismatch(`Error: Assset issuer mismatch`)
       }
       if (assetDetail.assetInstanceStatus === newStatus) {
