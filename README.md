@@ -1,61 +1,90 @@
-# CORD.js <!-- omit in toc -->
+# CORD.js
 
-Provides a collection of classes and methods to interact with the Cord network.
+CORD.js is a JavaScript library that provides a collection of classes and methods to interact with the Cord network.
 
-- [Build to see changes](#build-to-see-changes)
-- [To consume SDK in your project](#to-consume-sdk-in-your-project)
+## Table of Contents
+- [Building the SDK](#building-the-sdk)
+- [Experimenting with SDK Methods](#experimenting-with-sdk-methods)
+  - [Demo Methods](#demo-methods)
+    - [Statement Method](#statement-method)
+    - [Network Score Method](#network-score-method)
+    - [Asset Method](#asset-method)
+- [Consuming the SDK in Your Project](#consuming-the-sdk-in-your-project)
 
+---
 
-## Build to see changes
+## Building the SDK
 
-Clone this repo and navigate into it.
+To build the SDK and see changes, follow these steps:
 
+1. Clone this repository to your local machine:
+
+   ```bash
+   git clone <repository_url>
+   cd <repository_directory>
+
+2. Install dependencies using yarn:
+
+     ```bash
+     yarn
+
+2. Build the SDK:
+
+    ```bash
+    yarn build
+
+## Experimenting with SDK Methods
+## Demo Methods
+Once the SDK is built, you can experiment with the provided methods.
+
+## Statement Method:
+
+The `demo-statement` method allows you to interact with statement-related functionalities.
+
+To run the statement demo, execute the following command:
+
+```bash
+yarn demo-statement
 ```
-yarn
+
+## Network Score Method:
+
+The `demo-network-score` method demonstrates methods related to network scores.
+
+To run the network score demo, execute the following command:
+
+```bash
+yarn demo-network-score
 ```
 
-Note that **before you see your changes from the SDK, you have to build it** by executing a `build`:
+## Asset Method:
 
-```
-yarn build
-```
+The `demo-asset` method showcases methods related to assets.
 
-## Experiment the SDK methods
+To run the asset demo, execute the following command:
 
-
-Once the build of the package is complete (with `yarn build`), one can try the below methods to check
-if methods are working.
-
-Note:
-Ensure the cord instance is running locally by following the README.md under the CORD repo.
-Follow the instructions under the topic -  "Run the node."
-
-
+```bash
+yarn demo-asset
 ```
 
-$ yarn demo-statement
+The output of each demo script will demonstrate the functionality of the corresponding method. For a detailed structure of the demo scripts, refer to the source code.
 
-$ yarn demo-network-score
+## Consuming the SDK in Your Project
 
-$ yarn demo-asset
+To use the SDK in your project, follow these steps:
 
-```
-The output of these runs are self-explanatory. For reference of how this is structured,
-you can refer to the source of the demo scripts.
+1. Navigate to your project directory.
 
-
-## To consume SDK in your project
-
-Install the SDK by running the following commands in your project directory
+2. Install the SDK using npm or yarn:
 
 ```bash
 npm install @cord.network/sdk
 ```
 
-Or with `yarn`:
+Or with yarn:
 
 ```bash
 yarn add @cord.network/sdk
 ```
 
-
+Once installed, you can import and utilize the SDK in your project as needed.
