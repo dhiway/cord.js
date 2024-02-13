@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/config",
-  "version": "0.9.0-1beta5",
+  "version": "0.9.3-1rc4",
   "description": "",
   "type": "commonjs",
   "main": "./lib/index.js",
@@ -31,13 +31,12 @@
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
-    "rimraf": "^3.0.2",
-    "typescript": "^5.3.0"
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "@cord.network/type-definitions": "workspace:*",
     "@cord.network/types": "workspace:*",
-    "@cord.network/utils": "workspace:*",
-    "typescript-logging": "^1.0.0"
+    "@cord.network/utils": "workspace:*"
   }
 }
