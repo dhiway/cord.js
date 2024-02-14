@@ -165,7 +165,7 @@ export async function dispatchAssetStatusChangeToChain(
         assetId,
         assetInstanceId
       )
-      if (!encodedAssetInstanceDetail) {
+      if (encodedAssetInstanceDetail.isNone) {
         throw new SDKErrors.AssetInstanceNotFound(
           `Error: Assset Instance Not Found`
         )
@@ -184,7 +184,7 @@ export async function dispatchAssetStatusChangeToChain(
       tx = api.tx.asset.statusChange(assetId, assetInstanceId, newStatus)
     } else {
       let encodedAssetDetail = await api.query.asset.assets(assetId)
-      if (!encodedAssetDetail) {
+      if (encodedAssetDetail.isNone) {
         throw new SDKErrors.AssetNotFound(`Error: Assset Not Found`)
       }
       let assetDetail = JSON.parse(encodedAssetDetail.toString())
