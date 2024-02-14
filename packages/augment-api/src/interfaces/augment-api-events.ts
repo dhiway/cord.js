@@ -10,7 +10,7 @@ import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u16, u32, 
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, H256 } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
+import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletAssetAssetStatusOf, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup'
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
@@ -27,6 +27,11 @@ declare module '@polkadot/api-base/types/events' {
        * \[asset entry identifier, instance identifier\]
        **/
       Issue: AugmentedEvent<ApiType, [identifier: Bytes, instance: Bytes], { identifier: Bytes, instance: Bytes }>;
+      /**
+       * An asset (or instance) entry has a new Status now
+       * \[asset entry identifier, optional instance identifier, new status\]
+       **/
+      StatusChange: AugmentedEvent<ApiType, [identifier: Bytes, instance: Option<Bytes>, status: PalletAssetAssetStatusOf], { identifier: Bytes, instance: Option<Bytes>, status: PalletAssetAssetStatusOf }>;
       /**
        * A asset has been transfered.
        * \[asset entry identifier, instance identifier, owner, beneficiary,
