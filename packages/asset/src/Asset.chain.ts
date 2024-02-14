@@ -9,10 +9,10 @@ import {
   AuthorizationId,
   ASSET_PREFIX,
   DidUri,
-  AssetStatusOf,
 } from '@cord.network/types'
+
 import type { Option } from '@cord.network/types'
-import type { PalletAssetAssetEntry } from '@cord.network/augment-api'
+import type { PalletAssetAssetEntry, PalletAssetAssetStatusOf } from '@cord.network/augment-api'
 
 import * as Did from '@cord.network/did'
 import { uriToIdentifier } from '@cord.network/identifier'
@@ -152,7 +152,7 @@ export async function dispatchAssetStatusChangeToChain(
   assetId: AssetUri,
   assetIssuerDidUri: DidUri,
   authorAccount: CordKeyringPair,
-  newStatus: AssetStatusOf,
+  newStatus: PalletAssetAssetStatusOf,
   signCallback: SignExtrinsicCallback,
   assetInstanceId?: string
 ): Promise<void> {
@@ -181,7 +181,7 @@ export async function dispatchAssetStatusChangeToChain(
           `Error: Asset Instance is already in the ${newStatus} state`
         )
       }
-      tx = api.tx.asset.status_change(assetId, assetInstanceId, newStatus)
+      tx = api.tx.asset.statusChange(assetId, assetInstanceId, newStatus)
     } else {
       let encodedAssetDetail = await api.query.asset.assets(assetId)
       if (!encodedAssetDetail) {
@@ -196,7 +196,7 @@ export async function dispatchAssetStatusChangeToChain(
           `Error: Asset is already in the ${newStatus} state`
         )
       }
-      tx = api.tx.asset.status_change(assetId, newStatus)
+      tx = api.tx.asset.statusChange(assetId, null, newStatus)
     }
 
     const extrinsic = await Did.authorizeTx(
