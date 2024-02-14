@@ -21,6 +21,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       AssetIdNotFound: AugmentedError<ApiType>;
       /**
+       * Asset is in same status as asked for
+       **/
+      AssetInSameState: AugmentedError<ApiType>;
+      /**
        * asset instance not found
        **/
       AssetInstanceNotFound: AugmentedError<ApiType>;
