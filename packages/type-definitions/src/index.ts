@@ -39,6 +39,18 @@ const defaultTypesBundle: OverrideVersionedType[] = [
 // }
 
 export const typesBundle: OverrideBundleType = {
+  spec: {
+    'cord': {
+      runtime: {
+        ...didApiCalls,
+        ...TransactionWeightApiCalls,
+      },
+      signedExtensions: {
+        ...cordSignedExtensions,
+      },
+      types: defaultTypesBundle,
+    },
+  },
   chain: {
     'Cord Sprintnet': {
       runtime: {
