@@ -238,3 +238,11 @@ export class DecodingMessageError extends SDKError {}
 export class TimeoutError extends SDKError {}
 
 export class CodecMismatchError extends SDKError {}
+
+export class AssetIssuerMismatch extends SDKError {}
+
+export class AssetInstanceNotFound extends SDKError {}
+
+export class AssetNotFound extends SDKError {}
+
+export class AssetStatusError extends SDKError {}
