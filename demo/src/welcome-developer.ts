@@ -8,7 +8,7 @@ import {
 } from "../src/utils/createRegistrar";
 import { addNetworkMember } from "../src/utils/createAuthorities";
 /**
-    Adding a Developer to Network
+    Adding a Developer to Network and Creating a Chainspace.
       This script facilitates adding a developer as a member of the network. Upon execution, 
       it provides essential information for developers to start building.
 
