@@ -6,11 +6,11 @@ import { addNetworkMember } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 
 async function main() {
-  const networkAddress = 'ws://127.0.0.1:9944'
+  const networkAddress = process.env.NETWORK_ADDRESS ? process.env.NETWORK_ADDRESS : 'ws://127.0.0.1:9944';
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
   const devAuthorIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
-    '//Alice',
+    process.env.ANCHOR_URI ? process.env.ANCHOR_URI : '//Alice',
     'sr25519'
   )
   console.log(`\n🌐 Network Score Initial Setup`)
@@ -135,7 +135,7 @@ async function main() {
   console.log(`\n⏳ Network Rating Transaction Flow`)
 
   console.log(`\n💠  Write Rating - (Genesis) Credit Entry `)
-  let ratingContent: Cord.IRatingContent = {
+  let ratingContent: IRatingContent = {
     entityUid: Cord.Utils.UUID.generate(),
     entityId: 'Gupta Kirana Store',
     providerUid: Cord.Utils.UUID.generate(),
@@ -150,17 +150,19 @@ async function main() {
     depth: null,
     colors: true,
   })
+  const entryDigest = Cord.Utils.Crypto.hashObjectAsHexStr(ratingContent);
+  const { totalRating, ...restOfRating} = ratingContent;
+  
+  let transformedEntry: IRatingEntry = {
+    entry: {
+      ...restOfRating,
+      providerDid: networkProviderDid.uri.replace('did:cord:', ''),
+      totalEncodedRating: Math.round(totalRating * 10),
+    },
+    messageId: Cord.Utils.UUID.generate(),
+    entryDigest,
+  };
 
-  let transformedEntry = await Cord.Score.buildFromContentProperties(
-    ratingContent,
-    networkProviderDid.uri,
-    async ({ data }) => ({
-      signature: networkProviderKeys.assertionMethod.sign(data),
-      keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${networkProviderDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
-    })
-  )
   console.log(`\n🌐  Rating Information to API endpoint (/write-ratings) `)
   console.dir(transformedEntry, {
     depth: null,
@@ -171,12 +173,6 @@ async function main() {
     transformedEntry,
     chainSpace.uri,
     networkAuthorDid.uri,
-    async ({ data }) => ({
-      signature: networkAuthorKeys.assertionMethod.sign(data),
-      keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri: `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
-    })
   )
 
   console.log(`\n🌐  Rating Information to Ledger (API -> Ledger) `)
@@ -210,17 +206,26 @@ async function main() {
     depth: null,
     colors: true,
   })
-  const revokeRatingEntry = await Cord.Score.buildFromRevokeProperties(
-    ratingUri,
-    transformedEntry.entry.entityUid,
-    networkProviderDid.uri,
-    async ({ data }) => ({
-      signature: networkProviderKeys.assertionMethod.sign(data),
-      keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${networkProviderDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
-    })
-  )
+
+  /* msgId can be decided by application */
+  const msgId = `msg-${Cord.Utils.UUID.generate()}`
+  const transactionTime = new Date().toISOString()
+
+  /* this is used for digest, but its again eco-system policy */
+  const entryTransform = { entryUri: ratingUri, msgId, provider: networkProviderDid.uri, transactionTime }
+
+  const revokeDigest = Cord.Utils.Crypto.hashObjectAsHexStr(entryTransform)
+
+  const revokeRatingEntry: IRatingRevokeEntry = {
+      entry: {
+        messageId: msgId,
+        entryDigest: revokeDigest,
+        referenceId: ratingUri,
+      },
+      entityUid: transformedEntry.entry.entityUid,
+      providerDid: networkProviderDid.uri,
+    }
+
   console.log(
     `\n🌐  Rating Revoke (Debit) Information to API endpoint (/amend-ratings) `
   )
@@ -234,12 +239,6 @@ async function main() {
       revokeRatingEntry,
       chainSpace.uri,
       networkAuthorDid.uri,
-      async ({ data }) => ({
-        signature: networkAuthorKeys.assertionMethod.sign(data),
-        keyType: networkAuthorKeys.assertionMethod.type,
-        keyUri: `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod![0].id
-          }` as Cord.DidResourceUri,
-      })
     )
   console.log(
     `\n🌐  Rating Revoke (Debit) Information to Ledger (API -> Ledger) `
