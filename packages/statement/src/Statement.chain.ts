@@ -219,7 +219,9 @@ export async function dispatchRegisterToChain(
 
     const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
     if (exists) {
-      return stmtEntry.elementUri
+      throw new SDKErrors.DuplicateStatementError(
+        `The statement is already anchored in the chain\nIdentifier: ${stmtEntry.elementUri}`
+      )
     }
 
     const tx = schemaId
