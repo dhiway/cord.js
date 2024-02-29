@@ -44,23 +44,12 @@ async function main() {
     "sr25519"
   );
 
-  const authorityIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
-    "//authority//1",
-    "ed25519"
-  );
-
-  await addNetworkMember(authorityAuthorIdentity, authorityIdentity.address);
-  await setRegistrar(authorityAuthorIdentity, authorityIdentity.address);
-
   const authorIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
     authorAnchorUri,
     "ed25519"
   );
 
   await addNetworkMember(authorityAuthorIdentity, authorIdentity.address);
-  await setIdentity(authorIdentity);
-  await requestJudgement(authorIdentity, authorityIdentity.address);
-  await provideJudgement(authorityIdentity, authorIdentity.address);
 
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
     authorIdentity
