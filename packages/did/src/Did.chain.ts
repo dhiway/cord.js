@@ -2,6 +2,7 @@ import type { Option } from '@polkadot/types'
 import type { AccountId32, Extrinsic, Hash } from '@polkadot/types/interfaces'
 import type { AnyNumber } from '@polkadot/types/types'
 import { BN } from '@polkadot/util'
+import { mnemonicGenerate } from '@polkadot/util-crypto'
 
 import type {
   DidDocument,
@@ -20,9 +21,10 @@ import type {
   SubmittableExtrinsic,
   UriFragment,
   VerificationKeyRelationship,
+  CordKeyringPair,
 } from '@cord.network/types'
 import { verificationKeyTypes } from '@cord.network/types'
-import { Crypto, SDKErrors, ss58Format } from '@cord.network/utils'
+import { Crypto, SDKErrors, ss58Format, Keys, } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import type {
   PalletDidDidDetails,
@@ -41,6 +43,11 @@ import {
   getDidUri,
   parse,
 } from './Did.utils.js'
+
+import {linkedInfoFromChain, getDidUriFromKey,} from './index.js'
+import { Chain } from '@cord.network/network'
+
+
 
 // ### Chain type definitions
 
@@ -475,4 +482,83 @@ export function didSignatureToChain(
   }
 
   return { [key.type]: signature } as EncodedSignature
+}
+
+/**
+ * This function fetches the DID document linked to a mnemonic.
+ * @param mnemonic The secret phrase used to fetch data.
+ * @returns  A Full DidDocument.
+ */
+export async function fetchFromMnemonic(mnemonic: string): Promise<DidDocument> {
+  const api = ConfigService.get('api')
+  const {
+    authentication,
+  } = Keys.generateKeypairs(mnemonic,"ed25519")
+  const didUri = getDidUriFromKey(authentication)
+  const encodedDid = await api.call.didApi.query(toChain(didUri))
+  
+  if(encodedDid.isNone){
+    throw new SDKErrors.DidError('No DID is accociated with the provided mnemonic')
+  }
+  else{
+    const { document } = linkedInfoFromChain(encodedDid)
+    return document
+  }
+}
+
+/**
+ * It creates a DID on chain, and returns the mnemonic and DID document
+ * @param submitterAccount - The account that will be used to pay for the transaction.
+ * @returns The mnemonic and the DID document.
+ */
+export async function createDid(
+  submitterAccount: CordKeyringPair,
+  didServiceEndpoint?: DidServiceEndpoint[]
+): Promise<{
+  mnemonic: string
+  document: DidDocument
+}> {
+  const api = ConfigService.get('api')
+
+  const mnemonic = mnemonicGenerate(24)
+  const {
+    authentication,
+    keyAgreement,
+    assertionMethod,
+    capabilityDelegation,
+  } = Keys.generateKeypairs(mnemonic,"ed25519")
+  // Get tx that will create the DID on chain and DID-URI that can be used to resolve the DID Document.
+  const didCreationTx = await getStoreTx(
+    {
+      authentication: [authentication],
+      keyAgreement: [keyAgreement],
+      assertionMethod: [assertionMethod],
+      capabilityDelegation: [capabilityDelegation],
+      service: didServiceEndpoint ? didServiceEndpoint : [
+        {
+          id: '#my-service',
+          type: ['service-type'],
+          serviceEndpoint: ['https://www.example.com'],
+        },
+      ],
+    },
+    submitterAccount.address,
+    async ({ data }) => ({
+      signature: authentication.sign(data),
+      keyType: authentication.type,
+    })
+  )
+
+  await Chain.signAndSubmitTx(didCreationTx, submitterAccount)
+
+  const didUri = getDidUriFromKey(authentication)
+  const encodedDid = await api.call.didApi.query(toChain(didUri))
+  const { document } = linkedInfoFromChain(encodedDid)
+
+  if (!document) {
+    throw new Error('DID was not successfully created.')
+  }
+  console.log(document)
+
+  return { mnemonic, document: document }
 }
