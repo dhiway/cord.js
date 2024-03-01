@@ -55,7 +55,6 @@ import { uriToIdentifier, identifierToUri } from '@cord.network/identifier'
 import { Chain } from '@cord.network/network'
 import { ConfigService } from '@cord.network/config'
 import { SDKErrors, DecoderUtils, DataUtils } from '@cord.network/utils'
-import { verifySignature } from './Scoring.js'
 
 /**
  * Checks if a specific rating is stored in the blockchain.
@@ -225,11 +224,6 @@ export async function dispatchRevokeRatingToChain(
 ): Promise<RatingEntryUri> {
   try {
     const api = ConfigService.get('api')
-    verifySignature(
-      ratingEntry.entryDigest,
-      ratingEntry.authorSignature,
-      Did.getDidUri(ratingEntry.authorUri)
-    )
 
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
