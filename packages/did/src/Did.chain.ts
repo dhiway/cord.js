@@ -486,7 +486,7 @@ export function didSignatureToChain(
 
 /**
  * This function fetches the DID document linked to a mnemonic.
- * @param mnemonic The secret phrase used to fetch data.
+ * @param mnemonic The secret phrase used to fetch the DID.
  * @returns  A Full DidDocument.
  */
 export async function fetchFromMnemonic(mnemonic: string): Promise<DidDocument> {
@@ -509,10 +509,13 @@ export async function fetchFromMnemonic(mnemonic: string): Promise<DidDocument> 
 /**
  * It creates a DID on chain, and returns the mnemonic and DID document
  * @param submitterAccount - The account that will be used to pay for the transaction.
+ * @param mnemonic - The secret phrase 
+ * @param didServiceEndpoint - The service endponits
  * @returns The mnemonic and the DID document.
  */
 export async function createDid(
   submitterAccount: CordKeyringPair,
+  theMnemonic?: string,
   didServiceEndpoint?: DidServiceEndpoint[]
 ): Promise<{
   mnemonic: string
@@ -520,7 +523,7 @@ export async function createDid(
 }> {
   const api = ConfigService.get('api')
 
-  const mnemonic = mnemonicGenerate(24)
+  const mnemonic = theMnemonic? theMnemonic : mnemonicGenerate(24)
   const {
     authentication,
     keyAgreement,
