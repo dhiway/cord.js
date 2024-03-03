@@ -56,6 +56,7 @@ import type {
   SchemaUri,
   IStatementEntry,
   HexString,
+  SubmittableExtrinsic,
 } from '@cord.network/types'
 import * as Did from '@cord.network/did'
 import {
@@ -210,6 +211,58 @@ export async function dispatchRegisterToChain(
   signCallback: SignExtrinsicCallback
 ): Promise<StatementUri> {
   try {
+    const tx = await prepareExtrinsic(
+      stmtEntry,
+      creatorUri,
+      authorAccount,
+      authorizationUri,
+      signCallback
+    )
+
+    await Chain.signAndSubmitTx(tx, authorAccount)
+
+    return stmtEntry.elementUri
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
+  }
+}
+
+/**
+ * This function prepares and returns a SubmittableExtrinsic for registering a statement on
+ * the blockchain.
+ * @param {IStatementEntry} stmtEntry - The `stmtEntry` parameter is an object of type
+ * `IStatementEntry`, which contains information about a statement entry.
+ * 
+ * @param {DidUri} creatorUri - The `creatorUri` parameter is a URI that identifies the creator of the
+ * statement entry. It is used to authorize the transaction when preparing the extrinsic.
+ * 
+ * @param {CordKeyringPair} authorAccount - The `authorAccount` parameter in the `prepareExtrinsic`
+ * function is of type `CordKeyringPair`. It represents the keyring pair used for signing the extrinsic
+ * transaction. This keyring pair contains the cryptographic key pair necessary for signing and
+ * verifying messages in the Corda network.
+ * 
+ * @param {AuthorizationUri} authorizationUri - The `authorizationUri` parameter in the
+ * `prepareExtrinsic` function is a URI that represents the authorization needed for the statement
+ * entry. It is used to identify and retrieve the authorization details required for registering the
+ * statement on the chain.
+ * 
+ * @param {SignExtrinsicCallback} signCallback - The `signCallback` parameter in the `prepareExtrinsic`
+ * function is a callback function that is used to sign the extrinsic transaction before it is
+ * submitted to the blockchain. This function typically takes care of the signing process using the
+ * private key of the account that is authorizing the transaction. It is
+ * 
+ * @returns A `SubmittableExtrinsic` is being returned from the `prepareExtrinsic` function.
+ */
+export async function prepareExtrinsic(
+  stmtEntry: IStatementEntry,
+  creatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<SubmittableExtrinsic> {
+  try {
     const api = ConfigService.get('api')
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
     const schemaId =
@@ -218,6 +271,7 @@ export async function dispatchRegisterToChain(
         : undefined
 
     const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
+
     if (exists) {
       throw new SDKErrors.DuplicateStatementError(
         `The statement is already anchored in the chain\nIdentifier: ${stmtEntry.elementUri}`
@@ -235,12 +289,10 @@ export async function dispatchRegisterToChain(
       authorAccount.address
     )
 
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
-
-    return stmtEntry.elementUri
+    return extrinsic
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
-      `Error dispatching to chain: "${error}".`
+      `Error returning extrinsic: "${error}".`
     )
   }
 }
