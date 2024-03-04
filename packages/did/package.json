@@ -38,6 +38,7 @@
     "@cord.network/config": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
+    "@cord.network/network": "workspace:*",
     "@digitalbazaar/security-context": "^1.0.1",
     "@polkadot/api": "^10.11.2",
     "@polkadot/keyring": "^12.6.2",
