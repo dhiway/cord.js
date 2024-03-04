@@ -246,3 +246,5 @@ export class AssetInstanceNotFound extends SDKError {}
 export class AssetNotFound extends SDKError {}
 
 export class AssetStatusError extends SDKError {}
+
+export class DuplicateStatementError extends SDKError {}
