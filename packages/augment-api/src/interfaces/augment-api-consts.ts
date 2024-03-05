@@ -58,10 +58,6 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxFreezes: u32 & AugmentedConst<ApiType>;
       /**
-       * The maximum number of holds that can exist on an account at any time.
-       **/
-      maxHolds: u32 & AugmentedConst<ApiType>;
-      /**
        * The maximum number of locks that should exist on an account.
        * Not strictly enforced, but used for weight estimation.
        **/
@@ -196,54 +192,6 @@ declare module '@polkadot/api-base/types/consts' {
        * The deposit needed for reserving an index.
        **/
       deposit: u128 & AugmentedConst<ApiType>;
-    };
-    mixnet: {
-      /**
-       * The maximum number of authorities per session.
-       **/
-      maxAuthorities: u32 & AugmentedConst<ApiType>;
-      /**
-       * The maximum number of external addresses for a mixnode.
-       **/
-      maxExternalAddressesPerMixnode: u32 & AugmentedConst<ApiType>;
-      /**
-       * The maximum size of one of a mixnode's external addresses.
-       **/
-      maxExternalAddressSize: u32 & AugmentedConst<ApiType>;
-      /**
-       * Minimum number of mixnodes. If there are fewer than this many mixnodes registered for a
-       * session, the mixnet will not be active during the session.
-       **/
-      minMixnodes: u32 & AugmentedConst<ApiType>;
-      /**
-       * Length of the first phase of each session (`CoverToCurrent`), in blocks.
-       **/
-      numCoverToCurrentBlocks: u32 & AugmentedConst<ApiType>;
-      /**
-       * Length of the third phase of each session (`CoverToPrev`), in blocks.
-       **/
-      numCoverToPrevBlocks: u32 & AugmentedConst<ApiType>;
-      /**
-       * The number of "slack" blocks at the end of each session.
-       * [`maybe_register`](Pallet::maybe_register) will try to register before this slack
-       * period, but may post registration transactions during the slack period as a last
-       * resort.
-       **/
-      numRegisterEndSlackBlocks: u32 & AugmentedConst<ApiType>;
-      /**
-       * The number of "slack" blocks at the start of each session, during which
-       * [`maybe_register`](Pallet::maybe_register) will not attempt to post registration
-       * transactions.
-       **/
-      numRegisterStartSlackBlocks: u32 & AugmentedConst<ApiType>;
-      /**
-       * Length of the second phase of each session (`RequestsToCurrent`), in blocks.
-       **/
-      numRequestsToCurrentBlocks: u32 & AugmentedConst<ApiType>;
-      /**
-       * Priority of unsigned transactions used to register mixnodes.
-       **/
-      registrationPriority: u64 & AugmentedConst<ApiType>;
     };
     multisig: {
       /**
