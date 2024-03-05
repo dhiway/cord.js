@@ -27,8 +27,8 @@
     "build:types": "yarn generate:defs && yarn generate:meta && yarn build:fixes",
     "build:fixes": "node scripts/fixTypes.mjs",
     "build:ts": "tsc -p tsconfig.build.json",
-    "generate:defs": "ts-node --experimental-specifier-resolution=node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-defs --package @cord.network/augment-api --input ./src/interfaces --endpoint ./metadata/cord.json",
-    "generate:meta": "ts-node --experimental-specifier-resolution=node --esm -P tsconfig.build.json ../../node_modules/.bin/polkadot-types-from-chain --package @cord.network/augment-api --endpoint ./metadata/cord.json --output ./src/interfaces --strict",
+    "generate:defs": "tsx ../../node_modules/.bin/polkadot-types-from-defs --package @cord.network/augment-api --input ./src/interfaces --endpoint ./metadata/cord.json",
+    "generate:meta": "tsx ../../node_modules/.bin/polkadot-types-from-chain --package @cord.network/augment-api --endpoint ./metadata/cord.json --output ./src/interfaces --strict",
     "update-metadata": "node ./scripts/fetchMetadata.cjs -o './metadata/cord.json' -e 'wss://staging.cord.network/'"
   },
   "repository": "github:dhiway/cord.js",
@@ -43,8 +43,9 @@
     "@polkadot/api": "^10.11.2",
     "@polkadot/typegen": "^10.11.2",
     "@types/node": "^20.11.17",
+    "glob": "^7.1.1",
     "rimraf": "^5.0.5",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "yargs": "^17.7.2"
   },
@@ -52,7 +53,6 @@
     "@cord.network/type-definitions": "workspace:*",
     "@polkadot/rpc-augment": "^10.11.2",
     "@polkadot/rpc-core": "^10.11.2",
-    "@polkadot/rpc-provider": "^10.11.2",
-    "glob": "^10.3.10"
+    "@polkadot/rpc-provider": "^10.11.2"
   }
 }
