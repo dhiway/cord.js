@@ -264,6 +264,73 @@ export async function dispatchToChain(
 }
 
 /**
+ * Dispatches a Sub-ChainSpace creation transaction to the CORD blockchain.
+ *
+ * @remarks
+ * Responsible for creating a new ChainSpace on the blockchain. It first checks if the ChainSpace with the
+ * given URI already exists to avoid duplicates. If not, it constructs and submits a transaction to create
+ * the ChainSpace. The transaction requires authorization from the creator and is signed by the specified author account.
+ *
+ * @example
+ * ```typescript
+ * const chainSpace: IChainSpace = {
+ *   // ... initialization of chainSpace properties ...
+ * };
+ * const creatorUri: DidUri = 'did:cord:creator_uri';
+ * const authorAccount: CordKeyringPair = // ... initialization ...
+ * const signCallback: SignExtrinsicCallback = // ... implementation ...
+ *
+ * try {
+ *   const result = await dispatchSubspaceCreateToChain(chainSpace, creatorUri, authorAccount, signCallback);
+ *   console.log('ChainSpace dispatched with URI:', result.uri);
+ * } catch (error) {
+ *   console.error('Error dispatching ChainSpace:', error);
+ * }
+ * ```
+ *
+ * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
+ * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @param signCallback - The callback function for signing the transaction.
+ * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
+ * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
+ */
+export async function dispatchSubspaceCreateToChain(
+  chainSpace: IChainSpace,
+  creatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  count: number,
+  parent: SpaceUri,
+  signCallback: SignExtrinsicCallback
+): Promise<{ uri: SpaceUri; authorization: AuthorizationUri }> {
+  const returnObject = {
+    uri: chainSpace.uri,
+    authorization: chainSpace.authorizationUri,
+  }
+
+  try {
+    const api = ConfigService.get('api')
+
+    const tx = api.tx.chainSpace.subspaceCreate(chainSpace.digest, count, parent?.replace('space:cord:', ''))
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+
+    return returnObject;
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
+  }
+}
+
+
+/**
  * Approves a ChainSpace on the CORD blockchain using sudo privileges.
  *
  * @remarks
@@ -708,6 +775,70 @@ export async function fetchAuthorizationFromChain(
   } catch (error) {
     throw new SDKErrors.CordFetchError(
       `Error occurred while fetching authorization: ${error}`
+    )
+  }
+}
+
+/**
+ * Dispatches a Sub-ChainSpace creation transaction to the CORD blockchain.
+ *
+ * @remarks
+ * Responsible for creating a new ChainSpace on the blockchain. It first checks if the ChainSpace with the
+ * given URI already exists to avoid duplicates. If not, it constructs and submits a transaction to create
+ * the ChainSpace. The transaction requires authorization from the creator and is signed by the specified author account.
+ *
+ * @example
+ * ```typescript
+ * const chainSpace: IChainSpace = {
+ *   // ... initialization of chainSpace properties ...
+ * };
+ * const creatorUri: DidUri = 'did:cord:creator_uri';
+ * const authorAccount: CordKeyringPair = // ... initialization ...
+ * const signCallback: SignExtrinsicCallback = // ... implementation ...
+ *
+ * try {
+ *   const result = await dispatchSubspaceCreateToChain(chainSpace, creatorUri, authorAccount, signCallback);
+ *   console.log('ChainSpace dispatched with URI:', result.uri);
+ * } catch (error) {
+ *   console.error('Error dispatching ChainSpace:', error);
+ * }
+ * ```
+ *
+ * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
+ * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @param signCallback - The callback function for signing the transaction.
+ * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
+ * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
+ */
+export async function dispatchUpdateTxCapacityToChain(
+  space: SpaceUri,
+  creatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  new_capacity: number,
+  signCallback: SignExtrinsicCallback
+): Promise<{ uri: SpaceUri; }> {
+  const returnObject = {
+    uri: space
+  }
+
+  try {
+    const api = ConfigService.get('api')
+
+    const tx = api.tx.chainSpace.updateTransactionCapacitySub(space.replace('space:cord:', ''), new_capacity)
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+
+    return returnObject;
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
     )
   }
 }
