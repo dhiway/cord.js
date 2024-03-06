@@ -9,6 +9,7 @@ import {
   AuthorizationId,
   ASSET_PREFIX,
   DidUri,
+  SubmittableExtrinsic,
 } from '@cord.network/types'
 
 import type { Option } from '@cord.network/types'
@@ -20,15 +21,24 @@ import { Chain } from '@cord.network/network'
 import { ConfigService } from '@cord.network/config'
 import { SDKErrors } from '@cord.network/utils'
 
+/* TODO: Write method description, params, return types to all methods */
+
 export async function isAssetStored(assetUri: AssetUri): Promise<boolean> {
   try {
     const api = ConfigService.get('api')
+
+    console.log("AssetUri Local:", assetUri)
+
     const identifier = uriToIdentifier(assetUri)
+
+    console.log("identifier Local:", identifier)
+
     const encoded = (await api.query.asset.assets(
       identifier
     )) as Option<PalletAssetAssetEntry>
+    console.log("encoded Local:", encoded)
 
-    return !encoded.isNone
+    return encoded.isSome
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : JSON.stringify(error)
@@ -77,12 +87,12 @@ export async function dispatchCreateToChain(
   }
 }
 
-export async function dispatchIssueToChain(
+export async function prepareExtrinsic(
   assetEntry: IAssetIssuance,
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback
-): Promise<AssetUri> {
+): Promise<SubmittableExtrinsic> {
   try {
     const api = ConfigService.get('api')
 
@@ -90,7 +100,9 @@ export async function dispatchIssueToChain(
 
     const exists = await isAssetStored(assetEntry.entry.assetId as AssetUri)
 
-    if (!exists) {
+    console.log("exists Local:", exists, assetEntry)
+
+    if (!exists) { 
       throw new SDKErrors.CordDispatchError(`Asset Entry not found on chain.`)
     }
 
@@ -107,6 +119,25 @@ export async function dispatchIssueToChain(
       authorAccount.address
     )
 
+    return extrinsic
+  } catch (error) {
+    const errorMessage = 
+     error instanceof Error ? error.message : JSON.stringify(error)
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
+    )
+  }
+}
+
+export async function dispatchIssueToChain(
+  assetEntry: IAssetIssuance,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<AssetUri> {
+  try {
+
+    const extrinsic = await prepareExtrinsic(assetEntry, authorAccount, authorizationUri, signCallback) 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return assetEntry.uri
