@@ -151,10 +151,13 @@ async function main() {
     space.uri,
   );
 
+  console.log("AssetIssuance Local:", assetIssuance)
+
   console.dir(assetIssuance, {
     depth: null,
     colors: true,
   });
+
   const issueExtrinsic = await Cord.Asset.dispatchIssueToChain(
       assetIssuance,
       networkAuthorityIdentity,
