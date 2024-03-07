@@ -14,6 +14,7 @@ import { createDid } from "./utils/generateDid";
 // import { AssetTypeOf, IAssetProperties } from "./utils/asset-types.js";
 
 import moment from "moment";
+import { Address } from '../../packages/utils/lib/esm/Crypto';
 
 const { NETWORK_ADDRESS, ANCHOR_URI } = process.env;
 
@@ -40,8 +41,8 @@ async function main() {
   const api = Cord.ConfigService.get("api");
   // Restore console.log
   console.log = originalConsoleLog;
-  const txCount = 10000;
-  const perBlock = 1000;
+  const txCount = 1000;
+  const perBlock = 350;
   // Step 1: Setup Identities
   console.log(`\n❄️  Identities`);
   const networkAuthorityIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
@@ -84,7 +85,7 @@ async function main() {
   const space = await Cord.ChainSpace.dispatchToChain(
     spaceProperties,
     issuerDid.uri,
-    networkAuthorityIdentity,
+    issuerIdentity,
     async ({ data }) => ({
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
@@ -100,7 +101,7 @@ async function main() {
   await Cord.ChainSpace.sudoApproveChainSpace(
     networkAuthorityIdentity,
     space.uri,
-    100
+    100000
   )
   console.log(`✅  Chain Space Approved`)
 
@@ -136,7 +137,7 @@ async function main() {
 
   const extrinsic = await Cord.Asset.dispatchCreateToChain(
     assetEntry,
-    networkAuthorityIdentity,
+    issuerIdentity,
     space.authorization,
     async ({ data }) => ({
       signature: issuerKeys.authentication.sign(data),
@@ -144,7 +145,6 @@ async function main() {
     }),
   )
 
-  console.log("Asset Entry Local:", assetEntry)
 
   console.log("✅ Asset created!");
 
@@ -167,9 +167,6 @@ async function main() {
     //     `🏛   Holder (${holderDid?.assertionMethod![0].type}): ${holderDid.uri}`
     //   )
 
-    //   console.log(`holderDid.uri: ${holderDid.uri}`)
-
-      console.log(`\n❄️  Issue Asset to Holder - Issuer Action  `);
       const assetIssuance = await Cord.Asset.buildFromIssueProperties(
         assetEntry.uri,
         `did:cord:${holderIdentity.address}`,
@@ -178,11 +175,9 @@ async function main() {
         space.uri,
       );
         
-      console.log("AssetIssuance Local:", assetIssuance)
-
       const issueExtrinsic = await Cord.Asset.prepareExtrinsic(
         assetIssuance,
-        networkAuthorityIdentity,
+        issuerIdentity,
         space.authorization,
         async ({ data }) => ({
           signature: issuerKeys.authentication.sign(data),
@@ -201,6 +196,7 @@ async function main() {
       );
       }
       tx_batch[j] = tx_batch1;
+      console.log("j ", j);
       }    
     } catch (e: any) {
       console.log(e.errorCode, "-", e.message);
@@ -214,17 +210,29 @@ async function main() {
   let promises = [];
   for (let j = 0; j < tx_batch.length; j++) {
   try {
-     const tx = await api.tx.utility
-      .batchAll(tx_batch[j]);
+     const tx = await api.tx.utility.batchAll(tx_batch[j]);
+     //await tx.signAsync(issuerIdentity, {nonce: -1})
 
-      await tx.signAsync(issuerIdentity, { nonce: j + 1 })
-      const send = new Promise((resolve) => tx.send((result) => {
+     const authorizedBatch = await Cord.Did.authorizeBatch({
+      batchFunction: api.tx.utility.batchAll,
+      did: issuerIdentity,
+      extrinsics: tx_batch[j],
+      sign: async ({ data }) => ({
+        signature: issuerKeys.authentication.sign(data),
+        keyType: issuerKeys.authentication.type,
+      }),
+      submitter: issuerIdentity.address
+    })
+
+     const send = new Promise((resolve) => tx.send((result) => {
           if (result.status.isReady)
       	  //if (result.isInBlock)
       	  //if (result.isFinalized)
 	     return resolve(true);
       }));
       promises.push(send);
+
+    //await Cord.Chain.signAndSubmitTx(tx, issuerIdentity);
   } catch (e: any) {
     console.log(e.errorCode, "-", e.message);
   }
@@ -247,6 +255,9 @@ async function main() {
   );
 
   await sleep(1000);
+//  await sleep(10000);
+//  await sleep(10000);
+//  await sleep(10000);
   await api.disconnect();
 }
 main()

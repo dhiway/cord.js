@@ -27,16 +27,11 @@ export async function isAssetStored(assetUri: AssetUri): Promise<boolean> {
   try {
     const api = ConfigService.get('api')
 
-    console.log("AssetUri Local:", assetUri)
-
     const identifier = uriToIdentifier(assetUri)
-
-    console.log("identifier Local:", identifier)
 
     const encoded = (await api.query.asset.assets(
       identifier
     )) as Option<PalletAssetAssetEntry>
-    console.log("encoded Local:", encoded)
 
     return encoded.isSome
   } catch (error) {
@@ -57,10 +52,6 @@ export async function dispatchCreateToChain(
   try {
     const api = ConfigService.get('api')
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
-    const exists = await isAssetStored(assetEntry.uri)
-    if (exists) {
-      return assetEntry.uri
-    }
 
     const tx = api.tx.asset.create(
       assetEntry.entry,
@@ -97,14 +88,6 @@ export async function prepareExtrinsic(
     const api = ConfigService.get('api')
 
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
-
-    const exists = await isAssetStored(assetEntry.entry.assetId as AssetUri)
-
-    console.log("exists Local:", exists, assetEntry)
-
-    if (!exists) { 
-      throw new SDKErrors.CordDispatchError(`Asset Entry not found on chain.`)
-    }
 
     const tx = api.tx.asset.issue(
       assetEntry.entry,
