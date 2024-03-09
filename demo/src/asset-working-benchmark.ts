@@ -41,8 +41,8 @@ async function main() {
   const api = Cord.ConfigService.get("api");
   // Restore console.log
   console.log = originalConsoleLog;
-  const txCount = 1000;
-  const perBlock = 350;
+  const txCount = 100;
+  const perBlock = 100;
   // Step 1: Setup Identities
   console.log(`\n❄️  Identities`);
   const networkAuthorityIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
@@ -205,39 +205,72 @@ async function main() {
 
   // console.log = () => {};
   // Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_FINALIZED });
-  console.log = originalConsoleLog;
-  let batchAncStartTime = moment();
-  let promises = [];
-  for (let j = 0; j < tx_batch.length; j++) {
-  try {
-     const tx = await api.tx.utility.batchAll(tx_batch[j]);
-     //await tx.signAsync(issuerIdentity, {nonce: -1})
+  // console.log = originalConsoleLog;
+  // let batchAncStartTime = moment();
+  // let promises = [];
+  // for (let j = 0; j < tx_batch.length; j++) {
+  // try {
+  //    const tx = await api.tx.utility.batchAll(tx_batch[j]);
+  //    await tx.signAsync(issuerIdentity, {nonce: -1})
 
-     const authorizedBatch = await Cord.Did.authorizeBatch({
-      batchFunction: api.tx.utility.batchAll,
-      did: issuerIdentity,
-      extrinsics: tx_batch[j],
-      sign: async ({ data }) => ({
+  //   //  const authorizedBatch = await Cord.Did.authorizeBatch({
+  //   //   batchFunction: api.tx.utility.batchAll,
+  //   //   did: issuerDid.uri,
+  //   //   extrinsics: tx_batch[j],
+  //   //   sign: async ({ data }) => ({
+  //   //     signature: issuerKeys.authentication.sign(data),
+  //   //     keyType: issuerKeys.authentication.type,
+  //   //   }),
+  //   //   submitter: issuerIdentity.address
+  //   // })
+
+  //    const send = new Promise((resolve) => tx.send((result) => {
+  //         if (result.status.isReady)
+  //     	  //if (result.isInBlock)
+  //     	  //if (result.isFinalized)
+	//      return resolve(true);
+  //     }));
+  //     promises.push(send);
+
+  //   //await Cord.Chain.signAndSubmitTx(tx, issuerIdentity);
+  // } catch (e: any) {
+  //   console.log(e.errorCode, "-", e.message);
+  // }
+  // }
+  // await Promise.all(promises);
+
+  /* attempt without loop */
+  let extSignCallback: Cord.SignExtrinsicCallback = async ({ data }) => ({
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
-      }),
-      submitter: issuerIdentity.address
-    })
+  })
 
-     const send = new Promise((resolve) => tx.send((result) => {
-          if (result.status.isReady)
-      	  //if (result.isInBlock)
-      	  //if (result.isFinalized)
-	     return resolve(true);
-      }));
-      promises.push(send);
+  const authorizedBatch = await Cord.Did.authorizeBatch({
+    batchFunction: api.tx.utility.batchAll,
+    did: issuerDid.uri,
+    extrinsics: tx_batch,
+    sign: extSignCallback,
+    submitter: issuerIdentity,
+  })
 
-    //await Cord.Chain.signAndSubmitTx(tx, issuerIdentity);
+  let batchAncStartTime = moment()
+
+  try {
+    // await Cord.Chain.signAndSubmitTx(authorizedBatch, networkAddress, {
+    //   resolveOn: Cord.Chain.IS_READY,
+    //   rejectOn: Cord.Chain.IS_ERROR,
+    // })
+
+    await Cord.Chain.signAndSubmitTx(authorizedBatch, issuerIdentity)
+
   } catch (e: any) {
-    console.log(e.errorCode, "-", e.message);
+    console.log(e.errorCode, '-', e.message)
   }
-  }
-  await Promise.all(promises);
+
+  // let batchAncEndTime = moment()
+  // var batchAncDuration = moment.duration(
+  //   batchAncEndTime.diff(batchAncStartTime)
+  // )
   
   var batchAncDuration = moment
     .duration(moment().diff(batchAncStartTime))
