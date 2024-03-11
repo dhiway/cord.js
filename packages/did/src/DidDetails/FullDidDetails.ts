@@ -29,6 +29,8 @@ const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
   'chainSpace.create': 'authentication',
   'chainSpace.archive': 'authentication',
   'chainSpace.restore': 'authentication',
+  'chainSpace.subspaceCreate': 'authentication',
+  'chainSpace.updateTransactionCapacitySub': 'authentication',
   did: 'authentication',
   'did.create': undefined,
   'did.submitDidCall': undefined,
