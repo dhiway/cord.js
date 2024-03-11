@@ -230,7 +230,7 @@ export async function dispatchRegisterToChain(
   }
 }
 
-async function createExtrinsic(
+export async function createExtrinsic(
   stmtEntry: IStatementEntry,
   authorizationId: AuthorizationId
 ) {
