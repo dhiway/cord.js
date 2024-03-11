@@ -232,9 +232,11 @@ export async function dispatchRegisterToChain(
 
 export async function createExtrinsic(
   stmtEntry: IStatementEntry,
-  authorizationId: AuthorizationId
+  authorizationUri: AuthorizationUri
 ) {
   const api = ConfigService.get('api')
+
+  const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
   const schemaId =
     stmtEntry.schemaUri !== undefined
@@ -290,9 +292,7 @@ export async function prepareExtrinsicToRegister(
   signCallback: SignExtrinsicCallback
 ): Promise<SubmittableExtrinsic> {
   try {
-    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
-
-    const tx = await createExtrinsic(stmtEntry, authorizationId)
+    const tx = await createExtrinsic(stmtEntry, authorizationUri)
 
     const extrinsic = await Did.authorizeTx(
       creatorUri,
