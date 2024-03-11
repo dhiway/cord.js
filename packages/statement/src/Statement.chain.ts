@@ -230,6 +230,32 @@ export async function dispatchRegisterToChain(
   }
 }
 
+async function createExtrinsic(
+  stmtEntry: IStatementEntry,
+  authorizationId: AuthorizationId
+) {
+  const api = ConfigService.get('api')
+
+  const schemaId =
+    stmtEntry.schemaUri !== undefined
+      ? stmtEntry.schemaUri && uriToIdentifier(stmtEntry.schemaUri)
+      : undefined
+
+  const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
+
+  if (exists) {
+    throw new SDKErrors.DuplicateStatementError(
+      `The statement is already anchored in the chain\nIdentifier: ${stmtEntry.elementUri}`
+    )
+  }
+
+  const tx = schemaId
+    ? api.tx.statement.register(stmtEntry.digest, authorizationId, schemaId)
+    : api.tx.statement.register(stmtEntry.digest, authorizationId, null)
+
+  return tx
+}
+
 /**
  * This function prepares and returns a SubmittableExtrinsic for registering a statement on
  * the blockchain.
@@ -264,24 +290,9 @@ export async function prepareExtrinsicToRegister(
   signCallback: SignExtrinsicCallback
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get('api')
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
-    const schemaId =
-      stmtEntry.schemaUri !== undefined
-        ? stmtEntry.schemaUri && uriToIdentifier(stmtEntry.schemaUri)
-        : undefined
 
-    const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
-
-    if (exists) {
-      throw new SDKErrors.DuplicateStatementError(
-        `The statement is already anchored in the chain\nIdentifier: ${stmtEntry.elementUri}`
-      )
-    }
-
-    const tx = schemaId
-      ? api.tx.statement.register(stmtEntry.digest, authorizationId, schemaId)
-      : api.tx.statement.register(stmtEntry.digest, authorizationId, null)
+    const tx = await createExtrinsic(stmtEntry, authorizationId)
 
     const extrinsic = await Did.authorizeTx(
       creatorUri,
