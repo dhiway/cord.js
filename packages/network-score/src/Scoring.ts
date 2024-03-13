@@ -40,11 +40,7 @@
  */
 
 import {
-  IRatingContent,
-  IRatingTransformed,
   IRatingEntry,
-  EntityTypeOf,
-  RatingTypeOf,
   DidUri,
   blake2AsHex,
   RATING_IDENT,
@@ -52,9 +48,7 @@ import {
   IRatingDispatch,
   RatingEntryUri,
   SpaceUri,
-  SignCallback,
   IRatingRevokeEntry,
-  SignResponseData,
 } from '@cord.network/types'
 import type {
   AccountId,
@@ -68,74 +62,15 @@ import {
   isDidSignature,
   verifyDidSignature,
   resolveKey,
-  signatureToJson,
   signatureFromJson,
 } from '@cord.network/did'
 import {
   hashToUri,
-  isValidIdentifier,
   uriToIdentifier,
 } from '@cord.network/identifier'
-import { Crypto, SDKErrors, UUID } from '@cord.network/utils'
+import { Crypto, SDKErrors } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import * as Did from '@cord.network/did'
-
-/**
- * Validates the content of a rating entry.
- *
- * This function checks the integrity and correctness of a rating content object,
- * ensuring that all fields are filled, and that certain numeric and enum field values
- * are within acceptable ranges. It is designed to work with both IRatingContent and
- * IRatingTransformed objects.
- *
- * @param ratingContent - The rating content to validate.
- * @throws {RatingContentError} Throws an error if any field is empty, if total ratings exceed a certain limit,
- *                              or if 'entityType' or 'ratingType' values are invalid.
- *
- * @internal
- */
-function validateRatingContent(
-  ratingContent: IRatingContent | IRatingTransformed
-): void {
-  const allFieldsFilled = Object.entries(ratingContent).every(
-    ([key, value]) => {
-      if (value === undefined || value === null || value === '') {
-        throw new SDKErrors.RatingContentError(
-          `Field '${key}' cannot be empty.`
-        )
-      }
-      return true
-    }
-  )
-
-  if (!allFieldsFilled) {
-    throw new SDKErrors.RatingContentError('All fields must be filled.')
-  }
-
-  if ('totalRating' in ratingContent) {
-    if (ratingContent.totalRating > ratingContent.countOfTxn * 5) {
-      throw new SDKErrors.RatingContentError(
-        `Total rating cannot exceed ${ratingContent.countOfTxn * 5}.`
-      )
-    }
-  } else if (ratingContent.totalEncodedRating > ratingContent.countOfTxn * 50) {
-    throw new SDKErrors.RatingContentError(
-      `Total encoded rating cannot exceed ${ratingContent.countOfTxn * 50}.`
-    )
-  }
-
-  if (!Object.values(EntityTypeOf).includes(ratingContent.entityType)) {
-    throw new SDKErrors.RatingContentError(
-      `Invalid entityType: ${ratingContent.entityType}.`
-    )
-  }
-
-  if (!Object.values(RatingTypeOf).includes(ratingContent.ratingType)) {
-    throw new SDKErrors.RatingContentError(
-      `Invalid ratingType: ${ratingContent.ratingType}.`
-    )
-  }
-}
 
 /**
  * Encodes a total rating value by multiplying it with a specified modulus.
@@ -148,9 +83,8 @@ function validateRatingContent(
  * @param [modulus=10] - The modulus to multiply the total rating by (defaults to 10).
  * @returns The encoded rating value.
  *
- * @internal
  */
-function encodeRatingValue(totalRating: number, modulus = 10): number {
+export function encodeRatingValue(totalRating: number, modulus = 10): number {
   return Math.round(totalRating * modulus)
 }
 
@@ -191,56 +125,6 @@ export async function verifySignature(
 }
 
 /**
- * Generates common fields used in various transaction-related operations.
- *
- * This function creates a unique message ID (if not provided) and the current transaction time.
- * The message ID is either the provided `messageId` or a newly generated one using the `UUID.generate()` method.
- * The transaction time is the current time in ISO 8601 format.
- *
- * @param [messageId] - An optional message ID. If not provided, a new one is generated.
- * @returns An object containing the message ID (`msgId`) and the transaction time (`transactionTime`).
- *
- * @internal
- */
-function generateCommonFields(messageId?: string): {
-  msgId: string
-  transactionTime: string
-} {
-  const msgId = messageId || `msg-${UUID.generate()}`
-  const transactionTime = new Date().toISOString()
-  return { msgId, transactionTime }
-}
-
-/**
- * Hashes and signs a given entry object.
- *
- * This function takes any entry object, computes its hash, and then uses the provided callback
- * to sign the hash. The hash is computed as a hexadecimal string, and the signing is done based
- * on the DID URI of the provider.
- *
- * @param entry - The entry object to be hashed and signed.
- * @param provider - The DID URI of the provider who will sign the hash.
- * @param signCallback - A callback function for handling the signing operation.
- * @returns A promise that resolves to an object containing the entry digest and the provider signature.
- *
- * @internal
- */
-async function hashAndSign(
-  entry: any,
-  provider: DidUri,
-  signCallback: SignCallback
-) {
-  const entryDigest = Crypto.hashObjectAsHexStr(entry)
-  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(entryDigest)])
-  const providerSignature = await signCallback({
-    data: uint8Hash,
-    did: provider,
-    keyRelationship: 'assertionMethod',
-  })
-  return { entryDigest, providerSignature }
-}
-
-/**
  * Computes a signature for a given digest.
  *
  * This function converts the provided digest into a Uint8Array, then calls the provided
@@ -254,6 +138,7 @@ async function hashAndSign(
  *
  * @internal
  */
+/*
 async function digestSignature(
   digest: HexString,
   author: DidUri,
@@ -267,6 +152,7 @@ async function digestSignature(
   })
   return authorSignature
 }
+*/
 
 /**
  * Generates a unique URI for a rating entry based on various input parameters.
@@ -320,170 +206,6 @@ export async function getUriForRatingEntry(
     ])
   )
   return hashToUri(digest, RATING_IDENT, RATING_PREFIX) as RatingEntryUri
-}
-
-/**
- * Builds a rating entry from the provided content properties.
- *
- * This function takes an IRatingContent object and additional information
- * such as the provider's DID URI and a callback function for signing, and
- * constructs a transformed IRatingEntry object. This object includes an encoded
- * rating value and a signature. If the entry contains a reference ID, it is validated
- * and transformed into a proper identifier.
- *
- * This function is used by Rating providers.
- *
- * @param entry - The rating content to be transformed.
- * @param provider - The DID URI of the provider.
- * @param signCallback - A callback function to handle the signing process.
- * @param [messageId] - An optional message ID. If not provided, one is generated.
- * @returns A promise that resolves to the transformed rating entry.
- *
- * @example
- * const ratingContent: IRatingContent = {
- *   entityUid: '12345',
- *   entityId: '67890',
- *   providerUid: 'abcde',
- *   providerId: 'fghij',
- *   countOfTxn: 100,
- *   totalRating: 4.5,
- *   // ... other properties ...
- * };
- *
- * const providerDid = 'did:example:123';
- * const signCallback = async (data) => {
- *   // ... signing logic ...
- * };
- *
- * buildFromContentProperties(ratingContent, providerDid, signCallback)
- *   .then(ratingEntry => {
- *     console.log(ratingEntry);
- *   })
- *   .catch(error => {
- *     console.error('Error building rating entry:', error);
- *   });
- *
- * @throws {RatingContentError} Throws an error if the transformation process fails.
- */
-export async function buildFromContentProperties(
-  entry: IRatingContent,
-  provider: DidUri,
-  signCallback: SignCallback,
-  messageId?: string
-): Promise<IRatingEntry> {
-  try {
-    validateRatingContent(entry)
-
-    const { msgId, transactionTime } = generateCommonFields(messageId)
-    const { totalRating, ...restOfEntry } = entry
-
-    const entryTransform: IRatingTransformed = {
-      ...restOfEntry,
-      ...(entry.referenceId !== undefined && {
-        referenceId: entry.referenceId,
-      }),
-      providerDid: Did.toChain(provider),
-      totalEncodedRating: encodeRatingValue(totalRating),
-    }
-    if (entry.referenceId) {
-      const [isValid, error] = isValidIdentifier(entry.referenceId)
-      if (!isValid) {
-        throw new SDKErrors.InvalidIdentifierError(
-          error || `Invalid identifier: ${entry.referenceId}`
-        )
-      }
-      entryTransform.referenceId = uriToIdentifier(entry.referenceId)
-    }
-
-    const { entryDigest, providerSignature } = await hashAndSign(
-      { entryTransform, msgId, transactionTime },
-      provider,
-      signCallback
-    )
-
-    const transformedEntry: IRatingEntry = {
-      entry: entryTransform,
-      messageId: msgId,
-      entryDigest,
-      providerSignature: signatureToJson(providerSignature),
-    }
-
-    return transformedEntry
-  } catch (error) {
-    throw new SDKErrors.RatingContentError(
-      `Rating content transformation error: "${error}".`
-    )
-  }
-}
-
-/**
- * Constructs a rating revoke entry from the provided parameters.
- *
- * This function creates a rating revoke entry, which includes a message ID,
- * a reference rating URI, an entry digest, and a provider's digital signature.
- * It is used to revoke a previously created rating entry.
- *
- * This function is used by Rating providers.
- *
- * @param entryUri - The URI of the rating entry to be revoked.
- * @param entityUid - The unique identifier of the entity associated with the rating entry.
- * @param provider - The DID URI of the provider responsible for the revocation.
- * @param signCallback - A callback function for signing the revocation entry.
- * @param [messageId] - An optional message ID. If not provided, one is generated.
- * @returns A promise that resolves to the constructed rating revoke entry.
- *
- * @example
- * const entryUri = 'rating:cord:example';
- * const entityUid = 'entity-123';
- * const providerDid = 'did:example:provider';
- * const signCallback = async (data) => {
- *   // ... signing logic ...
- * };
- *
- * buildFromRevokeProperties(entryUri, entityUid, providerDid, signCallback)
- *   .then(revokeEntry => {
- *     console.log(revokeEntry);
- *   })
- *   .catch(error => {
- *     console.error('Error building revoke entry:', error);
- *   });
- *
- * @throws {RatingContentError} Throws an error if the revocation entry construction process fails.
- */
-export async function buildFromRevokeProperties(
-  entryUri: RatingEntryUri,
-  entityUid: string,
-  provider: DidUri,
-  signCallback: SignCallback,
-  messageId?: string
-): Promise<IRatingRevokeEntry> {
-  try {
-    const { msgId, transactionTime } = generateCommonFields(messageId)
-    const entryTransform = { entryUri, msgId, provider, transactionTime }
-
-    const { entryDigest, providerSignature } = await hashAndSign(
-      entryTransform,
-      provider,
-      signCallback
-    )
-
-    const transformedEntry: IRatingRevokeEntry = {
-      entry: {
-        messageId: msgId,
-        entryDigest,
-        referenceId: entryUri,
-        providerSignature: signatureToJson(providerSignature),
-      },
-      entityUid,
-      providerDid: provider,
-    }
-
-    return transformedEntry
-  } catch (error) {
-    throw new SDKErrors.RatingContentError(
-      `Rating content transformation error: "${error}".`
-    )
-  }
 }
 
 /**
@@ -553,7 +275,6 @@ async function createRatingObject(
   chainSpace: SpaceUri,
   providerUri: DidUri,
   authorUri: DidUri,
-  authorSig: SignResponseData
 ): Promise<{ uri: RatingEntryUri; details: any }> {
   const ratingUri = await getUriForRatingEntry(
     entryDigest,
@@ -563,8 +284,6 @@ async function createRatingObject(
     providerUri
   )
 
-  const authorSignature = signatureToJson(authorSig)
-
   return {
     uri: ratingUri,
     details: {
@@ -573,7 +292,6 @@ async function createRatingObject(
       messageId,
       entryDigest,
       authorUri,
-      authorSignature,
     },
   }
 }
@@ -632,15 +350,9 @@ export async function buildFromRatingProperties(
   rating: IRatingEntry,
   chainSpace: SpaceUri,
   authorUri: DidUri,
-  signCallback: SignCallback
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
-    validateRatingContent(rating.entry)
-    verifySignature(
-      rating.entryDigest,
-      rating.providerSignature,
-      Did.getDidUri(rating.entry.providerDid)
-    )
+    //validateRatingContent(rating.entry)
 
     validateRequiredFields([
       chainSpace,
@@ -650,12 +362,6 @@ export async function buildFromRatingProperties(
     ])
     validateHexString(rating.entryDigest)
 
-    const authorSignature = await digestSignature(
-      rating.entryDigest,
-      authorUri,
-      signCallback
-    )
-
     const { uri, details } = await createRatingObject(
       rating.entryDigest,
       rating.entry.entityUid,
@@ -663,7 +369,6 @@ export async function buildFromRatingProperties(
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
       authorUri,
-      authorSignature
     )
 
     const { providerId, entityId, ...chainEntry } = rating.entry
@@ -724,15 +429,8 @@ export async function buildFromRevokeRatingProperties(
   rating: IRatingRevokeEntry,
   chainSpace: SpaceUri,
   authorUri: DidUri,
-  signCallback: SignCallback
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
-    verifySignature(
-      rating.entry.entryDigest,
-      rating.entry.providerSignature,
-      Did.getDidUri(rating.providerDid)
-    )
-
     validateRequiredFields([
       chainSpace,
       authorUri,
@@ -741,12 +439,6 @@ export async function buildFromRevokeRatingProperties(
     ])
     validateHexString(rating.entry.entryDigest)
 
-    const authorSignature = await digestSignature(
-      rating.entry.entryDigest,
-      authorUri,
-      signCallback
-    )
-
     const { uri, details } = await createRatingObject(
       rating.entry.entryDigest,
       rating.entityUid,
@@ -754,7 +446,6 @@ export async function buildFromRevokeRatingProperties(
       chainSpace,
       Did.getDidUri(rating.providerDid),
       authorUri,
-      authorSignature
     )
 
     details.entry = rating.entry

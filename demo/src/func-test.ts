@@ -19,7 +19,8 @@ function getChallenge(): string {
 }
 
 async function main() {
-  const networkAddress = 'ws://127.0.0.1:9944'
+  const networkAddress = process.env.NETWORK_ADDRESS ? process.env.NETWORK_ADDRESS : 'ws://127.0.0.1:9944';
+  //  const networkAddress = 'ws://127.0.0.1:9944'
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
@@ -28,7 +29,7 @@ async function main() {
 
   console.log(`\n❄️  New Network Member`)
   const authorityAuthorIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
-    '//Alice',
+    process.env.ANCHOR_URI ? process.env.ANCHOR_URI : '//Alice',
     'sr25519'
   )
   // Setup network authority account.
@@ -164,9 +165,47 @@ async function main() {
   await Cord.ChainSpace.sudoApproveChainSpace(
     authorityAuthorIdentity,
     space.uri,
-    100
+    1000
   )
   console.log(`✅  Chain Space Approved`)
+
+  // Step 3.5: Subspace
+  const subSpaceProperties = await Cord.ChainSpace.buildFromProperties(
+    issuerDid.uri
+  )
+  console.dir(subSpaceProperties, {
+    depth: null,
+    colors: true,
+  })
+  const subSpace = await Cord.ChainSpace.dispatchSubspaceCreateToChain(
+    subSpaceProperties,
+    issuerDid.uri,
+    authorIdentity,
+    200,
+    space.uri,
+    async ({ data }) => ({
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
+    })
+  )
+  console.dir(subSpace, {
+    depth: null,
+    colors: true,
+  })
+  console.log(`\n❄️  SubSpace is created`)
+
+  const subSpaceTx = await Cord.ChainSpace.dispatchUpdateTxCapacityToChain(
+    subSpace.uri,
+    issuerDid.uri,
+    authorIdentity,
+    300,
+    async ({ data }) => ({
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
+    })
+  )
+  console.log(`\n❄️  SubSpace limit is updated`)
+
 
   // Step 4: Add Delelegate Two as Registry Delegate
   console.log(`\n❄️  Space Delegate Authorization `)

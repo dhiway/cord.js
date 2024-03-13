@@ -25,8 +25,6 @@ import type {
 import { ErrorHandler } from '../errorhandling/index.js'
 import { makeSubscriptionPromise } from './SubscriptionPromise.js'
 
-const log = ConfigService.LoggingFactory.getLogger('Chain')
-
 export const TxOutdated = 'Transaction is outdated'
 export const TxPriority = 'Priority is too low:'
 export const TxDuplicate = 'Transaction Already Imported'
@@ -182,7 +180,6 @@ export async function submitSignedTx(
     throw new SDKErrors.SubscriptionsNotSupportedError()
   }
 
-  log.info(`Submitting ${tx.method}`)
   const { promise, subscription } = makeSubscriptionPromise({
     ...opts,
     resolveOn,

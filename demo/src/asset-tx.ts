@@ -155,6 +155,7 @@ async function main() {
     depth: null,
     colors: true,
   });
+
   const issueExtrinsic = await Cord.Asset.dispatchIssueToChain(
       assetIssuance,
       networkAuthorityIdentity,

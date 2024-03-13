@@ -36,7 +36,6 @@ import * as ConfigService from './Service.js'
  * ```typescript
  * import { init } from './CordConfig';
  *
- * const config = { logLevel: 2 };
  * init(config).then(() => {
  *   console.log('CORD SDK initialized and ready.');
  * }).catch(error => {
@@ -82,7 +81,6 @@ export async function init<K extends Partial<ConfigService.configOpts>>(
 export async function connect(
   blockchainRpcWsUrl: string,
   {
-    noInitWarn = ConfigService.get('logLevel') > 3, // by default warnings are disabled on log level error and higher
     ...apiOpts
   }: Omit<ApiOptions, 'provider'> = {}
 ): Promise<ApiPromise> {
@@ -92,7 +90,6 @@ export async function connect(
       provider,
       typesBundle,
       signedExtensions: cordSignedExtensions,
-      noInitWarn,
       ...apiOpts,
     })
 
