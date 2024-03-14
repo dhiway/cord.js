@@ -276,7 +276,7 @@ async function main() {
   
   const revisedEntryDigest = Cord.Utils.Crypto.hashObjectAsHexStr(revisedRatingContent);
   
-  let transformedReviseEntry = {
+  let transformedRevisedEntry = {
     entry: {
       ...revisedRatingContent,
       referenceId: revokedRatingUri,
@@ -292,7 +292,7 @@ async function main() {
   )
 
   let dispatchRevisedEntry = await Cord.Score.buildFromReviseRatingProperties(
-    transformedReviseEntry,
+    transformedRevisedEntry,
     chainSpace.uri,
     networkAuthorDid.uri,
   )

@@ -53,7 +53,6 @@ export interface IRatingEntry {
   messageId: string
   referenceId?: RatingEntryUri
   entryDigest: HexString
-  providerSignature: DidSignature
 }
 
 export type RatingPartialEntry = Omit<IRatingEntry, 'entry'>
