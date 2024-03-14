@@ -266,46 +266,35 @@ async function main() {
 
   console.log(`\n💠  Revised Rating - Credit Entry `)
 
-  let revisedRatingContent: Cord.IRatingContent = {
+  let revisedRatingContent = {
     ...ratingContent,
+    providerDid: transformedEntry.entry.providerDid,
     referenceId: revokedRatingUri,
     countOfTxn: 80,
-    totalRating: 280,
+    totalEncodedRating: 280,
   }
-
-  console.dir(revisedRatingContent, {
-    depth: null,
-    colors: true,
-  })
-
-  let transformedRevisedEntry = await Cord.Score.buildFromContentProperties(
-    revisedRatingContent,
-    networkProviderDid.uri,
-    async ({ data }) => ({
-      signature: networkProviderKeys.assertionMethod.sign(data),
-      keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${networkProviderDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
-    })
-  )
+  
+  const revisedEntryDigest = Cord.Utils.Crypto.hashObjectAsHexStr(revisedRatingContent);
+  
+  let transformedReviseEntry = {
+    entry: {
+      ...revisedRatingContent,
+      referenceId: revokedRatingUri,
+      totalEncodedRating: Math.round(revisedRatingContent.totalEncodedRating * 10),
+    },
+    messageId: Cord.Utils.UUID.generate(),
+    referenceId: revokedRatingUri,
+    entryDigest: revisedEntryDigest,
+  };
+  
   console.log(
     `\n🌐  Rating Revised(Credit) Information to API endpoint (/write-ratings) `
   )
-  console.dir(transformedRevisedEntry, {
-    depth: null,
-    colors: true,
-  })
 
-  let dispatchRevisedEntry = await Cord.Score.buildFromRatingProperties(
-    transformedRevisedEntry,
+  let dispatchRevisedEntry = await Cord.Score.buildFromReviseRatingProperties(
+    transformedReviseEntry,
     chainSpace.uri,
     networkAuthorDid.uri,
-    async ({ data }) => ({
-      signature: networkAuthorKeys.assertionMethod.sign(data),
-      keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri: `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
-    })
   )
 
   console.log(

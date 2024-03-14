@@ -457,3 +457,38 @@ export async function buildFromRevokeRatingProperties(
     )
   }
 }
+
+export async function buildFromReviseRatingProperties(
+  rating: IRatingEntry,
+  chainSpace: SpaceUri,
+  authorUri: DidUri,
+): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
+  try {
+    validateRequiredFields([
+      chainSpace,
+      authorUri,
+      rating.referenceId,
+      rating.entry.countOfTxn,
+      rating.entry.totalEncodedRating,
+    ])
+    
+    validateHexString(rating.entryDigest)
+    const { uri, details } = await createRatingObject(
+      rating.entryDigest,
+      rating.entry.entityUid,
+      rating.messageId,
+      chainSpace,
+      Did.getDidUri(rating.entry.providerDid),
+      authorUri,
+    )
+
+    const { providerId, entityId, ...chainEntry } = rating.entry
+    details.entry = chainEntry
+
+    return { uri, details }
+  } catch (error) {
+    throw new SDKErrors.RatingPropertiesError(
+      `Rating content transformation error: "${error}".`
+    )
+  }
+}
