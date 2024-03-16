@@ -264,10 +264,11 @@ async function main() {
     console.log(`🚫 Debit Anchoring failed! " 🚫`)
   }
 
-  console.log(`\n💠  Revised Rating - Credit Entry `)
+  console.log(`\n💠  Revised Rating - Credit Entry\n`)
 
-  let revisedRatingContent: Cord.IRatingContent = {
+  let revisedRatingContent = {
     ...ratingContent,
+    providerDid: transformedEntry.entry.providerDid,
     referenceId: revokedRatingUri,
     countOfTxn: 80,
     totalRating: 280,
@@ -277,44 +278,40 @@ async function main() {
     depth: null,
     colors: true,
   })
+  
+  const revisedEntryDigest = Cord.Utils.Crypto.hashObjectAsHexStr(revisedRatingContent);
+  
+  let transformedRevisedEntry = {
+    entry: {
+      ...revisedRatingContent,
+      referenceId: revokedRatingUri,
+      totalEncodedRating: Math.round(revisedRatingContent.totalRating * 10),
+    },
+    messageId: Cord.Utils.UUID.generate(),
+    referenceId: revokedRatingUri,
+    entryDigest: revisedEntryDigest,
+  };
 
-  let transformedRevisedEntry = await Cord.Score.buildFromContentProperties(
-    revisedRatingContent,
-    networkProviderDid.uri,
-    async ({ data }) => ({
-      signature: networkProviderKeys.assertionMethod.sign(data),
-      keyType: networkProviderKeys.assertionMethod.type,
-      keyUri: `${networkProviderDid.uri}${networkProviderDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
-    })
-  )
+  delete transformedRevisedEntry.entry.totalRating;
+  
   console.log(
-    `\n🌐  Rating Revised(Credit) Information to API endpoint (/write-ratings) `
+    `\n🌐  Rating Revised(Credit) Information to API endpoint (/write-ratings)\n`
   )
-  console.dir(transformedRevisedEntry, {
-    depth: null,
-    colors: true,
-  })
 
-  let dispatchRevisedEntry = await Cord.Score.buildFromRatingProperties(
+  let dispatchRevisedEntry = await Cord.Score.buildFromReviseRatingProperties(
     transformedRevisedEntry,
     chainSpace.uri,
     networkAuthorDid.uri,
-    async ({ data }) => ({
-      signature: networkAuthorKeys.assertionMethod.sign(data),
-      keyType: networkAuthorKeys.assertionMethod.type,
-      keyUri: `${networkAuthorDid.uri}${networkAuthorDid.assertionMethod![0].id
-        }` as Cord.DidResourceUri,
-    })
   )
 
-  console.log(
-    `\n🌐  Rating Revised(Credit) Information to Ledger (API -> Ledger) `
-  )
   console.dir(dispatchRevisedEntry, {
     depth: null,
     colors: true,
   })
+
+  console.log(
+    `\n🌐  Rating Revised(Credit) Information to Ledger (API -> Ledger) `
+  )
 
   let revisedRatingUri = await Cord.Score.dispatchReviseRatingToChain(
     dispatchRevisedEntry.details,
@@ -327,9 +324,9 @@ async function main() {
   )
 
   if (Cord.Identifier.isValidIdentifier(revisedRatingUri)) {
-    console.log('✅ Rating Revision(Credit) successful! 🎉')
+    console.log('\n✅ Rating Revision(Credit) successful! 🎉')
   } else {
-    console.log(`🚫 Revision Anchoring failed! " 🚫`)
+    console.log(`\n🚫 Revision Anchoring failed! " 🚫`)
   }
 
   console.log(`\n🌐  Query From Chain - Rating Entry `)
