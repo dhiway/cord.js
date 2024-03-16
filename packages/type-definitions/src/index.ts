@@ -1,9 +1,9 @@
 import type {
+  OverrideBundleDefinition,
   OverrideBundleType,
   OverrideVersionedType,
 } from '@polkadot/types/types'
 
-// import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types.js'
 import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'
 import { types9 } from './types_9.js'
@@ -33,94 +33,20 @@ const defaultTypesBundle: OverrideVersionedType[] = [
   },
 ]
 
-// // Current runtime version: 9000
-// export const signedExtensions: ExtDef = {
-//   ...cordSignedExtensions,
-// }
+const sharedBundle: OverrideBundleDefinition = {
+  types: defaultTypesBundle,
+  signedExtensions: {
+    ...cordSignedExtensions,
+  },
+  runtime: {
+    ...didApiCalls,
+    ...TransactionWeightApiCalls,
+  },
+}
 
 export const typesBundle: OverrideBundleType = {
   spec: {
-    'cord': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
-  },
-  chain: {
-    'Cord Sprintnet': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
-    'Cord Sparknet': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
-    'Cord Spin': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
-    'Cord Ignite': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
-    'Dev. Node': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
-    'Confidex-Alpha': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
-    'NPCI-Alpha': {
-      runtime: {
-        ...didApiCalls,
-        ...TransactionWeightApiCalls,
-      },
-      signedExtensions: {
-        ...cordSignedExtensions,
-      },
-      types: defaultTypesBundle,
-    },
+    cord: sharedBundle,
+    cordGraph: sharedBundle,
   },
 }

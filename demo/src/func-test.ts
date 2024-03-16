@@ -19,7 +19,9 @@ function getChallenge(): string {
 }
 
 async function main() {
-  const networkAddress = process.env.NETWORK_ADDRESS ? process.env.NETWORK_ADDRESS : 'ws://127.0.0.1:9944';
+  const networkAddress = process.env.NETWORK_ADDRESS
+    ? process.env.NETWORK_ADDRESS
+    : 'ws://127.0.0.1:9944'
   //  const networkAddress = 'ws://127.0.0.1:9944'
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
@@ -59,26 +61,26 @@ async function main() {
 
   /* Creating the DIDs for the different parties involved in the demo. */
   // Create Verifier DID
-  const { mnemonic: verifierMnemonic, document: verifierDid } = await createDid(
-    authorIdentity
+  const { mnemonic: verifierMnemonic, document: verifierDid } =
+    await createDid(authorIdentity)
+  const verifierKeys = Cord.Utils.Keys.generateKeypairs(
+    verifierMnemonic,
+    'sr25519'
   )
-  const verifierKeys = Cord.Utils.Keys.generateKeypairs(verifierMnemonic)
   console.log(
     `🏢  Verifier (${verifierDid.assertionMethod![0].type}): ${verifierDid.uri}`
   )
   // Create Holder DID
-  const { mnemonic: holderMnemonic, document: holderDid } = await createDid(
-    authorIdentity
-  )
-  const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic)
+  const { mnemonic: holderMnemonic, document: holderDid } =
+    await createDid(authorIdentity)
+  const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'sr25519')
   console.log(
     `👩‍⚕️  Holder (${holderDid.assertionMethod![0].type}): ${holderDid.uri}`
   )
   // Create issuer DID
-  const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
-    authorIdentity
-  )
-  const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic)
+  const { mnemonic: issuerMnemonic, document: issuerDid } =
+    await createDid(authorIdentity)
+  const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')
   console.log(
     `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`
   )
@@ -93,7 +95,10 @@ async function main() {
   // Create Delegate One DID
   const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
     await createDid(authorIdentity)
-  const delegateOneKeys = Cord.Utils.Keys.generateKeypairs(delegateOneMnemonic)
+  const delegateOneKeys = Cord.Utils.Keys.generateKeypairs(
+    delegateOneMnemonic,
+    'sr25519'
+  )
   console.log(
     `🏛   Delegate (${delegateOneDid?.assertionMethod![0].type}): ${
       delegateOneDid.uri
@@ -102,7 +107,10 @@ async function main() {
   // Create Delegate Two DID
   const { mnemonic: delegateTwoMnemonic, document: delegateTwoDid } =
     await createDid(authorIdentity)
-  const delegateTwoKeys = Cord.Utils.Keys.generateKeypairs(delegateTwoMnemonic)
+  const delegateTwoKeys = Cord.Utils.Keys.generateKeypairs(
+    delegateTwoMnemonic,
+    'sr25519'
+  )
   console.log(
     `🏛   Delegate (${delegateTwoDid?.assertionMethod![0].type}): ${
       delegateTwoDid.uri
@@ -111,7 +119,10 @@ async function main() {
   // Create Delegate 3 DID
   const { mnemonic: delegate3Mnemonic, document: delegate3Did } =
     await createDid(authorIdentity)
-  const delegate3Keys = Cord.Utils.Keys.generateKeypairs(delegate3Mnemonic)
+  const delegate3Keys = Cord.Utils.Keys.generateKeypairs(
+    delegate3Mnemonic,
+    'sr25519'
+  )
   console.log(
     `🏛   Delegate (${delegate3Did?.assertionMethod![0].type}): ${
       delegate3Did.uri
@@ -205,7 +216,6 @@ async function main() {
     })
   )
   console.log(`\n❄️  SubSpace limit is updated`)
-
 
   // Step 4: Add Delelegate Two as Registry Delegate
   console.log(`\n❄️  Space Delegate Authorization `)

@@ -80,12 +80,14 @@ export async function init<K extends Partial<ConfigService.configOpts>>(
  */
 export async function connect(
   blockchainRpcWsUrl: string,
-  {
-    ...apiOpts
-  }: Omit<ApiOptions, 'provider'> = {}
+  { noInitWarn = true, ...apiOptions }: Omit<ApiOptions, 'provider'> = {}
 ): Promise<ApiPromise> {
   try {
     const provider = new WsProvider(blockchainRpcWsUrl)
+    const apiOpts = {
+      noInitWarn,
+      ...apiOptions,
+    }
     const api = await ApiPromise.create({
       provider,
       typesBundle,

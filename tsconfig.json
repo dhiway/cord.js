@@ -47,6 +47,9 @@
       "@cord.network/chain-space": [
         "chain-space/src"
       ],
+      "@cord.network/schema": [
+        "schema/src"
+      ],
       "@cord.network/statement": [
         "statement/src"
       ],

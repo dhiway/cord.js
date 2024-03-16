@@ -29,9 +29,9 @@
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "dependencies": {
-    "@polkadot/api": "^10.11.2",
+    "@polkadot/api": "^10.12.2",
     "@polkadot/keyring": "^12.6.2",
-    "@polkadot/types": "^10.11.2",
+    "@polkadot/types": "^10.12.2",
     "@polkadot/util": "^12.6.2",
     "@polkadot/util-crypto": "^12.6.2"
   },

@@ -40,10 +40,10 @@
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@digitalbazaar/security-context": "^1.0.1",
-    "@polkadot/api": "^10.11.2",
+    "@polkadot/api": "^10.12.2",
     "@polkadot/keyring": "^12.6.2",
-    "@polkadot/types": "^10.11.2",
-    "@polkadot/types-codec": "^10.11.2",
+    "@polkadot/types": "^10.12.2",
+    "@polkadot/types-codec": "^10.12.2",
     "@polkadot/util": "^12.6.2",
     "@polkadot/util-crypto": "^12.6.2"
   }
