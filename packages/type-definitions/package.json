@@ -30,7 +30,7 @@
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "dependencies": {
-    "@polkadot/types": "^10.11.2"
+    "@polkadot/types": "^10.12.2"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",

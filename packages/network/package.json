@@ -37,7 +37,7 @@
     "@cord.network/config": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
-    "@polkadot/api": "^10.11.2",
-    "@polkadot/types": "^10.11.2"
+    "@polkadot/api": "^10.12.2",
+    "@polkadot/types": "^10.12.2"
   }
 }

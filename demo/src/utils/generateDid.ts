@@ -20,7 +20,7 @@ export async function createDid(
     keyAgreement,
     assertionMethod,
     capabilityDelegation,
-  } = Cord.Utils.Keys.generateKeypairs(mnemonic)
+  } = Cord.Utils.Keys.generateKeypairs(mnemonic, 'sr25519')
   // Get tx that will create the DID on chain and DID-URI that can be used to resolve the DID Document.
   const didCreationTx = await Cord.Did.getStoreTx(
     {
