@@ -1,5 +1,7 @@
 /* eslint-disable */
 
+import type { Definitions } from '@polkadot/types/types';
+
 import {
   types,
   cordSignedExtensions as userExtensions,
@@ -17,4 +19,4 @@ export default {
   signedExtensions: {
     ...userExtensions,
   },
-}
+} as Definitions
