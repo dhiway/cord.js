@@ -167,16 +167,26 @@ declare module '@polkadot/api-base/types/consts' {
     };
     identity: {
       /**
-       * Maximum number of additional fields that may be stored in an ID.
-       * Needed to bound the I/O required to access an identity, but can be
-       * pretty high.
-       **/
-      maxAdditionalFields: u32 & AugmentedConst<ApiType>;
-      /**
        * Maxmimum number of registrars allowed in the system. Needed to bound
        * the complexity of, e.g., updating judgements.
        **/
       maxRegistrars: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of sub-accounts allowed per identified account.
+       **/
+      maxSubAccounts: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum length of a suffix.
+       **/
+      maxSuffixLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum length of a username, including its suffix and any system-added delimiters.
+       **/
+      maxUsernameLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The number of blocks within which a username grant must be accepted.
+       **/
+      pendingUsernameExpiration: u32 & AugmentedConst<ApiType>;
     };
     imOnline: {
       /**

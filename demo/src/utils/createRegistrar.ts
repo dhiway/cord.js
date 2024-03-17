@@ -88,8 +88,9 @@ export async function provideJudgement(
   const api = Cord.ConfigService.get('api')
 
   const identityInfos = await api.query.identity.identityOf(account)
-  const identityHash = identityInfos.unwrap().info.hash.toHex()
+  const [registration, _additionalData] = identityInfos.unwrap()
 
+  const identityHash = registration.info.hash.toHex()
   const callTx = api.tx.identity.provideJudgement(
     account,
     'Reasonable',
