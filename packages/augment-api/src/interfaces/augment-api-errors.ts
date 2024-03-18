@@ -41,6 +41,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InstanceNotActive: AugmentedError<ApiType>;
       /**
+       * Invalid asset quantity - should be greater than zero
+       **/
+      InvalidAssetQty: AugmentedError<ApiType>;
+      /**
        * Invalid asset type
        **/
       InvalidAssetType: AugmentedError<ApiType>;

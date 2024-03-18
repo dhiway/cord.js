@@ -34,6 +34,22 @@ declare module '@polkadot/api-base/types/submittable' {
        * See [`Pallet::transfer`].
        **/
       transfer: AugmentedSubmittable<(entry: PalletAssetAssetTransferEntry | { assetId?: any; assetInstanceId?: any; assetOwner?: any; newAssetOwner?: any } | string | Uint8Array, digest: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetTransferEntry, H256]>;
+      /**
+       * See [`Pallet::vc_create`].
+       **/
+      vcCreate: AugmentedSubmittable<(assetQty: u64 | AnyNumber | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u64, H256, Bytes]>;
+      /**
+       * See [`Pallet::vc_issue`].
+       **/
+      vcIssue: AugmentedSubmittable<(entry: PalletAssetAssetIssuanceEntry | { assetId?: any; assetOwner?: any; assetIssuanceQty?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetIssuanceEntry, H256, Bytes]>;
+      /**
+       * See [`Pallet::vc_status_change`].
+       **/
+      vcStatusChange: AugmentedSubmittable<(assetId: Bytes | string | Uint8Array, instanceId: Option<Bytes> | null | Uint8Array | Bytes | string, newStatus: PalletAssetAssetStatusOf | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | number | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>, PalletAssetAssetStatusOf]>;
+      /**
+       * See [`Pallet::vc_transfer`].
+       **/
+      vcTransfer: AugmentedSubmittable<(entry: PalletAssetAssetTransferEntry | { assetId?: any; assetInstanceId?: any; assetOwner?: any; newAssetOwner?: any } | string | Uint8Array, digest: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetTransferEntry, H256]>;
     };
     authorityMembership: {
       /**
