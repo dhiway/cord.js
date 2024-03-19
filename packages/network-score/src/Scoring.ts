@@ -64,10 +64,7 @@ import {
   resolveKey,
   signatureFromJson,
 } from '@cord.network/did'
-import {
-  hashToUri,
-  uriToIdentifier,
-} from '@cord.network/identifier'
+import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
 import { Crypto, SDKErrors } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import * as Did from '@cord.network/did'
@@ -274,7 +271,7 @@ async function createRatingObject(
   messageId: string,
   chainSpace: SpaceUri,
   providerUri: DidUri,
-  authorUri: DidUri,
+  authorUri: DidUri
 ): Promise<{ uri: RatingEntryUri; details: any }> {
   const ratingUri = await getUriForRatingEntry(
     entryDigest,
@@ -349,7 +346,7 @@ async function createRatingObject(
 export async function buildFromRatingProperties(
   rating: IRatingEntry,
   chainSpace: SpaceUri,
-  authorUri: DidUri,
+  authorUri: DidUri
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     //validateRatingContent(rating.entry)
@@ -368,7 +365,7 @@ export async function buildFromRatingProperties(
       rating.messageId,
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
-      authorUri,
+      authorUri
     )
 
     const { providerId, entityId, ...chainEntry } = rating.entry
@@ -428,7 +425,7 @@ export async function buildFromRatingProperties(
 export async function buildFromRevokeRatingProperties(
   rating: IRatingRevokeEntry,
   chainSpace: SpaceUri,
-  authorUri: DidUri,
+  authorUri: DidUri
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     validateRequiredFields([
@@ -445,7 +442,7 @@ export async function buildFromRevokeRatingProperties(
       rating.entry.messageId,
       chainSpace,
       Did.getDidUri(rating.providerDid),
-      authorUri,
+      authorUri
     )
 
     details.entry = rating.entry
@@ -458,10 +455,42 @@ export async function buildFromRevokeRatingProperties(
   }
 }
 
+/**
+ * Constructs a revised entry for a previously amended rating on the blockchain.
+ * 
+ * This asynchronous function is responsible for building a rating object from revised rating properties. 
+ * It takes a rating entry, chain space URI, and author URI as parameters and returns a promise resolving 
+ * to an object containing the URI of the rating entry and its details. It verifies the signature of the amended rating, 
+ * validates required fields, and generates the necessary signatures for the revised entry. This is essential 
+ * for maintaining the integrity and trustworthiness of the rating system, especially in decentralized environments.
+ *
+ * This function is specifically designed for use by Rating Authors or Ledger/API Providers.
+ * 
+ * @param rating - The rating revise entry to process.
+ *                             This includes the original rating's digest, signature, and other relevant details.
+ * @param chainSpace - The identifier of the blockchain space (as a URI) where the rating is being revoked.
+ *                            This helps in pinpointing the exact location on the blockchain where the rating resides.
+ * @param authorUri - The Decentralized Identifier (DID) URI of the author who is revoking the rating.
+ *                            This identifier is crucial for associating the revocation with the correct author.
+ * @returns A promise resolving to an object with the following structure:
+                              uri: The URI of the rating entry.
+                              details: An object containing the details of the rating dispatch, including the entry and other metadata.
+
+ * @throws { RatingPropertiesError } - if there is an error during the transformation process.
+ *
+ * @example
+ * try {
+ * const result = await buildFromReviseRatingProperties(ratingEntry, chainSpaceUri, authorUri);
+ * console.log("Rating entry URI:", result.uri);
+ * console.log("Rating details:", result.details);
+ * } catch (error) {
+ * console.error("Error building rating from revised properties:", error);
+ * }
+ */
 export async function buildFromReviseRatingProperties(
   rating: IRatingEntry,
   chainSpace: SpaceUri,
-  authorUri: DidUri,
+  authorUri: DidUri
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     validateRequiredFields([
@@ -471,7 +500,7 @@ export async function buildFromReviseRatingProperties(
       rating.entry.countOfTxn,
       rating.entry.totalEncodedRating,
     ])
-    
+
     validateHexString(rating.entryDigest)
     const { uri, details } = await createRatingObject(
       rating.entryDigest,
@@ -479,7 +508,7 @@ export async function buildFromReviseRatingProperties(
       rating.messageId,
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
-      authorUri,
+      authorUri
     )
 
     const { providerId, entityId, ...chainEntry } = rating.entry
