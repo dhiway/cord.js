@@ -468,9 +468,9 @@ export async function buildFromRevokeRatingProperties(
  * 
  * @param rating - The rating revise entry to process.
  *                             This includes the original rating's digest, signature, and other relevant details.
- * @param chainSpace - The identifier of the blockchain space (as a URI) where the rating is being revoked.
+ * @param chainSpace - The identifier of the blockchain space (as a URI) where the rating is being revised.
  *                            This helps in pinpointing the exact location on the blockchain where the rating resides.
- * @param authorUri - The Decentralized Identifier (DID) URI of the author who is revoking the rating.
+ * @param authorUri - The Decentralized Identifier (DID) URI of the author who is revising the rating.
  *                            This identifier is crucial for associating the revocation with the correct author.
  * @returns A promise resolving to an object with the following structure:
                               uri: The URI of the rating entry.
