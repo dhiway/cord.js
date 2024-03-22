@@ -6,11 +6,10 @@
 import '@polkadot/api-base/types/submittable';
 
 import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api-base/types';
-import type { Data } from '@polkadot/types';
 import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
-import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletAssetAssetInputEntry, PalletAssetAssetIssuanceEntry, PalletAssetAssetStatusOf, PalletAssetAssetTransferEntry, PalletBalancesAdjustmentDirection, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityJudgement, PalletIdentityLegacyIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletNetworkScoreRatingInputEntry, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { CordRuntimeOriginCaller, CordRuntimeSessionKeys, PalletAssetAssetInputEntry, PalletAssetAssetIssuanceEntry, PalletAssetAssetStatusOf, PalletAssetAssetTransferEntry, PalletBalancesAdjustmentDirection, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityBitFlags, PalletIdentityJudgement, PalletIdentitySimpleIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletNetworkScoreRatingInputEntry, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -35,6 +34,22 @@ declare module '@polkadot/api-base/types/submittable' {
        * See [`Pallet::transfer`].
        **/
       transfer: AugmentedSubmittable<(entry: PalletAssetAssetTransferEntry | { assetId?: any; assetInstanceId?: any; assetOwner?: any; newAssetOwner?: any } | string | Uint8Array, digest: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetTransferEntry, H256]>;
+      /**
+       * See [`Pallet::vc_create`].
+       **/
+      vcCreate: AugmentedSubmittable<(assetQty: u64 | AnyNumber | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u64, H256, Bytes]>;
+      /**
+       * See [`Pallet::vc_issue`].
+       **/
+      vcIssue: AugmentedSubmittable<(entry: PalletAssetAssetIssuanceEntry | { assetId?: any; assetOwner?: any; assetIssuanceQty?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetIssuanceEntry, H256, Bytes]>;
+      /**
+       * See [`Pallet::vc_status_change`].
+       **/
+      vcStatusChange: AugmentedSubmittable<(assetId: Bytes | string | Uint8Array, instanceId: Option<Bytes> | null | Uint8Array | Bytes | string, newStatus: PalletAssetAssetStatusOf | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | number | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>, PalletAssetAssetStatusOf]>;
+      /**
+       * See [`Pallet::vc_transfer`].
+       **/
+      vcTransfer: AugmentedSubmittable<(entry: PalletAssetAssetTransferEntry | { assetId?: any; assetInstanceId?: any; assetOwner?: any; newAssetOwner?: any } | string | Uint8Array, digest: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletAssetAssetTransferEntry, H256]>;
     };
     authorityMembership: {
       /**
@@ -312,21 +327,9 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     identity: {
       /**
-       * See [`Pallet::accept_username`].
-       **/
-      acceptUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
        * See [`Pallet::add_registrar`].
        **/
       addRegistrar: AugmentedSubmittable<(account: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * See [`Pallet::add_sub`].
-       **/
-      addSub: AugmentedSubmittable<(sub: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, data: Data | { None: any } | { Raw: any } | { BlakeTwo256: any } | { Sha256: any } | { Keccak256: any } | { ShaThree256: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Data]>;
-      /**
-       * See [`Pallet::add_username_authority`].
-       **/
-      addUsernameAuthority: AugmentedSubmittable<(authority: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, suffix: Bytes | string | Uint8Array, allocation: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Bytes, u32]>;
       /**
        * See [`Pallet::cancel_request`].
        **/
@@ -342,35 +345,11 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * See [`Pallet::provide_judgement`].
        **/
-      provideJudgement: AugmentedSubmittable<(target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, judgement: PalletIdentityJudgement | 'Unknown' | 'Requested' | 'Reasonable' | 'KnownGood' | 'OutOfDate' | 'LowQuality' | 'Erroneous' | number | Uint8Array, identity: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, PalletIdentityJudgement, H256]>;
-      /**
-       * See [`Pallet::quit_sub`].
-       **/
-      quitSub: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * See [`Pallet::remove_dangling_username`].
-       **/
-      removeDanglingUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * See [`Pallet::remove_expired_approval`].
-       **/
-      removeExpiredApproval: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      provideJudgement: AugmentedSubmittable<(target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, judgement: PalletIdentityJudgement | 'Unknown' | 'Requested' | 'Reasonable' | 'KnownGood' | 'OutOfDate' | 'LowQuality' | 'Erroneous' | number | Uint8Array, digest: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, PalletIdentityJudgement, H256]>;
       /**
        * See [`Pallet::remove_registrar`].
        **/
       removeRegistrar: AugmentedSubmittable<(account: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * See [`Pallet::remove_sub`].
-       **/
-      removeSub: AugmentedSubmittable<(sub: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * See [`Pallet::remove_username_authority`].
-       **/
-      removeUsernameAuthority: AugmentedSubmittable<(authority: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * See [`Pallet::rename_sub`].
-       **/
-      renameSub: AugmentedSubmittable<(sub: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, data: Data | { None: any } | { Raw: any } | { BlakeTwo256: any } | { Sha256: any } | { Keccak256: any } | { ShaThree256: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Data]>;
       /**
        * See [`Pallet::request_judgement`].
        **/
@@ -382,23 +361,11 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * See [`Pallet::set_fields`].
        **/
-      setFields: AugmentedSubmittable<(fields: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u64]>;
+      setFields: AugmentedSubmittable<(fields: PalletIdentityBitFlags) => SubmittableExtrinsic<ApiType>, [PalletIdentityBitFlags]>;
       /**
        * See [`Pallet::set_identity`].
        **/
-      setIdentity: AugmentedSubmittable<(info: PalletIdentityLegacyIdentityInfo | { additional?: any; display?: any; legal?: any; web?: any; email?: any; image?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletIdentityLegacyIdentityInfo]>;
-      /**
-       * See [`Pallet::set_primary_username`].
-       **/
-      setPrimaryUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * See [`Pallet::set_subs`].
-       **/
-      setSubs: AugmentedSubmittable<(subs: Vec<ITuple<[AccountId32, Data]>> | ([AccountId32 | string | Uint8Array, Data | { None: any } | { Raw: any } | { BlakeTwo256: any } | { Sha256: any } | { Keccak256: any } | { ShaThree256: any } | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[AccountId32, Data]>>]>;
-      /**
-       * See [`Pallet::set_username_for`].
-       **/
-      setUsernameFor: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, username: Bytes | string | Uint8Array, signature: Option<SpRuntimeMultiSignature> | null | Uint8Array | SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string) => SubmittableExtrinsic<ApiType>, [MultiAddress, Bytes, Option<SpRuntimeMultiSignature>]>;
+      setIdentity: AugmentedSubmittable<(info: PalletIdentitySimpleIdentityInfo | { additional?: any; display?: any; legal?: any; web?: any; email?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletIdentitySimpleIdentityInfo]>;
     };
     imOnline: {
       /**
