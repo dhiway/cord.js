@@ -27,7 +27,7 @@ async function main() {
   const api = Cord.ConfigService.get("api");
   // Restore console.log
   console.log = originalConsoleLog;
-  console.log(`\nOn-Chain Assets & Transactions  `);
+  console.log(`\nOn-Chain Assets & Transactions`);
 
   // Step 1: Setup Identities
   console.log(`\n❄️  Identities`);
@@ -36,6 +36,10 @@ async function main() {
     "sr25519"
   );
 
+  const { account: authorIdentity } = await createAccount()
+  console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
+  await addNetworkMember(networkAuthorityIdentity, authorIdentity.address)
+ 
   //  const { account: issuerIdentity } = createAccount();
     // Create issuer DID
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
@@ -81,7 +85,7 @@ async function main() {
   const space = await Cord.ChainSpace.dispatchToChain(
     spaceProperties,
     issuerDid.uri,
-    networkAuthorityIdentity,
+    authorIdentity,
     async ({ data }) => ({
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
@@ -129,10 +133,13 @@ async function main() {
     colors: true,
   });
 
-  const extrinsic = await Cord.Asset.dispatchCreateToChain(
-      assetEntry,
+  const extrinsic = await Cord.Asset.dispatchCreateVcToChain(
+      assetProperties.assetQty,
+      assetEntry.digest,
+      assetEntry.creator,
       networkAuthorityIdentity,
       space.authorization,
+      assetEntry.uri,
       async ({ data }) => ({
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
@@ -156,15 +163,15 @@ async function main() {
     colors: true,
   });
 
-  const issueExtrinsic = await Cord.Asset.dispatchIssueToChain(
-      assetIssuance,
-      networkAuthorityIdentity,
-      space.authorization,
-      async ({ data }) => ({
-        signature: issuerKeys.authentication.sign(data),
-        keyType: issuerKeys.authentication.type,
-      }),
-    )
+  const issueExtrinsic = await Cord.Asset.dispatchIssueVcToChain(
+    assetIssuance,
+    networkAuthorityIdentity,
+    space.authorization,
+    async ({ data }) => ({
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
+    }),
+  )
 
   // Step 4: Transfer Asset to New Owner
   console.log(`\n❄️  Transfer Asset to New Owner (Holder2) - Holder Action  `);
@@ -180,14 +187,14 @@ async function main() {
     colors: true,
   });
 
-  const transferExtrinsic = await Cord.Asset.dispatchTransferToChain(
-      assetTransfer,
-      networkAuthorityIdentity,
-      async ({ data }) => ({
-        signature: holderKeys.authentication.sign(data),
-        keyType: holderKeys.authentication.type,
-      }),
-    )
+  const transferExtrinsic = await Cord.Asset.dispatchTransferVcToChain(
+    assetTransfer,
+    networkAuthorityIdentity,
+    async ({ data }) => ({
+      signature: holderKeys.authentication.sign(data),
+      keyType: holderKeys.authentication.type,
+    }),
+  )
 
   console.log("✅ Asset transferred!");
 }

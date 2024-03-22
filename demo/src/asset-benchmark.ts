@@ -52,7 +52,7 @@ async function main() {
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
     networkAuthorityIdentity
   )
-  const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic)
+  const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')
   console.log(
     `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`
   )
