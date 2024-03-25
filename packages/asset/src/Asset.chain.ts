@@ -84,9 +84,9 @@ export async function dispatchCreateVcToChain(
   creator: DidUri,
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
-  assetEntryUri: AssetUri,
+  //assetEntryUri: AssetUri,
   signCallback: SignExtrinsicCallback
-): Promise<AssetUri> {
+): Promise<any> {
   try {
     const api = ConfigService.get('api')
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
@@ -106,7 +106,7 @@ export async function dispatchCreateVcToChain(
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
-    return assetEntryUri
+    return null
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : JSON.stringify(error)

@@ -1,22 +1,18 @@
 import * as Cord from "@cord.network/sdk";
 import { addNetworkMember } from "./utils/createAuthorities.js";
 import { createAccount } from "./utils/createAccount.js";
-/*
-import {
-  buildFromAssetProperties,
-  failproofSubmit,
-  buildFromAssetIssueProperties,
-  buildFromAssetTransferProperties,
-} from "./utils/assets.js";
 
-import { AssetTypeOf, IAssetProperties } from "./utils/asset-types.js";
-*/
+import * as vcExport from "@cord.network/vc-export";
+
+import { uriToIdentifier } from '@cord.network/identifier'
+
 import { createDid } from "./utils/generateDid";
+import PalletAssetVcAssetEntry from '@polkadot/types/lookup';
 
 const { NETWORK_ADDRESS, ANCHOR_URI } = process.env;
 
 async function main() {
-  const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:9944';
+  const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:60477';
   const anchorUri = ANCHOR_URI ?? '//Alice';
 
   // Temporarily suppress console.log
@@ -81,15 +77,17 @@ async function main() {
     colors: true,
   })
 
+  let extSignCallback = async ({ data }) => ({
+    signature: issuerKeys.authentication.sign(data),
+    keyType: issuerKeys.authentication.type,
+  })
+
   console.log(`\n❄️  Chain Space Properties `)
   const space = await Cord.ChainSpace.dispatchToChain(
     spaceProperties,
     issuerDid.uri,
     authorIdentity,
-    async ({ data }) => ({
-      signature: issuerKeys.authentication.sign(data),
-      keyType: issuerKeys.authentication.type,
-    })
+    extSignCallback,
   )
   console.dir(space, {
     depth: null,
@@ -105,6 +103,28 @@ async function main() {
   )
   console.log(`✅  Chain Space Approved`)
 
+  let newSchemaContent = require('../res/asset_vc_schema.json');
+  let newSchemaName =
+      newSchemaContent.title + ':' + Cord.Utils.UUID.generate();
+  newSchemaContent.title = newSchemaName;
+
+  let schemaProperties = Cord.Schema.buildFromProperties(
+    newSchemaContent,
+    space.uri,
+    issuerDid.uri,
+);
+  const schemaUri = await Cord.Schema.dispatchToChain(
+      schemaProperties.schema,
+      issuerDid.uri,
+      authorIdentity,
+      space.authorization,
+      async ({ data }) => ({
+          signature: issuerKeys.authentication.sign(data),
+          keyType: issuerKeys.authentication.type,
+      }),
+  );
+  console.log(`✅ Schema - ${schemaUri} - added!`);
+
   // Step 2: Create assets on-chain
   let assetProperties: Cord.IAssetProperties = {
     assetType: Cord.AssetTypeOf.art,
@@ -115,38 +135,72 @@ async function main() {
     assetMeta: "Meta - " + Cord.Utils.UUID.generate(),
   };
 
+  // Step 4: Delegate creates a new Verifiable Document
+  console.log(`\n❄️  VC Asset Creation `);
+
+  let newCredContent = await vcExport.buildVcFromContent(
+      schemaProperties.schema,
+      assetProperties,
+      issuerDid,
+      issuerDid.uri,
+      {
+          spaceUri: space.uri,
+          schemaUri: schemaUri,
+      },
+  );
+
+  console.log("VC asset creation complete", newCredContent);
+
+  let vc = await vcExport.addProof(
+      newCredContent,
+      async (data) => ({
+          signature: await issuerKeys.assertionMethod.sign(data),
+          keyType: issuerKeys.assertionMethod.type,
+          keyUri: `${issuerDid.uri}${
+              issuerDid.assertionMethod![0].id
+          }` as Cord.DidResourceUri,
+      }),
+      issuerDid,
+      { spaceUri: space.uri, schemaUri, needSDR: false, needStatementProof: false },
+  );
+  console.dir(vc, {
+      depth: null,
+      colors: true,
+  });
+
   console.log(`\n❄️  Asset Properties - Created by Issuer  `);
   console.dir(assetProperties, {
     depth: null,
     colors: true,
   });
 
-  const assetEntry = await Cord.Asset.buildFromAssetProperties(
-    assetProperties,
-    issuerDid.uri,
-    space.uri,
-  );
+  // const assetEntry = await Cord.Asset.buildFromAssetProperties(
+  //   assetProperties,
+  //   issuerDid.uri,
+  //   space.uri,
+  // );
 
-  console.log(`\n❄️  Asset Transaction  - Created by Issuer  `);
-  console.dir(assetEntry, {
-    depth: null,
-    colors: true,
-  });
+  console.log("\n ** VC Asset Create Entry to chain ** \n", 
+  {
+    "entry": {
+    assetQty: assetProperties.assetQty,
+    digest: vc.credentialHash,
+    authorizationId: uriToIdentifier(space.authorization),
+  }});
 
   const extrinsic = await Cord.Asset.dispatchCreateVcToChain(
       assetProperties.assetQty,
-      assetEntry.digest,
-      assetEntry.creator,
+      vc.credentialHash,
+      vc.issuer,
       networkAuthorityIdentity,
       space.authorization,
-      assetEntry.uri,
-      async ({ data }) => ({
-        signature: issuerKeys.authentication.sign(data),
-        keyType: issuerKeys.authentication.type,
-      }),
+      //assetEntry.uri,
+      extSignCallback,
     )
 
-  console.log("✅ Asset created!");
+  console.log("\n ✅ VC Asset created!");
+
+  console.log("Pring vc asset", vc);
 
   // Step 3: Issue Asset to Holder
   console.log(`\n❄️  Issue Asset to Holder - Issuer Action  `);
@@ -167,10 +221,7 @@ async function main() {
     assetIssuance,
     networkAuthorityIdentity,
     space.authorization,
-    async ({ data }) => ({
-      signature: issuerKeys.authentication.sign(data),
-      keyType: issuerKeys.authentication.type,
-    }),
+    extSignCallback,
   )
 
   // Step 4: Transfer Asset to New Owner
