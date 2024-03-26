@@ -3,13 +3,62 @@ import { addNetworkMember } from "./utils/createAuthorities.js";
 import { createAccount } from "./utils/createAccount.js";
 
 import * as vcExport from "@cord.network/vc-export";
-
-import { uriToIdentifier } from '@cord.network/identifier'
-
 import { createDid } from "./utils/generateDid";
 import PalletAssetVcAssetEntry from '@polkadot/types/lookup';
 
 const { NETWORK_ADDRESS, ANCHOR_URI } = process.env;
+
+/* TODO: Remove unused below dependencies after AssetEntryUri is built in vcExport library */
+import { hashToUri, uriToIdentifier } from '@cord.network/identifier'
+import {
+  IAssetProperties,
+  ASSET_IDENT,
+  ASSET_PREFIX,
+  AssetUri,
+  IAssetIssuance,
+  ASSET_INSTANCE_IDENT,
+  IAssetTransfer,
+  IAssetEntry,
+  IAssetTransferEntry,
+  DidUri,
+  SpaceUri,
+  blake2AsHex,
+  AccountId,
+  H256,
+  Bytes,
+} from '@cord.network/types'
+import { Crypto } from '@cord.network/utils'
+import * as Did from '@cord.network/did'
+//import AccountId32 from '@polkadot/types/interfaces/runtime';
+
+
+/* TODO: Take arguments, generate digests with typed arguments */
+async function buildAssetUri(assetInput: IAssetEntry, issuerUri: DidUri , spaceUri: SpaceUri, api: any) {
+  //const api = Cord.ConfigService.get("api");
+  const entryDigest = Crypto.hashObjectAsHexStr(assetInput);
+
+  const scaleEncodedAssetDigest = api
+  .createType("H256", entryDigest)
+  .toU8a();
+  const scaleEncodedIssuer = api
+    .createType('AccountId', Did.toChain(issuerUri))
+    .toU8a()
+  const scaleEncodedSpace = api
+    .createType('Bytes', uriToIdentifier(spaceUri))
+    .toU8a()
+
+  const assetIdDigest = blake2AsHex(
+    Uint8Array.from([...scaleEncodedAssetDigest, ...scaleEncodedSpace, ...scaleEncodedIssuer])
+  );
+
+  const assetIdentifier = hashToUri(
+    assetIdDigest,
+    ASSET_IDENT,
+    ASSET_PREFIX
+  ) as AssetUri;
+
+  return assetIdentifier
+}
 
 async function main() {
   const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:60477';
@@ -188,6 +237,9 @@ async function main() {
     authorizationId: uriToIdentifier(space.authorization),
   }});
 
+  /* TODO: Build assetEntryUri from vcExport library */
+  const assetEntryUri = await buildAssetUri(assetProperties, issuerDid.uri, space.uri, api);
+
   const extrinsic = await Cord.Asset.dispatchCreateVcToChain(
       assetProperties.assetQty,
       vc.credentialHash,
@@ -205,7 +257,8 @@ async function main() {
   // Step 3: Issue Asset to Holder
   console.log(`\n❄️  Issue Asset to Holder - Issuer Action  `);
   const assetIssuance = await Cord.Asset.buildFromIssueProperties(
-    assetEntry.uri,
+    //assetEntry.uri,
+    assetEntryUri,
     holderDid.uri,
     1,
     issuerDid.uri,
