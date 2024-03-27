@@ -55,7 +55,7 @@ async function buildFromAssetVcProperties(entryDigest: HexString, issuerUri: Did
 }
 
 async function main() {
-  const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:9944';
+  const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:63214';
   const anchorUri = ANCHOR_URI ?? '//Alice';
 
   // Temporarily suppress console.log
@@ -146,7 +146,7 @@ async function main() {
   )
   console.log(`✅ Chain Space Approved`)
 
-  // Step 3: Dispatch new schema to chain.
+  // Step 3: Dispatch creation of asset schema to chain.
   let newSchemaContent = require('../res/asset_vc_schema.json');
   let newSchemaName =
       newSchemaContent.title + ':' + Cord.Utils.UUID.generate();
@@ -200,8 +200,6 @@ async function main() {
           schemaUri: schemaUri,
       },
   );
-  console.log("\n❄️  Asset Verifiable Credential Document created \n", newCredContent);
-
   /* TODO: Fix addProof dependency issue by implementing the methods requiring api locally */
   // let vc = await vcExport.addProof(
   //     newCredContent,
@@ -221,6 +219,8 @@ async function main() {
   // });
   
   const assetVcEntry = await buildFromAssetVcProperties(newCredContent.credentialHash, issuerDid.uri, space.uri, api);
+  newCredContent.id = assetVcEntry.uri;
+  console.log("\n❄️  Asset(create) Verifiable Credential Document created \n", newCredContent);
 
   const extrinsic = await Cord.Asset.dispatchCreateVcToChain(
       assetProperties.assetQty,
@@ -232,6 +232,21 @@ async function main() {
       extSignCallback,
     )
   console.log("\n✅  VC Asset created on-chain!");
+
+  // Update the assetProperties with number of quantity of asset issued.
+  let issuanceQty = 1;
+  assetProperties.assetQty = issuanceQty;
+  
+  let newIssueCredContent = await vcExport.buildVcFromContent(
+    schemaProperties.schema,
+    assetProperties,
+    issuerDid,
+    holderDid.uri,
+    {
+        spaceUri: space.uri,
+        schemaUri: schemaUri,
+    },
+  );
 
   // Step 6: Issue Asset to Holder
   console.log(`\n❄️  Issue Asset to Holder - Issuer Action  `);
@@ -248,6 +263,10 @@ async function main() {
     colors: true,
   });
 
+  // Asset Issue ID consists of both asset_id:instance_id
+  newIssueCredContent.id = assetIssuance.uri;
+  console.log("\n❄️  Asset(issue) Verifiable Credential Document created \n", newIssueCredContent);
+
   const issueExtrinsic = await Cord.Asset.dispatchIssueVcToChain(
     assetIssuance,
     networkAuthorityIdentity,
@@ -257,6 +276,23 @@ async function main() {
 
   // Step 7: Transfer Asset to New Owner
   console.log(`\n❄️  Transfer Asset to New Owner (Holder2) - Holder Action  `);
+
+  // Should we create new assetProperties, or just update the qutantity(being issued)
+  assetProperties.assetQty = issuanceQty;
+  let newTransferCredContent = await vcExport.buildVcFromContent(
+    schemaProperties.schema,
+    assetProperties,
+    holderDid,
+    holder2Did.uri,
+    {
+        spaceUri: space.uri,
+        schemaUri: schemaUri,
+    },
+  );
+
+  // Asset Issue ID consists of both asset_id:instance_id
+  newTransferCredContent.id = assetIssuance.uri;
+  console.log("\n❄️  Asset(transfer) Verifiable Credential Document created \n", newTransferCredContent);
   
   const assetTransfer = await Cord.Asset.buildFromTransferProperties(
     assetIssuance.uri,
