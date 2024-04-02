@@ -277,7 +277,6 @@ async function main() {
   // Step 7: Transfer Asset to New Owner
   console.log(`\n❄️  Transfer Asset to New Owner (Holder2) - Holder Action  `);
 
-  // Should we create new assetProperties, or just update the qutantity(being issued)
   assetProperties.assetQty = issuanceQty;
   let newTransferCredContent = await vcExport.buildVcFromContent(
     schemaProperties.schema,
