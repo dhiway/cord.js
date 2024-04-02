@@ -27,20 +27,20 @@ async function main() {
 
   const { mnemonic: chainSpaceAdminMnemonic, document: chainSpaceAdminDid } =
     await createDid(networkAuthorIdentity)
-  const chainSpaceAdminKeys = Cord.Utils.Keys.generateKeypairs(chainSpaceAdminMnemonic)
+  const chainSpaceAdminKeys = Cord.Utils.Keys.generateKeypairs(chainSpaceAdminMnemonic,"sr25519")
   console.log(
     `🔐  Network Score Admin (${chainSpaceAdminDid.authentication[0].type}): ${chainSpaceAdminDid.uri}`
   )
   const { mnemonic: networkProviderMnemonic, document: networkProviderDid } =
     await createDid(networkAuthorIdentity)
-  const networkProviderKeys = Cord.Utils.Keys.generateKeypairs(networkProviderMnemonic)
+  const networkProviderKeys = Cord.Utils.Keys.generateKeypairs(networkProviderMnemonic,"sr25519")
   console.log(
     `🔐  Network Participant (Provider) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
   )
 
   const { mnemonic: networkAuthorMnemonic, document: networkAuthorDid } =
     await createDid(networkAuthorIdentity)
-  const networkAuthorKeys = Cord.Utils.Keys.generateKeypairs(networkAuthorMnemonic)
+  const networkAuthorKeys = Cord.Utils.Keys.generateKeypairs(networkAuthorMnemonic,"sr25519")
   console.log(
     `🔐 Network Author (API -> Node) (${networkAuthorDid.authentication[0].type}): ${networkAuthorDid.uri}`
   )
@@ -135,33 +135,35 @@ async function main() {
   console.log(`\n⏳ Network Rating Transaction Flow`)
 
   console.log(`\n💠  Write Rating - (Genesis) Credit Entry `)
-  let ratingContent: IRatingContent = {
-    entityUid: Cord.Utils.UUID.generate(),
-    entityId: 'Gupta Kirana Store',
-    providerUid: Cord.Utils.UUID.generate(),
-    providerId: 'GoFrugal',
-    entityType: Cord.EntityTypeOf.retail,
-    ratingType: Cord.RatingTypeOf.overall,
-    countOfTxn: 100,
-    totalRating: 320,
+  let ratingContent: any = {
+    entity_id: Cord.Utils.UUID.generate(),
+    entity_name: 'Gupta Kirana Store',
+    provider_id: 'GoFrugal',
+    rating_type: Cord.RatingTypeOf.overall,
+    count_of_txn: 100,
+    total_rating: 320,
   }
 
-  console.dir(ratingContent, {
-    depth: null,
-    colors: true,
-  })
-  const entryDigest = Cord.Utils.Crypto.hashObjectAsHexStr(ratingContent);
-  const { totalRating, ...restOfRating} = ratingContent;
+  // console.dir(ratingContent, {
+  //   depth: null,
+  //   colors: true,
+  // })
+
+
+  const entry_digest = Cord.Utils.Crypto.hashObjectAsHexStr(ratingContent);
+  const { total_rating, ...restOfRating} = ratingContent;
   
-  let transformedEntry: IRatingEntry = {
+  let transformedEntry: Cord.IRatingEntry = {
     entry: {
       ...restOfRating,
-      providerDid: networkProviderDid.uri.replace('did:cord:', ''),
-      totalEncodedRating: Math.round(totalRating * 10),
+      provider_did: networkProviderDid.uri.replace('did:cord:', ''),
+      total_encoded_rating: Math.round(total_rating * 10),
     },
-    messageId: Cord.Utils.UUID.generate(),
-    entryDigest,
+    message_id: Cord.Utils.UUID.generate(),
+    entry_digest,
   };
+
+  console.log('166 transformedEntry\n',transformedEntry)
 
   console.log(`\n🌐  Rating Information to API endpoint (/write-ratings) `)
   console.dir(transformedEntry, {
@@ -200,7 +202,7 @@ async function main() {
   console.log(`\n💠  Revoke Rating - Debit Entry `)
   const revokeInput = {
     entryUri: ratingUri,
-    entityUid: transformedEntry.entry.entityUid,
+    entity_id: transformedEntry.entry.entity_id,
   }
   console.dir(revokeInput, {
     depth: null,
@@ -216,14 +218,14 @@ async function main() {
 
   const revokeDigest = Cord.Utils.Crypto.hashObjectAsHexStr(entryTransform)
 
-  const revokeRatingEntry: IRatingRevokeEntry = {
+  const revokeRatingEntry: Cord.IRatingRevokeEntry = {
       entry: {
-        messageId: msgId,
-        entryDigest: revokeDigest,
-        referenceId: ratingUri,
+        message_id: msgId,
+        entry_digest: revokeDigest,
+        reference_id: ratingUri,
       },
-      entityUid: transformedEntry.entry.entityUid,
-      providerDid: networkProviderDid.uri,
+      entity_id: transformedEntry.entry.entity_id,
+      provider_did: networkProviderDid.uri,
     }
 
   console.log(
@@ -268,10 +270,10 @@ async function main() {
 
   let revisedRatingContent = {
     ...ratingContent,
-    providerDid: transformedEntry.entry.providerDid,
-    referenceId: revokedRatingUri,
-    countOfTxn: 80,
-    totalRating: 280,
+    provider_did: transformedEntry.entry.providerDid,
+    reference_id: revokedRatingUri,
+    count_of_txn: 80,
+    total_rating: 280,
   }
 
   console.dir(revisedRatingContent, {
@@ -284,12 +286,12 @@ async function main() {
   let transformedRevisedEntry = {
     entry: {
       ...revisedRatingContent,
-      referenceId: revokedRatingUri,
-      totalEncodedRating: Math.round(revisedRatingContent.totalRating * 10),
+      reference_id: revokedRatingUri,
+      total_encoded_rating: Math.round(revisedRatingContent.totalRating * 10),
     },
-    messageId: Cord.Utils.UUID.generate(),
-    referenceId: revokedRatingUri,
-    entryDigest: revisedEntryDigest,
+    message_id: Cord.Utils.UUID.generate(),
+    reference_id: revokedRatingUri,
+    entry_digest: revisedEntryDigest,
   };
 
   delete transformedRevisedEntry.entry.totalRating;
@@ -342,7 +344,7 @@ async function main() {
   console.log(`\n🌐  Query From Chain - Aggregate Score `)
   const aggregateScoreFromChain =
     await Cord.Score.fetchEntityAggregateScorefromChain(
-      ratingContent.entityUid,
+      ratingContent.entity_id,
       Cord.RatingTypeOf.overall
     )
   console.dir(aggregateScoreFromChain, {

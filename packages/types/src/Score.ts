@@ -13,90 +13,77 @@ export enum RatingTypeOf {
   delivery = 'Delivery',
 }
 
-export enum EntityTypeOf {
-  retail = 'Retail',
-  logistic = 'Logistic',
-}
-
 export enum EntryTypeOf {
   credit = 'Credit',
   debit = 'Debit',
 }
 
 export interface IRatingContent {
-  entityUid: string
-  entityId: string
-  providerUid: string
-  providerId: string
-  entityType: EntityTypeOf
-  ratingType: RatingTypeOf
-  referenceId?: string
-  countOfTxn: number
-  totalRating: number
+  entity_id: string
+  provider_id: string
+  rating_type: RatingTypeOf
+  reference_id?: string
+  count_of_txn: number
+  total_rating: number
 }
 
 export interface IRatingTransformed {
-  entityUid: string
-  entityId: string
-  providerUid: string
-  providerId: string
-  providerDid: CordAddress
-  entityType: EntityTypeOf
-  ratingType: RatingTypeOf
-  referenceId?: string
-  countOfTxn: number
-  totalEncodedRating: number
+  entity_id: string
+  provider_id: string
+  provider_did: CordAddress
+  rating_type: RatingTypeOf
+  reference_id?: string
+  count_of_txn: number
+  total_encoded_rating: number
 }
 
 export interface IRatingEntry {
   entry: IRatingTransformed
-  messageId: string
-  referenceId?: RatingEntryUri
-  entryDigest: HexString
+  message_id: string
+  reference_id?: RatingEntryUri
+  entry_digest: HexString
 }
 
 export type RatingPartialEntry = Omit<IRatingEntry, 'entry'>
 
 export type IRatingChainEntry = Omit<
   IRatingTransformed,
-  'providerId' | 'entityId'
+  'provider_id' | 'entity_id'
 >
 
 export interface IRatingRevokeEntry {
   entry: RatingPartialEntry
-  entityUid: string
-  providerDid: DidUri
+  entity_id: string
+  provider_did: DidUri
 }
 
 export interface IRatingDispatch {
   entryUri: RatingEntryUri
   entry: IRatingChainEntry
   chainSpace: SpaceUri
-  messageId: string
-  entryDigest: HexString
+  message_id: string
+  entry_digest: HexString
   authorUri: DidUri
-  authorSignature: DidSignature
 }
 
 export interface IAggregateScore {
-  entityUid: string
-  ratingType: RatingTypeOf
-  countOfTxn: number
-  totalRating: number
+  entity_id: string
+  rating_type: RatingTypeOf
+  count_of_txn: number
+  total_rating: number
 }
 
 export type IRatingChainEntryDetails = Omit<
   IRatingContent,
-  'providerId' | 'entityId' | 'providerDid' | 'referenceId'
+  'provider_id' | 'entity_id' | 'provider_did' | 'reference_id'
 >
 export interface IRatingChainStatus {
   entryUri: RatingEntryUri
   entry: IRatingChainEntryDetails
   digest: HexString
-  messageId: string
+  message_id: string
   space: SpaceId
   creatorUri: DidUri
-  entryType: EntryTypeOf
-  referenceId?: RatingEntryUri
+  reference_id?: RatingEntryUri
   createdAt: string
 }
