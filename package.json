@@ -1,0 +1,74 @@
+{
+  "repository": "https://github.com/dhiway/cord.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "tsc -p tsconfig.json --noEmit",
+    "build": "yarn workspaces foreach -Apt --exclude '{root-workspace}' run build",
+    "build:docs": "typedoc --skipErrorChecking --theme default --out docs/api --tsconfig tsconfig.docs.json && touch docs/.nojekyll",
+    "bundle": "yarn workspace @cord.network/sdk run bundle",
+    "clean": "rimraf tests/dist && yarn workspaces foreach -Ap --exclude '{root-workspace}' run clean",
+    "clean:docs": "rimraf docs/api",
+    "set:version": "yarn workspaces foreach -pt exec npm version --no-git-tag-version",
+    "prepublish": "yarn workspaces foreach -Ap --no-private exec cp -f ../../LICENSE .",
+    "publish": "yarn workspaces foreach -Apt --no-private npm publish",
+    "publish-rc": "yarn workspaces foreach -Apt --no-private npm publish --tag rc",
+    "lint": "eslint packages --format=codeframe",
+    "lint:fix": "yarn lint --fix",
+    "style": "prettier -l packages",
+    "style:fix": "yarn style --write",
+    "test": "jest --coverage --group=unit --detectOpenHandles",
+    "test:ci": "yarn test --ci --forceExit",
+    "test:watch": "yarn test --watch",
+    "demo-statement": "tsx --no-cache demo/src/func-test.ts",
+    "demo-network-score": "tsx --no-cache demo/src/network-score-test.ts",
+    "demo-asset": "tsx --no-cache demo/src/asset-tx.ts"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn lint && yarn style",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "@commitlint/cli": "^9.1.2",
+    "@commitlint/config-conventional": "^9.1.2",
+    "@playwright/test": "^1.41.2",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.6",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsdoc": "^37.9.7",
+    "eslint-plugin-license-header": "^0.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^9.0.10",
+    "jest": "^29.7.0",
+    "moment": "^2.30.1",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "testcontainers": "^10.7.1",
+    "ts-jest": "^29.1.2",
+    "ts-jest-resolver": "^2.0.1",
+    "tsx": "^4.7.1",
+    "typedoc": "^0.25.8",
+    "typescript": "^5.3.3"
+  },
+  "resolutions": {
+    "typescript": "^5.3.3"
+  },
+  "version": "0.9.3-1rc4",
+  "packageManager": "yarn@4.0.2"
+}

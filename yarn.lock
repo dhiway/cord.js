@@ -1600,20 +1600,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cord.network/asset@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/asset@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/did": "npm:0.9.3-1rc11"
-    "@cord.network/identifier": "npm:0.9.3-1rc11"
-    "@cord.network/network": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: 290dd71d9ef12a98bc128f423ea46823326bc76c138381c433908db7f5aba5e921aedda9cf02b4da4fbc17ef73ed75cfb06202938b87b57f7a1225e22042ec64
-  languageName: node
-  linkType: hard
-
 "@cord.network/asset@workspace:*, @cord.network/asset@workspace:packages/asset":
   version: 0.0.0-use.local
   resolution: "@cord.network/asset@workspace:packages/asset"
@@ -1628,18 +1614,6 @@ __metadata:
     typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
-
-"@cord.network/augment-api@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/augment-api@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/type-definitions": "npm:0.9.3-1rc11"
-    "@polkadot/rpc-augment": "npm:^10.12.2"
-    "@polkadot/rpc-core": "npm:^10.12.2"
-    "@polkadot/rpc-provider": "npm:^10.12.2"
-  checksum: 432c39f48d209296e023f3662bdf882c2bd67abc51a29bc9a3074a24b518202bb7c74d77c77408ae3689e47dc0b502ff333f3fb780b314e66407e240b55ba5b6
-  languageName: node
-  linkType: hard
 
 "@cord.network/augment-api@workspace:*, @cord.network/augment-api@workspace:packages/augment-api":
   version: 0.0.0-use.local
@@ -1660,20 +1634,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/chain-space@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/chain-space@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/did": "npm:0.9.3-1rc11"
-    "@cord.network/identifier": "npm:0.9.3-1rc11"
-    "@cord.network/network": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: 56ba432c34bc37a5fbcf3063e2fdf6fae164220fee7963bc89a35a39de4b55a7339d38ae9f165fe0a2b0cc43cea3555b347e436fa7386180d0bd68d6eac4fa18
-  languageName: node
-  linkType: hard
-
 "@cord.network/chain-space@workspace:*, @cord.network/chain-space@workspace:packages/chain-space":
   version: 0.0.0-use.local
   resolution: "@cord.network/chain-space@workspace:packages/chain-space"
@@ -1689,17 +1649,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/config@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/config@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/type-definitions": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: 346a94876cbaced6d7d62469e8682c9a876c50cda25f0e76490689da85ec6e904deba16e955371a14091ebcecb484695369120203b2d6ea80d44dcf2dd610559
-  languageName: node
-  linkType: hard
-
 "@cord.network/config@workspace:*, @cord.network/config@workspace:packages/config":
   version: 0.0.0-use.local
   resolution: "@cord.network/config@workspace:packages/config"
@@ -1711,26 +1660,6 @@ __metadata:
     typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
-
-"@cord.network/did@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/did@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/augment-api": "npm:0.9.3-1rc11"
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/network": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-    "@digitalbazaar/security-context": "npm:^1.0.1"
-    "@polkadot/api": "npm:^10.12.2"
-    "@polkadot/keyring": "npm:^12.6.2"
-    "@polkadot/types": "npm:^10.12.2"
-    "@polkadot/types-codec": "npm:^10.12.2"
-    "@polkadot/util": "npm:^12.6.2"
-    "@polkadot/util-crypto": "npm:^12.6.2"
-  checksum: 63c1ba4a5e2d136c1f1991161ef315c310783d5b82ad1d5a2b330f866cea84652067ebda739314e8d7626809c086642afc79caf7158407d64a0fbdaf558acd6f
-  languageName: node
-  linkType: hard
 
 "@cord.network/did@workspace:*, @cord.network/did@workspace:packages/did":
   version: 0.0.0-use.local
@@ -1753,16 +1682,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/identifier@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/identifier@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: bd4433415209f8b5db7abb1ae59894f6d464602b5d455d312d87fb75aff8b2ff92460cc2fb17cb458c2509590e5e29258fe5113e2d4dd06a879f58a2d1b8bbe2
-  languageName: node
-  linkType: hard
-
 "@cord.network/identifier@workspace:*, @cord.network/identifier@workspace:packages/identifier":
   version: 0.0.0-use.local
   resolution: "@cord.network/identifier@workspace:packages/identifier"
@@ -1773,20 +1692,6 @@ __metadata:
     typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
-
-"@cord.network/network-score@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/network-score@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/did": "npm:0.9.3-1rc11"
-    "@cord.network/identifier": "npm:0.9.3-1rc11"
-    "@cord.network/network": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: ef4d8f237113045fc6dbc3ecfa2df1ccfc95330f2e2332046687f400fb82fcdebed153a24acd154974b9614a773ad3d8f432a16fbaea37f32dc4086bcaa74530
-  languageName: node
-  linkType: hard
 
 "@cord.network/network-score@workspace:*, @cord.network/network-score@workspace:packages/network-score":
   version: 0.0.0-use.local
@@ -1803,19 +1708,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/network@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/network@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-    "@polkadot/api": "npm:^10.12.2"
-    "@polkadot/types": "npm:^10.12.2"
-  checksum: 46161a47673d29b47952a553be6fd9211135a2a85a4c466f5996964c2d7848c677327e21048730351895fba1591d68cd9f2a1c1b148ac19e0bb7cb4dff5260d7
-  languageName: node
-  linkType: hard
-
 "@cord.network/network@workspace:*, @cord.network/network@workspace:packages/network":
   version: 0.0.0-use.local
   resolution: "@cord.network/network@workspace:packages/network"
@@ -1830,22 +1722,6 @@ __metadata:
     typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
-
-"@cord.network/schema@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/schema@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/augment-api": "npm:0.9.3-1rc11"
-    "@cord.network/chain-space": "npm:0.9.3-1rc11"
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/did": "npm:0.9.3-1rc11"
-    "@cord.network/identifier": "npm:0.9.3-1rc11"
-    "@cord.network/network": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: 803b534b47558fb35e5a080b3e3b1315a24547802c09f388013a10890095e9605b36f2785dd576763c2d766d354db4f33d7a8cb343cf6223e3e399963a047f10
-  languageName: node
-  linkType: hard
 
 "@cord.network/schema@workspace:*, @cord.network/schema@workspace:packages/schema":
   version: 0.0.0-use.local
@@ -1865,25 +1741,6 @@ __metadata:
     typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
-
-"@cord.network/sdk@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/sdk@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/asset": "npm:0.9.3-1rc11"
-    "@cord.network/chain-space": "npm:0.9.3-1rc11"
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/did": "npm:0.9.3-1rc11"
-    "@cord.network/identifier": "npm:0.9.3-1rc11"
-    "@cord.network/network": "npm:0.9.3-1rc11"
-    "@cord.network/network-score": "npm:0.9.3-1rc11"
-    "@cord.network/schema": "npm:0.9.3-1rc11"
-    "@cord.network/statement": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: 4be77737bcabb2236adf501a5a71b692751e197a74e038752890198bc65061edaf66c9d73727d1ec8d5b050caa8d7888b4633b14a693a7ae1da2161b3aa65c74
-  languageName: node
-  linkType: hard
 
 "@cord.network/sdk@workspace:packages/sdk":
   version: 0.0.0-use.local
@@ -1908,20 +1765,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/statement@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/statement@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/config": "npm:0.9.3-1rc11"
-    "@cord.network/did": "npm:0.9.3-1rc11"
-    "@cord.network/identifier": "npm:0.9.3-1rc11"
-    "@cord.network/network": "npm:0.9.3-1rc11"
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@cord.network/utils": "npm:0.9.3-1rc11"
-  checksum: 6a64e93d4b56147ed791b8885a64539c7e9211944d58804c23d821364d306a20438ed30c84507095f89cc67c226ae81514b11454ce5eb9d9b1803c9b89ce79c5
-  languageName: node
-  linkType: hard
-
 "@cord.network/statement@workspace:*, @cord.network/statement@workspace:packages/statement":
   version: 0.0.0-use.local
   resolution: "@cord.network/statement@workspace:packages/statement"
@@ -1937,15 +1780,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/type-definitions@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/type-definitions@npm:0.9.3-1rc11"
-  dependencies:
-    "@polkadot/types": "npm:^10.12.2"
-  checksum: 0843e326df244f623633ba477b1bc0fbc94a51b835d498b6975058d2ce9341bdcdbfc1def8679bd33116abc58dd012545ce57bc3f0620e4a835687c8f24f6e15
-  languageName: node
-  linkType: hard
-
 "@cord.network/type-definitions@workspace:*, @cord.network/type-definitions@workspace:packages/type-definitions":
   version: 0.0.0-use.local
   resolution: "@cord.network/type-definitions@workspace:packages/type-definitions"
@@ -1955,19 +1789,6 @@ __metadata:
     typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
-
-"@cord.network/types@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/types@npm:0.9.3-1rc11"
-  dependencies:
-    "@polkadot/api": "npm:^10.12.2"
-    "@polkadot/keyring": "npm:^12.6.2"
-    "@polkadot/types": "npm:^10.12.2"
-    "@polkadot/util": "npm:^12.6.2"
-    "@polkadot/util-crypto": "npm:^12.6.2"
-  checksum: e65902c7830b081f27a53e240aec07454ae703fc7f92dccaab9c8fa44505c7de83c658ea7c7f684b8c41948ecd2bf43be1d298b3fcfc1231f8d252b1dd377176
-  languageName: node
-  linkType: hard
 
 "@cord.network/types@workspace:*, @cord.network/types@workspace:packages/types":
   version: 0.0.0-use.local
@@ -1982,22 +1803,6 @@ __metadata:
     typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
-
-"@cord.network/utils@npm:0.9.3-1rc11":
-  version: 0.9.3-1rc11
-  resolution: "@cord.network/utils@npm:0.9.3-1rc11"
-  dependencies:
-    "@cord.network/types": "npm:0.9.3-1rc11"
-    "@polkadot/api": "npm:^10.12.2"
-    "@polkadot/keyring": "npm:^12.6.2"
-    "@polkadot/util": "npm:^12.6.2"
-    "@polkadot/util-crypto": "npm:^12.6.2"
-    cbor-x: "npm:^1.5.8"
-    tweetnacl: "npm:^1.0.3"
-    uuid: "npm:^9.0.1"
-  checksum: 50e0caae7a4ca005d202fb0039127b8dbb0a1cf11e40d527e675a632243c518266267ccae0def77f9c42fd4af34f70bcdd647ef406abec4d7cef3facad0e0856
-  languageName: node
-  linkType: hard
 
 "@cord.network/utils@workspace:*, @cord.network/utils@workspace:packages/utils":
   version: 0.0.0-use.local
@@ -2016,16 +1821,6 @@ __metadata:
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
-
-"@cord.network/vc-export@npm:0.9.3-1rc12":
-  version: 0.9.3-1rc12
-  resolution: "@cord.network/vc-export@npm:0.9.3-1rc12"
-  dependencies:
-    "@cord.network/sdk": "npm:0.9.3-1rc11"
-    moment: "npm:^2.29.4"
-  checksum: 70c33290771d0b8a683fa5a160444bd84ea09a74c000e36234a39f00d5996921f762c3256e2db109d21857aa599b5a7e4f1b088e3359cf9183182ce957da725e
-  languageName: node
-  linkType: hard
 
 "@digitalbazaar/security-context@npm:^1.0.1":
   version: 1.0.1
@@ -8028,7 +7823,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.29.4, moment@npm:^2.30.1":
+"moment@npm:^2.30.1":
   version: 2.30.1
   resolution: "moment@npm:2.30.1"
   checksum: ae42d876d4ec831ef66110bdc302c0657c664991e45cf2afffc4b0f6cd6d251dde11375c982a5c0564ccc0fa593fc564576ddceb8c8845e87c15f58aa6baca69
@@ -8965,7 +8760,6 @@ __metadata:
     "@babel/preset-env": "npm:^7.23.9"
     "@commitlint/cli": "npm:^9.1.2"
     "@commitlint/config-conventional": "npm:^9.1.2"
-    "@cord.network/vc-export": "npm:0.9.3-1rc12"
     "@playwright/test": "npm:^1.41.2"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.11.6"

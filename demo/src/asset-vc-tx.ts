@@ -55,7 +55,7 @@ async function buildFromAssetVcProperties(entryDigest: HexString, issuerUri: Did
 }
 
 async function main() {
-  const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:63214';
+  const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:9944';
   const anchorUri = ANCHOR_URI ?? '//Alice';
 
   // Temporarily suppress console.log
