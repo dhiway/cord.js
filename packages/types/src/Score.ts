@@ -1,6 +1,6 @@
 import { HexString } from '@polkadot/util/types.js'
 import { SpaceId, SpaceUri } from './ChainSpace.js'
-import { DidUri, DidSignature } from './DidDocument.js'
+import { DidUri } from './DidDocument.js'
 import { CordAddress } from './Address.js'
 
 export const RATING_IDENT = 6077

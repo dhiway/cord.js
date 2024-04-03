@@ -322,7 +322,7 @@ export async function dispatchReviseRatingToChain(
     }
 
     const tx = api.tx.networkScore.reviseRating(
-      ratingEntry.entry,
+      ratingEntry.entry as any,
       ratingEntry.entry_digest,
       ratingEntry.message_id,
       refEntryId,
@@ -476,8 +476,8 @@ function decodeEntryDetailsfromChain(
   const chainEntry = encoded.unwrap()
   const encodedEntry = chainEntry.entry
   const decodedEntry: IRatingChainEntryDetails = {
-    entity_id: DecoderUtils.hexToString(encodedEntry.entityUid.toString()),
-    provider_id: DecoderUtils.hexToString(encodedEntry.providerUid.toString()),
+    entity_id: DecoderUtils.hexToString(encodedEntry.entityId.toString()),
+    provider_id: DecoderUtils.hexToString(encodedEntry.providerId.toString()),
     rating_type: decodeRatingType(encodedEntry.ratingType),
     count_of_txn: encodedEntry.countOfTxn.toNumber(),
     total_rating: decodeRatingValue(encodedEntry.totalEncodedRating.toNumber()),

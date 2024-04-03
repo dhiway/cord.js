@@ -521,8 +521,8 @@ export async function buildFromReviseRatingProperties(
       authorUri
     )
 
-    const { provider_id, entity_id, ...chainEntry } = rating.entry
-    details.entry = chainEntry
+    // const { provider_id, entity_id, ...chainEntry } = rating.entry
+    details.entry = rating.entry
 
     return { uri, details }
   } catch (error) {

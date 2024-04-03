@@ -144,10 +144,10 @@ async function main() {
     total_rating: 320,
   }
 
-  // console.dir(ratingContent, {
-  //   depth: null,
-  //   colors: true,
-  // })
+  console.dir(ratingContent, {
+    depth: null,
+    colors: true,
+  })
 
 
   const entry_digest = Cord.Utils.Crypto.hashObjectAsHexStr(ratingContent);
@@ -270,7 +270,7 @@ async function main() {
 
   let revisedRatingContent = {
     ...ratingContent,
-    provider_did: transformedEntry.entry.providerDid,
+    provider_did: transformedEntry.entry.provider_did,
     reference_id: revokedRatingUri,
     count_of_txn: 80,
     total_rating: 280,
@@ -287,14 +287,14 @@ async function main() {
     entry: {
       ...revisedRatingContent,
       reference_id: revokedRatingUri,
-      total_encoded_rating: Math.round(revisedRatingContent.totalRating * 10),
+      total_encoded_rating: Math.round(revisedRatingContent.total_rating * 10),
     },
     message_id: Cord.Utils.UUID.generate(),
     reference_id: revokedRatingUri,
     entry_digest: revisedEntryDigest,
   };
 
-  delete transformedRevisedEntry.entry.totalRating;
+  delete transformedRevisedEntry.entry.total_rating;
   
   console.log(
     `\n🌐  Rating Revised(Credit) Information to API endpoint (/write-ratings)\n`
@@ -331,35 +331,35 @@ async function main() {
     console.log(`\n🚫 Revision Anchoring failed! " 🚫`)
   }
 
-  console.log(`\n🌐  Query From Chain - Rating Entry `)
-  const ratingEntryFromChain = await Cord.Score.fetchRatingDetailsfromChain(
-    revisedRatingUri,
-    'Asia/Kolkata'
-  )
-  console.dir(ratingEntryFromChain, {
-    depth: null,
-    colors: true,
-  })
+  // console.log(`\n🌐  Query From Chain - Rating Entry `)
+  // const ratingEntryFromChain = await Cord.Score.fetchRatingDetailsfromChain(
+  //   revisedRatingUri,
+  //   'Asia/Kolkata'
+  // )
+  // console.dir(ratingEntryFromChain, {
+  //   depth: null,
+  //   colors: true,
+  // })
 
-  console.log(`\n🌐  Query From Chain - Aggregate Score `)
-  const aggregateScoreFromChain =
-    await Cord.Score.fetchEntityAggregateScorefromChain(
-      ratingContent.entity_id,
-      Cord.RatingTypeOf.overall
-    )
-  console.dir(aggregateScoreFromChain, {
-    depth: null,
-    colors: true,
-  })
+  // console.log(`\n🌐  Query From Chain - Aggregate Score `)
+  // const aggregateScoreFromChain =
+  //   await Cord.Score.fetchEntityAggregateScorefromChain(
+  //     ratingContent.entity_id,
+  //     Cord.RatingTypeOf.overall
+  //   )
+  // console.dir(aggregateScoreFromChain, {
+  //   depth: null,
+  //   colors: true,
+  // })
 
-  console.log(`\n🌐  Query From Chain - Chain Space Usage `)
-  const spaceUsageFromChain = await Cord.ChainSpace.fetchFromChain(
-    chainSpace.uri
-  )
-  console.dir(spaceUsageFromChain, {
-    depth: null,
-    colors: true,
-  })
+  // console.log(`\n🌐  Query From Chain - Chain Space Usage `)
+  // const spaceUsageFromChain = await Cord.ChainSpace.fetchFromChain(
+  //   chainSpace.uri
+  // )
+  // console.dir(spaceUsageFromChain, {
+  //   depth: null,
+  //   colors: true,
+  // })
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))

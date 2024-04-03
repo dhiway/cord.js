@@ -4,7 +4,6 @@
 import type { Option, Struct, Text, Vec } from '@polkadot/types-codec';
 import type { AccountId32, Weight, WeightV1, WeightV2 } from '@polkadot/types/interfaces/runtime';
 import type { DispatchClass } from '@polkadot/types/interfaces/system';
-import type { PalletDidServiceEndpointsDidEndpoint, PalletDidDidDetails } from '@polkadot/types/lookup'
 
 /** @name RawDidLinkedInfo */
 export interface RawDidLinkedInfo extends Struct {
