@@ -37,14 +37,13 @@ import {
   IRatingChainStatus,
   IRatingChainEntryDetails,
   RatingTypeOf,
-  EntityTypeOf,
   EntryTypeOf,
   IAggregateScore,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
 import type {
   PalletNetworkScoreRatingEntry,
-  PalletNetworkScoreEntityTypeOf,
+
   PalletNetworkScoreRatingTypeOf,
   PalletNetworkScoreEntryTypeOf,
   PalletNetworkScoreAggregatedEntryOf,
@@ -55,6 +54,7 @@ import { uriToIdentifier, identifierToUri } from '@cord.network/identifier'
 import { Chain } from '@cord.network/network'
 import { ConfigService } from '@cord.network/config'
 import { SDKErrors, DecoderUtils, DataUtils } from '@cord.network/utils'
+
 
 /**
  * Checks if a specific rating is stored in the blockchain.
@@ -152,7 +152,7 @@ export async function dispatchRatingToChain(
     if (exists) {
       return ratingEntry.entryUri
     }
-
+    console.log('ratingEntry.entry at scoring.chain',ratingEntry.entry)
     const tx = api.tx.networkScore.registerRating(
       ratingEntry.entry,
       ratingEntry.entry_digest,

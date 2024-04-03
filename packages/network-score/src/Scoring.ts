@@ -273,6 +273,8 @@ async function createRatingObject(
   provider_uri: DidUri,
   authorUri: DidUri
 ): Promise<{ uri: RatingEntryUri; details: any }> {
+
+
   const ratingUri = await getUriForRatingEntry(
     entry_digest,
     entity_id,
@@ -365,6 +367,7 @@ export async function buildFromRatingProperties(
     ])
     validateHexString(rating.entry_digest)
 
+
     const { uri, details } = await createRatingObject(
       rating.entry_digest,
       rating.entry.entity_id,
@@ -374,9 +377,9 @@ export async function buildFromRatingProperties(
       authorUri
     )
 
-    const { provider_id, entity_id, ...chainEntry } = rating.entry
+    // const { provider_id, entity_id, entity_name, ...chainEntry } = rating.entry
 
-    details.entry = chainEntry
+    details.entry = rating.entry
     console.log('\n\n\ndetails',details)
     return { uri, details }
 

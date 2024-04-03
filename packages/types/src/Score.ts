@@ -20,6 +20,7 @@ export enum EntryTypeOf {
 
 export interface IRatingContent {
   entity_id: string
+  entity_name: string
   provider_id: string
   rating_type: RatingTypeOf
   reference_id?: string
@@ -29,6 +30,7 @@ export interface IRatingContent {
 
 export interface IRatingTransformed {
   entity_id: string
+  entity_name: string
   provider_id: string
   provider_did: CordAddress
   rating_type: RatingTypeOf
