@@ -543,9 +543,21 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InvalidJudgement: AugmentedError<ApiType>;
       /**
+       * The signature on a username was not valid.
+       **/
+      InvalidSignature: AugmentedError<ApiType>;
+      /**
+       * The provided suffix is too long.
+       **/
+      InvalidSuffix: AugmentedError<ApiType>;
+      /**
        * The target is invalid.
        **/
       InvalidTarget: AugmentedError<ApiType>;
+      /**
+       * The username does not meet the requirements.
+       **/
+      InvalidUsername: AugmentedError<ApiType>;
       /**
        * The provided judgement was for a different identity.
        **/
@@ -559,9 +571,17 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       JudgementPaymentFailed: AugmentedError<ApiType>;
       /**
+       * The authority cannot allocate any more usernames.
+       **/
+      NoAllocation: AugmentedError<ApiType>;
+      /**
        * No identity found.
        **/
       NoIdentity: AugmentedError<ApiType>;
+      /**
+       * The username cannot be forcefully removed because it can still be accepted.
+       **/
+      NotExpired: AugmentedError<ApiType>;
       /**
        * Account isn't found.
        **/
@@ -571,6 +591,22 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NotNamed: AugmentedError<ApiType>;
       /**
+       * Sub-account isn't owned by sender.
+       **/
+      NotOwned: AugmentedError<ApiType>;
+      /**
+       * Sender is not a sub-account.
+       **/
+      NotSub: AugmentedError<ApiType>;
+      /**
+       * The sender does not have permission to issue a username.
+       **/
+      NotUsernameAuthority: AugmentedError<ApiType>;
+      /**
+       * The requested username does not exist.
+       **/
+      NoUsername: AugmentedError<ApiType>;
+      /**
        * Registrar already exists.
        **/
       RegistrarAlreadyExists: AugmentedError<ApiType>;
@@ -578,6 +614,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Registrar not found.
        **/
       RegistrarNotFound: AugmentedError<ApiType>;
+      /**
+       * Setting this username requires a signature, but none was provided.
+       **/
+      RequiresSignature: AugmentedError<ApiType>;
       /**
        * Sticky judgement.
        **/
@@ -590,6 +630,14 @@ declare module '@polkadot/api-base/types/errors' {
        * Maximum amount of registrars reached. Cannot add any more.
        **/
       TooManyRegistrars: AugmentedError<ApiType>;
+      /**
+       * Too many subs-accounts.
+       **/
+      TooManySubAccounts: AugmentedError<ApiType>;
+      /**
+       * The username is already taken.
+       **/
+      UsernameTaken: AugmentedError<ApiType>;
     };
     imOnline: {
       /**

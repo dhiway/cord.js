@@ -266,19 +266,21 @@ function validateHexString(entryDigest: string): void {
  * @internal
  */
 async function createRatingObject(
-  entryDigest: HexString,
-  entityUid: string,
-  messageId: string,
+  entry_digest: HexString,
+  entity_id: string,
+  message_id: string,
   chainSpace: SpaceUri,
-  providerUri: DidUri,
+  provider_uri: DidUri,
   authorUri: DidUri
 ): Promise<{ uri: RatingEntryUri; details: any }> {
+
+
   const ratingUri = await getUriForRatingEntry(
-    entryDigest,
-    entityUid,
-    messageId,
+    entry_digest,
+    entity_id,
+    message_id,
     chainSpace,
-    providerUri
+    provider_uri
   )
 
   return {
@@ -286,8 +288,8 @@ async function createRatingObject(
     details: {
       entryUri: ratingUri,
       chainSpace,
-      messageId,
-      entryDigest,
+      message_id,
+      entry_digest,
       authorUri,
     },
   }
@@ -354,25 +356,33 @@ export async function buildFromRatingProperties(
     validateRequiredFields([
       chainSpace,
       authorUri,
-      rating.messageId,
-      rating.entryDigest,
+      rating.message_id,
+      rating.entry_digest,
+      rating.entry.entity_id,
+      rating.entry.provider_id,
+      rating.entry.rating_type,
+      rating.entry.count_of_txn,
+      rating.entry.total_encoded_rating,
+      rating.entry.provider_did
     ])
-    validateHexString(rating.entryDigest)
+    validateHexString(rating.entry_digest)
+
 
     const { uri, details } = await createRatingObject(
-      rating.entryDigest,
-      rating.entry.entityUid,
-      rating.messageId,
+      rating.entry_digest,
+      rating.entry.entity_id,
+      rating.message_id,
       chainSpace,
-      Did.getDidUri(rating.entry.providerDid),
+      Did.getDidUri(rating.entry.provider_did),
       authorUri
     )
 
-    const { providerId, entityId, ...chainEntry } = rating.entry
+    // const { provider_id, entity_id, entity_name, ...chainEntry } = rating.entry
 
-    details.entry = chainEntry
-
+    details.entry = rating.entry
+    console.log('\n\n\ndetails',details)
     return { uri, details }
+
   } catch (error) {
     throw new SDKErrors.RatingPropertiesError(
       `Rating content transformation error: "${error}".`
@@ -431,17 +441,17 @@ export async function buildFromRevokeRatingProperties(
     validateRequiredFields([
       chainSpace,
       authorUri,
-      rating.entry.messageId,
-      rating.entry.entryDigest,
+      rating.entry.message_id,
+      rating.entry.entry_digest,
     ])
-    validateHexString(rating.entry.entryDigest)
+    validateHexString(rating.entry.entry_digest)
 
     const { uri, details } = await createRatingObject(
-      rating.entry.entryDigest,
-      rating.entityUid,
-      rating.entry.messageId,
+      rating.entry.entry_digest,
+      rating.entity_id,
+      rating.entry.message_id,
       chainSpace,
-      Did.getDidUri(rating.providerDid),
+      Did.getDidUri(rating.provider_did),
       authorUri
     )
 
@@ -496,23 +506,23 @@ export async function buildFromReviseRatingProperties(
     validateRequiredFields([
       chainSpace,
       authorUri,
-      rating.referenceId,
-      rating.entry.countOfTxn,
-      rating.entry.totalEncodedRating,
+      rating.reference_id,
+      rating.entry.count_of_txn,
+      rating.entry.total_encoded_rating,
     ])
 
-    validateHexString(rating.entryDigest)
+    validateHexString(rating.entry_digest)
     const { uri, details } = await createRatingObject(
-      rating.entryDigest,
-      rating.entry.entityUid,
-      rating.messageId,
+      rating.entry_digest,
+      rating.entry.entity_id,
+      rating.message_id,
       chainSpace,
-      Did.getDidUri(rating.entry.providerDid),
+      Did.getDidUri(rating.entry.provider_did),
       authorUri
     )
 
-    const { providerId, entityId, ...chainEntry } = rating.entry
-    details.entry = chainEntry
+    // const { provider_id, entity_id, ...chainEntry } = rating.entry
+    details.entry = rating.entry
 
     return { uri, details }
   } catch (error) {

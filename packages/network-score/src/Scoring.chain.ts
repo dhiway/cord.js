@@ -37,14 +37,13 @@ import {
   IRatingChainStatus,
   IRatingChainEntryDetails,
   RatingTypeOf,
-  EntityTypeOf,
   EntryTypeOf,
   IAggregateScore,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
 import type {
   PalletNetworkScoreRatingEntry,
-  PalletNetworkScoreEntityTypeOf,
+
   PalletNetworkScoreRatingTypeOf,
   PalletNetworkScoreEntryTypeOf,
   PalletNetworkScoreAggregatedEntryOf,
@@ -55,6 +54,7 @@ import { uriToIdentifier, identifierToUri } from '@cord.network/identifier'
 import { Chain } from '@cord.network/network'
 import { ConfigService } from '@cord.network/config'
 import { SDKErrors, DecoderUtils, DataUtils } from '@cord.network/utils'
+
 
 /**
  * Checks if a specific rating is stored in the blockchain.
@@ -152,11 +152,11 @@ export async function dispatchRatingToChain(
     if (exists) {
       return ratingEntry.entryUri
     }
-
+    console.log('ratingEntry.entry at scoring.chain',ratingEntry.entry)
     const tx = api.tx.networkScore.registerRating(
       ratingEntry.entry,
-      ratingEntry.entryDigest,
-      ratingEntry.messageId,
+      ratingEntry.entry_digest,
+      ratingEntry.message_id,
       authorizationId
     )
 
@@ -228,7 +228,7 @@ export async function dispatchRevokeRatingToChain(
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
     const exists = await isRatingStored(
-      ratingEntry.entry.referenceId as RatingEntryUri
+      ratingEntry.entry.reference_id as RatingEntryUri
     )
 
     if (!exists) {
@@ -236,13 +236,13 @@ export async function dispatchRevokeRatingToChain(
     }
 
     const ratingEntryId: RatingEntryId = uriToIdentifier(
-      ratingEntry.entry.referenceId
+      ratingEntry.entry.reference_id
     )
 
     const tx = api.tx.networkScore.revokeRating(
       ratingEntryId,
-      ratingEntry.messageId,
-      ratingEntry.entryDigest,
+      ratingEntry.message_id,
+      ratingEntry.entry_digest,
       authorizationId
     )
 
@@ -313,7 +313,7 @@ export async function dispatchReviseRatingToChain(
     const api = ConfigService.get('api')
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
     const refEntryId: RatingEntryId = uriToIdentifier(
-      ratingEntry.entry.referenceId
+      ratingEntry.entry.reference_id
     )
 
     const exists = await isRatingStored(ratingEntry.entryUri)
@@ -322,9 +322,9 @@ export async function dispatchReviseRatingToChain(
     }
 
     const tx = api.tx.networkScore.reviseRating(
-      ratingEntry.entry,
-      ratingEntry.entryDigest,
-      ratingEntry.messageId,
+      ratingEntry.entry as any,
+      ratingEntry.entry_digest,
+      ratingEntry.message_id,
       refEntryId,
       authorizationId
     )
@@ -365,10 +365,10 @@ function extractEnumIndex(enumObject: { index: number }): number {
   return enumObject.index
 }
 // TypeScript Enum Mappings
-const EntityTypeMapping: Record<number, EntityTypeOf> = {
-  0: EntityTypeOf.retail,
-  1: EntityTypeOf.logistic,
-}
+// const EntityTypeMapping: Record<number, EntityTypeOf> = {
+//   0: EntityTypeOf.retail,
+//   1: EntityTypeOf.logistic,
+// }
 
 const RatingTypeMapping: Record<number, RatingTypeOf> = {
   0: RatingTypeOf.overall,
@@ -391,12 +391,12 @@ const EntryTypeMapping: Record<number, EntryTypeOf> = {
  *
  * @internal
  */
-function decodeEntityType(
-  encodedType: PalletNetworkScoreEntityTypeOf
-): EntityTypeOf {
-  const index = extractEnumIndex(encodedType)
-  return EntityTypeMapping[index]
-}
+// function decodeEntityType(
+//   encodedType: PalletNetworkScoreEntityTypeOf
+// ): EntityTypeOf {
+//   const index = extractEnumIndex(encodedType)
+//   return EntityTypeMapping[index]
+// }
 
 /**
  * Decodes an encoded rating type to its corresponding RatingTypeOf value.
@@ -476,16 +476,15 @@ function decodeEntryDetailsfromChain(
   const chainEntry = encoded.unwrap()
   const encodedEntry = chainEntry.entry
   const decodedEntry: IRatingChainEntryDetails = {
-    entityUid: DecoderUtils.hexToString(encodedEntry.entityUid.toString()),
-    providerUid: DecoderUtils.hexToString(encodedEntry.providerUid.toString()),
-    entityType: decodeEntityType(encodedEntry.entityType),
-    ratingType: decodeRatingType(encodedEntry.ratingType),
-    countOfTxn: encodedEntry.countOfTxn.toNumber(),
-    totalRating: decodeRatingValue(encodedEntry.totalEncodedRating.toNumber()),
+    entity_id: DecoderUtils.hexToString(encodedEntry.entityId.toString()),
+    provider_id: DecoderUtils.hexToString(encodedEntry.providerId.toString()),
+    rating_type: decodeRatingType(encodedEntry.ratingType),
+    count_of_txn: encodedEntry.countOfTxn.toNumber(),
+    total_rating: decodeRatingValue(encodedEntry.totalEncodedRating.toNumber()),
   }
-  let referenceId: RatingEntryUri | undefined
+  let reference_id: RatingEntryUri | undefined
   if (chainEntry.referenceId.isSome) {
-    referenceId = identifierToUri(
+    reference_id = identifierToUri(
       DecoderUtils.hexToString(chainEntry.referenceId.unwrap().toString())
     ) as RatingEntryUri
   }
@@ -494,13 +493,12 @@ function decodeEntryDetailsfromChain(
     entryUri: identifierToUri(stmtUri) as RatingEntryUri,
     entry: decodedEntry,
     digest: chainEntry.digest.toHex(),
-    messageId: DecoderUtils.hexToString(chainEntry.messageId.toString()),
+    message_id: DecoderUtils.hexToString(chainEntry.messageId.toString()),
     space: identifierToUri(
       DecoderUtils.hexToString(chainEntry.space.toString())
     ),
     creatorUri: Did.fromChain(chainEntry.creatorId),
-    entryType: decodeEntryType(chainEntry.entryType),
-    referenceId,
+    reference_id,
     createdAt: DataUtils.convertUnixTimeToDateTime(
       chainEntry.createdAt.toNumber(),
       timeZone
@@ -608,10 +606,10 @@ export async function fetchEntityAggregateScorefromChain(
     if (!specificItem.isNone) {
       const value: PalletNetworkScoreAggregatedEntryOf = specificItem.unwrap()
       decodedEntries.push({
-        entityUid: entity,
-        ratingType: ratingType.toString() as RatingTypeOf,
-        countOfTxn: value.countOfTxn.toNumber(),
-        totalRating: decodeRatingValue(value.totalEncodedRating.toNumber()),
+        entity_id: entity,
+        rating_type: ratingType.toString() as RatingTypeOf,
+        count_of_txn: value.countOfTxn.toNumber(),
+        total_rating: decodeRatingValue(value.totalEncodedRating.toNumber()),
       })
     }
   } else {
@@ -621,10 +619,10 @@ export async function fetchEntityAggregateScorefromChain(
         const value: PalletNetworkScoreAggregatedEntryOf = optionValue.unwrap()
         const [decodedEntityUri, decodedRatingType] = compositeKey.args
         decodedEntries.push({
-          entityUid: DecoderUtils.hexToString(decodedEntityUri.toString()),
-          ratingType: decodeRatingType(decodedRatingType),
-          countOfTxn: value.countOfTxn.toNumber(),
-          totalRating: decodeRatingValue(value.totalEncodedRating.toNumber()),
+          entity_id: DecoderUtils.hexToString(decodedEntityUri.toString()),
+          rating_type: decodeRatingType(decodedRatingType),
+          count_of_txn: value.countOfTxn.toNumber(),
+          total_rating: decodeRatingValue(value.totalEncodedRating.toNumber()),
         })
       }
     })
