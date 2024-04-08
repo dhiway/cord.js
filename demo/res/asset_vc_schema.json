@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$metadata": {
+        "version": "1.0.0",
+        "slug": "asset-demo-schema",
+        "discoverable": true
+    },
+    "title": "Asset Demo Schema v3",
+    "description": "Asset Demo Schema",
+    "properties": {
+        "assetType": {
+            "type": "string"
+        },
+        "assetDesc": {
+            "type": "string"
+        },
+        "assetQty": {
+            "type": "integer"
+        },
+        "assetValue": {
+            "type": "integer"
+        },
+        "assetTag": {
+            "type": "string"
+        },
+        "assetMeta": {
+            "type": "string"
+        }
+    },
+    "type": "object"
+}
