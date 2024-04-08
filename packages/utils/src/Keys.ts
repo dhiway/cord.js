@@ -35,7 +35,7 @@ function generateKeyAgreement(mnemonic: string, type: string) {
  * @param keytype - type of key to generate, supports 'ed25519' (default) and 'sr25519' for now
  * @returns An object with 4 keyring pairs.
  */
-export function generateKeypairs(mnemonic: string, keytype: string): ICordKeyPair {
+export function generateKeypairs(mnemonic: string, keytype?: string): ICordKeyPair {
     if (!mnemonic) {
 	mnemonic = mnemonicGenerate()
     }
