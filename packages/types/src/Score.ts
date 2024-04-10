@@ -13,22 +13,14 @@ export enum RatingTypeOf {
   delivery = 'Delivery',
 }
 
-export enum EntityTypeOf {
-  retail = 'Retail',
-  logistic = 'Logistic',
-}
-
 export enum EntryTypeOf {
   credit = 'Credit',
   debit = 'Debit',
 }
 
 export interface IRatingContent {
-  entityUid: string
   entityId: string
-  providerUid: string
   providerId: string
-  entityType: EntityTypeOf
   ratingType: RatingTypeOf
   referenceId?: string
   countOfTxn: number
@@ -36,12 +28,9 @@ export interface IRatingContent {
 }
 
 export interface IRatingTransformed {
-  entityUid: string
   entityId: string
-  providerUid: string
   providerId: string
   providerDid: CordAddress
-  entityType: EntityTypeOf
   ratingType: RatingTypeOf
   referenceId?: string
   countOfTxn: number
@@ -64,7 +53,7 @@ export type IRatingChainEntry = Omit<
 
 export interface IRatingRevokeEntry {
   entry: RatingPartialEntry
-  entityUid: string
+  entityId: string
   providerDid: DidUri
 }
 
@@ -79,7 +68,7 @@ export interface IRatingDispatch {
 }
 
 export interface IAggregateScore {
-  entityUid: string
+  entityId: string
   ratingType: RatingTypeOf
   countOfTxn: number
   totalRating: number
@@ -87,7 +76,7 @@ export interface IAggregateScore {
 
 export type IRatingChainEntryDetails = Omit<
   IRatingContent,
-  'providerId' | 'entityId' | 'providerDid' | 'referenceId'
+  'providerDid' | 'referenceId'
 >
 export interface IRatingChainStatus {
   entryUri: RatingEntryUri
