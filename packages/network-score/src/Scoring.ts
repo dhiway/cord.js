@@ -160,7 +160,7 @@ async function digestSignature(
  * hashing the combined result, and then formatting it as a URI.
  *
  * @param entryDigest - The hex string representation of the rating entry's digest.
- * @param entityUid - The unique identifier of the entity associated with the rating entry.
+ * @param entityId - The unique identifier of the entity associated with the rating entry.
  * @param entryMsgId - The message ID associated with the rating entry.
  * @param chainSpace - The identifier of the chain space where the rating is stored.
  * @param providerUri - The DID URI of the provider associated with the rating entry.
@@ -172,7 +172,7 @@ async function digestSignature(
  */
 export async function getUriForRatingEntry(
   entryDigest: HexString,
-  entityUid: string,
+  entityId: string,
   entryMsgId: string,
   chainSpace: SpaceId,
   providerUri: DidUri
@@ -182,7 +182,7 @@ export async function getUriForRatingEntry(
     .createType<H256>('H256', entryDigest)
     .toU8a()
   const scaleEncodedEntityUid = api
-    .createType<Bytes>('Bytes', entityUid)
+    .createType<Bytes>('Bytes', entityId)
     .toU8a()
   const scaleEncodedMessageId = api
     .createType<Bytes>('Bytes', entryMsgId)
@@ -255,7 +255,7 @@ function validateHexString(entryDigest: string): void {
  * generated URI, chain space, message ID, entry digest, author's URI, and the author's digital signature.
  *
  * @param entryDigest - The hex string representation of the rating entry's digest.
- * @param entityUid - The unique identifier of the entity associated with the rating entry.
+ * @param entityId - The unique identifier of the entity associated with the rating entry.
  * @param messageId - The message ID associated with the rating entry.
  * @param chainSpace - The identifier of the chain space where the rating is stored.
  * @param providerUri - The DID URI of the provider associated with the rating entry.
@@ -267,7 +267,7 @@ function validateHexString(entryDigest: string): void {
  */
 async function createRatingObject(
   entryDigest: HexString,
-  entityUid: string,
+  entityId: string,
   messageId: string,
   chainSpace: SpaceUri,
   providerUri: DidUri,
@@ -275,7 +275,7 @@ async function createRatingObject(
 ): Promise<{ uri: RatingEntryUri; details: any }> {
   const ratingUri = await getUriForRatingEntry(
     entryDigest,
-    entityUid,
+    entityId,
     messageId,
     chainSpace,
     providerUri
@@ -302,7 +302,7 @@ async function createRatingObject(
  * they produce are valid, signed, and ready for dispatch to the specified blockchain space.
  *
  * @param rating - The raw rating entry that needs to be processed.
- *                                It should include all necessary details like entityUid, messageId, entryDigest, and providerSignature.
+ *                                It should include all necessary details like entityId, messageId, entryDigest, and providerSignature.
  * @param chainSpace - Identifier for the blockchain space where the rating will be stored.
  *                                This helps in routing the rating to the correct blockchain environment.
  * @param authorUri - The Decentralized Identifier (DID) URI of the author.
@@ -320,7 +320,7 @@ async function createRatingObject(
  * // Example of a rating entry object
  * const ratingEntry = {
  *   entry: {
- *     entityUid: 'entity123',
+ *     entityId: 'entity123',
  *     // ... other rating entry properties ...
  *   },
  *   messageId: 'msg-123',
@@ -356,22 +356,21 @@ export async function buildFromRatingProperties(
       authorUri,
       rating.messageId,
       rating.entryDigest,
+      rating.entry.entityId,
+      rating.entry.providerDid,
     ])
     validateHexString(rating.entryDigest)
 
     const { uri, details } = await createRatingObject(
       rating.entryDigest,
-      rating.entry.entityUid,
+      rating.entry.entityId,
       rating.messageId,
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
       authorUri
     )
 
-    const { providerId, entityId, ...chainEntry } = rating.entry
-
-    details.entry = chainEntry
-
+    details.entry = rating.entry
     return { uri, details }
   } catch (error) {
     throw new SDKErrors.RatingPropertiesError(
@@ -438,7 +437,7 @@ export async function buildFromRevokeRatingProperties(
 
     const { uri, details } = await createRatingObject(
       rating.entry.entryDigest,
-      rating.entityUid,
+      rating.entityId,
       rating.entry.messageId,
       chainSpace,
       Did.getDidUri(rating.providerDid),
@@ -496,6 +495,8 @@ export async function buildFromReviseRatingProperties(
     validateRequiredFields([
       chainSpace,
       authorUri,
+      rating.entry.entityId,
+      rating.entry.providerId,
       rating.referenceId,
       rating.entry.countOfTxn,
       rating.entry.totalEncodedRating,
@@ -504,15 +505,14 @@ export async function buildFromReviseRatingProperties(
     validateHexString(rating.entryDigest)
     const { uri, details } = await createRatingObject(
       rating.entryDigest,
-      rating.entry.entityUid,
+      rating.entry.entityId,
       rating.messageId,
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
       authorUri
     )
 
-    const { providerId, entityId, ...chainEntry } = rating.entry
-    details.entry = chainEntry
+    details.entry = rating.entry
 
     return { uri, details }
   } catch (error) {

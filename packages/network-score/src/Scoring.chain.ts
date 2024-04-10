@@ -37,14 +37,14 @@ import {
   IRatingChainStatus,
   IRatingChainEntryDetails,
   RatingTypeOf,
-  EntityTypeOf,
+  //EntityTypeOf,
   EntryTypeOf,
   IAggregateScore,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
 import type {
   PalletNetworkScoreRatingEntry,
-  PalletNetworkScoreEntityTypeOf,
+  //PalletNetworkScoreEntityTypeOf,
   PalletNetworkScoreRatingTypeOf,
   PalletNetworkScoreEntryTypeOf,
   PalletNetworkScoreAggregatedEntryOf,
@@ -365,10 +365,10 @@ function extractEnumIndex(enumObject: { index: number }): number {
   return enumObject.index
 }
 // TypeScript Enum Mappings
-const EntityTypeMapping: Record<number, EntityTypeOf> = {
-  0: EntityTypeOf.retail,
-  1: EntityTypeOf.logistic,
-}
+// const EntityTypeMapping: Record<number, EntityTypeOf> = {
+//   0: EntityTypeOf.retail,
+//   1: EntityTypeOf.logistic,
+// }
 
 const RatingTypeMapping: Record<number, RatingTypeOf> = {
   0: RatingTypeOf.overall,
@@ -391,12 +391,12 @@ const EntryTypeMapping: Record<number, EntryTypeOf> = {
  *
  * @internal
  */
-function decodeEntityType(
-  encodedType: PalletNetworkScoreEntityTypeOf
-): EntityTypeOf {
-  const index = extractEnumIndex(encodedType)
-  return EntityTypeMapping[index]
-}
+// function decodeEntityType(
+//   encodedType: PalletNetworkScoreEntityTypeOf
+// ): EntityTypeOf {
+//   const index = extractEnumIndex(encodedType)
+//   return EntityTypeMapping[index]
+// }
 
 /**
  * Decodes an encoded rating type to its corresponding RatingTypeOf value.
@@ -476,9 +476,9 @@ function decodeEntryDetailsfromChain(
   const chainEntry = encoded.unwrap()
   const encodedEntry = chainEntry.entry
   const decodedEntry: IRatingChainEntryDetails = {
-    entityUid: DecoderUtils.hexToString(encodedEntry.entityUid.toString()),
-    providerUid: DecoderUtils.hexToString(encodedEntry.providerUid.toString()),
-    entityType: decodeEntityType(encodedEntry.entityType),
+    entityId: DecoderUtils.hexToString(encodedEntry.entityId.toString()),
+    providerId: DecoderUtils.hexToString(encodedEntry.providerId.toString()),
+    //entityType: decodeEntityType(encodedEntry.entityType),
     ratingType: decodeRatingType(encodedEntry.ratingType),
     countOfTxn: encodedEntry.countOfTxn.toNumber(),
     totalRating: decodeRatingValue(encodedEntry.totalEncodedRating.toNumber()),
@@ -578,10 +578,10 @@ export async function fetchRatingDetailsfromChain(
  *
  * @example
  * // Example usage of the function to fetch aggregate scores for a specific entity and rating type
- * const entityUid = 'entity123';
+ * const entityId = 'entity123';
  * const ratingType = RatingTypeOf.overall;
  *
- * fetchEntityAggregateScorefromChain(entityUid, ratingType)
+ * fetchEntityAggregateScorefromChain(entityId, ratingType)
  *   .then(aggregateScores => {
  *     if (aggregateScores) {
  *       console.log('Aggregate Scores:', aggregateScores);
@@ -608,7 +608,7 @@ export async function fetchEntityAggregateScorefromChain(
     if (!specificItem.isNone) {
       const value: PalletNetworkScoreAggregatedEntryOf = specificItem.unwrap()
       decodedEntries.push({
-        entityUid: entity,
+        entityId: entity,
         ratingType: ratingType.toString() as RatingTypeOf,
         countOfTxn: value.countOfTxn.toNumber(),
         totalRating: decodeRatingValue(value.totalEncodedRating.toNumber()),
@@ -621,7 +621,7 @@ export async function fetchEntityAggregateScorefromChain(
         const value: PalletNetworkScoreAggregatedEntryOf = optionValue.unwrap()
         const [decodedEntityUri, decodedRatingType] = compositeKey.args
         decodedEntries.push({
-          entityUid: DecoderUtils.hexToString(decodedEntityUri.toString()),
+          entityId: DecoderUtils.hexToString(decodedEntityUri.toString()),
           ratingType: decodeRatingType(decodedRatingType),
           countOfTxn: value.countOfTxn.toNumber(),
           totalRating: decodeRatingValue(value.totalEncodedRating.toNumber()),
