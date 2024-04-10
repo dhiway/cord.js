@@ -13,22 +13,14 @@ export enum RatingTypeOf {
   delivery = 'Delivery',
 }
 
-// export enum EntityTypeOf {
-//   retail = 'Retail',
-//   logistic = 'Logistic',
-// }
-
 export enum EntryTypeOf {
   credit = 'Credit',
   debit = 'Debit',
 }
 
 export interface IRatingContent {
-  //entityUid: string
   entityId: string
-  //providerUid: string
   providerId: string
-  //entityType: EntityTypeOf
   ratingType: RatingTypeOf
   referenceId?: string
   countOfTxn: number
@@ -36,12 +28,9 @@ export interface IRatingContent {
 }
 
 export interface IRatingTransformed {
-  //entityUid: string
   entityId: string
-  //providerUid: string
   providerId: string
   providerDid: CordAddress
-  //entityType: EntityTypeOf
   ratingType: RatingTypeOf
   referenceId?: string
   countOfTxn: number

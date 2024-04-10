@@ -37,14 +37,12 @@ import {
   IRatingChainStatus,
   IRatingChainEntryDetails,
   RatingTypeOf,
-  //EntityTypeOf,
   EntryTypeOf,
   IAggregateScore,
 } from '@cord.network/types'
 import type { Option } from '@cord.network/types'
 import type {
   PalletNetworkScoreRatingEntry,
-  //PalletNetworkScoreEntityTypeOf,
   PalletNetworkScoreRatingTypeOf,
   PalletNetworkScoreEntryTypeOf,
   PalletNetworkScoreAggregatedEntryOf,
@@ -364,12 +362,8 @@ export async function dispatchReviseRatingToChain(
 function extractEnumIndex(enumObject: { index: number }): number {
   return enumObject.index
 }
-// TypeScript Enum Mappings
-// const EntityTypeMapping: Record<number, EntityTypeOf> = {
-//   0: EntityTypeOf.retail,
-//   1: EntityTypeOf.logistic,
-// }
 
+// TypeScript Enum Mappings
 const RatingTypeMapping: Record<number, RatingTypeOf> = {
   0: RatingTypeOf.overall,
   1: RatingTypeOf.delivery,
@@ -379,24 +373,6 @@ const EntryTypeMapping: Record<number, EntryTypeOf> = {
   0: EntryTypeOf.credit,
   1: EntryTypeOf.debit,
 }
-
-/**
- * Decodes an encoded entity type to its corresponding EntityTypeOf value.
- *
- * This function is used to decode the entity type from its encoded form (as received from a blockchain or similar source)
- * to a more readable and usable EntityTypeOf value, using a predefined mapping.
- *
- * @param encodedType - The encoded entity type.
- * @returns - The decoded entity type.
- *
- * @internal
- */
-// function decodeEntityType(
-//   encodedType: PalletNetworkScoreEntityTypeOf
-// ): EntityTypeOf {
-//   const index = extractEnumIndex(encodedType)
-//   return EntityTypeMapping[index]
-// }
 
 /**
  * Decodes an encoded rating type to its corresponding RatingTypeOf value.
@@ -478,7 +454,6 @@ function decodeEntryDetailsfromChain(
   const decodedEntry: IRatingChainEntryDetails = {
     entityId: DecoderUtils.hexToString(encodedEntry.entityId.toString()),
     providerId: DecoderUtils.hexToString(encodedEntry.providerId.toString()),
-    //entityType: decodeEntityType(encodedEntry.entityType),
     ratingType: decodeRatingType(encodedEntry.ratingType),
     countOfTxn: encodedEntry.countOfTxn.toNumber(),
     totalRating: decodeRatingValue(encodedEntry.totalEncodedRating.toNumber()),
