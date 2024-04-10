@@ -339,6 +339,19 @@ declare module '@polkadot/api-base/types/events' {
     };
     identity: {
       /**
+       * A username authority was added.
+       **/
+      AuthorityAdded: AugmentedEvent<ApiType, [authority: AccountId32], { authority: AccountId32 }>;
+      /**
+       * A username authority was removed.
+       **/
+      AuthorityRemoved: AugmentedEvent<ApiType, [authority: AccountId32], { authority: AccountId32 }>;
+      /**
+       * A dangling username (as in, a username corresponding to an account that has removed its
+       * identity) has been removed.
+       **/
+      DanglingUsernameRemoved: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes], { who: AccountId32, username: Bytes }>;
+      /**
        * A name was cleared, and the given balance returned.
        **/
       IdentityCleared: AugmentedEvent<ApiType, [who: AccountId32], { who: AccountId32 }>;
@@ -363,6 +376,14 @@ declare module '@polkadot/api-base/types/events' {
        **/
       JudgementUnrequested: AugmentedEvent<ApiType, [who: AccountId32, registrar: AccountId32], { who: AccountId32, registrar: AccountId32 }>;
       /**
+       * A queued username passed its expiration without being claimed and was removed.
+       **/
+      PreapprovalExpired: AugmentedEvent<ApiType, [whose: AccountId32], { whose: AccountId32 }>;
+      /**
+       * A username was set as a primary and can be looked up from `who`.
+       **/
+      PrimaryUsernameSet: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes], { who: AccountId32, username: Bytes }>;
+      /**
        * A registrar was added.
        **/
       RegistrarAdded: AugmentedEvent<ApiType, [registrarIndex: u32], { registrarIndex: u32 }>;
@@ -370,6 +391,27 @@ declare module '@polkadot/api-base/types/events' {
        * A registrar was removed.
        **/
       RegistrarRemoved: AugmentedEvent<ApiType, [registrar: AccountId32], { registrar: AccountId32 }>;
+      /**
+       * A sub-identity was added to an identity and the deposit paid.
+       **/
+      SubIdentityAdded: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
+      /**
+       * A sub-identity was removed from an identity and the deposit freed.
+       **/
+      SubIdentityRemoved: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
+      /**
+       * A sub-identity was cleared, and the given deposit repatriated from the
+       * main identity account to the sub-identity account.
+       **/
+      SubIdentityRevoked: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
+      /**
+       * A username was queued, but `who` must accept it prior to `expiration`.
+       **/
+      UsernameQueued: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes, expiration: u32], { who: AccountId32, username: Bytes, expiration: u32 }>;
+      /**
+       * A username was set for `who`.
+       **/
+      UsernameSet: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes], { who: AccountId32, username: Bytes }>;
     };
     imOnline: {
       /**
