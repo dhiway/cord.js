@@ -37,6 +37,7 @@ import type {
   SpaceDigest,
   AuthorizationUri,
   SpaceUri,
+  SubmittableExtrinsic
 } from '@cord.network/types'
 import { SDKErrors, DecoderUtils } from '@cord.network/utils'
 import {
@@ -240,26 +241,41 @@ export async function dispatchToChain(
   }
 
   try {
-    const api = ConfigService.get('api')
 
-    const exists = await isChainSpaceStored(chainSpace.uri)
-    if (!exists) {
-      const tx = api.tx.chainSpace.create(chainSpace.digest)
-      const extrinsic = await Did.authorizeTx(
-        creatorUri,
-        tx,
-        signCallback,
-        authorAccount.address
-      )
-
-      await Chain.signAndSubmitTx(extrinsic, authorAccount)
-    }
+    const extrinsic = await prepareCreateSpaceExtrinsic(chainSpace, creatorUri, signCallback, authorAccount)
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return returnObject
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${error}".`
     )
+  }
+}
+
+export async function prepareCreateSpaceExtrinsic(
+  chainSpace: IChainSpace,
+  creatorUri: DidUri,
+  signCallback: SignExtrinsicCallback,
+  authorAccount: CordKeyringPair
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api')
+
+    const tx = api.tx.chainSpace.create(chainSpace.digest)
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+    return extrinsic;
+
+
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic for creation: "${error}".`
+    );
   }
 }
 
