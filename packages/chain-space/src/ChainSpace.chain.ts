@@ -274,7 +274,7 @@ export async function prepareCreateSpaceExtrinsic(
 
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
-      `Error preparing extrinsic for creation: "${error}".`
+      `Error preparing extrinsic for creation of chainspace: "${error}".`
     );
   }
 }
