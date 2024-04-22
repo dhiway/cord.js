@@ -229,29 +229,6 @@ export async function getUriForSpace(
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
  * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  */
-export async function dispatchToChain(
-  chainSpace: IChainSpace,
-  creatorUri: DidUri,
-  authorAccount: CordKeyringPair,
-  signCallback: SignExtrinsicCallback
-): Promise<{ uri: SpaceUri; authorization: AuthorizationUri }> {
-  const returnObject = {
-    uri: chainSpace.uri,
-    authorization: chainSpace.authorizationUri,
-  }
-
-  try {
-
-    const extrinsic = await prepareCreateSpaceExtrinsic(chainSpace, creatorUri, signCallback, authorAccount)
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
-
-    return returnObject
-  } catch (error) {
-    throw new SDKErrors.CordDispatchError(
-      `Error dispatching to chain: "${error}".`
-    )
-  }
-}
 
 export async function prepareCreateSpaceExtrinsic(
   chainSpace: IChainSpace,
@@ -276,6 +253,30 @@ export async function prepareCreateSpaceExtrinsic(
     throw new SDKErrors.CordDispatchError(
       `Error preparing extrinsic for creation of chainspace: "${error}".`
     );
+  }
+}
+
+export async function dispatchToChain(
+  chainSpace: IChainSpace,
+  creatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  signCallback: SignExtrinsicCallback
+): Promise<{ uri: SpaceUri; authorization: AuthorizationUri }> {
+  const returnObject = {
+    uri: chainSpace.uri,
+    authorization: chainSpace.authorizationUri,
+  }
+
+  try {
+
+    const extrinsic = await prepareCreateSpaceExtrinsic(chainSpace, creatorUri, signCallback, authorAccount)
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+
+    return returnObject
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching to chain: "${error}".`
+    )
   }
 }
 
