@@ -37,6 +37,7 @@ import type {
   SpaceDigest,
   AuthorizationUri,
   SpaceUri,
+  SubmittableExtrinsic
 } from '@cord.network/types'
 import { SDKErrors, DecoderUtils } from '@cord.network/utils'
 import {
@@ -780,6 +781,43 @@ export async function fetchAuthorizationFromChain(
 }
 
 /**
+ * Prepares an update transaction capacity extrinsic for later dispatch to the blockchain.
+ * @param spaceUri - The URI of the space to update transaction capacity.
+ * @param new_capacity - The new capacity to be updated.
+ * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param signCallback - The callback function for signing the transaction.
+ * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @returns The prepared extrinsic ready for batch signing and submitting.
+ */
+
+export async function prepareUpdateTxCapacityExtrinsic(
+  spaceUri: SpaceUri,
+  new_capacity: number,
+  creatorUri: DidUri,
+  signCallback: SignExtrinsicCallback,
+  authorAccount: CordKeyringPair
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api')
+
+    const tx = api.tx.chainSpace.updateTransactionCapacitySub(spaceUri.replace('space:cord:', ''), new_capacity)    
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+    return extrinsic;
+
+
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${error}".`
+    );
+  }
+}
+
+/**
  * Dispatches a Sub-ChainSpace creation transaction to the CORD blockchain.
  *
  * @remarks
@@ -823,16 +861,7 @@ export async function dispatchUpdateTxCapacityToChain(
   }
 
   try {
-    const api = ConfigService.get('api')
-
-    const tx = api.tx.chainSpace.updateTransactionCapacitySub(space.replace('space:cord:', ''), new_capacity)
-    const extrinsic = await Did.authorizeTx(
-      creatorUri,
-      tx,
-      signCallback,
-      authorAccount.address
-    )
-
+    const extrinsic = await prepareUpdateTxCapacityExtrinsic(space, new_capacity, creatorUri, signCallback, authorAccount)
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return returnObject;
@@ -842,3 +871,4 @@ export async function dispatchUpdateTxCapacityToChain(
     )
   }
 }
+
