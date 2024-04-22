@@ -37,6 +37,7 @@ import type {
   SpaceDigest,
   AuthorizationUri,
   SpaceUri,
+  SubmittableExtrinsic
 } from '@cord.network/types'
 import { SDKErrors, DecoderUtils } from '@cord.network/utils'
 import {
@@ -471,6 +472,37 @@ function dispatchDelegateAuthorizationTx(
   }
 }
 
+export async function prepareDelegateAuthorizationExtrinsic(
+  request: ISpaceAuthorization,
+  authorizationUri: AuthorizationUri,
+  authorAccount: CordKeyringPair,
+  signCallback: SignExtrinsicCallback
+): Promise<SubmittableExtrinsic> {
+  try {
+    const spaceId = uriToIdentifier(request.uri)
+    const delegateId = Did.toChain(request.delegateUri)
+    const delegatorAuthId = uriToIdentifier(authorizationUri)
+  
+    const tx = dispatchDelegateAuthorizationTx(
+      request.permission,
+      spaceId,
+      delegateId,
+      delegatorAuthId
+    )
+    const extrinsic = await Did.authorizeTx(
+      request.delegatorUri as DidUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+    return extrinsic  
+  } catch(error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic delegate: "${error}".`
+    );
+  }
+}
+
 /**
  * Dispatches a delegate authorization transaction to the CORD blockchain.
  *
@@ -516,25 +548,8 @@ export async function dispatchDelegateAuthorization(
   signCallback: SignExtrinsicCallback
 ): Promise<AuthorizationId> {
   try {
-    const spaceId = uriToIdentifier(request.uri)
-    const delegateId = Did.toChain(request.delegateUri)
-    const delegatorAuthId = uriToIdentifier(authorizationUri)
-
-    const tx = dispatchDelegateAuthorizationTx(
-      request.permission,
-      spaceId,
-      delegateId,
-      delegatorAuthId
-    )
-    const extrinsic = await Did.authorizeTx(
-      request.delegatorUri as DidUri,
-      tx,
-      signCallback,
-      authorAccount.address
-    )
-
+    const extrinsic = await prepareDelegateAuthorizationExtrinsic(request, authorizationUri, authorAccount, signCallback)
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
-
     return request.authorizationUri
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
