@@ -34,6 +34,8 @@ import { Crypto } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import * as Did from '@cord.network/did'
 
+import { SDKErrors } from '@cord.network/utils'
+
 export async function buildFromAssetProperties(
     assetInput: IAssetProperties,
     issuer: DidUri,
@@ -70,6 +72,11 @@ export async function buildFromAssetProperties(
     digest: entryDigest,
     uri: assetIdentifier,
   };
+
+  /* Check if assetType is undefined */
+  if (assetInput.assetType === undefined) {
+    throw new SDKErrors.InvalidAssetType("Asset type is undefined.");
+  }
 
   return transformedEntry;
 }
