@@ -42,7 +42,38 @@ export async function isAssetStored(assetUri: AssetUri): Promise<boolean> {
     )
   }
 }
+export async function prepareCreateExtrinsic(
+  assetEntry: IAssetEntry,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri);
 
+    const tx = api.tx.asset.create(
+      assetEntry.entry,
+      assetEntry.digest,
+      authorizationId
+    );
+
+    const extrinsic = await Did.authorizeTx(
+      assetEntry.creator,
+      tx,
+      signCallback,
+      authorAccount.address
+    );
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
+    );
+  }
+}
 export async function dispatchCreateToChain(
   assetEntry: IAssetEntry,
   authorAccount: CordKeyringPair,
@@ -50,20 +81,12 @@ export async function dispatchCreateToChain(
   signCallback: SignExtrinsicCallback
 ): Promise<AssetUri> {
   try {
-    const api = ConfigService.get('api')
-    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
-    const tx = api.tx.asset.create(
-      assetEntry.entry,
-      assetEntry.digest,
-      authorizationId
-    )
-
-    const extrinsic = await Did.authorizeTx(
-      assetEntry.creator,
-      tx,
-      signCallback,
-      authorAccount.address
+    const extrinsic = await prepareCreateExtrinsic(
+      assetEntry,
+      authorAccount,
+      authorizationUri,
+      signCallback
     )
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
