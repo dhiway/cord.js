@@ -1,3 +1,4 @@
+import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 /**
  * @packageDocumentation
  * @module ChainSpace/Chain
@@ -470,7 +471,50 @@ function dispatchDelegateAuthorizationTx(
       )
   }
 }
+/**
+ * Prepares the extrinsic for dispatching a delegate authorization request to the CORD blockchain.
+ *
+ * @param request - The space authorization request containing necessary information for dispatching the authorization.
+ * @param delegatorUri - The DID URI of the delegator authorizing the transaction.
+ * @param authorAccount - The blockchain account used to sign and submit the transaction.
+ * @param signCallback - A callback function that handles the signing of the transaction.
+ * @returns A promise resolving to the prepared extrinsic for delegate authorization.
+ * @throws {SDKErrors.InvalidPermissionError} - Thrown when the requested permission type is invalid.
+ */
+export async function prepareDelegateAuthorizationExtrinsic(
+  request: ISpaceAuthorization,
+  delegatorUri: DidUri,
+  authorAccount: CordKeyringPair,
+  signCallback: SignExtrinsicCallback
+): Promise<SubmittableExtrinsic> {
+  try {
+    const spaceId = uriToIdentifier(request.uri)
+    const delegateId = Did.toChain(request.delegateUri)
+    const delegatorAuthId = uriToIdentifier(request.authorizationUri)
 
+    const tx = dispatchDelegateAuthorizationTx(
+      request.permission,
+      spaceId,
+      delegateId,
+      delegatorAuthId
+    )
+    const extrinsic = await Did.authorizeTx(
+      delegatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+
+    return extrinsic
+  } catch (error) {
+    if (error instanceof SDKErrors.InvalidPermissionError) {
+      throw error
+    }
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing delegate authorization extrinsic: ${error}`
+    )
+  }
+}
 /**
  * Dispatches a delegate authorization transaction to the CORD blockchain.
  *
@@ -516,23 +560,12 @@ export async function dispatchDelegateAuthorization(
   signCallback: SignExtrinsicCallback
 ): Promise<AuthorizationId> {
   try {
-    const spaceId = uriToIdentifier(request.uri)
-    const delegateId = Did.toChain(request.delegateUri)
-    const delegatorAuthId = uriToIdentifier(authorizationUri)
-
-    const tx = dispatchDelegateAuthorizationTx(
-      request.permission,
-      spaceId,
-      delegateId,
-      delegatorAuthId
+    const extrinsic = await prepareDelegateAuthorizationExtrinsic(
+      request,
+      request.delegatorUri,
+      authorAccount,
+      signCallback
     )
-    const extrinsic = await Did.authorizeTx(
-      request.delegatorUri as DidUri,
-      tx,
-      signCallback,
-      authorAccount.address
-    )
-
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return request.authorizationUri
