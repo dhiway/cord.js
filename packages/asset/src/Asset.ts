@@ -10,7 +10,6 @@
  */
 
 import {
-  IAssetProperties,
   ASSET_IDENT,
   ASSET_PREFIX,
   AssetUri,
