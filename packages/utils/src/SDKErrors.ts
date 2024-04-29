@@ -77,6 +77,7 @@ export class InvalidInputError extends SDKError {}
 // Score Errors
 export class RatingContentError extends SDKError {}
 export class RatingPropertiesError extends SDKError {}
+export class InvalidRatingType extends SDKError {}
 
 // export class ScoreCollectorMissingError extends SDKError {}
 // export class ScoreEntityMissingError extends SDKError {}
@@ -246,5 +247,9 @@ export class AssetInstanceNotFound extends SDKError {}
 export class AssetNotFound extends SDKError {}
 
 export class AssetStatusError extends SDKError {}
+
+export class InvalidAssetType extends SDKError {}
+
+export class InvalidAssetStatus extends SDKError {}
 
 export class DuplicateStatementError extends SDKError {}

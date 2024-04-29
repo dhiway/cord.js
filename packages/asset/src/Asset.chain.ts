@@ -296,6 +296,11 @@ export async function dispatchAssetStatusChangeToChain(
     const api = ConfigService.get('api')
     let tx
 
+    /* Check if assetStatusType is undefined */
+    if (newStatus === undefined) {
+      throw new SDKErrors.InvalidAssetStatus("Asset status is undefined.");
+    }
+
     if (assetInstanceId) {
       let encodedAssetInstanceDetail = await api.query.asset.issuance(
         assetId,
@@ -361,6 +366,11 @@ export async function dispatchAssetStatusChangeVcToChain(
   try {
     const api = ConfigService.get('api')
     let tx
+    
+    /* Check if assetStatusType is undefined */
+    if (newStatus === undefined) {
+      throw new SDKErrors.InvalidAssetStatus("Asset status is undefined.");
+    }
 
     if (assetInstanceId) {
       let encodedAssetInstanceDetail = await api.query.asset.vcIssuance(
