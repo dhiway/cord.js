@@ -46,7 +46,7 @@ async function main() {
 
   const authorIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
     authorAnchorUri,
-    "ed25519"
+    "sr25519"
   );
 
   await addNetworkMember(authorityAuthorIdentity, authorIdentity.address);
@@ -56,7 +56,7 @@ async function main() {
   );
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(
     issuerMnemonic,
-    "ed25519"
+    "sr25519"
   );
 
   const { mnemonic: delegateTwoMnemonic, document: delegateTwoDid } =
