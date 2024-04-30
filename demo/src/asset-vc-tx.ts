@@ -314,6 +314,23 @@ async function main() {
   )
 
   console.log("✅  Asset transferred!");
+  
+  // Step 5: Change status of Asset
+  console.log(`\n❄️  Change status of Asset from 'Active' to 'Inactive' Action`);
+
+  const statusChangeExtrinsic = await Cord.Asset.dispatchAssetStatusChangeVcToChain(
+    assetVcEntry.uri,
+    issuerDid.uri,
+    networkAuthorityIdentity,
+    Cord.AssetStatusOf.inactive,
+    async ({ data }) => ({
+      signature: issuerKeys.authentication.sign(data),
+      keyType: issuerKeys.authentication.type,
+    }),
+    assetIssuance.uri
+  )
+
+  console.log("✅ Asset status changed!");
 }
 main()
   .then(() => console.log("\nBye! 👋 👋 👋 "))
