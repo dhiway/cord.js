@@ -285,7 +285,7 @@ export async function dispatchTransferVcToChain(
 }
 
 export async function dispatchAssetStatusChangeToChain(
-  assetId: AssetUri,
+  assetUri: AssetUri,
   assetIssuerDidUri: DidUri,
   authorAccount: CordKeyringPair,
   newStatus: PalletAssetAssetStatusOf,
@@ -293,8 +293,12 @@ export async function dispatchAssetStatusChangeToChain(
   assetInstanceId?: string
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api')
-    let tx
+    const api = ConfigService.get("api");
+    let tx;
+    const assetId = uriToIdentifier(assetUri);
+    const assetIssuerDid = Did.toChain(assetIssuerDidUri);
+
+    assetInstanceId = assetInstanceId?.split(":").pop();
 
     /* Check if assetStatusType is undefined */
     if (newStatus === undefined) {
@@ -305,39 +309,48 @@ export async function dispatchAssetStatusChangeToChain(
       let encodedAssetInstanceDetail = await api.query.asset.issuance(
         assetId,
         assetInstanceId
-      )
+      );
       if (encodedAssetInstanceDetail.isNone) {
         throw new SDKErrors.AssetInstanceNotFound(
-          `Error: Assset Instance Not Found`
-        )
+          `Error: Asset Instance Not Found`
+        );
       }
       let assetInstanceDetail = JSON.parse(
         encodedAssetInstanceDetail.toString()
-      )
-      if (assetIssuerDidUri !== assetInstanceDetail.assetInstanceIssuer) {
-        throw new SDKErrors.AssetIssuerMismatch(`Error: Assset issuer mismatch`)
+      );
+      if (assetIssuerDid !== assetInstanceDetail.assetInstanceIssuer) {
+        throw new SDKErrors.AssetIssuerMismatch(`Error: Asset issuer mismatch`);
       }
-      if (assetInstanceDetail.assetInstanceStatus === newStatus) {
+
+      if (
+        assetInstanceDetail.assetInstanceStatus?.toLowerCase() ===
+        String(newStatus)?.toLowerCase()
+      ) {
         throw new SDKErrors.AssetStatusError(
           `Error: Asset Instance is already in the ${newStatus} state`
-        )
+        );
       }
-      tx = api.tx.asset.statusChange(assetId, assetInstanceId, newStatus)
+      tx = api.tx.asset.statusChange(assetId, assetInstanceId, newStatus);
     } else {
-      let encodedAssetDetail = await api.query.asset.assets(assetId)
+      let encodedAssetDetail = await api.query.asset.assets(assetId);
       if (encodedAssetDetail.isNone) {
-        throw new SDKErrors.AssetNotFound(`Error: Assset Not Found`)
+        throw new SDKErrors.AssetNotFound(`Error: Asset Not Found`);
       }
-      let assetDetail = JSON.parse(encodedAssetDetail.toString())
-      if (assetIssuerDidUri !== assetDetail.assetIssuer) {
-        throw new SDKErrors.AssetIssuerMismatch(`Error: Assset issuer mismatch`)
+      let assetDetail = JSON.parse(encodedAssetDetail.toString());
+
+      if (assetIssuerDid !== assetDetail.assetIssuer) {
+        throw new SDKErrors.AssetIssuerMismatch(`Error: Asset issuer mismatch`);
       }
-      if (assetDetail.assetInstanceStatus === newStatus) {
+
+      if (
+        assetDetail.assetStatus?.toLowerCase() ===
+        String(newStatus)?.toLowerCase()
+      ) {
         throw new SDKErrors.AssetStatusError(
           `Error: Asset is already in the ${newStatus} state`
-        )
+        );
       }
-      tx = api.tx.asset.statusChange(assetId, null, newStatus)
+      tx = api.tx.asset.statusChange(assetId, null, newStatus);
     }
 
     const extrinsic = await Did.authorizeTx(
@@ -345,18 +358,20 @@ export async function dispatchAssetStatusChangeToChain(
       tx,
       signCallback,
       authorAccount.address
-    )
+    );
 
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
-      `Error dispatching to chain: "${error}".`
-    )
+      `Error dispatching to chain: "${errorMessage}".`
+    );
   }
 }
 
 export async function dispatchAssetStatusChangeVcToChain(
-  assetId: AssetUri,
+  assetUri: AssetUri,
   assetIssuerDidUri: DidUri,
   authorAccount: CordKeyringPair,
   newStatus: PalletAssetAssetStatusOf,
@@ -364,9 +379,13 @@ export async function dispatchAssetStatusChangeVcToChain(
   assetInstanceId?: string
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api')
-    let tx
-    
+    const api = ConfigService.get("api");
+    let tx;
+    const assetId = uriToIdentifier(assetUri);
+    const assetIssuerDid = Did.toChain(assetIssuerDidUri);
+
+    assetInstanceId = assetInstanceId?.split(":").pop();
+
     /* Check if assetStatusType is undefined */
     if (newStatus === undefined) {
       throw new SDKErrors.InvalidAssetStatus("Asset status is undefined.");
@@ -376,39 +395,47 @@ export async function dispatchAssetStatusChangeVcToChain(
       let encodedAssetInstanceDetail = await api.query.asset.vcIssuance(
         assetId,
         assetInstanceId
-      )
+      );
       if (encodedAssetInstanceDetail.isNone) {
         throw new SDKErrors.AssetInstanceNotFound(
-          `Error: Assset Instance Not Found`
-        )
+          `Error: Asset Instance Not Found`
+        );
       }
       let assetInstanceDetail = JSON.parse(
         encodedAssetInstanceDetail.toString()
-      )
-      if (assetIssuerDidUri !== assetInstanceDetail.assetInstanceIssuer) {
-        throw new SDKErrors.AssetIssuerMismatch(`Error: Assset issuer mismatch`)
+      );
+      if (assetIssuerDid !== assetInstanceDetail.assetInstanceIssuer) {
+        throw new SDKErrors.AssetIssuerMismatch(`Error: Asset issuer mismatch`);
       }
-      if (assetInstanceDetail.assetInstanceStatus === newStatus) {
+      if (
+        assetInstanceDetail.assetInstanceStatus?.toLowerCase() ===
+        String(newStatus)?.toLowerCase()
+      ) {
         throw new SDKErrors.AssetStatusError(
           `Error: Asset Instance is already in the ${newStatus} state`
-        )
+        );
       }
-      tx = api.tx.asset.statusChange(assetId, assetInstanceId, newStatus)
+      tx = api.tx.asset.statusChange(assetId, assetInstanceId, newStatus);
     } else {
-      let encodedAssetDetail = await api.query.asset.assets(assetId)
+      let encodedAssetDetail = await api.query.asset.assets(assetId);
+
       if (encodedAssetDetail.isNone) {
-        throw new SDKErrors.AssetNotFound(`Error: Assset Not Found`)
+        throw new SDKErrors.AssetNotFound(`Error: Asset Not Found`);
       }
-      let assetDetail = JSON.parse(encodedAssetDetail.toString())
-      if (assetIssuerDidUri !== assetDetail.assetIssuer) {
-        throw new SDKErrors.AssetIssuerMismatch(`Error: Assset issuer mismatch`)
+      let assetDetail = JSON.parse(encodedAssetDetail.toString());
+
+      if (assetIssuerDid !== assetDetail.assetIssuer) {
+        throw new SDKErrors.AssetIssuerMismatch(`Error: Asset issuer mismatch`);
       }
-      if (assetDetail.assetInstanceStatus === newStatus) {
+      if (
+        assetDetail.assetStatus?.toLowerCase() ===
+        String(newStatus)?.toLowerCase()
+      ) {
         throw new SDKErrors.AssetStatusError(
           `Error: Asset is already in the ${newStatus} state`
-        )
+        );
       }
-      tx = api.tx.asset.statusChange(assetId, null, newStatus)
+      tx = api.tx.asset.statusChange(assetId, null, newStatus);
     }
 
     const extrinsic = await Did.authorizeTx(
@@ -416,12 +443,14 @@ export async function dispatchAssetStatusChangeVcToChain(
       tx,
       signCallback,
       authorAccount.address
-    )
+    );
 
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
-      `Error dispatching to chain: "${error}".`
-    )
+      `Error dispatching to chain: "${errorMessage}".`
+    );
   }
 }
