@@ -108,7 +108,6 @@ export async function prepareCreateVcExtrinsic(
   }
 }
 
-
 export async function dispatchCreateVcToChain(
   assetQty: number,
   digest: string,
@@ -123,6 +122,7 @@ export async function dispatchCreateVcToChain(
       assetQty,
       digest,
       creator,
+      authorAccount,
       authorizationUri,
       signCallback
     );
@@ -138,6 +138,7 @@ export async function dispatchCreateVcToChain(
     );
   }
 }
+
 export async function prepareExtrinsic(
   assetEntry: IAssetIssuance,
   authorAccount: CordKeyringPair,
