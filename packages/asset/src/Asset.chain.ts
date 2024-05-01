@@ -427,8 +427,12 @@ export async function dispatchAssetStatusChangeVcToChain(
   assetInstanceId?: string
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api')
-    let tx
+    const api = ConfigService.get("api");
+    let tx;
+    const assetId = uriToIdentifier(assetUri);
+    const assetIssuerDid = Did.toChain(assetIssuerDidUri);
+
+    assetInstanceId = assetInstanceId?.split(":").pop();
 
     /* Check if assetStatusType is undefined */
     if (newStatus === undefined) {
