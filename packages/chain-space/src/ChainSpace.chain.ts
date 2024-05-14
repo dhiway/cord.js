@@ -198,6 +198,40 @@ export async function getUriForSpace(
 }
 
 /**
+ * Prepares the creation of a chain space extrinsic for later dispatch to the blockchain.
+ * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
+ * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param signCallback - The callback function for signing the transaction.
+ * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @returns The prepared extrinsic ready for batch signing and submitting.
+ */
+export async function prepareCreateSpaceExtrinsic(
+  chainSpace: IChainSpace,
+  creatorUri: DidUri,
+  signCallback: SignExtrinsicCallback,
+  authorAccount: CordKeyringPair
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api')
+
+    const tx = api.tx.chainSpace.create(chainSpace.digest)
+    const extrinsic = await Did.authorizeTx(
+      creatorUri,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+    return extrinsic;
+
+
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic for creation of chainspace: "${error}".`
+    );
+  }
+}
+
+/**
  * Dispatches a ChainSpace creation transaction to the CORD blockchain.
  *
  * @remarks
@@ -229,33 +263,6 @@ export async function getUriForSpace(
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
  * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  */
-
-export async function prepareCreateSpaceExtrinsic(
-  chainSpace: IChainSpace,
-  creatorUri: DidUri,
-  signCallback: SignExtrinsicCallback,
-  authorAccount: CordKeyringPair
-): Promise<SubmittableExtrinsic> {
-  try {
-    const api = ConfigService.get('api')
-
-    const tx = api.tx.chainSpace.create(chainSpace.digest)
-    const extrinsic = await Did.authorizeTx(
-      creatorUri,
-      tx,
-      signCallback,
-      authorAccount.address
-    )
-    return extrinsic;
-
-
-  } catch (error) {
-    throw new SDKErrors.CordDispatchError(
-      `Error preparing extrinsic for creation of chainspace: "${error}".`
-    );
-  }
-}
-
 export async function dispatchToChain(
   chainSpace: IChainSpace,
   creatorUri: DidUri,
@@ -268,10 +275,11 @@ export async function dispatchToChain(
   }
 
   try {
-
-    const extrinsic = await prepareCreateSpaceExtrinsic(chainSpace, creatorUri, signCallback, authorAccount)
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
-
+    const exists = await isChainSpaceStored(chainSpace.uri)
+    if (!exists) {
+        const extrinsic = await prepareCreateSpaceExtrinsic(chainSpace, creatorUri, signCallback, authorAccount)
+        await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    }
     return returnObject
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
@@ -284,6 +292,7 @@ export async function dispatchToChain(
  * Prepares the creation of a sub-space extrinsic for later dispatch to the blockchain.
  * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @param parent - The chainspace under which the sub-space will be created.
  * @param count - The count of transactions permitted to be performed on the chain for the subspace.
  * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
  * @returns The prepared extrinsic ready for batch signing and submitting.
