@@ -1822,6 +1822,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@cord.network/witness@workspace:packages/witness":
+  version: 0.0.0-use.local
+  resolution: "@cord.network/witness@workspace:packages/witness"
+  dependencies:
+    "@cord.network/config": "workspace:*"
+    "@cord.network/did": "workspace:*"
+    "@cord.network/identifier": "workspace:*"
+    "@cord.network/network": "workspace:*"
+    "@cord.network/types": "workspace:*"
+    "@cord.network/utils": "workspace:*"
+    rimraf: "npm:^5.0.5"
+    typescript: "npm:^5.3.3"
+  languageName: unknown
+  linkType: soft
+
 "@digitalbazaar/security-context@npm:^1.0.1":
   version: 1.0.1
   resolution: "@digitalbazaar/security-context@npm:1.0.1"

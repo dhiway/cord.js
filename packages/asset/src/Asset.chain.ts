@@ -59,6 +59,15 @@ export async function prepareCreateExtrinsic(
       authorizationId
     );
 
+    console.log("authorizationId", authorizationId);
+
+
+    console.log(
+      "creator ", assetEntry.creator,
+      //"signCallback", signCallback,
+      "authorAccount.address", authorAccount.address
+    )
+
     const extrinsic = await Did.authorizeTx(
       assetEntry.creator,
       tx,

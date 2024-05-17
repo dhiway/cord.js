@@ -11,7 +11,7 @@ import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u32, u64
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetAssetDistributionEntry, PalletAssetAssetEntry, PalletAssetVcAssetDistributionEntry, PalletAssetVcAssetEntry, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmountRuntimeFreezeReason, PalletBalancesIdAmountRuntimeHoldReason, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetAssetDistributionEntry, PalletAssetAssetEntry, PalletAssetVcAssetDistributionEntry, PalletAssetVcAssetEntry, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmountRuntimeFreezeReason, PalletBalancesIdAmountRuntimeHoldReason, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, PalletWitnessWitnessEntry, PalletWitnessWitnessSignersEntry, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -225,10 +225,14 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * Any liquidity locks on some account balances.
        * NOTE: Should only be accessed when setting, changing and freeing a lock.
+       * 
+       * Use of locks is deprecated in favour of freezes. See `https://github.com/paritytech/substrate/pull/12951/`
        **/
       locks: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesBalanceLock>>, [AccountId32]>;
       /**
        * Named reserves on some account balances.
+       * 
+       * Use of reserves is deprecated in favour of holds. See `https://github.com/paritytech/substrate/pull/12951/`
        **/
       reserves: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesReserveData>>, [AccountId32]>;
       /**
@@ -256,13 +260,11 @@ declare module '@polkadot/api-base/types/storage' {
     };
     council: {
       /**
-       * The current members of the collective. This is stored sorted (just by
-       * value).
+       * The current members of the collective. This is stored sorted (just by value).
        **/
       members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * The prime member that helps determine the default vote behavior in case
-       * of absentations.
+       * The prime member that helps determine the default vote behavior in case of abstentions.
        **/
       prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
       /**
@@ -387,7 +389,7 @@ declare module '@polkadot/api-base/types/storage' {
       storedRange: AugmentedQuery<ApiType, () => Observable<Option<ITuple<[u32, u32]>>>, []>;
     };
     identifier: {
-      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
+      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | 'Witness' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
     };
     identity: {
       /**
@@ -703,6 +705,10 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       extrinsicData: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Bytes>, [u32]>;
       /**
+       * Whether all inherents have been applied.
+       **/
+      inherentsApplied: AugmentedQuery<ApiType, () => Observable<bool>, []>;
+      /**
        * Stores the `spec_version` and `spec_name` of when the last runtime upgrade happened.
        **/
       lastRuntimeUpgrade: AugmentedQuery<ApiType, () => Observable<Option<FrameSystemLastRuntimeUpgradeInfo>>, []>;
@@ -726,13 +732,11 @@ declare module '@polkadot/api-base/types/storage' {
     };
     technicalCommittee: {
       /**
-       * The current members of the collective. This is stored sorted (just by
-       * value).
+       * The current members of the collective. This is stored sorted (just by value).
        **/
       members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * The prime member that helps determine the default vote behavior in case
-       * of absentations.
+       * The prime member that helps determine the default vote behavior in case of abstentions.
        **/
       prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
       /**
@@ -774,6 +778,16 @@ declare module '@polkadot/api-base/types/storage' {
        * The current time for the current block.
        **/
       now: AugmentedQuery<ApiType, () => Observable<u64>, []>;
+    };
+    witness: {
+      /**
+       * Witness entry identifiers with details stored on chain.
+       **/
+      witness: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletWitnessWitnessEntry>>, [Bytes]>;
+      /**
+       * Witnesses signatures entry for a document stored on chain.
+       **/
+      witnessesSignatures: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletWitnessWitnessSignersEntry>>, [Bytes]>;
     };
   } // AugmentedQueries
 } // declare module

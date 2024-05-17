@@ -23,6 +23,7 @@
       "packages/schema/src/index.ts",
       "packages/network-score/src/index.ts",
       "packages/asset/src/index.ts",
+      "packages/witness/src/index.ts",
       "packages/sdk/src/index.ts"
     ],
     "out": "docs",
