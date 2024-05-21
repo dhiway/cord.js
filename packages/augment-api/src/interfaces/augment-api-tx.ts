@@ -2587,8 +2587,76 @@ declare module '@polkadot/api-base/types/submittable' {
       withWeight: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array, weight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, SpWeightsWeightV2Weight]>;
     };
     witness: {
+      /**
+       * Registers a new witness requirement entry in the chain.
+       * 
+       * This function allows a user to submit a new witness requirement entry for an document.
+       * The witness entry is recorded along with various metadata, including the
+       * author of the witness entry, document identifier, required witness count & current
+       * status.
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which should be a signed user in most cases.
+       * * `identifier` - The identifier is the unique identifier of the document.
+       * * `digest` - A hash representing some unique aspects of the document, used for
+       * identification and integrity purposes.
+       * * `authorization` - An identifier for authorization, used to validate the origin's
+       * permission to make this rating.
+       * 
+       * # Errors
+       * Returns `Error::<T>::InvalidWitnessCount` if the witness required count is not
+       * within the expected range.
+       * Returns `Error::<T>::DocumentIdAlreadyExists` if the witness entry has been already
+       * made.
+       * 
+       * # Events
+       * Emits `Create` when a witness entry has been successfully created.
+       * 
+       * # Example
+       * ```
+       * create(origin, identifier, digest, witness_count, authorization)?;
+       * ```
+       **/
       create: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, witnessCount: u32 | AnyNumber | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, u32, Bytes]>;
-      witness: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      /**
+       * Adds the signer as a witness to the document for which a witness entry already exists.
+       * 
+       * This function allows a signer to sign as a witness to the document identifier.
+       * The witness is recorded along with various metadata, including the
+       * signer as a witness to the document.
+       * It also updates the status of the Witness entry document based on number of signees as a
+       * witness.
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which should be a signed user in most cases.
+       * * `identifier` - The identifier is the unique identifier of the document.
+       * * `digest` - A hash representing some unique aspects of the document, used for
+       * identification and integrity purposes.
+       * * `comment` - Comment allows the signees to have a comment on the witness document.
+       * 
+       * # Errors
+       * Returns `Error::<T>::DocumentIdNotFound` if the witness entry is not created.
+       * Returns `Error::<T>::DocumentIdAlreadyApproved` if the witness entry has been already
+       * approved. Returns `Error::<T>::DocumentDigestHasChanged` if the digest for which the
+       * signer acts a witness has been changed from the registered form.
+       * Returns `Error::<T>::WitnessSignerCannotBeSameAsWitnessCreator` if the signer acting as
+       * a witness is the same as person who created the witness requirement entry.
+       * Returns `Error::<T>::SignerIsAlreadyAWitness` if the signer acting as a witness has
+       * already signed the document as a witness.
+       * Returns `Error::<T>::MaxWitnessCountReached` if max witness count upper bound is
+       * breached.
+       * 
+       * # Events
+       * Emits `Witness` when a witness signature for a document has been made.
+       * Emits `DocumentWitnessComplete` when the required witness count has been reached by the
+       * signers acting as witness to the document.
+       * 
+       * # Example
+       * ```
+       * witness(origin, identifier, digest, comment)?;
+       * ```
+       **/
+      witness: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, comment: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
     };
   } // AugmentedSubmittables
 } // declare module

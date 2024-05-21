@@ -1228,7 +1228,19 @@ declare module '@polkadot/api-base/types/errors' {
     };
     witness: {
       /**
-       * Witness Id not found in the storage
+       * Document digest should remain the same,
+       **/
+      DocumentDigestHasChanged: AugmentedError<ApiType>;
+      /**
+       * Witness Identifier is already approved,
+       **/
+      DocumentIdAlreadyApproved: AugmentedError<ApiType>;
+      /**
+       * Witness creation already added
+       **/
+      DocumentIdAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * Document Id not found in the storage
        **/
       DocumentIdNotFound: AugmentedError<ApiType>;
       /**
@@ -1246,19 +1258,11 @@ declare module '@polkadot/api-base/types/errors' {
       /**
        * Witness signer has already part of witness party.
        **/
-      SignerIsAlreadyWitness: AugmentedError<ApiType>;
+      SignerIsAlreadyAWitness: AugmentedError<ApiType>;
       /**
        * Unauthorized operation
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
-      /**
-       * Witness Identifier is already approved,
-       **/
-      WitnessIdAlreadyApproved: AugmentedError<ApiType>;
-      /**
-       * Witness creation already added
-       **/
-      WitnessIdAlreadyExists: AugmentedError<ApiType>;
       /**
        * Witness signer did cannot be same as witness creator did
        **/

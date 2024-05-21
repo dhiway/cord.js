@@ -29,7 +29,6 @@ async function main() {
     "sr25519"
   );
 
-  // const { account: issuerIdentity } = createAccount();
   // Create creator DID
   const { mnemonic: creatorMnemonic, document: creatorDid } = await createDid(
     networkAuthorityIdentity
@@ -60,11 +59,10 @@ async function main() {
   const { account: apiIdentity } = createAccount();
   console.log(`🏦  API Provider (${apiIdentity.type}): ${apiIdentity.address}`);
 
-  //  await addNetworkMember(networkAuthorityIdentity, issuerIdentity.address);
   await addNetworkMember(networkAuthorityIdentity, apiIdentity.address);
   console.log("✅ Identities created!");
 
-  // Step 3: Create a new Chain Space
+  // Step 2: Create a new Chain Space
   console.log(`\n❄️  Chain Space Creation `)
   const spaceProperties = await Cord.ChainSpace.buildFromProperties(
     creatorDid.uri
@@ -98,7 +96,7 @@ async function main() {
   )
   console.log(`✅  Chain Space Approved`)
 
-	// Step 2: Read the document and get the hash of the file
+	// Step 3: Read the document and get the hash of the file
 
 	function readFileAsString(filePath: string): string {
     try {
@@ -125,67 +123,59 @@ async function main() {
 	const filePath = './src/demo_agreement.txt';
 	let fileContents = processFile(filePath);
 
-	//const serializedContents = Cord.Utils.Crypto.encodeObjectAsStr(fileContents);
   const docHash = Cord.Utils.Crypto.hashStr(fileContents);
-	//console.log('File contents:', fileContents, docHash); // Output the contents of the file
-	
-  // Step 3: Create a witness entry by the creator
+
+  // Step 4: Create a witness entry by the creator
 	// For now use the Creator URI as the Document Uri
 	let witness_count: number = 2;
-
-  // Step 3: Create assets on-chain (Test)
-  let assetProperties: Cord.IAssetProperties = {
-    assetType: Cord.AssetTypeOf.art,
-    assetDesc: "Asset - " + Cord.Utils.UUID.generate(),
-    assetQty: 10000,
-    assetValue: 100,
-    assetTag: "Tag - " + Cord.Utils.UUID.generate(),
-    assetMeta: "Meta - " + Cord.Utils.UUID.generate(),
-  };
-
-  console.log(`\n❄️  Asset Properties - Created by Issuer  `);
-  console.dir(assetProperties, {
-    depth: null,
-    colors: true,
-  });
-
-  const assetEntry = await Cord.Asset.buildFromAssetProperties(
-    assetProperties,
-    creatorDid.uri,
-    space.uri,
-  );
-
-  console.log(`\n❄️  Asset Transaction  - Created by Issuer  `);
-  console.dir(assetEntry, {
-    depth: null,
-    colors: true,
-  });
-
-	let extSignCallback = async ({ data }) => ({
-    signature: creatorKeys.authentication.sign(data),
-    keyType: creatorKeys.authentication.type,
-  })
-
-  const extrinsic = await Cord.Asset.dispatchCreateToChain(
-      assetEntry,
-      networkAuthorityIdentity,
-      space.authorization,
-			extSignCallback,
-    )
-
-  console.log("✅ Asset created!");
+	let docUri = "DMP_2024";
 
 	console.log(`\n❄️  Witness Create Transaction  - Created by 'creator'`);
   const extrinsic1 = await Cord.Witness.dispatchCreateToChain(
 		creatorDid.uri,
-		witness1Did.uri,
+		docUri,
 		docHash,
 		witness_count,
 		space.authorization,
 		networkAuthorityIdentity,
-		extSignCallback,
+		async ({ data }) => ({
+    	signature: creatorKeys.authentication.sign(data),
+    	keyType: creatorKeys.authentication.type,
+  	}),
 	)
 
+	console.log("✅ Witness Requirement Entry created!");
+
+	// Step 5: Sign the document by witnesses 1 & 2
+	console.log(`\n❄️  Witness Sign Transaction  - Created by 'witness1'`);
+  const extrinsic2 = await Cord.Witness.dispatchWitnessToChain(
+		witness1Did.uri,
+		docUri,
+		docHash,
+		"Signed By Witness 1",
+		networkAuthorityIdentity,
+		async ({ data }) => ({
+    signature: witness1Keys.authentication.sign(data),
+    keyType: witness1Keys.authentication.type,
+  }),
+	)
+
+	console.log("✅ Witness1 has signed the document!");
+
+	console.log(`\n❄️  Witness Sign Transaction  - Created by 'witness2'`);
+  const extrinsic3 = await Cord.Witness.dispatchWitnessToChain(
+		witness2Did.uri,
+		docUri,
+		docHash,
+		"Signed By Witness 2",
+		networkAuthorityIdentity,
+		async ({ data }) => ({
+    signature: witness2Keys.authentication.sign(data),
+    keyType: witness2Keys.authentication.type,
+  }),
+	)
+
+	console.log("✅ Witness2 has signed the document!");
 }
 main()
   .then(() => console.log("\nBye! 👋 👋 👋 "))

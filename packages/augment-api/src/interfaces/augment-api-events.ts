@@ -804,14 +804,20 @@ declare module '@polkadot/api-base/types/events' {
     witness: {
       /**
        * A new witness entry has been added.
-       * \[witness entry identifier, creator\]
+       * \[document identifier, creator\]
        **/
       Create: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
       /**
-       * A new signer has signed the document as a witness.
-       * \[witness entry identifier, signer, current_witness_count, required_witness_count, status\]
+       * Witness Approval Complete Event for the Document
+       * \[document identifier\]
        **/
-      Witness: AugmentedEvent<ApiType, [identifier: Bytes, signer: AccountId32, currentWitnessCount: u32, requiredWitnessCount: u32, status: PalletWitnessWitnessStatusOf], { identifier: Bytes, signer: AccountId32, currentWitnessCount: u32, requiredWitnessCount: u32, status: PalletWitnessWitnessStatusOf }>;
+      DocumentWitnessComplete: AugmentedEvent<ApiType, [identifier: Bytes], { identifier: Bytes }>;
+      /**
+       * A new signer has signed the document as a witness.
+       * \[document identifier, signer, current_witness_count, required_witness_count,
+       * status\]
+       **/
+      Witness: AugmentedEvent<ApiType, [identifier: Bytes, signer: AccountId32, currentWitnessCount: u32, requiredWitnessCount: u32, status: PalletWitnessWitnessStatusOf, comment: Bytes], { identifier: Bytes, signer: AccountId32, currentWitnessCount: u32, requiredWitnessCount: u32, status: PalletWitnessWitnessStatusOf, comment: Bytes }>;
     };
   } // AugmentedEvents
 } // declare module
