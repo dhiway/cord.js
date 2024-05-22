@@ -58,6 +58,9 @@
       ],
       "@cord.network/asset": [
         "asset/src"
+      ],
+      "@cord.network/witness": [
+        "witness/src"
       ]
     }
   }

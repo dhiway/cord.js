@@ -10,7 +10,7 @@ import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u16, u32, 
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, H256 } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletAssetAssetStatusOf, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
+import type { CordRuntimeEntitiesValidatorFullIdentification, FrameSupportDispatchDispatchInfo, FrameSupportTokensMiscBalanceStatus, PalletAssetAssetStatusOf, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, PalletWitnessWitnessStatusOf, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
@@ -226,8 +226,7 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Approved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A proposal was closed because its threshold was reached or after its
-       * duration was up.
+       * A proposal was closed because its threshold was reached or after its duration was up.
        **/
       Closed: AugmentedEvent<ApiType, [proposalHash: H256, yes: u32, no: u32], { proposalHash: H256, yes: u32, no: u32 }>;
       /**
@@ -235,24 +234,21 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Disapproved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A motion was executed; result will be `Ok` if it returned without
-       * error.
+       * A motion was executed; result will be `Ok` if it returned without error.
        **/
       Executed: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A single member did some action; result will be `Ok` if it returned
-       * without error.
+       * A single member did some action; result will be `Ok` if it returned without error.
        **/
       MemberExecuted: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A motion (given hash) has been proposed (by given account) with a
-       * threshold (given `MemberCount`).
+       * A motion (given hash) has been proposed (by given account) with a threshold (given
+       * `MemberCount`).
        **/
       Proposed: AugmentedEvent<ApiType, [account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32], { account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32 }>;
       /**
        * A motion (given hash) has been voted on by given account, leaving
-       * a tally (yes votes and no votes given respectively as
-       * `MemberCount`).
+       * a tally (yes votes and no votes given respectively as `MemberCount`).
        **/
       Voted: AugmentedEvent<ApiType, [account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32], { account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32 }>;
     };
@@ -425,7 +421,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * At the end of the session, at least one validator was found to be offline.
        **/
-      SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, Null]>>], { offline: Vec<ITuple<[AccountId32, Null]>> }>;
+      SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, CordRuntimeEntitiesValidatorFullIdentification]>>], { offline: Vec<ITuple<[AccountId32, CordRuntimeEntitiesValidatorFullIdentification]>> }>;
     };
     indices: {
       /**
@@ -725,8 +721,7 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Approved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A proposal was closed because its threshold was reached or after its
-       * duration was up.
+       * A proposal was closed because its threshold was reached or after its duration was up.
        **/
       Closed: AugmentedEvent<ApiType, [proposalHash: H256, yes: u32, no: u32], { proposalHash: H256, yes: u32, no: u32 }>;
       /**
@@ -734,24 +729,21 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Disapproved: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
       /**
-       * A motion was executed; result will be `Ok` if it returned without
-       * error.
+       * A motion was executed; result will be `Ok` if it returned without error.
        **/
       Executed: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A single member did some action; result will be `Ok` if it returned
-       * without error.
+       * A single member did some action; result will be `Ok` if it returned without error.
        **/
       MemberExecuted: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
-       * A motion (given hash) has been proposed (by given account) with a
-       * threshold (given `MemberCount`).
+       * A motion (given hash) has been proposed (by given account) with a threshold (given
+       * `MemberCount`).
        **/
       Proposed: AugmentedEvent<ApiType, [account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32], { account: AccountId32, proposalIndex: u32, proposalHash: H256, threshold: u32 }>;
       /**
        * A motion (given hash) has been voted on by given account, leaving
-       * a tally (yes votes and no votes given respectively as
-       * `MemberCount`).
+       * a tally (yes votes and no votes given respectively as `MemberCount`).
        **/
       Voted: AugmentedEvent<ApiType, [account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32], { account: AccountId32, proposalHash: H256, voted: bool, yes: u32, no: u32 }>;
     };
@@ -808,6 +800,24 @@ declare module '@polkadot/api-base/types/events' {
        * A single item within a Batch of dispatches has completed with error.
        **/
       ItemFailed: AugmentedEvent<ApiType, [error: SpRuntimeDispatchError], { error: SpRuntimeDispatchError }>;
+    };
+    witness: {
+      /**
+       * A new witness entry has been added.
+       * \[document identifier, creator\]
+       **/
+      Create: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
+      /**
+       * Witness Approval Complete Event for the Document
+       * \[document identifier\]
+       **/
+      DocumentWitnessComplete: AugmentedEvent<ApiType, [identifier: Bytes], { identifier: Bytes }>;
+      /**
+       * A new signer has signed the document as a witness.
+       * \[document identifier, signer, current_witness_count, required_witness_count,
+       * status\]
+       **/
+      Witness: AugmentedEvent<ApiType, [identifier: Bytes, signer: AccountId32, currentWitnessCount: u32, requiredWitnessCount: u32, status: PalletWitnessWitnessStatusOf, comment: Bytes], { identifier: Bytes, signer: AccountId32, currentWitnessCount: u32, requiredWitnessCount: u32, status: PalletWitnessWitnessStatusOf, comment: Bytes }>;
     };
   } // AugmentedEvents
 } // declare module

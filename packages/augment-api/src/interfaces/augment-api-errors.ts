@@ -45,6 +45,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InvalidAssetQty: AugmentedError<ApiType>;
       /**
+       * Invalid Asset status type
+       **/
+      InvalidAssetStatus: AugmentedError<ApiType>;
+      /**
        * Invalid asset type
        **/
       InvalidAssetType: AugmentedError<ApiType>;
@@ -95,7 +99,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       MemberNotBlackListed: AugmentedError<ApiType>;
       /**
-       * Not found owner key
        * There is no authority with the given ID.
        **/
       MemberNotFound: AugmentedError<ApiType>;
@@ -1132,6 +1135,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InvalidSpecName: AugmentedError<ApiType>;
       /**
+       * A multi-block migration is ongoing and prevents the current code from being replaced.
+       **/
+      MultiBlockMigrationsOngoing: AugmentedError<ApiType>;
+      /**
        * Suicide called when the account has non-default composite data.
        **/
       NonDefaultComposite: AugmentedError<ApiType>;
@@ -1218,6 +1225,48 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many calls batched.
        **/
       TooManyCalls: AugmentedError<ApiType>;
+    };
+    witness: {
+      /**
+       * Document digest should remain the same,
+       **/
+      DocumentDigestHasChanged: AugmentedError<ApiType>;
+      /**
+       * Witness Identifier is already approved,
+       **/
+      DocumentIdAlreadyApproved: AugmentedError<ApiType>;
+      /**
+       * Witness creation already added
+       **/
+      DocumentIdAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * Document Id not found in the storage
+       **/
+      DocumentIdNotFound: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifer Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Witness count should be less than 5 and greater than 0
+       **/
+      InvalidWitnessCount: AugmentedError<ApiType>;
+      /**
+       * Witness sign count has reached maximum
+       **/
+      MaxWitnessCountReached: AugmentedError<ApiType>;
+      /**
+       * Witness signer has already part of witness party.
+       **/
+      SignerIsAlreadyAWitness: AugmentedError<ApiType>;
+      /**
+       * Unauthorized operation
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+      /**
+       * Witness signer did cannot be same as witness creator did
+       **/
+      WitnessSignerCannotBeSameAsWitnessCreator: AugmentedError<ApiType>;
     };
   } // AugmentedErrors
 } // declare module
