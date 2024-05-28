@@ -440,9 +440,9 @@ export async function dispatchAssetStatusChangeVcToChain(
           `Error: Asset Instance is already in the ${newStatus} state`
         );
       }
-      tx = api.tx.asset.statusChange(assetId, assetInstanceId, newStatus);
+      tx = api.tx.asset.vcStatusChange(assetId, assetInstanceId, newStatus);
     } else {
-      let encodedAssetDetail = await api.query.asset.assets(assetId);
+      let encodedAssetDetail = await api.query.asset.vcAssets(assetId);
 
       if (encodedAssetDetail.isNone) {
         throw new SDKErrors.AssetNotFound(`Error: Asset Not Found`);
@@ -460,7 +460,7 @@ export async function dispatchAssetStatusChangeVcToChain(
           `Error: Asset is already in the ${newStatus} state`
         );
       }
-      tx = api.tx.asset.statusChange(assetId, null, newStatus);
+      tx = api.tx.asset.vcStatusChange(assetId, null, newStatus);
     }
 
     const extrinsic = await Did.authorizeTx(
