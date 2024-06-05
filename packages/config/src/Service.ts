@@ -53,9 +53,11 @@ let configuration: Partial<configOpts> = { ...defaultConfig }
  * @throws {SDKErrors.BlockchainApiMissingError} | Generic not configured error.
  */
 export function get<K extends keyof configOpts>(configOpt: K): configOpts[K] {
+  //console.log("configuration[configOpt]", configuration[configOpt]);
+  //console.log("configOpt", configOpt);
   if (typeof configuration[configOpt] === 'undefined') {
     switch (configOpt) {
-      case 'api':
+      case configOpt:
         throw new SDKErrors.BlockchainApiMissingError()
       default:
         throw new Error(`GENERIC NOT CONFIGURED ERROR FOR KEY: "${configOpt}"`)
@@ -98,6 +100,7 @@ export function set<K extends Partial<configOpts>>(opts: K): void {
  * @param key - The key of the configuration option to reset.
  */
 export function unset<K extends keyof configOpts>(key: K): void {
+  //console.log("unset", defaultConfig, key, configuration[key])
   if (Object.prototype.hasOwnProperty.call(defaultConfig, key)) {
     configuration[key] = defaultConfig[key]
   } else {
@@ -122,5 +125,6 @@ export function unset<K extends keyof configOpts>(key: K): void {
  * @returns `true` if the configuration option is set, otherwise `false`.
  */
 export function isSet<K extends keyof configOpts>(key: K): boolean {
+  //console.log("isSet", key, configuration[key]);
   return typeof configuration[key] !== 'undefined'
 }

@@ -8,7 +8,12 @@ import { createAccount } from './utils/createAccount'
 async function main() {
   const networkAddress = process.env.NETWORK_ADDRESS ? process.env.NETWORK_ADDRESS : 'ws://127.0.0.1:9944';
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
-  await Cord.connect(networkAddress)
+  //await Cord.connect(networkAddress)
+
+  let connName = "random";
+  await Cord.connect(networkAddress, connName);
+  const api = Cord.ConfigService.get(connName);
+
   const devAuthorIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
     process.env.ANCHOR_URI ? process.env.ANCHOR_URI : '//Alice',
     'sr25519'
@@ -22,24 +27,24 @@ async function main() {
   console.log(
     `🔐 Network Member (${devAuthorIdentity.type}): ${devAuthorIdentity.address}`
   )
-  await addNetworkMember(devAuthorIdentity, networkAuthorIdentity.address)
+  await addNetworkMember(devAuthorIdentity, networkAuthorIdentity.address, connName)
   console.log('✅ Network Membership Approved! 🎉\n')
 
   const { mnemonic: chainSpaceAdminMnemonic, document: chainSpaceAdminDid } =
-    await createDid(networkAuthorIdentity)
+    await createDid(networkAuthorIdentity, connName)
   const chainSpaceAdminKeys = Cord.Utils.Keys.generateKeypairs(chainSpaceAdminMnemonic, 'sr25519')
   console.log(
     `🔐  Network Score Admin (${chainSpaceAdminDid.authentication[0].type}): ${chainSpaceAdminDid.uri}`
   )
   const { mnemonic: networkProviderMnemonic, document: networkProviderDid } =
-    await createDid(networkAuthorIdentity)
+    await createDid(networkAuthorIdentity, connName)
   const networkProviderKeys = Cord.Utils.Keys.generateKeypairs(networkProviderMnemonic, 'sr25519')
   console.log(
     `🔐  Network Participant (Provider) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
   )
 
   const { mnemonic: networkAuthorMnemonic, document: networkAuthorDid } =
-    await createDid(networkAuthorIdentity)
+    await createDid(networkAuthorIdentity, connName)
   const networkAuthorKeys = Cord.Utils.Keys.generateKeypairs(networkAuthorMnemonic, 'sr25519')
   console.log(
     `🔐 Network Author (API -> Node) (${networkAuthorDid.authentication[0].type}): ${networkAuthorDid.uri}`
@@ -65,7 +70,7 @@ async function main() {
 
   console.log(`\n🌐  Network Score Chain Space Creation `)
   const spaceProperties = await Cord.ChainSpace.buildFromProperties(
-    chainSpaceAdminDid.uri
+    chainSpaceAdminDid.uri, {connName}
   )
   console.dir(spaceProperties, {
     depth: null,
@@ -79,14 +84,16 @@ async function main() {
     async ({ data }) => ({
       signature: chainSpaceAdminKeys.authentication.sign(data),
       keyType: chainSpaceAdminKeys.authentication.type,
-    })
+    }),
+    connName
   )
   console.log('✅ Chain Space created! 🎉')
 
   await Cord.ChainSpace.sudoApproveChainSpace(
     devAuthorIdentity,
     chainSpace.uri,
-    1000
+    1000,
+    connName
   )
 
   console.log(`\n🌐  Chain Space Authorization (Author) `)
@@ -96,7 +103,8 @@ async function main() {
       chainSpace.uri,
       networkAuthorDid.uri,
       permission,
-      chainSpaceAdminDid.uri
+      chainSpaceAdminDid.uri,
+      connName
     )
   console.dir(spaceAuthProperties, {
     depth: null,
@@ -110,12 +118,16 @@ async function main() {
     async ({ data }) => ({
       signature: chainSpaceAdminKeys.capabilityDelegation.sign(data),
       keyType: chainSpaceAdminKeys.capabilityDelegation.type,
-    })
+    }),
+    connName
   )
   console.log(`✅ Chain Space Authorization Approved! 🎉`)
 
   console.log(`\n🌐  Query From Chain - Chain Space `)
-  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(chainSpace.uri)
+  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(
+    chainSpace.uri,
+    connName
+  )
   console.dir(spaceFromChain, {
     depth: null,
     colors: true,
@@ -123,7 +135,8 @@ async function main() {
 
   console.log(`\n🌐  Query From Chain - Chain Space Authorization `)
   const spaceAuthFromChain = await Cord.ChainSpace.fetchAuthorizationFromChain(
-    delegateAuth as Cord.AuthorizationUri
+    delegateAuth as Cord.AuthorizationUri,
+    connName
   )
   console.dir(spaceAuthFromChain, {
     depth: null,
@@ -170,6 +183,7 @@ async function main() {
     transformedEntry,
     chainSpace.uri,
     networkAuthorDid.uri,
+    connName
   )
 
   console.log(`\n🌐  Rating Information to Ledger (API -> Ledger) `)
@@ -185,7 +199,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkAuthorKeys.authentication.sign(data),
       keyType: networkAuthorKeys.authentication.type,
-    })
+    }),
+    connName
   )
 
   if (Cord.Identifier.isValidIdentifier(ratingUri)) {
@@ -236,6 +251,7 @@ async function main() {
       revokeRatingEntry,
       chainSpace.uri,
       networkAuthorDid.uri,
+      connName
     )
   console.log(
     `\n🌐  Rating Revoke (Debit) Information to Ledger (API -> Ledger) `
@@ -252,7 +268,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkAuthorKeys.authentication.sign(data),
       keyType: networkAuthorKeys.authentication.type,
-    })
+    }),
+    connName
   )
 
   if (Cord.Identifier.isValidIdentifier(revokedRatingUri)) {
@@ -299,6 +316,7 @@ async function main() {
     transformedRevisedEntry,
     chainSpace.uri,
     networkAuthorDid.uri,
+    connName
   )
 
   console.dir(dispatchRevisedEntry, {
@@ -317,7 +335,8 @@ async function main() {
     async ({ data }) => ({
       signature: networkAuthorKeys.authentication.sign(data),
       keyType: networkAuthorKeys.authentication.type,
-    })
+    }),
+    connName
   )
 
   if (Cord.Identifier.isValidIdentifier(revisedRatingUri)) {
@@ -329,7 +348,8 @@ async function main() {
   console.log(`\n🌐  Query From Chain - Rating Entry `)
   const ratingEntryFromChain = await Cord.Score.fetchRatingDetailsfromChain(
     revisedRatingUri,
-    'Asia/Kolkata'
+    'Asia/Kolkata',
+    connName
   )
   console.dir(ratingEntryFromChain, {
     depth: null,
@@ -340,7 +360,8 @@ async function main() {
   const aggregateScoreFromChain =
     await Cord.Score.fetchEntityAggregateScorefromChain(
       ratingContent.entityId,
-      Cord.RatingTypeOf.overall
+      Cord.RatingTypeOf.overall,
+      connName
     )
   console.dir(aggregateScoreFromChain, {
     depth: null,
@@ -349,7 +370,7 @@ async function main() {
 
   console.log(`\n🌐  Query From Chain - Chain Space Usage `)
   const spaceUsageFromChain = await Cord.ChainSpace.fetchFromChain(
-    chainSpace.uri
+    chainSpace.uri, connName
   )
   console.dir(spaceUsageFromChain, {
     depth: null,
@@ -358,10 +379,14 @@ async function main() {
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
-  .finally(Cord.disconnect)
+  .finally(async () => {
+      let connName = "random";
+      await Cord.disconnect(connName);
+    });
 
 process.on('SIGINT', async () => {
   console.log('\nBye! 👋 👋 👋 \n')
-  Cord.disconnect()
+  let connName = "random";
+  await Cord.disconnect(connName);
   process.exit(0)
 })

@@ -22,6 +22,7 @@ import type {
   UriFragment,
   VerificationKeyRelationship,
   CordKeyringPair,
+  ApiPromise,
 } from '@cord.network/types'
 import { verificationKeyTypes } from '@cord.network/types'
 import { Crypto, SDKErrors, ss58Format, Keys, } from '@cord.network/utils'
@@ -320,15 +321,18 @@ export type GetStoreTxSignCallback = (
  * @param input The DID keys and services to store, also accepts DidDocument.
  * @param submitter The address authorized to submit the creation operation.
  * @param sign The sign callback. The authentication key has to be used.
+ * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  *
  * @returns The SubmittableExtrinsic for the DID creation operation.
  */
 export async function getStoreTx(
   input: GetStoreTxInput | DidDocument,
   submitter: CordAddress,
-  sign: GetStoreTxSignCallback
+  sign: GetStoreTxSignCallback,
+  connName: string = 'api',
 ): Promise<SubmittableExtrinsic> {
-  const api = ConfigService.get('api')
+  console.log("getStoreTx", connName);
+  const api = ConfigService.get(connName);
 
   const {
     authentication,
@@ -429,6 +433,8 @@ export interface SigningOptions {
  * @param params.txCounter The nonce or txCounter value for this extrinsic, which must be on larger than the current txCounter value of the authorizing DID.
  * @param params.submitter Payment account allowed to submit this extrinsic and cover its fees, which will end up owning any deposit associated with newly created records.
  * @param params.blockNumber Block number for determining the validity period of this authorization. If omitted, the current block number will be fetched from chain.
+ * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
+ *
  * @returns A DID authorized extrinsic that, after signing with the payment account mentioned in the params, is ready for submission.
  */
 export async function generateDidAuthenticatedTx({
@@ -439,8 +445,12 @@ export async function generateDidAuthenticatedTx({
   txCounter,
   submitter,
   blockNumber,
-}: AuthorizeCallInput & SigningOptions): Promise<SubmittableExtrinsic> {
-  const api = ConfigService.get('api')
+}: AuthorizeCallInput & SigningOptions,
+  connName:string = 'api'): Promise<SubmittableExtrinsic> {
+  
+  console.log("generateDidAuthenticatedTx", connName);
+  
+  const api:ApiPromise = ConfigService.get(connName)
   const signableCall =
     api.registry.createType<PalletDidDidDetailsDidAuthorizedCallOperation>(
       api.tx.did.submitDidCall.meta.args[0].type.toString(),

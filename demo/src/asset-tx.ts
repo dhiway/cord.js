@@ -20,13 +20,21 @@ async function main() {
   const anchorUri = ANCHOR_URI ?? '//Alice';
 
   // Temporarily suppress console.log
-  let originalConsoleLog = console.log;
-  console.log = () => {};
+  // let originalConsoleLog = console.log;
+  // console.log = () => {};
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK });
-  await Cord.connect(networkAddress);
-  const api = Cord.ConfigService.get("api");
+  
+  let connName = "random";
+  await Cord.connect(networkAddress, connName);
+  const api = Cord.ConfigService.get(connName);
+
+  // let connName = 'api';
+  // await Cord.connect(networkAddress);
+  // const api = Cord.ConfigService.get('api')
+
+  //console.log("api in tx file", api);
   // Restore console.log
-  console.log = originalConsoleLog;
+  //console.log = originalConsoleLog;
   console.log(`\nOn-Chain Assets & Transactions  `);
 
   // Step 1: Setup Identities
@@ -39,7 +47,7 @@ async function main() {
   //  const { account: issuerIdentity } = createAccount();
     // Create issuer DID
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
-    networkAuthorityIdentity
+    networkAuthorityIdentity, connName
   )
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')
   console.log(
@@ -47,14 +55,14 @@ async function main() {
   )
 
   const { mnemonic: holderMnemonic, document: holderDid } = await createDid(
-    networkAuthorityIdentity
+    networkAuthorityIdentity, connName
   )
   const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'sr25519')
   console.log(
     `🏛   Holder (${holderDid?.assertionMethod![0].type}): ${holderDid.uri}`
   )
   const { mnemonic: holder2Mnemonic, document: holder2Did } = await createDid(
-    networkAuthorityIdentity
+    networkAuthorityIdentity, connName
   )
   console.log(
     `🏛   Holder2 (${holder2Did?.assertionMethod![0].type}): ${holder2Did.uri}`
@@ -64,13 +72,13 @@ async function main() {
   console.log(`🏦  API Provider (${apiIdentity.type}): ${apiIdentity.address}`);
 
   //  await addNetworkMember(networkAuthorityIdentity, issuerIdentity.address);
-  await addNetworkMember(networkAuthorityIdentity, apiIdentity.address);
+  await addNetworkMember(networkAuthorityIdentity, apiIdentity.address, connName);
   console.log("✅ Identities created!");
 
   // Step 3: Create a new Chain Space
   console.log(`\n❄️  Chain Space Creation `)
   const spaceProperties = await Cord.ChainSpace.buildFromProperties(
-    issuerDid.uri
+    issuerDid.uri, {connName}
   )
   console.dir(spaceProperties, {
     depth: null,
@@ -85,7 +93,8 @@ async function main() {
     async ({ data }) => ({
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
-    })
+    }),
+    connName
   )
   console.dir(space, {
     depth: null,
@@ -97,7 +106,8 @@ async function main() {
   await Cord.ChainSpace.sudoApproveChainSpace(
     networkAuthorityIdentity,
     space.uri,
-    100
+    100,
+    connName
   )
   console.log(`✅  Chain Space Approved`)
 
@@ -121,6 +131,7 @@ async function main() {
     assetProperties,
     issuerDid.uri,
     space.uri,
+    connName
   );
 
   console.log(`\n❄️  Asset Transaction  - Created by Issuer  `);
@@ -137,6 +148,7 @@ async function main() {
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
       }),
+      connName
     )
 
   console.log("✅ Asset created!");
@@ -149,6 +161,7 @@ async function main() {
     1,
     issuerDid.uri,
     space.uri,
+    connName
   );
 
   console.dir(assetIssuance, {
@@ -164,6 +177,7 @@ async function main() {
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
       }),
+      connName
     )
 
   // Step 4: Transfer Asset to New Owner
@@ -187,6 +201,7 @@ async function main() {
         signature: holderKeys.authentication.sign(data),
         keyType: holderKeys.authentication.type,
       }),
+      connName
     )
 
   console.log("✅ Asset transferred!");
@@ -203,17 +218,21 @@ async function main() {
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
       }),
-      assetIssuance.uri
+      { assetInstanceId: assetIssuance.uri, connName }
     )
 
   console.log("✅ Asset status changed!");
 }
 main()
   .then(() => console.log("\nBye! 👋 👋 👋 "))
-  .finally(Cord.disconnect);
+  .finally(async () => {
+      let connName = "random";
+      await Cord.disconnect(connName);
+    });
 
 process.on("SIGINT", async () => {
   console.log("\nBye! 👋 👋 👋 \n");
-  Cord.disconnect();
+  let connName = "random";
+  await Cord.disconnect(connName);
   process.exit(0);
 });
