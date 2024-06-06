@@ -51,7 +51,6 @@ import * as ConfigService from './Service.js'
 export async function init<K extends Partial<ConfigService.configOpts>>(
   configs?: K
 ): Promise<void> {
-  //console.log("configs in init", configs);
   ConfigService.set(configs || {})
   await cryptoWaitReady()
 }
@@ -75,14 +74,14 @@ export async function init<K extends Partial<ConfigService.configOpts>>(
  * ```
  *
  * @param blockchainRpcWsUrl - WebSocket URL for the CORD blockchain RPC endpoint.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @param apiOpts.noInitWarn
  * @param apiOpts - Additional API connection options.
  * @returns A promise resolving to the ApiPromise instance.
  */
 export async function connect(
   blockchainRpcWsUrl: string,
-  connName: string = 'api',
+  network: string = 'api',
   { noInitWarn = true, ...apiOptions }: Omit<ApiOptions, 'provider'> = {},
 ): Promise<ApiPromise> {
   let connection: ApiPromise;
@@ -102,7 +101,7 @@ export async function connect(
     });
 
     /* Create a connection object with dynamic name at runtime */
-    connectionObject = { [connName]: connection };
+    connectionObject = { [network]: connection };
 
     await init(connectionObject);
 
@@ -112,7 +111,7 @@ export async function connect(
     console.error('Error connecting to blockchain:', error);
     throw error;
   } finally {
-    delete connectionObject[connName];
+    delete connectionObject[network];
   }
 }
 
@@ -127,24 +126,23 @@ export async function connect(
  * import { connect, disconnect } from './CordConfig';
  *
  * const wsUrl = 'ws://localhost:9944';
- * connect(wsUrl).then(() => disconnect(connName)).then(disconnected => {
+ * connect(wsUrl).then(() => disconnect(network)).then(disconnected => {
  *   console.log('Disconnected:', disconnected);
  * }).catch(error => {
  *   console.error('Error:', error);
  * });
  * ```
  * 
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise resolving to a boolean indicating successful disconnection.
  */
 export async function disconnect(
-  connName: string = 'api',
+  network: string = 'api',
 ): Promise<boolean> {
-  console.log("disconnect", connName);
-  if (!ConfigService.isSet(connName)) return false
-  const api = ConfigService.get(connName)
-  ConfigService.unset(connName)
+  if (!ConfigService.isSet(network)) return false
+  const api = ConfigService.get(network)
+  ConfigService.unset(network)
   await api.disconnect()
   return true
 }

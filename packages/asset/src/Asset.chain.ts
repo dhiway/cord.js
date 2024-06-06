@@ -25,10 +25,10 @@ import { SDKErrors } from '@cord.network/utils'
 
 export async function isAssetStored(
   assetUri: AssetUri,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<boolean> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
 
     const identifier = uriToIdentifier(assetUri)
 
@@ -51,10 +51,10 @@ export async function prepareCreateExtrinsic(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get(connName);
+    const api = ConfigService.get(network);
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri);
 
     const tx = api.tx.asset.create(
@@ -69,7 +69,7 @@ export async function prepareCreateExtrinsic(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     );
 
     return extrinsic;
@@ -87,7 +87,7 @@ export async function dispatchCreateToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<AssetUri> {
   try {
     
@@ -96,13 +96,13 @@ export async function dispatchCreateToChain(
       authorAccount,
       authorizationUri,
       signCallback,
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     )
 
     return assetEntry.uri
@@ -123,10 +123,10 @@ export async function dispatchCreateVcToChain(
   authorizationUri: AuthorizationUri,
   assetEntryUri: AssetUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<AssetUri> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
     const tx = api.tx.asset.vcCreate(
@@ -141,13 +141,13 @@ export async function dispatchCreateVcToChain(
       signCallback,
       authorAccount.address,
       {}, 
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     )
 
     return assetEntryUri
@@ -165,10 +165,10 @@ export async function prepareExtrinsic(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
 
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
@@ -184,7 +184,7 @@ export async function prepareExtrinsic(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     return extrinsic
@@ -202,7 +202,7 @@ export async function dispatchIssueToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<AssetUri> {
   try {
 
@@ -211,12 +211,12 @@ export async function dispatchIssueToChain(
       authorAccount,
       authorizationUri,
       signCallback,
-      connName
+      network
     ) 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName}
+      { network}
     )
 
     return assetEntry.uri
@@ -234,10 +234,10 @@ export async function prepareVcExtrinsic(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
 
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
@@ -253,7 +253,7 @@ export async function prepareVcExtrinsic(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     return extrinsic
@@ -271,7 +271,7 @@ export async function dispatchIssueVcToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<AssetUri> {
   try {
 
@@ -280,12 +280,12 @@ export async function dispatchIssueVcToChain(
       authorAccount,
       authorizationUri, 
       signCallback,
-      connName
+      network
     ) 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     )
 
     return assetEntry.uri
@@ -302,10 +302,10 @@ export async function dispatchTransferToChain(
   assetEntry: IAssetTransfer,
   authorAccount: CordKeyringPair,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<AssetUri> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
 
     const tx = api.tx.asset.transfer(assetEntry.entry, assetEntry.digest)
 
@@ -315,13 +315,13 @@ export async function dispatchTransferToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     )
 
     return `${ASSET_PREFIX}${assetEntry.entry.assetId}:${assetEntry.entry.assetInstanceId}`
@@ -338,10 +338,10 @@ export async function dispatchTransferVcToChain(
   assetEntry: IAssetTransfer,
   authorAccount: CordKeyringPair,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<AssetUri> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
 
     const tx = api.tx.asset.vcTransfer(assetEntry.entry, assetEntry.digest)
 
@@ -351,13 +351,13 @@ export async function dispatchTransferVcToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     )
 
     return `${ASSET_PREFIX}${assetEntry.entry.assetId}:${assetEntry.entry.assetInstanceId}`
@@ -378,16 +378,16 @@ export async function dispatchAssetStatusChangeToChain(
   signCallback: SignExtrinsicCallback,
   opts: {
     assetInstanceId?: string,
-    connName?: string
+    network?: string
   }
 ): Promise<void> {
   try {
     let {
       assetInstanceId,
-      connName = 'api'
+      network = 'api'
     } = opts;
 
-    const api = ConfigService.get(connName);
+    const api = ConfigService.get(network);
     let tx;
     const assetId = uriToIdentifier(assetUri);
     const assetIssuerDid = Did.toChain(assetIssuerDidUri);
@@ -453,13 +453,13 @@ export async function dispatchAssetStatusChangeToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     );
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     );
   } catch (error) {
     const errorMessage =
@@ -478,16 +478,16 @@ export async function dispatchAssetStatusChangeVcToChain(
   signCallback: SignExtrinsicCallback,
   opts: {
     assetInstanceId?: string,
-    connName?: string
+    network?: string
   }
 ): Promise<void> {
   try {
     let {
       assetInstanceId,
-      connName = 'api'
+      network = 'api'
     } = opts;
 
-    const api = ConfigService.get(connName);
+    const api = ConfigService.get(network);
     let tx;
     const assetId = uriToIdentifier(assetUri);
     const assetIssuerDid = Did.toChain(assetIssuerDidUri);
@@ -552,13 +552,13 @@ export async function dispatchAssetStatusChangeVcToChain(
       signCallback,
       authorAccount.address,
       {}, 
-      connName
+      network
     );
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     );
   } catch (error) {
     const errorMessage =

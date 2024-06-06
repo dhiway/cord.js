@@ -64,7 +64,7 @@ import { SDKErrors, DecoderUtils, DataUtils } from '@cord.network/utils'
  * such as in verifying claims or during audits.
  *
  * @param ratingUri - The URI of the rating entry to be checked. This URI is used to identify the rating in the blockchain.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns - A promise that resolves to a boolean value:
  *    - `true` if the rating is found in the blockchain.
@@ -78,7 +78,7 @@ import { SDKErrors, DecoderUtils, DataUtils } from '@cord.network/utils'
  * const ratingUri = 'ratingUri123';
  *
  * try {
- *   const isStored = await isRatingStored(ratingUri, connName);
+ *   const isStored = await isRatingStored(ratingUri, network);
  *   console.log('Is the rating stored?', isStored);
  * } catch (error) {
  *   console.error('Error checking if rating is stored:', error);
@@ -86,10 +86,10 @@ import { SDKErrors, DecoderUtils, DataUtils } from '@cord.network/utils'
  */
 export async function isRatingStored(
   ratingUri: RatingEntryUri,
-  connName: string = 'api',
+  network: string = 'api',
 ): Promise<boolean> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const identifier = uriToIdentifier(ratingUri)
     const encoded = (await api.query.networkScore.ratingEntries(
       identifier
@@ -118,7 +118,7 @@ export async function isRatingStored(
  * @param authorAccount - The blockchain account of the author, used for signing the transaction.
  * @param authorizationUri - The URI that provides authorization context for the rating entry dispatch.
  * @param signCallback - A callback function for signing the extrinsic (blockchain transaction).
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns - A promise that resolves to the URI of the rating entry. If the entry was already on the chain, it returns the existing URI.
  *
@@ -134,7 +134,7 @@ export async function isRatingStored(
  * const signCallback = async (/* ... parameters ... *\/) => { /* ... signing logic ... *\/ };
  *
  * try {
- *   const entryUri = await dispatchRatingToChain(ratingEntry, authorAccount, authorizationUri, signCallback, connName);
+ *   const entryUri = await dispatchRatingToChain(ratingEntry, authorAccount, authorizationUri, signCallback, network);
  *   console.log('Dispatched Rating Entry URI:', entryUri);
  * } catch (error) {
  *   console.error('Error dispatching rating to chain:', error);
@@ -145,12 +145,12 @@ export async function dispatchRatingToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<RatingEntryUri> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
-    const exists = await isRatingStored(ratingEntry.entryUri, connName)
+    const exists = await isRatingStored(ratingEntry.entryUri, network)
     if (exists) {
       return ratingEntry.entryUri
     }
@@ -168,13 +168,13 @@ export async function dispatchRatingToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
       )
 
     return ratingEntry.entryUri
@@ -202,7 +202,7 @@ export async function dispatchRatingToChain(
  * @param authorAccount - The blockchain account of the author, used for transaction signing.
  * @param authorizationUri - The URI providing the authorization context for the revocation.
  * @param signCallback - A callback function for signing the extrinsic (blockchain transaction).
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns - A promise that resolves to the URI of the revoked rating entry.
  *
@@ -219,7 +219,7 @@ export async function dispatchRatingToChain(
  * const signCallback = async (/* ... parameters ... *\/) => { /* ... signing logic ... *\/ };
  *
  * try {
- *   const entryUri = await dispatchRevokeRatingToChain(ratingEntry, authorAccount, authorizationUri, signCallback, connName);
+ *   const entryUri = await dispatchRevokeRatingToChain(ratingEntry, authorAccount, authorizationUri, signCallback, network);
  *   console.log('Revoked Rating Entry URI:', entryUri);
  * } catch (error) {
  *   console.error('Error dispatching revocation to chain:', error);
@@ -230,16 +230,16 @@ export async function dispatchRevokeRatingToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<RatingEntryUri> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
 
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
     const exists = await isRatingStored(
       ratingEntry.entry.referenceId as RatingEntryUri,
-      connName
+      network
     )
 
     if (!exists) {
@@ -263,13 +263,13 @@ export async function dispatchRevokeRatingToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     )
 
     return ratingEntry.entryUri
@@ -297,7 +297,7 @@ export async function dispatchRevokeRatingToChain(
  * @param authorAccount - The blockchain account of the author, used for signing the transaction.
  * @param authorizationUri - The URI that provides authorization context for the rating revision dispatch.
  * @param signCallback - A callback function for signing the extrinsic (blockchain transaction).
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns - A promise that resolves to the URI of the revised rating entry.
  *                                      If the entry was already on the chain, it returns the existing URI.
@@ -315,7 +315,7 @@ export async function dispatchRevokeRatingToChain(
  * const signCallback = async (/* ... parameters ... *\/) => { /* ... signing logic ... *\/ };
  *
  * try {
- *   const entryUri = await dispatchReviseRatingToChain(revisedRatingEntry, authorAccount, authorizationUri, signCallback, connName);
+ *   const entryUri = await dispatchReviseRatingToChain(revisedRatingEntry, authorAccount, authorizationUri, signCallback, network);
  *   console.log('Revised Rating Entry URI:', entryUri);
  * } catch (error) {
  *   console.error('Error dispatching revised rating to chain:', error);
@@ -326,16 +326,16 @@ export async function dispatchReviseRatingToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<RatingEntryUri> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
     const refEntryId: RatingEntryId = uriToIdentifier(
       ratingEntry.entry.referenceId
     )
 
-    const exists = await isRatingStored(ratingEntry.entryUri, connName)
+    const exists = await isRatingStored(ratingEntry.entryUri, network)
     if (exists) {
       return ratingEntry.entryUri
     }
@@ -354,13 +354,13 @@ export async function dispatchReviseRatingToChain(
       signCallback,
       authorAccount.address,
       {}, 
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }
+      { network }
     )
 
     return ratingEntry.entryUri
@@ -524,7 +524,7 @@ function decodeEntryDetailsfromChain(
  *
  * @param ratingUri - The URI of the rating entry to be fetched from the blockchain.
  * @param [timeZone='GMT'] - The timezone to be used for date and time conversions (default is 'GMT').
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns - A promise that resolves to the decoded rating entry details or null if not found.
  *
@@ -532,7 +532,7 @@ function decodeEntryDetailsfromChain(
  * // Example usage of the function
  * const ratingUri = 'ratingUri123';
  *
- * fetchRatingDetailsfromChain(ratingUri, 'GMT', connName)
+ * fetchRatingDetailsfromChain(ratingUri, 'GMT', network)
  *   .then(entryDetails => {
  *     if (entryDetails) {
  *       console.log('Rating Entry Details:', entryDetails);
@@ -547,9 +547,9 @@ function decodeEntryDetailsfromChain(
 export async function fetchRatingDetailsfromChain(
   ratingUri: RatingEntryUri,
   timeZone = 'GMT',
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<IRatingChainStatus | null> {
-  const api = ConfigService.get(connName)
+  const api = ConfigService.get(network)
   const rtngId = uriToIdentifier(ratingUri)
 
   const chainEntry = await api.query.networkScore.ratingEntries(rtngId)
@@ -577,7 +577,7 @@ export async function fetchRatingDetailsfromChain(
  *
  * @param entity - The identifier of the entity for which aggregate scores are to be fetched.
  * @param [ratingType] - (Optional) The specific rating type to fetch the aggregate score for.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns - A promise that resolves to an array of aggregate score objects, or null if no data is found.
  *
@@ -586,7 +586,7 @@ export async function fetchRatingDetailsfromChain(
  * const entityId = 'entity123';
  * const ratingType = RatingTypeOf.overall;
  *
- * fetchEntityAggregateScorefromChain(entityId, ratingType, connName)
+ * fetchEntityAggregateScorefromChain(entityId, ratingType, network)
  *   .then(aggregateScores => {
  *     if (aggregateScores) {
  *       console.log('Aggregate Scores:', aggregateScores);
@@ -601,9 +601,9 @@ export async function fetchRatingDetailsfromChain(
 export async function fetchEntityAggregateScorefromChain(
   entity: string,
   ratingType?: RatingTypeOf,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<IAggregateScore[] | null> {
-  const api:ApiPromise = ConfigService.get(connName)
+  const api:ApiPromise = ConfigService.get(network)
   const decodedEntries: IAggregateScore[] = []
 
   if (ratingType !== undefined) {

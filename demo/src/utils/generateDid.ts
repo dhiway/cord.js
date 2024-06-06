@@ -4,19 +4,18 @@ import { mnemonicGenerate } from '@polkadot/util-crypto'
 /**
  * It creates a DID on chain, and returns the mnemonic and DID document
  * @param submitterAccount - The account that will be used to pay for the transaction.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns The mnemonic and the DID document.
  */
 export async function createDid(
   submitterAccount: Cord.CordKeyringPair,
-  connName: string = 'api',
+  network: string = 'api',
 ): Promise<{
   mnemonic: string
   document: Cord.DidDocument
 }> {
    
-  console.log("createDid", connName);
-  const api = Cord.ConfigService.get(connName);
+  const api = Cord.ConfigService.get(network);
 
   const mnemonic = mnemonicGenerate(24)
   const {
@@ -46,11 +45,10 @@ export async function createDid(
       signature: authentication.sign(data),
       keyType: authentication.type,
     }),
-    connName,
+    network,
   )
 
-  console.log("craeteDid2", connName);
-  await Cord.Chain.signAndSubmitTx(didCreationTx, submitterAccount, {connName});
+  await Cord.Chain.signAndSubmitTx(didCreationTx, submitterAccount, {network});
 
   const didUri = Cord.Did.getDidUriFromKey(authentication)
   const encodedDid = await api.call.didApi.query(Cord.Did.toChain(didUri))

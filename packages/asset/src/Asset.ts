@@ -41,11 +41,11 @@ export async function buildFromAssetProperties(
     assetInput: IAssetProperties,
     issuer: DidUri,
     spaceUri: SpaceUri,
-    connName: string = 'api'
+    network: string = 'api'
 ): Promise<IAssetEntry> {
   const entryDigest = Crypto.hashObjectAsHexStr(assetInput);
   //  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(entryDigest)]);
-  const api:ApiPromise = ConfigService.get(connName);
+  const api:ApiPromise = ConfigService.get(network);
 
   const scaleEncodedAssetDigest = api
     .createType<H256>("H256", entryDigest)
@@ -89,9 +89,9 @@ export async function buildFromIssueProperties(
   assetQty: number,
   issuer: DidUri,
   space: SpaceUri,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<IAssetIssuance> {
-  const api:ApiPromise = ConfigService.get(connName);
+  const api:ApiPromise = ConfigService.get(network);
 
   const issuanceEntry = {
     assetId: uriToIdentifier(assetUri),

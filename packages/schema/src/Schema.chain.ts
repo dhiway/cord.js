@@ -61,7 +61,7 @@ import { encodeCborSchema, verifyDataStructure } from './Schema.js'
  * This function queries the blockchain to determine whether the specified schema exists in the blockchain storage.
  *
  * @param schema - The schema object (`ISchema`) to be checked. It must contain a valid `$id` property.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise that resolves to a boolean value. It returns `true` if the schema is stored on the blockchain,
  *          and `false` if it is not.
@@ -78,9 +78,9 @@ import { encodeCborSchema, verifyDataStructure } from './Schema.js'
  */
 export async function isSchemaStored(
   schema: ISchema,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<boolean> {
-  const api = ConfigService.get(connName)
+  const api = ConfigService.get(network)
   const identifier = uriToIdentifier(schema.$id)
   const encoded = await api.query.schema.schemas(identifier)
 
@@ -100,7 +100,7 @@ export async function isSchemaStored(
  * @param creator - A decentralized identifier (DID) URI of the schema creator. This DID should be a valid identifier within the Cord network.
  * @param space - An identifier for the space (context or category) to which the schema belongs. This helps in categorizing
  *                 and organizing schemas within the network.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns An object containing the schema's unique URI and its digest. The `uri` is a string representing
  *          the unique URI of the schema, and `digest` is a cryptographic hash of the schema, space identifier, and creator's DID.
@@ -115,9 +115,9 @@ export function getUriForSchema(
   schema: ISchema | Omit<ISchema, '$id'>,
   creator: DidUri,
   space: SpaceId,
-  connName: string = 'api'
+  network: string = 'api'
 ): { uri: SchemaUri; digest: SchemaDigest } {
-  const api:ApiPromise = ConfigService.get(connName)
+  const api:ApiPromise = ConfigService.get(network)
   const serializedSchema = encodeCborSchema(schema)
   const digest = Crypto.hashStr(serializedSchema)
 
@@ -164,7 +164,7 @@ export function getUriForSchema(
  *        often associated with specific permissions.
  * @param signCallback - A callback function that handles the signing
  *        of the blockchain transaction (extrinsic).
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise that resolves to the unique ID of the dispatched schema
  *          upon successful processing by the blockchain.
@@ -184,7 +184,7 @@ export function getUriForSchema(
  *   const signCallback = (tx: any) => { /* signing logic };
  *
  *   try {
- *     const schemaId = await dispatchToChain(schema, authorAccount, creator, authorization, signCallback, connName);
+ *     const schemaId = await dispatchToChain(schema, authorAccount, creator, authorization, signCallback, network);
  *     console.log('Schema dispatched with ID:', schemaId);
  *   } catch (error) {
  *     console.error('Error dispatching schema:', error);
@@ -201,12 +201,12 @@ export async function dispatchToChain(
   authorAccount: CordKeyringPair,
   authorization: AuthorizationId,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<SchemaId> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
 
-    const exists = await isSchemaStored(schema, connName)
+    const exists = await isSchemaStored(schema, network)
     if (exists) {
       return schema.$id
     }
@@ -221,13 +221,13 @@ export async function dispatchToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic,
       authorAccount,
-      { connName }  
+      { network }  
     )
 
     return schema.$id
@@ -326,7 +326,7 @@ function fromChain(
  *
  * @param schemaUri - The unique identifier of the schema, formatted as a URI string.
  *        This ID is used to locate and retrieve the schema on the blockchain, ensuring accuracy in schema retrieval.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns - A promise that resolves to the schema details (`ISchemaDetails`)
  *          if found on the blockchain. If the schema is not present, the promise resolves to `null`.
@@ -345,7 +345,7 @@ function fromChain(
  * ```typescript
  * async function getSchemaDetails(schemaUri: string) {
  *   try {
- *     const schemaDetails = await fetchFromChain(schemaUri, connName);
+ *     const schemaDetails = await fetchFromChain(schemaUri, network);
  *     if (schemaDetails) {
  *       console.log('Fetched Schema Details:', schemaDetails);
  *     } else {
@@ -362,10 +362,10 @@ function fromChain(
  */
 export async function fetchFromChain(
   schemaUri: ISchema['$id'],
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<ISchemaDetails | null> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const cordSchemaId = uriToIdentifier(schemaUri)
 
     const schemaEntry = await api.query.schema.schemas(cordSchemaId)

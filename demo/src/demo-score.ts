@@ -12,9 +12,9 @@ async function main() {
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
-  let connName = "random";
-  await Cord.connect(networkAddress, connName);
-  const api = Cord.ConfigService.get(connName);
+  let network = "random";
+  await Cord.connect(networkAddress, network);
+  const api = Cord.ConfigService.get(network);
 
   console.log(`\n❄️   New Member\n`)
   const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
@@ -32,7 +32,7 @@ async function main() {
   console.log(`\n❄️   Demo Identities (KeyRing)\n`)
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
     authorIdentity,
-    connName
+    network
   )
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic)
   console.log(
@@ -41,7 +41,7 @@ async function main() {
 
   // Create Delegate One DID
   const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
-    await createDid(authorIdentity, connName)
+    await createDid(authorIdentity, network)
 
   const delegateOneKeys = Cord.Utils.Keys.generateKeypairs(delegateOneMnemonic)
 
@@ -116,14 +116,14 @@ async function main() {
       }),
       authorIdentity.address,
       {},
-      connName
+      network
     )
     console.log('\n', txRegistry)
     // Write to chain then return the Schema.
     await Cord.Chain.signAndSubmitTx(
       extrinsic,
       authorIdentity,
-      { connName }
+      { network }
     )
     registry = txRegistry
   }

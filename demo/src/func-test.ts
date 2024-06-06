@@ -24,9 +24,10 @@ async function main() {
     : 'ws://127.0.0.1:9944'
   //  const networkAddress = 'ws://127.0.0.1:9944'
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
-  let connName = "random";
-  await Cord.connect(networkAddress, connName);
-  const api = Cord.ConfigService.get(connName);
+  
+  let network = "api-1";
+  await Cord.connect(networkAddress, network);
+  const api = Cord.ConfigService.get(network);
 
   // Step 1: Setup Membership
   // Setup transaction author account - CORD Account.
@@ -41,20 +42,20 @@ async function main() {
   console.log(
     `🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`
   )
-  await addNetworkMember(authorityAuthorIdentity, authorityIdentity.address, connName)
-  await setRegistrar(authorityAuthorIdentity, authorityIdentity.address, connName)
+  await addNetworkMember(authorityAuthorIdentity, authorityIdentity.address, network)
+  await setRegistrar(authorityAuthorIdentity, authorityIdentity.address, network)
   console.log('✅ Network Authority created!')
 
   // Setup network member account.
   const { account: authorIdentity } = await createAccount()
   console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
-  await addNetworkMember(authorityAuthorIdentity, authorIdentity.address, connName)
+  await addNetworkMember(authorityAuthorIdentity, authorIdentity.address, network)
   console.log(`🔏  Member permissions updated`)
-  await setIdentity(authorIdentity, connName)
+  await setIdentity(authorIdentity, network)
   console.log(`🔏  Member identity info updated`)
-  await requestJudgement(authorIdentity, authorityIdentity.address, connName)
+  await requestJudgement(authorIdentity, authorityIdentity.address, network)
   console.log(`🔏  Member identity judgement requested`)
-  await provideJudgement(authorityIdentity, authorIdentity.address, connName)
+  await provideJudgement(authorityIdentity, authorIdentity.address, network)
   console.log(`🔏  Member identity judgement provided`)
   console.log('✅ Network Member added!')
 
@@ -64,7 +65,7 @@ async function main() {
   /* Creating the DIDs for the different parties involved in the demo. */
   // Create Verifier DID
   const { mnemonic: verifierMnemonic, document: verifierDid } =
-    await createDid(authorIdentity, connName)
+    await createDid(authorIdentity, network)
   const verifierKeys = Cord.Utils.Keys.generateKeypairs(
     verifierMnemonic,
     'sr25519'
@@ -74,14 +75,14 @@ async function main() {
   )
   // Create Holder DID
   const { mnemonic: holderMnemonic, document: holderDid } =
-    await createDid(authorIdentity, connName)
+    await createDid(authorIdentity, network)
   const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'sr25519')
   console.log(
     `👩‍⚕️  Holder (${holderDid.assertionMethod![0].type}): ${holderDid.uri}`
   )
   // Create issuer DID
   const { mnemonic: issuerMnemonic, document: issuerDid } =
-    await createDid(authorIdentity, connName)
+    await createDid(authorIdentity, network)
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')
   console.log(
     `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`
@@ -96,7 +97,7 @@ async function main() {
   })
   // Create Delegate One DID
   const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
-    await createDid(authorIdentity, connName)
+    await createDid(authorIdentity, network)
   const delegateOneKeys = Cord.Utils.Keys.generateKeypairs(
     delegateOneMnemonic,
     'sr25519'
@@ -108,7 +109,7 @@ async function main() {
   )
   // Create Delegate Two DID
   const { mnemonic: delegateTwoMnemonic, document: delegateTwoDid } =
-    await createDid(authorIdentity, connName)
+    await createDid(authorIdentity, network)
   const delegateTwoKeys = Cord.Utils.Keys.generateKeypairs(
     delegateTwoMnemonic,
     'sr25519'
@@ -120,7 +121,7 @@ async function main() {
   )
   // Create Delegate 3 DID
   const { mnemonic: delegate3Mnemonic, document: delegate3Did } =
-    await createDid(authorIdentity, connName)
+    await createDid(authorIdentity, network)
   const delegate3Keys = Cord.Utils.Keys.generateKeypairs(
     delegate3Mnemonic,
     'sr25519'
@@ -144,15 +145,15 @@ async function main() {
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.log(`✅ DID name - ${randomDidName} - created!`)
-  await getDidDocFromName(randomDidName, connName)
+  await getDidDocFromName(randomDidName, network)
 
   // Step 3: Create a new Chain Space
   console.log(`\n❄️  Chain Space Creation `)
   const spaceProperties = await Cord.ChainSpace.buildFromProperties(
-    issuerDid.uri, {connName}
+    issuerDid.uri, {network}
   )
   console.dir(spaceProperties, {
     depth: null,
@@ -168,7 +169,7 @@ async function main() {
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.dir(space, {
     depth: null,
@@ -181,13 +182,13 @@ async function main() {
     authorityAuthorIdentity,
     space.uri,
     1000,
-    connName
+    network
   )
   console.log(`✅  Chain Space Approved`)
 
   // Step 3.5: Subspace
   const subSpaceProperties = await Cord.ChainSpace.buildFromProperties(
-    issuerDid.uri, {connName}
+    issuerDid.uri, {network}
   )
   console.dir(subSpaceProperties, {
     depth: null,
@@ -203,7 +204,7 @@ async function main() {
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.dir(subSpace, {
     depth: null,
@@ -220,7 +221,7 @@ async function main() {
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.log(`\n❄️  SubSpace limit is updated`)
 
@@ -233,7 +234,7 @@ async function main() {
       delegateTwoDid.uri,
       permission,
       issuerDid.uri,
-      connName
+      network
     )
   console.dir(spaceAuthProperties, {
     depth: null,
@@ -248,7 +249,7 @@ async function main() {
       signature: issuerKeys.capabilityDelegation.sign(data),
       keyType: issuerKeys.capabilityDelegation.type,
     }),
-    connName
+    network
   )
   console.dir(delegateAuth, {
     depth: null,
@@ -257,7 +258,7 @@ async function main() {
   console.log(`✅ Space Authorization - ${delegateAuth} - added!`)
 
   console.log(`\n❄️  Query From Chain - Chain Space Details `)
-  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(space.uri, connName)
+  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(space.uri, network)
   console.dir(spaceFromChain, {
     depth: null,
     colors: true,
@@ -266,7 +267,7 @@ async function main() {
   console.log(`\n❄️  Query From Chain - Chain Space Authorization Details `)
   const spaceAuthFromChain = await Cord.ChainSpace.fetchAuthorizationFromChain(
     delegateAuth as Cord.AuthorizationUri,
-    connName
+    network
   )
   console.dir(spaceAuthFromChain, {
     depth: null,
@@ -284,7 +285,7 @@ async function main() {
     newSchemaContent,
     space.uri,
     issuerDid.uri,
-    connName
+    network
   )
   console.dir(schemaProperties, {
     depth: null,
@@ -299,13 +300,13 @@ async function main() {
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.log(`✅ Schema - ${schemaUri} - added!`)
 
   console.log(`\n❄️  Query From Chain - Schema `)
   const schemaFromChain = await Cord.Schema.fetchFromChain(
-    schemaProperties.schema.$id, connName
+    schemaProperties.schema.$id, network
   )
   console.dir(schemaFromChain, {
     depth: null,
@@ -331,7 +332,7 @@ async function main() {
     space.uri,
     issuerDid.uri,
     schemaUri as Cord.SchemaUri,
-    connName
+    network
   )
   console.dir(statementEntry, {
     depth: null,
@@ -347,7 +348,7 @@ async function main() {
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
     }),
-    connName
+    network
   )
 
   console.log(`✅ Statement element registered - ${statement}`)
@@ -380,7 +381,7 @@ async function main() {
       signature: delegateTwoKeys.authentication.sign(data),
       keyType: delegateTwoKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.log(`✅ Statement element registered - ${updatedStatement}`)
 
@@ -392,7 +393,7 @@ async function main() {
       creator: issuerDid.uri,
       spaceuri: space.uri,
       schemaUri: schemaUri as Cord.SchemaUri,
-      connName
+      network
     }
   )
 
@@ -409,7 +410,7 @@ async function main() {
       {
         creator: delegateTwoDid.uri,
         spaceuri: space.uri,
-        connName
+        network
       }
     )
 
@@ -433,7 +434,7 @@ async function main() {
       signature: delegateTwoKeys.authentication.sign(data),
       keyType: delegateTwoKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.log(`✅ Statement revoked!`)
 
@@ -444,7 +445,7 @@ async function main() {
     { 
       creator: issuerDid.uri,
       spaceuri: space.uri,
-      connName
+      network
     }
   )
 
@@ -468,7 +469,7 @@ async function main() {
       signature: delegateTwoKeys.authentication.sign(data),
       keyType: delegateTwoKeys.authentication.type,
     }),
-    connName
+    network
   )
   console.log(`✅ Statement revoked!`)
 
@@ -479,7 +480,7 @@ async function main() {
     {
       creator: delegateTwoDid.uri,
       spaceuri: space.uri,
-      connName
+      network
     }
   )
 
@@ -496,13 +497,13 @@ async function main() {
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
   .finally(async () => {
-      let connName = "random";
-      await Cord.disconnect(connName);
+      let network = "api-1";
+      await Cord.disconnect(network);
     });
 
 process.on('SIGINT', async () => {
   console.log('\nBye! 👋 👋 👋 \n')
-  let connName = "random";
-  await Cord.disconnect(connName);
+  let network = "api-1";
+  await Cord.disconnect(network);
   process.exit(0)
 })

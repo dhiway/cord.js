@@ -93,13 +93,13 @@ function increaseNonce(currentNonce: BN, increment = 1): BN {
  * Normally, this function should not be called directly by SDK users. Nevertheless, in advanced cases where there might be race conditions, this function can be used as the basis on which to build parallel operation queues.
  *
  * @param did The DID data.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns The next valid nonce, i.e., the nonce currently stored on the blockchain + 1, wrapping around the max value when reached.
  */
 export async function getNextNonce(
   did: DidUri,
-  connName: string = 'api'): Promise<BN> {
-  const api = ConfigService.get(connName)
+  network: string = 'api'): Promise<BN> {
+  const api = ConfigService.get(network)
   const queried = await api.query.did.did(toChain(did))
   const currentNonce = queried.isSome
     ? documentFromChain(queried).lastTxCounter
@@ -116,7 +116,7 @@ export async function getNextNonce(
  * @param submitterAccount The account to bind the DID operation to (to avoid MitM and replay attacks).
  * @param signingOptions The signing options.
  * @param signingOptions.txCounter The optional DID nonce to include in the operation signatures. By default, it uses the next value of the nonce stored on chain.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns The DID-signed submittable extrinsic.
  */
 export async function authorizeTx(
@@ -129,23 +129,22 @@ export async function authorizeTx(
   }: {
     txCounter?: BN
   } = {}, 
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   const keyRelationship = getKeyRelationshipForTx(extrinsic)
   if (keyRelationship === undefined) {
     throw new SDKErrors.SDKError('No key relationship found for extrinsic')
   }
-  console.log("authorizeTx", connName);
 
   return generateDidAuthenticatedTx({
     did,
     keyRelationship,
     sign,
     call: extrinsic,
-    txCounter: txCounter || (await getNextNonce(did, connName)),
+    txCounter: txCounter || (await getNextNonce(did, network)),
     submitter: submitterAccount,
     },
-    connName
+    network
   )
 }
 
@@ -200,7 +199,7 @@ function groupExtrinsicsByKeyRelationship(
  * @param input.sign The callback to sign the operation.
  * @param input.submitter The account to bind the DID operation to (to avoid MitM and replay attacks).
  * @param input.nonce The optional nonce to use for the first batch, next batches will use incremented value.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns The DID-signed submittable extrinsic.
  */
@@ -219,7 +218,7 @@ export async function authorizeBatch({
   sign: SignExtrinsicCallback
   submitter: CordAddress,
 },
-  connName: string = 'api'
+  network: string = 'api'
   ): Promise<SubmittableExtrinsic> {
   if (extrinsics.length === 0) {
     throw new SDKErrors.DidBatchError(
@@ -234,7 +233,7 @@ export async function authorizeBatch({
   }
 
   const groups = groupExtrinsicsByKeyRelationship(extrinsics)
-  const firstNonce = nonce || (await getNextNonce(did, connName))
+  const firstNonce = nonce || (await getNextNonce(did, network))
 
   const promises = groups.map(async (group, batchIndex) => {
     const list = group.extrinsics
@@ -251,7 +250,7 @@ export async function authorizeBatch({
       txCounter,
       submitter,
       },
-      connName
+      network
       )
   })
   const batches = await Promise.all(promises)

@@ -43,5 +43,5 @@ export type VerifyAgainstPropertiesOptions = {
   creator?: DidUri;
   spaceuri?: SpaceUri;
   schemaUri?: SchemaUri;
-  connName?: string;
+  network?: string;
 };

@@ -104,7 +104,7 @@ export function verifyDataStructure(input: IStatementEntry): void {
  * @param spaceUri - The URI of the ChainSpace associated with the statement.
  * @param creatorUri - The DID URI of the statement's creator.
  * @param schemaUri - (Optional) The URI of the schema linked to the statement. Defaults to `undefined` if not provided.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A fully constructed `IStatementEntry` object.
  *
@@ -114,7 +114,7 @@ export function verifyDataStructure(input: IStatementEntry): void {
  * const spaceUri = 'space:cord:example_uri';
  * const creatorUri = 'did:cord:creator_uri';
  * const schemaUri = 'schema:cord:schema_uri';
- * const statementEntry = buildFromProperties(digest, spaceUri, creatorUri, schemaUri, connName);
+ * const statementEntry = buildFromProperties(digest, spaceUri, creatorUri, schemaUri, network);
  * console.log('Statement Entry:', statementEntry);
  * ```
  *
@@ -131,13 +131,13 @@ export function buildFromProperties(
   spaceUri: SpaceUri,
   creatorUri: DidUri,
   schemaUri?: SchemaUri,
-  connName: string = 'api'
+  network: string = 'api'
 ): IStatementEntry {
   const stmtUri = getUriForStatement(
     digest,
     spaceUri,
     creatorUri,
-    connName
+    network
   )
 
   const statement: IStatementEntry = {
@@ -238,7 +238,7 @@ export function isIStatement(input: unknown): input is IStatementEntry {
  * const creatorUri = 'did:cord:creator_uri';
  * const spaceUri = 'space:cord:example_uri';
  * const schemaUri = 'schema:cord:schema_uri';
- * verifyAgainstProperties(stmtUri, digest, { creatorUri, spaceUri, schemaUri, connName} )
+ * verifyAgainstProperties(stmtUri, digest, { creatorUri, spaceUri, schemaUri, network} )
  *   .then(result => {
  *     console.log('Verification result:', result);
  *   })
@@ -262,12 +262,10 @@ export async function verifyAgainstProperties(
       creator,
       spaceuri,
       schemaUri,
-      connName = 'api'
+      network = 'api'
     } = opts;
 
-    console.log("verifyAgainstProperties", connName)
-
-    const statementStatus = await fetchStatementDetailsfromChain(stmtUri, connName)
+    const statementStatus = await fetchStatementDetailsfromChain(stmtUri, network)
 
     if (!statementStatus) {
       return {

@@ -52,10 +52,10 @@ import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
  * creator's DID URI and an optional custom description.
  *
  * @param creatorUri - The decentralized identifier (DID) URI of the entity creating the ChainSpace.
- * @param opts - Optional parameters including chainSpaceDesc & connName options. 
+ * @param opts - Optional parameters including chainSpaceDesc & network options. 
  * @param opts.chainSpaceDesc - (Optional) A custom description to represent the ChainSpace. If not provided, a default
  *        description is generated, incorporating a unique UUID.
- * @param opts.connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param opts.network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns A promise that resolves to an IChainSpace object, encompassing the ChainSpace's identifier, description, hash digest,
  *          creator's DID, and authorization URI.
  *
@@ -64,7 +64,7 @@ import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
  * const creatorUri = 'did:cord:creator';
  * const customDesc = 'MyCustomChainSpace';
  *
- * buildFromProperties(creatorUri, {customDesc, connName}).then(chainSpace => {
+ * buildFromProperties(creatorUri, {customDesc, network}).then(chainSpace => {
  *   console.log('Created ChainSpace URI:', chainSpace.uri);
  * }).catch(error => {
  *   console.error('Error creating ChainSpace:', error);
@@ -75,11 +75,10 @@ export async function buildFromProperties(
   creatorUri: DidUri,
   {
     chainSpaceDesc,
-    connName = 'api'
-  }: Partial<{ chainSpaceDesc: string, connName: string }> = {}
+    network = 'api'
+  }: Partial<{ chainSpaceDesc: string, network: string }> = {}
 ): Promise<IChainSpace> {
 
-  console.log("buildFromProperties", connName, chainSpaceDesc);
   const chainSpaceDescription =
     chainSpaceDesc || `ChainSpace v1.${UUID.generate()}`
 
@@ -88,7 +87,7 @@ export async function buildFromProperties(
   const { uri, authorizationUri } = await getUriForSpace(
     chainSpaceHash,
     creatorUri,
-    connName
+    network
   )
 
   return {
@@ -112,7 +111,7 @@ export async function buildFromProperties(
  * @param delegateUri - The decentralized identifier (DID) URI of the delegate, the entity being authorized.
  * @param permission - The type of permission being granted to the delegate, defining their role and actions within the ChainSpace.
  * @param creatorUri - The DID URI of the ChainSpace's creator or owner, responsible for authorizing the delegate.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  * @returns A promise that resolves to an ISpaceAuthorization object, encapsulating the details of the granted authorization.
  *
  * @example
@@ -122,7 +121,7 @@ export async function buildFromProperties(
  * const permission = PermissionType.EXAMPLE_PERMISSION;
  * const creatorUri = 'did:example:creatorUri';
  *
- * buildFromAuthorizationProperties(spaceUri, delegateUri, permission, creatorUri, connName)
+ * buildFromAuthorizationProperties(spaceUri, delegateUri, permission, creatorUri, network)
  *   .then(spaceAuth => {
  *     console.log('Authorization URI:', spaceAuth.authorizationUri);
  *   })
@@ -136,13 +135,13 @@ export async function buildFromAuthorizationProperties(
   delegateUri: DidUri,
   permission: PermissionType,
   creatorUri: DidUri,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<ISpaceAuthorization> {
   const authorizationUri = (await getUriForAuthorization(
     spaceUri,
     delegateUri,
     creatorUri,
-    connName
+    network
   )) as AuthorizationUri
 
   return {

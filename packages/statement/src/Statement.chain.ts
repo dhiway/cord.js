@@ -81,7 +81,7 @@ import { blake2AsHex, H256 } from '@cord.network/types'
  *
  * @param digest - The hexadecimal string representing the digest of the statement to check.
  * @param spaceUri - The unique identifier of the space where the statement is expected to be stored.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise that resolves to `true` if the statement is stored, or `false` otherwise.
  *
@@ -90,7 +90,7 @@ import { blake2AsHex, H256 } from '@cord.network/types'
  * const digest = '0x1234abcd...';
  * const spaceUri = 'space:cord:example_uri';
  *
- * isStatementStored(digest, spaceUri, connName)
+ * isStatementStored(digest, spaceUri, network)
  *   .then(isStored => {
  *     if (isStored) {
  *       console.log('Statement is stored on the blockchain.');
@@ -106,9 +106,9 @@ import { blake2AsHex, H256 } from '@cord.network/types'
 export async function isStatementStored(
   digest: HexString,
   spaceUri: SpaceId,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<boolean> {
-  const api = ConfigService.get(connName)
+  const api = ConfigService.get(network)
   const space = uriToIdentifier(spaceUri)
   const encoded = await api.query.statement.identifierLookup(digest, space)
 
@@ -126,7 +126,7 @@ export async function isStatementStored(
  * @param digest - The hexadecimal string representing the digest of the statement.
  * @param spaceUri - The unique identifier of the space related to the statement.
  * @param creatorUri - The decentralized identifier (DID) URI of the creator of the statement.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns The unique URI that represents the statement on the blockchain.
  *
@@ -136,7 +136,7 @@ export async function isStatementStored(
  * const spaceUri = 'space:cord:example_uri';
  * const creatorUri = 'did:cord:creator_uri';
  *
- * const statementUri = getUriForStatement(digest, spaceUri, creatorUri, connName);
+ * const statementUri = getUriForStatement(digest, spaceUri, creatorUri, network);
  * console.log('Statement URI:', statementUri);
  * ```
  *
@@ -146,9 +146,9 @@ export function getUriForStatement(
   digest: HexString,
   spaceUri: SpaceUri,
   creatorUri: DidUri,
-  connName: string = 'api'
+  network: string = 'api'
 ): StatementUri {
-  const api:ApiPromise = ConfigService.get(connName)
+  const api:ApiPromise = ConfigService.get(network)
 
   const scaleEncodedSchema = api.createType<H256>('H256', digest).toU8a()
   const scaleEncodedSpace = api
@@ -187,7 +187,7 @@ export function getUriForStatement(
  * @param authorAccount - The blockchain account used to sign and submit the transaction.
  * @param authorizationUri - The URI of the authorization used for the statement.
  * @param signCallback - A callback function that handles the signing of the transaction.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns The element URI of the registered statement.
  *
@@ -204,7 +204,7 @@ export function getUriForStatement(
  * const authorizationUri = 'auth:cord:example_uri';
  * const signCallback = // ... implementation ...
  *
- * dispatchRegisterToChain(stmtEntry, creatorUri, authorAccount, authorizationUri, signCallback, connName)
+ * dispatchRegisterToChain(stmtEntry, creatorUri, authorAccount, authorizationUri, signCallback, network)
  *   .then(statementUri => {
  *     console.log('Statement registered with URI:', statementUri);
  *   })
@@ -219,7 +219,7 @@ export async function dispatchRegisterToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<StatementUri> {
   try {
     const tx = await prepareExtrinsicToRegister(
@@ -228,10 +228,10 @@ export async function dispatchRegisterToChain(
       authorAccount,
       authorizationUri,
       signCallback,
-      connName
+      network
     )
 
-    await Chain.signAndSubmitTx(tx, authorAccount, { connName })
+    await Chain.signAndSubmitTx(tx, authorAccount, { network })
 
     return stmtEntry.elementUri
   } catch (error) {
@@ -265,7 +265,7 @@ export async function dispatchRegisterToChain(
  * submitted to the blockchain. This function typically takes care of the signing process using the
  * private key of the account that is authorizing the transaction.
  * 
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns A `SubmittableExtrinsic` is being returned from the `prepareExtrinsic` function.
  */
@@ -275,17 +275,17 @@ export async function prepareExtrinsicToRegister(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
     const schemaId =
       stmtEntry.schemaUri !== undefined
         ? stmtEntry.schemaUri && uriToIdentifier(stmtEntry.schemaUri)
         : undefined
 
-    const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri, connName)
+    const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri, network)
 
     if (exists) {
       throw new SDKErrors.DuplicateStatementError(
@@ -303,7 +303,7 @@ export async function prepareExtrinsicToRegister(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     return extrinsic
@@ -331,7 +331,7 @@ export async function prepareExtrinsicToRegister(
  * @param authorAccount - The blockchain account used to sign and submit the transaction.
  * @param authorizationUri - The URI of the authorization used for the statement.
  * @param signCallback - A callback function that handles the signing of the transaction.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns The element URI of the updated statement.
  *
@@ -348,7 +348,7 @@ export async function prepareExtrinsicToRegister(
  * const authorizationUri = 'auth:cord:example_uri';
  * const signCallback = // ... implementation ...
  *
- * dispatchUpdateToChain(stmtEntry, creatorUri, authorAccount, authorizationUri, signCallback, connName)
+ * dispatchUpdateToChain(stmtEntry, creatorUri, authorAccount, authorizationUri, signCallback, network)
  *   .then(statementUri => {
  *     console.log('Statement updated with URI:', statementUri);
  *   })
@@ -363,13 +363,13 @@ export async function dispatchUpdateToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<StatementUri> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
-    const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri, connName)
+    const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri, network)
 
     if (exists) {
       return stmtEntry.elementUri
@@ -388,13 +388,13 @@ export async function dispatchUpdateToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic, 
       authorAccount, 
-      { connName }
+      { network }
     )
 
     return stmtEntry.elementUri
@@ -430,7 +430,7 @@ export async function dispatchUpdateToChain(
  * submitting it to the chain. This callback function typically takes care of signing the transaction
  * using the private key of the account associated with the author of the statement.
  * 
- * @param connName - An optional chain connection object to be used to connect to a particular chain.
+ * @param network - An optional chain connection object to be used to connect to a particular chain.
  * Defaults to 'api'. 
  * 
  */
@@ -440,7 +440,7 @@ export async function dispatchRevokeToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<void> {
   try {
     const tx = await prepareExtrinsicToRevoke(
@@ -449,13 +449,13 @@ export async function dispatchRevokeToChain(
       authorAccount,
       authorizationUri,
       signCallback,
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       tx,
       authorAccount,
-      { connName }
+      { network }
     )
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
@@ -478,7 +478,7 @@ export async function dispatchRevokeToChain(
  * @param authorAccount - The blockchain account used to sign and submit the transaction.
  * @param authorizationUri - The URI of the authorization used for the statement.
  * @param signCallback - A callback function that handles the signing of the transaction.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise that resolves once the transaction is successfully processed.
  *
@@ -493,7 +493,7 @@ export async function dispatchRevokeToChain(
  * const authorizationUri = 'auth:cord:example_uri';
  * const signCallback = // ... implementation ...
  *
- * dispatchRevokeToChain(statementUri, creatorUri, authorAccount, authorizationUri, signCallback, connName)
+ * dispatchRevokeToChain(statementUri, creatorUri, authorAccount, authorizationUri, signCallback, network)
  *   .then(() => {
  *     console.log('Statement successfully revoked.');
  *   })
@@ -508,10 +508,10 @@ export async function prepareExtrinsicToRevoke(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
     const stmtIdDigest = uriToStatementIdAndDigest(statementUri)
@@ -525,7 +525,7 @@ export async function prepareExtrinsicToRevoke(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     return extrinsic
@@ -550,7 +550,7 @@ export async function prepareExtrinsicToRevoke(
  * @param authorAccount - The blockchain account used to sign and submit the transaction.
  * @param authorizationUri - The URI of the authorization used for the statement.
  * @param signCallback - A callback function that handles the signing of the transaction.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise that resolves once the transaction is successfully processed.
  *
@@ -565,7 +565,7 @@ export async function prepareExtrinsicToRevoke(
  * const authorizationUri = 'auth:cord:example_uri';
  * const signCallback = // ... implementation ...
  *
- * dispatchRestoreToChain(statementUri, creatorUri, authorAccount, authorizationUri, signCallback, connName)
+ * dispatchRestoreToChain(statementUri, creatorUri, authorAccount, authorizationUri, signCallback, network)
  *   .then(() => {
  *     console.log('Statement successfully restored.');
  *   })
@@ -580,10 +580,10 @@ export async function dispatchRestoreToChain(
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
   signCallback: SignExtrinsicCallback,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<void> {
   try {
-    const api = ConfigService.get(connName)
+    const api = ConfigService.get(network)
     const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
     const stmtIdDigest = uriToStatementIdAndDigest(statementUri)
@@ -597,13 +597,13 @@ export async function dispatchRestoreToChain(
       signCallback,
       authorAccount.address,
       {},
-      connName
+      network
     )
 
     await Chain.signAndSubmitTx(
       extrinsic, 
       authorAccount,
-      { connName} 
+      { network} 
     )
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
@@ -665,7 +665,7 @@ export function decodeStatementDetailsfromChain(
  * It returns the detailed information of the statement, including its digest, space URI, and schema URI.
  *
  * @param identifier - The unique identifier of the statement whose details are being fetched.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise that resolves to an `IStatementDetails` object containing detailed information about the statement,
  *          or `null` if the statement is not found.
@@ -675,7 +675,7 @@ export function decodeStatementDetailsfromChain(
  * @example
  * ```typescript
  * const statementId = 'example_identifier';
- * getDetailsfromChain(statementId, connName)
+ * getDetailsfromChain(statementId, network)
  *   .then(statementDetails => {
  *     console.log('Statement Details:', statementDetails);
  *   })
@@ -688,9 +688,9 @@ export function decodeStatementDetailsfromChain(
  */
 export async function getDetailsfromChain(
   identifier: string,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<IStatementDetails | null> {
-  const api = ConfigService.get(connName)
+  const api = ConfigService.get(network)
   const statementId = uriToIdentifier(identifier)
 
   const statementEntry = await api.query.statement.statements(statementId)
@@ -716,7 +716,7 @@ export async function getDetailsfromChain(
  * digest, space URI, creator URI, schema URI (if applicable), and revocation status.
  *
  * @param stmtUri - The URI of the statement whose status is being fetched.
- * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * 
  * @returns A promise that resolves to an `IStatementStatus` object containing the statement's details,
  *          or `null` if the statement is not found.
@@ -726,7 +726,7 @@ export async function getDetailsfromChain(
  * @example
  * ```typescript
  * const statementUri = 'stmt:cord:example_uri';
- * fetchStatementStatusfromChain(statementUri, connName)
+ * fetchStatementStatusfromChain(statementUri, network)
  *   .then(statementStatus => {
  *     console.log('Statement Status:', statementStatus);
  *   })
@@ -737,12 +737,12 @@ export async function getDetailsfromChain(
  */
 export async function fetchStatementDetailsfromChain(
   stmtUri: StatementUri,
-  connName: string = 'api'
+  network: string = 'api'
 ): Promise<IStatementStatus | null> {
-  const api = ConfigService.get(connName)
+  const api = ConfigService.get(network)
   const { identifier, digest } = uriToStatementIdAndDigest(stmtUri)
 
-  const statementDetails = await getDetailsfromChain(identifier, connName)
+  const statementDetails = await getDetailsfromChain(identifier, network)
   if (statementDetails === null) {
     throw new SDKErrors.StatementError(
       `There is no statement with the provided ID "${identifier}" present on the chain.`
