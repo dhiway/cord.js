@@ -217,6 +217,8 @@ export function verifyObjectAgainstSchema(
  *                          to generate the expected schema identifier.
  * @param space - An identifier for the space (context or category) associated with the schema.
  *                         This parameter is part of the criteria for generating the expected schema identifier.
+ * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+
  *
  * @throws {SDKErrors.SchemaIdMismatchError} Throws an error if the actual schema identifier ($id) does not
  *         match the expected identifier derived from the schema content, creator's DID, and space identifier.
@@ -228,10 +230,11 @@ export function verifyObjectAgainstSchema(
 export function verifySchemaStructure(
   input: ISchema,
   creator: DidUri,
-  space: SpaceId
+  space: SpaceId,
+  connName: string = 'api'
 ): void {
   verifyObjectAgainstSchema(input, SchemaModel)
-  const uriFromSchema = getUriForSchema(input, creator, space)
+  const uriFromSchema = getUriForSchema(input, creator, space, connName)
   if (uriFromSchema.uri !== input.$id) {
     throw new SDKErrors.SchemaIdMismatchError(uriFromSchema.uri, input.$id)
   }
@@ -285,6 +288,8 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  *
  * @param spaceUri
  * @param creatorUri
+ * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns - A fully constructed schema object including the schema itself, its cryptographic
  *          digest, the space identifier, and the creator's DID. This object can be utilized for data validation
  *          and various other purposes, serving as a cornerstone in data structuring and management.
@@ -307,7 +312,7 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
  * const spaceId = 'exampleSpaceId';
  *
  * try {
- *   const { schema, digest, space, creator } = buildFromProperties(properties, creatorDid, spaceId);
+ *   const { schema, digest, space, creator } = buildFromProperties(properties, spaceUri, creatorUri, connName);
  *   console.log('Constructed Schema:', schema);
  *   console.log('Schema Digest:', digest);
  *   console.log('Space ID:', space);
@@ -320,13 +325,19 @@ export function verifySchemaMetadata(metadata: ISchemaMetadata): void {
 export function buildFromProperties(
   schema: ISchema,
   spaceUri: SpaceUri,
-  creatorUri: DidUri
+  creatorUri: DidUri,
+  connName: string = 'api'
 ): ISchemaDetails {
   const { $id, ...uriSchema } = schema
   uriSchema.additionalProperties = false
   uriSchema.$schema = SchemaModelV1.$id
 
-  const { uri, digest } = getUriForSchema(uriSchema, creatorUri, spaceUri)
+  const { uri, digest } = getUriForSchema(
+    uriSchema,
+    creatorUri,
+    spaceUri,
+    connName
+  )
 
   const schemaType = {
     $id: uri,
@@ -339,7 +350,7 @@ export function buildFromProperties(
     spaceUri,
     creatorUri,
   }
-  verifySchemaStructure(schemaType, creatorUri, spaceUri)
+  verifySchemaStructure(schemaType, creatorUri, spaceUri, connName)
   return schemaDetails
 }
 

@@ -4,11 +4,14 @@ import * as Cord from '@cord.network/sdk'
 /**
  * It queries the owner of the provided DID name, and then prints the URI of the DID document
  * @param didName - The DID name to resolve.
+ * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  */
 export async function getDidDocFromName(
-  didName: Cord.Did.DidName
+  didName: Cord.Did.DidName,
+  connName: string = 'api'
 ): Promise<void> {
-  const api = Cord.ConfigService.get('api')
+  const api = Cord.ConfigService.get(connName)
   console.log(`\n❄️  Resolve DID name ${didName} `)
 
   // Query the owner of the provided didName.

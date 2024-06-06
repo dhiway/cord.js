@@ -35,6 +35,7 @@ import type {
   DidUri,
   StatementUri,
   PartialStatementEntry,
+  VerifyAgainstPropertiesOptions
 } from '@cord.network/types'
 import { DataUtils, SDKErrors } from '@cord.network/utils'
 import { checkIdentifier, updateStatementUri } from '@cord.network/identifier'
@@ -103,6 +104,8 @@ export function verifyDataStructure(input: IStatementEntry): void {
  * @param spaceUri - The URI of the ChainSpace associated with the statement.
  * @param creatorUri - The DID URI of the statement's creator.
  * @param schemaUri - (Optional) The URI of the schema linked to the statement. Defaults to `undefined` if not provided.
+ * @param connName - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns A fully constructed `IStatementEntry` object.
  *
  * @example
@@ -111,7 +114,7 @@ export function verifyDataStructure(input: IStatementEntry): void {
  * const spaceUri = 'space:cord:example_uri';
  * const creatorUri = 'did:cord:creator_uri';
  * const schemaUri = 'schema:cord:schema_uri';
- * const statementEntry = buildFromProperties(digest, spaceUri, creatorUri, schemaUri);
+ * const statementEntry = buildFromProperties(digest, spaceUri, creatorUri, schemaUri, connName);
  * console.log('Statement Entry:', statementEntry);
  * ```
  *
@@ -127,9 +130,15 @@ export function buildFromProperties(
   digest: HexString,
   spaceUri: SpaceUri,
   creatorUri: DidUri,
-  schemaUri?: SchemaUri
+  schemaUri?: SchemaUri,
+  connName: string = 'api'
 ): IStatementEntry {
-  const stmtUri = getUriForStatement(digest, spaceUri, creatorUri)
+  const stmtUri = getUriForStatement(
+    digest,
+    spaceUri,
+    creatorUri,
+    connName
+  )
 
   const statement: IStatementEntry = {
     elementUri: stmtUri,
@@ -216,9 +225,10 @@ export function isIStatement(input: unknown): input is IStatementEntry {
  *
  * @param stmtUri - The URI of the statement to be verified.
  * @param digest - The hexadecimal string representing the digest of the statement.
- * @param creator - (Optional) The DID URI of the statement's creator for verification.
- * @param spaceuri - (Optional) The URI of the ChainSpace associated with the statement for verification.
- * @param schemaUri - (Optional) The URI of the schema linked to the statement for verification.
+ * @param opts - (Optional) Object consisting of additional properties for matching of entry in blockchain.
+ * @param opts.creator - (Optional) The DID URI of the statement's creator for verification.
+ * @param opts.spaceuri - (Optional) The URI of the ChainSpace associated with the statement for verification.
+ * @param opts.schemaUri - (Optional) The URI of the schema linked to the statement for verification.
  * @returns A promise that resolves to an object with `isValid` flag and `message`. The `isValid` flag indicates whether the verification was successful, and the `message` provides details or error information.
  *
  * @example
@@ -228,7 +238,7 @@ export function isIStatement(input: unknown): input is IStatementEntry {
  * const creatorUri = 'did:cord:creator_uri';
  * const spaceUri = 'space:cord:example_uri';
  * const schemaUri = 'schema:cord:schema_uri';
- * verifyAgainstProperties(stmtUri, digest, creatorUri, spaceUri, schemaUri)
+ * verifyAgainstProperties(stmtUri, digest, { creatorUri, spaceUri, schemaUri, connName} )
  *   .then(result => {
  *     console.log('Verification result:', result);
  *   })
@@ -245,12 +255,19 @@ export function isIStatement(input: unknown): input is IStatementEntry {
 export async function verifyAgainstProperties(
   stmtUri: StatementUri,
   digest: HexString,
-  creator?: DidUri,
-  spaceuri?: SpaceUri,
-  schemaUri?: SchemaUri
+  opts: VerifyAgainstPropertiesOptions = {}
 ): Promise<{ isValid: boolean; message: string }> {
   try {
-    const statementStatus = await fetchStatementDetailsfromChain(stmtUri)
+    const {
+      creator,
+      spaceuri,
+      schemaUri,
+      connName = 'api'
+    } = opts;
+
+    console.log("verifyAgainstProperties", connName)
+
+    const statementStatus = await fetchStatementDetailsfromChain(stmtUri, connName)
 
     if (!statementStatus) {
       return {

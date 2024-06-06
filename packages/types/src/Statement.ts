@@ -38,3 +38,10 @@ export interface IStatementStatus {
   schemaUri?: string | undefined
   revoked: boolean
 }
+
+export type VerifyAgainstPropertiesOptions = {
+  creator?: DidUri;
+  spaceuri?: SpaceUri;
+  schemaUri?: SchemaUri;
+  connName?: string;
+};

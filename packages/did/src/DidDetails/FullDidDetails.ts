@@ -252,7 +252,7 @@ export async function authorizeBatch({
       submitter,
       },
       connName
-    )
+      )
   })
   const batches = await Promise.all(promises)
 
