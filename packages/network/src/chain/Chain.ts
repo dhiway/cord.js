@@ -162,12 +162,15 @@ export async function getMaxBatchable(
  *
  * @param tx The SubmittableExtrinsic to be submitted. Most transactions need to be signed, this must be done beforehand.
  * @param opts Allows overwriting criteria for resolving/rejecting the transaction result subscription promise. These options take precedent over configuration via the ConfigService.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
+ * 
  * @returns A promise which can be used to track transaction status.
  * If resolved, this promise returns ISubmittableResult that has led to its resolution.
  */
 export async function submitSignedTx(
   tx: SubmittableExtrinsic,
-  opts: Partial<SubscriptionPromise.Options> = {}
+  opts: Partial<SubscriptionPromise.Options> = {},
+  network: string = 'api'
 ): Promise<ISubmittableResult> {
   const {
     resolveOn = defaultResolveOn(),
@@ -175,7 +178,7 @@ export async function submitSignedTx(
       EXTRINSIC_FAILED(result) || IS_ERROR(result),
   } = opts
 
-  const api = ConfigService.get('api')
+  const api = ConfigService.get(network)
   if (!api.hasSubscriptions) {
     throw new SDKErrors.SubscriptionsNotSupportedError()
   }
@@ -223,8 +226,10 @@ export const dispatchTx = submitSignedTx
  *
  * @param tx The generated unsigned SubmittableExtrinsic to submit.
  * @param signer The [[CordKeyringPair]] used to sign the tx.
- * @param opts - Optional parameters including nonce and subscription options.
+ * @param opts - Optional parameters including nonce, network and subscription options.
  * @param opts.nonce Optional nonce value for the transaction.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
+ * 
  * @returns Promise result of executing the extrinsic, of type ISubmittableResult.
  */
 export async function signAndSubmitTx(
@@ -232,9 +237,10 @@ export async function signAndSubmitTx(
   signer: KeyringPair,
   {
     nonce = -1,
+    network = 'api',
     ...opts
-  }: Partial<SubscriptionPromise.Options> & Partial<{ nonce: AnyNumber }> = {}
+  }: Partial<SubscriptionPromise.Options> & Partial<{ nonce: AnyNumber }> & Partial<{ network: string }>= {},
 ): Promise<ISubmittableResult> {
   const signedTx = await tx.signAsync(signer, { nonce })
-  return submitSignedTx(signedTx, opts)
+  return submitSignedTx(signedTx, opts, network)
 }

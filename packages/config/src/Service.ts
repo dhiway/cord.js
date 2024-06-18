@@ -55,7 +55,7 @@ let configuration: Partial<configOpts> = { ...defaultConfig }
 export function get<K extends keyof configOpts>(configOpt: K): configOpts[K] {
   if (typeof configuration[configOpt] === 'undefined') {
     switch (configOpt) {
-      case 'api':
+      case configOpt:
         throw new SDKErrors.BlockchainApiMissingError()
       default:
         throw new Error(`GENERIC NOT CONFIGURED ERROR FOR KEY: "${configOpt}"`)

@@ -57,6 +57,7 @@ import type {
   SpaceId,
   HexString,
   DidSignature,
+  ApiPromise,
 } from '@cord.network/types'
 import {
   isDidSignature,
@@ -164,6 +165,8 @@ async function digestSignature(
  * @param entryMsgId - The message ID associated with the rating entry.
  * @param chainSpace - The identifier of the chain space where the rating is stored.
  * @param providerUri - The DID URI of the provider associated with the rating entry.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns A promise that resolves to the unique URI of the rating entry.
  *
  * @throws {Error} Throws an error if there's an issue with generating the URI.
@@ -175,9 +178,10 @@ export async function getUriForRatingEntry(
   entityId: string,
   entryMsgId: string,
   chainSpace: SpaceId,
-  providerUri: DidUri
+  providerUri: DidUri,
+  network: string = 'api'
 ): Promise<RatingEntryUri> {
-  const api = ConfigService.get('api')
+  const api: ApiPromise = ConfigService.get(network)
   const scaleEncodedRatingEntryDigest = api
     .createType<H256>('H256', entryDigest)
     .toU8a()
@@ -261,6 +265,8 @@ function validateHexString(entryDigest: string): void {
  * @param providerUri - The DID URI of the provider associated with the rating entry.
  * @param authorUri - The DID URI of the author who signed the rating entry.
  * @param authorSig - The digital signature of the author.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns A promise that resolves to an object containing the rating entry URI and its details.
  *
  * @internal
@@ -271,14 +277,17 @@ async function createRatingObject(
   messageId: string,
   chainSpace: SpaceUri,
   providerUri: DidUri,
-  authorUri: DidUri
+  authorUri: DidUri,
+  network: string = 'api'
 ): Promise<{ uri: RatingEntryUri; details: any }> {
+
   const ratingUri = await getUriForRatingEntry(
     entryDigest,
     entityId,
     messageId,
     chainSpace,
-    providerUri
+    providerUri,
+    network
   )
 
   return {
@@ -309,6 +318,7 @@ async function createRatingObject(
  *                             This is used for signing the rating and linking it to its author.
  * @param signCallback - A callback function that will be used for signing the rating.
  *                                      This function should adhere to the necessary cryptographic standards for signature generation.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  *
  * @returns - A promise that resolves to an object containing:
  *    - `uri`: A unique URI representing the rating entry on the blockchain.
@@ -336,7 +346,7 @@ async function createRatingObject(
  * const authorUri = 'did:example:author123';
  *
  * try {
- *   const result = await buildFromRatingProperties(ratingEntry, chainSpace, authorUri, signCallback);
+ *   const result = await buildFromRatingProperties(ratingEntry, chainSpace, authorUri, signCallback, network);
  *   console.log('Rating entry URI:', result.uri);
  *   console.log('Rating entry details:', result.details);
  * } catch (error) {
@@ -346,7 +356,8 @@ async function createRatingObject(
 export async function buildFromRatingProperties(
   rating: IRatingEntry,
   chainSpace: SpaceUri,
-  authorUri: DidUri
+  authorUri: DidUri,
+  network: string = 'api'
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     //validateRatingContent(rating.entry)
@@ -368,7 +379,8 @@ export async function buildFromRatingProperties(
       rating.messageId,
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
-      authorUri
+      authorUri,
+      network
     )
 
     details.entry = rating.entry
@@ -398,7 +410,8 @@ export async function buildFromRatingProperties(
  *                             This identifier is crucial for associating the revocation with the correct author.
  * @param signCallback - A callback function that handles the signing of the revocation entry.
  *                                      The signature ensures the authenticity and integrity of the revocation request.
- *
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns - A promise that resolves to an object containing:
  *    - `uri`: A unique URI for the revocation entry on the blockchain.
  *    - `details`: An object with the details of the revocation, ready for dispatch to the blockchain.
@@ -415,7 +428,7 @@ export async function buildFromRatingProperties(
  * const authorUri = 'did:example:author123';
  *
  * try {
- *   const result = await buildFromRevokeRatingProperties(ratingRevokeEntry, chainSpace, authorUri, signCallback);
+ *   const result = await buildFromRevokeRatingProperties(ratingRevokeEntry, chainSpace, authorUri, signCallback, network);
  *   console.log('Revocation entry URI:', result.uri);
  *   console.log('Revocation entry details:', result.details);
  * } catch (error) {
@@ -425,7 +438,8 @@ export async function buildFromRatingProperties(
 export async function buildFromRevokeRatingProperties(
   rating: IRatingRevokeEntry,
   chainSpace: SpaceUri,
-  authorUri: DidUri
+  authorUri: DidUri,
+  network: string = 'api'
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     validateRequiredFields([
@@ -442,7 +456,8 @@ export async function buildFromRevokeRatingProperties(
       rating.entry.messageId,
       chainSpace,
       Did.getDidUri(rating.providerDid),
-      authorUri
+      authorUri,
+      network
     )
 
     details.entry = rating.entry
@@ -472,6 +487,8 @@ export async function buildFromRevokeRatingProperties(
  *                            This helps in pinpointing the exact location on the blockchain where the rating resides.
  * @param authorUri - The Decentralized Identifier (DID) URI of the author who is revising the rating.
  *                            This identifier is crucial for associating the revocation with the correct author.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns A promise resolving to an object with the following structure:
                               uri: The URI of the rating entry.
                               details: An object containing the details of the rating dispatch, including the entry and other metadata.
@@ -480,7 +497,7 @@ export async function buildFromRevokeRatingProperties(
  *
  * @example
  * try {
- * const result = await buildFromReviseRatingProperties(ratingEntry, chainSpaceUri, authorUri);
+ * const result = await buildFromReviseRatingProperties(ratingEntry, chainSpaceUri, authorUri, network);
  * console.log("Rating entry URI:", result.uri);
  * console.log("Rating details:", result.details);
  * } catch (error) {
@@ -490,7 +507,8 @@ export async function buildFromRevokeRatingProperties(
 export async function buildFromReviseRatingProperties(
   rating: IRatingEntry,
   chainSpace: SpaceUri,
-  authorUri: DidUri
+  authorUri: DidUri,
+  network: string = 'api'
 ): Promise<{ uri: RatingEntryUri; details: IRatingDispatch }> {
   try {
     validateRequiredFields([
@@ -511,7 +529,8 @@ export async function buildFromReviseRatingProperties(
       rating.messageId,
       chainSpace,
       Did.getDidUri(rating.entry.providerDid),
-      authorUri
+      authorUri,
+      network
     )
 
     details.entry = rating.entry

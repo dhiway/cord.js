@@ -37,7 +37,8 @@ import type {
   SpaceDigest,
   AuthorizationUri,
   SpaceUri,
-  SubmittableExtrinsic
+  SubmittableExtrinsic,
+  ApiPromise
 } from '@cord.network/types'
 import { SDKErrors, DecoderUtils } from '@cord.network/utils'
 import {
@@ -73,7 +74,7 @@ import { Chain } from '@cord.network/network'
  * @example
  * ```typescript
  * const spaceUri = 'space:example_uri';
- * isChainSpaceStored(spaceUri).then(exists => {
+ * isChainSpaceStored(spaceUri, network).then(exists => {
  *   console.log(`Chain Space ${exists ? 'exists' : 'does not exist'} on the blockchain.`);
  * }).catch(error => {
  *   console.error('Error querying Chain Space existence:', error);
@@ -81,12 +82,16 @@ import { Chain } from '@cord.network/network'
  * ```
  *
  * @param spaceUri - The URI of the Chain Space to be checked.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  * @returns A promise resolving to `true` if the Chain Space exists, or `false` otherwise.
  * @throws {SDKErrors.CordQueryError} - Thrown on error during the blockchain query.
  */
-export async function isChainSpaceStored(spaceUri: SpaceUri): Promise<boolean> {
+export async function isChainSpaceStored(
+  spaceUri: SpaceUri,
+  network: string = 'api',
+  ): Promise<boolean> {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
     const identifier = uriToIdentifier(spaceUri)
     const encoded = await api.query.chainSpace.spaces(identifier)
 
@@ -107,7 +112,7 @@ export async function isChainSpaceStored(spaceUri: SpaceUri): Promise<boolean> {
  * @example
  * ```typescript
  * const authorizationUri = 'auth:example_uri';
- * isAuthorizationStored(authorizationUri).then(exists => {
+ * isAuthorizationStored(authorizationUri, network).then(exists => {
  *   console.log(`Authorization ${exists ? 'exists' : 'does not exist'} on the blockchain.`);
  * }).catch(error => {
  *   console.error('Error querying authorization existence:', error);
@@ -115,14 +120,16 @@ export async function isChainSpaceStored(spaceUri: SpaceUri): Promise<boolean> {
  * ```
  *
  * @param authorizationUri - The URI of the authorization to check.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  * @returns A promise resolving to `true` if the authorization exists, `false` otherwise.
  * @throws {SDKErrors.CordQueryError} - Thrown on error during the blockchain query.
  */
 export async function isAuthorizationStored(
-  authorizationUri: AuthorizationUri
+  authorizationUri: AuthorizationUri,
+  network: string = 'api'
 ): Promise<boolean> {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
     const identifier = uriToIdentifier(authorizationUri)
     const encoded = await api.query.chainSpace.authorizations(identifier)
 
@@ -144,7 +151,7 @@ export async function isAuthorizationStored(
  * ```typescript
  * const spaceDigest = 'example_digest';
  * const creatorUri = 'did:cord:creator_uri';
- * getUriForSpace(spaceDigest, creatorUri).then(({ uri, authorizationUri }) => {
+ * getUriForSpace(spaceDigest, creatorUri, network).then(({ uri, authorizationUri }) => {
  *   console.log(`ChainSpace URI: ${uri}, Authorization URI: ${authorizationUri}`);
  * }).catch(error => {
  *   console.error('Error generating URIs:', error);
@@ -153,14 +160,16 @@ export async function isAuthorizationStored(
  *
  * @param spaceDigest - The digest representing the content or configuration of the ChainSpace.
  * @param creatorUri - The DID URI of the creator of the ChainSpace.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization URI.
  * @internal
  */
 export async function getUriForSpace(
   spaceDigest: SpaceDigest,
-  creatorUri: DidUri
+  creatorUri: DidUri,
+  network: string = 'api'
 ): Promise<ChainSpaceDetails> {
-  const api = ConfigService.get('api')
+  const api:ApiPromise = ConfigService.get(network)
   const scaleEncodedSpaceDigest = api
     .createType<H256>('H256', spaceDigest)
     .toU8a()
@@ -203,23 +212,27 @@ export async function getUriForSpace(
  * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
  * @param signCallback - The callback function for signing the transaction.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  * @returns The prepared extrinsic ready for batch signing and submitting.
  */
 export async function prepareCreateSpaceExtrinsic(
   chainSpace: IChainSpace,
   creatorUri: DidUri,
   signCallback: SignExtrinsicCallback,
-  authorAccount: CordKeyringPair
+  authorAccount: CordKeyringPair,
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
 
     const tx = api.tx.chainSpace.create(chainSpace.digest)
     const extrinsic = await Did.authorizeTx(
       creatorUri,
       tx,
       signCallback,
-      authorAccount.address
+      authorAccount.address,
+      {},
+      network
     )
     return extrinsic;
 
@@ -249,7 +262,7 @@ export async function prepareCreateSpaceExtrinsic(
  * const signCallback: SignExtrinsicCallback = // ... implementation ...
  *
  * try {
- *   const result = await dispatchToChain(chainSpace, creatorUri, authorAccount, signCallback);
+ *   const result = await dispatchToChain(chainSpace, creatorUri, authorAccount, signCallback, network);
  *   console.log('ChainSpace dispatched with URI:', result.uri);
  * } catch (error) {
  *   console.error('Error dispatching ChainSpace:', error);
@@ -260,6 +273,7 @@ export async function prepareCreateSpaceExtrinsic(
  * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
  * @param signCallback - The callback function for signing the transaction.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
  * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  */
@@ -267,7 +281,8 @@ export async function dispatchToChain(
   chainSpace: IChainSpace,
   creatorUri: DidUri,
   authorAccount: CordKeyringPair,
-  signCallback: SignExtrinsicCallback
+  signCallback: SignExtrinsicCallback,
+  network: string = 'api'
 ): Promise<{ uri: SpaceUri; authorization: AuthorizationUri }> {
   const returnObject = {
     uri: chainSpace.uri,
@@ -275,10 +290,16 @@ export async function dispatchToChain(
   }
 
   try {
-    const exists = await isChainSpaceStored(chainSpace.uri)
+    const exists = await isChainSpaceStored(chainSpace.uri, network)
     if (!exists) {
-        const extrinsic = await prepareCreateSpaceExtrinsic(chainSpace, creatorUri, signCallback, authorAccount)
-        await Chain.signAndSubmitTx(extrinsic, authorAccount)
+        const extrinsic = await prepareCreateSpaceExtrinsic(
+          chainSpace, 
+          creatorUri, 
+          signCallback, 
+          authorAccount, 
+          network
+        )
+        await Chain.signAndSubmitTx(extrinsic, authorAccount, { network })
     }
     return returnObject
   } catch (error) {
@@ -292,9 +313,11 @@ export async function dispatchToChain(
  * Prepares the creation of a sub-space extrinsic for later dispatch to the blockchain.
  * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
- * @param parent - The chainspace under which the sub-space will be created.
  * @param count - The count of transactions permitted to be performed on the chain for the subspace.
+ * @param parent - The chainspace under which the sub-space will be created.
  * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param signCallback - The callback function for signing the transaction. 
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'.
  * @returns The prepared extrinsic ready for batch signing and submitting.
  */
 export async function prepareCreateSubSpaceExtrinsic(
@@ -303,17 +326,24 @@ export async function prepareCreateSubSpaceExtrinsic(
   count: number,
   parent: SpaceUri,
   creatorUri: DidUri,
-  signCallback: SignExtrinsicCallback
+  signCallback: SignExtrinsicCallback,
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
 
-    const tx = api.tx.chainSpace.subspaceCreate(chainSpace.digest, count, parent?.replace('space:cord:', ''))
+    const tx = api.tx.chainSpace.subspaceCreate(
+      chainSpace.digest,
+      count,
+      parent?.replace('space:cord:', '')
+    )
     const extrinsic = await Did.authorizeTx(
       creatorUri,
       tx,
       signCallback,
-      authorAccount.address
+      authorAccount.address,
+      {},
+      network
     )
 
     return extrinsic;
@@ -352,7 +382,10 @@ export async function prepareCreateSubSpaceExtrinsic(
  * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
  * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @param count - The count of transactions permitted to be performed on the chain for the subspace.
+ * @param parent - The chainspace under which the sub-space will be created. 
  * @param signCallback - The callback function for signing the transaction.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
  * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  */
@@ -362,7 +395,8 @@ export async function dispatchSubspaceCreateToChain(
   authorAccount: CordKeyringPair,
   count: number,
   parent: SpaceUri,
-  signCallback: SignExtrinsicCallback
+  signCallback: SignExtrinsicCallback,
+  network: string = 'api'
 ): Promise<{ uri: SpaceUri; authorization: AuthorizationUri }> {
   const returnObject = {
     uri: chainSpace.uri,
@@ -370,16 +404,16 @@ export async function dispatchSubspaceCreateToChain(
   }
 
   try {
-    
     const extrinsic = await prepareCreateSubSpaceExtrinsic(
       chainSpace,
       authorAccount,
       count,
       parent,
       creatorUri,
-      signCallback
+      signCallback,
+      network
     )
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    await Chain.signAndSubmitTx(extrinsic, authorAccount, { network })
 
     return returnObject;
   } catch (error) {
@@ -402,7 +436,7 @@ export async function dispatchSubspaceCreateToChain(
  * const authority = 'authority_account';
  * const spaceUri = 'space:example_uri';
  * const capacity = 100;
- * sudoApproveChainSpace(authority, spaceUri, capacity).then(() => {
+ * sudoApproveChainSpace(authority, spaceUri, capacity, network).then(() => {
  *   console.log('ChainSpace approved successfully');
  * }).catch(error => {
  *   console.error('Error approving ChainSpace:', error);
@@ -412,21 +446,23 @@ export async function dispatchSubspaceCreateToChain(
  * @param authority - The account with sudo privileges to approve the ChainSpace.
  * @param spaceUri - The URI of the ChainSpace to be approved.
  * @param capacity - The approved capacity for the ChainSpace.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @throws {SDKErrors.CordDispatchError} - Thrown on error during the dispatch process.
  */
 export async function sudoApproveChainSpace(
   authority: CordKeyringPair,
   spaceUri: SpaceUri,
-  capacity: number
+  capacity: number,
+  network: string = 'api'
 ) {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
     const spaceId = uriToIdentifier(spaceUri)
 
     const tx = api.tx.chainSpace.approve(spaceId, capacity)
     const sudoExtrinsic = api.tx.sudo.sudo(tx)
 
-    await Chain.signAndSubmitTx(sudoExtrinsic, authority)
+    await Chain.signAndSubmitTx(sudoExtrinsic, authority, { network })
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain:"${error}".`
@@ -445,7 +481,7 @@ export async function sudoApproveChainSpace(
  * const spaceUri = 'space:example_uri';
  * const delegateUri = 'did:example:delegate_uri';
  * const creatorUri = 'did:example:creator_uri';
- * getUriForAuthorization(spaceUri, delegateUri, creatorUri).then(authorizationUri => {
+ * getUriForAuthorization(spaceUri, delegateUri, creatorUri, network).then(authorizationUri => {
  *   console.log(`Authorization URI: ${authorizationUri}`);
  * }).catch(error => {
  *   console.error('Error generating authorization URI:', error);
@@ -455,15 +491,17 @@ export async function sudoApproveChainSpace(
  * @param spaceUri - The URI of the ChainSpace.
  * @param delegateUri - The DID URI of the delegate involved in the authorization.
  * @param creatorUri - The DID URI of the creator of the authorization.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns A promise resolving to the unique authorization URI.
  * @internal
  */
 export async function getUriForAuthorization(
   spaceUri: SpaceId,
   delegateUri: DidUri,
-  creatorUri: DidUri
+  creatorUri: DidUri,
+  network: string = 'api'
 ): Promise<AuthorizationUri> {
-  const api = ConfigService.get('api')
+  const api:ApiPromise = ConfigService.get(network)
 
   const scaleEncodedSpaceId = api
     .createType<Bytes>('Bytes', uriToIdentifier(spaceUri))
@@ -506,6 +544,7 @@ export async function getUriForAuthorization(
  * @param spaceId - The identifier of the space to which the delegate authorization is being added.
  * @param delegateId - The decentralized identifier (DID) of the delegate receiving the authorization.
  * @param authId - The identifier of the specific authorization transaction being constructed.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  *
  * @internal
@@ -514,9 +553,10 @@ function dispatchDelegateAuthorizationTx(
   permission: PermissionType,
   spaceId: string,
   delegateId: string,
-  authId: string
+  authId: string,
+  network: string = 'api'
 ) {
-  const api = ConfigService.get('api')
+  const api = ConfigService.get(network)
 
   switch (permission) {
     case Permission.ASSERT:
@@ -567,6 +607,7 @@ function dispatchDelegateAuthorizationTx(
  * @param authorAccount - The blockchain account used to sign and submit the transaction.
  * @param authorizationUri - The URI of the authorization used for delegating permissions.
  * @param signCallback - A callback function that handles the signing of the transaction.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns A promise resolving to the authorization ID after successful processing by the blockchain.
  * @throws {SDKErrors.CordDispatchError} - Thrown on error during the dispatch process.
  */
@@ -574,7 +615,8 @@ export async function dispatchDelegateAuthorization(
   request: ISpaceAuthorization,
   authorAccount: CordKeyringPair,
   authorizationUri: AuthorizationUri,
-  signCallback: SignExtrinsicCallback
+  signCallback: SignExtrinsicCallback,
+  network: string = 'api'
 ): Promise<AuthorizationId> {
   try {
     const spaceId = uriToIdentifier(request.uri)
@@ -585,16 +627,19 @@ export async function dispatchDelegateAuthorization(
       request.permission,
       spaceId,
       delegateId,
-      delegatorAuthId
+      delegatorAuthId,
+      network
     )
     const extrinsic = await Did.authorizeTx(
       request.delegatorUri as DidUri,
       tx,
       signCallback,
-      authorAccount.address
+      authorAccount.address,
+      {},
+      network
     )
 
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    await Chain.signAndSubmitTx(extrinsic, authorAccount, { network })
 
     return request.authorizationUri
   } catch (error) {
@@ -649,7 +694,8 @@ function decodeSpaceDetailsfromChain(
  * the function throws an error.
  *
  * @param spaceUri - The unique identifier (URI) of the space to be fetched.
- *
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns A promise that resolves to the space details if found. The details include information such as
  *          the space URI, creator DID, transaction capacity, and other relevant data.
  *
@@ -659,7 +705,7 @@ function decodeSpaceDetailsfromChain(
  * @example
  * ```typescript
  * const spaceUri = 'space:example_uri';
- * fetchFromChain(spaceUri)
+ * fetchFromChain(spaceUri, network)
  *   .then(spaceDetails => {
  *     console.log('Space Details:', spaceDetails);
  *   })
@@ -673,10 +719,11 @@ function decodeSpaceDetailsfromChain(
  * ```
  */
 export async function fetchFromChain(
-  spaceUri: SpaceUri
+  spaceUri: SpaceUri,
+  network: string = 'api'
 ): Promise<ISpaceDetails | null> {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
     const spaceId = uriToIdentifier(spaceUri)
 
     const spaceEntry = await api.query.chainSpace.spaces(spaceId)
@@ -789,7 +836,8 @@ function decodeAuthorizationDetailsfromChain(
  * authorization details are not found or cannot be decoded, the function throws an error.
  *
  * @param authorizationUri - The unique identifier (URI) of the authorization to be fetched.
- *
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
+ * 
  * @returns A promise that resolves to the authorization details if found. These details are represented as an
  *          `ISpaceAuthorization` object, which includes information such as the space ID, delegate DID, permissions,
  *          authorization ID, and delegator DID. The function returns `null` if the authorization details are not found
@@ -802,7 +850,7 @@ function decodeAuthorizationDetailsfromChain(
  * @example
  * ```typescript
  * const authorizationUri = 'auth:cord:example_id';
- * fetchAuthorizationFromChain(authorizationUri)
+ * fetchAuthorizationFromChain(authorizationUri, network)
  *   .then(authorizationDetails => {
  *     console.log('Authorization Details:', authorizationDetails);
  *   })
@@ -816,10 +864,11 @@ function decodeAuthorizationDetailsfromChain(
  * ```
  */
 export async function fetchAuthorizationFromChain(
-  authorizationUri: AuthorizationUri
+  authorizationUri: AuthorizationUri,
+  network: string = 'api'
 ): Promise<ISpaceAuthorization | null> {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
     const authId = uriToIdentifier(authorizationUri)
 
     const authEntry = await api.query.chainSpace.authorizations(authId)
@@ -847,6 +896,7 @@ export async function fetchAuthorizationFromChain(
  * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
  * @param signCallback - The callback function for signing the transaction.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns The prepared extrinsic ready for batch signing and submitting.
  */
 
@@ -855,17 +905,20 @@ export async function prepareUpdateTxCapacityExtrinsic(
   new_capacity: number,
   creatorUri: DidUri,
   signCallback: SignExtrinsicCallback,
-  authorAccount: CordKeyringPair
+  authorAccount: CordKeyringPair,
+  network: string = 'api'
 ): Promise<SubmittableExtrinsic> {
   try {
-    const api = ConfigService.get('api')
+    const api = ConfigService.get(network)
 
     const tx = api.tx.chainSpace.updateTransactionCapacitySub(spaceUri.replace('space:cord:', ''), new_capacity)    
     const extrinsic = await Did.authorizeTx(
       creatorUri,
       tx,
       signCallback,
-      authorAccount.address
+      authorAccount.address,
+      {},
+      network
     )
     return extrinsic;
 
@@ -906,6 +959,7 @@ export async function prepareUpdateTxCapacityExtrinsic(
  * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
  * @param signCallback - The callback function for signing the transaction.
+ * @param network - An optional chain connection object to be used to connect to a particular chain. Defaults to 'api'. 
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
  * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
  */
@@ -914,15 +968,27 @@ export async function dispatchUpdateTxCapacityToChain(
   creatorUri: DidUri,
   authorAccount: CordKeyringPair,
   new_capacity: number,
-  signCallback: SignExtrinsicCallback
+  signCallback: SignExtrinsicCallback,
+  network: string = 'api'
 ): Promise<{ uri: SpaceUri; }> {
   const returnObject = {
     uri: space
   }
 
   try {
-    const extrinsic = await prepareUpdateTxCapacityExtrinsic(space, new_capacity, creatorUri, signCallback, authorAccount)
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    const extrinsic = await prepareUpdateTxCapacityExtrinsic(
+      space, 
+      new_capacity, 
+      creatorUri, 
+      signCallback, 
+      authorAccount,
+      network
+    )
+    await Chain.signAndSubmitTx(
+      extrinsic, 
+      authorAccount,
+      { network }
+    )
 
     return returnObject;
   } catch (error) {

@@ -6,15 +6,17 @@ import * as Cord from '@cord.network/sdk'
  * @param submitterAccount - The account that will be used to sign and submit the extrinsic.
  * @param name - The name you want to register.
  * @param signCallback - A callback function that will be called when the transaction needs to be
+ * 
  * signed.
  */
 export async function createDidName(
   did: Cord.DidUri,
   submitterAccount: Cord.CordKeyringPair,
   name: Cord.Did.DidName,
-  signCallback: Cord.SignExtrinsicCallback
+  signCallback: Cord.SignExtrinsicCallback,
+  network: string = 'api'
 ): Promise<void> {
-  const api = Cord.ConfigService.get('api')
+  const api = Cord.ConfigService.get(network)
 
   console.log('Did - ', did, name)
   const didNameClaimTx = api.tx.didName.register(name)
@@ -22,7 +24,9 @@ export async function createDidName(
     did,
     didNameClaimTx,
     signCallback,
-    submitterAccount.address
+    submitterAccount.address,
+    {},
+    network
   )
-  await Cord.Chain.signAndSubmitTx(authorizedDidNameClaimTx, submitterAccount)
+  await Cord.Chain.signAndSubmitTx(authorizedDidNameClaimTx, submitterAccount, { network })
 }

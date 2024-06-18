@@ -19,14 +19,12 @@ async function main() {
   const networkAddress = NETWORK_ADDRESS ?? 'ws://127.0.0.1:9944';
   const anchorUri = ANCHOR_URI ?? '//Alice';
 
-  // Temporarily suppress console.log
-  let originalConsoleLog = console.log;
-  console.log = () => {};
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK });
-  await Cord.connect(networkAddress);
-  const api = Cord.ConfigService.get("api");
-  // Restore console.log
-  console.log = originalConsoleLog;
+  
+  let network = "api-1";
+  await Cord.connect(networkAddress, network);
+  const api = Cord.ConfigService.get(network);
+
   console.log(`\nOn-Chain Assets & Transactions  `);
 
   // Step 1: Setup Identities
@@ -39,7 +37,7 @@ async function main() {
   //  const { account: issuerIdentity } = createAccount();
     // Create issuer DID
   const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
-    networkAuthorityIdentity
+    networkAuthorityIdentity, network
   )
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')
   console.log(
@@ -47,14 +45,14 @@ async function main() {
   )
 
   const { mnemonic: holderMnemonic, document: holderDid } = await createDid(
-    networkAuthorityIdentity
+    networkAuthorityIdentity, network
   )
   const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'sr25519')
   console.log(
     `🏛   Holder (${holderDid?.assertionMethod![0].type}): ${holderDid.uri}`
   )
   const { mnemonic: holder2Mnemonic, document: holder2Did } = await createDid(
-    networkAuthorityIdentity
+    networkAuthorityIdentity, network
   )
   console.log(
     `🏛   Holder2 (${holder2Did?.assertionMethod![0].type}): ${holder2Did.uri}`
@@ -64,13 +62,13 @@ async function main() {
   console.log(`🏦  API Provider (${apiIdentity.type}): ${apiIdentity.address}`);
 
   //  await addNetworkMember(networkAuthorityIdentity, issuerIdentity.address);
-  await addNetworkMember(networkAuthorityIdentity, apiIdentity.address);
+  await addNetworkMember(networkAuthorityIdentity, apiIdentity.address, network);
   console.log("✅ Identities created!");
 
   // Step 3: Create a new Chain Space
   console.log(`\n❄️  Chain Space Creation `)
   const spaceProperties = await Cord.ChainSpace.buildFromProperties(
-    issuerDid.uri
+    issuerDid.uri, {network}
   )
   console.dir(spaceProperties, {
     depth: null,
@@ -85,7 +83,8 @@ async function main() {
     async ({ data }) => ({
       signature: issuerKeys.authentication.sign(data),
       keyType: issuerKeys.authentication.type,
-    })
+    }),
+    network
   )
   console.dir(space, {
     depth: null,
@@ -97,7 +96,8 @@ async function main() {
   await Cord.ChainSpace.sudoApproveChainSpace(
     networkAuthorityIdentity,
     space.uri,
-    100
+    100,
+    network
   )
   console.log(`✅  Chain Space Approved`)
 
@@ -121,6 +121,7 @@ async function main() {
     assetProperties,
     issuerDid.uri,
     space.uri,
+    network
   );
 
   console.log(`\n❄️  Asset Transaction  - Created by Issuer  `);
@@ -137,6 +138,7 @@ async function main() {
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
       }),
+      network
     )
 
   console.log("✅ Asset created!");
@@ -149,6 +151,7 @@ async function main() {
     1,
     issuerDid.uri,
     space.uri,
+    network
   );
 
   console.dir(assetIssuance, {
@@ -164,6 +167,7 @@ async function main() {
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
       }),
+      network
     )
 
   // Step 4: Transfer Asset to New Owner
@@ -187,6 +191,7 @@ async function main() {
         signature: holderKeys.authentication.sign(data),
         keyType: holderKeys.authentication.type,
       }),
+      network
     )
 
   console.log("✅ Asset transferred!");
@@ -203,17 +208,21 @@ async function main() {
         signature: issuerKeys.authentication.sign(data),
         keyType: issuerKeys.authentication.type,
       }),
-      assetIssuance.uri
+      { assetInstanceId: assetIssuance.uri, network }
     )
 
   console.log("✅ Asset status changed!");
 }
 main()
   .then(() => console.log("\nBye! 👋 👋 👋 "))
-  .finally(Cord.disconnect);
+  .finally(async () => {
+      let network = "api-1";
+      await Cord.disconnect(network);
+    });
 
 process.on("SIGINT", async () => {
   console.log("\nBye! 👋 👋 👋 \n");
-  Cord.disconnect();
+  let network = "api-1";
+  await Cord.disconnect(network);
   process.exit(0);
 });

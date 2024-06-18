@@ -25,6 +25,7 @@ import {
   AccountId,
   H256,
   Bytes,
+  ApiPromise,
 } from '@cord.network/types'
 import {
   hashToUri,
@@ -40,10 +41,11 @@ export async function buildFromAssetProperties(
     assetInput: IAssetProperties,
     issuer: DidUri,
     spaceUri: SpaceUri,
+    network: string = 'api'
 ): Promise<IAssetEntry> {
   const entryDigest = Crypto.hashObjectAsHexStr(assetInput);
   //  const uint8Hash = new Uint8Array([...Crypto.coToUInt8(entryDigest)]);
-  const api = ConfigService.get("api");
+  const api:ApiPromise = ConfigService.get(network);
 
   const scaleEncodedAssetDigest = api
     .createType<H256>("H256", entryDigest)
@@ -87,8 +89,9 @@ export async function buildFromIssueProperties(
   assetQty: number,
   issuer: DidUri,
   space: SpaceUri,
+  network: string = 'api'
 ): Promise<IAssetIssuance> {
-  const api = ConfigService.get("api");
+  const api:ApiPromise = ConfigService.get(network);
 
   const issuanceEntry = {
     assetId: uriToIdentifier(assetUri),
@@ -158,9 +161,9 @@ export async function buildFromTransferProperties(
   };
 
   const issueEntryDigest = Crypto.hashObjectAsHexStr(transferEntry);
-//  const uint8Hash = new Uint8Array([
-//    ...Crypto.coToUInt8(issueEntryDigest),
-//  ]);
+  //  const uint8Hash = new Uint8Array([
+  //    ...Crypto.coToUInt8(issueEntryDigest),
+  //  ]);
 
   const transferDetails: IAssetTransfer = {
     entry: transferEntry,
