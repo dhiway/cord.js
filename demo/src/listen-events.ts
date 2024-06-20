@@ -1,11 +1,14 @@
-import { ApiPromise, WsProvider } from '@polkadot/api'
+import * as Cord from "@cord.network/sdk";
 
 async function main() {
   const networkAddress = process.env.NETWORK_ADDRESS
     ? process.env.NETWORK_ADDRESS
     : 'ws://127.0.0.1:9944'
-  const provider = new WsProvider(networkAddress)
-  const api = await ApiPromise.create({ provider })
+  //  const networkAddress = 'ws://127.0.0.1:9944'
+  Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
+  await Cord.connect(networkAddress)
+
+  const api = Cord.ConfigService.get('api')
 
   // Subscribe to system events
   api.query.system.events((events) => {
