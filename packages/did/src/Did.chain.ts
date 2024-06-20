@@ -32,6 +32,7 @@ import type {
   PalletDidDidDetailsDidPublicKey,
   PalletDidDidDetailsDidPublicKeyDetails,
   PalletDidServiceEndpointsDidEndpoint,
+  RawDidLinkedInfo
 } from '@cord.network/augment-api'
 
 import {
@@ -515,21 +516,23 @@ export async function fetchFromMnemonic(mnemonic: string): Promise<DidDocument> 
  */
 export async function createDid(
   submitterAccount: CordKeyringPair,
-  theMnemonic?: string,
+  keytype?: string,
+  _mnemonic?: string,
   didServiceEndpoint?: DidServiceEndpoint[]
 ): Promise<{
   mnemonic: string
   document: DidDocument
 }> {
   const api = ConfigService.get('api')
+  const keyType = keytype ?? 'sr25519';
 
-  const mnemonic = theMnemonic? theMnemonic : mnemonicGenerate(24)
+  const mnemonic = _mnemonic? _mnemonic : mnemonicGenerate(24)
   const {
     authentication,
     keyAgreement,
     assertionMethod,
     capabilityDelegation,
-  } = Keys.generateKeypairs(mnemonic,"ed25519")
+  } = Keys.generateKeypairs(mnemonic,keyType)
   // Get tx that will create the DID on chain and DID-URI that can be used to resolve the DID Document.
   const didCreationTx = await getStoreTx(
     {
@@ -555,7 +558,7 @@ export async function createDid(
   await Chain.signAndSubmitTx(didCreationTx, submitterAccount)
 
   const didUri = getDidUriFromKey(authentication)
-  const encodedDid = await api.call.didApi.query(toChain(didUri))
+  const encodedDid : Option<RawDidLinkedInfo> = await api.call.didApi.query(toChain(didUri))
   const { document } = linkedInfoFromChain(encodedDid)
 
   if (!document) {
