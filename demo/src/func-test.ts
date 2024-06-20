@@ -1,6 +1,5 @@
 import * as Cord from '@cord.network/sdk'
 // import { UUID, Crypto } from '@cord.network/utils'
-import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
 import { randomUUID } from 'crypto'
@@ -62,7 +61,7 @@ async function main() {
   /* Creating the DIDs for the different parties involved in the demo. */
   // Create Verifier DID
   const { mnemonic: verifierMnemonic, document: verifierDid } =
-    await createDid(authorIdentity)
+    await Cord.Did.createDid(authorIdentity)
   const verifierKeys = Cord.Utils.Keys.generateKeypairs(
     verifierMnemonic,
     'sr25519'
@@ -72,14 +71,14 @@ async function main() {
   )
   // Create Holder DID
   const { mnemonic: holderMnemonic, document: holderDid } =
-    await createDid(authorIdentity)
+    await Cord.Did.createDid(authorIdentity)
   const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'sr25519')
   console.log(
     `👩‍⚕️  Holder (${holderDid.assertionMethod![0].type}): ${holderDid.uri}`
   )
   // Create issuer DID
   const { mnemonic: issuerMnemonic, document: issuerDid } =
-    await createDid(authorIdentity)
+    await Cord.Did.createDid(authorIdentity)
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')
   console.log(
     `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`
@@ -94,7 +93,7 @@ async function main() {
   })
   // Create Delegate One DID
   const { mnemonic: delegateOneMnemonic, document: delegateOneDid } =
-    await createDid(authorIdentity)
+    await Cord.Did.createDid(authorIdentity)
   const delegateOneKeys = Cord.Utils.Keys.generateKeypairs(
     delegateOneMnemonic,
     'sr25519'
@@ -106,7 +105,7 @@ async function main() {
   )
   // Create Delegate Two DID
   const { mnemonic: delegateTwoMnemonic, document: delegateTwoDid } =
-    await createDid(authorIdentity)
+    await Cord.Did.createDid(authorIdentity)
   const delegateTwoKeys = Cord.Utils.Keys.generateKeypairs(
     delegateTwoMnemonic,
     'sr25519'
@@ -118,7 +117,7 @@ async function main() {
   )
   // Create Delegate 3 DID
   const { mnemonic: delegate3Mnemonic, document: delegate3Did } =
-    await createDid(authorIdentity)
+    await Cord.Did.createDid(authorIdentity)
   const delegate3Keys = Cord.Utils.Keys.generateKeypairs(
     delegate3Mnemonic,
     'sr25519'
