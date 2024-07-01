@@ -1,4 +1,4 @@
-export { connect, disconnect, init, ConfigService } from '@cord.network/config'
+export { connect, disconnect, init, getGenesisHash, getGenesisHashWithConnect, ConfigService } from '@cord.network/config'
 export { Chain } from '@cord.network/network'
 export * as ChainHelpers from '@cord.network/network'
 export * as Did from '@cord.network/did'
