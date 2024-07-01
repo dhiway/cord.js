@@ -24,7 +24,7 @@ import type {
   CordKeyringPair,
 } from '@cord.network/types'
 import { verificationKeyTypes } from '@cord.network/types'
-import { Crypto, SDKErrors, ss58Format, Keys, } from '@cord.network/utils'
+import { Crypto, SDKErrors, ss58Format, Keys } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import type {
   PalletDidDidDetails,
@@ -32,6 +32,7 @@ import type {
   PalletDidDidDetailsDidPublicKey,
   PalletDidDidDetailsDidPublicKeyDetails,
   PalletDidServiceEndpointsDidEndpoint,
+  RawDidLinkedInfo,
 } from '@cord.network/augment-api'
 
 import {
@@ -44,10 +45,8 @@ import {
   parse,
 } from './Did.utils.js'
 
-import {linkedInfoFromChain, getDidUriFromKey,} from './index.js'
+import { linkedInfoFromChain, getDidUriFromKey } from './index.js'
 import { Chain } from '@cord.network/network'
-
-
 
 // ### Chain type definitions
 
@@ -489,47 +488,50 @@ export function didSignatureToChain(
  * @param mnemonic The secret phrase used to fetch the DID.
  * @returns  A Full DidDocument.
  */
-export async function fetchFromMnemonic(mnemonic: string): Promise<DidDocument> {
+export async function fetchFromMnemonic(
+  mnemonic: string
+): Promise<DidDocument> {
   const api = ConfigService.get('api')
-  const {
-    authentication,
-  } = Keys.generateKeypairs(mnemonic,"ed25519")
+  const { authentication } = Keys.generateKeypairs(mnemonic, 'ed25519')
   const didUri = getDidUriFromKey(authentication)
   const encodedDid = await api.call.didApi.query(toChain(didUri))
-  
-  if(encodedDid.isNone){
-    throw new SDKErrors.DidError('No DID is accociated with the provided mnemonic')
-  }
-  else{
+
+  if (encodedDid.isNone) {
+    throw new SDKErrors.DidError(
+      'No DID is accociated with the provided mnemonic'
+    )
+  } else {
     const { document } = linkedInfoFromChain(encodedDid)
     return document
   }
 }
 
 /**
- * It creates a DID on chain, and returns the mnemonic and DID document
+ * It creates a DID on chain, and returns the mnemonic and DID document.
  * @param submitterAccount - The account that will be used to pay for the transaction.
- * @param mnemonic - The secret phrase 
- * @param didServiceEndpoint - The service endponits
- * @returns The mnemonic and the DID document.
+ * @param keytype - (Optional) The type of cryptographic key to use for the DID (default: 'sr25519').
+ * @param _mnemonic - (Optional) A secret phrase (mnemonic) for generating the DID keys. If not provided, a new mnemonic will be generated.
+ * @param didServiceEndpoint - (Optional) An array of service endpoints to be associated with the DID.
+ * @returns {Promise<{ mnemonic: string; document: DidDocument }>} The mnemonic and the DID document.
  */
+
 export async function createDid(
   submitterAccount: CordKeyringPair,
-  theMnemonic?: string,
+  keytype: string = 'sr25519',
+  _mnemonic?: string,
   didServiceEndpoint?: DidServiceEndpoint[]
 ): Promise<{
   mnemonic: string
   document: DidDocument
 }> {
   const api = ConfigService.get('api')
-
-  const mnemonic = theMnemonic? theMnemonic : mnemonicGenerate(24)
+  const mnemonic = _mnemonic ? _mnemonic : mnemonicGenerate(24)
   const {
     authentication,
     keyAgreement,
     assertionMethod,
     capabilityDelegation,
-  } = Keys.generateKeypairs(mnemonic,"ed25519")
+  } = Keys.generateKeypairs(mnemonic, keytype)
   // Get tx that will create the DID on chain and DID-URI that can be used to resolve the DID Document.
   const didCreationTx = await getStoreTx(
     {
@@ -537,13 +539,15 @@ export async function createDid(
       keyAgreement: [keyAgreement],
       assertionMethod: [assertionMethod],
       capabilityDelegation: [capabilityDelegation],
-      service: didServiceEndpoint ? didServiceEndpoint : [
-        {
-          id: '#my-service',
-          type: ['service-type'],
-          serviceEndpoint: ['https://www.example.com'],
-        },
-      ],
+      service: didServiceEndpoint
+        ? didServiceEndpoint
+        : [
+            {
+              id: '#my-service',
+              type: ['service-type'],
+              serviceEndpoint: ['https://www.example.com'],
+            },
+          ],
     },
     submitterAccount.address,
     async ({ data }) => ({
@@ -555,7 +559,9 @@ export async function createDid(
   await Chain.signAndSubmitTx(didCreationTx, submitterAccount)
 
   const didUri = getDidUriFromKey(authentication)
-  const encodedDid = await api.call.didApi.query(toChain(didUri))
+  const encodedDid: Option<RawDidLinkedInfo> = await api.call.didApi.query(
+    toChain(didUri)
+  )
   const { document } = linkedInfoFromChain(encodedDid)
 
   if (!document) {
