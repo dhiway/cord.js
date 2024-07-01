@@ -1,11 +1,4 @@
 import * as Cord from "@cord.network/sdk";
-import { createDid } from "../src/utils/generateDid";
-import {
-  requestJudgement,
-  setIdentity,
-  setRegistrar,
-  provideJudgement,
-} from "../src/utils/createRegistrar";
 import { addNetworkMember } from "../src/utils/createAuthorities";
 /**
     Adding a Developer to Network and Creating a Chainspace.
@@ -51,7 +44,7 @@ async function main() {
 
   await addNetworkMember(authorityAuthorIdentity, authorIdentity.address);
 
-  const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
+  const { mnemonic: issuerMnemonic, document: issuerDid } = await Cord.Did.createDid(
     authorIdentity
   );
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(
@@ -60,7 +53,7 @@ async function main() {
   );
 
   const { mnemonic: delegateTwoMnemonic, document: delegateTwoDid } =
-    await createDid(authorIdentity);
+    await Cord.Did.createDid(authorIdentity);
 
   const spaceProperties = await Cord.ChainSpace.buildFromProperties(
     issuerDid.uri

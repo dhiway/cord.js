@@ -1,5 +1,4 @@
 import * as Cord from '@cord.network/sdk'
-import { createDid } from './utils/generateDid'
 import { createDidName } from './utils/generateDidName'
 import { getDidDocFromName } from './utils/queryDidName'
 import { addNetworkMember } from './utils/createAuthorities'
@@ -26,20 +25,20 @@ async function main() {
   console.log('✅ Network Membership Approved! 🎉\n')
 
   const { mnemonic: chainSpaceAdminMnemonic, document: chainSpaceAdminDid } =
-    await createDid(networkAuthorIdentity)
+    await Cord.Did.createDid(networkAuthorIdentity)
   const chainSpaceAdminKeys = Cord.Utils.Keys.generateKeypairs(chainSpaceAdminMnemonic, 'sr25519')
   console.log(
     `🔐  Network Score Admin (${chainSpaceAdminDid.authentication[0].type}): ${chainSpaceAdminDid.uri}`
   )
   const { mnemonic: networkProviderMnemonic, document: networkProviderDid } =
-    await createDid(networkAuthorIdentity)
+    await Cord.Did.createDid(networkAuthorIdentity)
   const networkProviderKeys = Cord.Utils.Keys.generateKeypairs(networkProviderMnemonic, 'sr25519')
   console.log(
     `🔐  Network Participant (Provider) (${networkProviderDid.authentication[0].type}): ${networkProviderDid.uri}`
   )
 
   const { mnemonic: networkAuthorMnemonic, document: networkAuthorDid } =
-    await createDid(networkAuthorIdentity)
+    await Cord.Did.createDid(networkAuthorIdentity)
   const networkAuthorKeys = Cord.Utils.Keys.generateKeypairs(networkAuthorMnemonic, 'sr25519')
   console.log(
     `🔐 Network Author (API -> Node) (${networkAuthorDid.authentication[0].type}): ${networkAuthorDid.uri}`

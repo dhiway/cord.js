@@ -1,7 +1,6 @@
 import * as Cord from "@cord.network/sdk";
 import { addNetworkMember } from "./utils/createAuthorities.js";
 import { createAccount } from "./utils/createAccount.js";
-import { createDid } from "./utils/generateDid";
 import { BN } from '@polkadot/util'
 import { uriToIdentifier } from '@cord.network/identifier'
 
@@ -49,7 +48,7 @@ async function main() {
   await addNetworkMember(networkAuthorityIdentity, issuerIdentity.address);
   console.log("✅ Issuer Identity created!");
 
-  const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
+  const { mnemonic: issuerMnemonic, document: issuerDid } = await Cord.Did.createDid(
     networkAuthorityIdentity
   )
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')

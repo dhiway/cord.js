@@ -3,7 +3,6 @@ import { addNetworkMember } from "./utils/createAuthorities.js";
 import { createAccount } from "./utils/createAccount.js";
 
 import * as vcExport from "@cord.network/vc-export";
-import { createDid } from "./utils/generateDid";
 import PalletAssetVcAssetEntry from '@polkadot/types/lookup';
 
 const { NETWORK_ADDRESS, ANCHOR_URI } = process.env;
@@ -81,7 +80,7 @@ async function main() {
  
   //  const { account: issuerIdentity } = createAccount();
   // Create issuer DID
-  const { mnemonic: issuerMnemonic, document: issuerDid } = await createDid(
+  const { mnemonic: issuerMnemonic, document: issuerDid } = await Cord.Did.createDid(
     networkAuthorityIdentity
   )
   const issuerKeys = Cord.Utils.Keys.generateKeypairs(issuerMnemonic, 'sr25519')
@@ -89,14 +88,14 @@ async function main() {
     `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`
   )
 
-  const { mnemonic: holderMnemonic, document: holderDid } = await createDid(
+  const { mnemonic: holderMnemonic, document: holderDid } = await Cord.Did.createDid(
     networkAuthorityIdentity
   )
   const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'sr25519')
   console.log(
     `🏛   Holder (${holderDid?.assertionMethod![0].type}): ${holderDid.uri}`
   )
-  const { mnemonic: holder2Mnemonic, document: holder2Did } = await createDid(
+  const { mnemonic: holder2Mnemonic, document: holder2Did } = await Cord.Did.createDid(
     networkAuthorityIdentity
   )
   console.log(
