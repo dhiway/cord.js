@@ -48,5 +48,9 @@ export const typesBundle: OverrideBundleType = {
   spec: {
     cord: sharedBundle,
     cordGraph: sharedBundle,
+    braid: sharedBundle,
+    loom: sharedBundle,
+    weave: sharedBundle,
+    test: sharedBundle,
   },
 }
