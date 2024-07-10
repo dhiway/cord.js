@@ -83,7 +83,7 @@ export async function dispatchCreateToChain(
   signCallback: SignExtrinsicCallback
 ): Promise<AssetUri> {
   try {
-    
+
     const extrinsic = await prepareCreateExtrinsic(
       assetEntry,
       authorAccount,
@@ -103,6 +103,36 @@ export async function dispatchCreateToChain(
   }
 }
 
+export async function prepareCreateVcExtrinsic(
+  assetQty: number,
+  digest: string,
+  creator: DidUri,
+  authorAccount: CordKeyringPair,
+  authorizationUri: AuthorizationUri,
+  signCallback: SignExtrinsicCallback
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri);
+
+    const tx = api.tx.asset.vcCreate(assetQty, digest, authorizationId);
+
+    const extrinsic = await Did.authorizeTx(
+      creator,
+      tx,
+      signCallback,
+      authorAccount.address
+    )
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing VC Asset Entry extrinsic: "${errorMessage}".`
+    );
+  }
+}
+
 export async function dispatchCreateVcToChain(
   assetQty: number,
   digest: string,
@@ -113,31 +143,24 @@ export async function dispatchCreateVcToChain(
   signCallback: SignExtrinsicCallback
 ): Promise<AssetUri> {
   try {
-    const api = ConfigService.get('api')
-    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
-
-    const tx = api.tx.asset.vcCreate(
+    const extrinsic = await prepareCreateVcExtrinsic(
       assetQty,
       digest,
-      authorizationId
-    )
-
-    const extrinsic = await Did.authorizeTx(
       creator,
-      tx,
-      signCallback,
-      authorAccount.address
-    )
+      authorAccount,
+      authorizationUri,
+      signCallback
+    );
 
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    await Chain.signAndSubmitTx(extrinsic, authorAccount);
 
-    return assetEntryUri
+    return assetEntryUri;
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error)
+      error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${errorMessage}".`
-    )
+    );
   }
 }
 
@@ -167,8 +190,8 @@ export async function prepareExtrinsic(
 
     return extrinsic
   } catch (error) {
-    const errorMessage = 
-     error instanceof Error ? error.message : JSON.stringify(error)
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error)
     throw new SDKErrors.CordDispatchError(
       `Error preparing extrinsic: "${errorMessage}".`
     )
@@ -183,7 +206,7 @@ export async function dispatchIssueToChain(
 ): Promise<AssetUri> {
   try {
 
-    const extrinsic = await prepareExtrinsic(assetEntry, authorAccount, authorizationUri, signCallback) 
+    const extrinsic = await prepareExtrinsic(assetEntry, authorAccount, authorizationUri, signCallback)
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return assetEntry.uri
@@ -222,8 +245,8 @@ export async function prepareVcExtrinsic(
 
     return extrinsic
   } catch (error) {
-    const errorMessage = 
-     error instanceof Error ? error.message : JSON.stringify(error)
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error)
     throw new SDKErrors.CordDispatchError(
       `Error preparing extrinsic: "${errorMessage}".`
     )
@@ -238,7 +261,7 @@ export async function dispatchIssueVcToChain(
 ): Promise<AssetUri> {
   try {
 
-    const extrinsic = await prepareVcExtrinsic(assetEntry, authorAccount, authorizationUri, signCallback) 
+    const extrinsic = await prepareVcExtrinsic(assetEntry, authorAccount, authorizationUri, signCallback)
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
     return assetEntry.uri
