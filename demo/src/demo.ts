@@ -35,7 +35,8 @@ function getChallenge(): string {
 }
 
 async function main() {
-  const networkAddress = 'ws://127.0.0.1:9944'
+  const networkAddress : string = process.env.NETWORK_ADDRESS ? process.env.NETWORK_ADDRESS : 'ws://127.0.0.1:9944';
+  const anchorUri : string = process.env.ANCHOR_URI ? process.env.ANCHOR_URI : '//Alice';
   Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK })
   await Cord.connect(networkAddress)
 
@@ -44,7 +45,7 @@ async function main() {
 
   console.log(`\n❄️  New Network Member`)
   const authorityAuthorIdentity = Crypto.makeKeypairFromUri(
-    '//Alice',
+    anchorUri,
     'sr25519'
   )
   // Setup network authority account.
