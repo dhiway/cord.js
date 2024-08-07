@@ -273,14 +273,18 @@ export async function dispatchToChain(
     uri: chainSpace.uri,
     authorization: chainSpace.authorizationUri,
   }
-
   try {
     const exists = await isChainSpaceStored(chainSpace.uri)
     if (!exists) {
         const extrinsic = await prepareCreateSpaceExtrinsic(chainSpace, creatorUri, signCallback, authorAccount)
         await Chain.signAndSubmitTx(extrinsic, authorAccount)
+        return returnObject
     }
-    return returnObject
+    else{
+      throw new SDKErrors.CordDispatchError(
+        `Error dispatching to chain: Chainspace already exists.`
+      )
+    }
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${error}".`
