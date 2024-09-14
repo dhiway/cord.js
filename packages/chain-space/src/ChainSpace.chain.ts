@@ -550,7 +550,7 @@ export async function prepareDelegateAuthorizationExtrinsic(
   spaceId: string,
   delegateId: string,
   authId: string
-): Promise<SubmittableExtrinsic<'promise'>> {
+): Promise<SubmittableExtrinsic> {
   try {
     const api = ConfigService.get('api');
 
@@ -644,7 +644,7 @@ export async function dispatchDelegateAuthorization(
     const delegatorAuthId: string = uriToIdentifier(authorizationUri);
 
     // Prepare the transaction
-    const tx: SubmittableExtrinsic<'promise'> = dispatchDelegateAuthorizationTx(
+    const tx: SubmittableExtrinsic = dispatchDelegateAuthorizationTx(
       request.permission,
       spaceId,
       delegateId,
@@ -661,6 +661,7 @@ export async function dispatchDelegateAuthorization(
 
     // Sign and submit the transaction
     const result = await Chain.signAndSubmitTx(extrinsic, authorAccount);
+    
 
     // Return the result of the transaction
     return request.authorizationUri;
