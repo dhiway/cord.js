@@ -545,31 +545,43 @@ function dispatchDelegateAuthorizationTx(
  * @returns A promise resolving to the prepared extrinsic.
  * @throws {SDKErrors.CordQueryError} - Thrown on error during preparation.
  */
+
 export async function prepareDelegateAuthorizationExtrinsic(
   permission: PermissionType,
   spaceId: string,
   delegateId: string,
-  authId: string
+  authId: string,
+  did: Did.DID // Pass the DID object for authorization
 ): Promise<SubmittableExtrinsic> {
   try {
     const api = ConfigService.get('api');
 
-    // Prepare the extrinsic based on permission type
+    // Prepare the extrinsic based on the permission type
+    let extrinsic: SubmittableExtrinsic;
+
     switch (permission) {
       case Permission.ASSERT:
-        return api.tx.chainSpace.addDelegate(spaceId, delegateId, authId);
+        extrinsic = api.tx.chainSpace.addDelegate(spaceId, delegateId, authId);
+        break;
       case Permission.DELEGATE:
-        return api.tx.chainSpace.addDelegator(spaceId, delegateId, authId);
+        extrinsic = api.tx.chainSpace.addDelegator(spaceId, delegateId, authId);
+        break;
       case Permission.ADMIN:
-        return api.tx.chainSpace.addAdminDelegate(spaceId, delegateId, authId);
+        extrinsic = api.tx.chainSpace.addAdminDelegate(spaceId, delegateId, authId);
+        break;
       default:
         throw new SDKErrors.InvalidPermissionError(
           `Permission not valid: "${permission}".`
         );
     }
+
+    // Now authorize the extrinsic using the DID (sign it with DID keys)
+    const authorizedExtrinsic = await did.authorizeTx(extrinsic);
+
+    return authorizedExtrinsic;
   } catch (error) {
     throw new SDKErrors.CordQueryError(
-      `Error preparing the delegate authorization extrinsic: ${error}`
+      `Error preparing the delegate authorization extrinsic: ${error.message || error}`
     );
   }
 }
@@ -666,15 +678,9 @@ export async function dispatchDelegateAuthorization(
     // Return the result of the transaction
     return request.authorizationUri;
   } catch (error) {
-    if (error instanceof Error) {
-      throw new SDKErrors.CordDispatchError(
-        `Error dispatching delegate authorization: ${error.message}`
-      );
-    } else {
-      throw new SDKErrors.CordDispatchError(
-        `Unexpected error dispatching delegate authorization: ${String(error)}`
-      );
-    }
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching delegate authorization: ${String(error)}`
+    );
   }
 }
 
