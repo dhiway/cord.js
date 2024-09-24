@@ -180,7 +180,7 @@ export async function getUriForSpace(
     .toU8a()
 
   const authDigest = blake2AsHex(
-    Uint8Array.from([...scaleEncodedAuthDigest, ...scaleEncodedAuthDelegate])
+    Uint8Array.from([...scaleEncodedAuthDigest, ...scaleEncodedAuthDelegate, ...scaleEncodedAuthDelegate])
   )
 
   const authorizationUri = hashToUri(
