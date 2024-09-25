@@ -118,6 +118,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       AssetNotLive: AugmentedError<ApiType>;
       /**
+       * The asset ID must be equal to the [`NextAssetId`].
+       **/
+      BadAssetId: AugmentedError<ApiType>;
+      /**
        * Invalid metadata given.
        **/
       BadMetadata: AugmentedError<ApiType>;
@@ -489,6 +493,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       OutOfGas: AugmentedError<ApiType>;
       /**
+       * Can not add more data to transient storage.
+       **/
+      OutOfTransientStorage: AugmentedError<ApiType>;
+      /**
        * The output buffer supplied to a contract API call was too small.
        **/
       OutputBufferTooSmall: AugmentedError<ApiType>;
@@ -783,6 +791,32 @@ declare module '@polkadot/api-base/types/errors' {
        * A suffix that is too long is being claimed.
        **/
       SuffixTooLong: AugmentedError<ApiType>;
+    };
+    entries: {
+      /**
+       * Invalid Identifer Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Identifier Invalid or Not of DeDir Type
+       **/
+      InvalidRegistryEntryIdentifier: AugmentedError<ApiType>;
+      /**
+       * Registry Entry Identifier Already Exists
+       **/
+      RegistryEntryIdentifierAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * Registry Entry Identifier Does Not Exists
+       **/
+      RegistryEntryIdentifierDoesNotExist: AugmentedError<ApiType>;
+      /**
+       * Registry Entry has not been revoked.
+       **/
+      RegistryEntryNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Account has no valid authorization
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
     };
     grandpa: {
       /**
@@ -1179,6 +1213,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       AssetNotLive: AugmentedError<ApiType>;
       /**
+       * The asset ID must be equal to the [`NextAssetId`].
+       **/
+      BadAssetId: AugmentedError<ApiType>;
+      /**
        * Invalid metadata given.
        **/
       BadMetadata: AugmentedError<ApiType>;
@@ -1260,6 +1298,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       AlreadyNoted: AugmentedError<ApiType>;
       /**
+       * No ticket with a cost was returned by [`Config::Consideration`] to store the preimage.
+       **/
+      NoCost: AugmentedError<ApiType>;
+      /**
        * The user is not authorized to perform this action.
        **/
       NotAuthorized: AugmentedError<ApiType>;
@@ -1287,6 +1329,68 @@ declare module '@polkadot/api-base/types/errors' {
        * More than `MAX_HASH_UPGRADE_BULK_COUNT` hashes were requested to be upgraded at once.
        **/
       TooMany: AugmentedError<ApiType>;
+    };
+    registries: {
+      /**
+       * Authorization Id not found
+       **/
+      AuthorizationNotFound: AugmentedError<ApiType>;
+      /**
+       * Authority already added
+       **/
+      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      /**
+       * Delegate not found.
+       **/
+      DelegateNotFound: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier
+       **/
+      InvalidIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Registry identifier is not unique
+       **/
+      RegistryAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Registry already arhived.
+       **/
+      RegistryAlreadyArchived: AugmentedError<ApiType>;
+      /**
+       * Registry already revoked
+       **/
+      RegistryAlreadyRevoked: AugmentedError<ApiType>;
+      /**
+       * Registry not archived.
+       **/
+      RegistryArchived: AugmentedError<ApiType>;
+      /**
+       * Registry delegation limit exceeded
+       **/
+      RegistryDelegatesLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Registry not archived.
+       **/
+      RegistryNotArchived: AugmentedError<ApiType>;
+      /**
+       * Registry identifier not found
+       **/
+      RegistryNotFound: AugmentedError<ApiType>;
+      /**
+       * Registry not revoked.
+       **/
+      RegistryNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Registry revoked.
+       **/
+      RegistryRevoked: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller or delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
     };
     remark: {
       /**
@@ -1618,10 +1722,6 @@ declare module '@polkadot/api-base/types/errors' {
        * amount to be spent.
        **/
       InsufficientPermission: AugmentedError<ApiType>;
-      /**
-       * Proposer's balance is too low.
-       **/
-      InsufficientProposersBalance: AugmentedError<ApiType>;
       /**
        * No proposal, bounty or spend at that index.
        **/

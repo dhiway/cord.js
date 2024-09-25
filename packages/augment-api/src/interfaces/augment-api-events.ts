@@ -498,6 +498,28 @@ declare module '@polkadot/api-base/types/events' {
        **/
       DidNameUnbanned: AugmentedEvent<ApiType, [name: Bytes], { name: Bytes }>;
     };
+    entries: {
+      /**
+       * A new registry entry has been created.
+       * \[creator, registry_identifier, registry_entry_identifier\]
+       **/
+      RegistryEntryCreated: AugmentedEvent<ApiType, [creator: AccountId32, registryId: Bytes, registryEntryId: Bytes], { creator: AccountId32, registryId: Bytes, registryEntryId: Bytes }>;
+      /**
+       * A existing registry entry has been reinstated.
+       * \[updater, registry_enrtry_identifier\]
+       **/
+      RegistryEntryReinstated: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes], { updater: AccountId32, registryEntryId: Bytes }>;
+      /**
+       * A existing registry entry has been revoked.
+       * \[updater, registry_entry_identifier\]
+       **/
+      RegistryEntryRevoked: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes], { updater: AccountId32, registryEntryId: Bytes }>;
+      /**
+       * A existing registry entry has been updated.
+       * \[updater, registry_entry_identifier\]
+       **/
+      RegistryEntryUpdated: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes], { updater: AccountId32, registryEntryId: Bytes }>;
+    };
     grandpa: {
       /**
        * New authority set has been applied.
@@ -846,6 +868,48 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Requested: AugmentedEvent<ApiType, [hash_: H256], { hash_: H256 }>;
     };
+    registries: {
+      /**
+       * A registry has been archived.
+       * \[registry identifier,  authority\]
+       **/
+      Archive: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
+      /**
+       * A new registry authorization has been added.
+       * \[registry identifier, authorization,  delegate\]
+       **/
+      Authorization: AugmentedEvent<ApiType, [registryId: Bytes, authorization: Bytes, delegate: AccountId32], { registryId: Bytes, authorization: Bytes, delegate: AccountId32 }>;
+      /**
+       * A new registry has been created.
+       * \[registry identifier, creator, authorization\]
+       **/
+      Create: AugmentedEvent<ApiType, [registryId: Bytes, creator: AccountId32, authorization: Bytes], { registryId: Bytes, creator: AccountId32, authorization: Bytes }>;
+      /**
+       * A registry authorization has been removed.
+       * \[registry identifier, authorization, ]
+       **/
+      Deauthorization: AugmentedEvent<ApiType, [registryId: Bytes, authorization: Bytes], { registryId: Bytes, authorization: Bytes }>;
+      /**
+       * A registry has been reinstated.
+       * \[registry identifier,  authority\]
+       **/
+      Reinstate: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
+      /**
+       * A registry has been restored.
+       * \[registry identifier, authority\]
+       **/
+      Restore: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
+      /**
+       * A registry has been revoked.
+       * \[registry identifier, authority\]
+       **/
+      Revoke: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
+      /**
+       * A existing registry has been updated.
+       * \[registry identifier, updater, authorization\]
+       **/
+      Update: AugmentedEvent<ApiType, [registryId: Bytes, updater: AccountId32, authorization: Bytes], { registryId: Bytes, updater: AccountId32, authorization: Bytes }>;
+    };
     remark: {
       /**
        * Stored data off chain.
@@ -1102,14 +1166,6 @@ declare module '@polkadot/api-base/types/events' {
        * A payment failed and can be retried.
        **/
       PaymentFailed: AugmentedEvent<ApiType, [index: u32, paymentId: Null], { index: u32, paymentId: Null }>;
-      /**
-       * New proposal.
-       **/
-      Proposed: AugmentedEvent<ApiType, [proposalIndex: u32], { proposalIndex: u32 }>;
-      /**
-       * A proposal was rejected; funds were slashed.
-       **/
-      Rejected: AugmentedEvent<ApiType, [proposalIndex: u32, slashed: u128], { proposalIndex: u32, slashed: u128 }>;
       /**
        * Spending has finished; this is the amount that rolls over until next spend.
        **/

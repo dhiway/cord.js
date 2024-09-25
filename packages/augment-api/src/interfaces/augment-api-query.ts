@@ -11,7 +11,7 @@ import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u32, u64
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordLoomRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmountRuntimeFreezeReason, PalletBalancesIdAmountRuntimeHoldReason, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordLoomRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletEntriesRegistryEntryDetails, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletRegistriesRegistryAuthorization, PalletRegistriesRegistryDetails, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -50,6 +50,18 @@ declare module '@polkadot/api-base/types/storage' {
        * Metadata of an asset.
        **/
       metadata: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<PalletAssetsAssetMetadata>, [u32]>;
+      /**
+       * The asset ID enforced for the next asset creation, if any present. Otherwise, this storage
+       * item has no effect.
+       * 
+       * This can be useful for setting up constraints for IDs of the new assets. For example, by
+       * providing an initial [`NextAssetId`] and using the [`crate::AutoIncAssetId`] callback, an
+       * auto-increment model can be applied to all new asset IDs.
+       * 
+       * The initial next asset ID can be set using the [`GenesisConfig`] or the
+       * [SetNextAssetId](`migration::next_asset_id::SetNextAssetId`) migration.
+       **/
+      nextAssetId: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
     };
     authorityDiscovery: {
       /**
@@ -222,11 +234,11 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * Freeze locks on account balances.
        **/
-      freezes: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesIdAmountRuntimeFreezeReason>>, [AccountId32]>;
+      freezes: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<FrameSupportTokensMiscIdAmountRuntimeFreezeReason>>, [AccountId32]>;
       /**
        * Holds on account balances.
        **/
-      holds: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesIdAmountRuntimeHoldReason>>, [AccountId32]>;
+      holds: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<FrameSupportTokensMiscIdAmountRuntimeHoldReason>>, [AccountId32]>;
       /**
        * The total units of outstanding deactivated balance in the system.
        **/
@@ -405,6 +417,13 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       owner: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletDidNameDidNameDidNameOwnership>>, [Bytes]>;
     };
+    entries: {
+      /**
+       * Storage for Registry Entries.
+       * It maps Registry Entry Identifier to Registry Entry Details.
+       **/
+      registryEntries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletEntriesRegistryEntryDetails>>, [Bytes]>;
+    };
     grandpa: {
       /**
        * The current list of authorities.
@@ -456,7 +475,7 @@ declare module '@polkadot/api-base/types/storage' {
       storedRange: AugmentedQuery<ApiType, () => Observable<Option<ITuple<[u32, u32]>>>, []>;
     };
     identifier: {
-      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
+      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | 'Registries' | 'Entries' | 'RegistryAuthorization' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
     };
     identity: {
       /**
@@ -623,6 +642,18 @@ declare module '@polkadot/api-base/types/storage' {
        * Metadata of an asset.
        **/
       metadata: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<PalletAssetsAssetMetadata>, [u32]>;
+      /**
+       * The asset ID enforced for the next asset creation, if any present. Otherwise, this storage
+       * item has no effect.
+       * 
+       * This can be useful for setting up constraints for IDs of the new assets. For example, by
+       * providing an initial [`NextAssetId`] and using the [`crate::AutoIncAssetId`] callback, an
+       * auto-increment model can be applied to all new asset IDs.
+       * 
+       * The initial next asset ID can be set using the [`GenesisConfig`] or the
+       * [SetNextAssetId](`migration::next_asset_id::SetNextAssetId`) migration.
+       **/
+      nextAssetId: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
     };
     preimage: {
       preimageFor: AugmentedQuery<ApiType, (arg: ITuple<[H256, u32]> | [H256 | string | Uint8Array, u32 | AnyNumber | Uint8Array]) => Observable<Option<Bytes>>, [ITuple<[H256, u32]>]>;
@@ -642,6 +673,24 @@ declare module '@polkadot/api-base/types/storage' {
        * the oldest hash.
        **/
       randomMaterial: AugmentedQuery<ApiType, () => Observable<Vec<H256>>, []>;
+    };
+    registries: {
+      /**
+       * Registry authorizations stored on-chain.
+       * It maps from an identifier to delegates.
+       **/
+      authorizations: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistriesRegistryAuthorization>>, [Bytes]>;
+      /**
+       * Registry delegates stored on chain.
+       * It maps from an identifier to a  bounded vec of delegates and
+       * permissions.
+       **/
+      delegates: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
+      /**
+       * Registry information stored on chain.
+       * It maps from an identifier to its details.
+       **/
+      registryInfo: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistriesRegistryDetails>>, [Bytes]>;
     };
     scheduler: {
       /**
