@@ -53,7 +53,6 @@ import {
   AUTH_PREFIX,
   blake2AsHex,
   Bytes,
-  Permission,
 } from '@cord.network/types'
 import { ConfigService } from '@cord.network/config'
 import * as Did from '@cord.network/did'
@@ -63,6 +62,7 @@ import type {
   PalletChainSpacePermissions,
 } from '@cord.network/augment-api'
 import { Chain } from '@cord.network/network'
+import { Permission } from '@cord.network/types';
 
 /**
  * Checks the existence of a Chain Space on the CORD blockchain.
@@ -533,6 +533,79 @@ function dispatchDelegateAuthorizationTx(
 }
 
 /**
+ * Prepares a delegate authorization extrinsic.
+ *
+ * @remarks
+ * Creates an extrinsic for delegating authorization based on the provided parameters.
+ *
+ * @param permission - The type of permission being granted.
+ * @param spaceId - The identifier of the space to which the delegate authorization is being added.
+ * @param delegateId - The decentralized identifier (DID) of the delegate receiving the authorization.
+ * @param authId - The identifier of the specific authorization transaction being constructed.
+ * @returns A promise resolving to the prepared extrinsic.
+ * @throws {SDKErrors.CordQueryError} - Thrown on error during preparation.
+ */
+
+export async function prepareDelegateAuthorizationExtrinsic(
+  permission: PermissionType,
+  spaceId: string,
+  delegateId: string,
+  authId: string,
+  did: Did.DID // Pass the DID object for authorization
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+
+    // Prepare the extrinsic based on the permission type
+    let extrinsic: SubmittableExtrinsic;
+
+    switch (permission) {
+      case Permission.ASSERT:
+        extrinsic = api.tx.chainSpace.addDelegate(spaceId, delegateId, authId);
+        break;
+      case Permission.DELEGATE:
+        extrinsic = api.tx.chainSpace.addDelegator(spaceId, delegateId, authId);
+        break;
+      case Permission.ADMIN:
+        extrinsic = api.tx.chainSpace.addAdminDelegate(spaceId, delegateId, authId);
+        break;
+      default:
+        throw new SDKErrors.InvalidPermissionError(
+          `Permission not valid: "${permission}".`
+        );
+    }
+
+    // Now authorize the extrinsic using the DID (sign it with DID keys)
+    const authorizedExtrinsic = await did.authorizeTx(extrinsic);
+
+    return authorizedExtrinsic;
+  } catch (error) {
+    throw new SDKErrors.CordQueryError(
+      `Error preparing the delegate authorization extrinsic: ${error.message || error}`
+    );
+  }
+}
+
+/**
+ * Dispatches a delegate authorization request to the CORD blockchain.
+ *
+ * @remarks
+ * This function handles the submission of delegate authorization requests to the CORD blockchain. It manages
+ * the process of transaction preparation, signing, and submission, facilitating the delegation of specific
+ * permissions within a ChainSpace. The function ensures that the authorization is correctly dispatched to
+ * the blockchain with the necessary signatures.
+ *
+ * @param permission - The type of permission being granted.
+ * @param spaceId - The identifier of the space to which the delegate authorization is being added.
+ * @param delegateId - The decentralized identifier (DID) of the delegate receiving the authorization.
+ * @param authId - The identifier of the specific authorization transaction being constructed.
+ * @param sender - The account ID of the sender.
+ * @returns A promise resolving to the transaction result.
+ * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
+ * @throws {SDKErrors.CordQueryError} - Thrown when there's an error preparing the extrinsic.
+ */
+
+/**
  * Dispatches a delegate authorization transaction to the CORD blockchain.
  *
  * @remarks
@@ -577,32 +650,42 @@ export async function dispatchDelegateAuthorization(
   signCallback: SignExtrinsicCallback
 ): Promise<AuthorizationId> {
   try {
-    const spaceId = uriToIdentifier(request.uri)
-    const delegateId = Did.toChain(request.delegateUri)
-    const delegatorAuthId = uriToIdentifier(authorizationUri)
+    // Convert URIs to identifiers
+    const spaceId: string = uriToIdentifier(request.uri);
+    const delegateId: string = Did.toChain(request.delegateUri);
+    const delegatorAuthId: string = uriToIdentifier(authorizationUri);
 
-    const tx = dispatchDelegateAuthorizationTx(
+    // Prepare the transaction
+    const tx: SubmittableExtrinsic = dispatchDelegateAuthorizationTx(
       request.permission,
       spaceId,
       delegateId,
       delegatorAuthId
-    )
+    );
+
+    // Authorize the transaction
     const extrinsic = await Did.authorizeTx(
       request.delegatorUri as DidUri,
       tx,
       signCallback,
       authorAccount.address
-    )
+    );
 
-    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+    // Sign and submit the transaction
+    const result = await Chain.signAndSubmitTx(extrinsic, authorAccount);
+    
 
-    return request.authorizationUri
+    // Return the result of the transaction
+    return request.authorizationUri;
   } catch (error) {
     throw new SDKErrors.CordDispatchError(
-      `Error dispatching delegate authorization: ${error}`
-    )
+      `Error dispatching delegate authorization: ${String(error)}`
+    );
   }
 }
+
+
+
 
 /**
  * Decodes the details of a space from its blockchain-encoded representation.
