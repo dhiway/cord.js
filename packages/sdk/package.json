@@ -45,6 +45,7 @@
     "@cord.network/identifier": "workspace:*",
     "@cord.network/network": "workspace:*",
     "@cord.network/network-score": "workspace:*",
+    "@cord.network/registries": "workspace:*",
     "@cord.network/schema": "workspace:*",
     "@cord.network/statement": "workspace:*",
     "@cord.network/types": "workspace:*",
