@@ -6,7 +6,7 @@
 import '@polkadot/api-base/types/consts';
 
 import type { ApiTypes, AugmentedConst } from '@polkadot/api-base/types';
-import type { Option, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
+import type { bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { Perbill, Permill } from '@polkadot/types/interfaces/runtime';
 import type { FrameSupportPalletId, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, PalletContractsEnvironment, PalletContractsSchedule, SpVersionRuntimeVersion, SpWeightsRuntimeDbWeight, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
@@ -201,6 +201,11 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxStorageKeyLen: u32 & AugmentedConst<ApiType>;
       /**
+       * The maximum size of the transient storage in bytes.
+       * This includes keys, values, and previous entries used for storage rollback.
+       **/
+      maxTransientStorageSize: u32 & AugmentedConst<ApiType>;
+      /**
        * Cost schedule and limits.
        **/
       schedule: PalletContractsSchedule & AugmentedConst<ApiType>;
@@ -285,6 +290,16 @@ declare module '@polkadot/api-base/types/consts' {
        * The min encoded length of a name.
        **/
       minNameLength: u32 & AugmentedConst<ApiType>;
+    };
+    entries: {
+      /**
+       * The maximum encoded length available for naming.
+       **/
+      maxEncodedInputLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of bytes in size a Registry Entry Blob can hold.
+       **/
+      maxRegistryEntryBlobSize: u32 & AugmentedConst<ApiType>;
     };
     grandpa: {
       /**
@@ -430,6 +445,11 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       stringLimit: u32 & AugmentedConst<ApiType>;
     };
+    registries: {
+      maxEncodedInputLength: u32 & AugmentedConst<ApiType>;
+      maxRegistryBlobSize: u32 & AugmentedConst<ApiType>;
+      maxRegistryDelegates: u32 & AugmentedConst<ApiType>;
+    };
     scheduler: {
       /**
        * The maximum weight that may be scheduled per block for any dispatchables.
@@ -549,19 +569,6 @@ declare module '@polkadot/api-base/types/consts' {
        * The period during which an approved treasury spend has to be claimed.
        **/
       payoutPeriod: u32 & AugmentedConst<ApiType>;
-      /**
-       * Fraction of a proposal's value that should be bonded in order to place the proposal.
-       * An accepted proposal gets these back. A rejected proposal does not.
-       **/
-      proposalBond: Permill & AugmentedConst<ApiType>;
-      /**
-       * Maximum amount of funds that should be placed in a deposit for making a proposal.
-       **/
-      proposalBondMaximum: Option<u128> & AugmentedConst<ApiType>;
-      /**
-       * Minimum amount of funds that should be placed in a deposit for making a proposal.
-       **/
-      proposalBondMinimum: u128 & AugmentedConst<ApiType>;
       /**
        * Period between successive spends.
        **/
