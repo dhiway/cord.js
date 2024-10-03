@@ -443,7 +443,7 @@ async function main() {
       keyType: delegateTwoKeys.authentication.type,
     })
   )
-  console.log(`✅ Statement revoked!`)
+  console.log(`✅ Statement restored!`)
 
   console.log(`\n❄️  Statement Re-verification `)
   const reReVerificationResult = await Cord.Statement.verifyAgainstProperties(
