@@ -58,7 +58,10 @@
       ],
       "@cord.network/asset": [
         "asset/src"
-      ]
+      ],
+      "@cord.network/registries": [
+        "registries/src"
+      ],
     }
   }
 }
