@@ -225,14 +225,13 @@ async function main() {
     colors: true,
   })
 
-  const delegateAuthorizationUri2 = await Cord.Registries.dispatchDelegateAuthorization(
+  const delegateAuthorizationUri = await Cord.Registries.dispatchDelegateAuthorization(
     registryDelegateAuthProperties,
     registry.authorizationUri,
     authorIdentity
   )
 
-  console.log(`\n✅ Registry Authorization added with DELEGATE permission - ${delegateAuthorizationUri2} - added!`)
-
+  console.log(`\n✅ Registry Authorization added with DELEGATE permission - ${delegateAuthorizationUri} - added!`)
 
   // Setup a account to be added as a `DELEGATE` delegate.
   const { account: adminIdentity } = await createAccount()
@@ -262,6 +261,18 @@ async function main() {
   )
 
   console.log(`\n✅ Registry Authorization added with ADMIN permission - ${delegateAdminAuthorizationUri} - added!`)
+
+  console.log(`\n❄️  Remove Registry Assert Authorization `);
+
+  // Remove a delegate with ASSERT permission
+  const removeAuthObj = await Cord.Registries.dispatchRemoveDelegateToChain(
+    registry.uri,
+    delegateAssertAuthorizationUri,
+    registry.authorizationUri,
+    authorIdentity
+  )
+
+  console.log(`\n✅ Registry ASSERT Authorization removed - ${delegateAssertAuthorizationUri} - removed!`)
 
   console.log("Balance of Registry Creator after all transactions", await getBalance(authorIdentity.address, api));
 }

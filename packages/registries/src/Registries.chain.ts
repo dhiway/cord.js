@@ -675,3 +675,107 @@ export async function dispatchDelegateAuthorization(
     )
   }
 }
+
+
+/**
+ * Removes a delegate from a registry on the chain.
+ *
+ * This method is used to remove a delegate's authorization from a given registry. It checks whether the registry
+ * and the provided authorization exist on-chain, constructs the required parameters, and dispatches the extrinsic
+ * to the blockchain for execution.
+ *
+ * @async
+ * @function
+ * @param {RegistryUri} registryUri - The URI of the registry from which the delegate will be removed.
+ * @param {RegistryAuthorizationUri} removeAuthorizationUri - The URI of the authorization to be removed (i.e., the delegate's authorization).
+ * @param {RegistryAuthorizationUri} authorizationUri - The URI of the authorization of the account performing the removal (the caller's authorization).
+ * @param {CordKeyringPair} authorAccount - The account key pair of the entity removing the delegate, used for signing the transaction.
+ * 
+ * @returns {Promise<{ uri: RegistryUri, removeAuthorizationUri: RegistryAuthorizationUri, authorizationUri: RegistryAuthorizationUri }>} 
+ *          An object containing the URIs related to the registry and authorizations.
+ *          - `uri`: The URI of the registry.
+ *          - `removeAuthorizationUri`: The authorization URI of the delegate being removed.
+ *          - `authorizationUri`: The authorization URI of the signer performing the removal.
+ * 
+ * @throws {SDKErrors.CordDispatchError}
+ * - If the registry URI does not exist on-chain.
+ * - If the authorization URI of the signer does not exist on-chain.
+ * - If an error occurs while dispatching the transaction to the chain.
+ * 
+ * @example
+ * ```typescript
+ * const registryUri = 'did:cord:registry:3abc...';
+ * const removeAuthorizationUri = 'did:cord:auth:3xyz...';
+ * const authorizationUri = 'did:cord:auth:3signer...';
+ * const authorAccount = keyring.addFromUri('//Alice');
+ * 
+ * dispatchRemoveDelegateToChain(registryUri, removeAuthorizationUri, authorizationUri, authorAccount)
+ *   .then(result => {
+ *     console.log('Delegate removed:', result);
+ *   })
+ *   .catch(error => {
+ *     console.error('Error removing delegate:', error);
+ *   });
+ * ```
+ *
+ * @description
+ * The function first verifies the existence of the registry and the signer’s authorization on the blockchain.
+ * It then encodes the provided URIs into identifiers and submits a signed transaction to remove the delegate
+ * from the registry. If the removal is successful, it returns an object with the registry URI and relevant authorization URIs.
+ *
+ */
+export async function dispatchRemoveDelegateToChain(
+    registryUri: RegistryUri,
+    removeAuthorizationUri: RegistryAuthorizationUri,
+    authorizationUri: RegistryAuthorizationUri,
+    authorAccount: CordKeyringPair,
+): Promise<{ 
+    uri: RegistryUri,
+    removeAuthorizationUri: RegistryAuthorizationUri,
+    authorizationUri: RegistryAuthorizationUri
+}> {
+    const registryObj = {
+        uri: registryUri,
+        removeAuthorizationUri: removeAuthorizationUri,
+        authorizationUri: authorizationUri,
+    }
+
+    const registryExists = await isRegistryStored(registryUri);
+
+    if (!registryExists) {
+        throw new SDKErrors.CordDispatchError(
+            `Registry URI does not exist: "${registryUri}".`
+        );
+    }
+
+    const authorizationExists = await isRegistryAuthorizationStored(authorizationUri);
+    if (!authorizationExists) {
+        throw new SDKErrors.CordDispatchError(
+            `Registry remover Authorization URI does not exist: "${authorizationUri}".`
+        );
+    }
+
+    try {
+        const api = ConfigService.get('api')
+
+        const registryId = uriToIdentifier(registryUri);
+        const removeAuthorizationId = uriToIdentifier(removeAuthorizationUri);
+        const authorizationId = uriToIdentifier(authorizationUri);
+        
+        const extrinsic = api.tx.registries.removeDelegate(
+            registryId,
+            removeAuthorizationId,
+            authorizationId,
+        );
+
+        await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+        return registryObj
+    } catch(error) {
+        const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error)
+        throw new SDKErrors.CordDispatchError(
+        `Error dispatching to chain: "${errorMessage}".`
+        )
+    }
+}
