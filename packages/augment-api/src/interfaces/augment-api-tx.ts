@@ -178,7 +178,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Parameters:
        * - `id`: The identifier of the new asset. This must not be currently in use to identify
-       * an existing asset.
+       * an existing asset. If [`NextAssetId`] is set, then this must be equal to it.
        * - `admin`: The admin of this class of assets. The admin is the initial address of each
        * member of the asset class's admin team.
        * - `min_balance`: The minimum balance of this new asset that any single account must
@@ -297,7 +297,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Unlike `create`, no funds are reserved.
        * 
        * - `id`: The identifier of the new asset. This must not be currently in use to identify
-       * an existing asset.
+       * an existing asset. If [`NextAssetId`] is set, then this must be equal to it.
        * - `owner`: The owner of this class of assets. The owner has full superuser permissions
        * over this asset, but may later change and configure the permissions using
        * `transfer_ownership` and `set_team`.
@@ -1759,6 +1759,136 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       unban: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
+    entries: {
+      /**
+       * Creates a new Registry Entry within a specified Registry.
+       * 
+       * This function allows a user to create a new entry within an existing Registry.
+       * The function verifies that the caller is authorized to create an entry within the
+       * specified Registry, ensures that the entry does not already exist.
+       * 
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which must be a signed account (creator of the
+       * entry).
+       * * `registry_entry_id` - A unique id as registry entry identifier.
+       * * `authorization` - The authorization identifier that links the creator to the Registry.
+       * * `digest` - The hash value or digest of the content associated with the Registry entry.
+       * * `blob` - (Optional) Additional data associated with the Registry entry, provided as an
+       * optional field.
+       * 
+       * # Errors
+       * This function returns an error in the following cases:
+       * * `UnauthorizedOperation` - If the caller does not have permission to create entries
+       * within the Registry.
+       * * `RegistryEntryIdentifierAlreadyExists` - If the `registry_entry_id` already exists in
+       * the storage.
+       * * `InvalidIdentifierLength` - If the `registry_entry_id` generated from the hash exceeds
+       * the expected length for identifiers.
+       * 
+       * # Events
+       * Emits the `Event::RegistryEntryCreated` event upon successful creation of a new Registry
+       * entry. This event includes the `creator`, `registry_id`, and the `registry_entry_id`
+       * of the new entry.
+       * 
+       * # Example
+       * ```rust
+       * create(origin, registry_entry_id, authorization, digest, Some(blob))?;
+       * ```
+       **/
+      create: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Option<Bytes>]>;
+      /**
+       * Reinstates an revoked existing Registry Entry.
+       * 
+       * This function allows an authorized user to reinstates revoked an existing Registry
+       * Entry, marking it active again. The revocation can only be performed by the account
+       * with appropriate permissions
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which must be a signed account (updater).
+       * * `registry_entry_id` - The unique identifier of the Registry Entry to be reinstated.
+       * * `authorization` - The authorization identifier that links the updater to the Registry.
+       * 
+       * # Errors
+       * This function returns an error in the following cases:
+       * * `UnauthorizedOperation` - If the caller does not have permission to revoke the
+       * Registry Entry.
+       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
+       * exist.
+       * 
+       * # Events
+       * Emits the `Event::RegistryEntryReinstated` event upon Registry Entry successfully
+       * reinstated. This event includes the `updater` and the `registry_entry_id`.
+       * 
+       * # Example
+       * ```rust
+       * reinstate(origin, registry_entry_id, authorization)?;
+       * ```
+       **/
+      reinstate: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Revokes an existing Registry Entry.
+       * 
+       * This function allows an authorized user to revoke an existing Registry Entry, marking it
+       * as no longer valid. The revocation can only be performed by the account with
+       * appropriate permissions.
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which must be a signed account (updater).
+       * * `registry_entry_id` - The unique identifier of the Registry Entry to be revoked.
+       * * `authorization` - The authorization identifier that links the updater to the Registry.
+       * 
+       * # Errors
+       * This function returns an error in the following cases:
+       * * `UnauthorizedOperation` - If the caller does not have permission to revoke the
+       * Registry Entry.
+       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
+       * exist.
+       * 
+       * # Events
+       * Emits the `Event::RegistryEntryRevoked` event upon successful revocation of the Registry
+       * Entry. This event includes the `updater` and the `registry_entry_id`.
+       * 
+       * # Example
+       * ```rust
+       * revoke(origin, registry_entry_id, authorization)?;
+       * ```
+       **/
+      revoke: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Updates an existing Registry Entry with new metadata.
+       * 
+       * This function allows an authorized user to update the metadata (such as the `digest` or
+       * optional `blob`) of an existing Registry Entry. The user must have the necessary
+       * permissions to perform this operation.
+       * 
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which must be a signed account (updater).
+       * * `registry_entry_id` - The unique identifier of the Registry Entry to be updated.
+       * * `authorization` - The authorization identifier that links the updater to the Registry.
+       * * `digest` - The new hash value or digest to be associated with the Registry Entry.
+       * * `blob` - (Optional) New additional data to be associated with the Registry Entry.
+       * 
+       * # Errors
+       * This function returns an error in the following cases:
+       * * `UnauthorizedOperation` - If the caller does not have permission to update the
+       * Registry Entry.
+       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
+       * exist.
+       * * `StateNotSupported` - If an unsupported state is provided.
+       * 
+       * # Events
+       * Emits the `Event::RegistryEntryUpdated` event upon successful update of the Registry
+       * Entry. This event includes the `updater` and the `registry_entry_id`.
+       * 
+       * # Example
+       * ```rust
+       * update(origin, registry_entry_id, authorization, digest, Some(blob))?;
+       * ```
+       **/
+      update: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Option<Bytes>]>;
+    };
     grandpa: {
       /**
        * Note that the current authority set of the GRANDPA finality gadget has stalled.
@@ -2497,7 +2627,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Parameters:
        * - `id`: The identifier of the new asset. This must not be currently in use to identify
-       * an existing asset.
+       * an existing asset. If [`NextAssetId`] is set, then this must be equal to it.
        * - `admin`: The admin of this class of assets. The admin is the initial address of each
        * member of the asset class's admin team.
        * - `min_balance`: The minimum balance of this new asset that any single account must
@@ -2616,7 +2746,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * Unlike `create`, no funds are reserved.
        * 
        * - `id`: The identifier of the new asset. This must not be currently in use to identify
-       * an existing asset.
+       * an existing asset. If [`NextAssetId`] is set, then this must be equal to it.
        * - `owner`: The owner of this class of assets. The owner has full superuser permissions
        * over this asset, but may later change and configure the permissions using
        * `transfer_ownership` and `set_team`.
@@ -2961,6 +3091,345 @@ declare module '@polkadot/api-base/types/submittable' {
        * NOTE: THIS MUST NOT BE CALLED ON `hash` MORE TIMES THAN `request_preimage`.
        **/
       unrequestPreimage: AugmentedSubmittable<(hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
+    };
+    registries: {
+      /**
+       * Adds an administrative delegate to a registry.
+       * 
+       * This function grants the `ADMIN` permission to a specified delegate,
+       * allowing the delegate to manage other delegates and modify registry
+       * configurations. Only existing registry administrators can invoke this
+       * function to add another admin delegate.
+       * 
+       * The function ensures that the caller has sufficient administrative
+       * privileges in the registry and that the `registry_id` matches the
+       * authorization. If the checks pass, the delegate is added with `ADMIN`
+       * permissions using the internal `registry_delegate_addition` function.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the call, which must be signed by an existing administrator of
+       * the registry.
+       * - `registry_id`: The unique identifier of the registry to which the admin delegate is
+       * being added.
+       * - `delegate`: The account identifier of the delegate being granted admin permissions.
+       * - `authorization`: The authorization ID used to validate the caller's permission to add
+       * an admin delegate to the specified registry.
+       * 
+       * # Returns
+       * Returns `Ok(())` if the admin delegate is successfully added, or an `Err`
+       * if the operation fails, such as when the caller lacks the necessary
+       * permissions or if there's an internal error during delegate addition.
+       * 
+       * # Errors
+       * - `UnauthorizedOperation`: If the caller does not have admin permissions in the
+       * registry.
+       * - Propagates errors from `registry_delegate_addition` if delegate addition fails.
+       **/
+      addAdminDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * Adds a delegate with permission to assert new entries to a registry.
+       * 
+       * The `ASSERT` permission enables a delegate to add and sign new entries
+       * within the specified registry. This function is used to grant this
+       * permission to a delegate, provided that the caller has sufficient
+       * authorization, typically as an admin of the registry.
+       * 
+       * The function checks that the caller is authorized (as an admin) to add
+       * a delegate with `ASSERT` permissions to the registry. If the caller's
+       * authorization is verified, the delegate is added using the internal
+       * `registry_delegate_addition` function.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the call, which must be signed by an admin of the registry.
+       * - `registry_id`: The unique identifier of the registry to which the delegate is being
+       * added.
+       * - `delegate`: The account identifier of the delegate being granted the `ASSERT`
+       * permission.
+       * - `authorization`: The authorization ID used to validate the caller's permission to add
+       * a delegate.
+       * 
+       * # Returns
+       * Returns `Ok(())` if the delegate is successfully added with `ASSERT`
+       * permissions, or an `Err` if the operation fails due to authorization issues
+       * or internal errors during delegate addition.
+       * 
+       * # Errors
+       * - `UnauthorizedOperation`: If the caller does not have the necessary admin permissions
+       * for the registry.
+       * - Propagates errors from `registry_delegate_addition` if the addition fails.
+       **/
+      addDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * Adds an audit delegate to a registry.
+       * 
+       * The `AUDIT` permission allows the delegate to perform oversight and
+       * compliance checks within the registry. This function is used to grant
+       * these audit privileges to a delegate. It checks that the caller has the
+       * necessary administrative rights to add an audit delegate to the registry.
+       * 
+       * If the caller is authorized, the delegate is added with the `AUDIT`
+       * permission using the internal `registry_delegate_addition` function.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the call, which must be signed by an existing administrator of
+       * the registry.
+       * - `registry_id`: The unique identifier of the registry to which the audit delegate is
+       * being added.
+       * - `delegate`: The account identifier of the delegate being granted audit permissions.
+       * - `authorization`: The authorization ID used to validate the caller's permission to add
+       * the audit delegate.
+       * 
+       * # Returns
+       * Returns `Ok(())` if the audit delegate is successfully added, or an `Err`
+       * if the operation fails due to authorization issues or internal errors
+       * during delegate addition.
+       * 
+       * # Errors
+       * - `UnauthorizedOperation`: If the caller does not have the necessary admin permissions
+       * for the registry.
+       * - Propagates errors from `registry_delegate_addition` if delegate addition fails.
+       **/
+      addDelegator: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * Archives a registry, marking it as inactive.
+       * 
+       * This function allows the creator or an admin with the appropriate authority
+       * to archive an existing registry. It checks that the registry exists, is not already
+       * archived, and ensures that the caller has the necessary authorization to perform the
+       * archival.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin with the appropriate authority.
+       * - `registry_id`: The identifier of the registry to be archived.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * archival.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully archived, or an
+       * error (`DispatchError`) if:
+       * - The registry does not exist.
+       * - The registry is already archived.
+       * - The caller does not have the authority to archive the registry.
+       * 
+       * # Errors
+       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
+       * registry.
+       * - `RegistryAlreadyArchived`: If the registry is already archived.
+       * - `UnauthorizedOperation`: If the caller is not authorized to archive the registry.
+       * 
+       * # Events
+       * - `Archive`: Emitted when a registry is successfully archived. It includes the registry
+       * ID and the authority who performed the archival.
+       **/
+      archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Creates a new registry with a unique identifier based on the provided
+       * registry digest and the creator's identity.
+       * 
+       * This function generates a unique identifier for the registry by hashing
+       * the encoded digest of the registry and the creator's identifier. It ensures that the
+       * generated registry identifier is not already in use. An authorization
+       * ID is also created for the new registry, which is used to manage
+       * delegations. The creator is automatically added as a delegate with
+       * full permissions.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, signed by the creator.
+       * - `registry_id`: A unique code created to identify the registry.
+       * - `digest`: The digest representing the registry data to be created.
+       * - `blob`: Optional metadata or data associated with the registry.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully created, or an
+       * error (`DispatchError`) if:
+       * - The generated registry identifier is already in use.
+       * - The generated authorization ID has an invalid length.
+       * - The registry exceeds the allowed delegate limit.
+       * 
+       * # Errors
+       * - `InvalidIdentifierLength`: If the generated identifiers for the registry or
+       * authorization have invalid lengths.
+       * - `RegistryAlreadyAnchored`: If the registry identifier already exists.
+       * - `RegistryDelegatesLimitExceeded`: If the registry exceeds the maximum number of
+       * allowed delegates.
+       * 
+       * # Events
+       * - `Create`: Emitted when a new registry is successfully created. It includes the
+       * registry identifier, the creator's identifier, and the authorization ID.
+       **/
+      create: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>, Option<Bytes>]>;
+      /**
+       * Reinstates a revoked registry, making it active again.
+       * 
+       * This function changes the status of a previously revoked registry to active
+       * based on the provided registry ID. It checks that the registry exists, is
+       * currently revoked, and ensures that the caller has the authority to reinstate
+       * the registry as indicated by the provided authorization ID.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin with the appropriate authority.
+       * - `registry_id`: The identifier of the registry to be reinstated.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * reinstatement.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully reinstated, or an
+       * error (`DispatchError`) if:
+       * - The registry does not exist.
+       * - The registry is not revoked.
+       * - The caller does not have the authority to reinstate the registry.
+       * 
+       * # Errors
+       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
+       * registry.
+       * - `RegistryNotRevoked`: If the registry is not currently revoked.
+       * - `UnauthorizedOperation`: If the caller is not authorized to reinstate the registry.
+       * 
+       * # Events
+       * - `Reinstate`: Emitted when a registry is successfully reinstated. It includes the
+       * registry ID and the authority who performed the reinstatement.
+       **/
+      reinstate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Removes a delegate from a specified registry.
+       * 
+       * This function removes an existing delegate from a registry, identified
+       * by the `registry_id` and the delegate's `remove_authorization` ID.
+       * It ensures that the registry exists, is not archived or revoked, and that
+       * the provided authorization corresponds to a delegate in the registry.
+       * Additionally, it verifies that the caller has the authority (admin rights)
+       * to remove the delegate.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the call, which must be signed by an admin of the registry.
+       * - `registry_id`: The unique identifier of the registry from which the delegate is being
+       * removed.
+       * - `remove_authorization`: The authorization ID of the delegate to be removed.
+       * - `authorization`: The authorization ID validating the caller’s permission to perform
+       * the removal.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the delegate was successfully removed, or an
+       * error (`DispatchError`) if any of the checks fail.
+       * 
+       * # Errors
+       * - `AuthorizationNotFound`: If the provided `remove_authorization` does not exist.
+       * - `UnauthorizedOperation`: If the origin is not authorized to remove a delegate from the
+       * registry.
+       * - `RegistryNotFound`: If the specified `registry_id` does not correspond to an existing
+       * registry.
+       * - `RegistryArchived`: If the registry is archived and no longer active.
+       * - `RegistryRevoked`: If the registry has been revoked.
+       * - `DelegateNotFound`: If the delegate specified by `remove_authorization` is not found
+       * in the registry.
+       * 
+       * # Events
+       * - `Deauthorization`: Emitted when a delegate is successfully removed from the registry.
+       * The event includes the registry ID and the authorization ID of the removed delegate.
+       **/
+      removeDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, removeAuthorization: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      /**
+       * Restores an archived registry, making it active again.
+       * 
+       * This function allows the creator or an admin with the appropriate authority
+       * to restore an archived registry. It checks that the registry exists, is currently
+       * archived, and ensures that the caller has the necessary authorization to perform the
+       * restoration.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin with the appropriate authority.
+       * - `registry_id`: The identifier of the registry to be restored.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * restoration.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully restored, or an
+       * error (`DispatchError`) if:
+       * - The registry does not exist.
+       * - The registry is not archived.
+       * - The caller does not have the authority to restore the registry.
+       * 
+       * # Errors
+       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
+       * registry.
+       * - `RegistryNotArchived`: If the registry is not currently archived.
+       * - `UnauthorizedOperation`: If the caller is not authorized to restore the registry.
+       * 
+       * # Events
+       * - `Restore`: Emitted when a registry is successfully restored. It includes the registry
+       * ID and the authority who performed the restoration.
+       **/
+      restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Revokes a registry, marking it as no longer active.
+       * 
+       * This function marks a registry as revoked based on the provided registry
+       * ID. It checks that the registry exists, is not already revoked, and
+       * ensures that the caller has the authority to revoke the registry, as
+       * indicated by the provided authorization ID.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin with the appropriate authority.
+       * - `registry_id`: The identifier of the registry to be revoked.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * revocation.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully revoked, or an
+       * error (`DispatchError`) if:
+       * - The registry does not exist.
+       * - The registry is already revoked.
+       * - The caller does not have the authority to revoke the registry.
+       * 
+       * # Errors
+       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
+       * registry.
+       * - `RegistryAlreadyRevoked`: If the registry has already been revoked.
+       * - `UnauthorizedOperation`: If the caller is not authorized to revoke the registry.
+       * 
+       * # Events
+       * - `Revoke`: Emitted when a registry is successfully revoked. It includes the registry ID
+       * and the authority who performed the revocation.
+       **/
+      revoke: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Updates the digest and optional blob of a registry.
+       * 
+       * This function allows the creator or an admin with the appropriate authority
+       * to update the digest and optionally the blob of an existing registry. It checks
+       * that the registry exists, ensures that the caller has the necessary authorization,
+       * and updates the registry with the new digest and blob (if provided).
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin with the appropriate authority.
+       * - `registry_id`: The identifier of the registry to be updated.
+       * - `digest`: The new digest (hash) to be assigned to the registry.
+       * - `blob`: An optional new blob (data) to be assigned to the registry. If `None`, the
+       * existing blob remains unchanged.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * update.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully updated, or an
+       * error (`DispatchError`) if:
+       * - The registry does not exist.
+       * - The caller does not have the authority to update the registry.
+       * 
+       * # Errors
+       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
+       * registry.
+       * - `UnauthorizedOperation`: If the caller is not authorized to update the registry.
+       * 
+       * # Events
+       * - `Update`: Emitted when a registry is successfully updated. It includes the registry
+       * ID, the updater, and the authorization used.
+       **/
+      update: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>, Bytes]>;
     };
     remark: {
       /**
@@ -3741,26 +4210,6 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     treasury: {
       /**
-       * Approve a proposal.
-       * 
-       * ## Dispatch Origin
-       * 
-       * Must be [`Config::ApproveOrigin`].
-       * 
-       * ## Details
-       * 
-       * At a later time, the proposal will be allocated to the beneficiary and the original
-       * deposit will be returned.
-       * 
-       * ### Complexity
-       * - O(1).
-       * 
-       * ## Events
-       * 
-       * No events are emitted from this dispatch.
-       **/
-      approveProposal: AugmentedSubmittable<(proposalId: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
-      /**
        * Check the status of the spend and remove it from the storage if processed.
        * 
        * ## Dispatch Origin
@@ -3787,7 +4236,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * ## Dispatch Origin
        * 
-       * Must be signed.
+       * Must be signed
        * 
        * ## Details
        * 
@@ -3804,43 +4253,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * Emits [`Event::Paid`] if successful.
        **/
       payout: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
-      /**
-       * Put forward a suggestion for spending.
-       * 
-       * ## Dispatch Origin
-       * 
-       * Must be signed.
-       * 
-       * ## Details
-       * A deposit proportional to the value is reserved and slashed if the proposal is rejected.
-       * It is returned once the proposal is awarded.
-       * 
-       * ### Complexity
-       * - O(1)
-       * 
-       * ## Events
-       * 
-       * Emits [`Event::Proposed`] if successful.
-       **/
-      proposeSpend: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array, beneficiary: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>, MultiAddress]>;
-      /**
-       * Reject a proposed spend.
-       * 
-       * ## Dispatch Origin
-       * 
-       * Must be [`Config::RejectOrigin`].
-       * 
-       * ## Details
-       * The original deposit will be slashed.
-       * 
-       * ### Complexity
-       * - O(1)
-       * 
-       * ## Events
-       * 
-       * Emits [`Event::Rejected`] if successful.
-       **/
-      rejectProposal: AugmentedSubmittable<(proposalId: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
       /**
        * Force a previously approved proposal to be removed from the approval queue.
        * 
