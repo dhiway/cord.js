@@ -23,7 +23,8 @@
       "packages/schema/src/index.ts",
       "packages/network-score/src/index.ts",
       "packages/asset/src/index.ts",
-      "packages/sdk/src/index.ts"
+      "packages/sdk/src/index.ts",
+      "packages/registries/src/index.ts",
     ],
     "out": "docs",
     "theme": "default",

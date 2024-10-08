@@ -11,67 +11,191 @@ export type __AugmentedError<ApiType extends ApiTypes> = AugmentedError<ApiType>
 
 declare module '@polkadot/api-base/types/errors' {
   interface AugmentedErrors<ApiType extends ApiTypes> {
-    asset: {
+    assetConversion: {
       /**
-       * Asset already added
+       * Provided amount should be greater than or equal to the existential deposit/asset's
+       * minimal amount.
        **/
-      AssetIdAlreadyExists: AugmentedError<ApiType>;
+      AmountOneLessThanMinimal: AugmentedError<ApiType>;
       /**
-       * Asset identifier not found
+       * Desired amount can't be equal to the pool reserve.
        **/
-      AssetIdNotFound: AugmentedError<ApiType>;
+      AmountOutTooHigh: AugmentedError<ApiType>;
       /**
-       * Asset is in same status as asked for
+       * Provided amount should be greater than or equal to the existential deposit/asset's
+       * minimal amount.
        **/
-      AssetInSameState: AugmentedError<ApiType>;
+      AmountTwoLessThanMinimal: AugmentedError<ApiType>;
       /**
-       * asset instance not found
+       * The minimal amount requirement for the first token in the pair wasn't met.
        **/
-      AssetInstanceNotFound: AugmentedError<ApiType>;
+      AssetOneDepositDidNotMeetMinimum: AugmentedError<ApiType>;
       /**
-       * Asset is not active
+       * The minimal amount requirement for the first token in the pair wasn't met.
        **/
-      AssetNotActive: AugmentedError<ApiType>;
+      AssetOneWithdrawalDidNotMeetMinimum: AugmentedError<ApiType>;
       /**
-       * distribution limit exceeded
+       * The minimal amount requirement for the second token in the pair wasn't met.
        **/
-      DistributionLimitExceeded: AugmentedError<ApiType>;
+      AssetTwoDepositDidNotMeetMinimum: AugmentedError<ApiType>;
       /**
-       * Asset is not active
+       * The minimal amount requirement for the second token in the pair wasn't met.
        **/
-      InstanceNotActive: AugmentedError<ApiType>;
+      AssetTwoWithdrawalDidNotMeetMinimum: AugmentedError<ApiType>;
       /**
-       * Invalid asset quantity - should be greater than zero
+       * The destination account cannot exist with the swapped funds.
        **/
-      InvalidAssetQty: AugmentedError<ApiType>;
+      BelowMinimum: AugmentedError<ApiType>;
       /**
-       * Invalid asset type
+       * It was not possible to get or increment the Id of the pool.
        **/
-      InvalidAssetType: AugmentedError<ApiType>;
+      IncorrectPoolAssetId: AugmentedError<ApiType>;
       /**
-       * Invalid asset value - should be greater than zero
+       * Insufficient liquidity minted.
        **/
-      InvalidAssetValue: AugmentedError<ApiType>;
+      InsufficientLiquidityMinted: AugmentedError<ApiType>;
       /**
-       * Invalid digest
+       * Provided asset pair is not supported for pool.
        **/
-      InvalidDigest: AugmentedError<ApiType>;
+      InvalidAssetPair: AugmentedError<ApiType>;
       /**
-       * Invalid Identifer Length
+       * The provided path must consists of 2 assets at least.
        **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
+      InvalidPath: AugmentedError<ApiType>;
       /**
-       * Invalid creator signature
+       * The provided path must consists of unique assets.
        **/
-      InvalidSignature: AugmentedError<ApiType>;
+      NonUniquePath: AugmentedError<ApiType>;
       /**
-       * Not enough balance
+       * Optimal calculated amount is less than desired.
        **/
-      OverIssuanceLimit: AugmentedError<ApiType>;
+      OptimalAmountLessThanDesired: AugmentedError<ApiType>;
       /**
-       * Unauthorized operation
+       * An overflow happened.
        **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
+      Overflow: AugmentedError<ApiType>;
+      /**
+       * Pool already exists.
+       **/
+      PoolExists: AugmentedError<ApiType>;
+      /**
+       * The pool doesn't exist.
+       **/
+      PoolNotFound: AugmentedError<ApiType>;
+      /**
+       * Provided maximum amount is not sufficient for swap.
+       **/
+      ProvidedMaximumNotSufficientForSwap: AugmentedError<ApiType>;
+      /**
+       * Calculated amount out is less than provided minimum amount.
+       **/
+      ProvidedMinimumNotSufficientForSwap: AugmentedError<ApiType>;
+      /**
+       * Reserve needs to always be greater than or equal to the existential deposit/asset's
+       * minimal amount.
+       **/
+      ReserveLeftLessThanMinimal: AugmentedError<ApiType>;
+      /**
+       * Desired amount can't be zero.
+       **/
+      WrongDesiredAmount: AugmentedError<ApiType>;
+      /**
+       * Amount can't be zero.
+       **/
+      ZeroAmount: AugmentedError<ApiType>;
+      /**
+       * Requested liquidity can't be zero.
+       **/
+      ZeroLiquidity: AugmentedError<ApiType>;
+    };
+    assets: {
+      /**
+       * The asset-account already exists.
+       **/
+      AlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The asset is not live, and likely being destroyed.
+       **/
+      AssetNotLive: AugmentedError<ApiType>;
+      /**
+       * The asset ID must be equal to the [`NextAssetId`].
+       **/
+      BadAssetId: AugmentedError<ApiType>;
+      /**
+       * Invalid metadata given.
+       **/
+      BadMetadata: AugmentedError<ApiType>;
+      /**
+       * Invalid witness data given.
+       **/
+      BadWitness: AugmentedError<ApiType>;
+      /**
+       * Account balance must be greater than or equal to the transfer amount.
+       **/
+      BalanceLow: AugmentedError<ApiType>;
+      /**
+       * Callback action resulted in error
+       **/
+      CallbackFailed: AugmentedError<ApiType>;
+      /**
+       * The origin account is frozen.
+       **/
+      Frozen: AugmentedError<ApiType>;
+      /**
+       * The asset status is not the expected status.
+       **/
+      IncorrectStatus: AugmentedError<ApiType>;
+      /**
+       * The asset ID is already taken.
+       **/
+      InUse: AugmentedError<ApiType>;
+      /**
+       * The asset is a live asset and is actively being used. Usually emit for operations such
+       * as `start_destroy` which require the asset to be in a destroying state.
+       **/
+      LiveAsset: AugmentedError<ApiType>;
+      /**
+       * Minimum balance should be non-zero.
+       **/
+      MinBalanceZero: AugmentedError<ApiType>;
+      /**
+       * The account to alter does not exist.
+       **/
+      NoAccount: AugmentedError<ApiType>;
+      /**
+       * The asset-account doesn't have an associated deposit.
+       **/
+      NoDeposit: AugmentedError<ApiType>;
+      /**
+       * The signing account has no permission to do the operation.
+       **/
+      NoPermission: AugmentedError<ApiType>;
+      /**
+       * The asset should be frozen before the given operation.
+       **/
+      NotFrozen: AugmentedError<ApiType>;
+      /**
+       * No approval exists that would allow the transfer.
+       **/
+      Unapproved: AugmentedError<ApiType>;
+      /**
+       * Unable to increment the consumer reference counters on the account. Either no provider
+       * reference exists to allow a non-zero balance of a non-self-sufficient asset, or one
+       * fewer then the maximum number of consumers has been reached.
+       **/
+      UnavailableConsumer: AugmentedError<ApiType>;
+      /**
+       * The given asset ID is unknown.
+       **/
+      Unknown: AugmentedError<ApiType>;
+      /**
+       * The operation would result in funds being burned.
+       **/
+      WouldBurn: AugmentedError<ApiType>;
+      /**
+       * The source account would not survive the transfer and it needs to stay alive.
+       **/
+      WouldDie: AugmentedError<ApiType>;
     };
     authorityMembership: {
       /**
@@ -95,7 +219,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       MemberNotBlackListed: AugmentedError<ApiType>;
       /**
-       * Not found owner key
        * There is no authority with the given ID.
        **/
       MemberNotFound: AugmentedError<ApiType>;
@@ -107,6 +230,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Session keys not provided
        **/
       SessionKeysNotAdded: AugmentedError<ApiType>;
+      /**
+       * Authority count below threshold
+       **/
+      TooLowAuthorityCount: AugmentedError<ApiType>;
     };
     babe: {
       /**
@@ -194,6 +321,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       CapacityLimitExceeded: AugmentedError<ApiType>;
       /**
+       * Capacity value missing
+       **/
+      CapacityValueMissing: AugmentedError<ApiType>;
+      /**
        * Authority already added
        **/
       DelegateAlreadyAdded: AugmentedError<ApiType>;
@@ -249,6 +380,177 @@ declare module '@polkadot/api-base/types/errors' {
        * Only when the author is not the controller or delegate.
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
+    };
+    contracts: {
+      /**
+       * Can not add a delegate dependency to the code hash of the contract itself.
+       **/
+      CannotAddSelfAsDelegateDependency: AugmentedError<ApiType>;
+      /**
+       * No code info could be found at the supplied code hash.
+       **/
+      CodeInfoNotFound: AugmentedError<ApiType>;
+      /**
+       * Code removal was denied because the code is still in use by at least one contract.
+       **/
+      CodeInUse: AugmentedError<ApiType>;
+      /**
+       * No code could be found at the supplied code hash.
+       **/
+      CodeNotFound: AugmentedError<ApiType>;
+      /**
+       * The contract's code was found to be invalid during validation.
+       * 
+       * The most likely cause of this is that an API was used which is not supported by the
+       * node. This happens if an older node is used with a new version of ink!. Try updating
+       * your node to the newest available version.
+       * 
+       * A more detailed error can be found on the node console if debug messages are enabled
+       * by supplying `-lruntime::contracts=debug`.
+       **/
+      CodeRejected: AugmentedError<ApiType>;
+      /**
+       * The code supplied to `instantiate_with_code` exceeds the limit specified in the
+       * current schedule.
+       **/
+      CodeTooLarge: AugmentedError<ApiType>;
+      /**
+       * No contract was found at the specified address.
+       **/
+      ContractNotFound: AugmentedError<ApiType>;
+      /**
+       * The contract ran to completion but decided to revert its storage changes.
+       * Please note that this error is only returned from extrinsics. When called directly
+       * or via RPC an `Ok` will be returned. In this case the caller needs to inspect the flags
+       * to determine whether a reversion has taken place.
+       **/
+      ContractReverted: AugmentedError<ApiType>;
+      /**
+       * Contract trapped during execution.
+       **/
+      ContractTrapped: AugmentedError<ApiType>;
+      /**
+       * Input passed to a contract API function failed to decode as expected type.
+       **/
+      DecodingFailed: AugmentedError<ApiType>;
+      /**
+       * The contract already depends on the given delegate dependency.
+       **/
+      DelegateDependencyAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The dependency was not found in the contract's delegate dependencies.
+       **/
+      DelegateDependencyNotFound: AugmentedError<ApiType>;
+      /**
+       * A contract with the same AccountId already exists.
+       **/
+      DuplicateContract: AugmentedError<ApiType>;
+      /**
+       * An indeterministic code was used in a context where this is not permitted.
+       **/
+      Indeterministic: AugmentedError<ApiType>;
+      /**
+       * `seal_call` forwarded this contracts input. It therefore is no longer available.
+       **/
+      InputForwarded: AugmentedError<ApiType>;
+      /**
+       * Invalid combination of flags supplied to `seal_call` or `seal_delegate_call`.
+       **/
+      InvalidCallFlags: AugmentedError<ApiType>;
+      /**
+       * Invalid schedule supplied, e.g. with zero weight of a basic operation.
+       **/
+      InvalidSchedule: AugmentedError<ApiType>;
+      /**
+       * Performing a call was denied because the calling depth reached the limit
+       * of what is specified in the schedule.
+       **/
+      MaxCallDepthReached: AugmentedError<ApiType>;
+      /**
+       * The contract has reached its maximum number of delegate dependencies.
+       **/
+      MaxDelegateDependenciesReached: AugmentedError<ApiType>;
+      /**
+       * A pending migration needs to complete before the extrinsic can be called.
+       **/
+      MigrationInProgress: AugmentedError<ApiType>;
+      /**
+       * The chain does not provide a chain extension. Calling the chain extension results
+       * in this error. Note that this usually  shouldn't happen as deploying such contracts
+       * is rejected.
+       **/
+      NoChainExtension: AugmentedError<ApiType>;
+      /**
+       * Migrate dispatch call was attempted but no migration was performed.
+       **/
+      NoMigrationPerformed: AugmentedError<ApiType>;
+      /**
+       * A buffer outside of sandbox memory was passed to a contract API function.
+       **/
+      OutOfBounds: AugmentedError<ApiType>;
+      /**
+       * The executed contract exhausted its gas limit.
+       **/
+      OutOfGas: AugmentedError<ApiType>;
+      /**
+       * Can not add more data to transient storage.
+       **/
+      OutOfTransientStorage: AugmentedError<ApiType>;
+      /**
+       * The output buffer supplied to a contract API call was too small.
+       **/
+      OutputBufferTooSmall: AugmentedError<ApiType>;
+      /**
+       * The subject passed to `seal_random` exceeds the limit.
+       **/
+      RandomSubjectTooLong: AugmentedError<ApiType>;
+      /**
+       * A call tried to invoke a contract that is flagged as non-reentrant.
+       * The only other cause is that a call from a contract into the runtime tried to call back
+       * into `pallet-contracts`. This would make the whole pallet reentrant with regard to
+       * contract code execution which is not supported.
+       **/
+      ReentranceDenied: AugmentedError<ApiType>;
+      /**
+       * A contract attempted to invoke a state modifying API while being in read-only mode.
+       **/
+      StateChangeDenied: AugmentedError<ApiType>;
+      /**
+       * More storage was created than allowed by the storage deposit limit.
+       **/
+      StorageDepositLimitExhausted: AugmentedError<ApiType>;
+      /**
+       * Origin doesn't have enough balance to pay the required storage deposits.
+       **/
+      StorageDepositNotEnoughFunds: AugmentedError<ApiType>;
+      /**
+       * A contract self destructed in its constructor.
+       * 
+       * This can be triggered by a call to `seal_terminate`.
+       **/
+      TerminatedInConstructor: AugmentedError<ApiType>;
+      /**
+       * Termination of a contract is not allowed while the contract is already
+       * on the call stack. Can be triggered by `seal_terminate`.
+       **/
+      TerminatedWhileReentrant: AugmentedError<ApiType>;
+      /**
+       * The amount of topics passed to `seal_deposit_events` exceeds the limit.
+       **/
+      TooManyTopics: AugmentedError<ApiType>;
+      /**
+       * Performing the requested transfer failed. Probably because there isn't enough
+       * free balance in the sender's account.
+       **/
+      TransferFailed: AugmentedError<ApiType>;
+      /**
+       * The size defined in `T::MaxValueSize` was exceeded.
+       **/
+      ValueTooLarge: AugmentedError<ApiType>;
+      /**
+       * Failed to decode the XCM program.
+       **/
+      XCMDecodeFailed: AugmentedError<ApiType>;
     };
     council: {
       /**
@@ -489,6 +791,32 @@ declare module '@polkadot/api-base/types/errors' {
        * A suffix that is too long is being claimed.
        **/
       SuffixTooLong: AugmentedError<ApiType>;
+    };
+    entries: {
+      /**
+       * Invalid Identifer Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Identifier Invalid or Not of DeDir Type
+       **/
+      InvalidRegistryEntryIdentifier: AugmentedError<ApiType>;
+      /**
+       * Registry Entry Identifier Already Exists
+       **/
+      RegistryEntryIdentifierAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * Registry Entry Identifier Does Not Exists
+       **/
+      RegistryEntryIdentifierDoesNotExist: AugmentedError<ApiType>;
+      /**
+       * Registry Entry has not been revoked.
+       **/
+      RegistryEntryNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Account has no valid authorization
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
     };
     grandpa: {
       /**
@@ -875,11 +1203,104 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooManyNodes: AugmentedError<ApiType>;
     };
+    poolAssets: {
+      /**
+       * The asset-account already exists.
+       **/
+      AlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The asset is not live, and likely being destroyed.
+       **/
+      AssetNotLive: AugmentedError<ApiType>;
+      /**
+       * The asset ID must be equal to the [`NextAssetId`].
+       **/
+      BadAssetId: AugmentedError<ApiType>;
+      /**
+       * Invalid metadata given.
+       **/
+      BadMetadata: AugmentedError<ApiType>;
+      /**
+       * Invalid witness data given.
+       **/
+      BadWitness: AugmentedError<ApiType>;
+      /**
+       * Account balance must be greater than or equal to the transfer amount.
+       **/
+      BalanceLow: AugmentedError<ApiType>;
+      /**
+       * Callback action resulted in error
+       **/
+      CallbackFailed: AugmentedError<ApiType>;
+      /**
+       * The origin account is frozen.
+       **/
+      Frozen: AugmentedError<ApiType>;
+      /**
+       * The asset status is not the expected status.
+       **/
+      IncorrectStatus: AugmentedError<ApiType>;
+      /**
+       * The asset ID is already taken.
+       **/
+      InUse: AugmentedError<ApiType>;
+      /**
+       * The asset is a live asset and is actively being used. Usually emit for operations such
+       * as `start_destroy` which require the asset to be in a destroying state.
+       **/
+      LiveAsset: AugmentedError<ApiType>;
+      /**
+       * Minimum balance should be non-zero.
+       **/
+      MinBalanceZero: AugmentedError<ApiType>;
+      /**
+       * The account to alter does not exist.
+       **/
+      NoAccount: AugmentedError<ApiType>;
+      /**
+       * The asset-account doesn't have an associated deposit.
+       **/
+      NoDeposit: AugmentedError<ApiType>;
+      /**
+       * The signing account has no permission to do the operation.
+       **/
+      NoPermission: AugmentedError<ApiType>;
+      /**
+       * The asset should be frozen before the given operation.
+       **/
+      NotFrozen: AugmentedError<ApiType>;
+      /**
+       * No approval exists that would allow the transfer.
+       **/
+      Unapproved: AugmentedError<ApiType>;
+      /**
+       * Unable to increment the consumer reference counters on the account. Either no provider
+       * reference exists to allow a non-zero balance of a non-self-sufficient asset, or one
+       * fewer then the maximum number of consumers has been reached.
+       **/
+      UnavailableConsumer: AugmentedError<ApiType>;
+      /**
+       * The given asset ID is unknown.
+       **/
+      Unknown: AugmentedError<ApiType>;
+      /**
+       * The operation would result in funds being burned.
+       **/
+      WouldBurn: AugmentedError<ApiType>;
+      /**
+       * The source account would not survive the transfer and it needs to stay alive.
+       **/
+      WouldDie: AugmentedError<ApiType>;
+    };
     preimage: {
       /**
        * Preimage has already been noted on-chain.
        **/
       AlreadyNoted: AugmentedError<ApiType>;
+      /**
+       * No ticket with a cost was returned by [`Config::Consideration`] to store the preimage.
+       **/
+      NoCost: AugmentedError<ApiType>;
       /**
        * The user is not authorized to perform this action.
        **/
@@ -908,6 +1329,68 @@ declare module '@polkadot/api-base/types/errors' {
        * More than `MAX_HASH_UPGRADE_BULK_COUNT` hashes were requested to be upgraded at once.
        **/
       TooMany: AugmentedError<ApiType>;
+    };
+    registries: {
+      /**
+       * Authorization Id not found
+       **/
+      AuthorizationNotFound: AugmentedError<ApiType>;
+      /**
+       * Authority already added
+       **/
+      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      /**
+       * Delegate not found.
+       **/
+      DelegateNotFound: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier
+       **/
+      InvalidIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Registry identifier is not unique
+       **/
+      RegistryAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Registry already arhived.
+       **/
+      RegistryAlreadyArchived: AugmentedError<ApiType>;
+      /**
+       * Registry already revoked
+       **/
+      RegistryAlreadyRevoked: AugmentedError<ApiType>;
+      /**
+       * Registry not archived.
+       **/
+      RegistryArchived: AugmentedError<ApiType>;
+      /**
+       * Registry delegation limit exceeded
+       **/
+      RegistryDelegatesLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Registry not archived.
+       **/
+      RegistryNotArchived: AugmentedError<ApiType>;
+      /**
+       * Registry identifier not found
+       **/
+      RegistryNotFound: AugmentedError<ApiType>;
+      /**
+       * Registry not revoked.
+       **/
+      RegistryNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Registry revoked.
+       **/
+      RegistryRevoked: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller or delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
     };
     remark: {
       /**
@@ -1132,6 +1615,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       InvalidSpecName: AugmentedError<ApiType>;
       /**
+       * A multi-block migration is ongoing and prevents the current code from being replaced.
+       **/
+      MultiBlockMigrationsOngoing: AugmentedError<ApiType>;
+      /**
        * Suicide called when the account has non-default composite data.
        **/
       NonDefaultComposite: AugmentedError<ApiType>;
@@ -1212,6 +1699,53 @@ declare module '@polkadot/api-base/types/errors' {
        * Too many members.
        **/
       TooManyMembers: AugmentedError<ApiType>;
+    };
+    treasury: {
+      /**
+       * The payment has already been attempted.
+       **/
+      AlreadyAttempted: AugmentedError<ApiType>;
+      /**
+       * The spend is not yet eligible for payout.
+       **/
+      EarlyPayout: AugmentedError<ApiType>;
+      /**
+       * The balance of the asset kind is not convertible to the balance of the native asset.
+       **/
+      FailedToConvertBalance: AugmentedError<ApiType>;
+      /**
+       * The payment has neither failed nor succeeded yet.
+       **/
+      Inconclusive: AugmentedError<ApiType>;
+      /**
+       * The spend origin is valid but the amount it is allowed to spend is lower than the
+       * amount to be spent.
+       **/
+      InsufficientPermission: AugmentedError<ApiType>;
+      /**
+       * No proposal, bounty or spend at that index.
+       **/
+      InvalidIndex: AugmentedError<ApiType>;
+      /**
+       * The payout was not yet attempted/claimed.
+       **/
+      NotAttempted: AugmentedError<ApiType>;
+      /**
+       * There was some issue with the mechanism of payment.
+       **/
+      PayoutError: AugmentedError<ApiType>;
+      /**
+       * Proposal has not been approved.
+       **/
+      ProposalNotApproved: AugmentedError<ApiType>;
+      /**
+       * The spend has expired and cannot be claimed.
+       **/
+      SpendExpired: AugmentedError<ApiType>;
+      /**
+       * Too many approvals in the queue.
+       **/
+      TooManyApprovals: AugmentedError<ApiType>;
     };
     utility: {
       /**

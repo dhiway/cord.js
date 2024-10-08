@@ -129,6 +129,7 @@ export async function getDigestFromRawData (
   }
 
   const registryDigest = blake2AsHex(blob);
+
   return registryDigest
 }
 
@@ -414,7 +415,7 @@ export async function registryCreateProperties(
     blob = await encodeStringifiedBlobToCbor(blob);
   } 
 
-  /* Process the blob to be serialized and CBOR encoded if digest is present */
+  /* Process the blob to be serialized and CBOR encoded is digest is present */
   else if (digest && blob) {
     const isASerializedBlob = await isBlobSerialized(blob);
     if (!isASerializedBlob){
