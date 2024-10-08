@@ -128,14 +128,7 @@ export async function getDigestFromRawData (
     );
   }
 
-  const api = ConfigService.get('api')
-  const scaleEncodedRawData = api
-    .createType<Bytes>('Bytes', blob)
-    .toU8a()
-  const registryDigest = blake2AsHex(
-    Uint8Array.from([
-      ...scaleEncodedRawData
-    ]));
+  const registryDigest = blake2AsHex(blob);
 
   return registryDigest
 }
@@ -612,8 +605,3 @@ export async function registryAuthorizationProperties(
     delegatorUri: delegatorUri,
   }
 }
-
-// TODO:
-// Check if there is a requirement of validating, 
-// the digest generated from the blob and incoming digest are same.
-// That way there would not be any discreprencies b/w blob and digest.

@@ -1,7 +1,7 @@
 {
-  "name": "@cord.network/sdk",
+  "name": "@cord.network/entries",
   "version": "0.9.3-1rc4",
-  "description": "",
+  "description": "CORD Registry Entry Management",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
   "types": "./lib/cjs/index.d.ts",
@@ -12,43 +12,31 @@
     }
   },
   "files": [
-    "lib/**/*",
-    "dist/*"
+    "lib/**/*"
   ],
   "scripts": {
-    "clean": "rimraf ./lib dist",
+    "clean": "rimraf ./lib",
     "build": "yarn clean && yarn build:ts",
     "build:ts": "yarn build:cjs && yarn build:esm",
     "build:cjs": "tsc --declaration -p tsconfig.build.json && echo '{\"type\":\"commonjs\"}' > ./lib/cjs/package.json",
-    "build:esm": "tsc --declaration -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > ./lib/esm/package.json",
-    "bundle": "rimraf ./dist && webpack --config webpack.config.js"
+    "build:esm": "tsc --declaration -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > ./lib/esm/package.json"
   },
   "repository": "github:dhiway/cord-js",
   "engines": {
     "node": ">=20.0"
   },
-  "author": "",
+  "author": "Dhiway",
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
     "rimraf": "^5.0.5",
-    "terser-webpack-plugin": "^5.3.10",
-    "typescript": "^5.3.3",
-    "webpack": "^5.90.1",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@cord.network/asset": "workspace:*",
-    "@cord.network/chain-space": "workspace:*",
     "@cord.network/config": "workspace:*",
-    "@cord.network/did": "workspace:*",
-    "@cord.network/entries": "workspace:*",
     "@cord.network/identifier": "workspace:*",
     "@cord.network/network": "workspace:*",
-    "@cord.network/network-score": "workspace:*",
     "@cord.network/registries": "workspace:*",
-    "@cord.network/schema": "workspace:*",
-    "@cord.network/statement": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*"
   }
