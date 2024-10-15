@@ -19,10 +19,10 @@
  *
  * The Entries module provides several functions for managing registry entries:
  *
- * - `dispatchCreateToChain`: Creates a new registry entry in a decentralized registry.
- * - `dispatchUpdateToChain`: Updates an existing registry entry with new data.
- * - `dispatchRevokeToChain`: Revokes a registry entry, marking it as inactive or invalid.
- * - `dispatchReinstateToChain`: Restores a revoked registry entry to an active state.
+ * - `dispatchCreateEntryToChain`: Creates a new registry entry in a decentralized registry.
+ * - `dispatchUpdateEntryToChain`: Updates an existing registry entry with new data.
+ * - `dispatchRevokeEntryToChain`: Revokes a registry entry, marking it as inactive or invalid.
+ * - `dispatchReinstateEntryToChain`: Restores a revoked registry entry to an active state.
  *
  * ## Usage
  *
@@ -39,22 +39,46 @@
  * 
  */
 import { 
-    CordKeyringPair,
-} from '@cord.network/types';
+  SDKErrors,
+} from '@cord.network/utils';
 
-import { SDKErrors } from '@cord.network/utils';
 
 import {
-    IRegistryEntry, EntryUri
+    IRegistryEntry,
+    EntryUri,
+    CordKeyringPair,
 } from '@cord.network/types';
 
 import { Chain } from '@cord.network/network';
 
+import { Option } from '@polkadot/types';
+
 import { ConfigService } from '@cord.network/config'
+
+import type {
+  PalletEntriesRegistryEntryDetails,
+} from '@cord.network/augment-api'
 
 import {
   uriToIdentifier,
+  uriToEntryIdAndDigest,
 } from '@cord.network/identifier'
+
+export async function isRegistryEntryStored(
+  registryEntryId: string
+): Promise<boolean> {
+  try {
+    const api = ConfigService.get('api');
+    const encoded = await api.query.entries.registryEntries(registryEntryId) as Option<PalletEntriesRegistryEntryDetails>;
+
+    return !encoded.isNone
+  } catch (error) {
+    throw new SDKErrors.CordQueryError(
+      `Error querying the registry-entry: ${error}`
+    )
+  }
+}
+
 
 /**
  * Dispatches the creation of a new registry entry to the CORD blockchain by submitting an extrinsic.
@@ -90,29 +114,103 @@ import {
  * ```
  */
 export async function dispatchCreateEntryToChain(
-    registryEntryDetails: IRegistryEntry,
-    authorAccount: CordKeyringPair
+  registryEntryDetails: IRegistryEntry,
+  authorAccount: CordKeyringPair
 ): Promise<EntryUri> {
-    try {
-        const api = ConfigService.get('api'); 
+  try {
+    const api = ConfigService.get('api'); 
 
-        const registryEntryId = uriToIdentifier(registryEntryDetails.uri);
-        const authorizationId = uriToIdentifier(registryEntryDetails.authorizationUri);
+    const registryEntryObj = uriToEntryIdAndDigest(registryEntryDetails.uri);
 
-        const extrinsic = api.tx.entries.create(
-            registryEntryId,
-            authorizationId,
-            registryEntryDetails.digest,
-            registryEntryDetails.blob,
-        );
+    const registryEntryId = registryEntryObj.identifier;
+    const authorizationId = uriToIdentifier(registryEntryDetails.authorizationUri);
 
-        await Chain.signAndSubmitTx(extrinsic, authorAccount);
-        return registryEntryDetails.uri;
-    } catch (error) {
-        const errorMessage =
-            error instanceof Error ? error.message : JSON.stringify(error);
-        throw new SDKErrors.CordDispatchError(
-            `Error dispatching to chain: "${errorMessage}".`
-        );
+    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
+    if (registryEntryExists) {
+      throw new SDKErrors.CordDispatchError(
+        `Registry Entry already exists at URI: "${registryEntryDetails.uri}".`
+      );
     }
+
+    const extrinsic = api.tx.entries.create(
+        registryEntryId,
+        authorizationId,
+        registryEntryDetails.digest,
+        registryEntryDetails.blob,
+    );
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount);
+    return registryEntryDetails.uri;
+} catch (error) {
+    const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+        `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
+ * Dispatches an update operation for a registry entry to the blockchain. 
+ * The function verifies the existence of the entry on-chain and submits an extrinsic 
+ * to update it with the provided digest and blob values. 
+ * 
+ * It ensures that the registry entry exists before proceeding with the update and handles 
+ * errors related to on-chain operations by throwing relevant exceptions.
+ *
+ * @param {IRegistryEntry} registryEntryDetails - An object containing the registry entry's details:
+ *  - `uri`: The URI identifying the registry entry to be updated.
+ *  - `digest`: A hash representing the contents of the blob associated with the entry.
+ *  - `blob`: The optional serialized content associated with the registry entry.
+ *  - `authorizationUri`: The URI authorizing the update.
+ *  - `registryUri`: The URI identifying the registry to which the entry belongs.
+ *  - `creatorUri`: The DID URI of the account that initially created the registry entry.
+ *
+ * @param {CordKeyringPair} authorAccount - The keypair of the account authorized to sign 
+ * and submit the transaction.
+ *
+ * @throws {SDKErrors.CordDispatchError} - Thrown if:
+ *  - The registry entry does not exist on-chain.
+ *  - An error occurs during the transaction dispatch or validation.
+ *
+ * @returns {Promise<EntryUri>} - A promise that resolves to the URI of the successfully updated 
+ * registry entry.
+ * 
+ */
+export async function dispatchUpdateEntryToChain(
+  registryEntryDetails: IRegistryEntry,
+  authorAccount: CordKeyringPair
+): Promise<EntryUri> {
+  try {
+    const api = ConfigService.get('api'); 
+
+    const registryEntryObj = uriToEntryIdAndDigest(registryEntryDetails.uri);
+
+    const registryEntryId = registryEntryObj.identifier;
+    const authorizationId = uriToIdentifier(registryEntryDetails.authorizationUri);
+
+    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
+    if (!registryEntryExists) {
+      throw new SDKErrors.CordDispatchError(
+        `Registry Entry does not exists at URI: "${registryEntryDetails.uri}".`
+      );
+    }
+
+    const extrinsic = api.tx.entries.update(
+        registryEntryId,
+        authorizationId,
+        registryEntryDetails.digest,
+        registryEntryDetails.blob,
+    );
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount);
+    return registryEntryDetails.uri;
+  } catch (error) {
+    const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+        `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
 }

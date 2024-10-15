@@ -24,7 +24,9 @@
     "test:watch": "yarn test --watch",
     "demo-statement": "tsx --no-cache demo/src/func-test.ts",
     "demo-network-score": "tsx --no-cache demo/src/network-score-test.ts",
-    "demo-asset": "tsx --no-cache demo/src/asset-tx.ts"
+    "demo-asset": "tsx --no-cache demo/src/asset-tx.ts",
+    "demo-registry": "tsx --no-cache demo/src/dedi/registry-tx.ts",
+    "demo-registry-entries": "tsx --no-cache demo/src/dedi/registry-entries-tx.ts"
   },
   "husky": {
     "hooks": {

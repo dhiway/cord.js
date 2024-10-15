@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { createAccount } from './utils/createAccount'
+import { createAccount } from '../utils/createAccount'
 
 import {
   BN

@@ -10,12 +10,7 @@
  * The `Entries` module ensures that new entries can be created, updated, revoked, and reinstated, maintaining
  * a flexible, transparent, and secure record-keeping system.
  *
- * Key functionality includes:
- * - `createEntryProperties`: Constructs the necessary properties to create a new entry within an existing registry,
- *   including the creator’s address, digest, schema identifier, and a serialized, optionally CBOR-encoded blob
- *   containing the entry’s content.
- *
- * These functionalities enable the decentralized management of entries on the CORD blockchain, ensuring that records
+ * These below functionalities enable the decentralized management of entries on the CORD blockchain, ensuring that records
  * are securely stored, verified, and managed across different registries.
  *
  * @example
@@ -49,16 +44,19 @@ import {
   EntryDigest,
   RegistryAuthorizationUri,
   IRegistryEntry,
-  ENTRY_IDENT,
-  ENTRY_PREFIX,
   blake2AsHex,
 } from "@cord.network/types";
 
-import { SDKErrors } from '@cord.network/utils';
+import { 
+  SDKErrors,
+  DataUtils,
+ } from '@cord.network/utils';
 
 import {
-  hashToUri,
   uriToIdentifier,
+  updateRegistryEntryUri,
+  buildRegistryEntryUri,
+  checkIdentifier,
 } from '@cord.network/identifier';
 
 import { ConfigService } from '@cord.network/config';
@@ -109,16 +107,45 @@ export async function getUriForRegistryEntry(
   const scaleEncodedCreator = api
     .createType<AccountId>('AccountId', creatorAddress)
     .toU8a()
-  const digest = blake2AsHex(
+  const IdDigest = blake2AsHex(
     Uint8Array.from([
       ...scaleEncodedRegistryDigest,
       ...scaleEncodedRegistryId,
       ...scaleEncodedCreator
     ])
   );
+  
+  // Below `entryUri` is of type `entry:cord:IdDigest:entryDigest`
+  const entryUri = buildRegistryEntryUri(IdDigest, entryDigest) as EntryUri;
 
-  const entryUri = hashToUri(digest, ENTRY_IDENT, ENTRY_PREFIX) as EntryUri;
   return entryUri;
+}
+
+
+/**
+ * Verifies the integrity of the given IRegistryEntry object.
+ *
+ * @remarks
+ * This function ensures that the input conforms to the expected data structure
+ * by checking required fields, identifiers, and digest format.
+ *
+ * @param input - The IRegistryEntry object to verify.
+ * @throws {SDKErrors.RegistryEntryError} If any required field is missing or invalid.
+ */
+export function verifyRegistryEntry(input: IRegistryEntry): void {
+  if (!input.digest) {
+    throw new SDKErrors.InvalidInputError('Digest is required.');
+  }
+
+  checkIdentifier(input.registryUri);
+  checkIdentifier(input.authorizationUri);
+  checkIdentifier(input.creatorUri);
+
+  DataUtils.verifyIsHex(input.digest, 256);
+
+  if (input.blob !== null && typeof input.blob !== 'string') {
+    throw new SDKErrors.InvalidInputError('Blob must be a string or null.');
+  }
 }
 
 
@@ -171,12 +198,12 @@ export async function getUriForRegistryEntry(
  * - The `creatorUri` is constructed as a DID using the creator's address.
  *
  */
-export async function CreateEntriesProperties(
+export async function createEntriesProperties(
   creatorAddress: string,
+  registryUri: RegistryUri,
+  authorizationUri: RegistryAuthorizationUri,
   digest: HexString | null = null,
   blob: string | null = null,
-  registryUri: RegistryUri,
-  authorizationUri: RegistryAuthorizationUri
 ): Promise<IRegistryEntry> {
   
   if (!digest && !blob) {
@@ -225,11 +252,126 @@ export async function CreateEntriesProperties(
   // Revisit if use of creatorUri as below is correct.
   const creatorUri = `did:cord:3${creatorAddress}` as DidUri;
   
-  return {
+  const registryEntryObj = {
     uri: entryUri,
     creatorUri,
     digest,
     blob,
+    registryUri,
     authorizationUri,
+  };
+
+  /* Process the entry object before dispatch */
+  try {
+    verifyRegistryEntry(registryEntryObj);
+  } catch (error) {
+    const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+        `Validating Registry Entry Failed!"${errorMessage}".`
+    );
   }
+
+  return registryEntryObj
+}
+
+
+/**
+ * Updates the properties of a registry entry by validating and processing 
+ * the provided digest or blob. If the blob is present and not serialized, 
+ * it is serialized and encoded using CBOR. If the digest is absent, it 
+ * is computed from the serialized blob. The function returns an updated 
+ * registry entry object with the new URI, digest, and processed blob.
+ *
+ * @param {EntryUri} registryEntryUri - The original URI of the registry entry to update.
+ * @param {string} creatorAddress - The creator's address, which is used to generate a DID URI.
+ * @param {RegistryUri} registryUri - The URI of the registry associated with the entry.
+ * @param {RegistryAuthorizationUri} authorizationUri - The authorization URI associated with the registry entry.
+ * @param {HexString | null} [digest=null] - The optional hash of the blob. If not provided, it will be computed from the blob.
+ * @param {string | null} [blob=null] - The optional blob data. If provided, it will be serialized and encoded if needed.
+ * 
+ * @throws {SDKErrors.InputContentsMalformedError} - Thrown if both `digest` and `blob` are `null` or if `digest` is missing after processing.
+ * @throws {SDKErrors.CordDispatchError} - Thrown if the registry entry object fails validation.
+ * 
+ * @returns {Promise<IRegistryEntry>} - A promise that resolves to the updated registry entry object with the new URI, digest, and processed blob.
+ *
+ */
+export async function updateEntriesProperties(
+  registryEntryUri: EntryUri,
+  creatorAddress: string,
+  registryUri: RegistryUri,
+  authorizationUri: RegistryAuthorizationUri,
+  digest: HexString | null = null,
+  blob: string | null = null,
+): Promise<IRegistryEntry> {
+  
+  if (!digest && !blob) {
+    throw new SDKErrors.InputContentsMalformedError(
+      `Either 'digest' or 'blob' must be provided. Both cannot be null.`
+    );
+  }
+
+  /* Construct digest from serialized blob if digest is absent */
+  if (!digest && blob) {
+    const isASerializedBlob = await isBlobSerialized(blob);
+    if (!isASerializedBlob) {
+      blob = JSON.stringify(blob); 
+    }
+    
+    digest = await getDigestFromRawData(blob); 
+
+    /* Encode the serialized 'blob' in CBOR before dispatch to chain */
+    blob = await encodeStringifiedBlobToCbor(blob);
+  } 
+
+  /* Process the blob to be serialized and CBOR encoded if digest is present */
+  else if (digest && blob) {
+    const isASerializedBlob = await isBlobSerialized(blob);
+    if (!isASerializedBlob){
+      blob = JSON.stringify(blob);
+    }
+
+    /* Encode the 'blob' in CBOR before dispatch to chain */
+    blob = await encodeStringifiedBlobToCbor(blob);
+  }
+
+  if (!digest) {
+    throw new SDKErrors.InputContentsMalformedError(
+      `Digest cannot be empty.`
+    );
+  }
+
+  /* 
+   * Update the entryUri to have newer digest as suffix 
+   * Below `entryUri` is of type `entry:cord:IdDigest:entryDigest`
+   */
+  const entryUri = updateRegistryEntryUri(
+    registryEntryUri, digest
+  );
+
+  // TODO:
+  // Revisit if use of creatorUri as below is correct.
+  const creatorUri = `did:cord:3${creatorAddress}` as DidUri;
+  
+  const registryEntryObj = {
+    uri: entryUri,
+    creatorUri,
+    digest,
+    blob,
+    registryUri,
+    authorizationUri,
+  };
+
+  /* Process the entry object before dispatch */
+  try {
+    verifyRegistryEntry(registryEntryObj);
+  } catch (error) {
+    const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+        `Validating Registry Entry Failed!"${errorMessage}".`
+    );
+  }
+
+  return registryEntryObj
 }

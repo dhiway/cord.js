@@ -41,7 +41,9 @@ import type {
   HexString,
   StatementDigest,
   StatementUri,
+  EntryUri,
 } from '@cord.network/types'
+
 import {
   base58Decode,
   base58Encode,
@@ -73,6 +75,7 @@ import {
   ENTRY_IDENT,
   ENTRY_PREFIX,
 } from '@cord.network/types'
+
 import { SDKErrors } from '@cord.network/utils'
 
 const defaults = {
@@ -766,4 +769,171 @@ export function elementUriToStatementUri(
   const statementId = `stmt:cord:${identifier}` as StatementUri
 
   return statementId
+}
+
+
+/**
+ * Constructs a registry-entry URI from given hexadecimal string digests.
+ *
+ * @remarks
+ * This function generates a standardized URI for a registry entry by combining a hashed identifier digest
+ * and another digest. The identifier digest is first converted to a URI with a specific prefix, and
+ * then concatenated with the sliced second digest to form the complete registry-entry URI.
+ *
+ * @param idDigest - A hexadecimal string representing the identifier digest. Must start with '0x'.
+ * @param digest - Another hexadecimal string representing the registry entry's content digest. Must also start with '0x'.
+ * @returns A `RegistryEntryUri` representing the combined URI for the entry.
+ *
+ * @example
+ * ```typescript
+ * const idDigest = '0x1234...';
+ * const digest = '0xabcd...';
+ * const entryUri = buildRegistryEntryUri(idDigest, digest);
+ * console.log('Registry Entry URI:', entryUri);
+ * ```
+ *
+ * @throws {SDKErrors.InvalidInputError} If either `idDigest` or `digest` does not start with '0x'.
+ *
+ * @description
+ * The function first checks if both input parameters start with '0x' as required for hexadecimal digests.
+ * It then uses the `hashToUri` function to convert `idDigest` to a URI with a specified identifier and prefix.
+ * The `digest` is then sliced to remove its '0x' prefix and concatenated with the identifier URI to form
+ * the final registry entry URI, which is returned as a `RegistryEntryUri` type.
+ */
+export function buildRegistryEntryUri(
+  idDigest: HexString,
+  digest: HexString
+): EntryUri {
+  if (!digest.startsWith('0x') || !idDigest.startsWith('0x')) {
+    throw new SDKErrors.InvalidInputError('Digest must start with 0x');
+  }
+  const prefix = hashToUri(idDigest, ENTRY_IDENT, ENTRY_PREFIX);
+  const suffix = digest.slice(2);
+
+  const registryEntryUri = `${prefix}:${suffix}` as EntryUri;
+  return registryEntryUri;
+}
+
+
+/**
+ * Updates the digest component of a given registry entry URI with a new digest.
+ *
+ * @remarks
+ * This function modifies an existing registry entry URI by replacing its digest with a new provided digest.
+ * It ensures that the URI retains its original structure and prefix, while only the digest part is updated.
+ *
+ * @param registryEntryUri - The original registry entry URI to be updated. Format: 'entry:cord:<identifier>:<digest>'.
+ * @param digest - The new hexadecimal string digest to be inserted into the URI. Must start with '0x'.
+ * @returns The updated registry entry URI with the new digest.
+ *
+ * @example
+ * ```typescript
+ * const originalUri = 'entry:cord:1234:abcd';
+ * const newDigest = '0x5678...';
+ * const updatedUri = updateRegistryEntryUri(originalUri, newDigest);
+ * console.log('Updated Registry Entry URI:', updatedUri);
+ * ```
+ *
+ * @throws {SDKErrors.InvalidIdentifierError} If the `registryEntryUri` does not follow the expected format.
+ * @throws {SDKErrors.InvalidInputError} If the new `digest` does not start with '0x'.
+ *
+ * @description
+ * The function splits the `registryEntryUri` and validates its structure. If valid, it replaces the digest with the new one.
+ * The updated URI is constructed with the new digest (without '0x' prefix) and returned.
+ */
+export function updateRegistryEntryUri(
+  registryEntryUri: EntryUri,
+  digest: HexString
+): EntryUri {
+  const parts = registryEntryUri.split(':');
+
+  if (parts[0] !== 'entry' || parts[1] !== 'cord') {
+    throw new SDKErrors.InvalidIdentifierError('Invalid registry entry URI format');
+  }
+
+  if (!digest.startsWith('0x')) {
+    throw new SDKErrors.InvalidInputError('Digest must start with 0x');
+  }
+  const suffix = digest.slice(2);
+
+  const entryUri = `entry:cord:${parts[2]}:${suffix}` as EntryUri;
+  return entryUri;
+}
+
+
+/**
+ * Extracts the identifier and digest from a given registry entry URI.
+ *
+ * @remarks
+ * This function parses a registry entry URI and extracts the identifier and digest components.
+ *
+ * @param registryEntryUri - The registry entry URI to be parsed. Format: 'entry:cord:<identifier>:<digest>'.
+ * @returns An object containing the extracted identifier and digest.
+ *
+ * @example
+ * ```typescript
+ * const entryUri = 'entry:cord:1234:abcd';
+ * const { identifier, digest } = uriToEntryIdAndDigest(entryUri);
+ * console.log('Identifier:', identifier, 'Digest:', digest);
+ * ```
+ *
+ * @throws {SDKErrors.InvalidIdentifierError} If the `registryEntryUri` does not follow the expected format.
+ *
+ * @description
+ * The function splits the `registryEntryUri` string and validates its format. If valid, it returns the identifier
+ * and the digest (with '0x' prefix).
+ */
+export function uriToEntryIdAndDigest(registryEntryUri: EntryUri): {
+  identifier: string;
+  digest: HexString;
+} {
+  const parts = registryEntryUri.split(':');
+
+  if (parts.length !== 4 || parts[0] !== 'entry' || parts[1] !== 'cord') {
+    throw new SDKErrors.InvalidIdentifierError('Invalid registry entry URI format');
+  }
+
+  const identifier = parts[2];
+  const suffix = parts[3];
+
+  const digest = `0x${suffix}` as HexString;
+
+  return { identifier, digest };
+}
+
+
+/**
+ * Converts a registry entry URI to a simpler identifier URI.
+ *
+ * @remarks
+ * This function processes a registry entry URI and returns a URI containing only the identifier part.
+ *
+ * @param registryEntryUri - The registry entry URI to be converted. Format: 'entry:cord:<identifier>:<digest>'.
+ * @returns A simplified identifier URI: 'entry:cord:<identifier>'.
+ *
+ * @example
+ * ```typescript
+ * const entryUri = 'entry:cord:1234:abcd';
+ * const identifierUri = elementUriToEntryUri(entryUri);
+ * console.log('Identifier URI:', identifierUri);
+ * ```
+ *
+ * @throws {SDKErrors.InvalidIdentifierError} If the `registryEntryUri` does not conform to the expected format.
+ *
+ * @description
+ * The function splits the `registryEntryUri`, validates its structure, and constructs a URI using only the identifier part.
+ */
+export function elementUriToEntryUri(
+  registryEntryUri: EntryUri
+): EntryUri {
+  const parts = registryEntryUri.split(':');
+
+  if (parts.length !== 4 || parts[0] !== 'entry' || parts[1] !== 'cord') {
+    throw new SDKErrors.InvalidIdentifierError('Invalid registry entry URI format');
+  }
+
+  const identifier = parts[2];
+  const identifierUri = `entry:cord:${identifier}` as EntryUri;
+
+  return identifierUri;
 }

@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { createAccount } from './utils/createAccount'
+import { createAccount } from '../utils/createAccount'
 
 import {
   BN
@@ -115,12 +115,12 @@ async function main() {
   const entryDigest = await Cord.Registries.getDigestFromRawData(stringifiedEntryBlob);
 
   // Create a Registry Entry Properties.
-  const registryEntryDetails = await Cord.Entries.CreateEntriesProperties(
+  const registryEntryDetails = await Cord.Entries.createEntriesProperties(
     authorIdentity.address,
+    registry.uri,                 //registryUri
+    registry.authorizationUri,    //registryAuthUri
     entryDigest,                  //digest
     entryBlob,                    //blob
-    registry.uri,                 //registryUri
-    registry.authorizationUri     //registryAuthUri
   );
 
   console.log(`\n❄️  Registry Entry Create Details `, registryEntryDetails);
@@ -131,7 +131,52 @@ async function main() {
     authorIdentity,
   )
 
-  console.log('\n✅ Registry Entry created!');
+  console.log('\n✅ Registry Entry created!', registryEntry);
+
+  // Update the Registry Entry
+  const updateEntryBlob = {
+    "name": "New Tech Solutions Ltd.",
+    "description": "A technology company providing software development and IT consulting services.",
+    "metadata": {
+      "category": "Technology",
+      "registrationDate": "15-06-2022",
+      "status": "Active",
+      "registrationNumber": "TSL12345",
+      "industry": "Technology",
+      "regulatoryAuthority": "National Business Bureau",
+      "documentsProvided": [
+        "Incorporation Certificate",
+        "Tax Identification Number",
+        "Proof of Address",
+        "Board Resolution"
+      ],
+      "feePaid": "INR500",
+      "lastUpdated": "01-10-2024"
+    }
+  };
+
+  const updateStringifiedEntryBlob = JSON.stringify(updateEntryBlob);
+  const updateEntryDigest = await Cord.Registries.getDigestFromRawData(updateStringifiedEntryBlob);
+
+  // Create Update Entry Properties
+  const registryEntryUpdateDetails = await Cord.Entries.updateEntriesProperties(
+    registryEntry,
+    authorIdentity.address,
+    registry.uri,
+    registry.authorizationUri,
+    updateEntryDigest,               //digest
+    updateEntryBlob,                 //blob
+  );
+
+  console.log(`\n❄️  Registry Entry Update Details `, registryEntryUpdateDetails);
+
+  // Dispatch the Property to the chain
+  const registryEntryUpdate = await Cord.Entries.dispatchUpdateEntryToChain(
+    registryEntryUpdateDetails,
+    authorIdentity,
+  );
+
+  console.log('\n✅ Registry Entry updated!', registryEntryUpdate);
 }
 
 main()
