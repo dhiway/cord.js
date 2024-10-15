@@ -6,16 +6,80 @@
 import '@polkadot/api-base/types/consts';
 
 import type { ApiTypes, AugmentedConst } from '@polkadot/api-base/types';
-import type { u128, u16, u32, u64 } from '@polkadot/types-codec';
-import type { FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, SpVersionRuntimeVersion, SpWeightsRuntimeDbWeight, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
+import type { Perbill, Permill } from '@polkadot/types/interfaces/runtime';
+import type { FrameSupportPalletId, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, PalletContractsEnvironment, PalletContractsSchedule, SpVersionRuntimeVersion, SpWeightsRuntimeDbWeight, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedConst<ApiType extends ApiTypes> = AugmentedConst<ApiType>;
 
 declare module '@polkadot/api-base/types/consts' {
   interface AugmentedConsts<ApiType extends ApiTypes> {
-    asset: {
-      maxAssetDistribution: u32 & AugmentedConst<ApiType>;
-      maxEncodedValueLength: u32 & AugmentedConst<ApiType>;
+    assetConversion: {
+      /**
+       * A fee to withdraw the liquidity.
+       **/
+      liquidityWithdrawalFee: Permill & AugmentedConst<ApiType>;
+      /**
+       * A % the liquidity providers will take of every swap. Represents 10ths of a percent.
+       **/
+      lpFee: u32 & AugmentedConst<ApiType>;
+      /**
+       * The max number of hops in a swap.
+       **/
+      maxSwapPathLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The minimum LP token amount that could be minted. Ameliorates rounding errors.
+       **/
+      mintMinLiquidity: u128 & AugmentedConst<ApiType>;
+      /**
+       * The pallet's id, used for deriving its sovereign account ID.
+       **/
+      palletId: FrameSupportPalletId & AugmentedConst<ApiType>;
+      /**
+       * A one-time fee to setup the pool.
+       **/
+      poolSetupFee: u128 & AugmentedConst<ApiType>;
+      /**
+       * Asset class from [`Config::Assets`] used to pay the [`Config::PoolSetupFee`].
+       **/
+      poolSetupFeeAsset: FrameSupportTokensFungibleUnionOfNativeOrWithId & AugmentedConst<ApiType>;
+    };
+    assets: {
+      /**
+       * The amount of funds that must be reserved when creating a new approval.
+       **/
+      approvalDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The amount of funds that must be reserved for a non-provider asset account to be
+       * maintained.
+       **/
+      assetAccountDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The basic amount of funds that must be reserved for an asset.
+       **/
+      assetDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The basic amount of funds that must be reserved when adding metadata to your asset.
+       **/
+      metadataDepositBase: u128 & AugmentedConst<ApiType>;
+      /**
+       * The additional funds that must be reserved for the number of bytes you store in your
+       * metadata.
+       **/
+      metadataDepositPerByte: u128 & AugmentedConst<ApiType>;
+      /**
+       * Max number of items to destroy per `destroy_accounts` and `destroy_approvals` call.
+       * 
+       * Must be configured to result in a weight that makes each call fit in a block.
+       **/
+      removeItemsLimit: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum length of a name or symbol stored on-chain.
+       **/
+      stringLimit: u32 & AugmentedConst<ApiType>;
+    };
+    authorityMembership: {
+      minAuthorities: u32 & AugmentedConst<ApiType>;
     };
     babe: {
       /**
@@ -60,20 +124,107 @@ declare module '@polkadot/api-base/types/consts' {
       /**
        * The maximum number of locks that should exist on an account.
        * Not strictly enforced, but used for weight estimation.
+       * 
+       * Use of locks is deprecated in favour of freezes. See `https://github.com/paritytech/substrate/pull/12951/`
        **/
       maxLocks: u32 & AugmentedConst<ApiType>;
       /**
        * The maximum number of named reserves that can exist on an account.
+       * 
+       * Use of reserves is deprecated in favour of holds. See `https://github.com/paritytech/substrate/pull/12951/`
        **/
       maxReserves: u32 & AugmentedConst<ApiType>;
     };
     chainSpace: {
       maxSpaceDelegates: u32 & AugmentedConst<ApiType>;
     };
+    contracts: {
+      /**
+       * The version of the HostFn APIs that are available in the runtime.
+       * 
+       * Only valid value is `()`.
+       **/
+      apiVersion: u16 & AugmentedConst<ApiType>;
+      /**
+       * The percentage of the storage deposit that should be held for using a code hash.
+       * Instantiating a contract, or calling [`chain_extension::Ext::lock_delegate_dependency`]
+       * protects the code from being removed. In order to prevent abuse these actions are
+       * protected with a percentage of the code deposit.
+       **/
+      codeHashLockupDepositPercent: Perbill & AugmentedConst<ApiType>;
+      /**
+       * Fallback value to limit the storage deposit if it's not being set by the caller.
+       **/
+      defaultDepositLimit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The amount of balance a caller has to pay for each byte of storage.
+       * 
+       * # Note
+       * 
+       * Changing this value for an existing chain might need a storage migration.
+       **/
+      depositPerByte: u128 & AugmentedConst<ApiType>;
+      /**
+       * The amount of balance a caller has to pay for each storage item.
+       * 
+       * # Note
+       * 
+       * Changing this value for an existing chain might need a storage migration.
+       **/
+      depositPerItem: u128 & AugmentedConst<ApiType>;
+      /**
+       * Type that bundles together all the runtime configurable interface types.
+       * 
+       * This is not a real config. We just mention the type here as constant so that
+       * its type appears in the metadata. Only valid value is `()`.
+       **/
+      environment: PalletContractsEnvironment & AugmentedConst<ApiType>;
+      /**
+       * The maximum length of a contract code in bytes.
+       * 
+       * The value should be chosen carefully taking into the account the overall memory limit
+       * your runtime has, as well as the [maximum allowed callstack
+       * depth](#associatedtype.CallStack). Look into the `integrity_test()` for some insights.
+       **/
+      maxCodeLen: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum length of the debug buffer in bytes.
+       **/
+      maxDebugBufferLen: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of delegate_dependencies that a contract can lock with
+       * [`chain_extension::Ext::lock_delegate_dependency`].
+       **/
+      maxDelegateDependencies: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum allowable length in bytes for storage keys.
+       **/
+      maxStorageKeyLen: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum size of the transient storage in bytes.
+       * This includes keys, values, and previous entries used for storage rollback.
+       **/
+      maxTransientStorageSize: u32 & AugmentedConst<ApiType>;
+      /**
+       * Cost schedule and limits.
+       **/
+      schedule: PalletContractsSchedule & AugmentedConst<ApiType>;
+      /**
+       * Make contract callable functions marked as `#[unstable]` available.
+       * 
+       * Contracts that use `#[unstable]` functions won't be able to be uploaded unless
+       * this is set to `true`. This is only meant for testnets and dev nodes in order to
+       * experiment with new features.
+       * 
+       * # Warning
+       * 
+       * Do **not** set to `true` on productions chains.
+       **/
+      unsafeUnstableInterface: bool & AugmentedConst<ApiType>;
+    };
     council: {
       /**
-       * The maximum weight of a dispatch call that can be proposed and
-       * executed.
+       * The maximum weight of a dispatch call that can be proposed and executed.
        **/
       maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
     };
@@ -139,6 +290,16 @@ declare module '@polkadot/api-base/types/consts' {
        * The min encoded length of a name.
        **/
       minNameLength: u32 & AugmentedConst<ApiType>;
+    };
+    entries: {
+      /**
+       * The maximum encoded length available for naming.
+       **/
+      maxEncodedInputLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of bytes in size a Registry Entry Blob can hold.
+       **/
+      maxRegistryEntryBlobSize: u32 & AugmentedConst<ApiType>;
     };
     grandpa: {
       /**
@@ -250,6 +411,45 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       maxWellKnownNodes: u32 & AugmentedConst<ApiType>;
     };
+    poolAssets: {
+      /**
+       * The amount of funds that must be reserved when creating a new approval.
+       **/
+      approvalDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The amount of funds that must be reserved for a non-provider asset account to be
+       * maintained.
+       **/
+      assetAccountDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The basic amount of funds that must be reserved for an asset.
+       **/
+      assetDeposit: u128 & AugmentedConst<ApiType>;
+      /**
+       * The basic amount of funds that must be reserved when adding metadata to your asset.
+       **/
+      metadataDepositBase: u128 & AugmentedConst<ApiType>;
+      /**
+       * The additional funds that must be reserved for the number of bytes you store in your
+       * metadata.
+       **/
+      metadataDepositPerByte: u128 & AugmentedConst<ApiType>;
+      /**
+       * Max number of items to destroy per `destroy_accounts` and `destroy_approvals` call.
+       * 
+       * Must be configured to result in a weight that makes each call fit in a block.
+       **/
+      removeItemsLimit: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum length of a name or symbol stored on-chain.
+       **/
+      stringLimit: u32 & AugmentedConst<ApiType>;
+    };
+    registries: {
+      maxEncodedInputLength: u32 & AugmentedConst<ApiType>;
+      maxRegistryBlobSize: u32 & AugmentedConst<ApiType>;
+      maxRegistryDelegates: u32 & AugmentedConst<ApiType>;
+    };
     scheduler: {
       /**
        * The maximum weight that may be scheduled per block for any dispatchables.
@@ -303,14 +503,13 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       ss58Prefix: u16 & AugmentedConst<ApiType>;
       /**
-       * Get the chain's current version.
+       * Get the chain's in-code version.
        **/
       version: SpVersionRuntimeVersion & AugmentedConst<ApiType>;
     };
     technicalCommittee: {
       /**
-       * The maximum weight of a dispatch call that can be proposed and
-       * executed.
+       * The maximum weight of a dispatch call that can be proposed and executed.
        **/
       maxProposalWeight: SpWeightsWeightV2Weight & AugmentedConst<ApiType>;
     };
@@ -324,6 +523,56 @@ declare module '@polkadot/api-base/types/consts' {
        * period on default settings.
        **/
       minimumPeriod: u64 & AugmentedConst<ApiType>;
+    };
+    transactionPayment: {
+      /**
+       * A fee multiplier for `Operational` extrinsics to compute "virtual tip" to boost their
+       * `priority`
+       * 
+       * This value is multiplied by the `final_fee` to obtain a "virtual tip" that is later
+       * added to a tip component in regular `priority` calculations.
+       * It means that a `Normal` transaction can front-run a similarly-sized `Operational`
+       * extrinsic (with no tip), by including a tip value greater than the virtual tip.
+       * 
+       * ```rust,ignore
+       * // For `Normal`
+       * let priority = priority_calc(tip);
+       * 
+       * // For `Operational`
+       * let virtual_tip = (inclusion_fee + tip) * OperationalFeeMultiplier;
+       * let priority = priority_calc(tip + virtual_tip);
+       * ```
+       * 
+       * Note that since we use `final_fee` the multiplier applies also to the regular `tip`
+       * sent with the transaction. So, not only does the transaction get a priority bump based
+       * on the `inclusion_fee`, but we also amplify the impact of tips applied to `Operational`
+       * transactions.
+       **/
+      operationalFeeMultiplier: u8 & AugmentedConst<ApiType>;
+    };
+    treasury: {
+      /**
+       * Percentage of spare funds (if any) that are burnt per spend period.
+       **/
+      burn: Permill & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of approvals that can wait in the spending queue.
+       * 
+       * NOTE: This parameter is also used within the Bounties Pallet extension if enabled.
+       **/
+      maxApprovals: u32 & AugmentedConst<ApiType>;
+      /**
+       * The treasury's pallet id, used for deriving its sovereign account ID.
+       **/
+      palletId: FrameSupportPalletId & AugmentedConst<ApiType>;
+      /**
+       * The period during which an approved treasury spend has to be claimed.
+       **/
+      payoutPeriod: u32 & AugmentedConst<ApiType>;
+      /**
+       * Period between successive spends.
+       **/
+      spendPeriod: u32 & AugmentedConst<ApiType>;
     };
     utility: {
       /**

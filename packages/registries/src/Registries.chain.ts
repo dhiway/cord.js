@@ -118,7 +118,7 @@ export async function isRegistryStored(
     return !encoded.isNone
   } catch (error) {
     throw new SDKErrors.CordQueryError(
-      `Error querying the registry: ${error}`
+      `Error querying the chain space: ${error}`
     )
   }
 }

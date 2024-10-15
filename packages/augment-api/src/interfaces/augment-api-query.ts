@@ -11,7 +11,7 @@ import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u32, u64
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetAssetDistributionEntry, PalletAssetAssetEntry, PalletAssetVcAssetDistributionEntry, PalletAssetVcAssetEntry, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesIdAmountRuntimeFreezeReason, PalletBalancesIdAmountRuntimeHoldReason, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordLoomRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletEntriesRegistryEntryDetails, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletRegistriesRegistryAuthorization, PalletRegistriesRegistryDetails, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -19,28 +19,49 @@ export type __QueryableStorageEntry<ApiType extends ApiTypes> = QueryableStorage
 
 declare module '@polkadot/api-base/types/storage' {
   interface AugmentedQueries<ApiType extends ApiTypes> {
-    asset: {
-      assetLookup: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<Bytes>>, [H256]>;
+    assetConversion: {
       /**
-       * asset entry identifiers with details stored on chain.
+       * Stores the `PoolAssetId` that is going to be used for the next lp token.
+       * This gets incremented whenever a new lp pool is created.
        **/
-      assets: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletAssetAssetEntry>>, [Bytes]>;
+      nextPoolAssetId: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
       /**
-       * asset entry identifiers with details stored on chain.
+       * Map from `PoolAssetId` to `PoolInfo`. This establishes whether a pool has been officially
+       * created rather than people sending tokens directly to a pool's public account.
        **/
-      distribution: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<Vec<Bytes>>>, [Bytes]>;
+      pools: AugmentedQuery<ApiType, (arg: ITuple<[FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId]> | [FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array]) => Observable<Option<PalletAssetConversionPoolInfo>>, [ITuple<[FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId]>]>;
+    };
+    assets: {
       /**
-       * asset entry identifiers with  details stored on chain.
+       * The holdings of a specific account for a specific asset.
        **/
-      issuance: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<PalletAssetAssetDistributionEntry>>, [Bytes, Bytes]>;
+      account: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<PalletAssetsAssetAccount>>, [u32, AccountId32]>;
       /**
-       * asset vc entry idenitfiers with details stored on chain.
+       * Approved balance transfers. First balance is the amount approved for transfer. Second
+       * is the amount of `T::Currency` reserved for storing this.
+       * First key is the asset ID, second key is the owner and third key is the delegate.
        **/
-      vcAssets: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletAssetVcAssetEntry>>, [Bytes]>;
+      approvals: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array, arg3: AccountId32 | string | Uint8Array) => Observable<Option<PalletAssetsApproval>>, [u32, AccountId32, AccountId32]>;
       /**
-       * asset vc entry identifiers with details stored on chain.
+       * Details of an asset.
        **/
-      vcIssuance: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<PalletAssetVcAssetDistributionEntry>>, [Bytes, Bytes]>;
+      asset: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletAssetsAssetDetails>>, [u32]>;
+      /**
+       * Metadata of an asset.
+       **/
+      metadata: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<PalletAssetsAssetMetadata>, [u32]>;
+      /**
+       * The asset ID enforced for the next asset creation, if any present. Otherwise, this storage
+       * item has no effect.
+       * 
+       * This can be useful for setting up constraints for IDs of the new assets. For example, by
+       * providing an initial [`NextAssetId`] and using the [`crate::AutoIncAssetId`] callback, an
+       * auto-increment model can be applied to all new asset IDs.
+       * 
+       * The initial next asset ID can be set using the [`GenesisConfig`] or the
+       * [SetNextAssetId](`migration::next_asset_id::SetNextAssetId`) migration.
+       **/
+      nextAssetId: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
     };
     authorityDiscovery: {
       /**
@@ -213,11 +234,11 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * Freeze locks on account balances.
        **/
-      freezes: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesIdAmountRuntimeFreezeReason>>, [AccountId32]>;
+      freezes: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<FrameSupportTokensMiscIdAmountRuntimeFreezeReason>>, [AccountId32]>;
       /**
        * Holds on account balances.
        **/
-      holds: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesIdAmountRuntimeHoldReason>>, [AccountId32]>;
+      holds: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<FrameSupportTokensMiscIdAmountRuntimeHoldReason>>, [AccountId32]>;
       /**
        * The total units of outstanding deactivated balance in the system.
        **/
@@ -225,10 +246,14 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * Any liquidity locks on some account balances.
        * NOTE: Should only be accessed when setting, changing and freeing a lock.
+       * 
+       * Use of locks is deprecated in favour of freezes. See `https://github.com/paritytech/substrate/pull/12951/`
        **/
       locks: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesBalanceLock>>, [AccountId32]>;
       /**
        * Named reserves on some account balances.
+       * 
+       * Use of reserves is deprecated in favour of holds. See `https://github.com/paritytech/substrate/pull/12951/`
        **/
       reserves: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<PalletBalancesReserveData>>, [AccountId32]>;
       /**
@@ -254,15 +279,71 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       spaces: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceSpaceDetails>>, [Bytes]>;
     };
+    contracts: {
+      /**
+       * A mapping from a contract's code hash to its code info.
+       **/
+      codeInfoOf: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletContractsWasmCodeInfo>>, [H256]>;
+      /**
+       * The code associated with a given account.
+       * 
+       * TWOX-NOTE: SAFE since `AccountId` is a secure hash.
+       **/
+      contractInfoOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletContractsStorageContractInfo>>, [AccountId32]>;
+      /**
+       * Evicted contracts that await child trie deletion.
+       * 
+       * Child trie deletion is a heavy operation depending on the amount of storage items
+       * stored in said trie. Therefore this operation is performed lazily in `on_idle`.
+       **/
+      deletionQueue: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<Bytes>>, [u32]>;
+      /**
+       * A pair of monotonic counters used to track the latest contract marked for deletion
+       * and the latest deleted contract in queue.
+       **/
+      deletionQueueCounter: AugmentedQuery<ApiType, () => Observable<PalletContractsStorageDeletionQueueManager>, []>;
+      /**
+       * A migration can span across multiple blocks. This storage defines a cursor to track the
+       * progress of the migration, enabling us to resume from the last completed position.
+       **/
+      migrationInProgress: AugmentedQuery<ApiType, () => Observable<Option<Bytes>>, []>;
+      /**
+       * This is a **monotonic** counter incremented on contract instantiation.
+       * 
+       * This is used in order to generate unique trie ids for contracts.
+       * The trie id of a new contract is calculated from hash(account_id, nonce).
+       * The nonce is required because otherwise the following sequence would lead to
+       * a possible collision of storage:
+       * 
+       * 1. Create a new contract.
+       * 2. Terminate the contract.
+       * 3. Immediately recreate the contract with the same account_id.
+       * 
+       * This is bad because the contents of a trie are deleted lazily and there might be
+       * storage of the old instantiation still in it when the new contract is created. Please
+       * note that we can't replace the counter by the block number because the sequence above
+       * can happen in the same block. We also can't keep the account counter in memory only
+       * because storage is the only way to communicate across different extrinsics in the
+       * same block.
+       * 
+       * # Note
+       * 
+       * Do not use it to determine the number of contracts. It won't be decremented if
+       * a contract is destroyed.
+       **/
+      nonce: AugmentedQuery<ApiType, () => Observable<u64>, []>;
+      /**
+       * A mapping from a contract's code hash to its code.
+       **/
+      pristineCode: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<Bytes>>, [H256]>;
+    };
     council: {
       /**
-       * The current members of the collective. This is stored sorted (just by
-       * value).
+       * The current members of the collective. This is stored sorted (just by value).
        **/
       members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * The prime member that helps determine the default vote behavior in case
-       * of absentations.
+       * The prime member that helps determine the default vote behavior in case of abstentions.
        **/
       prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
       /**
@@ -336,6 +417,13 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       owner: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletDidNameDidNameDidNameOwnership>>, [Bytes]>;
     };
+    entries: {
+      /**
+       * Storage for Registry Entries.
+       * It maps Registry Entry Identifier to Registry Entry Details.
+       **/
+      registryEntries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletEntriesRegistryEntryDetails>>, [Bytes]>;
+    };
     grandpa: {
       /**
        * The current list of authorities.
@@ -387,7 +475,7 @@ declare module '@polkadot/api-base/types/storage' {
       storedRange: AugmentedQuery<ApiType, () => Observable<Option<ITuple<[u32, u32]>>>, []>;
     };
     identifier: {
-      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
+      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | 'Registries' | 'Entries' | 'RegistryAuthorization' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
     };
     identity: {
       /**
@@ -494,6 +582,9 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       membershipsRenewsOn: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
     };
+    networkParameters: {
+      networkPermissioned: AugmentedQuery<ApiType, () => Observable<bool>, []>;
+    };
     networkScore: {
       /**
        * aggregated network score - aggregated and mapped to an entity
@@ -532,6 +623,38 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       reports: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<SpStakingOffenceOffenceDetails>>, [H256]>;
     };
+    poolAssets: {
+      /**
+       * The holdings of a specific account for a specific asset.
+       **/
+      account: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<PalletAssetsAssetAccount>>, [u32, AccountId32]>;
+      /**
+       * Approved balance transfers. First balance is the amount approved for transfer. Second
+       * is the amount of `T::Currency` reserved for storing this.
+       * First key is the asset ID, second key is the owner and third key is the delegate.
+       **/
+      approvals: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array, arg3: AccountId32 | string | Uint8Array) => Observable<Option<PalletAssetsApproval>>, [u32, AccountId32, AccountId32]>;
+      /**
+       * Details of an asset.
+       **/
+      asset: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletAssetsAssetDetails>>, [u32]>;
+      /**
+       * Metadata of an asset.
+       **/
+      metadata: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<PalletAssetsAssetMetadata>, [u32]>;
+      /**
+       * The asset ID enforced for the next asset creation, if any present. Otherwise, this storage
+       * item has no effect.
+       * 
+       * This can be useful for setting up constraints for IDs of the new assets. For example, by
+       * providing an initial [`NextAssetId`] and using the [`crate::AutoIncAssetId`] callback, an
+       * auto-increment model can be applied to all new asset IDs.
+       * 
+       * The initial next asset ID can be set using the [`GenesisConfig`] or the
+       * [SetNextAssetId](`migration::next_asset_id::SetNextAssetId`) migration.
+       **/
+      nextAssetId: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+    };
     preimage: {
       preimageFor: AugmentedQuery<ApiType, (arg: ITuple<[H256, u32]> | [H256 | string | Uint8Array, u32 | AnyNumber | Uint8Array]) => Observable<Option<Bytes>>, [ITuple<[H256, u32]>]>;
       /**
@@ -542,6 +665,32 @@ declare module '@polkadot/api-base/types/storage' {
        * The request status of a given hash.
        **/
       statusFor: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletPreimageOldRequestStatus>>, [H256]>;
+    };
+    randomnessCollectiveFlip: {
+      /**
+       * Series of block headers from the last 81 blocks that acts as random seed material. This
+       * is arranged as a ring buffer with `block_number % 81` being the index into the `Vec` of
+       * the oldest hash.
+       **/
+      randomMaterial: AugmentedQuery<ApiType, () => Observable<Vec<H256>>, []>;
+    };
+    registries: {
+      /**
+       * Registry authorizations stored on-chain.
+       * It maps from an identifier to delegates.
+       **/
+      authorizations: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistriesRegistryAuthorization>>, [Bytes]>;
+      /**
+       * Registry delegates stored on chain.
+       * It maps from an identifier to a  bounded vec of delegates and
+       * permissions.
+       **/
+      delegates: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
+      /**
+       * Registry information stored on chain.
+       * It maps from an identifier to its details.
+       **/
+      registryInfo: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistriesRegistryDetails>>, [Bytes]>;
     };
     scheduler: {
       /**
@@ -588,7 +737,7 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * The next session keys for a validator.
        **/
-      nextKeys: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<CordRuntimeSessionKeys>>, [AccountId32]>;
+      nextKeys: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<CordLoomRuntimeSessionKeys>>, [AccountId32]>;
       /**
        * True if the underlying economic identities or weighting behind the validators
        * has changed in the queued validator set.
@@ -598,7 +747,7 @@ declare module '@polkadot/api-base/types/storage' {
        * The queued keys for the next session. When the next session begins, these keys
        * will be used to determine the validator's session keys.
        **/
-      queuedKeys: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[AccountId32, CordRuntimeSessionKeys]>>>, []>;
+      queuedKeys: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[AccountId32, CordLoomRuntimeSessionKeys]>>>, []>;
       /**
        * The current set of validators.
        **/
@@ -703,6 +852,10 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       extrinsicData: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Bytes>, [u32]>;
       /**
+       * Whether all inherents have been applied.
+       **/
+      inherentsApplied: AugmentedQuery<ApiType, () => Observable<bool>, []>;
+      /**
        * Stores the `spec_version` and `spec_name` of when the last runtime upgrade happened.
        **/
       lastRuntimeUpgrade: AugmentedQuery<ApiType, () => Observable<Option<FrameSystemLastRuntimeUpgradeInfo>>, []>;
@@ -726,13 +879,11 @@ declare module '@polkadot/api-base/types/storage' {
     };
     technicalCommittee: {
       /**
-       * The current members of the collective. This is stored sorted (just by
-       * value).
+       * The current members of the collective. This is stored sorted (just by value).
        **/
       members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
       /**
-       * The prime member that helps determine the default vote behavior in case
-       * of absentations.
+       * The prime member that helps determine the default vote behavior in case of abstentions.
        **/
       prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
       /**
@@ -774,6 +925,36 @@ declare module '@polkadot/api-base/types/storage' {
        * The current time for the current block.
        **/
       now: AugmentedQuery<ApiType, () => Observable<u64>, []>;
+    };
+    transactionPayment: {
+      nextFeeMultiplier: AugmentedQuery<ApiType, () => Observable<u128>, []>;
+      storageVersion: AugmentedQuery<ApiType, () => Observable<PalletTransactionPaymentReleases>, []>;
+    };
+    treasury: {
+      /**
+       * Proposal indices that have been approved but not yet awarded.
+       **/
+      approvals: AugmentedQuery<ApiType, () => Observable<Vec<u32>>, []>;
+      /**
+       * The amount which has been reported as inactive to Currency.
+       **/
+      deactivated: AugmentedQuery<ApiType, () => Observable<u128>, []>;
+      /**
+       * Number of proposals that have been made.
+       **/
+      proposalCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Proposals that have been made.
+       **/
+      proposals: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletTreasuryProposal>>, [u32]>;
+      /**
+       * The count of spends that have been made.
+       **/
+      spendCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Spends that have been approved and being processed.
+       **/
+      spends: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletTreasurySpendStatus>>, [u32]>;
     };
   } // AugmentedQueries
 } // declare module

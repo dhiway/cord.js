@@ -61,6 +61,7 @@ import {
 
 import { ConfigService } from '@cord.network/config';
 
+
 /**
  * Generates a URI for a registry entry based on its digest, registry URI, and creator's address.
  *

@@ -6,13 +6,6 @@ import { randomUUID } from 'crypto'
 import { addNetworkMember } from './utils/createAuthorities'
 import { createAccount } from './utils/createAccount'
 
-import {
-  requestJudgement,
-  setIdentity,
-  setRegistrar,
-  provideJudgement,
-} from './utils/createRegistrar'
-
 function getChallenge(): string {
   return Cord.Utils.UUID.generate()
 }
@@ -27,7 +20,6 @@ async function main() {
 
   // Step 1: Setup Membership
   // Setup transaction author account - CORD Account.
-
   console.log(`\n❄️  New Network Member`)
   const authorityAuthorIdentity = Cord.Utils.Crypto.makeKeypairFromUri(
     process.env.ANCHOR_URI ? process.env.ANCHOR_URI : '//Alice',
@@ -39,20 +31,12 @@ async function main() {
     `🏦  Member (${authorityIdentity.type}): ${authorityIdentity.address}`
   )
   await addNetworkMember(authorityAuthorIdentity, authorityIdentity.address)
-  await setRegistrar(authorityAuthorIdentity, authorityIdentity.address)
   console.log('✅ Network Authority created!')
 
   // Setup network member account.
   const { account: authorIdentity } = await createAccount()
   console.log(`🏦  Member (${authorIdentity.type}): ${authorIdentity.address}`)
   await addNetworkMember(authorityAuthorIdentity, authorIdentity.address)
-  console.log(`🔏  Member permissions updated`)
-  await setIdentity(authorIdentity)
-  console.log(`🔏  Member identity info updated`)
-  await requestJudgement(authorIdentity, authorityIdentity.address)
-  console.log(`🔏  Member identity judgement requested`)
-  await provideJudgement(authorityIdentity, authorIdentity.address)
-  console.log(`🔏  Member identity judgement provided`)
   console.log('✅ Network Member added!')
 
   // Step 2: Setup Identities
@@ -443,7 +427,7 @@ async function main() {
       keyType: delegateTwoKeys.authentication.type,
     })
   )
-  console.log(`✅ Statement revoked!`)
+  console.log(`✅ Statement restored!`)
 
   console.log(`\n❄️  Statement Re-verification `)
   const reReVerificationResult = await Cord.Statement.verifyAgainstProperties(
