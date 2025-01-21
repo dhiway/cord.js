@@ -1,5 +1,7 @@
 import type { DidUri } from './DidDocument'
 import type { SchemaUri } from './Schema.js';
+import type { NamespaceAuthorizationUri } from './Namespace.js';
+
 import { HexString } from './Imported.js'
 
 export const REGISTRY_IDENT = 9274;
@@ -24,6 +26,7 @@ export interface IRegistryCreate {
     blob: string | null
     schemaUri: SchemaUri | null
     authorizationUri: RegistryAuthorizationUri
+    namespaceAuthorizationUri: NamespaceAuthorizationUri
 }
 
 export interface IRegistryUpdate {
@@ -32,6 +35,7 @@ export interface IRegistryUpdate {
     digest: RegistryDigest
     blob: string | null
     authorizationUri: RegistryAuthorizationUri
+    namespaceAuthorizationUri: NamespaceAuthorizationUri
 }
 
 /* eslint-disable no-bitwise */

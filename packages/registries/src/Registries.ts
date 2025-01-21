@@ -60,6 +60,7 @@ import type {
   IRegistryAuthorization,
   IRegistryCreate,
   IRegistryUpdate,
+  NamespaceAuthorizationUri,
   RegistryPermissionType,
 } from '@cord.network/types';
 
@@ -368,13 +369,14 @@ export async function decodeCborToStringifiedBlob(
  *   without computing a new digest from the `blob`.
  *
  * @param creatorAddress - The address of the creator initiating the registry creation.
+ * @param namespaceAuthorizationUri - The authorization URI for the namespace.
  * @param digest - An optional hex string representing the digest. If not provided, it will 
  * be computed from the blob.
  * @param schemaId - An optional string representing the schema ID for the registry.
  * @param blob - An optional string representing the data to be stored in the registry.
  * 
  * @returns A promise that resolves to an object containing the properties of the registry, 
- * including the URI, creator URI, digest, blob, schema ID, and authorization URI.
+ * including the URI, creator URI, digest, blob, schema ID, and namespace and registry authorization URIs.
  * 
  * @throws {SDKErrors.InputContentsMalformedError} If neither digest nor blob is provided, 
  * or if the digest is empty after processing.
@@ -392,6 +394,7 @@ export async function decodeCborToStringifiedBlob(
 // TODO: Validate schemaId is a valid data-format and schemaId exists.
 export async function registryCreateProperties(
   creatorAddress: string,
+  namespaceAuthorizationUri: NamespaceAuthorizationUri,
   digest: HexString | null = null,
   schemaUri: SchemaUri | null = null,
   blob: string | null = null, 
@@ -449,6 +452,7 @@ export async function registryCreateProperties(
     blob,
     schemaUri,
     authorizationUri,
+    namespaceAuthorizationUri,
   }
 }
 
@@ -470,6 +474,7 @@ export async function registryCreateProperties(
  *   without computing a new digest from the `blob`.
  *
  * @param registryUri - The URI of the registry to be updated.
+ * @param namespaceAuthorizationUri - The authorization URI for the namespace.
  * @param authorizationUri - The authorization URI for the registry update.
  * @param creatorAddress - The address of the creator initiating the registry update.
  * @param digest - An optional hex string representing the digest. If not provided, it will 
@@ -477,7 +482,7 @@ export async function registryCreateProperties(
  * @param blob - An optional string representing the data to be stored in the registry.
  * 
  * @returns A promise that resolves to an object containing the updated properties of the registry, 
- * including the URI, creator URI, digest, blob, and authorization URI.
+ * including the URI, creator URI, digest, blob, and namespace, registry authorization URIs.
  * 
  * @throws {SDKErrors.InputContentsMalformedError} If neither digest nor blob is provided, 
  * or if the digest is empty after processing.
@@ -495,6 +500,7 @@ export async function registryCreateProperties(
  */
 export async function registryUpdateProperties(
   registryUri: RegistryUri,
+  namespaceAuthorizationUri: NamespaceAuthorizationUri,
   authorizationUri: RegistryAuthorizationUri,
   creatorAddress: string,
   digest: HexString | null = null,
@@ -546,6 +552,7 @@ export async function registryUpdateProperties(
     creatorUri,
     digest,
     blob,
+    namespaceAuthorizationUri,
     authorizationUri,
   }
 }

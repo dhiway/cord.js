@@ -14,7 +14,8 @@
  * CORD blockchain, each with its own governance rules. These registries can
  * be used to manage various ecosystems or communities within the larger
  * blockchain network. Each registry is identified by a unique identifier
- * and can be governed by appointed delegates.
+ * and can be governed by appointed delegates. 
+ * Registries are managed within the namespace with their own delegates.
  *
  * ## Interface
  *
@@ -83,6 +84,7 @@ import {
     RegistryAuthorizationUri,
     RegistryUri, RegistryPermissionType,
     RegistryPermission, IRegistryAuthorization,
+    NamespaceAuthorizationUri,
 } from '@cord.network/types';
 
 import {
@@ -102,14 +104,14 @@ import type {
  *
  * @param registryUri - The URI of the registry to check for existence.
  * @returns A promise that resolves to a boolean indicating whether the registry exists.
- * @throws {SDKErrors.CordQueryError} If an error occurs while querying the chain space.
+ * @throws {SDKErrors.CordQueryError} If an error occurs while querying the registry storage.
  *
  * @example
  * // Example: Checking if a registry exists
  * const registryExists = await isRegistryStored('space:cord:example_registry_uri');
  * console.log('Registry exists:', registryExists);
  */
-export async function isRegistryStored(
+export async function isRegistryStored(    
     registryUri: RegistryUri
 ): Promise<boolean> {
   try {
@@ -120,7 +122,7 @@ export async function isRegistryStored(
     return !encoded.isNone
   } catch (error) {
     throw new SDKErrors.CordQueryError(
-      `Error querying the chain space: ${error}`
+      `Error querying the registry storage: ${error}`
     )
   }
 }
@@ -135,7 +137,7 @@ export async function isRegistryStored(
  *
  * @param authorizationUri - The URI of the registry authorization to check for existence.
  * @returns A promise that resolves to a boolean indicating whether the registry authorization exists.
- * @throws {SDKErrors.CordQueryError} If an error occurs while querying the chain space.
+ * @throws {SDKErrors.CordQueryError} If an error occurs while querying the registry storage.
  *
  * @example
  * // Example: Checking if a registry authorization exists
@@ -169,18 +171,20 @@ export async function isRegistryAuthorizationStored(
  *
  * @param registryDetails - An object containing the details required to create the registry, including:
  *   - `uri`: The unique identifier for the registry.
+ *   - `namespaceAuthorizationUri`: The URI for the associated namespace authorization. 
  *   - `authorizationUri`: The URI for the associated authorization.
  *   - `digest`: A hash representing the registry's content.
  *   - `schemaId`: The identifier for the schema used.
  *   - `blob`: Additional data related to the registry.
  * @param authorAccount - The account that will authorize the creation of the registry.
- * @returns A promise that resolves to an object containing the created registry's URI and its authorization URI.
+ * @returns A promise that resolves to an object containing the created registry's URI namespace auth URI and registry authorization URI.
  * @throws {SDKErrors.CordDispatchError} If the registry already exists or if an error occurs while dispatching to the chain.
  *
  * @example
  * // Example: Creating a new registry
  * const newRegistry = await dispatchCreateRegistryToChain({
  *     uri: 'registry:cord:example_registry_uri',
+ *     namespaceAuthorizationUri: 'auth:cord:example_namespace_authorization_uri',
  *     authorizationUri: 'auth:cord:example_authorization_uri',
  *     digest: '0xabc123...',
  *     schemaId: 'schema:cord:example_schema_id',
@@ -195,6 +199,7 @@ export async function dispatchCreateRegistryToChain(
 ): Promise<{ uri: RegistryUri, authorizationUri: RegistryAuthorizationUri }> {
     const registryObj = {
         uri: registryDetails.uri,
+        namespaceAuthorizationUri: registryDetails.namespaceAuthorizationUri,
         authorizationUri: registryDetails.authorizationUri
     }
 
@@ -220,9 +225,11 @@ export async function dispatchCreateRegistryToChain(
 
     try {
         const api = ConfigService.get('api'); 
+        const namespaceAuthorizationId = uriToIdentifier(registryDetails.namespaceAuthorizationUri);
 
         const extrinsic = api.tx.registries.create(
             registryDetails.digest,
+            namespaceAuthorizationId,
             schemaId,
             registryDetails.blob
         );
@@ -249,17 +256,19 @@ export async function dispatchCreateRegistryToChain(
  *
  * @param registryDetails - An object containing the details required to update the registry, including:
  *   - `uri`: The unique identifier for the registry to be updated.
+ *   - `namespaceAuthorizationUri`: The URI for the associated namespace authorization. 
  *   - `authorizationUri`: The URI for the associated authorization.
  *   - `digest`: A hash representing the updated content of the registry.
  *   - `blob`: Additional data related to the registry update.
  * @param authorAccount - The account that will authorize the update of the registry.
- * @returns A promise that resolves to an object containing the updated registry's URI and its authorization URI.
+ * @returns A promise that resolves to an object containing the updated registry's URI, namespace & registry authorization URIs.
  * @throws {SDKErrors.CordDispatchError} If the registry does not exist or if an error occurs while dispatching to the chain.
  *
  * @example
  * // Example: Updating an existing registry
  * const updatedRegistry = await dispatchUpdateRegistryToChain({
  *     uri: 'registry:cord:example_registry_uri',
+ *     namespaceAuthorizationUri: 'auth:cord:example_namespace_authorization_uri',
  *     authorizationUri: 'auth:cord:example_authorization_uri',
  *     digest: '0xdef456...',
  *     blob: 'Updated registry data blob'
@@ -273,6 +282,7 @@ export async function dispatchUpdateRegistryToChain(
 ): Promise<{ uri: RegistryUri, authorizationUri: RegistryAuthorizationUri }> {
     const registryObj = {
         uri: registryDetails.uri,
+        namespaceAuthothorizationUri: registryDetails.namespaceAuthorizationUri,
         authorizationUri: registryDetails.authorizationUri
     }
 
@@ -289,11 +299,13 @@ export async function dispatchUpdateRegistryToChain(
 
         const registryId = uriToIdentifier(registryDetails.uri);
         const authorizationId = uriToIdentifier(registryDetails.authorizationUri);
+        const namespaceAuthorizationId = uriToIdentifier(registryDetails.namespaceAuthorizationUri);
         
         const extrinsic = api.tx.registries.update(
             registryId,
             registryDetails.digest,
             registryDetails.blob,
+            namespaceAuthorizationId,
             authorizationId,
         );
 
@@ -318,15 +330,17 @@ export async function dispatchUpdateRegistryToChain(
  * and submits the transaction to the chain.
  *
  * @param registryUri - The URI of the registry for which the authorization is to be revoked.
+ * @param namespaceAuthorizationUri`: The URI for the associated namespace authorization. 
  * @param authorizationUri - The URI of the authorization to be revoked.
  * @param authorAccount - The account that will authorize the revocation of the authorization.
- * @returns A promise that resolves to an object containing the revoked registry's URI and its authorization URI.
+ * @returns A promise that resolves to an object containing the revoked registry's URI, namespace and registry authorization URIs.
  * @throws {SDKErrors.CordDispatchError} If the registry does not exist or if an error occurs while dispatching to the chain.
  *
  * @example
  * // Example: Revoking authorization for a registry
  * const revokedAuthorization = await dispatchRevokeToChain(
  *     'registry:cord:example_registry_uri',
+ *     'auth:cord:example_namespace_authorization_uri',
  *     'auth:cord:example_authorization_uri',
  *     authorAccount
  * );
@@ -335,11 +349,13 @@ export async function dispatchUpdateRegistryToChain(
  */
 export async function dispatchRevokeToChain(
     registryUri: RegistryUri,
+    namespaceAuthorizationUri: NamespaceAuthorizationUri,
     authorizationUri: RegistryAuthorizationUri,
     authorAccount: CordKeyringPair,
 ): Promise<{ uri: RegistryUri, authorizationUri: RegistryAuthorizationUri }> {
     const registryObj = {
         uri: registryUri,
+        namespaceAuthorizationUri: namespaceAuthorizationUri,
         authorizationUri: authorizationUri
     }
 
@@ -356,9 +372,11 @@ export async function dispatchRevokeToChain(
 
         const registryId = uriToIdentifier(registryUri);
         const authorizationId = uriToIdentifier(authorizationUri);
+        const namespaceAuthorizationId = uriToIdentifier(namespaceAuthorizationUri);
         
         const extrinsic = api.tx.registries.revoke(
             registryId,
+            namespaceAuthorizationId,
             authorizationId,
         );
 
@@ -383,15 +401,17 @@ export async function dispatchRevokeToChain(
  * and submits the transaction to the chain.
  *
  * @param registryUri - The URI of the registry for which the authorization is to be reinstated.
+ * @param namespaceAuthorizationUri`: The URI for the associated namespace authorization. 
  * @param authorizationUri - The URI of the authorization to be reinstated.
  * @param authorAccount - The account that will authorize the reinstatement of the authorization.
- * @returns A promise that resolves to an object containing the reinstated registry's URI and its authorization URI.
+ * @returns A promise that resolves to an object containing the reinstated registry's URIs, namespace and registry authorization URIs.
  * @throws {SDKErrors.CordDispatchError} If the registry does not exist or if an error occurs while dispatching to the chain.
  *
  * @example
  * // Example: Reinstate authorization for a registry
  * const reinstatedAuthorization = await dispatchReinstateToChain(
  *     'registry:cord:example_registry_uri',
+ *     'auth:cord:example_namespace_authorization_uri',
  *     'auth:cord:example_authorization_uri',
  *     authorAccount
  * );
@@ -400,11 +420,13 @@ export async function dispatchRevokeToChain(
  */
 export async function dispatchReinstateToChain(
     registryUri: RegistryUri,
+    namespaceAuthorizationUri: NamespaceAuthorizationUri,
     authorizationUri: RegistryAuthorizationUri,
     authorAccount: CordKeyringPair,
 ): Promise<{ uri: RegistryUri, authorizationUri: RegistryAuthorizationUri }> {
     const registryObj = {
         uri: registryUri,
+        namespaceAuthorizationUri: namespaceAuthorizationUri,
         authorizationUri: authorizationUri
     }
 
@@ -421,9 +443,11 @@ export async function dispatchReinstateToChain(
 
         const registryId = uriToIdentifier(registryUri);
         const authorizationId = uriToIdentifier(authorizationUri);
+        const namespaceAuthorizationId = uriToIdentifier(namespaceAuthorizationUri);
         
         const extrinsic = api.tx.registries.reinstate(
             registryId,
+            namespaceAuthorizationId,
             authorizationId,
         );
 
@@ -448,15 +472,17 @@ export async function dispatchReinstateToChain(
  * and submits the transaction to the chain.
  *
  * @param registryUri - The URI of the registry to be archived.
+ * @param namespaceAuthorizationUri - The URI of the namespace authorization associated with the registry.
  * @param authorizationUri - The URI of the authorization associated with the registry.
  * @param authorAccount - The account that will authorize the archiving of the registry.
- * @returns A promise that resolves to an object containing the archived registry's URI and its authorization URI.
+ * @returns A promise that resolves to an object containing the archived registry's URI and namespace, registry authorization URIs.
  * @throws {SDKErrors.CordDispatchError} If the registry does not exist or if an error occurs while dispatching to the chain.
  *
  * @example
  * // Example: Archive a registry
  * const archivedRegistry = await dispatchArchiveToChain(
  *     'registry:cord:example_registry_uri',
+ *     'auth:cord:example_namespace_authorization_uri',
  *     'auth:cord:example_authorization_uri',
  *     authorAccount
  * );
@@ -465,11 +491,13 @@ export async function dispatchReinstateToChain(
  */
 export async function dispatchArchiveToChain(
     registryUri: RegistryUri,
+    namespaceAuthorizationUri: NamespaceAuthorizationUri,
     authorizationUri: RegistryAuthorizationUri,
     authorAccount: CordKeyringPair,
 ): Promise<{ uri: RegistryUri, authorizationUri: RegistryAuthorizationUri }> {
     const registryObj = {
         uri: registryUri,
+        namespaceAuthorizationUri: namespaceAuthorizationUri,
         authorizationUri: authorizationUri
     }
 
@@ -486,9 +514,11 @@ export async function dispatchArchiveToChain(
 
         const registryId = uriToIdentifier(registryUri);
         const authorizationId = uriToIdentifier(authorizationUri);
+        const namespaceAuthorizationId = uriToIdentifier(namespaceAuthorizationUri);
         
         const extrinsic = api.tx.registries.archive(
             registryId,
+            namespaceAuthorizationId,
             authorizationId,
         );
 
@@ -513,15 +543,17 @@ export async function dispatchArchiveToChain(
  * and submits the transaction to the chain.
  *
  * @param registryUri - The URI of the registry to be restored.
+ * @param namespaceAuthorizationUri`: The URI for the associated namespace authorization. 
  * @param authorizationUri - The URI of the authorization associated with the registry.
  * @param authorAccount - The account that will authorize the restoration of the registry.
- * @returns A promise that resolves to an object containing the restored registry's URI and its authorization URI.
+ * @returns A promise that resolves to an object containing the restored registry's URI, namespace and registry authorization URIs.
  * @throws {SDKErrors.CordDispatchError} If the registry does not exist or if an error occurs while dispatching to the chain.
  *
  * @example
  * // Example: Restore a registry
  * const restoredRegistry = await dispatchRestoreToChain(
  *     'registry:cord:example_registry_uri',
+ *     'auth:cord:example_namespace_authorization_uri',
  *     'auth:cord:example_authorization_uri',
  *     authorAccount
  * );
@@ -530,11 +562,13 @@ export async function dispatchArchiveToChain(
  */
 export async function dispatchRestoreToChain(
     registryUri: RegistryUri,
+    namespaceAuthorizationUri: NamespaceAuthorizationUri,
     authorizationUri: RegistryAuthorizationUri,
     authorAccount: CordKeyringPair,
 ): Promise<{ uri: RegistryUri, authorizationUri: RegistryAuthorizationUri }> {
     const registryObj = {
         uri: registryUri,
+        namespaceAuthorizationUri: namespaceAuthorizationUri,
         authorizationUri: authorizationUri
     }
 
@@ -551,9 +585,11 @@ export async function dispatchRestoreToChain(
 
         const registryId = uriToIdentifier(registryUri);
         const authorizationId = uriToIdentifier(authorizationUri);
+        const namespaceAuthorizationId = uriToIdentifier(namespaceAuthorizationUri);
         
         const extrinsic = api.tx.registries.restore(
             registryId,
+            namespaceAuthorizationId,
             authorizationId,
         );
 
@@ -581,6 +617,7 @@ export async function dispatchRestoreToChain(
  *                     defined `RegistryPermission` values (e.g., ASSERT, DELEGATE, ADMIN).
  * @param registryId - The identifier of the registry to which the delegate is being added.
  * @param delegateId - The identifier of the delegate to be authorized.
+ * @param namespaceAuthorizationId`: The ID for the associated namespace authorization. 
  * @param authorizationId - The identifier of the authorization associated with the delegate.
  * @returns An extrinsic that can be signed and submitted to the chain.
  * @throws {SDKErrors.InvalidPermissionError} If the provided permission is not valid.
@@ -591,6 +628,7 @@ export async function dispatchRestoreToChain(
  *     RegistryPermission.ASSERT,
  *     'registryId123',
  *     'delegateId456',
+ *     'namespaceAuthorizationId678',
  *     'authorizationId789'
  * );
  * console.log('Extrinsic to be dispatched:', extrinsic);
@@ -600,17 +638,33 @@ function dispatchDelegateAuthorizationTx(
   permission: RegistryPermissionType,
   registryId: string,
   delegateId: string,
+  namespaceAuthorizationId: string,
   authorizationId: string
 ) {
   const api = ConfigService.get('api')
 
   switch (permission) {
     case RegistryPermission.ASSERT:
-      return api.tx.registries.addDelegate(registryId, delegateId, authorizationId)
+      return api.tx.registries.addDelegate(
+        registryId,
+        delegateId,
+        namespaceAuthorizationId,
+        authorizationId
+    )
     case RegistryPermission.DELEGATE:
-      return api.tx.registries.addDelegator(registryId, delegateId, authorizationId)
+      return api.tx.registries.addDelegator(
+        registryId,
+        delegateId,
+        namespaceAuthorizationId,
+        authorizationId
+    )
     case RegistryPermission.ADMIN:
-      return api.tx.registries.addAdminDelegate(registryId, delegateId, authorizationId)
+      return api.tx.registries.addAdminDelegate(
+        registryId, 
+        delegateId, 
+        namespaceAuthorizationId,
+        authorizationId
+    )
     default:
       throw new SDKErrors.InvalidPermissionError(
         `Permission not valid:"${permission}".`
@@ -627,6 +681,7 @@ function dispatchDelegateAuthorizationTx(
  * It submits the transaction to the chain and throws an error if any step fails.
  *
  * @param request - The authorization request object, containing the registry URI, delegate URI, and permission.
+ * @param namespaceAuthorizationUri`: The URI for the associated namespace authorization. 
  * @param delegatorAuthorizationUri - The authorization URI of the delegator authorizing the action.
  * @param authorAccount - The account of the author who signs and submits the transaction.
  * @returns The `RegistryAuthorizationUri` after successfully dispatching the authorization.
@@ -640,6 +695,7 @@ function dispatchDelegateAuthorizationTx(
  *         delegateUri: 'did:cord:3delegate123',
  *         permission: RegistryPermission.ADMIN
  *     },
+ *     'namespaceAuthUri123',
  *     'delegatorAuthorizationUri456',
  *     authorAccount
  * );
@@ -648,6 +704,7 @@ function dispatchDelegateAuthorizationTx(
  */
 export async function dispatchDelegateAuthorization(
   request: IRegistryAuthorization,
+  namespaceAuthorizationUri: NamespaceAuthorizationUri,
   delegatorAuthorizationUri: RegistryAuthorizationUri,
   authorAccount: CordKeyringPair,
 ): Promise<RegistryAuthorizationUri> {
@@ -670,11 +727,13 @@ export async function dispatchDelegateAuthorization(
     const registryId = uriToIdentifier(request.uri);
     const delegateId = request.delegateUri.replace("did:cord:3", "");
     const delegatorAuthorizationId = uriToIdentifier(delegatorAuthorizationUri);
+    const namespaceAuthorizationId = uriToIdentifier(namespaceAuthorizationUri);
 
     const extrinsic = dispatchDelegateAuthorizationTx(
       request.permission,
       registryId,
       delegateId,
+      namespaceAuthorizationId,
       delegatorAuthorizationId,
     )
 
@@ -700,6 +759,7 @@ export async function dispatchDelegateAuthorization(
  * @function
  * @param {RegistryUri} registryUri - The URI of the registry from which the delegate will be removed.
  * @param {RegistryAuthorizationUri} removeAuthorizationUri - The URI of the authorization to be removed (i.e., the delegate's authorization).
+ * @param {NamespaceAuthorizationUri} namespaceAuthorizationUri - The URI of the namespace authorization associated with the registry.
  * @param {RegistryAuthorizationUri} authorizationUri - The URI of the authorization of the account performing the removal (the caller's authorization).
  * @param {CordKeyringPair} authorAccount - The account key pair of the entity removing the delegate, used for signing the transaction.
  * 
@@ -707,6 +767,7 @@ export async function dispatchDelegateAuthorization(
  *          An object containing the URIs related to the registry and authorizations.
  *          - `uri`: The URI of the registry.
  *          - `removeAuthorizationUri`: The authorization URI of the delegate being removed.
+ *          -  `namespaceAuthorizationUri`: The authorization URI of the namespace.
  *          - `authorizationUri`: The authorization URI of the signer performing the removal.
  * 
  * @throws {SDKErrors.CordDispatchError}
@@ -718,6 +779,7 @@ export async function dispatchDelegateAuthorization(
  * ```typescript
  * const registryUri = 'did:cord:registry:3abc...';
  * const removeAuthorizationUri = 'did:cord:auth:3xyz...';
+ * const namespaceAuthorizationUri = 'did:cord:auth:238342...';
  * const authorizationUri = 'did:cord:auth:3signer...';
  * const authorAccount = keyring.addFromUri('//Alice');
  * 
@@ -739,6 +801,7 @@ export async function dispatchDelegateAuthorization(
 export async function dispatchRemoveDelegateToChain(
     registryUri: RegistryUri,
     removeAuthorizationUri: RegistryAuthorizationUri,
+    namespaceAuthorizationUri: NamespaceAuthorizationUri,
     authorizationUri: RegistryAuthorizationUri,
     authorAccount: CordKeyringPair,
 ): Promise<{ 
@@ -749,6 +812,7 @@ export async function dispatchRemoveDelegateToChain(
     const registryObj = {
         uri: registryUri,
         removeAuthorizationUri: removeAuthorizationUri,
+        namespaceAuthorizationUri: namespaceAuthorizationUri,
         authorizationUri: authorizationUri,
     }
 
@@ -773,10 +837,12 @@ export async function dispatchRemoveDelegateToChain(
         const registryId = uriToIdentifier(registryUri);
         const removeAuthorizationId = uriToIdentifier(removeAuthorizationUri);
         const authorizationId = uriToIdentifier(authorizationUri);
+        const namespaceAuthorizationId = uriToIdentifier(namespaceAuthorizationUri);
         
         const extrinsic = api.tx.registries.removeDelegate(
             registryId,
             removeAuthorizationId,
+            namespaceAuthorizationId,
             authorizationId,
         );
 
