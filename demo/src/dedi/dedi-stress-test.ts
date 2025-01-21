@@ -161,6 +161,33 @@ async function main() {
     const initialBalance = await getBalance(api, authorIdentity.address);
     log(`Initial Balance: ${initialBalance.toString()}`);
 
+    // Create a namespace
+    console.log(`\n❄️  Namespace Creation `)
+
+    const namespace_blob = {
+      "name": "A Namespace of various company registries",
+      "description": "A namespace that contains various company registries across different industries",
+      "created_at": "2025-01-01",
+    };
+
+    const namespace_stringified_blob = JSON.stringify(namespace_blob);
+    const namespace_digest = await Cord.Registries.getDigestFromRawData(namespace_stringified_blob);
+
+    const namespaceDetails = await Cord.Namespace.namespaceCreateProperties(
+      authorIdentity.address,
+      namespace_digest,            
+      namespace_blob,              
+    );
+
+    console.log(`\n❄️  Namespace Create Details `, namespaceDetails);
+
+    const namespace = await Cord.Namespace.dispatchCreateToChain(
+      namespaceDetails,
+      authorIdentity,
+    );
+      
+    console.log('\n✅ Namespace created!');
+
     // Create a Schema
     log(`\n❄️  Schema Creation `)
     let newSchemaContent = require('../../res/schema.json')
@@ -228,6 +255,7 @@ async function main() {
     // Crreate a Registry Property.
     const registryDetails = await Cord.Registries.registryCreateProperties(
       authorIdentity.address,
+      namespace.authorizationUri,
       digest,           
       null,             
       stringified_blob, 
@@ -245,7 +273,7 @@ async function main() {
     log('\n✅ Registry created!');
 
     /* (10_000 * 1_00_000) = 1 Billion in batches of 10_000 */
-    let maxOuterBatches = 10_000; 
+    let maxOuterBatches = 1; 
     let txCount = 1_00_000;
     let perBatch = 10_000;
 

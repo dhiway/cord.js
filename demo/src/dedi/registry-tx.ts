@@ -38,6 +38,33 @@ async function main() {
   let tx = await api.tx.balances.transferAllowDeath(authorIdentity.address, new BN('1000000000000000'));
   await Cord.Chain.signAndSubmitTx(tx, authorityAuthorIdentity);
 
+  // Create a namespace
+  console.log(`\n❄️  Namespace Creation `)
+
+  const namespace_blob = {
+    "name": "A Namespace of various company registries",
+    "description": "A namespace that contains various company registries across different industries",
+    "created_at": "2025-01-01",
+  };
+
+  const namespace_stringified_blob = JSON.stringify(namespace_blob);
+  const namespace_digest = await Cord.Registries.getDigestFromRawData(namespace_stringified_blob);
+
+  const namespaceDetails = await Cord.Namespace.namespaceCreateProperties(
+    authorIdentity.address,
+    namespace_digest,            
+    namespace_blob,              
+  );
+
+  console.log(`\n❄️  Namespace Create Details `, namespaceDetails);
+
+  const namespace = await Cord.Namespace.dispatchCreateToChain(
+    namespaceDetails,
+    authorIdentity,
+  );
+    
+  console.log('\n✅ Namespace created!');
+
   // Create a Schema
   console.log(`\n❄️  Schema Creation `)
   let newSchemaContent = require('../../res/schema.json')
@@ -104,6 +131,7 @@ async function main() {
 
   const registryDetails = await Cord.Registries.registryCreateProperties(
     authorIdentity.address,
+    namespace.authorizationUri,
     digest,            //digest
     schemaUri,         //schemaUri
     blob,              //blob
@@ -154,6 +182,7 @@ async function main() {
 
   const registryUpdateDetails = await Cord.Registries.registryUpdateProperties(
     registry.uri,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity.address,
     new_digest,               //digest
@@ -173,6 +202,7 @@ async function main() {
   console.log(`\n❄️ Revoking Registry `, registry.uri);
   const registry_revoke = await Cord.Registries.dispatchRevokeToChain(
     registry.uri,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   );
@@ -182,6 +212,7 @@ async function main() {
   console.log(`\n❄️ Reinstating Revoked Registry `, registry.uri);
   const registry_reinstate = await Cord.Registries.dispatchReinstateToChain(
     registry.uri,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   );
@@ -191,6 +222,7 @@ async function main() {
   console.log(`\n❄️ Archiving Registry `, registry.uri);
   const registry_archive = await Cord.Registries.dispatchArchiveToChain(
     registry.uri,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   );
@@ -200,6 +232,7 @@ async function main() {
   console.log(`\n❄️ Restoring Archived Registry `, registry.uri);
   const registry_restore = await Cord.Registries.dispatchRestoreToChain(
     registry.uri,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   );
@@ -228,6 +261,7 @@ async function main() {
 
   const delegateAssertAuthorizationUri = await Cord.Registries.dispatchDelegateAuthorization(
     registryAssertAuthProperties,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   )
@@ -257,6 +291,7 @@ async function main() {
 
   const delegateAuthorizationUri = await Cord.Registries.dispatchDelegateAuthorization(
     registryDelegateAuthProperties,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   )
@@ -286,6 +321,7 @@ async function main() {
 
   const delegateAdminAuthorizationUri = await Cord.Registries.dispatchDelegateAuthorization(
     registryAdminAuthProperties,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   )
@@ -298,6 +334,7 @@ async function main() {
   const removeAuthObj = await Cord.Registries.dispatchRemoveDelegateToChain(
     registry.uri,
     delegateAssertAuthorizationUri,
+    namespace.authorizationUri,
     registry.authorizationUri,
     authorIdentity
   )
