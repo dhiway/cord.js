@@ -174,6 +174,32 @@ export async function dispatchCreateToChain(
     }
 }
 
+/**
+ * Dispatches a transaction to add a delegate authorization for a specified namespace.
+ *
+ * This function creates an extrinsic based on the provided permission type, which determines
+ * the kind of authorization to be granted to the specified delegate for the given namespace.
+ * It throws an error if an invalid permission is provided.
+ *
+ * @param permission - The type of permission to grant to the delegate. Must be one of the
+ *                     defined `NamespacePermissionType` values (e.g., ASSERT, DELEGATE, ADMIN).
+ * @param namespaceId - The identifier of the namespace to which the delegate is being added.
+ * @param delegateId - The identifier of the delegate to be authorized.
+ * @param authorizationId - The identifier of the authorization associated with the delegate.
+ * @returns An extrinsic that can be signed and submitted to the chain.
+ * @throws {SDKErrors.InvalidPermissionError} If the provided permission is not valid.
+ *
+ * @example
+ * // Example: Dispatch a transaction to add a delegate authorization
+ * const extrinsic = dispatchDelegateAuthorizationTx(
+ *     NamespacePermission.ASSERT,
+ *     'namespaceId123',
+ *     'delegateId456',
+ *     'authorizationId789'
+ * );
+ * console.log('Extrinsic to be dispatched:', extrinsic);
+ * 
+ */
 function dispatchDelegateAuthorizationTx(
   permission: NamespacePermissionType,
   namespaceId: string,
