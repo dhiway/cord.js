@@ -51,6 +51,7 @@ import type {
   DidUri,
   HexString,
   INamespaceCreate,
+  NamespacePermissionType,
 } from '@cord.network/types';
 
 import { SDKErrors, Cbor } from '@cord.network/utils';
@@ -62,6 +63,7 @@ import type {
   NamespaceDigest,
   NamespaceAuthorizationUri,
   NamespaceUri,
+  INamespaceAuthorization
 } from '@cord.network/types';
 
 import {
@@ -434,5 +436,61 @@ export async function namespaceCreateProperties(
     digest,
     blob,
     authorizationUri,
+  }
+}
+
+/**
+ * Creates properties for namespace authorization, including URIs for the namespace, 
+ * delegate, and delegator, as well as the associated permission for the authorization.
+ *
+ * This function constructs the authorization properties required for a delegate 
+ * to act on behalf in a specified namespace. It generates the 
+ * delegate and delegator URIs and retrieves the authorization URI for the 
+ * specified namespace.
+ * 
+ * @param namespaceUri - The URI of the namespace for which authorization is being created.
+ * @param delegateAddress - The address of the delegate who will be granted permissions.
+ * @param permission - The type of permission being granted to the delegate in the namespace.
+ * @param delegatorAddress - The address of the delegator who is granting the permission to the delegate.
+ * 
+ * @returns A promise that resolves to an object containing the properties of the namespace 
+ * authorization, including the namespace URI, authorization URI, delegate URI, permission type, 
+ * and delegator URI.
+ * 
+ * @throws {SDKErrors.InputContentsMalformedError} If any input parameter is malformed or invalid.
+ * 
+ * @example
+ * const authorizationProperties = await namespaceAuthorizationProperties(
+ *   'namespaceUri123', // registryUri
+ *   '5F3s...',        // delegateAddress
+ *   'delegate',       // permission
+ *   '5F3x...'         // delegatorAddress
+ * );
+ * // authorizationProperties will contain the created namespace authorization properties.
+ *
+ */
+export async function namespaceAuthorizationProperties(
+  namespaceUri: NamespaceUri,
+  delegateAddress: string,
+  permission: NamespacePermissionType,
+  delegatorAddress: string,
+): Promise<INamespaceAuthorization> {
+  
+  // TOOD: Revisit below did-abstraction.
+  const delegateUri = `did:cord:3${delegateAddress}` as DidUri;
+  const delegatorUri = `did:cord:3${delegatorAddress}` as DidUri;
+  
+  const delegateAuthorizationUri = await getUriForAuthorization(
+    namespaceUri,
+    delegateAddress, 
+    delegatorAddress
+  );
+
+  return {
+    uri: namespaceUri,
+    authorizationUri: delegateAuthorizationUri,
+    delegateUri: delegateUri,
+    permission,
+    delegatorUri: delegatorUri,
   }
 }
