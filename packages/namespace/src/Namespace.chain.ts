@@ -268,10 +268,10 @@ export async function dispatchDelegateAuthorization(
 ): Promise<NamespaceAuthorizationUri> {
   try {
 
-    const registryExists = await isNamespaceStored(request.uri);
-    if (!registryExists) {
+    const namespaceExists = await isNamespaceStored(request.uri);
+    if (!namespaceExists) {
         throw new SDKErrors.CordDispatchError(
-            `Registry URI does not exist: "${request.uri}".`
+            `Namespace URI does not exist: "${request.uri}".`
         );
     }
 
@@ -311,11 +311,11 @@ export async function dispatchDelegateAuthorization(
  * otherwise, it returns `false`.
  *
  * @param authorizationUri - The URI of the namespace authorization to check for existence.
- * @returns A promise that resolves to a boolean indicating whether the registry authorization exists.
- * @throws {SDKErrors.CordQueryError} If an error occurs while querying the registry storage.
+ * @returns A promise that resolves to a boolean indicating whether the namespace authorization exists.
+ * @throws {SDKErrors.CordQueryError} If an error occurs while querying the namespace storage.
  *
  * @example
- * // Example: Checking if a registry authorization exists
+ * // Example: Checking if a namespace authorization exists
  * const authorizationExists = await isNamespaceAuthorizationStored('auth:cord:example_authorization_uri');
  * console.log('Authorization exists:', authorizationExists);
  *

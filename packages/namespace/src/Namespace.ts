@@ -461,7 +461,7 @@ export async function namespaceCreateProperties(
  * 
  * @example
  * const authorizationProperties = await namespaceAuthorizationProperties(
- *   'namespaceUri123', // registryUri
+ *   'namespaceUri123', // namespaceUri
  *   '5F3s...',        // delegateAddress
  *   'delegate',       // permission
  *   '5F3x...'         // delegatorAddress
