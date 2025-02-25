@@ -67,12 +67,15 @@ import {
     INamespaceCreate, 
     NamespaceAuthorizationUri,
     NamespaceUri,
+    NamespacePermissionType,
+    NamespacePermission,
+    INamespaceAuthorization
 } from '@cord.network/types';
 
 import {
   uriToIdentifier,
 } from '@cord.network/identifier'
-import { PalletNamespaceNameSpaceDetails } from '@cord.network/augment-api';
+import { PalletNamespaceNameSpaceAuthorization, PalletNamespaceNameSpaceDetails } from '@cord.network/augment-api';
 
 
 /**
@@ -168,5 +171,167 @@ export async function dispatchCreateToChain(
         throw new SDKErrors.CordDispatchError(
             `Error dispatching to chain: "${errorMessage}".`
         );
+    }
+}
+
+/**
+ * Dispatches a transaction to add a delegate authorization for a specified namespace.
+ *
+ * This function creates an extrinsic based on the provided permission type, which determines
+ * the kind of authorization to be granted to the specified delegate for the given namespace.
+ * It throws an error if an invalid permission is provided.
+ *
+ * @param permission - The type of permission to grant to the delegate. Must be one of the
+ *                     defined `NamespacePermissionType` values (e.g., ASSERT, DELEGATE, ADMIN).
+ * @param namespaceId - The identifier of the namespace to which the delegate is being added.
+ * @param delegateId - The identifier of the delegate to be authorized.
+ * @param authorizationId - The identifier of the authorization associated with the delegate.
+ * @returns An extrinsic that can be signed and submitted to the chain.
+ * @throws {SDKErrors.InvalidPermissionError} If the provided permission is not valid.
+ *
+ * @example
+ * // Example: Dispatch a transaction to add a delegate authorization
+ * const extrinsic = dispatchDelegateAuthorizationTx(
+ *     NamespacePermission.ASSERT,
+ *     'namespaceId123',
+ *     'delegateId456',
+ *     'authorizationId789'
+ * );
+ * console.log('Extrinsic to be dispatched:', extrinsic);
+ * 
+ */
+function dispatchDelegateAuthorizationTx(
+  permission: NamespacePermissionType,
+  namespaceId: string,
+  delegateId: string,
+  authorizationId: string
+) {
+  const api = ConfigService.get('api')
+
+  switch (permission) {
+    case NamespacePermission.ASSERT:
+      return api.tx.nameSpace.addDelegate(
+        namespaceId, 
+        delegateId, 
+        authorizationId
+    )
+    case NamespacePermission.DELEGATE:
+      return api.tx.nameSpace.addDelegator(
+        namespaceId, 
+        delegateId, 
+        authorizationId
+    )
+    case NamespacePermission.ADMIN:
+      return api.tx.nameSpace.addAdminDelegate(
+        namespaceId, 
+        delegateId, 
+        authorizationId
+    )
+    default:
+      throw new SDKErrors.InvalidPermissionError(
+        `Permission not valid:"${permission}".`
+      )
+  }
+}
+
+/**
+ * Dispatches a transaction to authorize a delegate for a specified namespace.
+ *
+ * This function checks the existence of the namespace and the authorization for the delegator,
+ * then constructs an extrinsic to add the delegate authorization with the given permission.
+ * It submits the transaction to the chain and throws an error if any step fails.
+ *
+ * @param request - The authorization request object, containing the namespace URI, delegate URI, and permission.
+ * @param namespaceAuthorizationUri`: The URI for the associated namespace authorization. 
+ * @param authorAccount - The account of the author who signs and submits the transaction.
+ * @returns The `NamespaceAuthorizationUri` after successfully dispatching the authorization.
+ * @throws {SDKErrors.CordDispatchError} If the namespace or authorization does not exist, or if there's an error during dispatch.
+ *
+ * @example
+ * // Example: Dispatch a delegate authorization to the chain
+ * const authorizationUri = await dispatchDelegateAuthorization(
+ *     {
+ *         uri: 'namespaceUri123',
+ *         delegateUri: 'did:cord:3delegate123',
+ *         permission: NamespacePermission.ADMIN
+ *     },
+ *     'namespaceAuthUri123',
+ *     authorAccount
+ * );
+ * console.log('Authorization dispatched with URI:', authorizationUri);
+ * 
+ */
+export async function dispatchDelegateAuthorization(
+  request: INamespaceAuthorization,
+  namespaceAuthorizationUri: NamespaceAuthorizationUri,
+  authorAccount: CordKeyringPair,
+): Promise<NamespaceAuthorizationUri> {
+  try {
+
+    const namespaceExists = await isNamespaceStored(request.uri);
+    if (!namespaceExists) {
+        throw new SDKErrors.CordDispatchError(
+            `Namespace URI does not exist: "${request.uri}".`
+        );
+    }
+
+    const authorizationExists = await isNamespaceAuthorizationStored(namespaceAuthorizationUri);
+    if (!authorizationExists) {
+        throw new SDKErrors.CordDispatchError(
+            `Namespace Authorization URI does not exist: "${namespaceAuthorizationUri}".`
+        );
+    }
+
+    const nameSpaceId = uriToIdentifier(request.uri);
+    const delegateId = request.delegateUri.replace("did:cord:3", "");
+    const namespaceAuthorizationId = uriToIdentifier(namespaceAuthorizationUri);
+
+    const extrinsic = dispatchDelegateAuthorizationTx(
+      request.permission,
+      nameSpaceId,
+      delegateId,
+      namespaceAuthorizationId,
+    )
+
+    await Chain.signAndSubmitTx(extrinsic, authorAccount)
+
+    return request.authorizationUri
+  } catch (error) {
+    throw new SDKErrors.CordDispatchError(
+      `Error dispatching delegate authorization: ${JSON.stringify(error)}`
+    )
+  }
+}
+
+/**
+ * Checks whether a namespace authorization is stored in the CORD blockchain.
+ *
+ * This function queries the chain for the existence of a namespace authorization
+ * using the provided authorization URI. It returns `true` if the authorization exists;
+ * otherwise, it returns `false`.
+ *
+ * @param authorizationUri - The URI of the namespace authorization to check for existence.
+ * @returns A promise that resolves to a boolean indicating whether the namespace authorization exists.
+ * @throws {SDKErrors.CordQueryError} If an error occurs while querying the namespace storage.
+ *
+ * @example
+ * // Example: Checking if a namespace authorization exists
+ * const authorizationExists = await isNamespaceAuthorizationStored('auth:cord:example_authorization_uri');
+ * console.log('Authorization exists:', authorizationExists);
+ *
+ */
+export async function isNamespaceAuthorizationStored(
+    authorizationUri: NamespaceAuthorizationUri
+): Promise<boolean> {
+    try {
+        const api = ConfigService.get('api')
+        const identifier = uriToIdentifier(authorizationUri)
+        const encoded = await api.query.nameSpace.authorizations(identifier) as Option<PalletNamespaceNameSpaceAuthorization>;
+
+        return !encoded.isNone
+    } catch (error) {
+        throw new SDKErrors.CordQueryError(
+        `Error querying authorization existence: ${error}`
+        )
     }
 }
