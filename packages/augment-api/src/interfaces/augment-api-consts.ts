@@ -138,6 +138,9 @@ declare module '@polkadot/api-base/types/consts' {
     chainSpace: {
       maxSpaceDelegates: u32 & AugmentedConst<ApiType>;
     };
+    chainSpaceDid: {
+      maxSpaceDelegates: u32 & AugmentedConst<ApiType>;
+    };
     contracts: {
       /**
        * The version of the HostFn APIs that are available in the runtime.
@@ -471,10 +474,20 @@ declare module '@polkadot/api-base/types/consts' {
     schema: {
       maxEncodedSchemaLength: u32 & AugmentedConst<ApiType>;
     };
-    schemaAccounts: {
+    schemaDid: {
       maxEncodedSchemaLength: u32 & AugmentedConst<ApiType>;
     };
     statement: {
+      /**
+       * Maximum entires supported per batch call
+       **/
+      maxDigestsPerBatch: u16 & AugmentedConst<ApiType>;
+      /**
+       * Maximum removals per call
+       **/
+      maxRemoveEntries: u16 & AugmentedConst<ApiType>;
+    };
+    statementDid: {
       /**
        * Maximum entires supported per batch call
        **/

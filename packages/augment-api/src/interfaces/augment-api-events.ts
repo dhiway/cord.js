@@ -340,6 +340,63 @@ declare module '@polkadot/api-base/types/events' {
        **/
       UpdateCapacity: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
     };
+    chainSpaceDid: {
+      /**
+       * A space approval has been restored.
+       * \[space identifier, \]
+       **/
+      ApprovalRestore: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+      /**
+       * A space approval has been revoked.
+       * \[space identifier, \]
+       **/
+      ApprovalRevoke: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+      /**
+       * A new chain space has been approved.
+       * \[space identifier \]
+       **/
+      Approve: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+      /**
+       * A space has been archived.
+       * \[space identifier,  authority\]
+       **/
+      Archive: AugmentedEvent<ApiType, [space: Bytes, authority: AccountId32], { space: Bytes, authority: AccountId32 }>;
+      /**
+       * A new space authorization has been added.
+       * \[space identifier, authorization,  delegate\]
+       **/
+      Authorization: AugmentedEvent<ApiType, [space: Bytes, authorization: Bytes, delegate: AccountId32], { space: Bytes, authorization: Bytes, delegate: AccountId32 }>;
+      /**
+       * A new chain space has been created.
+       * \[space identifier, creator, authorization\]
+       **/
+      Create: AugmentedEvent<ApiType, [space: Bytes, creator: AccountId32, authorization: Bytes], { space: Bytes, creator: AccountId32, authorization: Bytes }>;
+      /**
+       * A space authorization has been removed.
+       * \[space identifier, authorization, ]
+       **/
+      Deauthorization: AugmentedEvent<ApiType, [space: Bytes, authorization: Bytes], { space: Bytes, authorization: Bytes }>;
+      /**
+       * A chain space usage has been reset.
+       * \[space identifier \]
+       **/
+      ResetUsage: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+      /**
+       * A space has been restored.
+       * \[space identifier,  authority\]
+       **/
+      Restore: AugmentedEvent<ApiType, [space: Bytes, authority: AccountId32], { space: Bytes, authority: AccountId32 }>;
+      /**
+       * A space has been restored.
+       * \[space identifier, \]
+       **/
+      Revoke: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+      /**
+       * A chain space capacity has been updated.
+       * \[space identifier \]
+       **/
+      UpdateCapacity: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+    };
     contracts: {
       /**
        * A contract was called either by a plain account or another contract.
@@ -504,6 +561,10 @@ declare module '@polkadot/api-base/types/events' {
        * \[creator, registry_identifier, registry_entry_identifier\]
        **/
       RegistryEntryCreated: AugmentedEvent<ApiType, [creator: AccountId32, registryId: Bytes, registryEntryId: Bytes], { creator: AccountId32, registryId: Bytes, registryEntryId: Bytes }>;
+      /**
+       * Existence of registry entry has been verified.
+       **/
+      RegistryEntryExistenceVerified: AugmentedEvent<ApiType, [verifier: AccountId32, registryEntryId: Bytes, registryEntryDigest: H256], { verifier: AccountId32, registryEntryId: Bytes, registryEntryDigest: H256 }>;
       /**
        * A existing registry entry ownership has been updated.
        * \[updater, new_owner, registry_entry_identifier\]
@@ -953,12 +1014,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Stored: AugmentedEvent<ApiType, [sender: AccountId32, contentHash: H256], { sender: AccountId32, contentHash: H256 }>;
     };
-    rootTesting: {
-      /**
-       * Event dispatched when the trigger_defensive extrinsic is called.
-       **/
-      DefensiveTestCall: AugmentedEvent<ApiType, []>;
-    };
     scheduler: {
       /**
        * The call for the provided hash was not found so the task has been aborted.
@@ -1005,7 +1060,7 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
     };
-    schemaAccounts: {
+    schemaDid: {
       /**
        * A new schema has been created.
        * \[schema identifier, digest, author\]
@@ -1020,6 +1075,54 @@ declare module '@polkadot/api-base/types/events' {
       NewSession: AugmentedEvent<ApiType, [sessionIndex: u32], { sessionIndex: u32 }>;
     };
     statement: {
+      /**
+       * A statement identifier has been removed.
+       * \[statement identifier,  controller\]
+       **/
+      PartialRemoval: AugmentedEvent<ApiType, [identifier: Bytes, removed: u32, author: AccountId32], { identifier: Bytes, removed: u32, author: AccountId32 }>;
+      /**
+       * A statement digest has been added.
+       * \[statement identifier, digest, controller\]
+       **/
+      PresentationAdded: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      /**
+       * A statement digest has been added.
+       * \[statement identifier, digest, controller\]
+       **/
+      PresentationRemoved: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      /**
+       * A new statement identifier has been registered.
+       * \[statement identifier, statement digest, controller\]
+       **/
+      Register: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      /**
+       * A statement batch has been processed.
+       * \[successful count, failed count, failed indices,
+       * controller]
+       **/
+      RegisterBatch: AugmentedEvent<ApiType, [successful: u32, failed: u32, indices: Vec<u16>, author: AccountId32], { successful: u32, failed: u32, indices: Vec<u16>, author: AccountId32 }>;
+      /**
+       * A statement identifier has been removed.
+       * \[statement identifier,  controller\]
+       **/
+      Remove: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A statement identifier status has been restored.
+       * \[statement identifier, controller\]
+       **/
+      Restore: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A statement identifier status has been revoked.
+       * \[statement identifier, controller\]
+       **/
+      Revoke: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
+      /**
+       * A statement identifier has been updated.
+       * \[statement identifier, digest, controller\]
+       **/
+      Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+    };
+    statementDid: {
       /**
        * A statement identifier has been removed.
        * \[statement identifier,  controller\]
