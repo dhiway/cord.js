@@ -20,8 +20,8 @@ import {
 } from '../Did.chain.js'
 
 const methodMapping: Record<string, VerificationKeyRelationship | undefined> = {
-  statement: 'authentication',
-  schema: 'authentication',
+  statementDid: 'authentication',
+  schemaDid: 'authentication',
   'chainSpaceDid.addAdminDelegate': 'capabilityDelegation',
   'chainSpaceDid.addAuditDelegate': 'capabilityDelegation',
   'chainSpaceDid.addDelegate': 'capabilityDelegation',

@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module Statement
+ * @module StatementDid
  * @preferred
  *
  * The `Statement` module is a fundamental part of the CORD SDK, offering a suite of functionalities for creating, managing,
@@ -41,7 +41,7 @@ import { checkIdentifier, updateStatementUri } from '@cord.network/identifier'
 import {
   getUriForStatement,
   fetchStatementDetailsfromChain,
-} from './Statement.chain.js'
+} from './StatementDid.chain.js'
 
 /**
  * Verifies the data structure of a given statement entry.

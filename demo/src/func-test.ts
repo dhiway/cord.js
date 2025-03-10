@@ -310,7 +310,7 @@ async function main() {
     colors: true,
   })
 
-  const statementEntry = Cord.Statement.buildFromProperties(
+  const statementEntry = Cord.StatementDid.buildFromProperties(
     credHash,
     space.uri,
     issuerDid.uri,
@@ -321,7 +321,7 @@ async function main() {
     colors: true,
   })
 
-  const statement = await Cord.Statement.dispatchRegisterToChain(
+  const statement = await Cord.StatementDid.dispatchRegisterToChain(
     statementEntry,
     issuerDid.uri,
     authorIdentity,
@@ -342,7 +342,7 @@ async function main() {
     Cord.Utils.Crypto.encodeObjectAsStr(updateCredContent)
   const upCredHash = Cord.Utils.Crypto.hashStr(serializedUpCred)
 
-  const updatedStatementEntry = Cord.Statement.buildFromUpdateProperties(
+  const updatedStatementEntry = Cord.StatementDid.buildFromUpdateProperties(
     statementEntry.elementUri,
     upCredHash,
     space.uri,
@@ -353,7 +353,7 @@ async function main() {
     colors: true,
   })
 
-  const updatedStatement = await Cord.Statement.dispatchUpdateToChain(
+  const updatedStatement = await Cord.StatementDid.dispatchUpdateToChain(
     updatedStatementEntry,
     delegateTwoDid.uri,
     authorIdentity,
@@ -366,7 +366,7 @@ async function main() {
   console.log(`✅ Statement element registered - ${updatedStatement}`)
 
   console.log(`\n❄️  Statement verification `)
-  const verificationResult = await Cord.Statement.verifyAgainstProperties(
+  const verificationResult = await Cord.StatementDid.verifyAgainstProperties(
     statementEntry.elementUri,
     credHash,
     issuerDid.uri,
@@ -381,7 +381,7 @@ async function main() {
   }
 
   const anotherVerificationResult =
-    await Cord.Statement.verifyAgainstProperties(
+    await Cord.StatementDid.verifyAgainstProperties(
       updatedStatementEntry.elementUri,
       upCredHash,
       delegateTwoDid.uri,
@@ -399,7 +399,7 @@ async function main() {
   }
 
   console.log(`\n❄️  Revoke Statement - ${updatedStatementEntry.elementUri}`)
-  await Cord.Statement.dispatchRevokeToChain(
+  await Cord.StatementDid.dispatchRevokeToChain(
     updatedStatementEntry.elementUri,
     delegateTwoDid.uri,
     authorIdentity,
@@ -412,7 +412,7 @@ async function main() {
   console.log(`✅ Statement revoked!`)
 
   console.log(`\n❄️  Statement Re-verification `)
-  const reVerificationResult = await Cord.Statement.verifyAgainstProperties(
+  const reVerificationResult = await Cord.StatementDid.verifyAgainstProperties(
     updatedStatementEntry.elementUri,
     upCredHash,
     issuerDid.uri,
@@ -430,7 +430,7 @@ async function main() {
   }
 
   console.log(`\n❄️  Restore Statement - ${updatedStatementEntry.elementUri}`)
-  await Cord.Statement.dispatchRestoreToChain(
+  await Cord.StatementDid.dispatchRestoreToChain(
     updatedStatementEntry.elementUri,
     delegateTwoDid.uri,
     authorIdentity,
@@ -443,7 +443,7 @@ async function main() {
   console.log(`✅ Statement restored!`)
 
   console.log(`\n❄️  Statement Re-verification `)
-  const reReVerificationResult = await Cord.Statement.verifyAgainstProperties(
+  const reReVerificationResult = await Cord.StatementDid.verifyAgainstProperties(
     updatedStatementEntry.elementUri,
     upCredHash,
     delegateTwoDid.uri,

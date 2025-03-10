@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module Statement/Chain
+ * @module StatementDid/Chain
  *
  * The `Statement/Chain` submodule is a crucial part of the CORD blockchain's statement management system.
  * It focuses on the interactions with the blockchain, specifically handling the storage, retrieval,
@@ -65,7 +65,7 @@ import {
   identifierToUri,
   uriToStatementIdAndDigest,
 } from '@cord.network/identifier'
-import type { PalletStatementStatementDetails } from '@cord.network/augment-api'
+import type { PalletStatementDidStatementDetails } from '@cord.network/augment-api'
 import { DecoderUtils, SDKErrors } from '@cord.network/utils'
 import { Chain } from '@cord.network/network'
 import { blake2AsHex, H256 } from '@cord.network/types'
@@ -106,7 +106,7 @@ export async function isStatementStored(
 ): Promise<boolean> {
   const api = ConfigService.get('api')
   const space = uriToIdentifier(spaceUri)
-  const encoded = await api.query.statement.identifierLookup(digest, space)
+  const encoded = await api.query.statementDid.identifierLookup(digest, space)
 
   return !encoded.isNone
 }
@@ -280,8 +280,8 @@ export async function prepareExtrinsicToRegister(
     }
 
     const tx = schemaId
-      ? api.tx.statement.register(stmtEntry.digest, authorizationId, schemaId)
-      : api.tx.statement.register(stmtEntry.digest, authorizationId, null)
+      ? api.tx.statementDid.register(stmtEntry.digest, authorizationId, schemaId)
+      : api.tx.statementDid.register(stmtEntry.digest, authorizationId, null)
 
     const extrinsic = await Did.authorizeTx(
       creatorUri,
@@ -357,7 +357,7 @@ export async function dispatchUpdateToChain(
     }
 
     const stmtIdDigest = uriToStatementIdAndDigest(stmtEntry.elementUri)
-    const tx = api.tx.statement.update(
+    const tx = api.tx.statementDid.update(
       stmtIdDigest.identifier,
       stmtEntry.digest,
       authorizationId
@@ -479,7 +479,7 @@ export async function prepareExtrinsicToRevoke(
     const stmtIdDigest = uriToStatementIdAndDigest(statementUri)
     const stmtId = stmtIdDigest.identifier
 
-    const tx = api.tx.statement.revoke(stmtId, authorizationId)
+    const tx = api.tx.statementDid.revoke(stmtId, authorizationId)
 
     const extrinsic = await Did.authorizeTx(
       creatorUri,
@@ -546,7 +546,7 @@ export async function dispatchRestoreToChain(
     const stmtIdDigest = uriToStatementIdAndDigest(statementUri)
     const stmtId = stmtIdDigest.identifier
 
-    const tx = api.tx.statement.restore(stmtId, authorizationId)
+    const tx = api.tx.statementDid.restore(stmtId, authorizationId)
 
     const extrinsic = await Did.authorizeTx(
       creatorUri,
@@ -585,7 +585,7 @@ export async function dispatchRestoreToChain(
  * @internal
  */
 export function decodeStatementDetailsfromChain(
-  encoded: Option<PalletStatementStatementDetails>,
+  encoded: Option<PalletStatementDidStatementDetails>,
   identifier: string
 ): IStatementDetails {
   const chainStatement = encoded.unwrap()
@@ -641,7 +641,7 @@ export async function getDetailsfromChain(
   const api = ConfigService.get('api')
   const statementId = uriToIdentifier(identifier)
 
-  const statementEntry = await api.query.statement.statements(statementId)
+  const statementEntry = await api.query.statementDid.statements(statementId)
   const decodedDetails = decodeStatementDetailsfromChain(
     statementEntry,
     identifier
@@ -701,7 +701,7 @@ export async function fetchStatementDetailsfromChain(
 
   const spaceUri = identifierToUri(statementDetails.spaceUri)
 
-  const elementStatusDetails = await api.query.statement.entries(
+  const elementStatusDetails = await api.query.statementDid.entries(
     identifier,
     digest
   )
@@ -717,7 +717,7 @@ export async function fetchStatementDetailsfromChain(
   ).unwrap()
   const elementCreator = Did.fromChain(elementChainCreator)
 
-  const elementStatus = await api.query.statement.revocationList(
+  const elementStatus = await api.query.statementDid.revocationList(
     identifier,
     digest
   )

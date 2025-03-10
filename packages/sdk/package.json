@@ -50,7 +50,7 @@
     "@cord.network/registries": "workspace:*",
     "@cord.network/schema": "workspace:*",
     "@cord.network/schema-did": "workspace:*",
-    "@cord.network/statement": "workspace:*",
+    "@cord.network/statement-did": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*"
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@cord.network/statement",
+  "name": "@cord.network/statement-did",
   "version": "0.9.3-1rc4",
   "description": "CORD Statements",
   "main": "./lib/cjs/index.js",

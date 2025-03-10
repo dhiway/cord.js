@@ -38,7 +38,7 @@ import {
   DidUri,
   ISchema,
   SCHEMA_PREFIX,
-  SCHEMA_IDENT,
+  SCHEMA_DID_IDENT,
   blake2AsHex,
   ISchemaDetails,
   SchemaId,
@@ -132,7 +132,7 @@ export function getUriForSchema(
   )
   const schemaUri = hashToUri(
     IdDigest,
-    SCHEMA_IDENT,
+    SCHEMA_DID_IDENT,
     SCHEMA_PREFIX
   ) as SchemaUri
 
