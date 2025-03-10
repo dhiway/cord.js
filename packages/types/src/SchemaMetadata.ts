@@ -1,4 +1,4 @@
-import type { ISchema } from './Schema'
+import type { ISchema } from './SchemaDid'
 
 /**
  * String struct with string keys and a mandatory `default` field.
