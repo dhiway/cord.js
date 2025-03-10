@@ -1,5 +1,5 @@
 import type { DidUri } from './DidDocument'
-import type { SchemaUri } from './Schema.js';
+import type { SchemaUri } from './SchemaDid.js';
 import type { NamespaceAuthorizationUri } from './Namespace.js';
 
 import { HexString } from './Imported.js'

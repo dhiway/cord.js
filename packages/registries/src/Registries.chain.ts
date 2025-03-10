@@ -77,7 +77,7 @@ import { SDKErrors } from '@cord.network/utils'
 
 import { ConfigService } from '@cord.network/config'
 
-import { doesSchemaIdExists } from '@cord.network/schema-accounts';
+import { doesSchemaIdExists } from '@cord.network/schema';
 
 import { 
     IRegistryCreate, IRegistryUpdate,

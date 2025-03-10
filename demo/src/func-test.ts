@@ -141,7 +141,7 @@ async function main() {
 
   // Step 3: Create a new Chain Space
   console.log(`\n❄️  Chain Space Creation `)
-  const spaceProperties = await Cord.ChainSpace.buildFromProperties(
+  const spaceProperties = await Cord.ChainSpaceDid.buildFromProperties(
     issuerDid.uri
   )
   console.dir(spaceProperties, {
@@ -150,7 +150,7 @@ async function main() {
   })
 
   console.log(`\n❄️  Chain Space Properties `)
-  const space = await Cord.ChainSpace.dispatchToChain(
+  const space = await Cord.ChainSpaceDid.dispatchToChain(
     spaceProperties,
     issuerDid.uri,
     authorIdentity,
@@ -166,7 +166,7 @@ async function main() {
   console.log('✅ Chain Space created!')
 
   console.log(`\n❄️  Chain Space Approval `)
-  await Cord.ChainSpace.sudoApproveChainSpace(
+  await Cord.ChainSpaceDid.sudoApproveChainSpace(
     authorityAuthorIdentity,
     space.uri,
     1000
@@ -176,14 +176,14 @@ async function main() {
   /* Disable subspace for permissionless chain */
   if (runtimeType != "weave") {
     // Step 3.5: Subspace
-    const subSpaceProperties = await Cord.ChainSpace.buildFromProperties(
+    const subSpaceProperties = await Cord.ChainSpaceDid.buildFromProperties(
       issuerDid.uri
     )
     console.dir(subSpaceProperties, {
       depth: null,
       colors: true,
     })
-    const subSpace = await Cord.ChainSpace.dispatchSubspaceCreateToChain(
+    const subSpace = await Cord.ChainSpaceDid.dispatchSubspaceCreateToChain(
       subSpaceProperties,
       issuerDid.uri,
       authorIdentity,
@@ -200,7 +200,7 @@ async function main() {
     })
     console.log(`\n❄️  SubSpace is created`)
 
-    const subSpaceTx = await Cord.ChainSpace.dispatchUpdateTxCapacityToChain(
+    const subSpaceTx = await Cord.ChainSpaceDid.dispatchUpdateTxCapacityToChain(
       subSpace.uri,
       issuerDid.uri,
       authorIdentity,
@@ -217,7 +217,7 @@ async function main() {
   console.log(`\n❄️  Space Delegate Authorization `)
   const permission: Cord.PermissionType = Cord.Permission.ASSERT
   const spaceAuthProperties =
-    await Cord.ChainSpace.buildFromAuthorizationProperties(
+    await Cord.ChainSpaceDid.buildFromAuthorizationProperties(
       space.uri,
       delegateTwoDid.uri,
       permission,
@@ -228,7 +228,7 @@ async function main() {
     colors: true,
   })
   console.log(`\n❄️  Space Delegation To Chain `)
-  const delegateAuth = await Cord.ChainSpace.dispatchDelegateAuthorization(
+  const delegateAuth = await Cord.ChainSpaceDid.dispatchDelegateAuthorization(
     spaceAuthProperties,
     authorIdentity,
     space.authorization,
@@ -244,14 +244,14 @@ async function main() {
   console.log(`✅ Space Authorization - ${delegateAuth} - added!`)
 
   console.log(`\n❄️  Query From Chain - Chain Space Details `)
-  const spaceFromChain = await Cord.ChainSpace.fetchFromChain(space.uri)
+  const spaceFromChain = await Cord.ChainSpaceDid.fetchFromChain(space.uri)
   console.dir(spaceFromChain, {
     depth: null,
     colors: true,
   })
 
   console.log(`\n❄️  Query From Chain - Chain Space Authorization Details `)
-  const spaceAuthFromChain = await Cord.ChainSpace.fetchAuthorizationFromChain(
+  const spaceAuthFromChain = await Cord.ChainSpaceDid.fetchAuthorizationFromChain(
     delegateAuth as Cord.AuthorizationUri
   )
   console.dir(spaceAuthFromChain, {
@@ -266,7 +266,7 @@ async function main() {
   let newSchemaName = newSchemaContent.title + ':' + Cord.Utils.UUID.generate()
   newSchemaContent.title = newSchemaName
 
-  let schemaProperties = Cord.Schema.buildFromProperties(
+  let schemaProperties = Cord.SchemaDid.buildFromProperties(
     newSchemaContent,
     space.uri,
     issuerDid.uri
@@ -275,7 +275,7 @@ async function main() {
     depth: null,
     colors: true,
   })
-  const schemaUri = await Cord.Schema.dispatchToChain(
+  const schemaUri = await Cord.SchemaDid.dispatchToChain(
     schemaProperties.schema,
     issuerDid.uri,
     authorIdentity,
@@ -288,7 +288,7 @@ async function main() {
   console.log(`✅ Schema - ${schemaUri} - added!`)
 
   console.log(`\n❄️  Query From Chain - Schema `)
-  const schemaFromChain = await Cord.Schema.fetchFromChain(
+  const schemaFromChain = await Cord.SchemaDid.fetchFromChain(
     schemaProperties.schema.$id
   )
   console.dir(schemaFromChain, {
