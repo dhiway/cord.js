@@ -1820,7 +1820,7 @@ __metadata:
     "@cord.network/registries": "workspace:*"
     "@cord.network/schema": "workspace:*"
     "@cord.network/schema-did": "workspace:*"
-    "@cord.network/statement": "workspace:*"
+    "@cord.network/statement-did": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     rimraf: "npm:^5.0.5"
@@ -1831,9 +1831,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/statement@workspace:*, @cord.network/statement@workspace:packages/statement":
+"@cord.network/statement-did@workspace:*, @cord.network/statement-did@workspace:packages/statement-did":
   version: 0.0.0-use.local
-  resolution: "@cord.network/statement@workspace:packages/statement"
+  resolution: "@cord.network/statement-did@workspace:packages/statement-did"
   dependencies:
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"

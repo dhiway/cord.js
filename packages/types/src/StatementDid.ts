@@ -7,7 +7,7 @@ import { DidUri } from './DidDocument.js'
 import { HexString } from './Imported.js'
 import { SpaceUri } from './ChainSpaceDid.js'
 
-export const STATEMENT_IDENT = 8902
+export const STATEMENT_DID_IDENT = 8902
 export const STATEMENT_PREFIX = 'stmt:cord:'
 export type StatementUri = `${typeof STATEMENT_PREFIX}${string}`
 export type StatementId = string
