@@ -11,7 +11,7 @@ import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u32, u64
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
 import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
 import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordLoomRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletEntriesRegistryEntryDetails, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNamespaceNameSpaceAuthorization, PalletNamespaceNameSpaceDetails, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletRegistriesRegistryAuthorization, PalletRegistriesRegistryDetails, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaAccountsSchemaEntry, PalletSchemaSchemaEntry, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordWeaveRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletChainSpaceDidSpaceAuthorization, PalletChainSpaceDidSpaceDetails, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletEntriesRegistryEntryDetails, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNamespaceNameSpaceAuthorization, PalletNamespaceNameSpaceDetails, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletRegistriesRegistryAuthorization, PalletRegistriesRegistryDetails, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaDidSchemaEntry, PalletSchemaSchemaEntry, PalletStatementDidStatementDetails, PalletStatementDidStatementEntryStatus, PalletStatementDidStatementPresentationDetails, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -279,6 +279,24 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       spaces: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceSpaceDetails>>, [Bytes]>;
     };
+    chainSpaceDid: {
+      /**
+       * SpaceDid authorizations stored on-chain.
+       * It maps from an identifier to delegates.
+       **/
+      authorizations: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceDidSpaceAuthorization>>, [Bytes]>;
+      /**
+       * SpaceDid delegates stored on chain.
+       * It maps from an identifier to a  bounded vec of delegates and
+       * permissions.
+       **/
+      delegates: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
+      /**
+       * SpaceDid information stored on chain.
+       * It maps from an identifier to its details.
+       **/
+      spaces: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceDidSpaceDetails>>, [Bytes]>;
+    };
     contracts: {
       /**
        * A mapping from a contract's code hash to its code info.
@@ -475,7 +493,7 @@ declare module '@polkadot/api-base/types/storage' {
       storedRange: AugmentedQuery<ApiType, () => Observable<Option<ITuple<[u32, u32]>>>, []>;
     };
     identifier: {
-      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'Auth' | 'ChainSpace' | 'Did' | 'Rating' | 'Registry' | 'Statement' | 'Schema' | 'Template' | 'Registries' | 'Entries' | 'RegistryAuthorization' | 'SchemaAccounts' | 'NameSpace' | 'NameSpaceAuthorization' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
+      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'AuthDid' | 'ChainSpaceDid' | 'Did' | 'Rating' | 'Registry' | 'StatementDid' | 'SchemaDid' | 'Template' | 'Registries' | 'Entries' | 'RegistryAuthorization' | 'Schema' | 'NameSpace' | 'NameSpaceAuthorization' | 'ChainSpace' | 'Auth' | 'Statement' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
     };
     identity: {
       /**
@@ -735,12 +753,12 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       schemas: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletSchemaSchemaEntry>>, [Bytes]>;
     };
-    schemaAccounts: {
+    schemaDid: {
       /**
        * schemas stored on chain.
        * It maps from a schema identifier to its details.
        **/
-      schemas: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletSchemaAccountsSchemaEntry>>, [Bytes]>;
+      schemas: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletSchemaDidSchemaEntry>>, [Bytes]>;
     };
     session: {
       /**
@@ -762,7 +780,7 @@ declare module '@polkadot/api-base/types/storage' {
       /**
        * The next session keys for a validator.
        **/
-      nextKeys: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<CordLoomRuntimeSessionKeys>>, [AccountId32]>;
+      nextKeys: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<CordWeaveRuntimeSessionKeys>>, [AccountId32]>;
       /**
        * True if the underlying economic identities or weighting behind the validators
        * has changed in the queued validator set.
@@ -772,7 +790,7 @@ declare module '@polkadot/api-base/types/storage' {
        * The queued keys for the next session. When the next session begins, these keys
        * will be used to determine the validator's session keys.
        **/
-      queuedKeys: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[AccountId32, CordLoomRuntimeSessionKeys]>>>, []>;
+      queuedKeys: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[AccountId32, CordWeaveRuntimeSessionKeys]>>>, []>;
       /**
        * The current set of validators.
        **/
@@ -805,6 +823,34 @@ declare module '@polkadot/api-base/types/storage' {
        * Only stores the latest state.
        **/
       statements: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletStatementStatementDetails>>, [Bytes]>;
+    };
+    statementDid: {
+      /**
+       * statement uniques stored on chain.
+       * It maps from a statement identifier and hash to its details.
+       **/
+      entries: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<AccountId32>>, [Bytes, H256]>;
+      /**
+       * Storage for Identifier lookup.
+       * It maps from a statement entry digest and registry id to an identifier.
+       **/
+      identifierLookup: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [H256, Bytes]>;
+      /**
+       * statement uniques stored on chain.
+       * It maps from a statement identifier and hash to its details.
+       **/
+      presentations: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStatementDidStatementPresentationDetails>>, [Bytes, H256]>;
+      /**
+       * Revocation registry of statement entries stored on chain.
+       * It maps from a statement identifier and hash to its details.
+       **/
+      revocationList: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStatementDidStatementEntryStatus>>, [Bytes, H256]>;
+      /**
+       * statement identifiers stored on chain.
+       * It maps from an identifier to its details.
+       * Only stores the latest state.
+       **/
+      statements: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletStatementDidStatementDetails>>, [Bytes]>;
     };
     sudo: {
       /**

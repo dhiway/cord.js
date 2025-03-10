@@ -381,6 +381,84 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
     };
+    chainSpaceDid: {
+      /**
+       * Archived SpaceDid
+       **/
+      ArchivedSpace: AugmentedError<ApiType>;
+      /**
+       * Authorization Id not found
+       **/
+      AuthorizationNotFound: AugmentedError<ApiType>;
+      /**
+       * The new capacity value is lower than the current usage
+       **/
+      CapacityLessThanUsage: AugmentedError<ApiType>;
+      /**
+       * The capacity limit for the space has been exceeded.
+       **/
+      CapacityLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Capacity value missing
+       **/
+      CapacityValueMissing: AugmentedError<ApiType>;
+      /**
+       * Authority already added
+       **/
+      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      /**
+       * Delegate not found.
+       **/
+      DelegateNotFound: AugmentedError<ApiType>;
+      /**
+       * Empty transaction.
+       **/
+      EmptyTransaction: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier
+       **/
+      InvalidIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Invalid Identifier Prefix
+       **/
+      InvalidIdentifierPrefix: AugmentedError<ApiType>;
+      /**
+       * SpaceDid identifier is not unique
+       **/
+      SpaceAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * SpaceDid already approved
+       **/
+      SpaceAlreadyApproved: AugmentedError<ApiType>;
+      /**
+       * SpaceDid delegation limit exceeded
+       **/
+      SpaceDelegatesLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * SpaceDid not approved.
+       **/
+      SpaceNotApproved: AugmentedError<ApiType>;
+      /**
+       * SpaceDid not Archived
+       **/
+      SpaceNotArchived: AugmentedError<ApiType>;
+      /**
+       * SpaceDid identifier not found
+       **/
+      SpaceNotFound: AugmentedError<ApiType>;
+      /**
+       * Type capacity overflow
+       **/
+      TypeCapacityOverflow: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller or delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+    };
     contracts: {
       /**
        * Can not add a delegate dependency to the code hash of the contract itself.
@@ -817,6 +895,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Registry Entry has not been revoked.
        **/
       RegistryEntryNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Registry Entry has been revoked.
+       **/
+      RegistryEntryRevoked: AugmentedError<ApiType>;
       /**
        * Account has no valid authorization
        **/
@@ -1513,7 +1595,7 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       UnableToPayFees: AugmentedError<ApiType>;
     };
-    schemaAccounts: {
+    schemaDid: {
       /**
        * Creator DID information not found.
        **/
@@ -1563,6 +1645,125 @@ declare module '@polkadot/api-base/types/errors' {
       NoKeys: AugmentedError<ApiType>;
     };
     statement: {
+      /**
+       * Associate digest already present
+       **/
+      AssociateDigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Attestation is not found
+       **/
+      AttestationNotFound: AugmentedError<ApiType>;
+      /**
+       * Authorization not found
+       **/
+      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      /**
+       * Bulk Transaction Failed
+       **/
+      BulkTransactionFailed: AugmentedError<ApiType>;
+      /**
+       * Statement digest is not unique
+       **/
+      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Expired Tx Signature
+       **/
+      ExpiredSignature: AugmentedError<ApiType>;
+      /**
+       * Statement hash is not unique
+       **/
+      HashAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Invalid Schema Identifier Length
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * Invalid creator signature
+       **/
+      InvalidSignature: AugmentedError<ApiType>;
+      /**
+       * Invalid Statement Identifier
+       **/
+      InvalidStatementIdentifier: AugmentedError<ApiType>;
+      /**
+       * Invalid transaction hash
+       **/
+      InvalidTransactionHash: AugmentedError<ApiType>;
+      MaxDigestLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Maximum number of activities exceeded
+       **/
+      MaxStatementActivitiesExceeded: AugmentedError<ApiType>;
+      /**
+       * Metadata already set for the entry
+       **/
+      MetadataAlreadySet: AugmentedError<ApiType>;
+      /**
+       * Metadata limit exceeded
+       **/
+      MetadataLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Metadata not found for the entry
+       **/
+      MetadataNotFound: AugmentedError<ApiType>;
+      /**
+       * Presentation is already anchored.
+       **/
+      PresentationDigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Presentation not found
+       **/
+      PresentationNotFound: AugmentedError<ApiType>;
+      /**
+       * Statement idenfier is not unique
+       **/
+      StatementAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Statement digest already present on the chain.
+       **/
+      StatementDigestAlreadyAnchored: AugmentedError<ApiType>;
+      /**
+       * Statement entry not found
+       **/
+      StatementEntryNotFound: AugmentedError<ApiType>;
+      /**
+       * Statement link does not exist
+       **/
+      StatementLinkNotFound: AugmentedError<ApiType>;
+      /**
+       * Statement Link is revoked
+       **/
+      StatementLinkRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement idenfier not found
+       **/
+      StatementNotFound: AugmentedError<ApiType>;
+      /**
+       * Statement idenfier not marked inactive
+       **/
+      StatementNotRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement entry marked inactive
+       **/
+      StatementRevoked: AugmentedError<ApiType>;
+      /**
+       * Statement not part of space
+       **/
+      StatementSpaceMismatch: AugmentedError<ApiType>;
+      /**
+       * Maximum Number of delegates reached.
+       **/
+      TooManyDelegates: AugmentedError<ApiType>;
+      /**
+       * More than the maximum mumber of delegates.
+       **/
+      TooManyDelegatesToRemove: AugmentedError<ApiType>;
+      /**
+       * Only when the author is not the controller/delegate.
+       **/
+      UnauthorizedOperation: AugmentedError<ApiType>;
+    };
+    statementDid: {
       /**
        * Associate digest already present
        **/

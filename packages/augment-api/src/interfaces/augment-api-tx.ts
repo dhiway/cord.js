@@ -9,8 +9,8 @@ import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableE
 import type { Data } from '@polkadot/types';
 import type { Bytes, Compact, Null, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
-import type { AccountId32, Call, H256, MultiAddress, Perbill } from '@polkadot/types/interfaces/runtime';
-import type { CordLoomRuntimeOriginCaller, CordLoomRuntimeSessionKeys, FrameSupportTokensFungibleUnionOfNativeOrWithId, PalletBalancesAdjustmentDirection, PalletContractsWasmDeterminism, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityJudgement, PalletIdentityLegacyIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletNetworkScoreRatingInputEntry, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
+import type { CordWeaveRuntimeOriginCaller, CordWeaveRuntimeSessionKeys, FrameSupportTokensFungibleUnionOfNativeOrWithId, PalletBalancesAdjustmentDirection, PalletContractsWasmDeterminism, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityJudgement, PalletIdentityLegacyIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletNetworkScoreRatingInputEntry, PalletStatementDidPresentationTypeOf, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -745,6 +745,400 @@ declare module '@polkadot/api-base/types/submittable' {
       upgradeAccounts: AugmentedSubmittable<(who: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
     };
     chainSpace: {
+      /**
+       * Adds an administrative delegate to a space.
+       * 
+       * The `ADMIN` permission grants the delegate extensive control over
+       * the space, including the ability to manage other delegates and
+       * change space configurations. This function is called to
+       * grant a delegate these administrative privileges. It verifies that
+       * the caller has the necessary authorization (admin rights) to add an
+       * admin delegate to the space. If the caller is authorized,
+       * the delegate is added with the `ADMIN` permission using the
+       * `space_delegate_addition` internal function.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the call, which must be signed by an existing admin of the
+       * space.
+       * - `space_id`: The identifier of the space to which the admin delegate is being added.
+       * - `delegate`: The identifier of the delegate being granted admin permissions.
+       * - `authorization`: The authorization ID used to validate the addition.
+       * 
+       * # Returns
+       * Returns `Ok(())` if the admin delegate was successfully added, or an
+       * `Err` with an appropriate error if the operation fails.
+       * 
+       * # Errors
+       * - `UnauthorizedOperation`: If the caller is not an admin of the space.
+       * - Propagates errors from `space_delegate_addition` if it fails.
+       **/
+      addAdminDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * Adds a delegate with the ability to assert new entries to a space.
+       * 
+       * The `ASSERT` permission allows the delegate to sign and add new
+       * entries within the space. This function is called to grant a
+       * delegate this specific permission. It checks that the caller has the
+       * necessary authorization (admin rights) to add a delegate to the
+       * space. If the caller is authorized, the delegate is added with the
+       * `ASSERT` permission using the `space_delegate_addition`
+       * internal function.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the call, which must be signed by an admin of the space.
+       * - `space_id`: The identifier of the space to which the delegate is being added.
+       * - `delegate`: The identifier of the delegate being added to the space.
+       * - `authorization`: The authorization ID used to validate the addition.
+       * 
+       * # Returns
+       * Returns `Ok(())` if the delegate was successfully added with
+       * `ASSERT` permission, or an `Err` with an appropriate error if the
+       * operation fails.
+       * 
+       * # Errors
+       * - `UnauthorizedOperation`: If the caller is not an admin of the space.
+       * - Propagates errors from `space_delegate_addition` if it fails.
+       **/
+      addDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      /**
+       * Adds an audit delegate to a space.
+       * 
+       * The `AUDIT` permission grants the delegate the ability to perform
+       * oversight and compliance checks within the space. This function is
+       * used to assign a delegate these audit privileges. It ensures that
+       * the caller has the necessary authorization (admin rights) to add an
+       * audit delegate to the space. If the caller is authorized, the
+       * delegate is added with the `AUDIT` permission using the
+       * `space_delegate_addition` internal function.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the call, which must be signed by an existing admin of the
+       * space.
+       * - `space_id`: The identifier of the space to which the audit delegate is being added.
+       * - `delegate`: The identifier of the delegate being granted audit permissions.
+       * - `authorization`: The authorization ID used to validate the addition.
+       * 
+       * # Returns
+       * Returns `Ok(())` if the audit delegate was successfully added, or an
+       * `Err` with an appropriate error if the operation fails.
+       **/
+      addDelegator: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      approvalRestore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Revokes approval for a specified space.
+       * 
+       * This function can be executed by an authorized origin, as determined
+       * by `ChainSpaceOrigin`. It is designed to change the status of a
+       * given space, referred to by `space_id`, to unapproved.
+       * The revocation is only allowed if the space is currently approved,
+       * and not archived.
+       * 
+       * # Parameters
+       * - `origin`: The transaction's origin, which must satisfy the `ChainSpaceOrigin` policy.
+       * - `space_id`: The identifier of the space whose approval status is being revoked.
+       * 
+       * # Errors
+       * - Returns `SpaceNotFound` if no space corresponds to the provided `space_id`.
+       * - Returns `ArchivedSpace` if the space is archived, in which case its status cannot be
+       * altered.
+       * - Returns `SpaceNotApproved` if the space is already unapproved.
+       * 
+       * # Events
+       * - Emits `Revoke` when the space's approved status is successfully revoked.
+       **/
+      approvalRevoke: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Approves a space and sets its capacity.
+       * 
+       * This function can only be called by a council or root origin,
+       * reflecting its privileged nature. It is used to approve a space that
+       * has been previously created, setting its transaction capacity and
+       * marking it as approved. It ensures that the space exists, is not
+       * archived, and has not already been approved.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be a council or root origin.
+       * - `space_id`: The identifier of the space to be approved.
+       * - `txn_capacity`: The transaction capacity to be set for the space.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the space is successfully approved, or an error
+       * (`DispatchError`) if:
+       * - The origin is not a council or root origin.
+       * - The space does not exist.
+       * - The space is archived.
+       * - The space is already approved.
+       * 
+       * # Errors
+       * - `BadOrigin`: If the call does not come from a council or root origin.
+       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
+       * - `ArchivedSpace`: If the space is archived and no longer active.
+       * - `SpaceAlreadyApproved`: If the space has already been approved.
+       * 
+       * # Events
+       * - `Approve`: Emitted when a space is successfully approved. It includes the space
+       * identifier.
+       * 
+       * # Security Considerations
+       * Due to the privileged nature of this function, callers must ensure
+       * that they have the appropriate authority. Misuse can lead to
+       * unauthorized approval of spaces, which may have security
+       * implications.
+       **/
+      approve: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, txnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+      /**
+       * Archives a space, rendering it inactive.
+       * 
+       * This function marks a space as archived based on the provided space
+       * ID. It checks that the space exists, is not already archived, and is
+       * approved. Additionally, it verifies that the caller has the
+       * authority to archive the space, as indicated by the provided
+       * authorization ID.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin with the appropriate authority.
+       * - `space_id`: The identifier of the space to be archived.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * archival.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the space is successfully archived, or an error
+       * (`DispatchError`) if:
+       * - The space does not exist.
+       * - `ArchivedSpace`: If the space is already archived.
+       * - `SpaceNotApproved`: If the space has not been approved for use.
+       * - `UnauthorizedOperation`: If the caller does not have the authority to archive the
+       * space.
+       * 
+       * # Errors
+       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
+       * - `ArchivedSpace`: If the space is already archived.
+       * - `SpaceNotApproved`: If the space has not been approved for use.
+       * - `UnauthorizedOperation`: If the caller is not authorized to archive the space.
+       * 
+       * # Events
+       * - `Archive`: Emitted when a space is successfully archived. It includes the space ID and
+       * the authority who performed the archival.
+       **/
+      archive: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Creates a new space with a unique identifier based on the provided
+       * space code and the creator's identity.
+       * 
+       * This function generates a unique identifier for the space by hashing
+       * the encoded space code and creator's identifier. It ensures that the
+       * generated space identifier is not already in use. An authorization
+       * ID is also created for the new space, which is used to manage
+       * delegations. The creator is automatically added as a delegate with
+       * all permissions.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator.
+       * - `space_code`: A unique code representing the space to be created.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the space is successfully created, or an error
+       * (`DispatchError`) if:
+       * - The generated space identifier is already in use.
+       * - The generated authorization ID is of invalid length.
+       * - The space delegates limit is exceeded.
+       * 
+       * # Errors
+       * - `InvalidIdentifierLength`: If the generated identifiers for the space or authorization
+       * are of invalid length.
+       * - `SpaceAlreadyAnchored`: If the space identifier is already in use.
+       * - `SpaceDelegatesLimitExceeded`: If the space exceeds the limit of allowed delegates.
+       * 
+       * # Events
+       * - `Create`: Emitted when a new space is successfully created. It includes the space
+       * identifier, the creator's identifier, and the authorization ID.
+       **/
+      create: AugmentedSubmittable<(spaceCode: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
+      /**
+       * Removes a delegate from a specified space.
+       * 
+       * This function will remove an existing delegate from a space, given
+       * the space ID and the delegate's authorization ID. It checks that the
+       * space exists, is not archived, is approved, and that the provided
+       * authorization corresponds to a delegate of the space. It also
+       * verifies that the caller has the authority to remove a delegate.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin.
+       * - `space_id`: The identifier of the space from which the delegate is being removed.
+       * - `remove_authorization`: The authorization ID of the delegate to be removed.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * removal.
+       * 
+       * # Returns
+       * - `DispatchResult`: This function returns `Ok(())` if the delegate is successfully
+       * removed, or an error (`DispatchError`) if any of the checks fail.
+       * 
+       * # Errors
+       * - `AuthorizationNotFound`: If the provided `remove_authorization` does not exist.
+       * - `UnauthorizedOperation`: If the origin is not authorized to remove a delegate from the
+       * space.
+       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
+       * - `ArchivedSpace`: If the space is archived and no longer active.
+       * - `SpaceNotApproved`: If the space has not been approved for use.
+       * - `DelegateNotFound`: If the delegate specified by `remove_authorization` is not found
+       * in the space.
+       * 
+       * # Events
+       * 
+       * - `Deauthorization`: Emitted when a delegate is successfully removed from a space. The
+       * event includes the space ID and the authorization ID of the removed delegate.
+       **/
+      removeDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, removeAuthorization: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      /**
+       * Resets the usage counter of a specified space to zero.
+       * 
+       * This function can only be called by an authorized origin, defined by
+       * `ChainSpaceOrigin`, and is used to reset the usage metrics for a
+       * given space on the chain, identified by `space_id`. The reset action
+       * is only permissible if the space exists, is not archived, and is
+       * approved for operations.
+       * 
+       * # Parameters
+       * - `origin`: The transaction's origin, which must pass the `ChainSpaceOrigin` check.
+       * - `space_id`: The identifier of the space for which the usage counter will be reset.
+       * 
+       * # Errors
+       * - Returns `SpaceNotFound` if the specified `space_id` does not correspond to any
+       * existing space.
+       * - Returns `ArchivedSpace` if the space is archived and thus cannot be modified.
+       * - Returns `SpaceNotApproved` if the space is not approved for operations.
+       * 
+       * # Events
+       * - Emits `UpdateCapacity` upon successfully resetting the space's usage counter.
+       **/
+      resetTransactionCount: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Restores an archived space, making it active again.
+       * 
+       * This function unarchives a space based on the provided space ID. It
+       * checks that the space exists, is currently archived, and is
+       * approved. It also verifies that the caller has the authority to
+       * restore the space, as indicated by the provided authorization ID.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator or an
+       * admin with the appropriate authority.
+       * - `space_id`: The identifier of the space to be restored.
+       * - `authorization`: An identifier for the authorization being used to validate the
+       * restoration.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the space is successfully restored, or an error
+       * (`DispatchError`) if:
+       * - The space does not exist.
+       * - The space is not archived.
+       * - The space is not approved.
+       * - The caller does not have the authority to restore the space.
+       * 
+       * # Errors
+       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
+       * - `SpaceNotArchived`: If the space is not currently archived.
+       * - `SpaceNotApproved`: If the space has not been approved for use.
+       * - `UnauthorizedOperation`: If the caller is not authorized to restore the space.
+       * 
+       * # Events
+       * - `Restore`: Emitted when a space is successfully restored. It includes the space ID and
+       * the authority who performed the restoration.
+       **/
+      restore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Creates a new space with a unique identifier based on the provided
+       * space code and the creator's identity, along with parent space ID.
+       * 
+       * This function generates a unique identifier for the space by hashing
+       * the encoded space code and creator's identifier. It ensures that the
+       * generated space identifier is not already in use. An authorization
+       * ID is also created for the new space, which is used to manage
+       * delegations. The creator is automatically added as a delegate with
+       * all permissions.
+       * NOTE: this call is different from create() in just 1 main step. This
+       * space can be created from the already 'approved' space, as a
+       * 'space-approval' is a council activity, instead in this case, its
+       * owner/creator's task. Thus reducing the involvement of council once
+       * the top level approval is present.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the transaction, which must be signed by the creator.
+       * - `space_code`: A unique code representing the space to be created.
+       * - `count`: Number of approved transaction capacity in the sub-space.
+       * - `space_id`: Identifier of the parent space.
+       * 
+       * # Returns
+       * - `DispatchResult`: Returns `Ok(())` if the space is successfully created, or an error
+       * (`DispatchError`) if:
+       * - The generated space identifier is already in use.
+       * - The generated authorization ID is of invalid length.
+       * - The space delegates limit is exceeded.
+       * 
+       * # Errors
+       * - `InvalidIdentifierLength`: If the generated identifiers for the space or authorization
+       * are of invalid length.
+       * - `SpaceAlreadyAnchored`: If the space identifier is already in use.
+       * - `SpaceDelegatesLimitExceeded`: If the space exceeds the limit of allowed delegates.
+       * 
+       * # Events
+       * - `Create`: Emitted when a new space is successfully created. It includes the space
+       * identifier, the creator's identifier, and the authorization ID.
+       **/
+      subspaceCreate: AugmentedSubmittable<(spaceCode: H256 | string | Uint8Array, count: Option<u64> | null | Uint8Array | u64 | AnyNumber, spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Option<u64>, Bytes]>;
+      /**
+       * Updates the transaction capacity of an existing space.
+       * 
+       * This extrinsic updates the capacity limit of a space, ensuring that
+       * the new limit is not less than the current usage to prevent
+       * over-allocation. It can only be called by an authorized origin and
+       * not on archived or unapproved spaces.
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which must be from an authorized source.
+       * * `space_id` - The identifier of the space for which the capacity is being updated.
+       * * `new_txn_capacity` - The new capacity limit to be set for the space.
+       * 
+       * # Errors
+       * * `SpaceNotFound` - If the space with the given ID does not exist.
+       * * `ArchivedSpace` - If the space is archived and thus cannot be modified.
+       * * `SpaceNotApproved` - If the space has not been approved for use yet.
+       * * `CapacityLessThanUsage` - If the new capacity is less than the current usage of the
+       * space.
+       * 
+       * # Events
+       * * `UpdateCapacity` - Emits the space ID when the capacity is successfully updated.
+       **/
+      updateTransactionCapacity: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, newTxnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+      /**
+       * Updates the transaction capacity of an existing subspace.
+       * 
+       * This extrinsic updates the capacity limit of a space, ensuring that
+       * the new limit is not less than the current usage to prevent
+       * over-allocation. It can only be called by an authorized origin and
+       * not on archived or unapproved spaces.
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which must be from an authorized source.
+       * * `space_id` - The identifier of the space for which the capacity is being updated.
+       * * `new_txn_capacity` - The new capacity limit to be set for the space.
+       * 
+       * # Errors
+       * * `SpaceNotFound` - If the space with the given ID does not exist.
+       * * `ArchivedSpace` - If the space is archived and thus cannot be modified.
+       * * `SpaceNotApproved` - If the space has not been approved for use yet.
+       * * `CapacityLessThanUsage` - If the new capacity is less than the current usage of the
+       * space.
+       * 
+       * # Events
+       * * `UpdateCapacity` - Emits the space ID when the capacity is successfully updated.
+       **/
+      updateTransactionCapacitySub: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, newTxnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+    };
+    chainSpaceDid: {
       /**
        * Adds an administrative delegate to a space.
        * 
@@ -1935,6 +2329,37 @@ declare module '@polkadot/api-base/types/submittable' {
        * ```
        **/
       updateOwnership: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array, newOwner: AccountId32 | string | Uint8Array, newOwnerAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, AccountId32, Bytes]>;
+      /**
+       * Verifies the existence of a Registry Entry.
+       * 
+       * This function allows an account to verify the existence of a specific Registry Entry.
+       * If the entry exists and is not revoked, the latest identifier and digest are returned.
+       * 
+       * # Arguments
+       * * `origin` - The origin of the call, which must be a signed account (verifier).
+       * * `registry_entry_id` - The unique identifier of the Registry Entry to verify.
+       * 
+       * # Conditions
+       * - The Registry Entry must exist.
+       * - The Registry Entry must not be revoked.
+       * 
+       * # Errors
+       * This function returns an error in the following cases:
+       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
+       * exist.
+       * * `RegistryEntryRevoked` - If the Registry Entry has been revoked.
+       * 
+       * # Events
+       * Emits the `Event::RegistryEntryExistenceVerified` event upon successful verification.
+       * This event includes the `verifier`, the `registry_entry_id`, and the
+       * `registry_entry_digest`.
+       * 
+       * # Example
+       * ```rust
+       * verify_existence(origin, registry_entry_id)?;
+       * ```
+       **/
+      verifyExistence: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
     grandpa: {
       /**
@@ -3728,13 +4153,6 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       store: AugmentedSubmittable<(remark: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
-    rootTesting: {
-      /**
-       * A dispatch that will fill the block weight up to the given ratio.
-       **/
-      fillBlock: AugmentedSubmittable<(ratio: Perbill | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Perbill]>;
-      triggerDefensive: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-    };
     runtimeUpgrade: {
       setCode: AugmentedSubmittable<(code: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
@@ -3816,9 +4234,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * DispatchResult
        **/
-      create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
-    schemaAccounts: {
+    schemaDid: {
       /**
        * Create a new schema and associates with its identifier.
        * `create` takes a `InputSchemaOf<T>` and returns a `DispatchResult`
@@ -3832,7 +4250,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * DispatchResult
        **/
-      create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
     };
     session: {
       /**
@@ -3861,7 +4279,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * - `O(1)`. Actual cost depends on the number of length of `T::Keys::key_ids()` which is
        * fixed.
        **/
-      setKeys: AugmentedSubmittable<(keys: CordLoomRuntimeSessionKeys | { grandpa?: any; babe?: any; imOnline?: any; authorityDiscovery?: any } | string | Uint8Array, proof: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordLoomRuntimeSessionKeys, Bytes]>;
+      setKeys: AugmentedSubmittable<(keys: CordWeaveRuntimeSessionKeys | { grandpa?: any; babe?: any; imOnline?: any; authorityDiscovery?: any } | string | Uint8Array, proof: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeSessionKeys, Bytes]>;
     };
     statement: {
       /**
@@ -3896,6 +4314,370 @@ declare module '@polkadot/api-base/types/submittable' {
        * - Emits `PresentationAdded` upon the successful addition of the presentation.
        **/
       addPresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, presentationType: PalletStatementPresentationTypeOf | 'Other' | 'PDF' | 'JPEG' | 'PNG' | 'GIF' | 'TXT' | 'SVG' | 'JSON' | 'DOCX' | 'XLSX' | 'PPTX' | 'MP3' | 'MP4' | 'XML' | number | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, PalletStatementPresentationTypeOf, Bytes]>;
+      /**
+       * Creates a new statement within a specified space subject to
+       * authorization and capacity constraints.
+       * 
+       * The function first ensures that the call's origin is authorized and
+       * retrieves the subject, referred to as the creator. It then verifies
+       * that the creator is a delegate for the space associated with the
+       * given authorization. Following this, it checks that the space has
+       * not exceeded its allowed number of statements.
+       * 
+       * A unique identifier for the statement is generated by hashing the
+       * encoded statement digest, space identifier, and creator identifier.
+       * The function ensures that this identifier has not been used to
+       * anchor another statement.
+       * 
+       * Once the identifier is confirmed to be unique, the statement details
+       * are inserted into the `Statements` storage. Additionally, the
+       * statement entry and identifier lookup are recorded in their
+       * respective storages. The space's usage count is incremented to
+       * reflect the addition of the new statement.
+       * 
+       * The function also logs the creation event by updating the activity
+       * log and emits an event to signal the successful creation of the
+       * statement.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the dispatch call, which should be a signed message from the
+       * creator.
+       * - `digest`: The digest of the statement, serving as a unique identifier.
+       * - `authorization`: The authorization ID, verifying the creator's delegation status.
+       * - `schema_id`: An optional schema identifier to be associated with the statement.
+       * 
+       * # Returns
+       * A `DispatchResult` indicating the success or failure of the
+       * statement creation. On success, it returns `Ok(())`. On failure, it
+       * provides an error detailing the cause.
+       * 
+       * # Errors
+       * The function can fail for several reasons including unauthorized
+       * origin, the creator not being a delegate, space capacity being
+       * exceeded, invalid statement identifier, or the statement already
+       * being anchored. Errors related to incrementing space usage or
+       * updating the activity log may also occur.
+       * 
+       * # Events
+       * - `Create`: Emitted when a statement is successfully created, containing the
+       * `identifier`, `digest`, and `author` (creator).
+       **/
+      register: AugmentedSubmittable<(digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>]>;
+      /**
+       * Creates multiple statements in a batch operation. This function
+       * takes a vector of statement digests and attempts to create a new
+       * statement for each digest. It performs checks on the batch size,
+       * ensures the creator has the proper authorization, and verifies that
+       * the space has enough capacity to accommodate the batch of new
+       * statements.
+       * 
+       * The function iterates over the provided digests, generating a unique
+       * identifier for each and attempting to create a new statement. If a
+       * statement with the generated identifier already exists, or if there
+       * is an error in generating the identifier, the digest is marked as
+       * failed. Otherwise, the new statement is recorded along
+       * with its details. The function also updates the activity log for
+       * each successful creation.
+       * 
+       * After processing all digests, the function ensures that at least one
+       * statement was successfully created. It then increments the usage
+       * count of the space by the number of successful creations. Finally, a
+       * `BatchCreate` event is emitted, summarizing the results of the batch
+       * operation, including the number of successful and failed creations,
+       * the indices of the failed digests, and the author of the batch
+       * creation.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the dispatch call, which should be a signed message from the
+       * creator.
+       * - `digests`: A vector of statement digests to be processed in the batch operation.
+       * - `authorization`: The authorization ID, verifying the creator's delegation status.
+       * - `schema_id`: An optional schema identifier that may be associated with the statements.
+       * 
+       * # Returns
+       * A `DispatchResult` indicating the success or failure of the batch
+       * creation. On success, it returns `Ok(())`. On failure, it provides
+       * an error detailing the cause, such as exceeding the maximum number
+       * of digests, the space capacity being exceeded, or all digests
+       * failing to create statements.
+       * 
+       * # Errors
+       * The function can fail for several reasons, including exceeding the
+       * maximum number of digests allowed in a batch, the space capacity
+       * being exceeded, or if no statements could be successfully created.
+       * 
+       * # Events
+       * - `BatchCreate`: Emitted upon the completion of the batch operation, providing details
+       * of the outcome.
+       **/
+      registerBatch: AugmentedSubmittable<(digests: Vec<H256> | (H256 | string | Uint8Array)[], authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Vec<H256>, Bytes, Option<Bytes>]>;
+      /**
+       * Removes a statement and its associated entries from the system. The
+       * removal can be either complete or partial, depending on the number
+       * of entries associated with the statement and a predefined maximum
+       * removal limit.
+       * 
+       * The function begins by authenticating the origin of the call to
+       * identify the updater. It then retrieves the statement details using
+       * the provided `statement_id`. If the statement cannot be found, the
+       * function fails with an error. An early authorization check is
+       * performed to ensure that the updater has the proper delegation
+       * status for the space associated with the statement.
+       * 
+       * The function counts the number of entries linked to the statement
+       * and compares this to the maximum number of entries that can be
+       * removed in a single operation, as specified by `MaxRemoveEntries`.
+       * If the count is less than or equal to the maximum, a complete
+       * removal is initiated; otherwise, a partial removal is performed.
+       * 
+       * In a complete removal, all entries and their lookups are removed,
+       * the statement is deleted, and the space usage is decremented
+       * accordingly. In a partial removal, only up to the maximum number of
+       * entries are removed, and the space usage is decremented by the
+       * number of entries actually removed.
+       * 
+       * After the removal process, the function updates the activity log to
+       * record the event. It then emits either a `Removed` event for a
+       * complete removal or a `PartialRemoval` event for a partial removal,
+       * providing details of the operation including the statement
+       * identifier and the updater's information.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the dispatch call, which should be a signed message from the
+       * updater.
+       * - `statement_id`: The identifier of the statement to be removed.
+       * - `authorization`: The authorization ID, verifying the updater's delegation status.
+       * 
+       * # Returns
+       * A `DispatchResult` indicating the success or failure of the removal.
+       * On success, it returns `Ok(())`. On failure, it provides an error
+       * detailing the cause, such as the statement not being found or the
+       * updater not having the authority to perform the removal.
+       * 
+       * # Errors
+       * The function can fail for several reasons including the statement
+       * not being found or the updater lacking the authority to perform the
+       * removal.
+       * 
+       * # Events
+       * - `Removed`: Emitted when a statement and all its entries are completely removed.
+       * - `PartialRemoval`: Emitted when only a portion of the entries are removed, detailing
+       * the number of entries
+       * removed.
+       **/
+      remove: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Removes a presentation from a specified statement state.
+       * 
+       * This privileged function is reserved for execution by the council or
+       * root origin only. It allows the removal of a presentation associated
+       * with the `statement_id` and identified by `presentation_digest`. The
+       * function validates the `authorization` of the caller within the
+       * specified chain space before proceeding with the removal.
+       * 
+       * # Parameters
+       * - `origin`: The transaction's origin, restricted to council or root.
+       * - `statement_id`: The identifier of the statement associated with the presentation.
+       * - `presentation_digest`: The digest that uniquely identifies the presentation to be
+       * removed.
+       * - `authorization`: The authorization identifier that the remover must have to perform
+       * the removal.
+       * 
+       * # Errors
+       * - Returns `PresentationNotFound` if the specified presentation does not exist.
+       * - Returns `UnauthorizedOperation` if the origin is not authorized to perform this
+       * action.
+       * 
+       * # Events
+       * - Emits `PresentationRemoved` upon the successful removal of the presentation.
+       **/
+      removePresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      /**
+       * Restores a previously revoked statement, re-enabling its validity
+       * within the system. The restoration is contingent upon a set of
+       * checks to ensure that the action is permitted and appropriate.
+       * 
+       * The function commences by authenticating the origin of the call to
+       * ascertain the identity of the updater attempting the restoration. It
+       * then fetches the details of the statement using the `statement_id`
+       * provided. If the statement does not exist, the function aborts and
+       * signals an error.
+       * 
+       * A crucial step in the process is to verify that the statement has
+       * indeed been revoked; if not, the function ceases further execution.
+       * Assuming the statement is revoked, the function then ascertains
+       * whether the updater is either the original creator of the statement
+       * or a delegate with the requisite authorization. If the updater
+       * is not the creator, their delegation status for the space linked to
+       * the statement is verified.
+       * 
+       * Upon confirming the updater's authority to restore the statement,
+       * the function removes the statement from the `RevocationList`,
+       * effectively reactivating it. It then logs the restoration event in
+       * the activity log. To finalize the process, a `Restored` event is
+       * broadcast, indicating the successful restoration of the statement
+       * with its identifier and the updater's details.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the dispatch call, which should be a signed message from the
+       * updater.
+       * - `statement_id`: The identifier of the statement to be restored.
+       * - `authorization`: The authorization ID, verifying the updater's delegation status if
+       * they are not the creator.
+       * 
+       * # Returns
+       * A `DispatchResult` indicating the success or failure of the
+       * restoration. On success, it returns `Ok(())`. On failure, it
+       * provides an error detailing the cause, such as the statement not
+       * being found, not being revoked, or the updater not having the
+       * authority to restore the statement.
+       * 
+       * # Errors
+       * The function can fail for several reasons including the statement
+       * not being found, not being revoked, or the updater lacking the
+       * authority to perform the restoration.
+       * 
+       * # Events
+       * - `Restored`: Emitted when a statement is successfully restored, containing the
+       * `identifier` of the statement
+       * and the `author` who is the updater.
+       **/
+      restore: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Revokes an existing statement, rendering it invalid for future
+       * operations. The revocation process involves several authorization
+       * and state checks to ensure the integrity of the operation.
+       * 
+       * Initially, the function authenticates the origin of the call to
+       * identify the updater, who is attempting the revocation. It then
+       * retrieves the details of the statement using the provided
+       * `statement_id`. If the statement is not found, the function fails
+       * with an error.
+       * 
+       * Before proceeding, the function checks whether the statement has
+       * already been revoked. If it has, the function terminates early to
+       * prevent redundant revocation attempts. If the statement is active,
+       * the function then determines whether the updater is the original
+       * creator of the statement or a delegate with proper authorization. If
+       * the updater is not the creator, they must be a delegate with
+       * authorization for the space associated with the statement, and the
+       * function checks for this condition.
+       * 
+       * Once the updater's authority to revoke the statement is confirmed,
+       * the function marks the statement as revoked in the `RevocationList`.
+       * It updates the activity log to record the revocation event. Finally,
+       * it emits a `Revoked` event, indicating the successful revocation of
+       * the statement with the statement identifier and the
+       * updater's information.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the dispatch call, which should be a signed message from the
+       * updater.
+       * - `statement_id`: The identifier of the statement to be revoked.
+       * - `authorization`: The authorization ID, verifying the updater's delegation status if
+       * they are not the creator.
+       * 
+       * # Returns
+       * A `DispatchResult` indicating the success or failure of the
+       * revocation. On success, it returns `Ok(())`. On failure, it provides
+       * an error detailing the cause, such as the statement not being found
+       * or already being revoked, or the updater not having the authority to
+       * revoke the statement.
+       * 
+       * # Errors
+       * The function can fail due to several reasons including the statement
+       * not being found, already being revoked, or the updater lacking the
+       * authority to perform the revocation.
+       * 
+       * # Events
+       * - `Revoked`: Emitted when a statement is successfully revoked, containing the
+       * `identifier` of the statement and
+       * the `author` who is the updater.
+       **/
+      revoke: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      /**
+       * Updates the digest of an existing statement after performing a
+       * series of validations. Initially, the function confirms that the
+       * call's origin is authorized and identifies the updater. It then
+       * retrieves the statement details associated with the provided
+       * `statement_id`. Before proceeding, the function checks whether the
+       * statement has already been revoked; if so, it halts further
+       * execution. Additionally, it ensures that the new digest provided for
+       * the update is different from the current one to avoid unnecessary
+       * operations.
+       * 
+       * Upon passing these checks, the updater's delegation status for the
+       * space linked to the statement is verified. The existing statement is
+       * then marked as revoked, and the new digest is recorded. This
+       * involves updating the `Entries` storage with the new digest and the
+       * updater's information, as well as adjusting the `IdentifierLookup`
+       * to reflect the change. The `Statements` storage is also updated with
+       * the new details of the statement.
+       * 
+       * Subsequently, the space usage count is incremented to account for
+       * the updated statement. An activity log entry is created to record
+       * the update event. To conclude the process, an `Update` event is
+       * emitted, which includes the statement identifier, the new digest,
+       * and the authoring updater's details.
+       * 
+       * # Parameters
+       * - `origin`: The origin of the dispatch call, which should be a signed message from the
+       * updater.
+       * - `statement_id`: The identifier of the statement to be updated.
+       * - `new_statement_digest`: The new digest to replace the existing one for the statement.
+       * - `authorization`: The authorization ID, verifying the updater's delegation status.
+       * 
+       * # Returns
+       * A `DispatchResult` indicating the success or failure of the update
+       * operation. On success, it returns `Ok(())`. On failure, it provides
+       * an error detailing the cause.
+       * 
+       * # Errors
+       * The function can fail due to several reasons including an
+       * unauthorized origin, the statement not found, the statement being
+       * revoked, the new digest being the same as the existing one, or the
+       * updater not being authorized for the operation.
+       * 
+       * # Events
+       * - `Update`: Emitted when a statement is successfully updated, containing the
+       * `identifier`, `digest`, and `author`
+       * (updater).
+       **/
+      update: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, newStatementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+    };
+    statementDid: {
+      /**
+       * Adds a presentation to a specified statement.
+       * 
+       * This privileged function is reserved for execution by the council or
+       * root origin only. It allows the removal of a presentation associated
+       * with a given  `statement_id`. The function performs authorization
+       * checks based on the provided `authorization` parameter, ensuring
+       * that the operation is performed within the correct chain space.
+       * 
+       * # Parameters
+       * - `origin`: The transaction's origin, restricted to council or root.
+       * - `statement_id`: The identifier of the statement to which the presentation will be
+       * added.
+       * - `presentation_digest`: The digest that uniquely identifies the new presentation.
+       * - `presentation_type`: The type categorization of the presentation.
+       * - `authorization`: The authorization identifier for the creator, required to perform the
+       * addition.
+       * 
+       * # Errors
+       * - Returns `StatementNotFound` if the `statement_id` does not correspond to any existing
+       * statement.
+       * - Returns `StatementRevoked` if the statement associated with the `statement_id` has
+       * been revoked.
+       * - Returns `UnauthorizedOperation` if the operation is not authorized within the
+       * associated space.
+       * - Returns `PresentationDigestAlreadyAnchored` if the `presentation_digest` is not
+       * unique.
+       * 
+       * # Events
+       * - Emits `PresentationAdded` upon the successful addition of the presentation.
+       **/
+      addPresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, presentationType: PalletStatementDidPresentationTypeOf | 'Other' | 'PDF' | 'JPEG' | 'PNG' | 'GIF' | 'TXT' | 'SVG' | 'JSON' | 'DOCX' | 'XLSX' | 'PPTX' | 'MP3' | 'MP4' | 'XML' | number | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, PalletStatementDidPresentationTypeOf, Bytes]>;
       /**
        * Creates a new statement within a specified space subject to
        * authorization and capacity constraints.
@@ -4715,7 +5497,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * ## Complexity
        * - O(1).
        **/
-      dispatchAs: AugmentedSubmittable<(asOrigin: CordLoomRuntimeOriginCaller | { system: any } | { Void: any } | { Council: any } | { TechnicalCommittee: any } | { Did: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordLoomRuntimeOriginCaller, Call]>;
+      dispatchAs: AugmentedSubmittable<(asOrigin: CordWeaveRuntimeOriginCaller | { system: any } | { Void: any } | { Council: any } | { TechnicalCommittee: any } | { Did: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeOriginCaller, Call]>;
       /**
        * Send a batch of dispatch calls.
        * Unlike `batch`, it allows errors and won't interrupt.
