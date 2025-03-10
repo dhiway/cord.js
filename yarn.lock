@@ -1634,9 +1634,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/chain-space@workspace:*, @cord.network/chain-space@workspace:packages/chain-space":
+"@cord.network/chain-space-did@workspace:*, @cord.network/chain-space-did@workspace:packages/chain-space-did":
   version: 0.0.0-use.local
-  resolution: "@cord.network/chain-space@workspace:packages/chain-space"
+  resolution: "@cord.network/chain-space-did@workspace:packages/chain-space-did"
   dependencies:
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
@@ -1759,7 +1759,7 @@ __metadata:
     "@cord.network/config": "workspace:*"
     "@cord.network/identifier": "workspace:*"
     "@cord.network/network": "workspace:*"
-    "@cord.network/schema-accounts": "workspace:*"
+    "@cord.network/schema": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"
     rimraf: "npm:^5.0.5"
@@ -1767,11 +1767,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cord.network/schema-accounts@workspace:*, @cord.network/schema-accounts@workspace:packages/schema-accounts":
+"@cord.network/schema-did@workspace:*, @cord.network/schema-did@workspace:packages/schema-did":
   version: 0.0.0-use.local
-  resolution: "@cord.network/schema-accounts@workspace:packages/schema-accounts"
+  resolution: "@cord.network/schema-did@workspace:packages/schema-did"
   dependencies:
     "@cord.network/augment-api": "workspace:*"
+    "@cord.network/chain-space-did": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
     "@cord.network/identifier": "workspace:*"
@@ -1790,7 +1791,6 @@ __metadata:
   resolution: "@cord.network/schema@workspace:packages/schema"
   dependencies:
     "@cord.network/augment-api": "workspace:*"
-    "@cord.network/chain-space": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
     "@cord.network/identifier": "workspace:*"
@@ -1809,7 +1809,7 @@ __metadata:
   resolution: "@cord.network/sdk@workspace:packages/sdk"
   dependencies:
     "@cord.network/asset": "workspace:*"
-    "@cord.network/chain-space": "workspace:*"
+    "@cord.network/chain-space-did": "workspace:*"
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
     "@cord.network/entries": "workspace:*"
@@ -1819,7 +1819,7 @@ __metadata:
     "@cord.network/network-score": "workspace:*"
     "@cord.network/registries": "workspace:*"
     "@cord.network/schema": "workspace:*"
-    "@cord.network/schema-accounts": "workspace:*"
+    "@cord.network/schema-did": "workspace:*"
     "@cord.network/statement": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@cord.network/utils": "workspace:*"

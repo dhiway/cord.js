@@ -2,10 +2,10 @@
  * @packageDocumentation
  * @module IStatement
  */
-import type { SchemaUri } from './Schema.js'
+import type { SchemaUri } from './SchemaDid.js'
 import { DidUri } from './DidDocument.js'
 import { HexString } from './Imported.js'
-import { SpaceUri } from './ChainSpace.js'
+import { SpaceUri } from './ChainSpaceDid.js'
 
 export const STATEMENT_IDENT = 8902
 export const STATEMENT_PREFIX = 'stmt:cord:'

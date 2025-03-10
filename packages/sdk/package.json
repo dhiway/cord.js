@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@cord.network/asset": "workspace:*",
-    "@cord.network/chain-space": "workspace:*",
+    "@cord.network/chain-space-did": "workspace:*",
     "@cord.network/config": "workspace:*",
     "@cord.network/did": "workspace:*",
     "@cord.network/entries": "workspace:*",
@@ -49,7 +49,7 @@
     "@cord.network/network-score": "workspace:*",
     "@cord.network/registries": "workspace:*",
     "@cord.network/schema": "workspace:*",
-    "@cord.network/schema-accounts": "workspace:*",
+    "@cord.network/schema-did": "workspace:*",
     "@cord.network/statement": "workspace:*",
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*"
