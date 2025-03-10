@@ -1,7 +1,7 @@
 {
   "name": "@cord.network/schema",
   "version": "0.9.3-1rc4",
-  "description": "Schema Repository Management",
+  "description": "Accounts Based Schema Repository Management",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
   "types": "./lib/cjs/index.d.ts",
@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "@cord.network/augment-api": "workspace:*",
-    "@cord.network/chain-space": "workspace:*",
     "@cord.network/config": "workspace:*",
     "@cord.network/did": "workspace:*",
     "@cord.network/identifier": "workspace:*",

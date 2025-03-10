@@ -1,12 +1,12 @@
 /**
  * @packageDocumentation
  * @module Schema/Chain
- *
+ 
  * This file contains functions and types related to the interaction between the schema definitions and the blockchain.
  * It primarily deals with encoding and decoding schema data for blockchain storage and retrieval, as well as
  * validating and verifying schema integrity in the context of blockchain interactions.
  *
- * The `SchemaChain` module serves as a bridge between the schema definitions used within the application and their
+ * The `SchemaChain` module serves as a bridge between the account based schema definitions used within the application and their
  * representation on the blockchain. It provides functionalities to:
  * - Convert schema objects to a format suitable for blockchain storage (`toChain`).
  * - Fetch schema data from the blockchain and reconstruct it into usable schema objects (`fetchFromChain`, `fromChain`).
@@ -25,35 +25,36 @@
 import type {
   Bytes,
   Option,
-  AccountId,
   CordKeyringPair,
-  SignExtrinsicCallback,
-  AuthorizationId,
-  SpaceId,
   SchemaUri,
 } from '@cord.network/types'
+
 import type { PalletSchemaSchemaEntry } from '@cord.network/augment-api'
+
 import {
   SchemaDigest,
-  DidUri,
   ISchema,
   SCHEMA_PREFIX,
   SCHEMA_IDENT,
   blake2AsHex,
-  ISchemaDetails,
+  ISchemaAccountsDetails,
   SchemaId,
 } from '@cord.network/types'
 
 import { ConfigService } from '@cord.network/config'
 import { Chain } from '@cord.network/network'
-import * as Did from '@cord.network/did'
-import { SDKErrors, Cbor, Crypto, DecoderUtils } from '@cord.network/utils'
+import { SDKErrors, Cbor, Crypto } from '@cord.network/utils'
+
 import {
   hashToUri,
   uriToIdentifier,
-  identifierToUri,
 } from '@cord.network/identifier'
-import { encodeCborSchema, verifyDataStructure } from './Schema.js'
+
+import {
+    encodeCborSchema,
+    verifyDataStructure
+} from './Schema.js'
+
 
 /**
  * Checks if a given schema is stored on the blockchain.
@@ -75,40 +76,102 @@ import { encodeCborSchema, verifyDataStructure } from './Schema.js'
  * ```
  */
 export async function isSchemaStored(schema: ISchema): Promise<boolean> {
-  const api = ConfigService.get('api')
-  const identifier = uriToIdentifier(schema.$id)
-  const encoded = await api.query.schema.schemas(identifier)
+  const api = ConfigService.get('api');
+  const identifier = uriToIdentifier(schema.$id);
+  const encoded = await api.query.schema.schemas(identifier);
 
   return !encoded.isNone
 }
 
+
 /**
- * (Internal Function) - Generates a unique URI for a given schema based on its content, the creator's DID, and the associated space.
- * This URI serves as a unique identifier for the schema within the Cord network.
+ * Asynchronously checks if a schema with the given URI exists on-chain.
  *
- * The function utilizes the content of the schema, the creator's DID, and the space identifier to produce a unique identifier.
- * This process is crucial to ensure that each schema can be uniquely identified and retrieved within the Cord network, providing
- * a consistent and reliable way to access schema data.
+ * This function interacts with the blockchain using the configured API service to verify
+ * the existence of a schema by querying the `schema` storage. It converts the
+ * provided schema URI into an identifier, which is used to fetch the corresponding
+ * schema entry. If an entry exists, the function returns `true`; otherwise, it returns `false`.
  *
- * @param schema - The schema object or a version of the schema object without the `$id` property.
- *                 The schema object should conform to the ISchema interface.
- * @param creator - A decentralized identifier (DID) URI of the schema creator. This DID should be a valid identifier within the Cord network.
- * @param space - An identifier for the space (context or category) to which the schema belongs. This helps in categorizing
- *                 and organizing schemas within the network.
+ * ### Parameters:
+ * @param schemaUri - The URI of the schema to be checked. This URI serves as the reference
+ *                    to uniquely identify the schema on-chain.
  *
- * @returns An object containing the schema's unique URI and its digest. The `uri` is a string representing
- *          the unique URI of the schema, and `digest` is a cryptographic hash of the schema, space identifier, and creator's DID.
+ * ### Returns:
+ * @returns {Promise<boolean>} - A promise that resolves to:
+ * - **`true`** if the schema exists on-chain.
+ * - **`false`** if the schema does not exist or the query returns `None`.
  *
- * This function is integral to the process of registering schemas on the Cord network, ensuring unique identification and retrievability
- * of each schema using its URI.
+ * ### Example Usage:
+ * ```typescript
+ * const schemaUri = 'cord:schema:123456789';
  *
- * @internal
- * @throws {Error} Throws an error if the URI generation process fails, indicating an issue with schema data, space, or creator's DID.
+ * doesSchemaIdExists(schemaUri)
+ *   .then(exists => {
+ *     if (exists) {
+ *       console.log('Schema exists on-chain.');
+ *     } else {
+ *       console.log('Schema not found.');
+ *     }
+ *   })
+ *   .catch(error => console.error('Error checking schema existence:', error));
+ * ```
+ *
+ * ### Internal Logic:
+ * 1. **Fetching the API**: The function retrieves the blockchain API instance using the `ConfigService`.
+ * 2. **Converting URI to Identifier**: The URI is converted into an identifier using `uriToIdentifier`.
+ * 3. **Querying Blockchain Storage**: It queries the `schemas` storage in `schema` with the identifier.
+ * 4. **Checking Existence**: If the query returns `None`, the schema does not exist; otherwise, it exists.
+ *
+ * ### Throws:
+ * - Any error encountered while querying the blockchain API will be propagated as a rejected promise.
+ *
+ * ### Dependencies:
+ * - **ConfigService**: Retrieves the blockchain API instance.
+ * - **uriToIdentifier**: Converts schema URI into a blockchain-compatible identifier.
+ */
+export async function doesSchemaIdExists(schemaUri: SchemaUri): Promise<boolean> {
+  const api = ConfigService.get('api');
+  const identifier = uriToIdentifier(schemaUri);
+  const encoded = await api.query.schema.schemas(identifier);
+
+  return !encoded.isNone;
+}
+
+
+/**
+ * (Internal Function) - Generates a unique URI for a given schema based on its serialized content.
+ *
+ * This function ensures each schema is uniquely identified and reliably retrievable using the generated URI.
+ *
+ * ### Functionality
+ * - Uses CBOR encoding to serialize the schema for efficient processing.
+ * - Cryptographically hashes the serialized schema using `blake2` hashing to ensure uniqueness.
+ * - Encodes the schema with SCALE encoding for compatibility with Substrate-based systems.
+ * - Generates a URI from the schema’s digest using network-specific identifiers and prefixes.
+ *
+ * ### Parameters
+ * @param schema - The schema object or a version of it without the `$id` property.
+ *                 It must conform to the `ISchema` interface used in the Cord network.
+ *
+ * ### Returns
+ * @returns An object containing:
+ * - `uri`: A string representing the unique URI of the schema within the Cord network.
+ * - `digest`: A cryptographic hash of the schema's serialized content.
+ *
+ * ### Usage
+ * This function is used internally to register and manage schemas, ensuring that each one is uniquely
+ * identifiable within the Cord network using its URI.
+ *
+ * ### Throws
+ * @throws {Error} If any part of the URI generation process fails, such as issues with schema serialization, etc.
+ *
+ * @example
+ * const schema = { name: "Example Schema", properties: { id: "string" } };
+ * const result = getUriForSchema(schema);
+ * console.log(result.uri); // Unique schema URI
  */
 export function getUriForSchema(
   schema: ISchema | Omit<ISchema, '$id'>,
-  creator: DidUri,
-  space: SpaceId
 ): { uri: SchemaUri; digest: SchemaDigest } {
   const api = ConfigService.get('api')
   const serializedSchema = encodeCborSchema(schema)
@@ -117,17 +180,10 @@ export function getUriForSchema(
   const scaleEncodedSchema = api
     .createType<Bytes>('Bytes', serializedSchema)
     .toU8a()
-  const scaleEncodedSpace = api
-    .createType<Bytes>('Bytes', uriToIdentifier(space))
-    .toU8a()
-  const scaleEncodedCreator = api
-    .createType<AccountId>('AccountId', Did.toChain(creator))
-    .toU8a()
+
   const IdDigest = blake2AsHex(
     Uint8Array.from([
-      ...scaleEncodedSchema,
-      ...scaleEncodedSpace,
-      ...scaleEncodedCreator,
+      ...scaleEncodedSchema
     ])
   )
   const schemaUri = hashToUri(
@@ -139,59 +195,54 @@ export function getUriForSchema(
   return { uri: schemaUri, digest }
 }
 
+
 /**
- * Dispatches a schema to the blockchain for storage and tracking. This function handles
- * the submission of a schema object to the blockchain, ensuring its uniqueness, immutability,
- * and verifiability in a decentralized environment. It involves encoding the schema, signing
- * the transaction using the author's blockchain account, and employing the creator's DID for
- * identity verification. The function also requires an authorization ID for transaction
- * permissioning and a callback function for signing the transaction (extrinsic).
+ * Dispatches a schema to the blockchain for storage, ensuring its uniqueness, immutability,
+ * and verifiability. This function encodes the schema, creates a blockchain transaction,
+ * and submits it using the author's account for signing and submission.
  *
- * @param schema - The schema object, typically representing a structured data format
- *        defining data requirements.
- * @param creator - The decentralized identifier (DID) URI representing the digital
- *        identity of the creator.
- * @param authorAccount - The blockchain account of the author, used for.
- * @param authorization - A unique identifier for authorization purposes,
- *        authenticating and signing the transaction.
- *        often associated with specific permissions.
- * @param signCallback - A callback function that handles the signing
- *        of the blockchain transaction (extrinsic).
- * @returns A promise that resolves to the unique ID of the dispatched schema
- *          upon successful processing by the blockchain.
+ * ### Functionality:
+ * - **Checks for existing schema**: Verifies if the schema is already registered on the blockchain.
+ * - **Encodes schema in CBOR**: Ensures schema data is serialized efficiently.
+ * - **Creates and signs the extrinsic**: Uses the blockchain's `create` method for schema storage.
+ * - **Transaction submission**: Signs and submits the extrinsic to the blockchain using the provided author's account.
  *
- * The function employs a try-catch block to handle potential errors during the dispatch process,
- * such as issues with transaction creation or network failures. In case of an error, it throws
- * an informative exception.
+ * ### Parameters:
+ * @param schema - An `ISchema` object representing the structured data definition for the Cord network.
+ *                 This object defines the schema’s structure and requirements.
+ * @param authorAccount - A `CordKeyringPair` representing the blockchain account of the author,
+ *                        used to sign and submit the schema transaction.
  *
- * @example
+ * ### Returns:
+ * @returns A promise that resolves to the unique schema ID (`SchemaId`) upon successful storage.
+ *          If the schema is already stored, it returns the existing schema's `$id`.
+ *
+ * ### Throws:
+ * @throws {SDKErrors.CordDispatchError} If an error occurs during the dispatch process, such as:
+ * - Schema creation issues.
+ * - Network connectivity problems.
+ * - Transaction signing or submission failure.
+ *
+ * ### Example Usage:
  * ```typescript
  * async function exampleSchemaDispatch() {
- *   // Initialize schema data and necessary parameters
- *   const schema = { schema data };
- *   const authorAccount = { author's blockchain account };
- *   const creator = 'did:cord:example';
- *   const authorization = 'authorization-id';
- *   const signCallback = (tx: any) => { /* signing logic };
+ *   const schema = { title: 'Example Schema', properties: { id: { type: 'string' } } };
+ *   const authorAccount = cord.createFromUri('//Alice'); // Example keyring pair
  *
  *   try {
- *     const schemaId = await dispatchToChain(schema, authorAccount, creator, authorization, signCallback);
+ *     const schemaId = await dispatchToChain(schema, authorAccount);
  *     console.log('Schema dispatched with ID:', schemaId);
  *   } catch (error) {
  *     console.error('Error dispatching schema:', error);
  *   }
  * }
  *
- * // Example usage
  * exampleSchemaDispatch();
  * ```
  */
 export async function dispatchToChain(
   schema: ISchema,
-  creator: DidUri,
   authorAccount: CordKeyringPair,
-  authorization: AuthorizationId,
-  signCallback: SignExtrinsicCallback
 ): Promise<SchemaId> {
   try {
     const api = ConfigService.get('api')
@@ -201,16 +252,8 @@ export async function dispatchToChain(
       return schema.$id
     }
 
-    const authorizationId = uriToIdentifier(authorization)
-
-    const encodedSchema = encodeCborSchema(schema)
-    const tx = api.tx.schema.create(encodedSchema, authorizationId)
-    const extrinsic = await Did.authorizeTx(
-      creator,
-      tx,
-      signCallback,
-      authorAccount.address
-    )
+    const encodedSchema = encodeCborSchema(schema);
+    const extrinsic = api.tx.schema.create(encodedSchema);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
@@ -221,6 +264,7 @@ export async function dispatchToChain(
     )
   }
 }
+
 
 /**
  * (Internal Function) - Fetches and reconstructs a schema object from the blockchain using its URI.
@@ -266,6 +310,7 @@ function schemaInputFromChain(
   }
 }
 
+
 /**
  * (Internal Function) - Converts a blockchain-encoded schema entry to a more readable and usable format.
  * This helper function is crucial within the schema retrieval process, particularly in the `fetchFromChain`
@@ -277,7 +322,7 @@ function schemaInputFromChain(
  *                       wrapped in an `Option` type to handle the possibility that the schema might not exist.
  * @param schemaUri - The URI (`$id`) of the schema being processed.
  *
- * @returns Returns an `ISchemaDetails` object containing the schema information
+ * @returns Returns an `ISchemaAccountsDetails` object containing the schema information
  *          if the schema exists on the blockchain. If the schema does not exist, it returns `null`.
  *
  * This function is vital for interpreting and converting blockchain-specific encoded schema data into
@@ -288,19 +333,22 @@ function schemaInputFromChain(
 function fromChain(
   encodedEntry: Option<PalletSchemaSchemaEntry>,
   schemaUri: ISchema['$id']
-): ISchemaDetails | null {
+): ISchemaAccountsDetails | null {
   if (encodedEntry.isSome) {
     const unwrapped = encodedEntry.unwrap()
-    const { schema, digest, creator, space } = unwrapped
+    const { schema, digest, creator } = unwrapped
     return {
       schema: schemaInputFromChain(schema, schemaUri),
       digest: digest.toHex() as SchemaDigest,
-      spaceUri: identifierToUri(DecoderUtils.hexToString(space.toString())),
-      creatorUri: Did.fromChain(creator),
+
+      // TODO: Check if there is any other way to do it.
+      // Originally it is done as Did.fromChain(creator)
+      creatorUri: `did:cord:3${creator}`,
     }
   }
   return null
 }
+
 
 /**
  * Retrieves schema details from the blockchain using a given schema ID. This function plays a crucial role
@@ -345,7 +393,7 @@ function fromChain(
  */
 export async function fetchFromChain(
   schemaUri: ISchema['$id']
-): Promise<ISchemaDetails | null> {
+): Promise<ISchemaAccountsDetails | null> {
   try {
     const api = ConfigService.get('api')
     const cordSchemaId = uriToIdentifier(schemaUri)

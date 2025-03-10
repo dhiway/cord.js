@@ -1,7 +1,7 @@
 /**
  * @packageDocumentation.
  * @module Schema/Types
- * Schema Definitions Module.
+ * Schema Accounts Definitions Module.
  *
  * This module contains a collection of constants that define various JSON schemas used within the SDK.
  * These schemas are fundamental in enforcing the structure and validation of data throughout the application.
@@ -55,7 +55,7 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
   type: 'object',
   properties: {
     $id: {
-      pattern: '^schema:cord:s[0-9a-zA-Z]+$',
+      pattern: '^schema:cord:V[0-9a-zA-Z]+$',
       type: 'string',
     },
     $schema: {
@@ -112,7 +112,7 @@ export const SchemaModelV1: JsonSchema.Schema & { $id: string } = {
       additionalProperties: false,
       properties: {
         $ref: {
-          pattern: '^schema:cord:s[0-9a-zA-Z]+(#/properties/.+)?$',
+          pattern: '^schema:cord:V[0-9a-zA-Z]+(#/properties/.+)?$',
           format: 'uri',
           type: 'string',
         },
