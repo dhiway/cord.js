@@ -149,7 +149,7 @@ export async function isAuthorizationStored(
  * ```
  *
  * @param spaceDigest - The digest representing the content or configuration of the ChainSpace.
- * @param creatorUri - The DID URI of the creator of the ChainSpace.
+ * @param creatorAddress - The account address of the creator, used to authorize the transaction.
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization URI.
  * @internal
  */
@@ -242,7 +242,7 @@ export async function prepareCreateSpaceExtrinsic(
  * ```
  *
  * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
- * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param creatorAddress - The account address of the creator, used to authorize the transaction.
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
  * @returns A promise resolving to an object containing the ChainSpace URI and authorization ID.
  * @throws {SDKErrors.CordDispatchError} - Thrown when there's an error during the dispatch process.
@@ -280,7 +280,7 @@ export async function dispatchToChain(
  * @param authorAccount - The blockchain account used for signing and submitting the transaction.
  * @param parent - The chainspace under which the sub-space will be created.
  * @param count - The count of transactions permitted to be performed on the chain for the subspace.
- * @param creatorUri - The DID URI of the creator, used to authorize the transaction.
+ * @param creatorAddress - The account address of the creator, used to authorize the transaction.
  * @returns The prepared extrinsic ready for batch signing and submitting.
  */
 export async function prepareCreateSubSpaceExtrinsic(
@@ -421,8 +421,8 @@ export async function sudoApproveChainSpace(
  * ```
  *
  * @param spaceUri - The URI of the ChainSpace.
- * @param delegateUri - The DID URI of the delegate involved in the authorization.
- * @param creatorUri - The DID URI of the creator of the authorization.
+ * @param delegatorAddress - The account address of the delegate being authorized.
+ * @param creatorAddress - The account address of the creator authorizing the delegate.
  * @returns A promise resolving to the unique authorization URI.
  * @internal
  */
@@ -534,7 +534,6 @@ function dispatchDelegateAuthorizationTx(
  * @param request - The space authorization request containing necessary information for dispatching the authorization.
  * @param authorAccount - The blockchain account used to sign and submit the transaction.
  * @param authorizationUri - The URI of the authorization used for delegating permissions.
- * @param signCallback - A callback function that handles the signing of the transaction.
  * @returns A promise resolving to the authorization ID after successful processing by the blockchain.
  * @throws {SDKErrors.CordDispatchError} - Thrown on error during the dispatch process.
  */

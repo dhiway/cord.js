@@ -80,6 +80,7 @@ import {
   NAMESPACE_IDENT,
   NAMESPACEAUTH_IDENT,
   SPACE_IDENT,
+  STATEMENT_IDENT,
 } from '@cord.network/types'
 
 import { SDKErrors } from '@cord.network/utils'
@@ -96,6 +97,7 @@ const VALID_IDENTS = new Set([
   SPACE_DID_IDENT,
   SCHEMA_DID_IDENT,
   STATEMENT_DID_IDENT,
+  STATEMENT_IDENT,
   RATING_IDENT,
   AUTH_IDENT,
   ACCOUNT_IDENT,
@@ -129,6 +131,7 @@ const IDENT_TO_PREFIX_MAP = new Map([
   [SPACE_IDENT, SPACE_PREFIX],
   [SCHEMA_DID_IDENT, SCHEMA_PREFIX],
   [STATEMENT_DID_IDENT, STATEMENT_PREFIX],
+  [STATEMENT_IDENT, STATEMENT_PREFIX],
   [RATING_IDENT, RATING_PREFIX],
   [AUTH_IDENT, AUTH_PREFIX],
   [ACCOUNT_IDENT, ACCOUNT_PREFIX],
@@ -652,7 +655,7 @@ export function buildStatementUri(
   if (!digest.startsWith('0x') || !idDigest.startsWith('0x')) {
     throw new SDKErrors.InvalidInputError('Digest must start with 0x')
   }
-  const prefix = hashToUri(idDigest, STATEMENT_DID_IDENT, STATEMENT_PREFIX)
+  const prefix = hashToUri(idDigest, STATEMENT_IDENT, STATEMENT_PREFIX)
   const suffix = digest.slice(2)
 
   const statementUri = `${prefix}:${suffix}` as StatementUri
