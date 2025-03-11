@@ -311,170 +311,148 @@ async function main() {
   })
   console.log('✅ Schema Functions Completed!')
 
-// TODO: Fix below after packages/statement is complete
+  // Step 4: Delegate creates a new Verifiable Document
+  console.log(`\n❄️  Statement Creation `)
 
-//   // Step 4: Delegate creates a new Verifiable Document
-//   console.log(`\n❄️  Statement Creation `)
+  let newCredContent = require('../res/cred.json')
+  newCredContent.issuanceDate = new Date().toISOString()
+  const serializedCred = Cord.Utils.Crypto.encodeObjectAsStr(newCredContent)
+  const credHash = Cord.Utils.Crypto.hashStr(serializedCred)
 
-//   let newCredContent = require('../res/cred.json')
-//   newCredContent.issuanceDate = new Date().toISOString()
-//   const serializedCred = Cord.Utils.Crypto.encodeObjectAsStr(newCredContent)
-//   const credHash = Cord.Utils.Crypto.hashStr(serializedCred)
+  console.dir(newCredContent, {
+    depth: null,
+    colors: true,
+  })
 
-//   console.dir(newCredContent, {
-//     depth: null,
-//     colors: true,
-//   })
+  const statementEntry = Cord.Statement.buildFromProperties(
+    credHash,
+    space.uri,
+    authorIdentity.address,
+    schemaUri as Cord.SchemaUri 
+  )
+  console.dir(statementEntry, {
+    depth: null,
+    colors: true,
+  })
 
-//   const statementEntry = Cord.StatementDid.buildFromProperties(
-//     credHash,
-//     space.uri,
-//     issuerDid.uri,
-//     schemaUri as Cord.SchemaUri
-//   )
-//   console.dir(statementEntry, {
-//     depth: null,
-//     colors: true,
-//   })
+  const statement = await Cord.Statement.dispatchRegisterToChain(
+    statementEntry,
+    authorIdentity,
+    space.authorization,
+  )
 
-//   const statement = await Cord.StatementDid.dispatchRegisterToChain(
-//     statementEntry,
-//     issuerDid.uri,
-//     authorIdentity,
-//     space.authorization,
-//     async ({ data }) => ({
-//       signature: issuerKeys.authentication.sign(data),
-//       keyType: issuerKeys.authentication.type,
-//     })
-//   )
+  console.log(`✅ Statement element registered - ${statement}`)
 
-//   console.log(`✅ Statement element registered - ${statement}`)
+  console.log(`\n❄️  Statement Updation `)
+  let updateCredContent = newCredContent
+  updateCredContent.issuanceDate = new Date().toISOString()
+  updateCredContent.name = 'Bachelor of Science'
+  const serializedUpCred =
+    Cord.Utils.Crypto.encodeObjectAsStr(updateCredContent)
+  const upCredHash = Cord.Utils.Crypto.hashStr(serializedUpCred)
 
-//   console.log(`\n❄️  Statement Updation `)
-//   let updateCredContent = newCredContent
-//   updateCredContent.issuanceDate = new Date().toISOString()
-//   updateCredContent.name = 'Bachelor of Science'
-//   const serializedUpCred =
-//     Cord.Utils.Crypto.encodeObjectAsStr(updateCredContent)
-//   const upCredHash = Cord.Utils.Crypto.hashStr(serializedUpCred)
+  const updatedStatementEntry = Cord.Statement.buildFromUpdateProperties(
+    statementEntry.elementUri,
+    upCredHash,
+    space.uri,
+    delegate_1_Identity.address,
+  )
+  console.dir(updatedStatementEntry, {
+    depth: null,
+    colors: true,
+  })
 
-//   const updatedStatementEntry = Cord.StatementDid.buildFromUpdateProperties(
-//     statementEntry.elementUri,
-//     upCredHash,
-//     space.uri,
-//     delegateTwoDid.uri
-//   )
-//   console.dir(updatedStatementEntry, {
-//     depth: null,
-//     colors: true,
-//   })
+  const updatedStatement = await Cord.Statement.dispatchUpdateToChain(
+    updatedStatementEntry,
+    delegate_1_Identity,
+    delegateAuth as Cord.AuthorizationUri,
+  )
+  console.log(`✅ Statement element registered - ${updatedStatement}`)
 
-//   const updatedStatement = await Cord.StatementDid.dispatchUpdateToChain(
-//     updatedStatementEntry,
-//     delegateTwoDid.uri,
-//     authorIdentity,
-//     delegateAuth as Cord.AuthorizationUri,
-//     async ({ data }) => ({
-//       signature: delegateTwoKeys.authentication.sign(data),
-//       keyType: delegateTwoKeys.authentication.type,
-//     })
-//   )
-//   console.log(`✅ Statement element registered - ${updatedStatement}`)
+  console.log(`\n❄️  Statement verification `)
+  const verificationResult = await Cord.Statement.verifyAgainstProperties(
+    statementEntry.elementUri,
+    credHash,
+    authorIdentity.address,
+    space.uri,
+    schemaUri as Cord.SchemaUri
+  )
 
-//   console.log(`\n❄️  Statement verification `)
-//   const verificationResult = await Cord.StatementDid.verifyAgainstProperties(
-//     statementEntry.elementUri,
-//     credHash,
-//     issuerDid.uri,
-//     space.uri,
-//     schemaUri as Cord.SchemaUri
-//   )
+  if (verificationResult.isValid) {
+    console.log(`✅ Verification successful! "${statementEntry.elementUri}" 🎉`)
+  } else {
+    console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
+  }
 
-//   if (verificationResult.isValid) {
-//     console.log(`✅ Verification successful! "${statementEntry.elementUri}" 🎉`)
-//   } else {
-//     console.log(`🚫 Verification failed! - "${verificationResult.message}" 🚫`)
-//   }
+  const anotherVerificationResult =
+    await Cord.Statement.verifyAgainstProperties(
+      updatedStatementEntry.elementUri,
+      upCredHash,
+      delegate_1_Identity.address,
+      space.uri
+    )
 
-//   const anotherVerificationResult =
-//     await Cord.StatementDid.verifyAgainstProperties(
-//       updatedStatementEntry.elementUri,
-//       upCredHash,
-//       delegateTwoDid.uri,
-//       space.uri
-//     )
+  if (anotherVerificationResult.isValid) {
+    console.log(
+      `\n✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
+    )
+  } else {
+    console.log(
+      `\n🚫 Verification failed! - "${verificationResult.message}" 🚫`
+    )
+  }
 
-//   if (anotherVerificationResult.isValid) {
-//     console.log(
-//       `\n✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
-//     )
-//   } else {
-//     console.log(
-//       `\n🚫 Verification failed! - "${verificationResult.message}" 🚫`
-//     )
-//   }
+  console.log(`\n❄️  Revoke Statement - ${updatedStatementEntry.elementUri}`)
+  await Cord.Statement.dispatchRevokeToChain(
+    updatedStatementEntry.elementUri,
+    delegate_1_Identity,
+    delegateAuth as Cord.AuthorizationUri,
+  )
+  console.log(`✅ Statement revoked!`)
 
-//   console.log(`\n❄️  Revoke Statement - ${updatedStatementEntry.elementUri}`)
-//   await Cord.StatementDid.dispatchRevokeToChain(
-//     updatedStatementEntry.elementUri,
-//     delegateTwoDid.uri,
-//     authorIdentity,
-//     delegateAuth as Cord.AuthorizationUri,
-//     async ({ data }) => ({
-//       signature: delegateTwoKeys.authentication.sign(data),
-//       keyType: delegateTwoKeys.authentication.type,
-//     })
-//   )
-//   console.log(`✅ Statement revoked!`)
+  console.log(`\n❄️  Statement Re-verification `)
+  const reVerificationResult = await Cord.Statement.verifyAgainstProperties(
+    updatedStatementEntry.elementUri,
+    upCredHash,
+    authorIdentity.address,
+    space.uri
+  )
 
-//   console.log(`\n❄️  Statement Re-verification `)
-//   const reVerificationResult = await Cord.StatementDid.verifyAgainstProperties(
-//     updatedStatementEntry.elementUri,
-//     upCredHash,
-//     issuerDid.uri,
-//     space.uri
-//   )
+  if (reVerificationResult.isValid) {
+    console.log(
+      `✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
+    )
+  } else {
+    console.log(
+      `🚫 Verification failed! - "${reVerificationResult.message}" 🚫`
+    )
+  }
 
-//   if (reVerificationResult.isValid) {
-//     console.log(
-//       `✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
-//     )
-//   } else {
-//     console.log(
-//       `🚫 Verification failed! - "${reVerificationResult.message}" 🚫`
-//     )
-//   }
+  console.log(`\n❄️  Restore Statement - ${updatedStatementEntry.elementUri}`)
+  await Cord.Statement.dispatchRestoreToChain(
+    updatedStatementEntry.elementUri,
+    delegate_1_Identity,
+    delegateAuth as Cord.AuthorizationUri,
+  )
+  console.log(`✅ Statement restored!`)
 
-//   console.log(`\n❄️  Restore Statement - ${updatedStatementEntry.elementUri}`)
-//   await Cord.StatementDid.dispatchRestoreToChain(
-//     updatedStatementEntry.elementUri,
-//     delegateTwoDid.uri,
-//     authorIdentity,
-//     delegateAuth as Cord.AuthorizationUri,
-//     async ({ data }) => ({
-//       signature: delegateTwoKeys.authentication.sign(data),
-//       keyType: delegateTwoKeys.authentication.type,
-//     })
-//   )
-//   console.log(`✅ Statement restored!`)
+  console.log(`\n❄️  Statement Re-verification `)
+  const reReVerificationResult = await Cord.Statement.verifyAgainstProperties(
+    updatedStatementEntry.elementUri,
+    upCredHash,
+    delegate_1_Identity.address,
+    space.uri
+  )
 
-//   console.log(`\n❄️  Statement Re-verification `)
-//   const reReVerificationResult = await Cord.StatementDid.verifyAgainstProperties(
-//     updatedStatementEntry.elementUri,
-//     upCredHash,
-//     delegateTwoDid.uri,
-//     space.uri
-//   )
-
-//   if (reReVerificationResult.isValid) {
-//     console.log(
-//       `✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
-//     )
-//   } else {
-//     console.log(
-//       `🚫 Verification failed! - "${reReVerificationResult.message}" 🚫`
-//     )
-//   }
+  if (reReVerificationResult.isValid) {
+    console.log(
+      `✅ Verification successful! "${updatedStatementEntry.elementUri}" 🎉`
+    )
+  } else {
+    console.log(
+      `🚫 Verification failed! - "${reReVerificationResult.message}" 🚫`
+    )
+  }
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))

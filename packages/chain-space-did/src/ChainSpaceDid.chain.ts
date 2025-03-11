@@ -47,9 +47,9 @@ import {
 } from '@cord.network/identifier'
 
 import {
-  SPACE_IDENT,
+  SPACE_DID_IDENT,
   SPACE_PREFIX,
-  AUTH_IDENT,
+  AUTH_DID_IDENT,
   AUTH_PREFIX,
   blake2AsHex,
   Bytes,
@@ -171,7 +171,7 @@ export async function getUriForSpace(
     Uint8Array.from([...scaleEncodedSpaceDigest, ...scaleEncodedCreator])
   )
 
-  const chainSpaceUri = hashToUri(digest, SPACE_IDENT, SPACE_PREFIX) as SpaceUri
+  const chainSpaceUri = hashToUri(digest, SPACE_DID_IDENT, SPACE_PREFIX) as SpaceUri
   const scaleEncodedAuthDigest = api
     .createType<Bytes>('Bytes', uriToIdentifier(chainSpaceUri))
     .toU8a()
@@ -185,7 +185,7 @@ export async function getUriForSpace(
 
   const authorizationUri = hashToUri(
     authDigest,
-    AUTH_IDENT,
+    AUTH_DID_IDENT,
     AUTH_PREFIX
   ) as AuthorizationUri
 
@@ -489,7 +489,7 @@ export async function getUriForAuthorization(
 
   const authorizationUri = hashToUri(
     authDigest,
-    AUTH_IDENT,
+    AUTH_DID_IDENT,
     AUTH_PREFIX
   ) as AuthorizationUri
 

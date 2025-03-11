@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module ChainSpaceDid
+ * @module ChainSpace
  * @preferred
  *
  * The `ChainSpace` module, a key component of the CORD SDK, offers functionalities for creating and managing
@@ -48,9 +48,9 @@ import { getUriForSpace, getUriForAuthorization } from './ChainSpace.chain.js'
  * This function is designed to create a distinct ChainSpace on the CORD blockchain. A ChainSpace is a conceptual area
  * within the blockchain, designated for managing specific data or assets under defined rules and permissions.
  * The function generates a unique identifier and an authorization identifier for the new ChainSpace, based on the
- * creator's DID URI and an optional custom description.
+ * creator's address and an optional custom description.
  *
- * @param creatorUri - The decentralized identifier (DID) URI of the entity creating the ChainSpace.
+ * @param creatorAddress - The account address the chainspace creator.
  * @param chainSpaceDesc - (Optional) A custom description to represent the ChainSpace. If not provided, a default
  *        description is generated, incorporating a unique UUID.
  * @returns A promise that resolves to an IChainSpace object, encompassing the ChainSpace's identifier, description, hash digest,
@@ -100,7 +100,7 @@ export async function buildFromProperties(
  * the ChainSpace's creator or owner to grant specific permissions to a delegate.
  *
  * @param spaceUri - The unique identifier (URI) of the ChainSpace for which the delegation is being set up.
- * @param delegateAddress - The decentralized identifier (DID) URI of the delegate, the entity being authorized.
+ * @param delegateAddress - The account address of the delegate, the entity being authorized.
  * @param permission - The type of permission being granted to the delegate, defining their role and actions within the ChainSpace.
  * @param creatorAddress - The DID URI of the ChainSpace's creator or owner, responsible for authorizing the delegate.
  * @returns A promise that resolves to an ISpaceAuthorizationAccountType object, encapsulating the details of the granted authorization.
