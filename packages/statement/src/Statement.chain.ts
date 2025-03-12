@@ -341,11 +341,7 @@ export async function dispatchUpdateToChain(
       authorizationId
     )
 
-    console.log("before", stmtIdDigest);
-
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
-
-    console.log("after", stmtIdDigest);
 
     return stmtEntry.elementUri
   } catch (error) {
