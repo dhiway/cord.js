@@ -108,6 +108,7 @@ export async function isStatementStored(
   return !encoded.isNone
 }
 
+
 /**
  * Generates a unique URI for a statement based on its digest, space URI, and creator URI.
  *
@@ -158,6 +159,7 @@ export function getUriForStatement(
 
   return statementUri
 }
+
 
 /**
  * This function dispatches a statement entry to a blockchain after preparing the extrinsic
@@ -221,6 +223,7 @@ export async function dispatchRegisterToChain(
   }
 }
 
+
 /**
  * This function prepares and returns a SubmittableExtrinsic for registering a statement on
  * the blockchain.
@@ -279,6 +282,49 @@ export async function prepareExtrinsicToRegister(
   }
 }
 
+
+/**
+ * This function prepares and returns a SubmittableExtrinsic for updating a statement on the
+ * blockchain. 
+ * @param {IStatementEntry} stmtEntry - The `stmtEntry` parameter is an object of type
+ * `IStatementEntry`, which contains information about a statement entry.
+ *
+ * @param {AuthorizationUri} authorizationUri - The `authorizationUri` parameter in the
+ * `prepareExtrinsicToUpdate` function is a URI that represents the authorization needed for the
+ * statement entry. It is used to identify and retrieve the authorization details required for
+ * updating the statement on the chain.
+ *
+ * @returns A `SubmittableExtrinsic` is being returned from the `prepareExtrinsicToUpdate` function.
+ */
+export async function prepareExtrinsicToUpdate(
+  stmtEntry: IStatementEntry,
+  authorizationUri: AuthorizationUri,
+): Promise<SubmittableExtrinsic> { 
+    const api = ConfigService.get('api')
+    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
+
+    /* NOTE:
+     * Check for existence of the statement with new digest before creating,
+     * to avoid sending avoidable transactions to the chain.
+     * Responsiblity lies on the application for above check.
+     * Example:
+     * const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
+     *  if (exists) {
+     *   return stmtEntry.elementUri
+     *  }
+     */
+
+    const stmtIdDigest = uriToStatementIdAndDigest(stmtEntry.elementUri)
+    const extrinsic = api.tx.statement.update(
+      stmtIdDigest.identifier,
+      stmtEntry.digest,
+      authorizationId
+    )
+
+    return extrinsic
+};
+
+
 /**
  * Dispatches a statement update transaction to the CORD blockchain.
  *
@@ -325,20 +371,15 @@ export async function dispatchUpdateToChain(
   authorizationUri: AuthorizationUri,
 ): Promise<StatementUri> {
   try {
-    const api = ConfigService.get('api')
-    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
     const exists = await isStatementStored(stmtEntry.digest, stmtEntry.spaceUri)
-
     if (exists) {
       return stmtEntry.elementUri
     }
 
-    const stmtIdDigest = uriToStatementIdAndDigest(stmtEntry.elementUri)
-    const extrinsic = api.tx.statement.update(
-      stmtIdDigest.identifier,
-      stmtEntry.digest,
-      authorizationId
+    const extrinsic = await prepareExtrinsicToUpdate(
+      stmtEntry,
+      authorizationUri,
     )
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
@@ -350,6 +391,7 @@ export async function dispatchUpdateToChain(
     )
   }
 }
+
 
 /**
  * This function dispatches a revocation transaction to a blockchain network after preparing
@@ -393,6 +435,7 @@ export async function dispatchRevokeToChain(
     )
   }
 }
+
 
 /**
  * Dispatches a statement revocation transaction to the CORD blockchain.
@@ -447,6 +490,36 @@ export async function prepareExtrinsicToRevoke(
   }
 }
 
+
+/**
+ * This function prepares and returns a SubmittableExtrinsic for restoring a statement on the
+ * blockchain.
+ * @param {StatementUri} statementUri - The `statementUri` parameter in the `prepareExtrinsicToRestore`
+ * function is a URI that represents the statement that you want to restore on the chain.
+ *
+ * @param {AuthorizationUri} authorizationUri - The `authorizationUri` parameter in the
+ * `prepareExtrinsicToRestore` function is a URI that represents the authorization needed for the
+ * statement entry. It is used to identify and retrieve the authorization details required for
+ * restoring the statement on the chain.
+ *
+ * @returns A `SubmittableExtrinsic` is being returned from the `prepareExtrinsicToRestore` function.
+ */
+export async function prepareExtrinsicToRestore(
+  statementUri: StatementUri,
+  authorizationUri: AuthorizationUri,
+): Promise<SubmittableExtrinsic> {
+  const api = ConfigService.get('api')
+  const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
+
+  const stmtIdDigest = uriToStatementIdAndDigest(statementUri)
+  const stmtId = stmtIdDigest.identifier
+
+  const extrinsic = api.tx.statement.restore(stmtId, authorizationId)
+
+  return extrinsic;
+}
+
+
 /**
  * Dispatches a statement restoration transaction to the CORD blockchain.
  *
@@ -486,13 +559,10 @@ export async function dispatchRestoreToChain(
   authorizationUri: AuthorizationUri,
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api')
-    const authorizationId: AuthorizationId = uriToIdentifier(authorizationUri)
 
-    const stmtIdDigest = uriToStatementIdAndDigest(statementUri)
-    const stmtId = stmtIdDigest.identifier
-
-    const extrinsic = api.tx.statement.restore(stmtId, authorizationId)
+    const extrinsic = await prepareExtrinsicToRestore(
+      statementUri, authorizationUri
+    )
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
   } catch (error) {
@@ -501,6 +571,7 @@ export async function dispatchRestoreToChain(
     )
   }
 }
+
 
 /**
  * Decodes statement details from their blockchain-encoded format.
@@ -546,6 +617,7 @@ export function decodeStatementDetailsfromChain(
   }
   return statement
 }
+
 
 /**
  * Retrieves detailed state information of a statement from the CORD blockchain.
@@ -593,6 +665,7 @@ export async function getDetailsfromChain(
 
   return decodedDetails
 }
+
 
 /**
  * Fetches the state of a statement element from the CORD blockchain.

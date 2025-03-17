@@ -91,6 +91,7 @@ export async function buildFromProperties(
   }
 }
 
+
 /**
  * Authorizes a delegate within a ChainSpace, allowing them to perform actions on behalf of the creator.
  *

@@ -95,6 +95,7 @@ export async function isChainSpaceStored(spaceUri: SpaceUri): Promise<boolean> {
   }
 }
 
+
 /**
  * Checks if a given authorization exists on the CORD blockchain.
  *
@@ -130,6 +131,7 @@ export async function isAuthorizationStored(
     )
   }
 }
+
 
 /**
  * Generates unique URIs for a ChainSpace and its associated authorization.
@@ -194,6 +196,7 @@ export async function getUriForSpace(
   return chainSpaceDetails
 }
 
+
 /**
  * Prepares the creation of a chain space extrinsic for later dispatch to the blockchain.
  * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
@@ -216,6 +219,7 @@ export async function prepareCreateSpaceExtrinsic(
     );
   }
 }
+
 
 /**
  * Dispatches a ChainSpace creation transaction to the CORD blockchain.
@@ -274,6 +278,7 @@ export async function dispatchToChain(
   }
 }
 
+
 /**
  * Prepares the creation of a sub-space extrinsic for later dispatch to the blockchain.
  * @param chainSpace - The ChainSpace object containing necessary information for creating the ChainSpace on the blockchain.
@@ -299,6 +304,7 @@ export async function prepareCreateSubSpaceExtrinsic(
     )
   }
 }
+
 
 /**
  * Dispatches a Sub-ChainSpace creation transaction to the CORD blockchain.
@@ -402,6 +408,7 @@ export async function sudoApproveChainSpace(
   }
 }
 
+
 /**
  * Generates a unique URI for an authorization within a ChainSpace.
  *
@@ -460,8 +467,9 @@ export async function getUriForAuthorization(
   return authorizationUri
 }
 
+
 /**
- * Dispatches a delegate authorization request to the CORD blockchain.
+ * Prepares a delegate authorization request to the CORD blockchain, creating a extrinsic for later dispatch.
  *
  * @remarks
  * This function handles the submission of delegate authorization requests to the CORD blockchain. It manages
@@ -478,12 +486,12 @@ export async function getUriForAuthorization(
  *
  * @internal
  */
-function dispatchDelegateAuthorizationTx(
+export async function prepareDelegateAuthorizationExtrinsic(
   permission: PermissionType,
   spaceId: string,
   delegateAddress: string,
   authId: string
-) {
+):Promise<SubmittableExtrinsic> {
   const api = ConfigService.get('api')
 
   switch (permission) {
@@ -499,6 +507,7 @@ function dispatchDelegateAuthorizationTx(
       )
   }
 }
+
 
 /**
  * Dispatches a delegate authorization transaction to the CORD blockchain.
@@ -546,7 +555,7 @@ export async function dispatchDelegateAuthorization(
     const spaceId = uriToIdentifier(request.uri)
     const delegatorAuthId = uriToIdentifier(authorizationUri)
 
-    const extrinsic = dispatchDelegateAuthorizationTx(
+    const extrinsic = await prepareDelegateAuthorizationExtrinsic(
       request.permission,
       spaceId,
       request.delegateAddress,
@@ -562,6 +571,7 @@ export async function dispatchDelegateAuthorization(
     )
   }
 }
+
 
 /**
  * Decodes the details of a space from its blockchain-encoded representation.
@@ -598,6 +608,7 @@ function decodeSpaceDetailsfromChain(
 
   return decodedDetails
 }
+
 
 /**
  * Fetches space details from the blockchain based on a given space URI.
@@ -655,6 +666,7 @@ export async function fetchFromChain(
   }
 }
 
+
 /**
  * Decodes a numeric permission bitset from the blockchain into a `PermissionType`.
  *
@@ -701,6 +713,7 @@ function authorizationPermissionsFromChain(
   return permissions
 }
 
+
 /**
  * Decodes the details of a space authorization from its blockchain representation.
  *
@@ -738,6 +751,7 @@ function decodeAuthorizationDetailsfromChain(
   }
   return decodedDetails
 }
+
 
 /**
  * Fetches authorization details from the CORD chain based on a given authorization ID.
@@ -798,6 +812,7 @@ export async function fetchAuthorizationFromChain(
     )
   }
 }
+
 
 /**
  * Prepares an update transaction capacity extrinsic for later dispatch to the blockchain.

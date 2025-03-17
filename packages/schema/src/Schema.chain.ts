@@ -27,6 +27,7 @@ import type {
   Option,
   CordKeyringPair,
   SchemaUri,
+  SubmittableExtrinsic,
 } from '@cord.network/types'
 
 import type { PalletSchemaSchemaEntry } from '@cord.network/augment-api'
@@ -54,7 +55,6 @@ import {
     encodeCborSchema,
     verifyDataStructure
 } from './Schema.js'
-
 
 /**
  * Checks if a given schema is stored on the blockchain.
@@ -197,6 +197,39 @@ export function getUriForSchema(
 
 
 /**
+ * Prepares a blockchain transaction to store a schema on-chain.
+ *
+ * This function creates an extrinsic for the blockchain transaction to store a schema.
+ * It encodes the schema using CBOR serialization and creates an extrinsic for the blockchain
+ * transaction to store the schema. The extrinsic is prepared for submission to the blockchain.
+ *
+ * ### Parameters:
+ * @param schema - The schema object to be stored on-chain. It should conform to the `ISchema` interface
+ *                 used in the Cord network.
+ *
+ * ### Returns:
+ * @returns A promise that resolves to a `SubmittableExtrinsic` object representing the blockchain transaction
+ *          to store the schema. The extrinsic is ready for signing and submission to the blockchain.
+ *
+ * ### Example Usage:
+ * ```typescript
+ * const schema = { title: 'Example Schema', properties: { id: { type: 'string' } } };
+ * const extrinsic = await prepareCreateExtrinsic(schema);
+ * ```
+ */
+export async function prepareCreateExtrinsic(
+  schema: ISchema,
+): Promise<SubmittableExtrinsic> {
+
+  const api = ConfigService.get('api')
+  const encodedSchema = encodeCborSchema(schema);
+  const extrinsic = api.tx.schema.create(encodedSchema);
+
+  return extrinsic
+}
+
+
+/**
  * Dispatches a schema to the blockchain for storage, ensuring its uniqueness, immutability,
  * and verifiability. This function encodes the schema, creates a blockchain transaction,
  * and submits it using the author's account for signing and submission.
@@ -245,15 +278,12 @@ export async function dispatchToChain(
   authorAccount: CordKeyringPair,
 ): Promise<SchemaId> {
   try {
-    const api = ConfigService.get('api')
-
     const exists = await isSchemaStored(schema)
     if (exists) {
       return schema.$id
     }
 
-    const encodedSchema = encodeCborSchema(schema);
-    const extrinsic = api.tx.schema.create(encodedSchema);
+    const extrinsic = await prepareCreateExtrinsic(schema);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount)
 
@@ -284,7 +314,7 @@ export async function dispatchToChain(
  *
  * @internal
  */
-function schemaInputFromChain(
+export function schemaInputFromChain(
   input: Bytes,
   schemaUri: ISchema['$id']
 ): ISchema {
@@ -330,7 +360,7 @@ function schemaInputFromChain(
  *
  * @internal
  */
-function fromChain(
+export function fromChain(
   encodedEntry: Option<PalletSchemaSchemaEntry>,
   schemaUri: ISchema['$id']
 ): ISchemaAccountsDetails | null {
