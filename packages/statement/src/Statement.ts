@@ -90,6 +90,7 @@ export function verifyDataStructure(input: IStatementEntryAccountType): void {
   DataUtils.verifyIsHex(input.digest, 256)
 }
 
+
 /**
  * Constructs a `IStatementEntry` object from given properties.
  *
@@ -142,6 +143,7 @@ export function buildFromProperties(
   return statement
 }
 
+
 /**
  * Constructs an updated `IStatementEntry` object using the provided properties.
  *
@@ -192,6 +194,7 @@ export function buildFromUpdateProperties(
   return statement
 }
 
+
 /**
  * Custom Type Guard to determine input being of type IStatement using the StatementUtils errorCheck.
  *
@@ -206,6 +209,7 @@ export function isIStatement(input: unknown): input is IStatementEntryAccountTyp
   }
   return true
 }
+
 
 /**
  * Verifies a statement's properties against provided parameters.
