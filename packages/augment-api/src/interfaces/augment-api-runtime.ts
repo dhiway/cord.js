@@ -5,7 +5,7 @@
 // this is required to allow for ambient/previous definitions
 import '@polkadot/api-base/types/calls';
 
-import type { RawDidLinkedInfo } from '@cord.network/augment-api/extraDefs';
+// import type { RawDidLinkedInfo } from '@cord.network/augment-api/extraDefs';
 import type { ApiTypes, AugmentedCall, DecoratedCallBase } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Text, Vec, u32 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
@@ -104,16 +104,16 @@ declare module '@polkadot/api-base/types/calls' {
       version: AugmentedCall<ApiType, () => Observable<RuntimeVersion>>;
     };
     /** 0xa02708c798d60bce/1 */
-    didApi: {
-      /**
-       * Return the information relative to the owner of the provided DID, if present.
-       **/
-      query: AugmentedCall<ApiType, (did: AccountId32 | string | Uint8Array) => Observable<Option<RawDidLinkedInfo>>>;
-      /**
-       * Return the information relative to the owner of the provided didName, if any.
-       **/
-      queryByName: AugmentedCall<ApiType, (name: Text | string) => Observable<Option<RawDidLinkedInfo>>>;
-    };
+    // didApi: {
+    //   /**
+    //    * Return the information relative to the owner of the provided DID, if present.
+    //    **/
+    //   query: AugmentedCall<ApiType, (did: AccountId32 | string | Uint8Array) => Observable<Option<RawDidLinkedInfo>>>;
+    //   /**
+    //    * Return the information relative to the owner of the provided didName, if any.
+    //    **/
+    //   queryByName: AugmentedCall<ApiType, (name: Text | string) => Observable<Option<RawDidLinkedInfo>>>;
+    // };
     /** 0xed99c5acb25eedf5/3 */
     grandpaApi: {
       /**

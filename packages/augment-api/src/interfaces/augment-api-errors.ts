@@ -108,6 +108,20 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       ZeroLiquidity: AugmentedError<ApiType>;
     };
+    assetRate: {
+      /**
+       * The given asset ID already has an assigned conversion rate and cannot be re-created.
+       **/
+      AlreadyExists: AugmentedError<ApiType>;
+      /**
+       * Overflow ocurred when calculating the inverse rate.
+       **/
+      Overflow: AugmentedError<ApiType>;
+      /**
+       * The given asset ID is unknown.
+       **/
+      UnknownAssetKind: AugmentedError<ApiType>;
+    };
     assets: {
       /**
        * The asset-account already exists.
@@ -197,44 +211,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       WouldDie: AugmentedError<ApiType>;
     };
-    authorityMembership: {
-      /**
-       * The authority entry already exists.
-       **/
-      MemberAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * Already incoming
-       **/
-      MemberAlreadyIncoming: AugmentedError<ApiType>;
-      /**
-       * Already outgoing
-       **/
-      MemberAlreadyOutgoing: AugmentedError<ApiType>;
-      /**
-       * Member is blacklisted
-       **/
-      MemberBlackListed: AugmentedError<ApiType>;
-      /**
-       * Member not blacklisted
-       **/
-      MemberNotBlackListed: AugmentedError<ApiType>;
-      /**
-       * There is no authority with the given ID.
-       **/
-      MemberNotFound: AugmentedError<ApiType>;
-      /**
-       * Not a network member
-       **/
-      NetworkMembershipNotFound: AugmentedError<ApiType>;
-      /**
-       * Session keys not provided
-       **/
-      SessionKeysNotAdded: AugmentedError<ApiType>;
-      /**
-       * Authority count below threshold
-       **/
-      TooLowAuthorityCount: AugmentedError<ApiType>;
-    };
     babe: {
       /**
        * A given equivocation report is valid but already previously reported.
@@ -303,159 +279,83 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       VestingBalance: AugmentedError<ApiType>;
     };
-    chainSpace: {
+    beefy: {
       /**
-       * Archived Space
+       * A given equivocation report is valid but already previously reported.
        **/
-      ArchivedSpace: AugmentedError<ApiType>;
+      DuplicateOffenceReport: AugmentedError<ApiType>;
       /**
-       * Authorization Id not found
+       * Submitted configuration is invalid.
        **/
-      AuthorizationNotFound: AugmentedError<ApiType>;
+      InvalidConfiguration: AugmentedError<ApiType>;
       /**
-       * The new capacity value is lower than the current usage
+       * A double voting proof provided as part of an equivocation report is invalid.
        **/
-      CapacityLessThanUsage: AugmentedError<ApiType>;
+      InvalidDoubleVotingProof: AugmentedError<ApiType>;
       /**
-       * The capacity limit for the space has been exceeded.
+       * The session of the equivocation proof is invalid
        **/
-      CapacityLimitExceeded: AugmentedError<ApiType>;
+      InvalidEquivocationProofSession: AugmentedError<ApiType>;
       /**
-       * Capacity value missing
+       * A fork voting proof provided as part of an equivocation report is invalid.
        **/
-      CapacityValueMissing: AugmentedError<ApiType>;
+      InvalidForkVotingProof: AugmentedError<ApiType>;
       /**
-       * Authority already added
+       * A future block voting proof provided as part of an equivocation report is invalid.
        **/
-      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      InvalidFutureBlockVotingProof: AugmentedError<ApiType>;
       /**
-       * Delegate not found.
+       * A key ownership proof provided as part of an equivocation report is invalid.
        **/
-      DelegateNotFound: AugmentedError<ApiType>;
-      /**
-       * Empty transaction.
-       **/
-      EmptyTransaction: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier
-       **/
-      InvalidIdentifier: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier Length
-       **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier Prefix
-       **/
-      InvalidIdentifierPrefix: AugmentedError<ApiType>;
-      /**
-       * Space identifier is not unique
-       **/
-      SpaceAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Space already approved
-       **/
-      SpaceAlreadyApproved: AugmentedError<ApiType>;
-      /**
-       * Space delegation limit exceeded
-       **/
-      SpaceDelegatesLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Space not approved.
-       **/
-      SpaceNotApproved: AugmentedError<ApiType>;
-      /**
-       * Space not Archived
-       **/
-      SpaceNotArchived: AugmentedError<ApiType>;
-      /**
-       * Space identifier not found
-       **/
-      SpaceNotFound: AugmentedError<ApiType>;
-      /**
-       * Type capacity overflow
-       **/
-      TypeCapacityOverflow: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller or delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
+      InvalidKeyOwnershipProof: AugmentedError<ApiType>;
     };
-    chainSpaceDid: {
+    collection: {
       /**
-       * Archived SpaceDid
+       * The activity update operation failed.
        **/
-      ArchivedSpace: AugmentedError<ApiType>;
+      ActivityUpdateFailed: AugmentedError<ApiType>;
       /**
-       * Authorization Id not found
+       * The collection is already archived.
        **/
-      AuthorizationNotFound: AugmentedError<ApiType>;
+      ArchivedCollection: AugmentedError<ApiType>;
       /**
-       * The new capacity value is lower than the current usage
+       * A collection with the given identifier already exists.
        **/
-      CapacityLessThanUsage: AugmentedError<ApiType>;
+      CollectionAlreadyExists: AugmentedError<ApiType>;
       /**
-       * The capacity limit for the space has been exceeded.
+       * The collection is not archived (and thus cannot be restored).
        **/
-      CapacityLimitExceeded: AugmentedError<ApiType>;
+      CollectionNotArchived: AugmentedError<ApiType>;
       /**
-       * Capacity value missing
+       * The specified collection was not found.
        **/
-      CapacityValueMissing: AugmentedError<ApiType>;
+      CollectionNotFound: AugmentedError<ApiType>;
       /**
-       * Authority already added
+       * The delegate is already added to the collection.
        **/
-      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      DelegateAlreadyExists: AugmentedError<ApiType>;
       /**
-       * Delegate not found.
+       * The specified delegate was not found.
        **/
       DelegateNotFound: AugmentedError<ApiType>;
       /**
-       * Empty transaction.
+       * The provided entry type input is invalid.
        **/
-      EmptyTransaction: AugmentedError<ApiType>;
+      InvalidEntryTypeInput: AugmentedError<ApiType>;
       /**
-       * Invalid Identifier
-       **/
-      InvalidIdentifier: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier Length
+       * The provided identifier length is invalid.
        **/
       InvalidIdentifierLength: AugmentedError<ApiType>;
       /**
-       * Invalid Identifier Prefix
+       * A registry with the given identifier already exists in the collection.
        **/
-      InvalidIdentifierPrefix: AugmentedError<ApiType>;
+      RegistryAlreadyExists: AugmentedError<ApiType>;
       /**
-       * SpaceDid identifier is not unique
+       * The specified registry was not found in the collection.
        **/
-      SpaceAlreadyAnchored: AugmentedError<ApiType>;
+      RegistryNotFound: AugmentedError<ApiType>;
       /**
-       * SpaceDid already approved
-       **/
-      SpaceAlreadyApproved: AugmentedError<ApiType>;
-      /**
-       * SpaceDid delegation limit exceeded
-       **/
-      SpaceDelegatesLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * SpaceDid not approved.
-       **/
-      SpaceNotApproved: AugmentedError<ApiType>;
-      /**
-       * SpaceDid not Archived
-       **/
-      SpaceNotArchived: AugmentedError<ApiType>;
-      /**
-       * SpaceDid identifier not found
-       **/
-      SpaceNotFound: AugmentedError<ApiType>;
-      /**
-       * Type capacity overflow
-       **/
-      TypeCapacityOverflow: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller or delegate.
+       * The caller does not have the required permissions.
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
     };
@@ -652,6 +552,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       PrimeAccountNotMember: AugmentedError<ApiType>;
       /**
+       * Proposal is still active.
+       **/
+      ProposalActive: AugmentedError<ApiType>;
+      /**
        * Proposal must exist
        **/
       ProposalMissing: AugmentedError<ApiType>;
@@ -690,187 +594,131 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooManyMembers: AugmentedError<ApiType>;
     };
-    did: {
+    delegatedStaking: {
       /**
-       * The DID has already been previously deleted.
+       * An existing staker cannot perform this action.
        **/
-      AlreadyDeleted: AugmentedError<ApiType>;
+      AlreadyStaking: AugmentedError<ApiType>;
       /**
-       * The DID with the given identifier is already present on chain.
+       * Some corruption in internal state.
        **/
-      AlreadyExists: AugmentedError<ApiType>;
+      BadState: AugmentedError<ApiType>;
       /**
-       * The DID call was submitted by the wrong account
+       * Delegation conditions are not met.
+       * 
+       * Possible issues are
+       * 1) Cannot delegate to self,
+       * 2) Cannot delegate to multiple delegates.
        **/
-      BadDidOrigin: AugmentedError<ApiType>;
+      InvalidDelegation: AugmentedError<ApiType>;
       /**
-       * An error that is not supposed to take place, yet it happened.
+       * Reward Destination cannot be same as `Agent` account.
        **/
-      Internal: AugmentedError<ApiType>;
+      InvalidRewardDestination: AugmentedError<ApiType>;
       /**
-       * The call had parameters that conflicted with each other
-       * or were invalid.
+       * Not an existing `Agent` account.
        **/
-      InvalidDidAuthorizationCall: AugmentedError<ApiType>;
+      NotAgent: AugmentedError<ApiType>;
       /**
-       * The DID operation nonce is not equal to the current DID nonce + 1.
+       * The account cannot perform this operation.
        **/
-      InvalidNonce: AugmentedError<ApiType>;
+      NotAllowed: AugmentedError<ApiType>;
       /**
-       * One of the service endpoint details contains non-ASCII characters.
+       * Not a Delegator account.
        **/
-      InvalidServiceEncoding: AugmentedError<ApiType>;
+      NotDelegator: AugmentedError<ApiType>;
       /**
-       * The DID operation signature is invalid for the payload and the
-       * verification key provided.
+       * The account does not have enough funds to perform the operation.
        **/
-      InvalidSignature: AugmentedError<ApiType>;
+      NotEnoughFunds: AugmentedError<ApiType>;
       /**
-       * The DID operation signature is not in the format the verification
-       * key expects.
+       * `Agent` has no pending slash to be applied.
        **/
-      InvalidSignatureFormat: AugmentedError<ApiType>;
+      NothingToSlash: AugmentedError<ApiType>;
       /**
-       * The maximum number of key agreements has been reached for the DID
-       * subject.
+       * Operation not supported by this pallet.
        **/
-      MaxKeyAgreementKeysExceeded: AugmentedError<ApiType>;
+      NotSupported: AugmentedError<ApiType>;
       /**
-       * A number of new key agreement keys greater than the maximum allowed
-       * has been provided.
+       * Unapplied pending slash restricts operation on `Agent`.
        **/
-      MaxNewKeyAgreementKeysLimitExceeded: AugmentedError<ApiType>;
+      UnappliedSlash: AugmentedError<ApiType>;
       /**
-       * The maximum number of service endpoints for a DID has been exceeded.
+       * Failed to withdraw amount from Core Staking.
        **/
-      MaxNumberOfServicesExceeded: AugmentedError<ApiType>;
-      /**
-       * The maximum number of types for a service endpoint has been
-       * exceeded.
-       **/
-      MaxNumberOfTypesPerServiceExceeded: AugmentedError<ApiType>;
-      /**
-       * The maximum number of URLs for a service endpoint has been exceeded.
-       **/
-      MaxNumberOfUrlsPerServiceExceeded: AugmentedError<ApiType>;
-      /**
-       * The maximum number of public keys for this DID key identifier has
-       * been reached.
-       **/
-      MaxPublicKeysExceeded: AugmentedError<ApiType>;
-      /**
-       * The service endpoint ID exceeded the maximum allowed length.
-       **/
-      MaxServiceIdLengthExceeded: AugmentedError<ApiType>;
-      /**
-       * One of the service endpoint types exceeded the maximum allowed
-       * length.
-       **/
-      MaxServiceTypeLengthExceeded: AugmentedError<ApiType>;
-      /**
-       * One of the service endpoint URLs exceeded the maximum allowed
-       * length.
-       **/
-      MaxServiceUrlLengthExceeded: AugmentedError<ApiType>;
-      /**
-       * The number of service endpoints stored under the DID is larger than
-       * the number of endpoints to delete.
-       **/
-      MaxStoredEndpointsCountExceeded: AugmentedError<ApiType>;
-      /**
-       * No DID with the given identifier is present on chain.
-       **/
-      NotFound: AugmentedError<ApiType>;
-      /**
-       * A service with the provided ID is already present for the given DID.
-       **/
-      ServiceAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * A service with the provided ID is not present under the given DID.
-       **/
-      ServiceNotFound: AugmentedError<ApiType>;
-      /**
-       * The block number provided in a DID-authorized operation is invalid.
-       **/
-      TransactionExpired: AugmentedError<ApiType>;
-      /**
-       * The called extrinsic does not support DID authorisation.
-       **/
-      UnsupportedDidAuthorizationCall: AugmentedError<ApiType>;
-      /**
-       * One or more verification keys referenced are not stored in the set
-       * of verification keys.
-       **/
-      VerificationKeyNotFound: AugmentedError<ApiType>;
+      WithdrawFailed: AugmentedError<ApiType>;
     };
-    didName: {
+    electionProviderMultiPhase: {
       /**
-       * The specified name has already been previously banned.
+       * Some bound not met
        **/
-      AlreadyBanned: AugmentedError<ApiType>;
+      BoundNotMet: AugmentedError<ApiType>;
       /**
-       * The specified name has already been previously claimed.
+       * The call is not allowed at this point.
        **/
-      AlreadyExists: AugmentedError<ApiType>;
+      CallNotAllowed: AugmentedError<ApiType>;
       /**
-       * The specified name has been banned and cannot be interacted
-       * with.
+       * The fallback failed
        **/
-      Banned: AugmentedError<ApiType>;
+      FallbackFailed: AugmentedError<ApiType>;
       /**
-       * The tx submitter does not have enough funds to pay for the deposit.
+       * `Self::insert_submission` returned an invalid index.
        **/
-      InsufficientFunds: AugmentedError<ApiType>;
+      InvalidSubmissionIndex: AugmentedError<ApiType>;
       /**
-       * A name that contains not allowed characters is being claimed.
+       * Snapshot metadata should exist but didn't.
        **/
-      InvalidFormat: AugmentedError<ApiType>;
+      MissingSnapshotMetadata: AugmentedError<ApiType>;
       /**
-       * A suffix that is too short is being claimed.
+       * OCW submitted solution for wrong round
        **/
-      InvalidSuffix: AugmentedError<ApiType>;
+      OcwCallWrongEra: AugmentedError<ApiType>;
       /**
-       * A name that is too long is being claimed.
+       * Submission was prepared for a different round.
        **/
-      NameExceedsMaxLength: AugmentedError<ApiType>;
+      PreDispatchDifferentRound: AugmentedError<ApiType>;
       /**
-       * A prefix that is too long is being claimed.
+       * Submission was too early.
        **/
-      NamePrefixTooLong: AugmentedError<ApiType>;
+      PreDispatchEarlySubmission: AugmentedError<ApiType>;
       /**
-       * A prefix that is too short is being claimed.
+       * Submission was too weak, score-wise.
        **/
-      NamePrefixTooShort: AugmentedError<ApiType>;
+      PreDispatchWeakSubmission: AugmentedError<ApiType>;
       /**
-       * A name that is too short is being claimed.
+       * Wrong number of winners presented.
        **/
-      NameTooShort: AugmentedError<ApiType>;
+      PreDispatchWrongWinnerCount: AugmentedError<ApiType>;
       /**
-       * The actor cannot performed the specified operation.
+       * The origin failed to pay the deposit.
        **/
-      NotAuthorized: AugmentedError<ApiType>;
+      SignedCannotPayDeposit: AugmentedError<ApiType>;
       /**
-       * The specified name is not currently banned.
+       * Witness data to dispatchable is invalid.
        **/
-      NotBanned: AugmentedError<ApiType>;
+      SignedInvalidWitness: AugmentedError<ApiType>;
       /**
-       * The specified name does not exist.
+       * The queue was full, and the solution was not better than any of the existing ones.
        **/
-      NotFound: AugmentedError<ApiType>;
+      SignedQueueFull: AugmentedError<ApiType>;
       /**
-       * The specified owner already owns a name.
+       * The signed submission consumes too much weight
        **/
-      OwnerAlreadyExists: AugmentedError<ApiType>;
+      SignedTooMuchWeight: AugmentedError<ApiType>;
       /**
-       * The specified owner does not own any names.
+       * Submitted solution has too many winners
        **/
-      OwnerNotFound: AugmentedError<ApiType>;
-      /**
-       * A suffix that is too long is being claimed.
-       **/
-      SuffixTooLong: AugmentedError<ApiType>;
+      TooManyWinners: AugmentedError<ApiType>;
     };
-    entries: {
+    entry: {
+      /**
+       * Activity update has failed.
+       **/
+      ActivityUpdateFailed: AugmentedError<ApiType>;
+      /**
+       * Activity input type is invalid.
+       **/
+      InvalidEntryTypeInput: AugmentedError<ApiType>;
       /**
        * Invalid Identifer Length
        **/
@@ -884,6 +732,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NewOwnerCannotBeSameAsExistingOwner: AugmentedError<ApiType>;
       /**
+       * Validation or Access of the Registry has failed.
+       **/
+      RegistryAccessValidationFailed: AugmentedError<ApiType>;
+      /**
        * Registry Entry Identifier Already Exists
        **/
       RegistryEntryIdentifierAlreadyExists: AugmentedError<ApiType>;
@@ -896,13 +748,37 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       RegistryEntryNotRevoked: AugmentedError<ApiType>;
       /**
-       * Registry Entry has been revoked.
-       **/
-      RegistryEntryRevoked: AugmentedError<ApiType>;
-      /**
        * Account has no valid authorization
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
+    };
+    fastUnstake: {
+      /**
+       * The provided un-staker is already in Head, and cannot deregister.
+       **/
+      AlreadyHead: AugmentedError<ApiType>;
+      /**
+       * The bonded account has already been queued.
+       **/
+      AlreadyQueued: AugmentedError<ApiType>;
+      /**
+       * The call is not allowed at this point because the pallet is not active.
+       **/
+      CallNotAllowed: AugmentedError<ApiType>;
+      /**
+       * The provided Controller account was not found.
+       * 
+       * This means that the given account is not bonded.
+       **/
+      NotController: AugmentedError<ApiType>;
+      /**
+       * The bonded account has active unlocking chunks.
+       **/
+      NotFullyBonded: AugmentedError<ApiType>;
+      /**
+       * The provided un-staker is not in the `Queue`.
+       **/
+      NotQueued: AugmentedError<ApiType>;
     };
     grandpa: {
       /**
@@ -936,18 +812,28 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooSoon: AugmentedError<ApiType>;
     };
-    identifier: {
-      MaxEventsHistoryExceeded: AugmentedError<ApiType>;
-    };
     identity: {
       /**
        * Account ID is already named.
        **/
       AlreadyClaimed: AugmentedError<ApiType>;
       /**
+       * The username cannot be unbound because it is already unbinding.
+       **/
+      AlreadyUnbinding: AugmentedError<ApiType>;
+      /**
        * Empty index.
        **/
       EmptyIndex: AugmentedError<ApiType>;
+      /**
+       * Fee is changed.
+       **/
+      FeeChanged: AugmentedError<ApiType>;
+      /**
+       * The action cannot be performed because of insufficient privileges (e.g. authority
+       * trying to unbind a username provided by the system).
+       **/
+      InsufficientPrivileges: AugmentedError<ApiType>;
       /**
        * The index is invalid.
        **/
@@ -1013,6 +899,10 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NotSub: AugmentedError<ApiType>;
       /**
+       * The username cannot be removed because it is not unbinding.
+       **/
+      NotUnbinding: AugmentedError<ApiType>;
+      /**
        * The sender does not have permission to issue a username.
        **/
       NotUsernameAuthority: AugmentedError<ApiType>;
@@ -1020,14 +910,6 @@ declare module '@polkadot/api-base/types/errors' {
        * The requested username does not exist.
        **/
       NoUsername: AugmentedError<ApiType>;
-      /**
-       * Registrar already exists.
-       **/
-      RegistrarAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * Registrar not found.
-       **/
-      RegistrarNotFound: AugmentedError<ApiType>;
       /**
        * Setting this username requires a signature, but none was provided.
        **/
@@ -1037,9 +919,9 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       StickyJudgement: AugmentedError<ApiType>;
       /**
-       * Too many additional fields.
+       * The username cannot be removed because it's still in the grace period.
        **/
-      TooManyFields: AugmentedError<ApiType>;
+      TooEarly: AugmentedError<ApiType>;
       /**
        * Maximum amount of registrars reached. Cannot add any more.
        **/
@@ -1084,6 +966,82 @@ declare module '@polkadot/api-base/types/errors' {
        * The index is permanent and may not be freed/changed.
        **/
       Permanent: AugmentedError<ApiType>;
+    };
+    messageQueue: {
+      /**
+       * The message was already processed and cannot be processed again.
+       **/
+      AlreadyProcessed: AugmentedError<ApiType>;
+      /**
+       * There is temporarily not enough weight to continue servicing messages.
+       **/
+      InsufficientWeight: AugmentedError<ApiType>;
+      /**
+       * The referenced message could not be found.
+       **/
+      NoMessage: AugmentedError<ApiType>;
+      /**
+       * Page to be reaped does not exist.
+       **/
+      NoPage: AugmentedError<ApiType>;
+      /**
+       * Page is not reapable because it has items remaining to be processed and is not old
+       * enough.
+       **/
+      NotReapable: AugmentedError<ApiType>;
+      /**
+       * The message is queued for future execution.
+       **/
+      Queued: AugmentedError<ApiType>;
+      /**
+       * The queue is paused and no message can be executed from it.
+       * 
+       * This can change at any time and may resolve in the future by re-trying.
+       **/
+      QueuePaused: AugmentedError<ApiType>;
+      /**
+       * Another call is in progress and needs to finish before this call can happen.
+       **/
+      RecursiveDisallowed: AugmentedError<ApiType>;
+      /**
+       * This message is temporarily unprocessable.
+       * 
+       * Such errors are expected, but not guaranteed, to resolve themselves eventually through
+       * retrying.
+       **/
+      TemporarilyUnprocessable: AugmentedError<ApiType>;
+    };
+    metaTx: {
+      /**
+       * The meta transactions's birth block is ancient.
+       **/
+      AncientBirthBlock: AugmentedError<ApiType>;
+      /**
+       * Invalid proof (e.g. signature).
+       **/
+      BadProof: AugmentedError<ApiType>;
+      /**
+       * The meta transaction is not yet valid (e.g. nonce too high).
+       **/
+      Future: AugmentedError<ApiType>;
+      /**
+       * The meta transaction is invalid.
+       **/
+      Invalid: AugmentedError<ApiType>;
+      /**
+       * The meta transaction is outdated (e.g. nonce too low).
+       **/
+      Stale: AugmentedError<ApiType>;
+      /**
+       * The transaction extension did not authorize any origin.
+       **/
+      UnknownOrigin: AugmentedError<ApiType>;
+    };
+    multiBlockMigrations: {
+      /**
+       * The operation cannot complete since some MBMs are ongoing.
+       **/
+      Ongoing: AugmentedError<ApiType>;
     };
     multisig: {
       /**
@@ -1143,209 +1101,519 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       WrongTimepoint: AugmentedError<ApiType>;
     };
-    nameSpace: {
+    networkInfo: {
       /**
-       * Archived NameSpace
+       * The identifier activity update failed
        **/
-      ArchivedNameSpace: AugmentedError<ApiType>;
+      ActivityUpdateFailed: AugmentedError<ApiType>;
       /**
-       * Authorization Id not found
+       * The origin of the operation is not authorized or invalid.
        **/
-      AuthorizationNotFound: AugmentedError<ApiType>;
+      Badorigin: AugmentedError<ApiType>;
       /**
-       * Authority already added
+       * The provided account ID is invalid or not recognized.
        **/
-      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      InvalidAccountId: AugmentedError<ApiType>;
       /**
-       * Delegate not found.
+       * The checksum of the token is invalid or does not match.
        **/
-      DelegateNotFound: AugmentedError<ApiType>;
+      InvalidChecksum: AugmentedError<ApiType>;
       /**
-       * Empty transaction.
+       * The cord genesis head is invalid or corrupted.
        **/
-      EmptyTransaction: AugmentedError<ApiType>;
+      InvalidCordGenesisHead: AugmentedError<ApiType>;
       /**
-       * Invalid Identifier
+       * The provided entry input is invalid or malformed.
        **/
-      InvalidIdentifier: AugmentedError<ApiType>;
+      InvalidEntryTypeInput: AugmentedError<ApiType>;
       /**
-       * Invalid Identifier Length
-       **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier Prefix
-       **/
-      InvalidIdentifierPrefix: AugmentedError<ApiType>;
-      /**
-       * NameSpace identifier is not unique
-       **/
-      NameSpaceAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * NameSpace delegation limit exceeded
-       **/
-      NameSpaceDelegatesLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * NameSpace not Archived
-       **/
-      NameSpaceNotArchived: AugmentedError<ApiType>;
-      /**
-       * NameSpace identifier not found
-       **/
-      NameSpaceNotFound: AugmentedError<ApiType>;
-      /**
-       * Namespace Registry list limit exceeded.
-       **/
-      NameSpaceRegistryListLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller or delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
-    };
-    networkMembership: {
-      /**
-       * Max members limit exceeded
-       **/
-      MaxMembersExceededForTheBlock: AugmentedError<ApiType>;
-      /**
-       * Membership already acquired
-       **/
-      MembershipAlreadyAcquired: AugmentedError<ApiType>;
-      /**
-       * Membership expired
-       **/
-      MembershipExpired: AugmentedError<ApiType>;
-      /**
-       * There is no member with the given ID.
-       **/
-      MembershipNotFound: AugmentedError<ApiType>;
-      /**
-       * Membership Renewal already requested
-       **/
-      MembershipRenewalAlreadyRequested: AugmentedError<ApiType>;
-      /**
-       * Rejects request if the member is added to the blacklist
-       **/
-      MembershipRequestRejected: AugmentedError<ApiType>;
-      /**
-       * Origin is not authorized
-       **/
-      OriginNotAuthorized: AugmentedError<ApiType>;
-    };
-    networkScore: {
-      /**
-       * Stream digest is not unique
-       **/
-      DigestAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Rating Entity mismatch
-       **/
-      EntityMismatch: AugmentedError<ApiType>;
-      /**
-       * Invalid digest
-       **/
-      InvalidDigest: AugmentedError<ApiType>;
-      /**
-       * Invalid entity signature
-       **/
-      InvalidEntitySignature: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifer Length
+       * The identifier length is invalid or exceeds the maximum allowed.
        **/
       InvalidIdentifierLength: AugmentedError<ApiType>;
       /**
-       * Invalid Rating Identifier
+       * The provided input is invalid or malformed.
        **/
-      InvalidRatingIdentifier: AugmentedError<ApiType>;
+      InvalidInput: AugmentedError<ApiType>;
       /**
-       * Invalid rating type
+       * The network genesis head is invalid or corrupted.
        **/
-      InvalidRatingType: AugmentedError<ApiType>;
+      InvalidNetworkGenesisHead: AugmentedError<ApiType>;
       /**
-       * Invalid rating value - should be between 1 and 50
+       * The network ID is invalid or not recognized.
        **/
-      InvalidRatingValue: AugmentedError<ApiType>;
+      InvalidNetworkId: AugmentedError<ApiType>;
       /**
-       * Invalid creator signature
+       * The prefix in the provided token is invalid.
        **/
-      InvalidSignature: AugmentedError<ApiType>;
+      InvalidPrefix: AugmentedError<ApiType>;
       /**
-       * Transaction already rated
+       * The provided token is invalid.
        **/
-      MessageIdAlreadyExists: AugmentedError<ApiType>;
+      InvalidToken: AugmentedError<ApiType>;
       /**
-       * Rating idenfier already exist
+       * The provided URI is invalid or cannot be parsed.
        **/
-      RatingIdentifierAlreadyAdded: AugmentedError<ApiType>;
+      InvalidUri: AugmentedError<ApiType>;
       /**
-       * Rating identifier not found
+       * The network configuration has already been added.
        **/
-      RatingIdentifierNotFound: AugmentedError<ApiType>;
+      NetworkConfigAlreadyAdded: AugmentedError<ApiType>;
       /**
-       * Referenced rating identifier not found
+       * The network information was not found.
        **/
-      ReferenceIdentifierNotFound: AugmentedError<ApiType>;
+      NetworkInfoNotFound: AugmentedError<ApiType>;
       /**
-       * Refrenced identifer is not a debit transaction
+       * The storage configuration has already been added.
        **/
-      ReferenceNotDebitIdentifier: AugmentedError<ApiType>;
+      StorageConfigAlreadyAdded: AugmentedError<ApiType>;
       /**
-       * Rating Space mismatch
+       * The storage configuration not found.
        **/
-      SpaceMismatch: AugmentedError<ApiType>;
-      /**
-       * Exceeds the maximum allowed entries in a single transaction
-       **/
-      TooManyJournalEntries: AugmentedError<ApiType>;
-      /**
-       * Unauthorized operation
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
+      StorageConfigNotFound: AugmentedError<ApiType>;
     };
-    nodeAuthorization: {
+    networkRegistrar: {
       /**
-       * The node is already claimed by a user.
+       * The network registration is currently active.
        **/
-      AlreadyClaimed: AugmentedError<ApiType>;
+      ActiveRegistration: AugmentedError<ApiType>;
       /**
-       * The node is already connected.
+       * The ID is already registered and cannot be registered again.
        **/
-      AlreadyConnected: AugmentedError<ApiType>;
+      AlreadyRegistered: AugmentedError<ApiType>;
       /**
-       * The node is already joined in the list.
+       * The origin of the operation is not authorized or invalid.
        **/
-      AlreadyJoined: AugmentedError<ApiType>;
+      BadOrigin: AugmentedError<ApiType>;
       /**
-       * The node identifier is not valid
+       * The cord genesis hash does not match the expected value.
        **/
-      InvalidNodeIdentifier: AugmentedError<ApiType>;
+      CordGenesisMismatch: AugmentedError<ApiType>;
       /**
-       * The Utf8 string is not proper.
+       * The network registration has expired and is no longer active.
        **/
-      InvalidUtf8: AugmentedError<ApiType>;
+      InActiveRegistration: AugmentedError<ApiType>;
       /**
-       * The Node identifier is too long.
+       * The provided account ID is invalid or not recognized.
        **/
-      NodeIdTooLong: AugmentedError<ApiType>;
+      InvalidAccountId: AugmentedError<ApiType>;
       /**
-       * The node doesn't exist in the list.
+       * The checksum of the token is invalid or does not match.
        **/
-      NotExist: AugmentedError<ApiType>;
+      InvalidChecksum: AugmentedError<ApiType>;
       /**
-       * You are not the owner of the node.
+       * The cord genesis head is invalid or corrupted.
+       **/
+      InvalidCordGenesisHead: AugmentedError<ApiType>;
+      /**
+       * The provided genesis hash or head is invalid.
+       **/
+      InvalidGenesisHash: AugmentedError<ApiType>;
+      /**
+       * The network genesis head is invalid or corrupted.
+       **/
+      InvalidNetworkGenesisHead: AugmentedError<ApiType>;
+      /**
+       * The provided network id does not match the expected value.
+       **/
+      InvalidNetworkId: AugmentedError<ApiType>;
+      /**
+       * The prefix in the provided token is invalid.
+       **/
+      InvalidPrefix: AugmentedError<ApiType>;
+      /**
+       * The provided token is invalid.
+       **/
+      InvalidToken: AugmentedError<ApiType>;
+      /**
+       * The maximum number of entries supported for a block has been exceeded.
+       **/
+      MaxEntriesExceededForTheBlock: AugmentedError<ApiType>;
+      /**
+       * The caller is not the owner of the specified ID.
        **/
       NotOwner: AugmentedError<ApiType>;
       /**
-       * The PeerId is too long.
+       * The ID is not registered in the network.
        **/
-      PeerIdTooLong: AugmentedError<ApiType>;
+      NotRegistered: AugmentedError<ApiType>;
       /**
-       * No permisson to perform specific operation.
+       * The ID provided for registration has not been reserved beforehand.
        **/
-      PermissionDenied: AugmentedError<ApiType>;
+      NotReserved: AugmentedError<ApiType>;
       /**
-       * Too many well known nodes.
+       * The network registration has been successfully renewed.
        **/
-      TooManyNodes: AugmentedError<ApiType>;
+      RegistrationRenewed: AugmentedError<ApiType>;
+      /**
+       * The token generation process failed.
+       **/
+      TokenGenerationFailed: AugmentedError<ApiType>;
+      /**
+       * The provided token does not match the expected value.
+       **/
+      TokenMismatch: AugmentedError<ApiType>;
+      /**
+       * The network manager does not have sufficient balance to pay fees.
+       **/
+      UnableToPayFees: AugmentedError<ApiType>;
+    };
+    nftFractionalization: {
+      /**
+       * Asset ID does not correspond to locked NFT.
+       **/
+      IncorrectAssetId: AugmentedError<ApiType>;
+      /**
+       * NFT doesn't exist.
+       **/
+      NftNotFound: AugmentedError<ApiType>;
+      /**
+       * NFT has not yet been fractionalised.
+       **/
+      NftNotFractionalized: AugmentedError<ApiType>;
+      /**
+       * The signing account has no permission to do the operation.
+       **/
+      NoPermission: AugmentedError<ApiType>;
+    };
+    nfts: {
+      /**
+       * The provided Item was already used for claiming.
+       **/
+      AlreadyClaimed: AugmentedError<ApiType>;
+      /**
+       * The item ID has already been used for an item.
+       **/
+      AlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The approval had a deadline that expired, so the approval isn't valid anymore.
+       **/
+      ApprovalExpired: AugmentedError<ApiType>;
+      /**
+       * The provided attribute can't be found.
+       **/
+      AttributeNotFound: AugmentedError<ApiType>;
+      /**
+       * The witness data given does not match the current state of the chain.
+       **/
+      BadWitness: AugmentedError<ApiType>;
+      /**
+       * The provided bid is too low.
+       **/
+      BidTooLow: AugmentedError<ApiType>;
+      /**
+       * Collection ID is already taken.
+       **/
+      CollectionIdInUse: AugmentedError<ApiType>;
+      /**
+       * Can't delete non-empty collections.
+       **/
+      CollectionNotEmpty: AugmentedError<ApiType>;
+      /**
+       * The deadline has already expired.
+       **/
+      DeadlineExpired: AugmentedError<ApiType>;
+      /**
+       * Item's config already exists and should be equal to the provided one.
+       **/
+      InconsistentItemConfig: AugmentedError<ApiType>;
+      /**
+       * The provided data is incorrect.
+       **/
+      IncorrectData: AugmentedError<ApiType>;
+      /**
+       * The provided metadata might be too long.
+       **/
+      IncorrectMetadata: AugmentedError<ApiType>;
+      /**
+       * The item is locked (non-transferable).
+       **/
+      ItemLocked: AugmentedError<ApiType>;
+      /**
+       * Items within that collection are non-transferable.
+       **/
+      ItemsNonTransferable: AugmentedError<ApiType>;
+      /**
+       * Collection's attributes are locked.
+       **/
+      LockedCollectionAttributes: AugmentedError<ApiType>;
+      /**
+       * Collection's metadata is locked.
+       **/
+      LockedCollectionMetadata: AugmentedError<ApiType>;
+      /**
+       * Item's attributes are locked.
+       **/
+      LockedItemAttributes: AugmentedError<ApiType>;
+      /**
+       * Item's metadata is locked.
+       **/
+      LockedItemMetadata: AugmentedError<ApiType>;
+      /**
+       * Can't set more attributes per one call.
+       **/
+      MaxAttributesLimitReached: AugmentedError<ApiType>;
+      /**
+       * The max supply is locked and can't be changed.
+       **/
+      MaxSupplyLocked: AugmentedError<ApiType>;
+      /**
+       * All items have been minted.
+       **/
+      MaxSupplyReached: AugmentedError<ApiType>;
+      /**
+       * The provided max supply is less than the number of items a collection already has.
+       **/
+      MaxSupplyTooSmall: AugmentedError<ApiType>;
+      /**
+       * The given item has no metadata set.
+       **/
+      MetadataNotFound: AugmentedError<ApiType>;
+      /**
+       * The method is disabled by system settings.
+       **/
+      MethodDisabled: AugmentedError<ApiType>;
+      /**
+       * Mint has already ended.
+       **/
+      MintEnded: AugmentedError<ApiType>;
+      /**
+       * Mint has not started yet.
+       **/
+      MintNotStarted: AugmentedError<ApiType>;
+      /**
+       * Config for a collection or an item can't be found.
+       **/
+      NoConfig: AugmentedError<ApiType>;
+      /**
+       * The signing account has no permission to do the operation.
+       **/
+      NoPermission: AugmentedError<ApiType>;
+      /**
+       * The provided account is not a delegate.
+       **/
+      NotDelegate: AugmentedError<ApiType>;
+      /**
+       * Item is not for sale.
+       **/
+      NotForSale: AugmentedError<ApiType>;
+      /**
+       * The item has reached its approval limit.
+       **/
+      ReachedApprovalLimit: AugmentedError<ApiType>;
+      /**
+       * Some roles were not cleared.
+       **/
+      RolesNotCleared: AugmentedError<ApiType>;
+      /**
+       * The named owner has not signed ownership acceptance of the collection.
+       **/
+      Unaccepted: AugmentedError<ApiType>;
+      /**
+       * No approval exists that would allow the transfer.
+       **/
+      Unapproved: AugmentedError<ApiType>;
+      /**
+       * The given item ID is unknown.
+       **/
+      UnknownCollection: AugmentedError<ApiType>;
+      /**
+       * The given item ID is unknown.
+       **/
+      UnknownItem: AugmentedError<ApiType>;
+      /**
+       * Swap doesn't exist.
+       **/
+      UnknownSwap: AugmentedError<ApiType>;
+      /**
+       * The witness data should be provided.
+       **/
+      WitnessRequired: AugmentedError<ApiType>;
+      /**
+       * The delegate turned out to be different to what was expected.
+       **/
+      WrongDelegate: AugmentedError<ApiType>;
+      /**
+       * The duration provided should be less than or equal to `MaxDeadlineDuration`.
+       **/
+      WrongDuration: AugmentedError<ApiType>;
+      /**
+       * The provided namespace isn't supported in this call.
+       **/
+      WrongNamespace: AugmentedError<ApiType>;
+      /**
+       * The extrinsic was sent by the wrong origin.
+       **/
+      WrongOrigin: AugmentedError<ApiType>;
+      /**
+       * The owner turned out to be different to what was expected.
+       **/
+      WrongOwner: AugmentedError<ApiType>;
+      /**
+       * The provided setting can't be set.
+       **/
+      WrongSetting: AugmentedError<ApiType>;
+      /**
+       * The provided signature is incorrect.
+       **/
+      WrongSignature: AugmentedError<ApiType>;
+    };
+    nominationPools: {
+      /**
+       * An account is already delegating in another pool. An account may only belong to one
+       * pool at a time.
+       **/
+      AccountBelongsToOtherPool: AugmentedError<ApiType>;
+      /**
+       * The pool or member delegation has already migrated to delegate stake.
+       **/
+      AlreadyMigrated: AugmentedError<ApiType>;
+      /**
+       * Bonding extra is restricted to the exact pending reward amount.
+       **/
+      BondExtraRestricted: AugmentedError<ApiType>;
+      /**
+       * The pools state cannot be changed.
+       **/
+      CanNotChangeState: AugmentedError<ApiType>;
+      /**
+       * None of the funds can be withdrawn yet because the bonding duration has not passed.
+       **/
+      CannotWithdrawAny: AugmentedError<ApiType>;
+      /**
+       * The submitted changes to commission change rate are not allowed.
+       **/
+      CommissionChangeRateNotAllowed: AugmentedError<ApiType>;
+      /**
+       * Not enough blocks have surpassed since the last commission update.
+       **/
+      CommissionChangeThrottled: AugmentedError<ApiType>;
+      /**
+       * The supplied commission exceeds global maximum commission.
+       **/
+      CommissionExceedsGlobalMaximum: AugmentedError<ApiType>;
+      /**
+       * The supplied commission exceeds the max allowed commission.
+       **/
+      CommissionExceedsMaximum: AugmentedError<ApiType>;
+      /**
+       * Some error occurred that should never happen. This should be reported to the
+       * maintainers.
+       **/
+      Defensive: AugmentedError<ApiType>;
+      /**
+       * The caller does not have adequate permissions.
+       **/
+      DoesNotHavePermission: AugmentedError<ApiType>;
+      /**
+       * The member is fully unbonded (and thus cannot access the bonded and reward pool
+       * anymore to, for example, collect rewards).
+       **/
+      FullyUnbonding: AugmentedError<ApiType>;
+      /**
+       * Pool id provided is not correct/usable.
+       **/
+      InvalidPoolId: AugmentedError<ApiType>;
+      /**
+       * The pool's max commission cannot be set higher than the existing value.
+       **/
+      MaxCommissionRestricted: AugmentedError<ApiType>;
+      /**
+       * Too many members in the pool or system.
+       **/
+      MaxPoolMembers: AugmentedError<ApiType>;
+      /**
+       * The system is maxed out on pools.
+       **/
+      MaxPools: AugmentedError<ApiType>;
+      /**
+       * The member cannot unbond further chunks due to reaching the limit.
+       **/
+      MaxUnbondingLimit: AugmentedError<ApiType>;
+      /**
+       * Metadata exceeds [`Config::MaxMetadataLen`]
+       **/
+      MetadataExceedsMaxLen: AugmentedError<ApiType>;
+      /**
+       * The amount does not meet the minimum bond to either join or create a pool.
+       * 
+       * The depositor can never unbond to a value less than `Pallet::depositor_min_bond`. The
+       * caller does not have nominating permissions for the pool. Members can never unbond to a
+       * value below `MinJoinBond`.
+       **/
+      MinimumBondNotMet: AugmentedError<ApiType>;
+      /**
+       * No commission current has been set.
+       **/
+      NoCommissionCurrentSet: AugmentedError<ApiType>;
+      /**
+       * There is no pending commission to claim.
+       **/
+      NoPendingCommission: AugmentedError<ApiType>;
+      /**
+       * A pool must be in [`PoolState::Destroying`] in order for the depositor to unbond or for
+       * other members to be permissionlessly unbonded.
+       **/
+      NotDestroying: AugmentedError<ApiType>;
+      /**
+       * No imbalance in the ED deposit for the pool.
+       **/
+      NothingToAdjust: AugmentedError<ApiType>;
+      /**
+       * No slash pending that can be applied to the member.
+       **/
+      NothingToSlash: AugmentedError<ApiType>;
+      /**
+       * Either a) the caller cannot make a valid kick or b) the pool is not destroying.
+       **/
+      NotKickerOrDestroying: AugmentedError<ApiType>;
+      /**
+       * The pool or member delegation has not migrated yet to delegate stake.
+       **/
+      NotMigrated: AugmentedError<ApiType>;
+      /**
+       * The caller does not have nominating permissions for the pool.
+       **/
+      NotNominator: AugmentedError<ApiType>;
+      /**
+       * The pool is not open to join
+       **/
+      NotOpen: AugmentedError<ApiType>;
+      /**
+       * This call is not allowed in the current state of the pallet.
+       **/
+      NotSupported: AugmentedError<ApiType>;
+      /**
+       * The transaction could not be executed due to overflow risk for the pool.
+       **/
+      OverflowRisk: AugmentedError<ApiType>;
+      /**
+       * Partial unbonding now allowed permissionlessly.
+       **/
+      PartialUnbondNotAllowedPermissionlessly: AugmentedError<ApiType>;
+      /**
+       * Pool id currently in use.
+       **/
+      PoolIdInUse: AugmentedError<ApiType>;
+      /**
+       * An account is not a member.
+       **/
+      PoolMemberNotFound: AugmentedError<ApiType>;
+      /**
+       * A (bonded) pool id does not exist.
+       **/
+      PoolNotFound: AugmentedError<ApiType>;
+      /**
+       * A reward pool does not exist. In all cases this is a system logic error.
+       **/
+      RewardPoolNotFound: AugmentedError<ApiType>;
+      /**
+       * The slash amount is too low to be applied.
+       **/
+      SlashTooLow: AugmentedError<ApiType>;
+      /**
+       * A sub pool does not exist.
+       **/
+      SubPoolsNotFound: AugmentedError<ApiType>;
     };
     poolAssets: {
       /**
@@ -1442,10 +1710,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       AlreadyNoted: AugmentedError<ApiType>;
       /**
-       * No ticket with a cost was returned by [`Config::Consideration`] to store the preimage.
-       **/
-      NoCost: AugmentedError<ApiType>;
-      /**
        * The user is not authorized to perform this action.
        **/
       NotAuthorized: AugmentedError<ApiType>;
@@ -1474,65 +1738,79 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooMany: AugmentedError<ApiType>;
     };
-    registries: {
+    profile: {
       /**
-       * Authorization Id not found
+       * The event activity update has failed.
        **/
-      AuthorizationNotFound: AugmentedError<ApiType>;
+      ActivityUpdateFailed: AugmentedError<ApiType>;
       /**
-       * Authority already added
+       * Rotation must be to new key, not to existing tied account.
        **/
-      DelegateAlreadyAdded: AugmentedError<ApiType>;
+      CannotRotateToSameAccount: AugmentedError<ApiType>;
       /**
-       * Delegate not found.
+       * The entry type for the activity is not valid.
        **/
-      DelegateNotFound: AugmentedError<ApiType>;
+      InvalidEntryTypeInput: AugmentedError<ApiType>;
       /**
-       * Invalid Identifier
-       **/
-      InvalidIdentifier: AugmentedError<ApiType>;
-      /**
-       * Invalid Identifier Length
+       * The length of the identifier exceeds capacity limit.
        **/
       InvalidIdentifierLength: AugmentedError<ApiType>;
       /**
-       * Registry identifier is not unique
+       * The Profile data key must start with 'pub_'
        **/
-      RegistryAlreadyAnchored: AugmentedError<ApiType>;
+      InvalidKeyPrefix: AugmentedError<ApiType>;
       /**
-       * Registry already arhived.
+       * The Profile already exists with a identifier.
        **/
-      RegistryAlreadyArchived: AugmentedError<ApiType>;
+      ProfileAlreadyExists: AugmentedError<ApiType>;
       /**
-       * Registry already revoked
+       * The Profile Identifier does not exist.
        **/
-      RegistryAlreadyRevoked: AugmentedError<ApiType>;
+      ProfileNotFound: AugmentedError<ApiType>;
       /**
-       * Registry not archived.
+       * Storage transaction has failed abrubtly.
        **/
-      RegistryArchived: AugmentedError<ApiType>;
+      TransactionFailed: AugmentedError<ApiType>;
+    };
+    registry: {
       /**
-       * Registry delegation limit exceeded
+       * The activity update operation failed.
        **/
-      RegistryDelegatesLimitExceeded: AugmentedError<ApiType>;
+      ActivityUpdateFailed: AugmentedError<ApiType>;
       /**
-       * Registry not archived.
+       * The registry is already archived.
+       **/
+      ArchivedRegistry: AugmentedError<ApiType>;
+      /**
+       * The delegate is already added to the collection.
+       **/
+      DelegateAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The specified delegate was not found.
+       **/
+      DelegateNotFound: AugmentedError<ApiType>;
+      /**
+       * The provided entry type input is invalid.
+       **/
+      InvalidEntryTypeInput: AugmentedError<ApiType>;
+      /**
+       * The provided identifier length is invalid.
+       **/
+      InvalidIdentifierLength: AugmentedError<ApiType>;
+      /**
+       * A registry with the given identifier already exists in the collection.
+       **/
+      RegistryAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The registry is not archived (and thus cannot be restored).
        **/
       RegistryNotArchived: AugmentedError<ApiType>;
       /**
-       * Registry identifier not found
+       * The specified registry was not found in the collection.
        **/
       RegistryNotFound: AugmentedError<ApiType>;
       /**
-       * Registry not revoked.
-       **/
-      RegistryNotRevoked: AugmentedError<ApiType>;
-      /**
-       * Registry revoked.
-       **/
-      RegistryRevoked: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller or delegate.
+       * The caller does not have the required permissions.
        **/
       UnauthorizedOperation: AugmentedError<ApiType>;
     };
@@ -1545,6 +1823,235 @@ declare module '@polkadot/api-base/types/errors' {
        * Attempting to store empty data.
        **/
       Empty: AugmentedError<ApiType>;
+    };
+    revive: {
+      /**
+       * Tried to map an account that is already mapped.
+       **/
+      AccountAlreadyMapped: AugmentedError<ApiType>;
+      /**
+       * An `AccountID32` account tried to interact with the pallet without having a mapping.
+       * 
+       * Call [`Pallet::map_account`] in order to create a mapping for the account.
+       **/
+      AccountUnmapped: AugmentedError<ApiType>;
+      /**
+       * Failed to convert a U256 to a Balance.
+       **/
+      BalanceConversionFailed: AugmentedError<ApiType>;
+      /**
+       * The program contains a basic block that is larger than allowed.
+       **/
+      BasicBlockTooLarge: AugmentedError<ApiType>;
+      /**
+       * The code blob supplied is larger than [`limits::code::BLOB_BYTES`].
+       **/
+      BlobTooLarge: AugmentedError<ApiType>;
+      /**
+       * Can not add a delegate dependency to the code hash of the contract itself.
+       **/
+      CannotAddSelfAsDelegateDependency: AugmentedError<ApiType>;
+      /**
+       * No code info could be found at the supplied code hash.
+       **/
+      CodeInfoNotFound: AugmentedError<ApiType>;
+      /**
+       * Code removal was denied because the code is still in use by at least one contract.
+       **/
+      CodeInUse: AugmentedError<ApiType>;
+      /**
+       * No code could be found at the supplied code hash.
+       **/
+      CodeNotFound: AugmentedError<ApiType>;
+      /**
+       * The contract failed to compile or is missing the correct entry points.
+       * 
+       * A more detailed error can be found on the node console if debug messages are enabled
+       * by supplying `-lruntime::revive=debug`.
+       **/
+      CodeRejected: AugmentedError<ApiType>;
+      /**
+       * No contract was found at the specified address.
+       **/
+      ContractNotFound: AugmentedError<ApiType>;
+      /**
+       * The contract ran to completion but decided to revert its storage changes.
+       * Please note that this error is only returned from extrinsics. When called directly
+       * or via RPC an `Ok` will be returned. In this case the caller needs to inspect the flags
+       * to determine whether a reversion has taken place.
+       **/
+      ContractReverted: AugmentedError<ApiType>;
+      /**
+       * Contract trapped during execution.
+       **/
+      ContractTrapped: AugmentedError<ApiType>;
+      /**
+       * Failed to convert an EVM balance to a native balance.
+       **/
+      DecimalPrecisionLoss: AugmentedError<ApiType>;
+      /**
+       * Input passed to a contract API function failed to decode as expected type.
+       **/
+      DecodingFailed: AugmentedError<ApiType>;
+      /**
+       * The contract already depends on the given delegate dependency.
+       **/
+      DelegateDependencyAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The dependency was not found in the contract's delegate dependencies.
+       **/
+      DelegateDependencyNotFound: AugmentedError<ApiType>;
+      /**
+       * A contract with the same AccountId already exists.
+       **/
+      DuplicateContract: AugmentedError<ApiType>;
+      /**
+       * PolkaVM failed during code execution. Probably due to a malformed program.
+       **/
+      ExecutionFailed: AugmentedError<ApiType>;
+      /**
+       * `seal_call` forwarded this contracts input. It therefore is no longer available.
+       **/
+      InputForwarded: AugmentedError<ApiType>;
+      /**
+       * Invalid combination of flags supplied to `seal_call` or `seal_delegate_call`.
+       **/
+      InvalidCallFlags: AugmentedError<ApiType>;
+      /**
+       * The transaction used to dry-run a contract is invalid.
+       **/
+      InvalidGenericTransaction: AugmentedError<ApiType>;
+      /**
+       * Immutable data can only be set during deploys and only be read during calls.
+       * Additionally, it is only valid to set the data once and it must not be empty.
+       **/
+      InvalidImmutableAccess: AugmentedError<ApiType>;
+      /**
+       * The program contains an invalid instruction.
+       **/
+      InvalidInstruction: AugmentedError<ApiType>;
+      /**
+       * Invalid schedule supplied, e.g. with zero weight of a basic operation.
+       **/
+      InvalidSchedule: AugmentedError<ApiType>;
+      /**
+       * Invalid storage flags were passed to one of the storage syscalls.
+       **/
+      InvalidStorageFlags: AugmentedError<ApiType>;
+      /**
+       * The contract tried to call a syscall which does not exist (at its current api level).
+       **/
+      InvalidSyscall: AugmentedError<ApiType>;
+      /**
+       * Performing a call was denied because the calling depth reached the limit
+       * of what is specified in the schedule.
+       **/
+      MaxCallDepthReached: AugmentedError<ApiType>;
+      /**
+       * The contract has reached its maximum number of delegate dependencies.
+       **/
+      MaxDelegateDependenciesReached: AugmentedError<ApiType>;
+      /**
+       * The chain does not provide a chain extension. Calling the chain extension results
+       * in this error. Note that this usually  shouldn't happen as deploying such contracts
+       * is rejected.
+       **/
+      NoChainExtension: AugmentedError<ApiType>;
+      /**
+       * A buffer outside of sandbox memory was passed to a contract API function.
+       **/
+      OutOfBounds: AugmentedError<ApiType>;
+      /**
+       * The executed contract exhausted its gas limit.
+       **/
+      OutOfGas: AugmentedError<ApiType>;
+      /**
+       * Can not add more data to transient storage.
+       **/
+      OutOfTransientStorage: AugmentedError<ApiType>;
+      /**
+       * A contract called into the runtime which then called back into this pallet.
+       **/
+      ReenteredPallet: AugmentedError<ApiType>;
+      /**
+       * A call tried to invoke a contract that is flagged as non-reentrant.
+       **/
+      ReentranceDenied: AugmentedError<ApiType>;
+      /**
+       * A contract attempted to invoke a state modifying API while being in read-only mode.
+       **/
+      StateChangeDenied: AugmentedError<ApiType>;
+      /**
+       * The static memory consumption of the blob will be larger than
+       * [`limits::code::STATIC_MEMORY_BYTES`].
+       **/
+      StaticMemoryTooLarge: AugmentedError<ApiType>;
+      /**
+       * More storage was created than allowed by the storage deposit limit.
+       **/
+      StorageDepositLimitExhausted: AugmentedError<ApiType>;
+      /**
+       * Origin doesn't have enough balance to pay the required storage deposits.
+       **/
+      StorageDepositNotEnoughFunds: AugmentedError<ApiType>;
+      /**
+       * A contract self destructed in its constructor.
+       * 
+       * This can be triggered by a call to `seal_terminate`.
+       **/
+      TerminatedInConstructor: AugmentedError<ApiType>;
+      /**
+       * Termination of a contract is not allowed while the contract is already
+       * on the call stack. Can be triggered by `seal_terminate`.
+       **/
+      TerminatedWhileReentrant: AugmentedError<ApiType>;
+      /**
+       * The amount of topics passed to `seal_deposit_events` exceeds the limit.
+       **/
+      TooManyTopics: AugmentedError<ApiType>;
+      /**
+       * Performing the requested transfer failed. Probably because there isn't enough
+       * free balance in the sender's account.
+       **/
+      TransferFailed: AugmentedError<ApiType>;
+      /**
+       * The size defined in `T::MaxValueSize` was exceeded.
+       **/
+      ValueTooLarge: AugmentedError<ApiType>;
+      /**
+       * Failed to decode the XCM program.
+       **/
+      XCMDecodeFailed: AugmentedError<ApiType>;
+    };
+    safeMode: {
+      /**
+       * The account already has a deposit reserved and can therefore not enter or extend again.
+       **/
+      AlreadyDeposited: AugmentedError<ApiType>;
+      /**
+       * This deposit cannot be released yet.
+       **/
+      CannotReleaseYet: AugmentedError<ApiType>;
+      /**
+       * An error from the underlying `Currency`.
+       **/
+      CurrencyError: AugmentedError<ApiType>;
+      /**
+       * The safe-mode is (already or still) entered.
+       **/
+      Entered: AugmentedError<ApiType>;
+      /**
+       * The safe-mode is (already or still) exited.
+       **/
+      Exited: AugmentedError<ApiType>;
+      /**
+       * There is no balance reserved.
+       **/
+      NoDeposit: AugmentedError<ApiType>;
+      /**
+       * This functionality of the pallet is disabled by the configuration.
+       **/
+      NotConfigured: AugmentedError<ApiType>;
     };
     scheduler: {
       /**
@@ -1568,60 +2075,6 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TargetBlockNumberInPast: AugmentedError<ApiType>;
     };
-    schema: {
-      /**
-       * Creator DID information not found.
-       **/
-      CreatorNotFound: AugmentedError<ApiType>;
-      /**
-       * Empty transaction.
-       **/
-      EmptyTransaction: AugmentedError<ApiType>;
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * Schema limit exceeds the permitted size.
-       **/
-      MaxEncodedSchemaLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Schema identifier is not unique.
-       **/
-      SchemaAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Schema identifier not found.
-       **/
-      SchemaNotFound: AugmentedError<ApiType>;
-      /**
-       * The paying account was unable to pay the fees for creating a schema.
-       **/
-      UnableToPayFees: AugmentedError<ApiType>;
-    };
-    schemaDid: {
-      /**
-       * Creator DID information not found.
-       **/
-      CreatorNotFound: AugmentedError<ApiType>;
-      /**
-       * Empty transaction.
-       **/
-      EmptyTransaction: AugmentedError<ApiType>;
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * Schema limit exceeds the permitted size.
-       **/
-      MaxEncodedSchemaLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Schema identifier is not unique.
-       **/
-      SchemaAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Schema identifier not found.
-       **/
-      SchemaNotFound: AugmentedError<ApiType>;
-      /**
-       * The paying account was unable to pay the fees for creating a schema.
-       **/
-      UnableToPayFees: AugmentedError<ApiType>;
-    };
     session: {
       /**
        * Registered duplicate key.
@@ -1644,243 +2097,175 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NoKeys: AugmentedError<ApiType>;
     };
-    statement: {
+    staking: {
       /**
-       * Associate digest already present
+       * Stash is already bonded.
        **/
-      AssociateDigestAlreadyAnchored: AugmentedError<ApiType>;
+      AlreadyBonded: AugmentedError<ApiType>;
       /**
-       * Attestation is not found
+       * Rewards for this era have already been claimed for this validator.
        **/
-      AttestationNotFound: AugmentedError<ApiType>;
+      AlreadyClaimed: AugmentedError<ApiType>;
       /**
-       * Authorization not found
+       * The stake of this account is already migrated to `Fungible` holds.
        **/
-      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      AlreadyMigrated: AugmentedError<ApiType>;
       /**
-       * Bulk Transaction Failed
+       * Controller is already paired.
        **/
-      BulkTransactionFailed: AugmentedError<ApiType>;
+      AlreadyPaired: AugmentedError<ApiType>;
       /**
-       * Statement digest is not unique
+       * Internal state has become somehow corrupted and the operation cannot continue.
        **/
-      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      BadState: AugmentedError<ApiType>;
       /**
-       * Expired Tx Signature
+       * A nomination target was supplied that was blocked or otherwise not a validator.
        **/
-      ExpiredSignature: AugmentedError<ApiType>;
+      BadTarget: AugmentedError<ApiType>;
       /**
-       * Statement hash is not unique
+       * Some bound is not met.
        **/
-      HashAlreadyAnchored: AugmentedError<ApiType>;
+      BoundNotMet: AugmentedError<ApiType>;
       /**
-       * Invalid Schema Identifier Length
+       * The user has enough bond and thus cannot be chilled forcefully by an external person.
        **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
+      CannotChillOther: AugmentedError<ApiType>;
       /**
-       * Invalid creator signature
+       * Stash could not be reaped as other pallet might depend on it.
        **/
-      InvalidSignature: AugmentedError<ApiType>;
+      CannotReapStash: AugmentedError<ApiType>;
       /**
-       * Invalid Statement Identifier
+       * Cannot reset a ledger.
        **/
-      InvalidStatementIdentifier: AugmentedError<ApiType>;
+      CannotRestoreLedger: AugmentedError<ApiType>;
       /**
-       * Invalid transaction hash
+       * Commission is too low. Must be at least `MinCommission`.
        **/
-      InvalidTransactionHash: AugmentedError<ApiType>;
-      MaxDigestLimitExceeded: AugmentedError<ApiType>;
+      CommissionTooLow: AugmentedError<ApiType>;
       /**
-       * Maximum number of activities exceeded
+       * Used when attempting to use deprecated controller account logic.
        **/
-      MaxStatementActivitiesExceeded: AugmentedError<ApiType>;
+      ControllerDeprecated: AugmentedError<ApiType>;
       /**
-       * Metadata already set for the entry
+       * Duplicate index.
        **/
-      MetadataAlreadySet: AugmentedError<ApiType>;
+      DuplicateIndex: AugmentedError<ApiType>;
       /**
-       * Metadata limit exceeded
+       * Targets cannot be empty.
        **/
-      MetadataLimitExceeded: AugmentedError<ApiType>;
+      EmptyTargets: AugmentedError<ApiType>;
       /**
-       * Metadata not found for the entry
+       * Attempting to target a stash that still has funds.
        **/
-      MetadataNotFound: AugmentedError<ApiType>;
+      FundedTarget: AugmentedError<ApiType>;
       /**
-       * Presentation is already anchored.
+       * Incorrect previous history depth input provided.
        **/
-      PresentationDigestAlreadyAnchored: AugmentedError<ApiType>;
+      IncorrectHistoryDepth: AugmentedError<ApiType>;
       /**
-       * Presentation not found
+       * Incorrect number of slashing spans provided.
        **/
-      PresentationNotFound: AugmentedError<ApiType>;
+      IncorrectSlashingSpans: AugmentedError<ApiType>;
       /**
-       * Statement idenfier is not unique
+       * Cannot have a validator or nominator role, with value less than the minimum defined by
+       * governance (see `MinValidatorBond` and `MinNominatorBond`). If unbonding is the
+       * intention, `chill` first to remove one's role as validator/nominator.
        **/
-      StatementAlreadyAnchored: AugmentedError<ApiType>;
+      InsufficientBond: AugmentedError<ApiType>;
       /**
-       * Statement digest already present on the chain.
+       * Invalid era to reward.
        **/
-      StatementDigestAlreadyAnchored: AugmentedError<ApiType>;
+      InvalidEraToReward: AugmentedError<ApiType>;
       /**
-       * Statement entry not found
+       * Invalid number of nominations.
        **/
-      StatementEntryNotFound: AugmentedError<ApiType>;
+      InvalidNumberOfNominations: AugmentedError<ApiType>;
       /**
-       * Statement link does not exist
+       * No nominators exist on this page.
        **/
-      StatementLinkNotFound: AugmentedError<ApiType>;
+      InvalidPage: AugmentedError<ApiType>;
       /**
-       * Statement Link is revoked
+       * Slash record index out of bounds.
        **/
-      StatementLinkRevoked: AugmentedError<ApiType>;
+      InvalidSlashIndex: AugmentedError<ApiType>;
       /**
-       * Statement idenfier not found
+       * Can not schedule more unlock chunks.
        **/
-      StatementNotFound: AugmentedError<ApiType>;
+      NoMoreChunks: AugmentedError<ApiType>;
       /**
-       * Statement idenfier not marked inactive
+       * Not a controller account.
        **/
-      StatementNotRevoked: AugmentedError<ApiType>;
+      NotController: AugmentedError<ApiType>;
       /**
-       * Statement entry marked inactive
+       * Not enough funds available to withdraw.
        **/
-      StatementRevoked: AugmentedError<ApiType>;
+      NotEnoughFunds: AugmentedError<ApiType>;
       /**
-       * Statement not part of space
+       * Items are not sorted and unique.
        **/
-      StatementSpaceMismatch: AugmentedError<ApiType>;
+      NotSortedAndUnique: AugmentedError<ApiType>;
       /**
-       * Maximum Number of delegates reached.
+       * Not a stash account.
        **/
-      TooManyDelegates: AugmentedError<ApiType>;
+      NotStash: AugmentedError<ApiType>;
       /**
-       * More than the maximum mumber of delegates.
+       * Can not rebond without unlocking chunks.
        **/
-      TooManyDelegatesToRemove: AugmentedError<ApiType>;
+      NoUnlockChunk: AugmentedError<ApiType>;
       /**
-       * Only when the author is not the controller/delegate.
+       * Provided reward destination is not allowed.
        **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
+      RewardDestinationRestricted: AugmentedError<ApiType>;
+      /**
+       * There are too many nominators in the system. Governance needs to adjust the staking
+       * settings to keep things safe for the runtime.
+       **/
+      TooManyNominators: AugmentedError<ApiType>;
+      /**
+       * Too many nomination targets supplied.
+       **/
+      TooManyTargets: AugmentedError<ApiType>;
+      /**
+       * There are too many validator candidates in the system. Governance needs to adjust the
+       * staking settings to keep things safe for the runtime.
+       **/
+      TooManyValidators: AugmentedError<ApiType>;
+      /**
+       * Operation not allowed for virtual stakers.
+       **/
+      VirtualStakerNotAllowed: AugmentedError<ApiType>;
     };
-    statementDid: {
+    stateTrieMigration: {
       /**
-       * Associate digest already present
+       * Bad child root provided.
        **/
-      AssociateDigestAlreadyAnchored: AugmentedError<ApiType>;
+      BadChildRoot: AugmentedError<ApiType>;
       /**
-       * Attestation is not found
+       * Bad witness data provided.
        **/
-      AttestationNotFound: AugmentedError<ApiType>;
+      BadWitness: AugmentedError<ApiType>;
       /**
-       * Authorization not found
+       * A key was longer than the configured maximum.
+       * 
+       * This means that the migration halted at the current [`Progress`] and
+       * can be resumed with a larger [`crate::Config::MaxKeyLen`] value.
+       * Retrying with the same [`crate::Config::MaxKeyLen`] value will not work.
+       * The value should only be increased to avoid a storage migration for the currently
+       * stored [`crate::Progress::LastKey`].
        **/
-      AuthorizationDetailsNotFound: AugmentedError<ApiType>;
+      KeyTooLong: AugmentedError<ApiType>;
       /**
-       * Bulk Transaction Failed
+       * Max signed limits not respected.
        **/
-      BulkTransactionFailed: AugmentedError<ApiType>;
+      MaxSignedLimits: AugmentedError<ApiType>;
       /**
-       * Statement digest is not unique
+       * submitter does not have enough funds.
        **/
-      DigestHashAlreadyAnchored: AugmentedError<ApiType>;
+      NotEnoughFunds: AugmentedError<ApiType>;
       /**
-       * Expired Tx Signature
+       * Signed migration is not allowed because the maximum limit is not set yet.
        **/
-      ExpiredSignature: AugmentedError<ApiType>;
-      /**
-       * Statement hash is not unique
-       **/
-      HashAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Invalid Schema Identifier Length
-       **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * Invalid creator signature
-       **/
-      InvalidSignature: AugmentedError<ApiType>;
-      /**
-       * Invalid Statement Identifier
-       **/
-      InvalidStatementIdentifier: AugmentedError<ApiType>;
-      /**
-       * Invalid transaction hash
-       **/
-      InvalidTransactionHash: AugmentedError<ApiType>;
-      MaxDigestLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Maximum number of activities exceeded
-       **/
-      MaxStatementActivitiesExceeded: AugmentedError<ApiType>;
-      /**
-       * Metadata already set for the entry
-       **/
-      MetadataAlreadySet: AugmentedError<ApiType>;
-      /**
-       * Metadata limit exceeded
-       **/
-      MetadataLimitExceeded: AugmentedError<ApiType>;
-      /**
-       * Metadata not found for the entry
-       **/
-      MetadataNotFound: AugmentedError<ApiType>;
-      /**
-       * Presentation is already anchored.
-       **/
-      PresentationDigestAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Presentation not found
-       **/
-      PresentationNotFound: AugmentedError<ApiType>;
-      /**
-       * Statement idenfier is not unique
-       **/
-      StatementAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Statement digest already present on the chain.
-       **/
-      StatementDigestAlreadyAnchored: AugmentedError<ApiType>;
-      /**
-       * Statement entry not found
-       **/
-      StatementEntryNotFound: AugmentedError<ApiType>;
-      /**
-       * Statement link does not exist
-       **/
-      StatementLinkNotFound: AugmentedError<ApiType>;
-      /**
-       * Statement Link is revoked
-       **/
-      StatementLinkRevoked: AugmentedError<ApiType>;
-      /**
-       * Statement idenfier not found
-       **/
-      StatementNotFound: AugmentedError<ApiType>;
-      /**
-       * Statement idenfier not marked inactive
-       **/
-      StatementNotRevoked: AugmentedError<ApiType>;
-      /**
-       * Statement entry marked inactive
-       **/
-      StatementRevoked: AugmentedError<ApiType>;
-      /**
-       * Statement not part of space
-       **/
-      StatementSpaceMismatch: AugmentedError<ApiType>;
-      /**
-       * Maximum Number of delegates reached.
-       **/
-      TooManyDelegates: AugmentedError<ApiType>;
-      /**
-       * More than the maximum mumber of delegates.
-       **/
-      TooManyDelegatesToRemove: AugmentedError<ApiType>;
-      /**
-       * Only when the author is not the controller/delegate.
-       **/
-      UnauthorizedOperation: AugmentedError<ApiType>;
+      SignedMigrationNotAllowed: AugmentedError<ApiType>;
     };
     sudo: {
       /**
@@ -1951,6 +2336,10 @@ declare module '@polkadot/api-base/types/errors' {
        * Prime account is not a member
        **/
       PrimeAccountNotMember: AugmentedError<ApiType>;
+      /**
+       * Proposal is still active.
+       **/
+      ProposalActive: AugmentedError<ApiType>;
       /**
        * Proposal must exist
        **/
@@ -2037,11 +2426,32 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooManyApprovals: AugmentedError<ApiType>;
     };
+    txPause: {
+      /**
+       * The call is paused.
+       **/
+      IsPaused: AugmentedError<ApiType>;
+      /**
+       * The call is unpaused.
+       **/
+      IsUnpaused: AugmentedError<ApiType>;
+      NotFound: AugmentedError<ApiType>;
+      /**
+       * The call is whitelisted and cannot be paused.
+       **/
+      Unpausable: AugmentedError<ApiType>;
+    };
     utility: {
       /**
        * Too many calls batched.
        **/
       TooManyCalls: AugmentedError<ApiType>;
+    };
+    voterList: {
+      /**
+       * A error in the list interface implementation.
+       **/
+      List: AugmentedError<ApiType>;
     };
   } // AugmentedErrors
 } // declare module

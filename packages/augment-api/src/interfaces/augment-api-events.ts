@@ -6,11 +6,10 @@
 import '@polkadot/api-base/types/events';
 
 import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
-import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
+import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u32, u64, u8 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
-import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
-import type { AccountId32, H256, Permill } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchDispatchInfo, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscBalanceStatus, PalletContractsOrigin, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, SpConsensusGrandpaAppPublic, SpRuntimeDispatchError } from '@polkadot/types/lookup';
+import type { AccountId32, H160, H256, Perbill, Permill } from '@polkadot/types/interfaces/runtime';
+import type { FrameSupportDispatchPostDispatchInfo, FrameSupportMessagesProcessMessageError, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscBalanceStatus, FrameSystemDispatchEventInfo, PalletContractsOrigin, PalletElectionProviderMultiPhaseElectionCompute, PalletElectionProviderMultiPhasePhase, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, PalletNftsAttributeNamespace, PalletNftsPalletAttributes, PalletNftsPriceWithDirection, PalletNominationPoolsCommissionChangeRate, PalletNominationPoolsCommissionClaimPermission, PalletNominationPoolsPoolState, PalletSafeModeExitReason, PalletStakingForcing, PalletStakingRewardDestination, PalletStakingValidatorPrefs, PalletStateTrieMigrationError, PalletStateTrieMigrationMigrationCompute, SpConsensusGrandpaAppPublic, SpNposElectionsElectionScore, SpRuntimeDispatchError, SpRuntimeDispatchErrorWithPostInfo, SpStakingExposure, SpStatementStoreStatement, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
@@ -42,6 +41,22 @@ declare module '@polkadot/api-base/types/events' {
        * Pool has been touched in order to fulfill operational requirements.
        **/
       Touched: AugmentedEvent<ApiType, [poolId: ITuple<[FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId]>, who: AccountId32], { poolId: ITuple<[FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId]>, who: AccountId32 }>;
+    };
+    assetConversionTxPayment: {
+      /**
+       * A swap of the refund in native currency back to asset failed.
+       **/
+      AssetRefundFailed: AugmentedEvent<ApiType, [nativeAmountKept: u128], { nativeAmountKept: u128 }>;
+      /**
+       * A transaction fee `actual_fee`, of which `tip` was added to the minimum inclusion fee,
+       * has been paid by `who` in an asset `asset_id`.
+       **/
+      AssetTxFeePaid: AugmentedEvent<ApiType, [who: AccountId32, actualFee: u128, tip: u128, assetId: FrameSupportTokensFungibleUnionOfNativeOrWithId], { who: AccountId32, actualFee: u128, tip: u128, assetId: FrameSupportTokensFungibleUnionOfNativeOrWithId }>;
+    };
+    assetRate: {
+      AssetRateCreated: AugmentedEvent<ApiType, [assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId, rate: u128], { assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId, rate: u128 }>;
+      AssetRateRemoved: AugmentedEvent<ApiType, [assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId], { assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId }>;
+      AssetRateUpdated: AugmentedEvent<ApiType, [assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId, old: u128, new_: u128], { assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId, old: u128, new_: u128 }>;
     };
     assets: {
       /**
@@ -150,47 +165,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Withdrawn: AugmentedEvent<ApiType, [assetId: u32, who: AccountId32, amount: u128], { assetId: u32, who: AccountId32, amount: u128 }>;
     };
-    authorityMembership: {
-      /**
-       * List of members who will enter the set of authorities at the next
-       * session. [Vec<member_id>]
-       **/
-      IncomingAuthorities: AugmentedEvent<ApiType, [Vec<AccountId32>]>;
-      /**
-       * A member will be added to the authority membership.
-       **/
-      MemberAdded: AugmentedEvent<ApiType, [AccountId32]>;
-      /**
-       * A member is added to the blacklist and is scheduled for removal in 2 sessions due to
-       * non-availability.
-       **/
-      MemberBlacklistedRemoved: AugmentedEvent<ApiType, [AccountId32]>;
-      /**
-       * A member is scheduled for removal in 2 sessions due to non-availability.
-       **/
-      MemberDisconnected: AugmentedEvent<ApiType, [AccountId32]>;
-      /**
-       * A member will leave the set of authorities in 2 sessions.
-       **/
-      MemberGoOffline: AugmentedEvent<ApiType, [AccountId32]>;
-      /**
-       * A member will enter the set of authorities in 2 sessions.
-       **/
-      MemberGoOnline: AugmentedEvent<ApiType, [AccountId32]>;
-      /**
-       * this member will be removed from the authority set in 2 sessions.
-       **/
-      MemberRemoved: AugmentedEvent<ApiType, [AccountId32]>;
-      /**
-       * A member has been removed from the blacklist.
-       **/
-      MemberWhiteList: AugmentedEvent<ApiType, [AccountId32]>;
-      /**
-       * List of members who will leave the set of authorities at the next
-       * session. [Vec<member_id>]
-       **/
-      OutgoingAuthorities: AugmentedEvent<ApiType, [Vec<AccountId32>]>;
-    };
     balances: {
       /**
        * A balance was set by root.
@@ -283,119 +257,14 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Withdraw: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
     };
-    chainSpace: {
-      /**
-       * A space approval has been restored.
-       * \[space identifier, \]
-       **/
-      ApprovalRestore: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A space approval has been revoked.
-       * \[space identifier, \]
-       **/
-      ApprovalRevoke: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A new chain space has been approved.
-       * \[space identifier \]
-       **/
-      Approve: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A space has been archived.
-       * \[space identifier,  authority\]
-       **/
-      Archive: AugmentedEvent<ApiType, [space: Bytes, authority: AccountId32], { space: Bytes, authority: AccountId32 }>;
-      /**
-       * A new space authorization has been added.
-       * \[space identifier, authorization,  delegate\]
-       **/
-      Authorization: AugmentedEvent<ApiType, [space: Bytes, authorization: Bytes, delegate: AccountId32], { space: Bytes, authorization: Bytes, delegate: AccountId32 }>;
-      /**
-       * A new chain space has been created.
-       * \[space identifier, creator, authorization\]
-       **/
-      Create: AugmentedEvent<ApiType, [space: Bytes, creator: AccountId32, authorization: Bytes], { space: Bytes, creator: AccountId32, authorization: Bytes }>;
-      /**
-       * A space authorization has been removed.
-       * \[space identifier, authorization, ]
-       **/
-      Deauthorization: AugmentedEvent<ApiType, [space: Bytes, authorization: Bytes], { space: Bytes, authorization: Bytes }>;
-      /**
-       * A chain space usage has been reset.
-       * \[space identifier \]
-       **/
-      ResetUsage: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A space has been restored.
-       * \[space identifier,  authority\]
-       **/
-      Restore: AugmentedEvent<ApiType, [space: Bytes, authority: AccountId32], { space: Bytes, authority: AccountId32 }>;
-      /**
-       * A space has been restored.
-       * \[space identifier, \]
-       **/
-      Revoke: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A chain space capacity has been updated.
-       * \[space identifier \]
-       **/
-      UpdateCapacity: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-    };
-    chainSpaceDid: {
-      /**
-       * A space approval has been restored.
-       * \[space identifier, \]
-       **/
-      ApprovalRestore: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A space approval has been revoked.
-       * \[space identifier, \]
-       **/
-      ApprovalRevoke: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A new chain space has been approved.
-       * \[space identifier \]
-       **/
-      Approve: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A space has been archived.
-       * \[space identifier,  authority\]
-       **/
-      Archive: AugmentedEvent<ApiType, [space: Bytes, authority: AccountId32], { space: Bytes, authority: AccountId32 }>;
-      /**
-       * A new space authorization has been added.
-       * \[space identifier, authorization,  delegate\]
-       **/
-      Authorization: AugmentedEvent<ApiType, [space: Bytes, authorization: Bytes, delegate: AccountId32], { space: Bytes, authorization: Bytes, delegate: AccountId32 }>;
-      /**
-       * A new chain space has been created.
-       * \[space identifier, creator, authorization\]
-       **/
-      Create: AugmentedEvent<ApiType, [space: Bytes, creator: AccountId32, authorization: Bytes], { space: Bytes, creator: AccountId32, authorization: Bytes }>;
-      /**
-       * A space authorization has been removed.
-       * \[space identifier, authorization, ]
-       **/
-      Deauthorization: AugmentedEvent<ApiType, [space: Bytes, authorization: Bytes], { space: Bytes, authorization: Bytes }>;
-      /**
-       * A chain space usage has been reset.
-       * \[space identifier \]
-       **/
-      ResetUsage: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A space has been restored.
-       * \[space identifier,  authority\]
-       **/
-      Restore: AugmentedEvent<ApiType, [space: Bytes, authority: AccountId32], { space: Bytes, authority: AccountId32 }>;
-      /**
-       * A space has been restored.
-       * \[space identifier, \]
-       **/
-      Revoke: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
-      /**
-       * A chain space capacity has been updated.
-       * \[space identifier \]
-       **/
-      UpdateCapacity: AugmentedEvent<ApiType, [space: Bytes], { space: Bytes }>;
+    collection: {
+      CollectionArchived: AugmentedEvent<ApiType, [collection: Bytes, authority: AccountId32, authorityProfileId: Bytes], { collection: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
+      CollectionCreated: AugmentedEvent<ApiType, [collection: Bytes, creator: AccountId32, creatorProfileId: Bytes], { collection: Bytes, creator: AccountId32, creatorProfileId: Bytes }>;
+      CollectionRestored: AugmentedEvent<ApiType, [collection: Bytes, authority: AccountId32, authorityProfileId: Bytes], { collection: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
+      DelegateAdded: AugmentedEvent<ApiType, [collection: Bytes, delegate: AccountId32, delegateProfileId: Bytes], { collection: Bytes, delegate: AccountId32, delegateProfileId: Bytes }>;
+      DelegateRemoved: AugmentedEvent<ApiType, [collection: Bytes, delegate: AccountId32, delegateProfileId: Bytes], { collection: Bytes, delegate: AccountId32, delegateProfileId: Bytes }>;
+      RegistryAdded: AugmentedEvent<ApiType, [collection: Bytes, registry_: Bytes], { collection: Bytes, registry_: Bytes }>;
+      RegistryRemoved: AugmentedEvent<ApiType, [collection: Bytes, registry_: Bytes], { collection: Bytes, registry_: Bytes }>;
     };
     contracts: {
       /**
@@ -474,9 +343,21 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Executed: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
+       * A proposal was killed.
+       **/
+      Killed: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
+      /**
        * A single member did some action; result will be `Ok` if it returned without error.
        **/
       MemberExecuted: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
+      /**
+       * Some cost for storing a proposal was burned.
+       **/
+      ProposalCostBurned: AugmentedEvent<ApiType, [proposalHash: H256, who: AccountId32], { proposalHash: H256, who: AccountId32 }>;
+      /**
+       * Some cost for storing a proposal was released.
+       **/
+      ProposalCostReleased: AugmentedEvent<ApiType, [proposalHash: H256, who: AccountId32], { proposalHash: H256, who: AccountId32 }>;
       /**
        * A motion (given hash) has been proposed (by given account) with a threshold (given
        * `MemberCount`).
@@ -506,8 +387,7 @@ declare module '@polkadot/api-base/types/events' {
        **/
       MemberRemoved: AugmentedEvent<ApiType, []>;
       /**
-       * The membership was reset; see the transaction for who the new set
-       * is.
+       * The membership was reset; see the transaction for who the new set is.
        **/
       MembersReset: AugmentedEvent<ApiType, []>;
       /**
@@ -515,76 +395,109 @@ declare module '@polkadot/api-base/types/events' {
        **/
       MembersSwapped: AugmentedEvent<ApiType, []>;
     };
-    did: {
+    delegatedStaking: {
       /**
-       * A DID-authorised call has been executed.
-       * \[DID caller, dispatch result\]
+       * Funds delegated by a delegator.
        **/
-      CallDispatched: AugmentedEvent<ApiType, [identifier: AccountId32, result: Result<Null, SpRuntimeDispatchError>], { identifier: AccountId32, result: Result<Null, SpRuntimeDispatchError> }>;
+      Delegated: AugmentedEvent<ApiType, [agent: AccountId32, delegator: AccountId32, amount: u128], { agent: AccountId32, delegator: AccountId32, amount: u128 }>;
       /**
-       * A new DID has been created.
-       * \[transaction signer, DID identifier\]
+       * Unclaimed delegation funds migrated to delegator.
        **/
-      Created: AugmentedEvent<ApiType, [author: AccountId32, identifier: AccountId32], { author: AccountId32, identifier: AccountId32 }>;
+      MigratedDelegation: AugmentedEvent<ApiType, [agent: AccountId32, delegator: AccountId32, amount: u128], { agent: AccountId32, delegator: AccountId32, amount: u128 }>;
       /**
-       * A DID has been deleted.
-       * \[DID identifier\]
+       * Funds released to a delegator.
        **/
-      Deleted: AugmentedEvent<ApiType, [identifier: AccountId32], { identifier: AccountId32 }>;
+      Released: AugmentedEvent<ApiType, [agent: AccountId32, delegator: AccountId32, amount: u128], { agent: AccountId32, delegator: AccountId32, amount: u128 }>;
       /**
-       * A DID has been updated.
-       * \[DID identifier\]
+       * Funds slashed from a delegator.
        **/
-      Updated: AugmentedEvent<ApiType, [identifier: AccountId32], { identifier: AccountId32 }>;
+      Slashed: AugmentedEvent<ApiType, [agent: AccountId32, delegator: AccountId32, amount: u128], { agent: AccountId32, delegator: AccountId32, amount: u128 }>;
     };
-    didName: {
+    electionProviderMultiPhase: {
       /**
-       * A name has been banned.
+       * An election failed.
+       * 
+       * Not much can be said about which computes failed in the process.
        **/
-      DidNameBanned: AugmentedEvent<ApiType, [name: Bytes], { name: Bytes }>;
+      ElectionFailed: AugmentedEvent<ApiType, []>;
       /**
-       * A new name has been claimed.
+       * The election has been finalized, with the given computation and score.
        **/
-      DidNameRegistered: AugmentedEvent<ApiType, [owner: AccountId32, name: Bytes], { owner: AccountId32, name: Bytes }>;
+      ElectionFinalized: AugmentedEvent<ApiType, [compute: PalletElectionProviderMultiPhaseElectionCompute, score: SpNposElectionsElectionScore], { compute: PalletElectionProviderMultiPhaseElectionCompute, score: SpNposElectionsElectionScore }>;
       /**
-       * A name has been released.
+       * There was a phase transition in a given round.
        **/
-      DidNameReleased: AugmentedEvent<ApiType, [owner: AccountId32, name: Bytes], { owner: AccountId32, name: Bytes }>;
+      PhaseTransitioned: AugmentedEvent<ApiType, [from: PalletElectionProviderMultiPhasePhase, to: PalletElectionProviderMultiPhasePhase, round: u32], { from: PalletElectionProviderMultiPhasePhase, to: PalletElectionProviderMultiPhasePhase, round: u32 }>;
       /**
-       * A name has been unbanned.
+       * An account has been rewarded for their signed submission being finalized.
        **/
-      DidNameUnbanned: AugmentedEvent<ApiType, [name: Bytes], { name: Bytes }>;
+      Rewarded: AugmentedEvent<ApiType, [account: AccountId32, value: u128], { account: AccountId32, value: u128 }>;
+      /**
+       * An account has been slashed for submitting an invalid signed submission.
+       **/
+      Slashed: AugmentedEvent<ApiType, [account: AccountId32, value: u128], { account: AccountId32, value: u128 }>;
+      /**
+       * A solution was stored with the given compute.
+       * 
+       * The `origin` indicates the origin of the solution. If `origin` is `Some(AccountId)`,
+       * the stored solution was submitted in the signed phase by a miner with the `AccountId`.
+       * Otherwise, the solution was stored either during the unsigned phase or by
+       * `T::ForceOrigin`. The `bool` is `true` when a previous solution was ejected to make
+       * room for this one.
+       **/
+      SolutionStored: AugmentedEvent<ApiType, [compute: PalletElectionProviderMultiPhaseElectionCompute, origin: Option<AccountId32>, prevEjected: bool], { compute: PalletElectionProviderMultiPhaseElectionCompute, origin: Option<AccountId32>, prevEjected: bool }>;
     };
-    entries: {
+    entry: {
       /**
        * A new registry entry has been created.
        * \[creator, registry_identifier, registry_entry_identifier\]
        **/
-      RegistryEntryCreated: AugmentedEvent<ApiType, [creator: AccountId32, registryId: Bytes, registryEntryId: Bytes], { creator: AccountId32, registryId: Bytes, registryEntryId: Bytes }>;
-      /**
-       * Existence of registry entry has been verified.
-       **/
-      RegistryEntryExistenceVerified: AugmentedEvent<ApiType, [verifier: AccountId32, registryEntryId: Bytes, registryEntryDigest: H256], { verifier: AccountId32, registryEntryId: Bytes, registryEntryDigest: H256 }>;
+      RegistryEntryCreated: AugmentedEvent<ApiType, [creator: AccountId32, registryId: Bytes, registryEntryId: Bytes, creatorProfileId: Bytes], { creator: AccountId32, registryId: Bytes, registryEntryId: Bytes, creatorProfileId: Bytes }>;
       /**
        * A existing registry entry ownership has been updated.
        * \[updater, new_owner, registry_entry_identifier\]
        **/
-      RegistryEntryOwnershipUpdated: AugmentedEvent<ApiType, [updater: AccountId32, newOwner: AccountId32, registryEntryId: Bytes], { updater: AccountId32, newOwner: AccountId32, registryEntryId: Bytes }>;
+      RegistryEntryOwnershipUpdated: AugmentedEvent<ApiType, [updater: AccountId32, newOwner: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes, newOwnerProfileId: Bytes], { updater: AccountId32, newOwner: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes, newOwnerProfileId: Bytes }>;
       /**
        * A existing registry entry has been reinstated.
        * \[updater, registry_enrtry_identifier\]
        **/
-      RegistryEntryReinstated: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes], { updater: AccountId32, registryEntryId: Bytes }>;
+      RegistryEntryReinstated: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes], { updater: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes }>;
       /**
        * A existing registry entry has been revoked.
        * \[updater, registry_entry_identifier\]
        **/
-      RegistryEntryRevoked: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes], { updater: AccountId32, registryEntryId: Bytes }>;
+      RegistryEntryRevoked: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes], { updater: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes }>;
       /**
        * A existing registry entry has been updated.
        * \[updater, registry_entry_identifier\]
        **/
-      RegistryEntryUpdated: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes], { updater: AccountId32, registryEntryId: Bytes }>;
+      RegistryEntryUpdated: AugmentedEvent<ApiType, [updater: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes], { updater: AccountId32, registryEntryId: Bytes, updaterProfileId: Bytes }>;
+    };
+    fastUnstake: {
+      /**
+       * A batch was partially checked for the given eras, but the process did not finish.
+       **/
+      BatchChecked: AugmentedEvent<ApiType, [eras: Vec<u32>], { eras: Vec<u32> }>;
+      /**
+       * A batch of a given size was terminated.
+       * 
+       * This is always follows by a number of `Unstaked` or `Slashed` events, marking the end
+       * of the batch. A new batch will be created upon next block.
+       **/
+      BatchFinished: AugmentedEvent<ApiType, [size_: u32], { size_: u32 }>;
+      /**
+       * An internal error happened. Operations will be paused now.
+       **/
+      InternalError: AugmentedEvent<ApiType, []>;
+      /**
+       * A staker was slashed for requesting fast-unstake whilst being exposed.
+       **/
+      Slashed: AugmentedEvent<ApiType, [stash: AccountId32, amount: u128], { stash: AccountId32, amount: u128 }>;
+      /**
+       * A staker was unstaked.
+       **/
+      Unstaked: AugmentedEvent<ApiType, [stash: AccountId32, result: Result<Null, SpRuntimeDispatchError>], { stash: AccountId32, result: Result<Null, SpRuntimeDispatchError> }>;
     };
     grandpa: {
       /**
@@ -617,11 +530,11 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A name was cleared, and the given balance returned.
        **/
-      IdentityCleared: AugmentedEvent<ApiType, [who: AccountId32], { who: AccountId32 }>;
+      IdentityCleared: AugmentedEvent<ApiType, [who: AccountId32, deposit: u128], { who: AccountId32, deposit: u128 }>;
       /**
        * A name was removed and the given balance slashed.
        **/
-      IdentityKilled: AugmentedEvent<ApiType, [who: AccountId32], { who: AccountId32 }>;
+      IdentityKilled: AugmentedEvent<ApiType, [who: AccountId32, deposit: u128], { who: AccountId32, deposit: u128 }>;
       /**
        * A name was set or reset (which will remove all judgements).
        **/
@@ -629,15 +542,15 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A judgement was given by a registrar.
        **/
-      JudgementGiven: AugmentedEvent<ApiType, [target: AccountId32, registrar: AccountId32], { target: AccountId32, registrar: AccountId32 }>;
+      JudgementGiven: AugmentedEvent<ApiType, [target: AccountId32, registrarIndex: u32], { target: AccountId32, registrarIndex: u32 }>;
       /**
        * A judgement was asked from a registrar.
        **/
-      JudgementRequested: AugmentedEvent<ApiType, [who: AccountId32, registrar: AccountId32], { who: AccountId32, registrar: AccountId32 }>;
+      JudgementRequested: AugmentedEvent<ApiType, [who: AccountId32, registrarIndex: u32], { who: AccountId32, registrarIndex: u32 }>;
       /**
        * A judgement request was retracted.
        **/
-      JudgementUnrequested: AugmentedEvent<ApiType, [who: AccountId32, registrar: AccountId32], { who: AccountId32, registrar: AccountId32 }>;
+      JudgementUnrequested: AugmentedEvent<ApiType, [who: AccountId32, registrarIndex: u32], { who: AccountId32, registrarIndex: u32 }>;
       /**
        * A queued username passed its expiration without being claimed and was removed.
        **/
@@ -651,30 +564,46 @@ declare module '@polkadot/api-base/types/events' {
        **/
       RegistrarAdded: AugmentedEvent<ApiType, [registrarIndex: u32], { registrarIndex: u32 }>;
       /**
-       * A registrar was removed.
+       * An account's sub-identities were set (in bulk).
        **/
-      RegistrarRemoved: AugmentedEvent<ApiType, [registrar: AccountId32], { registrar: AccountId32 }>;
+      SubIdentitiesSet: AugmentedEvent<ApiType, [main: AccountId32, numberOfSubs: u32, newDeposit: u128], { main: AccountId32, numberOfSubs: u32, newDeposit: u128 }>;
       /**
        * A sub-identity was added to an identity and the deposit paid.
        **/
-      SubIdentityAdded: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
+      SubIdentityAdded: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
       /**
        * A sub-identity was removed from an identity and the deposit freed.
        **/
-      SubIdentityRemoved: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
+      SubIdentityRemoved: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
+      /**
+       * A given sub-account's associated name was changed by its super-identity.
+       **/
+      SubIdentityRenamed: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
       /**
        * A sub-identity was cleared, and the given deposit repatriated from the
        * main identity account to the sub-identity account.
        **/
-      SubIdentityRevoked: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
+      SubIdentityRevoked: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
+      /**
+       * A username has been killed.
+       **/
+      UsernameKilled: AugmentedEvent<ApiType, [username: Bytes], { username: Bytes }>;
       /**
        * A username was queued, but `who` must accept it prior to `expiration`.
        **/
       UsernameQueued: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes, expiration: u32], { who: AccountId32, username: Bytes, expiration: u32 }>;
       /**
+       * A username has been removed.
+       **/
+      UsernameRemoved: AugmentedEvent<ApiType, [username: Bytes], { username: Bytes }>;
+      /**
        * A username was set for `who`.
        **/
       UsernameSet: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes], { who: AccountId32, username: Bytes }>;
+      /**
+       * A username has been unbound.
+       **/
+      UsernameUnbound: AugmentedEvent<ApiType, [username: Bytes], { username: Bytes }>;
     };
     imOnline: {
       /**
@@ -688,7 +617,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * At the end of the session, at least one validator was found to be offline.
        **/
-      SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, Null]>>], { offline: Vec<ITuple<[AccountId32, Null]>> }>;
+      SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, SpStakingExposure]>>], { offline: Vec<ITuple<[AccountId32, SpStakingExposure]>> }>;
     };
     indices: {
       /**
@@ -703,6 +632,75 @@ declare module '@polkadot/api-base/types/events' {
        * A account index has been frozen to its current account ID.
        **/
       IndexFrozen: AugmentedEvent<ApiType, [index: u32, who: AccountId32], { index: u32, who: AccountId32 }>;
+    };
+    messageQueue: {
+      /**
+       * Message placed in overweight queue.
+       **/
+      OverweightEnqueued: AugmentedEvent<ApiType, [id: U8aFixed, origin: u32, pageIndex: u32, messageIndex: u32], { id: U8aFixed, origin: u32, pageIndex: u32, messageIndex: u32 }>;
+      /**
+       * This page was reaped.
+       **/
+      PageReaped: AugmentedEvent<ApiType, [origin: u32, index: u32], { origin: u32, index: u32 }>;
+      /**
+       * Message is processed.
+       **/
+      Processed: AugmentedEvent<ApiType, [id: H256, origin: u32, weightUsed: SpWeightsWeightV2Weight, success: bool], { id: H256, origin: u32, weightUsed: SpWeightsWeightV2Weight, success: bool }>;
+      /**
+       * Message discarded due to an error in the `MessageProcessor` (usually a format error).
+       **/
+      ProcessingFailed: AugmentedEvent<ApiType, [id: H256, origin: u32, error: FrameSupportMessagesProcessMessageError], { id: H256, origin: u32, error: FrameSupportMessagesProcessMessageError }>;
+    };
+    metaTx: {
+      /**
+       * A meta transaction has been dispatched.
+       * 
+       * Contains the dispatch result of the meta transaction along with post-dispatch
+       * information.
+       **/
+      Dispatched: AugmentedEvent<ApiType, [result: Result<FrameSupportDispatchPostDispatchInfo, SpRuntimeDispatchErrorWithPostInfo>], { result: Result<FrameSupportDispatchPostDispatchInfo, SpRuntimeDispatchErrorWithPostInfo> }>;
+    };
+    multiBlockMigrations: {
+      /**
+       * The set of historical migrations has been cleared.
+       **/
+      HistoricCleared: AugmentedEvent<ApiType, [nextCursor: Option<Bytes>], { nextCursor: Option<Bytes> }>;
+      /**
+       * A migration progressed.
+       **/
+      MigrationAdvanced: AugmentedEvent<ApiType, [index: u32, took: u32], { index: u32, took: u32 }>;
+      /**
+       * A Migration completed.
+       **/
+      MigrationCompleted: AugmentedEvent<ApiType, [index: u32, took: u32], { index: u32, took: u32 }>;
+      /**
+       * A Migration failed.
+       * 
+       * This implies that the whole upgrade failed and governance intervention is required.
+       **/
+      MigrationFailed: AugmentedEvent<ApiType, [index: u32, took: u32], { index: u32, took: u32 }>;
+      /**
+       * A migration was skipped since it was already executed in the past.
+       **/
+      MigrationSkipped: AugmentedEvent<ApiType, [index: u32], { index: u32 }>;
+      /**
+       * The current runtime upgrade completed.
+       * 
+       * This implies that all of its migrations completed successfully as well.
+       **/
+      UpgradeCompleted: AugmentedEvent<ApiType, []>;
+      /**
+       * Runtime upgrade failed.
+       * 
+       * This is very bad and will require governance intervention.
+       **/
+      UpgradeFailed: AugmentedEvent<ApiType, []>;
+      /**
+       * A Runtime upgrade started.
+       * 
+       * Its end is indicated by `UpgradeCompleted` or `UpgradeFailed`.
+       **/
+      UpgradeStarted: AugmentedEvent<ApiType, [migrations: u32], { migrations: u32 }>;
     };
     multisig: {
       /**
@@ -722,126 +720,293 @@ declare module '@polkadot/api-base/types/events' {
        **/
       NewMultisig: AugmentedEvent<ApiType, [approving: AccountId32, multisig: AccountId32, callHash: U8aFixed], { approving: AccountId32, multisig: AccountId32, callHash: U8aFixed }>;
     };
-    nameSpace: {
+    networkInfo: {
       /**
-       * A namespace has been archived.
-       * \[namespace identifier,  authority\]
+       * Network Info added.
        **/
-      Archive: AugmentedEvent<ApiType, [namespace: Bytes, authority: AccountId32], { namespace: Bytes, authority: AccountId32 }>;
-      /**
-       * A new namespace authorization has been added.
-       * \[namespace identifier, authorization,  delegate\]
-       **/
-      Authorization: AugmentedEvent<ApiType, [namespace: Bytes, authorization: Bytes, delegate: AccountId32], { namespace: Bytes, authorization: Bytes, delegate: AccountId32 }>;
-      /**
-       * A new namespace has been created.
-       * \[namespace identifier, creator, authorization\]
-       **/
-      Create: AugmentedEvent<ApiType, [namespace: Bytes, creator: AccountId32, authorization: Bytes], { namespace: Bytes, creator: AccountId32, authorization: Bytes }>;
-      /**
-       * A namespace authorization has been removed.
-       * \[namespace identifier, authorization, ]
-       **/
-      Deauthorization: AugmentedEvent<ApiType, [namespace: Bytes, authorization: Bytes], { namespace: Bytes, authorization: Bytes }>;
-      /**
-       * A namespace has been restored.
-       * \[namespace identifier,  authority\]
-       **/
-      Restore: AugmentedEvent<ApiType, [namespace: Bytes, authority: AccountId32], { namespace: Bytes, authority: AccountId32 }>;
-      /**
-       * A namespace has been restored.
-       * \[namespace identifier, \]
-       **/
-      Revoke: AugmentedEvent<ApiType, [namespace: Bytes], { namespace: Bytes }>;
+      NetworkInfo: AugmentedEvent<ApiType, [network: u32, manager: AccountId32], { network: u32, manager: AccountId32 }>;
+      NetworkNameUpdate: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
+      NetworkRpcRemove: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
+      NetworkRpcUpdate: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
+      NetworkWebUpdate: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
+      StorageNodeAdded: AugmentedEvent<ApiType, [identifier: Bytes, node: Bytes], { identifier: Bytes, node: Bytes }>;
+      StorageNodeRemoved: AugmentedEvent<ApiType, [identifier: Bytes, node: Bytes], { identifier: Bytes, node: Bytes }>;
+      StorageNodeUpdated: AugmentedEvent<ApiType, [identifier: Bytes, node: Bytes], { identifier: Bytes, node: Bytes }>;
     };
-    networkMembership: {
-      /**
-       * A membership was acquired
-       **/
-      MembershipAcquired: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
-      /**
-       * A membership expired
-       **/
-      MembershipExpired: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
-      /**
-       * A membership renew request
-       **/
-      MembershipRenewalRequested: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
-      /**
-       * A membership was renewed
-       **/
-      MembershipRenewed: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
-      /**
-       * A membership was revoked
-       **/
-      MembershipRevoked: AugmentedEvent<ApiType, [member: AccountId32], { member: AccountId32 }>;
+    networkRegistrar: {
+      Deregistered: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
+      Expired: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
+      Registered: AugmentedEvent<ApiType, [networkId: u32, manager: AccountId32, token: Bytes], { networkId: u32, manager: AccountId32, token: Bytes }>;
+      RenewalScheduled: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
+      Renewed: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
+      Reserved: AugmentedEvent<ApiType, [networkId: u32, who: AccountId32, token: Bytes], { networkId: u32, who: AccountId32, token: Bytes }>;
     };
-    networkScore: {
+    nftFractionalization: {
       /**
-       * Aggregate scores has been updated.
-       * \[entity identifier\]
+       * An NFT was successfully fractionalized.
        **/
-      AggregateScoreUpdated: AugmentedEvent<ApiType, [entity: Bytes], { entity: Bytes }>;
+      NftFractionalized: AugmentedEvent<ApiType, [nftCollection: u32, nft: u32, fractions: u128, asset: u32, beneficiary: AccountId32], { nftCollection: u32, nft: u32, fractions: u128, asset: u32, beneficiary: AccountId32 }>;
       /**
-       * A new rating entry has been added.
-       * \[rating entry identifier, entity, provider, creator\]
+       * An NFT was successfully returned back.
        **/
-      RatingEntryAdded: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32 }>;
-      /**
-       * A rating entry has been revised (after amend).
-       * \[rating entry identifier, entity, creator \]
-       **/
-      RatingEntryRevised: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32 }>;
-      /**
-       * A rating entry has been amended.
-       * \[rating entry identifier, entity, creator\]
-       **/
-      RatingEntryRevoked: AugmentedEvent<ApiType, [identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32], { identifier: Bytes, entity: Bytes, provider: AccountId32, creator: AccountId32 }>;
+      NftUnified: AugmentedEvent<ApiType, [nftCollection: u32, nft: u32, asset: u32, beneficiary: AccountId32], { nftCollection: u32, nft: u32, asset: u32, beneficiary: AccountId32 }>;
     };
-    nodeAuthorization: {
+    nfts: {
       /**
-       * The given claim was removed by its owner.
+       * All approvals of an item got cancelled.
        **/
-      ClaimRemoved: AugmentedEvent<ApiType, [peerId: OpaquePeerId, who: AccountId32], { peerId: OpaquePeerId, who: AccountId32 }>;
+      AllApprovalsCancelled: AugmentedEvent<ApiType, [collection: u32, item: u32, owner: AccountId32], { collection: u32, item: u32, owner: AccountId32 }>;
       /**
-       * The allowed connections were added to a node.
+       * An approval for a `delegate` account to transfer the `item` of an item
+       * `collection` was cancelled by its `owner`.
        **/
-      ConnectionsAdded: AugmentedEvent<ApiType, [nodeId: Bytes, connection: Bytes], { nodeId: Bytes, connection: Bytes }>;
+      ApprovalCancelled: AugmentedEvent<ApiType, [collection: u32, item: u32, owner: AccountId32, delegate: AccountId32], { collection: u32, item: u32, owner: AccountId32, delegate: AccountId32 }>;
       /**
-       * The allowed connections were removed from a node.
+       * Attribute metadata has been cleared for a `collection` or `item`.
        **/
-      ConnectionsRemoved: AugmentedEvent<ApiType, [nodeId: Bytes, connection: Bytes], { nodeId: Bytes, connection: Bytes }>;
+      AttributeCleared: AugmentedEvent<ApiType, [collection: u32, maybeItem: Option<u32>, key: Bytes, namespace: PalletNftsAttributeNamespace], { collection: u32, maybeItem: Option<u32>, key: Bytes, namespace: PalletNftsAttributeNamespace }>;
       /**
-       * The given well known node was added.
+       * New attribute metadata has been set for a `collection` or `item`.
        **/
-      NodeAdded: AugmentedEvent<ApiType, [nodeId: Bytes, who: AccountId32], { nodeId: Bytes, who: AccountId32 }>;
+      AttributeSet: AugmentedEvent<ApiType, [collection: u32, maybeItem: Option<u32>, key: Bytes, value: Bytes, namespace: PalletNftsAttributeNamespace], { collection: u32, maybeItem: Option<u32>, key: Bytes, value: Bytes, namespace: PalletNftsAttributeNamespace }>;
       /**
-       * The given node was claimed by a user.
+       * An `item` was destroyed.
        **/
-      NodeClaimed: AugmentedEvent<ApiType, [peerId: OpaquePeerId, who: AccountId32], { peerId: OpaquePeerId, who: AccountId32 }>;
+      Burned: AugmentedEvent<ApiType, [collection: u32, item: u32, owner: AccountId32], { collection: u32, item: u32, owner: AccountId32 }>;
       /**
-       * The given well known node was removed.
+       * A `collection` has had its config changed by the `Force` origin.
        **/
-      NodeRemoved: AugmentedEvent<ApiType, [nodeId: Bytes], { nodeId: Bytes }>;
+      CollectionConfigChanged: AugmentedEvent<ApiType, [collection: u32], { collection: u32 }>;
       /**
-       * The given well known nodes were reset.
+       * Some `collection` was locked.
        **/
-      NodesReset: AugmentedEvent<ApiType, [nodes: Vec<ITuple<[OpaquePeerId, AccountId32]>>], { nodes: Vec<ITuple<[OpaquePeerId, AccountId32]>> }>;
+      CollectionLocked: AugmentedEvent<ApiType, [collection: u32], { collection: u32 }>;
       /**
-       * The given well known node was swapped; first item was removed,
-       * the latter was added.
+       * Max supply has been set for a collection.
        **/
-      NodeSwapped: AugmentedEvent<ApiType, [removed: Bytes, added: Bytes], { removed: Bytes, added: Bytes }>;
+      CollectionMaxSupplySet: AugmentedEvent<ApiType, [collection: u32, maxSupply: u32], { collection: u32, maxSupply: u32 }>;
       /**
-       * The node was transferred to another account.
+       * Metadata has been cleared for a `collection`.
        **/
-      NodeTransferred: AugmentedEvent<ApiType, [nodeId: Bytes, target: AccountId32], { nodeId: Bytes, target: AccountId32 }>;
+      CollectionMetadataCleared: AugmentedEvent<ApiType, [collection: u32], { collection: u32 }>;
+      /**
+       * New metadata has been set for a `collection`.
+       **/
+      CollectionMetadataSet: AugmentedEvent<ApiType, [collection: u32, data: Bytes], { collection: u32, data: Bytes }>;
+      /**
+       * Mint settings for a collection had changed.
+       **/
+      CollectionMintSettingsUpdated: AugmentedEvent<ApiType, [collection: u32], { collection: u32 }>;
+      /**
+       * A `collection` was created.
+       **/
+      Created: AugmentedEvent<ApiType, [collection: u32, creator: AccountId32, owner: AccountId32], { collection: u32, creator: AccountId32, owner: AccountId32 }>;
+      /**
+       * A `collection` was destroyed.
+       **/
+      Destroyed: AugmentedEvent<ApiType, [collection: u32], { collection: u32 }>;
+      /**
+       * A `collection` was force-created.
+       **/
+      ForceCreated: AugmentedEvent<ApiType, [collection: u32, owner: AccountId32], { collection: u32, owner: AccountId32 }>;
+      /**
+       * An `item` was issued.
+       **/
+      Issued: AugmentedEvent<ApiType, [collection: u32, item: u32, owner: AccountId32], { collection: u32, item: u32, owner: AccountId32 }>;
+      /**
+       * A new approval to modify item attributes was added.
+       **/
+      ItemAttributesApprovalAdded: AugmentedEvent<ApiType, [collection: u32, item: u32, delegate: AccountId32], { collection: u32, item: u32, delegate: AccountId32 }>;
+      /**
+       * A new approval to modify item attributes was removed.
+       **/
+      ItemAttributesApprovalRemoved: AugmentedEvent<ApiType, [collection: u32, item: u32, delegate: AccountId32], { collection: u32, item: u32, delegate: AccountId32 }>;
+      /**
+       * An item was bought.
+       **/
+      ItemBought: AugmentedEvent<ApiType, [collection: u32, item: u32, price: u128, seller: AccountId32, buyer: AccountId32], { collection: u32, item: u32, price: u128, seller: AccountId32, buyer: AccountId32 }>;
+      /**
+       * Metadata has been cleared for an item.
+       **/
+      ItemMetadataCleared: AugmentedEvent<ApiType, [collection: u32, item: u32], { collection: u32, item: u32 }>;
+      /**
+       * New metadata has been set for an item.
+       **/
+      ItemMetadataSet: AugmentedEvent<ApiType, [collection: u32, item: u32, data: Bytes], { collection: u32, item: u32, data: Bytes }>;
+      /**
+       * The price for the item was removed.
+       **/
+      ItemPriceRemoved: AugmentedEvent<ApiType, [collection: u32, item: u32], { collection: u32, item: u32 }>;
+      /**
+       * The price was set for the item.
+       **/
+      ItemPriceSet: AugmentedEvent<ApiType, [collection: u32, item: u32, price: u128, whitelistedBuyer: Option<AccountId32>], { collection: u32, item: u32, price: u128, whitelistedBuyer: Option<AccountId32> }>;
+      /**
+       * `item` metadata or attributes were locked.
+       **/
+      ItemPropertiesLocked: AugmentedEvent<ApiType, [collection: u32, item: u32, lockMetadata: bool, lockAttributes: bool], { collection: u32, item: u32, lockMetadata: bool, lockAttributes: bool }>;
+      /**
+       * An `item` became non-transferable.
+       **/
+      ItemTransferLocked: AugmentedEvent<ApiType, [collection: u32, item: u32], { collection: u32, item: u32 }>;
+      /**
+       * An `item` became transferable.
+       **/
+      ItemTransferUnlocked: AugmentedEvent<ApiType, [collection: u32, item: u32], { collection: u32, item: u32 }>;
+      /**
+       * Event gets emitted when the `NextCollectionId` gets incremented.
+       **/
+      NextCollectionIdIncremented: AugmentedEvent<ApiType, [nextId: Option<u32>], { nextId: Option<u32> }>;
+      /**
+       * The owner changed.
+       **/
+      OwnerChanged: AugmentedEvent<ApiType, [collection: u32, newOwner: AccountId32], { collection: u32, newOwner: AccountId32 }>;
+      /**
+       * Ownership acceptance has changed for an account.
+       **/
+      OwnershipAcceptanceChanged: AugmentedEvent<ApiType, [who: AccountId32, maybeCollection: Option<u32>], { who: AccountId32, maybeCollection: Option<u32> }>;
+      /**
+       * A new attribute in the `Pallet` namespace was set for the `collection` or an `item`
+       * within that `collection`.
+       **/
+      PalletAttributeSet: AugmentedEvent<ApiType, [collection: u32, item: Option<u32>, attribute: PalletNftsPalletAttributes, value: Bytes], { collection: u32, item: Option<u32>, attribute: PalletNftsPalletAttributes, value: Bytes }>;
+      /**
+       * New attributes have been set for an `item` of the `collection`.
+       **/
+      PreSignedAttributesSet: AugmentedEvent<ApiType, [collection: u32, item: u32, namespace: PalletNftsAttributeNamespace], { collection: u32, item: u32, namespace: PalletNftsAttributeNamespace }>;
+      /**
+       * The deposit for a set of `item`s within a `collection` has been updated.
+       **/
+      Redeposited: AugmentedEvent<ApiType, [collection: u32, successfulItems: Vec<u32>], { collection: u32, successfulItems: Vec<u32> }>;
+      /**
+       * The swap was cancelled.
+       **/
+      SwapCancelled: AugmentedEvent<ApiType, [offeredCollection: u32, offeredItem: u32, desiredCollection: u32, desiredItem: Option<u32>, price: Option<PalletNftsPriceWithDirection>, deadline: u32], { offeredCollection: u32, offeredItem: u32, desiredCollection: u32, desiredItem: Option<u32>, price: Option<PalletNftsPriceWithDirection>, deadline: u32 }>;
+      /**
+       * The swap has been claimed.
+       **/
+      SwapClaimed: AugmentedEvent<ApiType, [sentCollection: u32, sentItem: u32, sentItemOwner: AccountId32, receivedCollection: u32, receivedItem: u32, receivedItemOwner: AccountId32, price: Option<PalletNftsPriceWithDirection>, deadline: u32], { sentCollection: u32, sentItem: u32, sentItemOwner: AccountId32, receivedCollection: u32, receivedItem: u32, receivedItemOwner: AccountId32, price: Option<PalletNftsPriceWithDirection>, deadline: u32 }>;
+      /**
+       * An `item` swap intent was created.
+       **/
+      SwapCreated: AugmentedEvent<ApiType, [offeredCollection: u32, offeredItem: u32, desiredCollection: u32, desiredItem: Option<u32>, price: Option<PalletNftsPriceWithDirection>, deadline: u32], { offeredCollection: u32, offeredItem: u32, desiredCollection: u32, desiredItem: Option<u32>, price: Option<PalletNftsPriceWithDirection>, deadline: u32 }>;
+      /**
+       * The management team changed.
+       **/
+      TeamChanged: AugmentedEvent<ApiType, [collection: u32, issuer: Option<AccountId32>, admin: Option<AccountId32>, freezer: Option<AccountId32>], { collection: u32, issuer: Option<AccountId32>, admin: Option<AccountId32>, freezer: Option<AccountId32> }>;
+      /**
+       * A tip was sent.
+       **/
+      TipSent: AugmentedEvent<ApiType, [collection: u32, item: u32, sender: AccountId32, receiver: AccountId32, amount: u128], { collection: u32, item: u32, sender: AccountId32, receiver: AccountId32, amount: u128 }>;
+      /**
+       * An `item` of a `collection` has been approved by the `owner` for transfer by
+       * a `delegate`.
+       **/
+      TransferApproved: AugmentedEvent<ApiType, [collection: u32, item: u32, owner: AccountId32, delegate: AccountId32, deadline: Option<u32>], { collection: u32, item: u32, owner: AccountId32, delegate: AccountId32, deadline: Option<u32> }>;
+      /**
+       * An `item` was transferred.
+       **/
+      Transferred: AugmentedEvent<ApiType, [collection: u32, item: u32, from: AccountId32, to: AccountId32], { collection: u32, item: u32, from: AccountId32, to: AccountId32 }>;
+    };
+    nominationPools: {
+      /**
+       * A member has became bonded in a pool.
+       **/
+      Bonded: AugmentedEvent<ApiType, [member: AccountId32, poolId: u32, bonded: u128, joined: bool], { member: AccountId32, poolId: u32, bonded: u128, joined: bool }>;
+      /**
+       * A pool has been created.
+       **/
+      Created: AugmentedEvent<ApiType, [depositor: AccountId32, poolId: u32], { depositor: AccountId32, poolId: u32 }>;
+      /**
+       * A pool has been destroyed.
+       **/
+      Destroyed: AugmentedEvent<ApiType, [poolId: u32], { poolId: u32 }>;
+      /**
+       * A member has been removed from a pool.
+       * 
+       * The removal can be voluntary (withdrawn all unbonded funds) or involuntary (kicked).
+       * Any funds that are still delegated (i.e. dangling delegation) are released and are
+       * represented by `released_balance`.
+       **/
+      MemberRemoved: AugmentedEvent<ApiType, [poolId: u32, member: AccountId32, releasedBalance: u128], { poolId: u32, member: AccountId32, releasedBalance: u128 }>;
+      /**
+       * Topped up deficit in frozen ED of the reward pool.
+       **/
+      MinBalanceDeficitAdjusted: AugmentedEvent<ApiType, [poolId: u32, amount: u128], { poolId: u32, amount: u128 }>;
+      /**
+       * Claimed excess frozen ED of af the reward pool.
+       **/
+      MinBalanceExcessAdjusted: AugmentedEvent<ApiType, [poolId: u32, amount: u128], { poolId: u32, amount: u128 }>;
+      /**
+       * A payout has been made to a member.
+       **/
+      PaidOut: AugmentedEvent<ApiType, [member: AccountId32, poolId: u32, payout: u128], { member: AccountId32, poolId: u32, payout: u128 }>;
+      /**
+       * A pool's commission `change_rate` has been changed.
+       **/
+      PoolCommissionChangeRateUpdated: AugmentedEvent<ApiType, [poolId: u32, changeRate: PalletNominationPoolsCommissionChangeRate], { poolId: u32, changeRate: PalletNominationPoolsCommissionChangeRate }>;
+      /**
+       * Pool commission has been claimed.
+       **/
+      PoolCommissionClaimed: AugmentedEvent<ApiType, [poolId: u32, commission: u128], { poolId: u32, commission: u128 }>;
+      /**
+       * Pool commission claim permission has been updated.
+       **/
+      PoolCommissionClaimPermissionUpdated: AugmentedEvent<ApiType, [poolId: u32, permission: Option<PalletNominationPoolsCommissionClaimPermission>], { poolId: u32, permission: Option<PalletNominationPoolsCommissionClaimPermission> }>;
+      /**
+       * A pool's commission setting has been changed.
+       **/
+      PoolCommissionUpdated: AugmentedEvent<ApiType, [poolId: u32, current: Option<ITuple<[Perbill, AccountId32]>>], { poolId: u32, current: Option<ITuple<[Perbill, AccountId32]>> }>;
+      /**
+       * A pool's maximum commission setting has been changed.
+       **/
+      PoolMaxCommissionUpdated: AugmentedEvent<ApiType, [poolId: u32, maxCommission: Perbill], { poolId: u32, maxCommission: Perbill }>;
+      /**
+       * The active balance of pool `pool_id` has been slashed to `balance`.
+       **/
+      PoolSlashed: AugmentedEvent<ApiType, [poolId: u32, balance: u128], { poolId: u32, balance: u128 }>;
+      /**
+       * The roles of a pool have been updated to the given new roles. Note that the depositor
+       * can never change.
+       **/
+      RolesUpdated: AugmentedEvent<ApiType, [root: Option<AccountId32>, bouncer: Option<AccountId32>, nominator: Option<AccountId32>], { root: Option<AccountId32>, bouncer: Option<AccountId32>, nominator: Option<AccountId32> }>;
+      /**
+       * The state of a pool has changed
+       **/
+      StateChanged: AugmentedEvent<ApiType, [poolId: u32, newState: PalletNominationPoolsPoolState], { poolId: u32, newState: PalletNominationPoolsPoolState }>;
+      /**
+       * A member has unbonded from their pool.
+       * 
+       * - `balance` is the corresponding balance of the number of points that has been
+       * requested to be unbonded (the argument of the `unbond` transaction) from the bonded
+       * pool.
+       * - `points` is the number of points that are issued as a result of `balance` being
+       * dissolved into the corresponding unbonding pool.
+       * - `era` is the era in which the balance will be unbonded.
+       * In the absence of slashing, these values will match. In the presence of slashing, the
+       * number of points that are issued in the unbonding pool will be less than the amount
+       * requested to be unbonded.
+       **/
+      Unbonded: AugmentedEvent<ApiType, [member: AccountId32, poolId: u32, balance: u128, points: u128, era: u32], { member: AccountId32, poolId: u32, balance: u128, points: u128, era: u32 }>;
+      /**
+       * The unbond pool at `era` of pool `pool_id` has been slashed to `balance`.
+       **/
+      UnbondingPoolSlashed: AugmentedEvent<ApiType, [poolId: u32, era: u32, balance: u128], { poolId: u32, era: u32, balance: u128 }>;
+      /**
+       * A member has withdrawn from their pool.
+       * 
+       * The given number of `points` have been dissolved in return of `balance`.
+       * 
+       * Similar to `Unbonded` event, in the absence of slashing, the ratio of point to balance
+       * will be 1.
+       **/
+      Withdrawn: AugmentedEvent<ApiType, [member: AccountId32, poolId: u32, balance: u128, points: u128], { member: AccountId32, poolId: u32, balance: u128, points: u128 }>;
     };
     offences: {
       /**
-       * There is an offence reported of the given `kind` happened at the
-       * `session_index` and (kind-specific) time slot. This event is not
-       * deposited for duplicate slashes. \[kind, timeslot\].
+       * There is an offence reported of the given `kind` happened at the `session_index` and
+       * (kind-specific) time slot. This event is not deposited for duplicate slashes.
+       * \[kind, timeslot\].
        **/
       Offence: AugmentedEvent<ApiType, [kind: U8aFixed, timeslot: Bytes], { kind: U8aFixed, timeslot: Bytes }>;
     };
@@ -966,53 +1131,81 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Requested: AugmentedEvent<ApiType, [hash_: H256], { hash_: H256 }>;
     };
-    registries: {
+    profile: {
       /**
-       * A registry has been archived.
-       * \[registry identifier, authority\]
+       * Existing Profile's Key has been rotated.
+       * \[Old Profile Holder, Profile Identifier, New public of the Holder]
        **/
-      Archive: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
+      KeyRotated: AugmentedEvent<ApiType, [who: AccountId32, identifier: Bytes, newKey: AccountId32], { who: AccountId32, identifier: Bytes, newKey: AccountId32 }>;
       /**
-       * A new registry authorization has been added.
-       * \[registry identifier, registry authorization, delegate\]
+       * A new profile has been created.
+       * \[Creator, Profile Identifier\]
        **/
-      Authorization: AugmentedEvent<ApiType, [registryId: Bytes, authorization: Bytes, delegate: AccountId32], { registryId: Bytes, authorization: Bytes, delegate: AccountId32 }>;
-      /**
-       * A new registry has been created.
-       * \[registry identifier, creator, registry authorization\]
-       **/
-      Create: AugmentedEvent<ApiType, [registryId: Bytes, creator: AccountId32, authorization: Bytes], { registryId: Bytes, creator: AccountId32, authorization: Bytes }>;
-      /**
-       * A registry authorization has been removed.
-       * \[registry identifier, authorization, ]
-       **/
-      Deauthorization: AugmentedEvent<ApiType, [registryId: Bytes, authorization: Bytes], { registryId: Bytes, authorization: Bytes }>;
-      /**
-       * A registry has been reinstated.
-       * \[registry identifier,  authority\]
-       **/
-      Reinstate: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
-      /**
-       * A registry has been restored.
-       * \[registry identifier,authority\]
-       **/
-      Restore: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
-      /**
-       * A registry has been revoked.
-       * \[registry identifier, authority\]
-       **/
-      Revoke: AugmentedEvent<ApiType, [registryId: Bytes, authority: AccountId32], { registryId: Bytes, authority: AccountId32 }>;
-      /**
-       * A existing registry has been updated.
-       * \[registry identifier, updater, registry authorization\]
-       **/
-      Update: AugmentedEvent<ApiType, [registryId: Bytes, updater: AccountId32, authorization: Bytes], { registryId: Bytes, updater: AccountId32, authorization: Bytes }>;
+      ProfileSet: AugmentedEvent<ApiType, [who: AccountId32, identifier: Bytes], { who: AccountId32, identifier: Bytes }>;
+    };
+    registry: {
+      DelegateAdded: AugmentedEvent<ApiType, [identifier: Bytes, delegate: AccountId32, delegateProfileId: Bytes], { identifier: Bytes, delegate: AccountId32, delegateProfileId: Bytes }>;
+      DelegateRemoved: AugmentedEvent<ApiType, [identifier: Bytes, delegate: AccountId32, delegateProfileId: Bytes], { identifier: Bytes, delegate: AccountId32, delegateProfileId: Bytes }>;
+      RegistryArchived: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes], { registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
+      RegistryCreated: AugmentedEvent<ApiType, [registry_: Bytes, creator: AccountId32, profileId: Bytes], { registry_: Bytes, creator: AccountId32, profileId: Bytes }>;
+      RegistryRestored: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes], { registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
+      RegistryUpdated: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes], { registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
     };
     remark: {
       /**
        * Stored data off chain.
        **/
       Stored: AugmentedEvent<ApiType, [sender: AccountId32, contentHash: H256], { sender: AccountId32, contentHash: H256 }>;
+    };
+    revive: {
+      /**
+       * A custom event emitted by the contract.
+       **/
+      ContractEmitted: AugmentedEvent<ApiType, [contract: H160, data: Bytes, topics: Vec<H256>], { contract: H160, data: Bytes, topics: Vec<H256> }>;
+    };
+    rootTesting: {
+      /**
+       * Event dispatched when the trigger_defensive extrinsic is called.
+       **/
+      DefensiveTestCall: AugmentedEvent<ApiType, []>;
+    };
+    safeMode: {
+      /**
+       * Could not hold funds for entering or extending the safe-mode.
+       * 
+       * This error comes from the underlying `Currency`.
+       **/
+      CannotDeposit: AugmentedEvent<ApiType, []>;
+      /**
+       * Could not release funds for entering or extending the safe-mode.
+       * 
+       * This error comes from the underlying `Currency`.
+       **/
+      CannotRelease: AugmentedEvent<ApiType, []>;
+      /**
+       * An account reserved funds for either entering or extending the safe-mode.
+       **/
+      DepositPlaced: AugmentedEvent<ApiType, [account: AccountId32, amount: u128], { account: AccountId32, amount: u128 }>;
+      /**
+       * An account had a reserve released that was reserved.
+       **/
+      DepositReleased: AugmentedEvent<ApiType, [account: AccountId32, amount: u128], { account: AccountId32, amount: u128 }>;
+      /**
+       * An account had reserve slashed that was reserved.
+       **/
+      DepositSlashed: AugmentedEvent<ApiType, [account: AccountId32, amount: u128], { account: AccountId32, amount: u128 }>;
+      /**
+       * The safe-mode was entered until inclusively this block.
+       **/
+      Entered: AugmentedEvent<ApiType, [until: u32], { until: u32 }>;
+      /**
+       * Exited the safe-mode for a specific reason.
+       **/
+      Exited: AugmentedEvent<ApiType, [reason: PalletSafeModeExitReason], { reason: PalletSafeModeExitReason }>;
+      /**
+       * The safe-mode was extended until inclusively this block.
+       **/
+      Extended: AugmentedEvent<ApiType, [until: u32], { until: u32 }>;
     };
     scheduler: {
       /**
@@ -1053,20 +1246,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Scheduled: AugmentedEvent<ApiType, [when: u32, index: u32], { when: u32, index: u32 }>;
     };
-    schema: {
-      /**
-       * A new schema has been created.
-       * \[schema identifier, digest, author\]
-       **/
-      Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
-    };
-    schemaDid: {
-      /**
-       * A new schema has been created.
-       * \[schema identifier, digest, author\]
-       **/
-      Created: AugmentedEvent<ApiType, [identifier: Bytes, creator: AccountId32], { identifier: Bytes, creator: AccountId32 }>;
-    };
     session: {
       /**
        * New session has happened. Note that the argument is the session index, not the
@@ -1074,101 +1253,124 @@ declare module '@polkadot/api-base/types/events' {
        **/
       NewSession: AugmentedEvent<ApiType, [sessionIndex: u32], { sessionIndex: u32 }>;
     };
+    staking: {
+      /**
+       * An account has bonded this amount. \[stash, amount\]
+       * 
+       * NOTE: This event is only emitted when funds are bonded via a dispatchable. Notably,
+       * it will not be emitted for staking rewards when they are added to stake.
+       **/
+      Bonded: AugmentedEvent<ApiType, [stash: AccountId32, amount: u128], { stash: AccountId32, amount: u128 }>;
+      /**
+       * An account has stopped participating as either a validator or nominator.
+       **/
+      Chilled: AugmentedEvent<ApiType, [stash: AccountId32], { stash: AccountId32 }>;
+      /**
+       * Report of a controller batch deprecation.
+       **/
+      ControllerBatchDeprecated: AugmentedEvent<ApiType, [failures: u32], { failures: u32 }>;
+      /**
+       * Staking balance migrated from locks to holds, with any balance that could not be held
+       * is force withdrawn.
+       **/
+      CurrencyMigrated: AugmentedEvent<ApiType, [stash: AccountId32, forceWithdraw: u128], { stash: AccountId32, forceWithdraw: u128 }>;
+      /**
+       * The era payout has been set; the first balance is the validator-payout; the second is
+       * the remainder from the maximum amount of reward.
+       **/
+      EraPaid: AugmentedEvent<ApiType, [eraIndex: u32, validatorPayout: u128, remainder: u128], { eraIndex: u32, validatorPayout: u128, remainder: u128 }>;
+      /**
+       * A new force era mode was set.
+       **/
+      ForceEra: AugmentedEvent<ApiType, [mode: PalletStakingForcing], { mode: PalletStakingForcing }>;
+      /**
+       * A nominator has been kicked from a validator.
+       **/
+      Kicked: AugmentedEvent<ApiType, [nominator: AccountId32, stash: AccountId32], { nominator: AccountId32, stash: AccountId32 }>;
+      /**
+       * An old slashing report from a prior era was discarded because it could
+       * not be processed.
+       **/
+      OldSlashingReportDiscarded: AugmentedEvent<ApiType, [sessionIndex: u32], { sessionIndex: u32 }>;
+      /**
+       * A Page of stakers rewards are getting paid. `next` is `None` if all pages are claimed.
+       **/
+      PayoutStarted: AugmentedEvent<ApiType, [eraIndex: u32, validatorStash: AccountId32, page: u32, next: Option<u32>], { eraIndex: u32, validatorStash: AccountId32, page: u32, next: Option<u32> }>;
+      /**
+       * The nominator has been rewarded by this amount to this destination.
+       **/
+      Rewarded: AugmentedEvent<ApiType, [stash: AccountId32, dest: PalletStakingRewardDestination, amount: u128], { stash: AccountId32, dest: PalletStakingRewardDestination, amount: u128 }>;
+      /**
+       * A staker (validator or nominator) has been slashed by the given amount.
+       **/
+      Slashed: AugmentedEvent<ApiType, [staker: AccountId32, amount: u128], { staker: AccountId32, amount: u128 }>;
+      /**
+       * A slash for the given validator, for the given percentage of their stake, at the given
+       * era as been reported.
+       **/
+      SlashReported: AugmentedEvent<ApiType, [validator: AccountId32, fraction: Perbill, slashEra: u32], { validator: AccountId32, fraction: Perbill, slashEra: u32 }>;
+      /**
+       * Targets size limit reached.
+       **/
+      SnapshotTargetsSizeExceeded: AugmentedEvent<ApiType, [size_: u32], { size_: u32 }>;
+      /**
+       * Voters size limit reached.
+       **/
+      SnapshotVotersSizeExceeded: AugmentedEvent<ApiType, [size_: u32], { size_: u32 }>;
+      /**
+       * A new set of stakers was elected.
+       **/
+      StakersElected: AugmentedEvent<ApiType, []>;
+      /**
+       * The election failed. No new era is planned.
+       **/
+      StakingElectionFailed: AugmentedEvent<ApiType, []>;
+      /**
+       * An account has unbonded this amount.
+       **/
+      Unbonded: AugmentedEvent<ApiType, [stash: AccountId32, amount: u128], { stash: AccountId32, amount: u128 }>;
+      /**
+       * Validator has been disabled.
+       **/
+      ValidatorDisabled: AugmentedEvent<ApiType, [stash: AccountId32], { stash: AccountId32 }>;
+      /**
+       * A validator has set their preferences.
+       **/
+      ValidatorPrefsSet: AugmentedEvent<ApiType, [stash: AccountId32, prefs: PalletStakingValidatorPrefs], { stash: AccountId32, prefs: PalletStakingValidatorPrefs }>;
+      /**
+       * Validator has been re-enabled.
+       **/
+      ValidatorReenabled: AugmentedEvent<ApiType, [stash: AccountId32], { stash: AccountId32 }>;
+      /**
+       * An account has called `withdraw_unbonded` and removed unbonding chunks worth `Balance`
+       * from the unlocking queue.
+       **/
+      Withdrawn: AugmentedEvent<ApiType, [stash: AccountId32, amount: u128], { stash: AccountId32, amount: u128 }>;
+    };
     statement: {
       /**
-       * A statement identifier has been removed.
-       * \[statement identifier,  controller\]
+       * A new statement is submitted
        **/
-      PartialRemoval: AugmentedEvent<ApiType, [identifier: Bytes, removed: u32, author: AccountId32], { identifier: Bytes, removed: u32, author: AccountId32 }>;
-      /**
-       * A statement digest has been added.
-       * \[statement identifier, digest, controller\]
-       **/
-      PresentationAdded: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
-      /**
-       * A statement digest has been added.
-       * \[statement identifier, digest, controller\]
-       **/
-      PresentationRemoved: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
-      /**
-       * A new statement identifier has been registered.
-       * \[statement identifier, statement digest, controller\]
-       **/
-      Register: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
-      /**
-       * A statement batch has been processed.
-       * \[successful count, failed count, failed indices,
-       * controller]
-       **/
-      RegisterBatch: AugmentedEvent<ApiType, [successful: u32, failed: u32, indices: Vec<u16>, author: AccountId32], { successful: u32, failed: u32, indices: Vec<u16>, author: AccountId32 }>;
-      /**
-       * A statement identifier has been removed.
-       * \[statement identifier,  controller\]
-       **/
-      Remove: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * A statement identifier status has been restored.
-       * \[statement identifier, controller\]
-       **/
-      Restore: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * A statement identifier status has been revoked.
-       * \[statement identifier, controller\]
-       **/
-      Revoke: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * A statement identifier has been updated.
-       * \[statement identifier, digest, controller\]
-       **/
-      Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      NewStatement: AugmentedEvent<ApiType, [account: AccountId32, statement: SpStatementStoreStatement], { account: AccountId32, statement: SpStatementStoreStatement }>;
     };
-    statementDid: {
+    stateTrieMigration: {
       /**
-       * A statement identifier has been removed.
-       * \[statement identifier,  controller\]
+       * The auto migration task finished.
        **/
-      PartialRemoval: AugmentedEvent<ApiType, [identifier: Bytes, removed: u32, author: AccountId32], { identifier: Bytes, removed: u32, author: AccountId32 }>;
+      AutoMigrationFinished: AugmentedEvent<ApiType, []>;
       /**
-       * A statement digest has been added.
-       * \[statement identifier, digest, controller\]
+       * Migration got halted due to an error or miss-configuration.
        **/
-      PresentationAdded: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      Halted: AugmentedEvent<ApiType, [error: PalletStateTrieMigrationError], { error: PalletStateTrieMigrationError }>;
       /**
-       * A statement digest has been added.
-       * \[statement identifier, digest, controller\]
+       * Given number of `(top, child)` keys were migrated respectively, with the given
+       * `compute`.
        **/
-      PresentationRemoved: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      Migrated: AugmentedEvent<ApiType, [top: u32, child: u32, compute: PalletStateTrieMigrationMigrationCompute], { top: u32, child: u32, compute: PalletStateTrieMigrationMigrationCompute }>;
       /**
-       * A new statement identifier has been registered.
-       * \[statement identifier, statement digest, controller\]
+       * Some account got slashed by the given amount.
        **/
-      Register: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
-      /**
-       * A statement batch has been processed.
-       * \[successful count, failed count, failed indices,
-       * controller]
-       **/
-      RegisterBatch: AugmentedEvent<ApiType, [successful: u32, failed: u32, indices: Vec<u16>, author: AccountId32], { successful: u32, failed: u32, indices: Vec<u16>, author: AccountId32 }>;
-      /**
-       * A statement identifier has been removed.
-       * \[statement identifier,  controller\]
-       **/
-      Remove: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * A statement identifier status has been restored.
-       * \[statement identifier, controller\]
-       **/
-      Restore: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * A statement identifier status has been revoked.
-       * \[statement identifier, controller\]
-       **/
-      Revoke: AugmentedEvent<ApiType, [identifier: Bytes, author: AccountId32], { identifier: Bytes, author: AccountId32 }>;
-      /**
-       * A statement identifier has been updated.
-       * \[statement identifier, digest, controller\]
-       **/
-      Update: AugmentedEvent<ApiType, [identifier: Bytes, digest: H256, author: AccountId32], { identifier: Bytes, digest: H256, author: AccountId32 }>;
+      Slashed: AugmentedEvent<ApiType, [who: AccountId32, amount: u128], { who: AccountId32, amount: u128 }>;
     };
     sudo: {
       /**
@@ -1196,11 +1398,11 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * An extrinsic failed.
        **/
-      ExtrinsicFailed: AugmentedEvent<ApiType, [dispatchError: SpRuntimeDispatchError, dispatchInfo: FrameSupportDispatchDispatchInfo], { dispatchError: SpRuntimeDispatchError, dispatchInfo: FrameSupportDispatchDispatchInfo }>;
+      ExtrinsicFailed: AugmentedEvent<ApiType, [dispatchError: SpRuntimeDispatchError, dispatchInfo: FrameSystemDispatchEventInfo], { dispatchError: SpRuntimeDispatchError, dispatchInfo: FrameSystemDispatchEventInfo }>;
       /**
        * An extrinsic completed successfully.
        **/
-      ExtrinsicSuccess: AugmentedEvent<ApiType, [dispatchInfo: FrameSupportDispatchDispatchInfo], { dispatchInfo: FrameSupportDispatchDispatchInfo }>;
+      ExtrinsicSuccess: AugmentedEvent<ApiType, [dispatchInfo: FrameSystemDispatchEventInfo], { dispatchInfo: FrameSystemDispatchEventInfo }>;
       /**
        * An account was reaped.
        **/
@@ -1236,9 +1438,21 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Executed: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
       /**
+       * A proposal was killed.
+       **/
+      Killed: AugmentedEvent<ApiType, [proposalHash: H256], { proposalHash: H256 }>;
+      /**
        * A single member did some action; result will be `Ok` if it returned without error.
        **/
       MemberExecuted: AugmentedEvent<ApiType, [proposalHash: H256, result: Result<Null, SpRuntimeDispatchError>], { proposalHash: H256, result: Result<Null, SpRuntimeDispatchError> }>;
+      /**
+       * Some cost for storing a proposal was burned.
+       **/
+      ProposalCostBurned: AugmentedEvent<ApiType, [proposalHash: H256, who: AccountId32], { proposalHash: H256, who: AccountId32 }>;
+      /**
+       * Some cost for storing a proposal was released.
+       **/
+      ProposalCostReleased: AugmentedEvent<ApiType, [proposalHash: H256, who: AccountId32], { proposalHash: H256, who: AccountId32 }>;
       /**
        * A motion (given hash) has been proposed (by given account) with a threshold (given
        * `MemberCount`).
@@ -1268,8 +1482,7 @@ declare module '@polkadot/api-base/types/events' {
        **/
       MemberRemoved: AugmentedEvent<ApiType, []>;
       /**
-       * The membership was reset; see the transaction for who the new set
-       * is.
+       * The membership was reset; see the transaction for who the new set is.
        **/
       MembersReset: AugmentedEvent<ApiType, []>;
       /**
@@ -1288,7 +1501,7 @@ declare module '@polkadot/api-base/types/events' {
       /**
        * A new asset spend proposal has been approved.
        **/
-      AssetSpendApproved: AugmentedEvent<ApiType, [index: u32, assetKind: Null, amount: u128, beneficiary: AccountId32, validFrom: u32, expireAt: u32], { index: u32, assetKind: Null, amount: u128, beneficiary: AccountId32, validFrom: u32, expireAt: u32 }>;
+      AssetSpendApproved: AugmentedEvent<ApiType, [index: u32, assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId, amount: u128, beneficiary: AccountId32, validFrom: u32, expireAt: u32], { index: u32, assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId, amount: u128, beneficiary: AccountId32, validFrom: u32, expireAt: u32 }>;
       /**
        * An approved spend was voided.
        **/
@@ -1335,6 +1548,16 @@ declare module '@polkadot/api-base/types/events' {
        **/
       UpdatedInactive: AugmentedEvent<ApiType, [reactivated: u128, deactivated: u128], { reactivated: u128, deactivated: u128 }>;
     };
+    txPause: {
+      /**
+       * This pallet, or a specific call is now paused.
+       **/
+      CallPaused: AugmentedEvent<ApiType, [fullName: ITuple<[Bytes, Bytes]>], { fullName: ITuple<[Bytes, Bytes]> }>;
+      /**
+       * This pallet, or a specific call is now unpaused.
+       **/
+      CallUnpaused: AugmentedEvent<ApiType, [fullName: ITuple<[Bytes, Bytes]>], { fullName: ITuple<[Bytes, Bytes]> }>;
+    };
     utility: {
       /**
        * Batch of dispatches completed fully with no error.
@@ -1361,6 +1584,16 @@ declare module '@polkadot/api-base/types/events' {
        * A single item within a Batch of dispatches has completed with error.
        **/
       ItemFailed: AugmentedEvent<ApiType, [error: SpRuntimeDispatchError], { error: SpRuntimeDispatchError }>;
+    };
+    voterList: {
+      /**
+       * Moved an account from one bag to another.
+       **/
+      Rebagged: AugmentedEvent<ApiType, [who: AccountId32, from: u64, to: u64], { who: AccountId32, from: u64, to: u64 }>;
+      /**
+       * Updated the score of some account to the given amount.
+       **/
+      ScoreUpdated: AugmentedEvent<ApiType, [who: AccountId32, newScore: u64], { who: AccountId32, newScore: u64 }>;
     };
   } // AugmentedEvents
 } // declare module
