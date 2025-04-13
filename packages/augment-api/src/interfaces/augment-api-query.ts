@@ -7,11 +7,10 @@ import '@polkadot/api-base/types/storage';
 
 import type { ApiTypes, AugmentedQuery, QueryableStorageEntry } from '@polkadot/api-base/types';
 import type { Data } from '@polkadot/types';
-import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
+import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
-import type { OpaquePeerId } from '@polkadot/types/interfaces/imOnline';
-import type { AccountId32, Call, H256 } from '@polkadot/types/interfaces/runtime';
-import type { CordIdentifierEventEntry, CordIdentifierIdentifierTypeOf, CordWeaveRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletChainSpaceDidSpaceAuthorization, PalletChainSpaceDidSpaceDetails, PalletChainSpaceSpaceAuthorization, PalletChainSpaceSpaceDetails, PalletCollectiveVotes, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDidDidDetails, PalletDidNameDidNameDidNameOwnership, PalletDidServiceEndpointsDidEndpoint, PalletEntriesRegistryEntryDetails, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletImOnlineSr25519AppSr25519Public, PalletMultisigMultisig, PalletNamespaceNameSpaceAuthorization, PalletNamespaceNameSpaceDetails, PalletNetworkMembershipMemberData, PalletNetworkScoreAggregatedEntryOf, PalletNetworkScoreRatingEntry, PalletNetworkScoreRatingTypeOf, PalletNodeAuthorizationNodeInfo, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletRegistriesRegistryAuthorization, PalletRegistriesRegistryDetails, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletSchemaDidSchemaEntry, PalletSchemaSchemaEntry, PalletStatementDidStatementDetails, PalletStatementDidStatementEntryStatus, PalletStatementDidStatementPresentationDetails, PalletStatementStatementDetails, PalletStatementStatementEntryStatus, PalletStatementStatementPresentationDetails, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpRuntimeDigest, SpStakingOffenceOffenceDetails } from '@polkadot/types/lookup';
+import type { AccountId32, Call, H160, H256, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
+import type { CordUriActivityRecord, CordWeaveRuntimeNetworksRegistrarNetworkInfo, CordWeaveRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBagsListListBag, PalletBagsListListNode, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletCollectionCollectionDetails, PalletCollectionPermissions, PalletCollectiveVotes, PalletConfigNetworkInfo, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDelegatedStakingAgentLedger, PalletDelegatedStakingDelegation, PalletElectionProviderMultiPhasePhase, PalletElectionProviderMultiPhaseReadySolution, PalletElectionProviderMultiPhaseRoundSnapshot, PalletElectionProviderMultiPhaseSignedSignedSubmission, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize, PalletEntryRegistryEntryDetails, PalletFastUnstakeUnstakeRequest, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityProvider, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletIdentityUsernameInformation, PalletImOnlineSr25519AppSr25519Public, PalletMessageQueueBookState, PalletMessageQueuePage, PalletMigrationsMigrationCursor, PalletMultisigMultisig, PalletNftFractionalizationDetails, PalletNftsAttributeDeposit, PalletNftsAttributeNamespace, PalletNftsCollectionConfig, PalletNftsCollectionDetails, PalletNftsCollectionMetadata, PalletNftsItemConfig, PalletNftsItemDetails, PalletNftsItemMetadata, PalletNftsPendingSwap, PalletNominationPoolsBondedPoolInner, PalletNominationPoolsClaimPermission, PalletNominationPoolsPoolMember, PalletNominationPoolsRewardPool, PalletNominationPoolsSubPools, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletProfileProfileMetadata, PalletRegistryPermissions, PalletRegistryRegistryDetails, PalletReviveStorageContractInfo, PalletReviveStorageDeletionQueueManager, PalletReviveWasmCodeInfo, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletStakingActiveEraInfo, PalletStakingEraRewardPoints, PalletStakingForcing, PalletStakingNominations, PalletStakingRewardDestination, PalletStakingSlashingSlashingSpans, PalletStakingSlashingSpanRecord, PalletStakingStakingLedger, PalletStakingUnappliedSlash, PalletStakingValidatorPrefs, PalletStateTrieMigrationMigrationLimits, PalletStateTrieMigrationMigrationTask, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusBeefyEcdsaCryptoPublic, SpConsensusBeefyMmrBeefyAuthoritySet, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpNposElectionsElectionScore, SpRuntimeDigest, SpStakingExposure, SpStakingExposurePage, SpStakingOffenceOffenceDetails, SpStakingPagedExposureMetadata, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -30,6 +29,14 @@ declare module '@polkadot/api-base/types/storage' {
        * created rather than people sending tokens directly to a pool's public account.
        **/
       pools: AugmentedQuery<ApiType, (arg: ITuple<[FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId]> | [FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array]) => Observable<Option<PalletAssetConversionPoolInfo>>, [ITuple<[FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId]>]>;
+    };
+    assetRate: {
+      /**
+       * Maps an asset to its fixed point representation in the native balance.
+       * 
+       * E.g. `native_amount = asset_amount * ConversionRateToNative::<T>::get(asset_kind)`
+       **/
+      conversionRateToNative: AugmentedQuery<ApiType, (arg: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array) => Observable<Option<u128>>, [FrameSupportTokensFungibleUnionOfNativeOrWithId]>;
     };
     assets: {
       /**
@@ -72,21 +79,6 @@ declare module '@polkadot/api-base/types/storage' {
        * Keys of the next authority set.
        **/
       nextKeys: AugmentedQuery<ApiType, () => Observable<Vec<SpAuthorityDiscoveryAppPublic>>, []>;
-    };
-    authorityMembership: {
-      blackList: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
-      /**
-       * list incoming authorities
-       **/
-      incomingAuthorities: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
-      /**
-       * maps member id to member data
-       **/
-      members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
-      /**
-       * list outgoing authorities
-       **/
-      outgoingAuthorities: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
     };
     authorship: {
       /**
@@ -261,41 +253,54 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       totalIssuance: AugmentedQuery<ApiType, () => Observable<u128>, []>;
     };
-    chainSpace: {
+    beefy: {
       /**
-       * Space authorizations stored on-chain.
-       * It maps from an identifier to delegates.
+       * The current authorities set
        **/
-      authorizations: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceSpaceAuthorization>>, [Bytes]>;
+      authorities: AugmentedQuery<ApiType, () => Observable<Vec<SpConsensusBeefyEcdsaCryptoPublic>>, []>;
       /**
-       * Space delegates stored on chain.
-       * It maps from an identifier to a  bounded vec of delegates and
-       * permissions.
+       * Block number where BEEFY consensus is enabled/started.
+       * By changing this (through privileged `set_new_genesis()`), BEEFY consensus is effectively
+       * restarted from the newly set block number.
        **/
-      delegates: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
+      genesisBlock: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
       /**
-       * Space information stored on chain.
-       * It maps from an identifier to its details.
+       * Authorities set scheduled to be used with the next session
        **/
-      spaces: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceSpaceDetails>>, [Bytes]>;
+      nextAuthorities: AugmentedQuery<ApiType, () => Observable<Vec<SpConsensusBeefyEcdsaCryptoPublic>>, []>;
+      /**
+       * A mapping from BEEFY set ID to the index of the *most recent* session for which its
+       * members were responsible.
+       * 
+       * This is only used for validating equivocation proofs. An equivocation proof must
+       * contains a key-ownership proof for a given session, therefore we need a way to tie
+       * together sessions and BEEFY set ids, i.e. we need to validate that a validator
+       * was the owner of a given key on a given session, and what the active set ID was
+       * during that session.
+       * 
+       * TWOX-NOTE: `ValidatorSetId` is not under user control.
+       **/
+      setIdSession: AugmentedQuery<ApiType, (arg: u64 | AnyNumber | Uint8Array) => Observable<Option<u32>>, [u64]>;
+      /**
+       * The current validator set id
+       **/
+      validatorSetId: AugmentedQuery<ApiType, () => Observable<u64>, []>;
     };
-    chainSpaceDid: {
+    collection: {
       /**
-       * SpaceDid authorizations stored on-chain.
-       * It maps from an identifier to delegates.
+       * Maps a collection to its registries. The value is unit type because the
+       * registry information (and status) is managed by another pallet.
        **/
-      authorizations: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceDidSpaceAuthorization>>, [Bytes]>;
+      collectionRegistries: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Null>>, [Bytes, Bytes]>;
       /**
-       * SpaceDid delegates stored on chain.
-       * It maps from an identifier to a  bounded vec of delegates and
-       * permissions.
+       * Stores collection details (creator, status) for each collection.
        **/
-      delegates: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
+      collections: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletCollectionCollectionDetails>>, [Bytes]>;
       /**
-       * SpaceDid information stored on chain.
-       * It maps from an identifier to its details.
+       * Stores collection-level delegates (account → permissions). Using a double map
+       * avoids a bounded collection.
        **/
-      spaces: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletChainSpaceDidSpaceDetails>>, [Bytes]>;
+      delegates: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<PalletCollectionPermissions>>, [Bytes, Bytes]>;
     };
     contracts: {
       /**
@@ -357,6 +362,13 @@ declare module '@polkadot/api-base/types/storage' {
     };
     council: {
       /**
+       * Consideration cost created for publishing and storing a proposal.
+       * 
+       * Determined by [Config::Consideration] and may be not present for certain proposals (e.g. if
+       * the proposal count at the time of creation was below threshold N).
+       **/
+      costOf: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, u128]>>>, [H256]>;
+      /**
        * The current members of the collective. This is stored sorted (just by value).
        **/
       members: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
@@ -391,56 +403,142 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       prime: AugmentedQuery<ApiType, () => Observable<Option<AccountId32>>, []>;
     };
-    did: {
+    delegatedStaking: {
       /**
-       * DIDs stored on chain.
-       * 
-       * It maps from a DID identifier to the DID details.
+       * Map of `Agent` to their `Ledger`.
        **/
-      did: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletDidDidDetails>>, [AccountId32]>;
+      agents: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletDelegatedStakingAgentLedger>>, [AccountId32]>;
       /**
-       * The set of DIDs that have been deleted and cannot therefore be created
-       * again for security reasons.
-       * 
-       * It maps from a DID identifier to a unit tuple, for the sake of tracking
-       * DID identifiers.
+       * Counter for the related counted storage map
        **/
-      didBlacklist: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
+      counterForAgents: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * Counter of service endpoints for each DID.
-       * 
-       * It maps from (DID identifier) to a 32-bit counter.
+       * Counter for the related counted storage map
        **/
-      didEndpointsCount: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<u32>, [AccountId32]>;
+      counterForDelegators: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * Service endpoints associated with DIDs.
+       * Map of Delegators to their `Delegation`.
        * 
-       * It maps from (DID identifier, service ID) to the service details.
+       * Implementation note: We are not using a double map with `delegator` and `agent` account
+       * as keys since we want to restrict delegators to delegate only to one account at a time.
        **/
-      serviceEndpoints: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<PalletDidServiceEndpointsDidEndpoint>>, [AccountId32, Bytes]>;
+      delegators: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletDelegatedStakingDelegation>>, [AccountId32]>;
     };
-    didName: {
+    electionProviderMultiPhase: {
       /**
-       * Map of name -> ().
+       * Current phase.
+       **/
+      currentPhase: AugmentedQuery<ApiType, () => Observable<PalletElectionProviderMultiPhasePhase>, []>;
+      /**
+       * Desired number of targets to elect for this round.
        * 
-       * If a name key is present, the name is currently banned.
+       * Only exists when [`Snapshot`] is present.
+       * Note: This storage type must only be mutated through [`SnapshotWrapper`].
        **/
-      banned: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<Null>>, [Bytes]>;
+      desiredTargets: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
       /**
-       * Map of owner -> name.
+       * The minimum score that each 'untrusted' solution must attain in order to be considered
+       * feasible.
+       * 
+       * Can be set via `set_minimum_untrusted_score`.
        **/
-      names: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Bytes>>, [AccountId32]>;
+      minimumUntrustedScore: AugmentedQuery<ApiType, () => Observable<Option<SpNposElectionsElectionScore>>, []>;
       /**
-       * Map of name -> ownership details.
+       * Current best solution, signed or unsigned, queued to be returned upon `elect`.
+       * 
+       * Always sorted by score.
        **/
-      owner: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletDidNameDidNameDidNameOwnership>>, [Bytes]>;
+      queuedSolution: AugmentedQuery<ApiType, () => Observable<Option<PalletElectionProviderMultiPhaseReadySolution>>, []>;
+      /**
+       * Internal counter for the number of rounds.
+       * 
+       * This is useful for de-duplication of transactions submitted to the pool, and general
+       * diagnostics of the pallet.
+       * 
+       * This is merely incremented once per every time that an upstream `elect` is called.
+       **/
+      round: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * A sorted, bounded vector of `(score, block_number, index)`, where each `index` points to a
+       * value in `SignedSubmissions`.
+       * 
+       * We never need to process more than a single signed submission at a time. Signed submissions
+       * can be quite large, so we're willing to pay the cost of multiple database accesses to access
+       * them one at a time instead of reading and decoding all of them at once.
+       **/
+      signedSubmissionIndices: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[SpNposElectionsElectionScore, u32, u32]>>>, []>;
+      /**
+       * The next index to be assigned to an incoming signed submission.
+       * 
+       * Every accepted submission is assigned a unique index; that index is bound to that particular
+       * submission for the duration of the election. On election finalization, the next index is
+       * reset to 0.
+       * 
+       * We can't just use `SignedSubmissionIndices.len()`, because that's a bounded set; past its
+       * capacity, it will simply saturate. We can't just iterate over `SignedSubmissionsMap`,
+       * because iteration is slow. Instead, we store the value here.
+       **/
+      signedSubmissionNextIndex: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Unchecked, signed solutions.
+       * 
+       * Together with `SubmissionIndices`, this stores a bounded set of `SignedSubmissions` while
+       * allowing us to keep only a single one in memory at a time.
+       * 
+       * Twox note: the key of the map is an auto-incrementing index which users cannot inspect or
+       * affect; we shouldn't need a cryptographically secure hasher.
+       **/
+      signedSubmissionsMap: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletElectionProviderMultiPhaseSignedSignedSubmission>>, [u32]>;
+      /**
+       * Snapshot data of the round.
+       * 
+       * This is created at the beginning of the signed phase and cleared upon calling `elect`.
+       * Note: This storage type must only be mutated through [`SnapshotWrapper`].
+       **/
+      snapshot: AugmentedQuery<ApiType, () => Observable<Option<PalletElectionProviderMultiPhaseRoundSnapshot>>, []>;
+      /**
+       * The metadata of the [`RoundSnapshot`]
+       * 
+       * Only exists when [`Snapshot`] is present.
+       * Note: This storage type must only be mutated through [`SnapshotWrapper`].
+       **/
+      snapshotMetadata: AugmentedQuery<ApiType, () => Observable<Option<PalletElectionProviderMultiPhaseSolutionOrSnapshotSize>>, []>;
     };
-    entries: {
+    entry: {
       /**
        * Storage for Registry Entries.
        * It maps Registry Entry Identifier to Registry Entry Details.
        **/
-      registryEntries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletEntriesRegistryEntryDetails>>, [Bytes]>;
+      registryEntries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletEntryRegistryEntryDetails>>, [Bytes]>;
+    };
+    fastUnstake: {
+      /**
+       * Counter for the related counted storage map
+       **/
+      counterForQueue: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Number of eras to check per block.
+       * 
+       * If set to 0, this pallet does absolutely nothing. Cannot be set to more than
+       * [`Config::MaxErasToCheckPerBlock`].
+       * 
+       * Based on the amount of weight available at [`Pallet::on_idle`], up to this many eras are
+       * checked. The checking is represented by updating [`UnstakeRequest::checked`], which is
+       * stored in [`Head`].
+       **/
+      erasToCheckPerBlock: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * The current "head of the queue" being unstaked.
+       * 
+       * The head in itself can be a batch of up to [`Config::BatchSize`] stakers.
+       **/
+      head: AugmentedQuery<ApiType, () => Observable<Option<PalletFastUnstakeUnstakeRequest>>, []>;
+      /**
+       * The map of all accounts wishing to be unstaked.
+       * 
+       * Keeps track of `AccountId` wishing to unstake and it's corresponding deposit.
+       **/
+      queue: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<u128>>, [AccountId32]>;
     };
     grandpa: {
       /**
@@ -493,33 +591,38 @@ declare module '@polkadot/api-base/types/storage' {
       storedRange: AugmentedQuery<ApiType, () => Observable<Option<ITuple<[u32, u32]>>>, []>;
     };
     identifier: {
-      identifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: CordIdentifierIdentifierTypeOf | 'Asset' | 'AuthDid' | 'ChainSpaceDid' | 'Did' | 'Rating' | 'Registry' | 'StatementDid' | 'SchemaDid' | 'Template' | 'Registries' | 'Entries' | 'RegistryAuthorization' | 'Schema' | 'NameSpace' | 'NameSpaceAuthorization' | 'ChainSpace' | 'Auth' | 'Statement' | number | Uint8Array) => Observable<Option<Vec<CordIdentifierEventEntry>>>, [Bytes, CordIdentifierIdentifierTypeOf]>;
+      activityChain: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<CordUriActivityRecord>>, [Bytes, u32]>;
+      activityCounter: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<u32>, [Bytes]>;
+      genesisNetworkId: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      indexToPallet: AugmentedQuery<ApiType, (arg: u16 | AnyNumber | Uint8Array) => Observable<Option<Bytes>>, [u16]>;
+      palletIndex: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<u16>>, [Bytes]>;
     };
     identity: {
       /**
-       * Reverse lookup from `username` to the `AccountId` that has registered it. The value should
-       * be a key in the `IdentityOf` map, but it may not if the user has cleared their identity.
-       * 
-       * Multiple usernames may map to the same `AccountId`, but `IdentityOf` will only map to one
-       * primary username.
+       * A map of the accounts who are authorized to grant usernames.
        **/
-      accountOfUsername: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<AccountId32>>, [Bytes]>;
+      authorityOf: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletIdentityAuthorityProperties>>, [Bytes]>;
       /**
-       * Information that is pertinent to identify the entity behind an account.
+       * Information that is pertinent to identify the entity behind an account. First item is the
+       * registration, second is the account's primary username.
+       * 
+       * TWOX-NOTE: OK ― `AccountId` is a secure hash.
        **/
-      identityOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<ITuple<[PalletIdentityRegistration, Option<Bytes>]>>>, [AccountId32]>;
+      identityOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletIdentityRegistration>>, [AccountId32]>;
       /**
        * Usernames that an authority has granted, but that the account controller has not confirmed
        * that they want it. Used primarily in cases where the `AccountId` cannot provide a signature
        * because they are a pure proxy, multisig, etc. In order to confirm it, they should call
-       * [`Call::accept_username`].
+       * [accept_username](`Call::accept_username`).
        * 
        * First tuple item is the account and second is the acceptance deadline.
        **/
-      pendingUsernames: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, u32]>>>, [Bytes]>;
+      pendingUsernames: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, u32, PalletIdentityProvider]>>>, [Bytes]>;
       /**
-       * The set of registrars. Not expected to get very big as can only be added
-       * through a special origin (likely a council motion).
+       * The set of registrars. Not expected to get very big as can only be added through a
+       * special origin (likely a council motion).
+       * 
+       * The index into this can be cast to `RegistrarIndex` to get a valid value.
        **/
       registrars: AugmentedQuery<ApiType, () => Observable<Vec<Option<PalletIdentityRegistrarInfo>>>, []>;
       /**
@@ -529,16 +632,32 @@ declare module '@polkadot/api-base/types/storage' {
        * 
        * TWOX-NOTE: OK ― `AccountId` is a secure hash.
        **/
-      subsOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Vec<AccountId32>>, [AccountId32]>;
+      subsOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<ITuple<[u128, Vec<AccountId32>]>>, [AccountId32]>;
       /**
        * The super-identity of an alternative "sub" identity together with its name, within that
        * context. If the account is not some other account's sub-identity, then just `None`.
        **/
       superOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, Data]>>>, [AccountId32]>;
       /**
-       * A map of the accounts who are authorized to grant usernames.
+       * Usernames for which the authority that granted them has started the removal process by
+       * unbinding them. Each unbinding username maps to its grace period expiry, which is the first
+       * block in which the username could be deleted through a
+       * [remove_username](`Call::remove_username`) call.
        **/
-      usernameAuthorities: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletIdentityAuthorityProperties>>, [AccountId32]>;
+      unbindingUsernames: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<u32>>, [Bytes]>;
+      /**
+       * Reverse lookup from `username` to the `AccountId` that has registered it and the provider of
+       * the username. The `owner` value should be a key in the `UsernameOf` map, but it may not if
+       * the user has cleared their username or it has been removed.
+       * 
+       * Multiple usernames may map to the same `AccountId`, but `UsernameOf` will only map to one
+       * primary username.
+       **/
+      usernameInfoOf: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletIdentityUsernameInformation>>, [Bytes]>;
+      /**
+       * Identifies the primary username of an account.
+       **/
+      usernameOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Bytes>>, [AccountId32]>;
     };
     imOnline: {
       /**
@@ -575,87 +694,282 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       accounts: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<ITuple<[AccountId32, u128, bool]>>>, [u32]>;
     };
+    messageQueue: {
+      /**
+       * The index of the first and last (non-empty) pages.
+       **/
+      bookStateFor: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<PalletMessageQueueBookState>, [u32]>;
+      /**
+       * The map of page indices to pages.
+       **/
+      pages: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletMessageQueuePage>>, [u32, u32]>;
+      /**
+       * The origin at which we should begin servicing.
+       **/
+      serviceHead: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+    };
+    mmr: {
+      /**
+       * Hashes of the nodes in the MMR.
+       * 
+       * Note this collection only contains MMR peaks, the inner nodes (and leaves)
+       * are pruned and only stored in the Offchain DB.
+       **/
+      nodes: AugmentedQuery<ApiType, (arg: u64 | AnyNumber | Uint8Array) => Observable<Option<H256>>, [u64]>;
+      /**
+       * Current size of the MMR (number of leaves).
+       **/
+      numberOfLeaves: AugmentedQuery<ApiType, () => Observable<u64>, []>;
+      /**
+       * Latest MMR Root hash.
+       **/
+      rootHash: AugmentedQuery<ApiType, () => Observable<H256>, []>;
+    };
+    mmrLeaf: {
+      /**
+       * Details of current BEEFY authority set.
+       **/
+      beefyAuthorities: AugmentedQuery<ApiType, () => Observable<SpConsensusBeefyMmrBeefyAuthoritySet>, []>;
+      /**
+       * Details of next BEEFY authority set.
+       * 
+       * This storage entry is used as cache for calls to `update_beefy_next_authority_set`.
+       **/
+      beefyNextAuthorities: AugmentedQuery<ApiType, () => Observable<SpConsensusBeefyMmrBeefyAuthoritySet>, []>;
+    };
+    multiBlockMigrations: {
+      /**
+       * The currently active migration to run and its cursor.
+       * 
+       * `None` indicates that no migration is running.
+       **/
+      cursor: AugmentedQuery<ApiType, () => Observable<Option<PalletMigrationsMigrationCursor>>, []>;
+      /**
+       * Set of all successfully executed migrations.
+       * 
+       * This is used as blacklist, to not re-execute migrations that have not been removed from the
+       * codebase yet. Governance can regularly clear this out via `clear_historic`.
+       **/
+      historic: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<Null>>, [Bytes]>;
+    };
     multisig: {
       /**
        * The set of open multisig operations.
        **/
       multisigs: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: U8aFixed | string | Uint8Array) => Observable<Option<PalletMultisigMultisig>>, [AccountId32, U8aFixed]>;
     };
-    nameSpace: {
-      /**
-       * Namespace authorizations stored on-chain.
-       * It maps from an identifier to delegates.
-       **/
-      authorizations: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletNamespaceNameSpaceAuthorization>>, [Bytes]>;
-      /**
-       * Namespace delegates stored on chain.
-       * It maps from an identifier to a  bounded vec of delegates and
-       * permissions.
-       **/
-      delegates: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
-      /**
-       * Namespace information stored on chain.
-       * It maps from an identifier to its details.
-       **/
-      nameSpaces: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletNamespaceNameSpaceDetails>>, [Bytes]>;
+    networkInfo: {
+      networkConfigInfo: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletConfigNetworkInfo>>, [u32]>;
+      networkIdentifier: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      networkPermissioned: AugmentedQuery<ApiType, () => Observable<bool>, []>;
+      storageNodeConfigInfo: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<ITuple<[Bytes, AccountId32, bool]>>>, [Bytes]>;
+      storageNodes: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<ITuple<[Bytes, AccountId32]>>>, [Bytes]>;
     };
-    networkMembership: {
+    networkRegistrar: {
+      /**
+       * Stores the expiry information indexed on block
+       **/
+      expiresOn: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Vec<u32>>, [u32]>;
+      /**
+       * Netoworks - maps a network to it's associated properties.
+       **/
+      networks: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<CordWeaveRuntimeNetworksRegistrarNetworkInfo>>, [u32]>;
+      /**
+       * Track the network IDs.
+       **/
+      nextFreeNetworkId: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Scheduled renewals.
+       **/
+      renewsOn: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<Null>>, [u32]>;
+    };
+    nftFractionalization: {
+      /**
+       * Keeps track of the corresponding NFT ID, asset ID and amount minted.
+       **/
+      nftToAsset: AugmentedQuery<ApiType, (arg: ITuple<[u32, u32]> | [u32 | AnyNumber | Uint8Array, u32 | AnyNumber | Uint8Array]) => Observable<Option<PalletNftFractionalizationDetails>>, [ITuple<[u32, u32]>]>;
+    };
+    nfts: {
+      /**
+       * The items held by any given account; set out this way so that items owned by a single
+       * account can be enumerated.
+       **/
+      account: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: u32 | AnyNumber | Uint8Array, arg3: u32 | AnyNumber | Uint8Array) => Observable<Option<Null>>, [AccountId32, u32, u32]>;
+      /**
+       * Attributes of a collection.
+       **/
+      attribute: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: Option<u32> | null | Uint8Array | u32 | AnyNumber, arg3: PalletNftsAttributeNamespace | { Pallet: any } | { CollectionOwner: any } | { ItemOwner: any } | { Account: any } | string | Uint8Array, arg4: Bytes | string | Uint8Array) => Observable<Option<ITuple<[Bytes, PalletNftsAttributeDeposit]>>>, [u32, Option<u32>, PalletNftsAttributeNamespace, Bytes]>;
+      /**
+       * Details of a collection.
+       **/
+      collection: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNftsCollectionDetails>>, [u32]>;
+      /**
+       * The collections owned by any given account; set out this way so that collections owned by
+       * a single account can be enumerated.
+       **/
+      collectionAccount: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<Null>>, [AccountId32, u32]>;
+      /**
+       * Config of a collection.
+       **/
+      collectionConfigOf: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNftsCollectionConfig>>, [u32]>;
+      /**
+       * Metadata of a collection.
+       **/
+      collectionMetadataOf: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNftsCollectionMetadata>>, [u32]>;
+      /**
+       * The items in existence and their ownership details.
+       * Stores collection roles as per account.
+       **/
+      collectionRoleOf: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<u8>>, [u32, AccountId32]>;
+      /**
+       * The items in existence and their ownership details.
+       **/
+      item: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNftsItemDetails>>, [u32, u32]>;
+      /**
+       * Item attribute approvals.
+       **/
+      itemAttributesApprovalsOf: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<BTreeSet<AccountId32>>, [u32, u32]>;
+      /**
+       * Config of an item.
+       **/
+      itemConfigOf: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNftsItemConfig>>, [u32, u32]>;
+      /**
+       * Metadata of an item.
+       **/
+      itemMetadataOf: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNftsItemMetadata>>, [u32, u32]>;
+      /**
+       * A price of an item.
+       **/
+      itemPriceOf: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<ITuple<[u128, Option<AccountId32>]>>>, [u32, u32]>;
+      /**
+       * Stores the `CollectionId` that is going to be used for the next collection.
+       * This gets incremented whenever a new collection is created.
+       **/
+      nextCollectionId: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * The collection, if any, of which an account is willing to take ownership.
+       **/
+      ownershipAcceptance: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<u32>>, [AccountId32]>;
+      /**
+       * Handles all the pending swaps.
+       **/
+      pendingSwapOf: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNftsPendingSwap>>, [u32, u32]>;
+    };
+    nominationPools: {
+      /**
+       * Storage for bonded pools.
+       **/
+      bondedPools: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNominationPoolsBondedPoolInner>>, [u32]>;
+      /**
+       * Map from a pool member account to their opted claim permission.
+       **/
+      claimPermissions: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<PalletNominationPoolsClaimPermission>, [AccountId32]>;
       /**
        * Counter for the related counted storage map
        **/
-      counterForMembers: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      members: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletNetworkMembershipMemberData>>, [AccountId32]>;
+      counterForBondedPools: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * maps from a member identifier to a unit tuple
+       * Counter for the related counted storage map
        **/
-      membershipBlacklist: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
+      counterForMetadata: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * maps block number to the list of authors set to expire at this block
+       * Counter for the related counted storage map
        **/
-      membershipsExpiresOn: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Vec<AccountId32>>, [u32]>;
+      counterForPoolMembers: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * maps block number to the list of authors set to renew
+       * Counter for the related counted storage map
        **/
-      membershipsRenewsOn: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
-    };
-    networkParameters: {
-      networkPermissioned: AugmentedQuery<ApiType, () => Observable<bool>, []>;
-    };
-    networkScore: {
+      counterForReversePoolIdLookup: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * aggregated network score - aggregated and mapped to an entity
-       * identifier.
+       * Counter for the related counted storage map
        **/
-      aggregateScores: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: PalletNetworkScoreRatingTypeOf | 'Overall' | 'Delivery' | number | Uint8Array) => Observable<Option<PalletNetworkScoreAggregatedEntryOf>>, [Bytes, PalletNetworkScoreRatingTypeOf]>;
-      messageIdentifiers: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<Bytes>>, [Bytes, AccountId32]>;
+      counterForRewardPools: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * rating entry identifiers with rating details stored on chain.
+       * Counter for the related counted storage map
        **/
-      ratingEntries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletNetworkScoreRatingEntry>>, [Bytes]>;
-    };
-    nodeAuthorization: {
+      counterForSubPoolsStorage: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * The additional adapative connections of each node.
+       * The maximum commission that can be charged by a pool. Used on commission payouts to bound
+       * pool commissions that are > `GlobalMaxCommission`, necessary if a future
+       * `GlobalMaxCommission` is lower than some current pool commissions.
        **/
-      additionalConnections: AugmentedQuery<ApiType, (arg: OpaquePeerId | object | string | Uint8Array) => Observable<BTreeSet<OpaquePeerId>>, [OpaquePeerId]>;
+      globalMaxCommission: AugmentedQuery<ApiType, () => Observable<Option<Perbill>>, []>;
       /**
-       * A map that maintains the ownership of each node.
+       * Ever increasing number of all pools created so far.
        **/
-      owners: AugmentedQuery<ApiType, (arg: OpaquePeerId | object | string | Uint8Array) => Observable<Option<PalletNodeAuthorizationNodeInfo>>, [OpaquePeerId]>;
+      lastPoolId: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
-       * The set of well known nodes. This is stored sorted (just by value).
+       * Maximum number of members that can exist in the system. If `None`, then the count
+       * members are not bound on a system wide basis.
        **/
-      wellKnownNodes: AugmentedQuery<ApiType, () => Observable<BTreeSet<OpaquePeerId>>, []>;
+      maxPoolMembers: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * Maximum number of members that may belong to pool. If `None`, then the count of
+       * members is not bound on a per pool basis.
+       **/
+      maxPoolMembersPerPool: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * Maximum number of nomination pools that can exist. If `None`, then an unbounded number of
+       * pools can exist.
+       **/
+      maxPools: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * Metadata for the pool.
+       **/
+      metadata: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Bytes>, [u32]>;
+      /**
+       * Minimum bond required to create a pool.
+       * 
+       * This is the amount that the depositor must put as their initial stake in the pool, as an
+       * indication of "skin in the game".
+       * 
+       * This is the value that will always exist in the staking ledger of the pool bonded account
+       * while all other accounts leave.
+       **/
+      minCreateBond: AugmentedQuery<ApiType, () => Observable<u128>, []>;
+      /**
+       * Minimum amount to bond to join a pool.
+       **/
+      minJoinBond: AugmentedQuery<ApiType, () => Observable<u128>, []>;
+      /**
+       * Active members.
+       * 
+       * TWOX-NOTE: SAFE since `AccountId` is a secure hash.
+       **/
+      poolMembers: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletNominationPoolsPoolMember>>, [AccountId32]>;
+      /**
+       * A reverse lookup from the pool's account id to its id.
+       * 
+       * This is only used for slashing and on automatic withdraw update. In all other instances, the
+       * pool id is used, and the accounts are deterministically derived from it.
+       **/
+      reversePoolIdLookup: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<u32>>, [AccountId32]>;
+      /**
+       * Reward pools. This is where there rewards for each pool accumulate. When a members payout is
+       * claimed, the balance comes out of the reward pool. Keyed by the bonded pools account.
+       **/
+      rewardPools: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNominationPoolsRewardPool>>, [u32]>;
+      /**
+       * Groups of unbonding pools. Each group of unbonding pools belongs to a
+       * bonded pool, hence the name sub-pools. Keyed by the bonded pools account.
+       **/
+      subPoolsStorage: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletNominationPoolsSubPools>>, [u32]>;
+      /**
+       * The sum of funds across all pools.
+       * 
+       * This might be lower but never higher than the sum of `total_balance` of all [`PoolMembers`]
+       * because calling `pool_withdraw_unbonded` might decrease the total stake of the pool's
+       * `bonded_account` without adjusting the pallet-internal `UnbondingPool`'s.
+       **/
+      totalValueLocked: AugmentedQuery<ApiType, () => Observable<u128>, []>;
     };
     offences: {
       /**
-       * A vector of reports of the same kind that happened at the same time
-       * slot.
+       * A vector of reports of the same kind that happened at the same time slot.
        **/
       concurrentReportsIndex: AugmentedQuery<ApiType, (arg1: U8aFixed | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Vec<H256>>, [U8aFixed, Bytes]>;
       /**
-       * The primary structure that holds all offence records keyed by report
-       * identifiers.
+       * The primary structure that holds all offence records keyed by report identifiers.
        **/
       reports: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<SpStakingOffenceOffenceDetails>>, [H256]>;
     };
@@ -702,6 +1016,23 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       statusFor: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletPreimageOldRequestStatus>>, [H256]>;
     };
+    profile: {
+      /**
+       * Storage to map the latest CORD account and
+       * its associated Profile Identifier.
+       **/
+      accountProfiles: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Bytes>>, [AccountId32]>;
+      /**
+       * Storage to map Profile Identifier and
+       * the actual Profile Data HashMap.
+       **/
+      profileData: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [Bytes, Bytes]>;
+      /**
+       * Storage to map Profile Identifier and
+       * its associated metadata.
+       **/
+      profiles: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletProfileProfileMetadata>>, [Bytes]>;
+    };
     randomnessCollectiveFlip: {
       /**
        * Series of block headers from the last 81 blocks that acts as random seed material. This
@@ -710,23 +1041,70 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       randomMaterial: AugmentedQuery<ApiType, () => Observable<Vec<H256>>, []>;
     };
-    registries: {
+    registry: {
       /**
-       * Registry authorizations stored on-chain.
-       * It maps from an identifier to delegates.
+       * Stores registry-level delegates (account → permissions).
        **/
-      authorizations: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistriesRegistryAuthorization>>, [Bytes]>;
+      delegates: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<PalletRegistryPermissions>>, [Bytes, Bytes]>;
       /**
-       * Registry delegates stored on chain.
-       * It maps from an identifier to a  bounded vec of delegates and
-       * permissions.
+       * Stores registry details
        **/
-      delegates: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
+      registries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistryRegistryDetails>>, [Bytes]>;
+    };
+    revive: {
       /**
-       * Registry information stored on chain.
-       * It maps from an identifier to its details.
+       * Map a Ethereum address to its original `AccountId32`.
+       * 
+       * Stores the last 12 byte for addresses that were originally an `AccountId32` instead
+       * of an `H160`. Register your `AccountId32` using [`Pallet::map_account`] in order to
+       * use it with this pallet.
        **/
-      registryInfo: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistriesRegistryDetails>>, [Bytes]>;
+      addressSuffix: AugmentedQuery<ApiType, (arg: H160 | string | Uint8Array) => Observable<Option<U8aFixed>>, [H160]>;
+      /**
+       * A mapping from a contract's code hash to its code info.
+       **/
+      codeInfoOf: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletReviveWasmCodeInfo>>, [H256]>;
+      /**
+       * The code associated with a given account.
+       **/
+      contractInfoOf: AugmentedQuery<ApiType, (arg: H160 | string | Uint8Array) => Observable<Option<PalletReviveStorageContractInfo>>, [H160]>;
+      /**
+       * Evicted contracts that await child trie deletion.
+       * 
+       * Child trie deletion is a heavy operation depending on the amount of storage items
+       * stored in said trie. Therefore this operation is performed lazily in `on_idle`.
+       **/
+      deletionQueue: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<Bytes>>, [u32]>;
+      /**
+       * A pair of monotonic counters used to track the latest contract marked for deletion
+       * and the latest deleted contract in queue.
+       **/
+      deletionQueueCounter: AugmentedQuery<ApiType, () => Observable<PalletReviveStorageDeletionQueueManager>, []>;
+      /**
+       * The immutable data associated with a given account.
+       **/
+      immutableDataOf: AugmentedQuery<ApiType, (arg: H160 | string | Uint8Array) => Observable<Option<Bytes>>, [H160]>;
+      /**
+       * A mapping from a contract's code hash to its code.
+       **/
+      pristineCode: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<Bytes>>, [H256]>;
+    };
+    safeMode: {
+      /**
+       * Holds the reserve that was taken from an account at a specific block number.
+       * 
+       * This helps governance to have an overview of outstanding deposits that should be returned or
+       * slashed.
+       **/
+      deposits: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<u128>>, [AccountId32, u32]>;
+      /**
+       * Contains the last block number that the safe-mode will remain entered in.
+       * 
+       * Set to `None` when safe-mode is exited.
+       * 
+       * Safe-mode is automatically exited when the current block number exceeds this value.
+       **/
+      enteredUntil: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
     };
     scheduler: {
       /**
@@ -745,20 +1123,6 @@ declare module '@polkadot/api-base/types/storage' {
        * Retry configurations for items to be executed, indexed by task address.
        **/
       retries: AugmentedQuery<ApiType, (arg: ITuple<[u32, u32]> | [u32 | AnyNumber | Uint8Array, u32 | AnyNumber | Uint8Array]) => Observable<Option<PalletSchedulerRetryConfig>>, [ITuple<[u32, u32]>]>;
-    };
-    schema: {
-      /**
-       * schemas stored on chain.
-       * It maps from a schema identifier to its details.
-       **/
-      schemas: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletSchemaSchemaEntry>>, [Bytes]>;
-    };
-    schemaDid: {
-      /**
-       * schemas stored on chain.
-       * It maps from a schema identifier to its details.
-       **/
-      schemas: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletSchemaDidSchemaEntry>>, [Bytes]>;
     };
     session: {
       /**
@@ -796,61 +1160,323 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       validators: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
     };
-    statement: {
+    staking: {
       /**
-       * statement uniques stored on chain.
-       * It maps from a statement identifier and hash to its details.
+       * The active era information, it holds index and start.
+       * 
+       * The active era is the era being currently rewarded. Validator set of this era must be
+       * equal to [`SessionInterface::validators`].
        **/
-      entries: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<AccountId32>>, [Bytes, H256]>;
+      activeEra: AugmentedQuery<ApiType, () => Observable<Option<PalletStakingActiveEraInfo>>, []>;
       /**
-       * Storage for Identifier lookup.
-       * It maps from a statement entry digest and registry id to an identifier.
+       * Map from all locked "stash" accounts to the controller account.
+       * 
+       * TWOX-NOTE: SAFE since `AccountId` is a secure hash.
        **/
-      identifierLookup: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [H256, Bytes]>;
+      bonded: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<AccountId32>>, [AccountId32]>;
       /**
-       * statement uniques stored on chain.
-       * It maps from a statement identifier and hash to its details.
+       * A mapping from still-bonded eras to the first session index of that era.
+       * 
+       * Must contains information for eras for the range:
+       * `[active_era - bounding_duration; active_era]`
        **/
-      presentations: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStatementStatementPresentationDetails>>, [Bytes, H256]>;
+      bondedEras: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[u32, u32]>>>, []>;
       /**
-       * Revocation registry of statement entries stored on chain.
-       * It maps from a statement identifier and hash to its details.
+       * The amount of currency given to reporters of a slash event which was
+       * canceled by extraordinary circumstances (e.g. governance).
        **/
-      revocationList: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStatementStatementEntryStatus>>, [Bytes, H256]>;
+      canceledSlashPayout: AugmentedQuery<ApiType, () => Observable<u128>, []>;
       /**
-       * statement identifiers stored on chain.
-       * It maps from an identifier to its details.
-       * Only stores the latest state.
+       * The threshold for when users can start calling `chill_other` for other validators /
+       * nominators. The threshold is compared to the actual number of validators / nominators
+       * (`CountFor*`) in the system compared to the configured max (`Max*Count`).
        **/
-      statements: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletStatementStatementDetails>>, [Bytes]>;
+      chillThreshold: AugmentedQuery<ApiType, () => Observable<Option<Percent>>, []>;
+      /**
+       * History of claimed paged rewards by era and validator.
+       * 
+       * This is keyed by era and validator stash which maps to the set of page indexes which have
+       * been claimed.
+       * 
+       * It is removed after [`Config::HistoryDepth`] eras.
+       **/
+      claimedRewards: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Vec<u32>>, [u32, AccountId32]>;
+      /**
+       * Counter for the related counted storage map
+       **/
+      counterForNominators: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Counter for the related counted storage map
+       **/
+      counterForValidators: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Counter for the related counted storage map
+       **/
+      counterForVirtualStakers: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * The current era index.
+       * 
+       * This is the latest planned era, depending on how the Session pallet queues the validator
+       * set, it might be active or not.
+       **/
+      currentEra: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * The last planned session scheduled by the session pallet.
+       * 
+       * This is basically in sync with the call to [`pallet_session::SessionManager::new_session`].
+       **/
+      currentPlannedSession: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * Indices of validators that have offended in the active era. The offenders are disabled for a
+       * whole era. For this reason they are kept here - only staking pallet knows about eras. The
+       * implementor of [`DisablingStrategy`] defines if a validator should be disabled which
+       * implicitly means that the implementor also controls the max number of disabled validators.
+       * 
+       * The vec is always kept sorted based on the u32 index so that we can find whether a given
+       * validator has previously offended using binary search.
+       * 
+       * Additionally, each disabled validator is associated with an `OffenceSeverity` which
+       * represents how severe is the offence that got the validator disabled.
+       **/
+      disabledValidators: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[u32, Perbill]>>>, []>;
+      /**
+       * Rewards for the last [`Config::HistoryDepth`] eras.
+       * If reward hasn't been set or has been removed then 0 reward is returned.
+       **/
+      erasRewardPoints: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<PalletStakingEraRewardPoints>, [u32]>;
+      /**
+       * Exposure of validator at era.
+       * 
+       * This is keyed first by the era index to allow bulk deletion and then the stash account.
+       * 
+       * Is it removed after [`Config::HistoryDepth`] eras.
+       * If stakers hasn't been set or has been removed then empty exposure is returned.
+       * 
+       * Note: Deprecated since v14. Use `EraInfo` instead to work with exposures.
+       **/
+      erasStakers: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<SpStakingExposure>, [u32, AccountId32]>;
+      /**
+       * Clipped Exposure of validator at era.
+       * 
+       * Note: This is deprecated, should be used as read-only and will be removed in the future.
+       * New `Exposure`s are stored in a paged manner in `ErasStakersPaged` instead.
+       * 
+       * This is similar to [`ErasStakers`] but number of nominators exposed is reduced to the
+       * `T::MaxExposurePageSize` biggest stakers.
+       * (Note: the field `total` and `own` of the exposure remains unchanged).
+       * This is used to limit the i/o cost for the nominator payout.
+       * 
+       * This is keyed fist by the era index to allow bulk deletion and then the stash account.
+       * 
+       * It is removed after [`Config::HistoryDepth`] eras.
+       * If stakers hasn't been set or has been removed then empty exposure is returned.
+       * 
+       * Note: Deprecated since v14. Use `EraInfo` instead to work with exposures.
+       **/
+      erasStakersClipped: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<SpStakingExposure>, [u32, AccountId32]>;
+      /**
+       * Summary of validator exposure at a given era.
+       * 
+       * This contains the total stake in support of the validator and their own stake. In addition,
+       * it can also be used to get the number of nominators backing this validator and the number of
+       * exposure pages they are divided into. The page count is useful to determine the number of
+       * pages of rewards that needs to be claimed.
+       * 
+       * This is keyed first by the era index to allow bulk deletion and then the stash account.
+       * Should only be accessed through `EraInfo`.
+       * 
+       * Is it removed after [`Config::HistoryDepth`] eras.
+       * If stakers hasn't been set or has been removed then empty overview is returned.
+       **/
+      erasStakersOverview: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<SpStakingPagedExposureMetadata>>, [u32, AccountId32]>;
+      /**
+       * Paginated exposure of a validator at given era.
+       * 
+       * This is keyed first by the era index to allow bulk deletion, then stash account and finally
+       * the page. Should only be accessed through `EraInfo`.
+       * 
+       * This is cleared after [`Config::HistoryDepth`] eras.
+       **/
+      erasStakersPaged: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array, arg3: u32 | AnyNumber | Uint8Array) => Observable<Option<SpStakingExposurePage>>, [u32, AccountId32, u32]>;
+      /**
+       * The session index at which the era start for the last [`Config::HistoryDepth`] eras.
+       * 
+       * Note: This tracks the starting session (i.e. session index when era start being active)
+       * for the eras in `[CurrentEra - HISTORY_DEPTH, CurrentEra]`.
+       **/
+      erasStartSessionIndex: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<u32>>, [u32]>;
+      /**
+       * The total amount staked for the last [`Config::HistoryDepth`] eras.
+       * If total hasn't been set or has been removed then 0 stake is returned.
+       **/
+      erasTotalStake: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<u128>, [u32]>;
+      /**
+       * Similar to `ErasStakers`, this holds the preferences of validators.
+       * 
+       * This is keyed first by the era index to allow bulk deletion and then the stash account.
+       * 
+       * Is it removed after [`Config::HistoryDepth`] eras.
+       **/
+      erasValidatorPrefs: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<PalletStakingValidatorPrefs>, [u32, AccountId32]>;
+      /**
+       * The total validator era payout for the last [`Config::HistoryDepth`] eras.
+       * 
+       * Eras that haven't finished yet or has been removed doesn't have reward.
+       **/
+      erasValidatorReward: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<u128>>, [u32]>;
+      /**
+       * Mode of era forcing.
+       **/
+      forceEra: AugmentedQuery<ApiType, () => Observable<PalletStakingForcing>, []>;
+      /**
+       * Any validators that may never be slashed or forcibly kicked. It's a Vec since they're
+       * easy to initialize and the performance hit is minimal (we expect no more than four
+       * invulnerables) and restricted to testnets.
+       **/
+      invulnerables: AugmentedQuery<ApiType, () => Observable<Vec<AccountId32>>, []>;
+      /**
+       * Map from all (unlocked) "controller" accounts to the info regarding the staking.
+       * 
+       * Note: All the reads and mutations to this storage *MUST* be done through the methods exposed
+       * by [`StakingLedger`] to ensure data and lock consistency.
+       **/
+      ledger: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletStakingStakingLedger>>, [AccountId32]>;
+      /**
+       * The maximum nominator count before we stop allowing new validators to join.
+       * 
+       * When this value is not set, no limits are enforced.
+       **/
+      maxNominatorsCount: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * Maximum staked rewards, i.e. the percentage of the era inflation that
+       * is used for stake rewards.
+       * See [Era payout](./index.html#era-payout).
+       **/
+      maxStakedRewards: AugmentedQuery<ApiType, () => Observable<Option<Percent>>, []>;
+      /**
+       * The maximum validator count before we stop allowing new validators to join.
+       * 
+       * When this value is not set, no limits are enforced.
+       **/
+      maxValidatorsCount: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * The minimum amount of commission that validators can set.
+       * 
+       * If set to `0`, no limit exists.
+       **/
+      minCommission: AugmentedQuery<ApiType, () => Observable<Perbill>, []>;
+      /**
+       * The minimum active nominator stake of the last successful election.
+       **/
+      minimumActiveStake: AugmentedQuery<ApiType, () => Observable<u128>, []>;
+      /**
+       * Minimum number of staking participants before emergency conditions are imposed.
+       **/
+      minimumValidatorCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * The minimum active bond to become and maintain the role of a nominator.
+       **/
+      minNominatorBond: AugmentedQuery<ApiType, () => Observable<u128>, []>;
+      /**
+       * The minimum active bond to become and maintain the role of a validator.
+       **/
+      minValidatorBond: AugmentedQuery<ApiType, () => Observable<u128>, []>;
+      /**
+       * The map from nominator stash key to their nomination preferences, namely the validators that
+       * they wish to support.
+       * 
+       * Note that the keys of this storage map might become non-decodable in case the
+       * account's [`NominationsQuota::MaxNominations`] configuration is decreased.
+       * In this rare case, these nominators
+       * are still existent in storage, their key is correct and retrievable (i.e. `contains_key`
+       * indicates that they exist), but their value cannot be decoded. Therefore, the non-decodable
+       * nominators will effectively not-exist, until they re-submit their preferences such that it
+       * is within the bounds of the newly set `Config::MaxNominations`.
+       * 
+       * This implies that `::iter_keys().count()` and `::iter().count()` might return different
+       * values for this map. Moreover, the main `::count()` is aligned with the former, namely the
+       * number of keys that exist.
+       * 
+       * Lastly, if any of the nominators become non-decodable, they can be chilled immediately via
+       * [`Call::chill_other`] dispatchable by anyone.
+       * 
+       * TWOX-NOTE: SAFE since `AccountId` is a secure hash.
+       **/
+      nominators: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletStakingNominations>>, [AccountId32]>;
+      /**
+       * All slashing events on nominators, mapped by era to the highest slash value of the era.
+       **/
+      nominatorSlashInEra: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<u128>>, [u32, AccountId32]>;
+      /**
+       * Where the reward payment should be made. Keyed by stash.
+       * 
+       * TWOX-NOTE: SAFE since `AccountId` is a secure hash.
+       **/
+      payee: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletStakingRewardDestination>>, [AccountId32]>;
+      /**
+       * Slashing spans for stash accounts.
+       **/
+      slashingSpans: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletStakingSlashingSlashingSpans>>, [AccountId32]>;
+      /**
+       * The percentage of the slash that is distributed to reporters.
+       * 
+       * The rest of the slashed value is handled by the `Slash`.
+       **/
+      slashRewardFraction: AugmentedQuery<ApiType, () => Observable<Perbill>, []>;
+      /**
+       * Records information about the maximum slash of a stash within a slashing span,
+       * as well as how much reward has been paid out.
+       **/
+      spanSlash: AugmentedQuery<ApiType, (arg: ITuple<[AccountId32, u32]> | [AccountId32 | string | Uint8Array, u32 | AnyNumber | Uint8Array]) => Observable<PalletStakingSlashingSpanRecord>, [ITuple<[AccountId32, u32]>]>;
+      /**
+       * All unapplied slashes that are queued for later.
+       **/
+      unappliedSlashes: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Vec<PalletStakingUnappliedSlash>>, [u32]>;
+      /**
+       * The ideal number of active validators.
+       **/
+      validatorCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * The map from (wannabe) validator stash key to the preferences of that validator.
+       * 
+       * TWOX-NOTE: SAFE since `AccountId` is a secure hash.
+       **/
+      validators: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<PalletStakingValidatorPrefs>, [AccountId32]>;
+      /**
+       * All slashing events on validators, mapped by era to the highest slash proportion
+       * and slash value of the era.
+       **/
+      validatorSlashInEra: AugmentedQuery<ApiType, (arg1: u32 | AnyNumber | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<ITuple<[Perbill, u128]>>>, [u32, AccountId32]>;
+      /**
+       * Stakers whose funds are managed by other pallets.
+       * 
+       * This pallet does not apply any locks on them, therefore they are only virtually bonded. They
+       * are expected to be keyless accounts and hence should not be allowed to mutate their ledger
+       * directly via this pallet. Instead, these accounts are managed by other pallets and accessed
+       * via low level apis. We keep track of them to do minimal integrity checks.
+       **/
+      virtualStakers: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Null>>, [AccountId32]>;
     };
-    statementDid: {
+    stateTrieMigration: {
       /**
-       * statement uniques stored on chain.
-       * It maps from a statement identifier and hash to its details.
+       * The limits that are imposed on automatic migrations.
+       * 
+       * If set to None, then no automatic migration happens.
        **/
-      entries: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<AccountId32>>, [Bytes, H256]>;
+      autoLimits: AugmentedQuery<ApiType, () => Observable<Option<PalletStateTrieMigrationMigrationLimits>>, []>;
       /**
-       * Storage for Identifier lookup.
-       * It maps from a statement entry digest and registry id to an identifier.
+       * Migration progress.
+       * 
+       * This stores the snapshot of the last migrated keys. It can be set into motion and move
+       * forward by any of the means provided by this pallet.
        **/
-      identifierLookup: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [H256, Bytes]>;
+      migrationProcess: AugmentedQuery<ApiType, () => Observable<PalletStateTrieMigrationMigrationTask>, []>;
       /**
-       * statement uniques stored on chain.
-       * It maps from a statement identifier and hash to its details.
+       * The maximum limits that the signed migration could use.
+       * 
+       * If not set, no signed submission is allowed.
        **/
-      presentations: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStatementDidStatementPresentationDetails>>, [Bytes, H256]>;
-      /**
-       * Revocation registry of statement entries stored on chain.
-       * It maps from a statement identifier and hash to its details.
-       **/
-      revocationList: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletStatementDidStatementEntryStatus>>, [Bytes, H256]>;
-      /**
-       * statement identifiers stored on chain.
-       * It maps from an identifier to its details.
-       * Only stores the latest state.
-       **/
-      statements: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletStatementDidStatementDetails>>, [Bytes]>;
+      signedMigrationMaxLimits: AugmentedQuery<ApiType, () => Observable<Option<PalletStateTrieMigrationMigrationLimits>>, []>;
     };
     sudo: {
       /**
@@ -923,6 +1549,16 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       extrinsicData: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Bytes>, [u32]>;
       /**
+       * The weight reclaimed for the extrinsic.
+       * 
+       * This information is available until the end of the extrinsic execution.
+       * More precisely this information is removed in `note_applied_extrinsic`.
+       * 
+       * Logic doing some post dispatch weight reduction must update this storage to avoid duplicate
+       * reduction.
+       **/
+      extrinsicWeightReclaimed: AugmentedQuery<ApiType, () => Observable<SpWeightsWeightV2Weight>, []>;
+      /**
        * Whether all inherents have been applied.
        **/
       inherentsApplied: AugmentedQuery<ApiType, () => Observable<bool>, []>;
@@ -949,6 +1585,13 @@ declare module '@polkadot/api-base/types/storage' {
       upgradedToU32RefCount: AugmentedQuery<ApiType, () => Observable<bool>, []>;
     };
     technicalCommittee: {
+      /**
+       * Consideration cost created for publishing and storing a proposal.
+       * 
+       * Determined by [Config::Consideration] and may be not present for certain proposals (e.g. if
+       * the proposal count at the time of creation was below threshold N).
+       **/
+      costOf: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, Null]>>>, [H256]>;
       /**
        * The current members of the collective. This is stored sorted (just by value).
        **/
@@ -1003,6 +1646,9 @@ declare module '@polkadot/api-base/types/storage' {
     };
     treasury: {
       /**
+       * DEPRECATED: associated with `spend_local` call and will be removed in May 2025.
+       * Refer to <https://github.com/paritytech/polkadot-sdk/pull/5961> for migration to `spend`.
+       * 
        * Proposal indices that have been approved but not yet awarded.
        **/
       approvals: AugmentedQuery<ApiType, () => Observable<Vec<u32>>, []>;
@@ -1011,10 +1657,20 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       deactivated: AugmentedQuery<ApiType, () => Observable<u128>, []>;
       /**
+       * The blocknumber for the last triggered spend period.
+       **/
+      lastSpendPeriod: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
+      /**
+       * DEPRECATED: associated with `spend_local` call and will be removed in May 2025.
+       * Refer to <https://github.com/paritytech/polkadot-sdk/pull/5961> for migration to `spend`.
+       * 
        * Number of proposals that have been made.
        **/
       proposalCount: AugmentedQuery<ApiType, () => Observable<u32>, []>;
       /**
+       * DEPRECATED: associated with `spend_local` call and will be removed in May 2025.
+       * Refer to <https://github.com/paritytech/polkadot-sdk/pull/5961> for migration to `spend`.
+       * 
        * Proposals that have been made.
        **/
       proposals: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletTreasuryProposal>>, [u32]>;
@@ -1026,6 +1682,30 @@ declare module '@polkadot/api-base/types/storage' {
        * Spends that have been approved and being processed.
        **/
       spends: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletTreasurySpendStatus>>, [u32]>;
+    };
+    txPause: {
+      /**
+       * The set of calls that are explicitly paused.
+       **/
+      pausedCalls: AugmentedQuery<ApiType, (arg: ITuple<[Bytes, Bytes]> | [Bytes | string | Uint8Array, Bytes | string | Uint8Array]) => Observable<Option<Null>>, [ITuple<[Bytes, Bytes]>]>;
+    };
+    voterList: {
+      /**
+       * Counter for the related counted storage map
+       **/
+      counterForListNodes: AugmentedQuery<ApiType, () => Observable<u32>, []>;
+      /**
+       * A bag stored in storage.
+       * 
+       * Stores a `Bag` struct, which stores head and tail pointers to itself.
+       **/
+      listBags: AugmentedQuery<ApiType, (arg: u64 | AnyNumber | Uint8Array) => Observable<Option<PalletBagsListListBag>>, [u64]>;
+      /**
+       * A single node, within some bag.
+       * 
+       * Nodes store links forward and back within their respective bags.
+       **/
+      listNodes: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletBagsListListNode>>, [AccountId32]>;
     };
   } // AugmentedQueries
 } // declare module

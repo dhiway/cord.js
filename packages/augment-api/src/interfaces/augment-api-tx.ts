@@ -7,10 +7,10 @@ import '@polkadot/api-base/types/submittable';
 
 import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api-base/types';
 import type { Data } from '@polkadot/types';
-import type { Bytes, Compact, Null, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
+import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
-import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
-import type { CordWeaveRuntimeOriginCaller, CordWeaveRuntimeSessionKeys, FrameSupportTokensFungibleUnionOfNativeOrWithId, PalletBalancesAdjustmentDirection, PalletContractsWasmDeterminism, PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidEncryptionKey, PalletDidDidDetailsDidSignature, PalletDidDidDetailsDidVerificationKey, PalletDidServiceEndpointsDidEndpoint, PalletIdentityJudgement, PalletIdentityLegacyIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMultisigTimepoint, PalletNetworkScoreRatingInputEntry, PalletStatementDidPresentationTypeOf, PalletStatementPresentationTypeOf, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { AccountId32, Call, H160, H256, MultiAddress, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
+import type { CordWeaveRuntimeOriginCaller, CordWeaveRuntimeSessionKeys, FrameSupportTokensFungibleUnionOfNativeOrWithId, PalletBalancesAdjustmentDirection, PalletCollectionPermissionVariant, PalletContractsWasmDeterminism, PalletElectionProviderMultiPhaseRawSolution, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize, PalletIdentityJudgement, PalletIdentityLegacyIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMetaTxMetaTx, PalletMigrationsHistoricCleanupSelector, PalletMigrationsMigrationCursor, PalletMultisigTimepoint, PalletNftsAttributeNamespace, PalletNftsCancelAttributesApprovalWitness, PalletNftsCollectionConfig, PalletNftsDestroyWitness, PalletNftsItemConfig, PalletNftsItemTip, PalletNftsMintSettings, PalletNftsMintWitness, PalletNftsPreSignedAttributes, PalletNftsPreSignedMint, PalletNftsPriceWithDirection, PalletNominationPoolsBondExtra, PalletNominationPoolsClaimPermission, PalletNominationPoolsCommissionChangeRate, PalletNominationPoolsCommissionClaimPermission, PalletNominationPoolsConfigOpAccountId32, PalletNominationPoolsConfigOpPerbill, PalletNominationPoolsConfigOpU128, PalletNominationPoolsConfigOpU32, PalletNominationPoolsPoolState, PalletRegistryPermissionVariant, PalletStakingPalletConfigOpPerbill, PalletStakingPalletConfigOpPercent, PalletStakingPalletConfigOpU128, PalletStakingPalletConfigOpU32, PalletStakingRewardDestination, PalletStakingUnlockChunk, PalletStakingValidatorPrefs, PalletStateTrieMigrationMigrationLimits, PalletStateTrieMigrationMigrationTask, PalletStateTrieMigrationProgress, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBeefyDoubleVotingProof, SpConsensusBeefyForkVotingProof, SpConsensusBeefyFutureBlockVotingProof, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpNposElectionsElectionScore, SpNposElectionsSupport, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -33,7 +33,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * calls to render the liquidity withdrawable and rectify the exchange rate.
        * 
        * Once liquidity is added, someone may successfully call
-       * [`Pallet::swap_exact_tokens_for_tokens`] successfully.
+       * [`Pallet::swap_exact_tokens_for_tokens`].
        **/
       addLiquidity: AugmentedSubmittable<(asset1: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, asset2: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, amount1Desired: u128 | AnyNumber | Uint8Array, amount2Desired: u128 | AnyNumber | Uint8Array, amount1Min: u128 | AnyNumber | Uint8Array, amount2Min: u128 | AnyNumber | Uint8Array, mintTo: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId, u128, u128, u128, u128, AccountId32]>;
       /**
@@ -81,6 +81,29 @@ declare module '@polkadot/api-base/types/submittable' {
        * Emits `Touched` event when successful.
        **/
       touch: AugmentedSubmittable<(asset1: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, asset2: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensFungibleUnionOfNativeOrWithId]>;
+    };
+    assetRate: {
+      /**
+       * Initialize a conversion rate to native balance for the given asset.
+       * 
+       * ## Complexity
+       * - O(1)
+       **/
+      create: AugmentedSubmittable<(assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, rate: u128 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [FrameSupportTokensFungibleUnionOfNativeOrWithId, u128]>;
+      /**
+       * Remove an existing conversion rate to native balance for the given asset.
+       * 
+       * ## Complexity
+       * - O(1)
+       **/
+      remove: AugmentedSubmittable<(assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [FrameSupportTokensFungibleUnionOfNativeOrWithId]>;
+      /**
+       * Update the conversion rate to native balance for the given asset.
+       * 
+       * ## Complexity
+       * - O(1)
+       **/
+      update: AugmentedSubmittable<(assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, rate: u128 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [FrameSupportTokensFungibleUnionOfNativeOrWithId, u128]>;
     };
     assets: {
       /**
@@ -475,8 +498,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * - `id`: The identifier of the asset to be destroyed. This must identify an existing
        * asset.
-       * 
-       * The asset class must be frozen before calling `start_destroy`.
        **/
       startDestroy: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
       /**
@@ -551,6 +572,25 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       transfer: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array, target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, amount: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress, Compact<u128>]>;
       /**
+       * Transfer the entire transferable balance from the caller asset account.
+       * 
+       * NOTE: This function only attempts to transfer _transferable_ balances. This means that
+       * any held, frozen, or minimum balance (when `keep_alive` is `true`), will not be
+       * transferred by this function. To ensure that this function results in a killed account,
+       * you might need to prepare the account by removing any reference counters, storage
+       * deposits, etc...
+       * 
+       * The dispatch origin of this call must be Signed.
+       * 
+       * - `id`: The identifier of the asset for the account holding a deposit.
+       * - `dest`: The recipient of the transfer.
+       * - `keep_alive`: A boolean to determine if the `transfer_all` operation should send all
+       * of the funds the asset account has, causing the sender asset account to be killed
+       * (false), or transfer everything except at least the minimum balance, which will
+       * guarantee to keep the sender asset account alive (true).
+       **/
+      transferAll: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array, dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, keepAlive: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress, bool]>;
+      /**
        * Transfer some asset balance from a previously delegated account to some third-party
        * account.
        * 
@@ -605,32 +645,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * Weight: `O(1)`
        **/
       transferOwnership: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array, owner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress]>;
-    };
-    authorityMembership: {
-      /**
-       * Mark an authority member offline.
-       * The authority will be deactivated from current session + 2.
-       **/
-      goOffline: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Mark an authority member going online.
-       * Authority will be activated from current session + 2.
-       **/
-      goOnline: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Add new authorities to the set.
-       * The new authorities will be active from current session + 2.
-       **/
-      nominate: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
-      /**
-       * Remove authorities from the set.
-       * The removed authorities will be deactivated from current session + 2
-       **/
-      remove: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
-      /**
-       * Remove members from blacklist.
-       **/
-      removeMemberFromBlacklist: AugmentedSubmittable<(candidate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
     };
     babe: {
       /**
@@ -744,793 +758,97 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       upgradeAccounts: AugmentedSubmittable<(who: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
     };
-    chainSpace: {
+    beefy: {
       /**
-       * Adds an administrative delegate to a space.
-       * 
-       * The `ADMIN` permission grants the delegate extensive control over
-       * the space, including the ability to manage other delegates and
-       * change space configurations. This function is called to
-       * grant a delegate these administrative privileges. It verifies that
-       * the caller has the necessary authorization (admin rights) to add an
-       * admin delegate to the space. If the caller is authorized,
-       * the delegate is added with the `ADMIN` permission using the
-       * `space_delegate_addition` internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing admin of the
-       * space.
-       * - `space_id`: The identifier of the space to which the admin delegate is being added.
-       * - `delegate`: The identifier of the delegate being granted admin permissions.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the admin delegate was successfully added, or an
-       * `Err` with an appropriate error if the operation fails.
-       * 
-       * # Errors
-       * - `UnauthorizedOperation`: If the caller is not an admin of the space.
-       * - Propagates errors from `space_delegate_addition` if it fails.
+       * Report voter equivocation/misbehavior. This method will verify the
+       * equivocation proof and validate the given key ownership proof
+       * against the extracted offender. If both are valid, the offence
+       * will be reported.
        **/
-      addAdminDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      reportDoubleVoting: AugmentedSubmittable<(equivocationProof: SpConsensusBeefyDoubleVotingProof | { first?: any; second?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusBeefyDoubleVotingProof, SpSessionMembershipProof]>;
       /**
-       * Adds a delegate with the ability to assert new entries to a space.
+       * Report voter equivocation/misbehavior. This method will verify the
+       * equivocation proof and validate the given key ownership proof
+       * against the extracted offender. If both are valid, the offence
+       * will be reported.
        * 
-       * The `ASSERT` permission allows the delegate to sign and add new
-       * entries within the space. This function is called to grant a
-       * delegate this specific permission. It checks that the caller has the
-       * necessary authorization (admin rights) to add a delegate to the
-       * space. If the caller is authorized, the delegate is added with the
-       * `ASSERT` permission using the `space_delegate_addition`
-       * internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an admin of the space.
-       * - `space_id`: The identifier of the space to which the delegate is being added.
-       * - `delegate`: The identifier of the delegate being added to the space.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the delegate was successfully added with
-       * `ASSERT` permission, or an `Err` with an appropriate error if the
-       * operation fails.
-       * 
-       * # Errors
-       * - `UnauthorizedOperation`: If the caller is not an admin of the space.
-       * - Propagates errors from `space_delegate_addition` if it fails.
+       * This extrinsic must be called unsigned and it is expected that only
+       * block authors will call it (validated in `ValidateUnsigned`), as such
+       * if the block author is defined it will be defined as the equivocation
+       * reporter.
        **/
-      addDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      reportDoubleVotingUnsigned: AugmentedSubmittable<(equivocationProof: SpConsensusBeefyDoubleVotingProof | { first?: any; second?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusBeefyDoubleVotingProof, SpSessionMembershipProof]>;
       /**
-       * Adds an audit delegate to a space.
-       * 
-       * The `AUDIT` permission grants the delegate the ability to perform
-       * oversight and compliance checks within the space. This function is
-       * used to assign a delegate these audit privileges. It ensures that
-       * the caller has the necessary authorization (admin rights) to add an
-       * audit delegate to the space. If the caller is authorized, the
-       * delegate is added with the `AUDIT` permission using the
-       * `space_delegate_addition` internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing admin of the
-       * space.
-       * - `space_id`: The identifier of the space to which the audit delegate is being added.
-       * - `delegate`: The identifier of the delegate being granted audit permissions.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the audit delegate was successfully added, or an
-       * `Err` with an appropriate error if the operation fails.
+       * Report fork voting equivocation. This method will verify the equivocation proof
+       * and validate the given key ownership proof against the extracted offender.
+       * If both are valid, the offence will be reported.
        **/
-      addDelegator: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
-      approvalRestore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      reportForkVoting: AugmentedSubmittable<(equivocationProof: SpConsensusBeefyForkVotingProof | { vote?: any; ancestryProof?: any; header?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusBeefyForkVotingProof, SpSessionMembershipProof]>;
       /**
-       * Revokes approval for a specified space.
+       * Report fork voting equivocation. This method will verify the equivocation proof
+       * and validate the given key ownership proof against the extracted offender.
+       * If both are valid, the offence will be reported.
        * 
-       * This function can be executed by an authorized origin, as determined
-       * by `ChainSpaceOrigin`. It is designed to change the status of a
-       * given space, referred to by `space_id`, to unapproved.
-       * The revocation is only allowed if the space is currently approved,
-       * and not archived.
-       * 
-       * # Parameters
-       * - `origin`: The transaction's origin, which must satisfy the `ChainSpaceOrigin` policy.
-       * - `space_id`: The identifier of the space whose approval status is being revoked.
-       * 
-       * # Errors
-       * - Returns `SpaceNotFound` if no space corresponds to the provided `space_id`.
-       * - Returns `ArchivedSpace` if the space is archived, in which case its status cannot be
-       * altered.
-       * - Returns `SpaceNotApproved` if the space is already unapproved.
-       * 
-       * # Events
-       * - Emits `Revoke` when the space's approved status is successfully revoked.
+       * This extrinsic must be called unsigned and it is expected that only
+       * block authors will call it (validated in `ValidateUnsigned`), as such
+       * if the block author is defined it will be defined as the equivocation
+       * reporter.
        **/
-      approvalRevoke: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      reportForkVotingUnsigned: AugmentedSubmittable<(equivocationProof: SpConsensusBeefyForkVotingProof | { vote?: any; ancestryProof?: any; header?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusBeefyForkVotingProof, SpSessionMembershipProof]>;
       /**
-       * Approves a space and sets its capacity.
-       * 
-       * This function can only be called by a council or root origin,
-       * reflecting its privileged nature. It is used to approve a space that
-       * has been previously created, setting its transaction capacity and
-       * marking it as approved. It ensures that the space exists, is not
-       * archived, and has not already been approved.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be a council or root origin.
-       * - `space_id`: The identifier of the space to be approved.
-       * - `txn_capacity`: The transaction capacity to be set for the space.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully approved, or an error
-       * (`DispatchError`) if:
-       * - The origin is not a council or root origin.
-       * - The space does not exist.
-       * - The space is archived.
-       * - The space is already approved.
-       * 
-       * # Errors
-       * - `BadOrigin`: If the call does not come from a council or root origin.
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `ArchivedSpace`: If the space is archived and no longer active.
-       * - `SpaceAlreadyApproved`: If the space has already been approved.
-       * 
-       * # Events
-       * - `Approve`: Emitted when a space is successfully approved. It includes the space
-       * identifier.
-       * 
-       * # Security Considerations
-       * Due to the privileged nature of this function, callers must ensure
-       * that they have the appropriate authority. Misuse can lead to
-       * unauthorized approval of spaces, which may have security
-       * implications.
+       * Report future block voting equivocation. This method will verify the equivocation proof
+       * and validate the given key ownership proof against the extracted offender.
+       * If both are valid, the offence will be reported.
        **/
-      approve: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, txnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+      reportFutureBlockVoting: AugmentedSubmittable<(equivocationProof: SpConsensusBeefyFutureBlockVotingProof | { vote?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusBeefyFutureBlockVotingProof, SpSessionMembershipProof]>;
       /**
-       * Archives a space, rendering it inactive.
+       * Report future block voting equivocation. This method will verify the equivocation proof
+       * and validate the given key ownership proof against the extracted offender.
+       * If both are valid, the offence will be reported.
        * 
-       * This function marks a space as archived based on the provided space
-       * ID. It checks that the space exists, is not already archived, and is
-       * approved. Additionally, it verifies that the caller has the
-       * authority to archive the space, as indicated by the provided
-       * authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `space_id`: The identifier of the space to be archived.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * archival.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully archived, or an error
-       * (`DispatchError`) if:
-       * - The space does not exist.
-       * - `ArchivedSpace`: If the space is already archived.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `UnauthorizedOperation`: If the caller does not have the authority to archive the
-       * space.
-       * 
-       * # Errors
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `ArchivedSpace`: If the space is already archived.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `UnauthorizedOperation`: If the caller is not authorized to archive the space.
-       * 
-       * # Events
-       * - `Archive`: Emitted when a space is successfully archived. It includes the space ID and
-       * the authority who performed the archival.
+       * This extrinsic must be called unsigned and it is expected that only
+       * block authors will call it (validated in `ValidateUnsigned`), as such
+       * if the block author is defined it will be defined as the equivocation
+       * reporter.
        **/
-      archive: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      reportFutureBlockVotingUnsigned: AugmentedSubmittable<(equivocationProof: SpConsensusBeefyFutureBlockVotingProof | { vote?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusBeefyFutureBlockVotingProof, SpSessionMembershipProof]>;
       /**
-       * Creates a new space with a unique identifier based on the provided
-       * space code and the creator's identity.
+       * Reset BEEFY consensus by setting a new BEEFY genesis at `delay_in_blocks` blocks in the
+       * future.
        * 
-       * This function generates a unique identifier for the space by hashing
-       * the encoded space code and creator's identifier. It ensures that the
-       * generated space identifier is not already in use. An authorization
-       * ID is also created for the new space, which is used to manage
-       * delegations. The creator is automatically added as a delegate with
-       * all permissions.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator.
-       * - `space_code`: A unique code representing the space to be created.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully created, or an error
-       * (`DispatchError`) if:
-       * - The generated space identifier is already in use.
-       * - The generated authorization ID is of invalid length.
-       * - The space delegates limit is exceeded.
-       * 
-       * # Errors
-       * - `InvalidIdentifierLength`: If the generated identifiers for the space or authorization
-       * are of invalid length.
-       * - `SpaceAlreadyAnchored`: If the space identifier is already in use.
-       * - `SpaceDelegatesLimitExceeded`: If the space exceeds the limit of allowed delegates.
-       * 
-       * # Events
-       * - `Create`: Emitted when a new space is successfully created. It includes the space
-       * identifier, the creator's identifier, and the authorization ID.
+       * Note: `delay_in_blocks` has to be at least 1.
        **/
-      create: AugmentedSubmittable<(spaceCode: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
-      /**
-       * Removes a delegate from a specified space.
-       * 
-       * This function will remove an existing delegate from a space, given
-       * the space ID and the delegate's authorization ID. It checks that the
-       * space exists, is not archived, is approved, and that the provided
-       * authorization corresponds to a delegate of the space. It also
-       * verifies that the caller has the authority to remove a delegate.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin.
-       * - `space_id`: The identifier of the space from which the delegate is being removed.
-       * - `remove_authorization`: The authorization ID of the delegate to be removed.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * removal.
-       * 
-       * # Returns
-       * - `DispatchResult`: This function returns `Ok(())` if the delegate is successfully
-       * removed, or an error (`DispatchError`) if any of the checks fail.
-       * 
-       * # Errors
-       * - `AuthorizationNotFound`: If the provided `remove_authorization` does not exist.
-       * - `UnauthorizedOperation`: If the origin is not authorized to remove a delegate from the
-       * space.
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `ArchivedSpace`: If the space is archived and no longer active.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `DelegateNotFound`: If the delegate specified by `remove_authorization` is not found
-       * in the space.
-       * 
-       * # Events
-       * 
-       * - `Deauthorization`: Emitted when a delegate is successfully removed from a space. The
-       * event includes the space ID and the authorization ID of the removed delegate.
-       **/
-      removeDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, removeAuthorization: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
-      /**
-       * Resets the usage counter of a specified space to zero.
-       * 
-       * This function can only be called by an authorized origin, defined by
-       * `ChainSpaceOrigin`, and is used to reset the usage metrics for a
-       * given space on the chain, identified by `space_id`. The reset action
-       * is only permissible if the space exists, is not archived, and is
-       * approved for operations.
-       * 
-       * # Parameters
-       * - `origin`: The transaction's origin, which must pass the `ChainSpaceOrigin` check.
-       * - `space_id`: The identifier of the space for which the usage counter will be reset.
-       * 
-       * # Errors
-       * - Returns `SpaceNotFound` if the specified `space_id` does not correspond to any
-       * existing space.
-       * - Returns `ArchivedSpace` if the space is archived and thus cannot be modified.
-       * - Returns `SpaceNotApproved` if the space is not approved for operations.
-       * 
-       * # Events
-       * - Emits `UpdateCapacity` upon successfully resetting the space's usage counter.
-       **/
-      resetTransactionCount: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Restores an archived space, making it active again.
-       * 
-       * This function unarchives a space based on the provided space ID. It
-       * checks that the space exists, is currently archived, and is
-       * approved. It also verifies that the caller has the authority to
-       * restore the space, as indicated by the provided authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `space_id`: The identifier of the space to be restored.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * restoration.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully restored, or an error
-       * (`DispatchError`) if:
-       * - The space does not exist.
-       * - The space is not archived.
-       * - The space is not approved.
-       * - The caller does not have the authority to restore the space.
-       * 
-       * # Errors
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `SpaceNotArchived`: If the space is not currently archived.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `UnauthorizedOperation`: If the caller is not authorized to restore the space.
-       * 
-       * # Events
-       * - `Restore`: Emitted when a space is successfully restored. It includes the space ID and
-       * the authority who performed the restoration.
-       **/
-      restore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * Creates a new space with a unique identifier based on the provided
-       * space code and the creator's identity, along with parent space ID.
-       * 
-       * This function generates a unique identifier for the space by hashing
-       * the encoded space code and creator's identifier. It ensures that the
-       * generated space identifier is not already in use. An authorization
-       * ID is also created for the new space, which is used to manage
-       * delegations. The creator is automatically added as a delegate with
-       * all permissions.
-       * NOTE: this call is different from create() in just 1 main step. This
-       * space can be created from the already 'approved' space, as a
-       * 'space-approval' is a council activity, instead in this case, its
-       * owner/creator's task. Thus reducing the involvement of council once
-       * the top level approval is present.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator.
-       * - `space_code`: A unique code representing the space to be created.
-       * - `count`: Number of approved transaction capacity in the sub-space.
-       * - `space_id`: Identifier of the parent space.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully created, or an error
-       * (`DispatchError`) if:
-       * - The generated space identifier is already in use.
-       * - The generated authorization ID is of invalid length.
-       * - The space delegates limit is exceeded.
-       * 
-       * # Errors
-       * - `InvalidIdentifierLength`: If the generated identifiers for the space or authorization
-       * are of invalid length.
-       * - `SpaceAlreadyAnchored`: If the space identifier is already in use.
-       * - `SpaceDelegatesLimitExceeded`: If the space exceeds the limit of allowed delegates.
-       * 
-       * # Events
-       * - `Create`: Emitted when a new space is successfully created. It includes the space
-       * identifier, the creator's identifier, and the authorization ID.
-       **/
-      subspaceCreate: AugmentedSubmittable<(spaceCode: H256 | string | Uint8Array, count: Option<u64> | null | Uint8Array | u64 | AnyNumber, spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Option<u64>, Bytes]>;
-      /**
-       * Updates the transaction capacity of an existing space.
-       * 
-       * This extrinsic updates the capacity limit of a space, ensuring that
-       * the new limit is not less than the current usage to prevent
-       * over-allocation. It can only be called by an authorized origin and
-       * not on archived or unapproved spaces.
-       * 
-       * # Arguments
-       * * `origin` - The origin of the call, which must be from an authorized source.
-       * * `space_id` - The identifier of the space for which the capacity is being updated.
-       * * `new_txn_capacity` - The new capacity limit to be set for the space.
-       * 
-       * # Errors
-       * * `SpaceNotFound` - If the space with the given ID does not exist.
-       * * `ArchivedSpace` - If the space is archived and thus cannot be modified.
-       * * `SpaceNotApproved` - If the space has not been approved for use yet.
-       * * `CapacityLessThanUsage` - If the new capacity is less than the current usage of the
-       * space.
-       * 
-       * # Events
-       * * `UpdateCapacity` - Emits the space ID when the capacity is successfully updated.
-       **/
-      updateTransactionCapacity: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, newTxnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
-      /**
-       * Updates the transaction capacity of an existing subspace.
-       * 
-       * This extrinsic updates the capacity limit of a space, ensuring that
-       * the new limit is not less than the current usage to prevent
-       * over-allocation. It can only be called by an authorized origin and
-       * not on archived or unapproved spaces.
-       * 
-       * # Arguments
-       * * `origin` - The origin of the call, which must be from an authorized source.
-       * * `space_id` - The identifier of the space for which the capacity is being updated.
-       * * `new_txn_capacity` - The new capacity limit to be set for the space.
-       * 
-       * # Errors
-       * * `SpaceNotFound` - If the space with the given ID does not exist.
-       * * `ArchivedSpace` - If the space is archived and thus cannot be modified.
-       * * `SpaceNotApproved` - If the space has not been approved for use yet.
-       * * `CapacityLessThanUsage` - If the new capacity is less than the current usage of the
-       * space.
-       * 
-       * # Events
-       * * `UpdateCapacity` - Emits the space ID when the capacity is successfully updated.
-       **/
-      updateTransactionCapacitySub: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, newTxnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+      setNewGenesis: AugmentedSubmittable<(delayInBlocks: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
     };
-    chainSpaceDid: {
+    collection: {
       /**
-       * Adds an administrative delegate to a space.
-       * 
-       * The `ADMIN` permission grants the delegate extensive control over
-       * the space, including the ability to manage other delegates and
-       * change space configurations. This function is called to
-       * grant a delegate these administrative privileges. It verifies that
-       * the caller has the necessary authorization (admin rights) to add an
-       * admin delegate to the space. If the caller is authorized,
-       * the delegate is added with the `ADMIN` permission using the
-       * `space_delegate_addition` internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing admin of the
-       * space.
-       * - `space_id`: The identifier of the space to which the admin delegate is being added.
-       * - `delegate`: The identifier of the delegate being granted admin permissions.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the admin delegate was successfully added, or an
-       * `Err` with an appropriate error if the operation fails.
-       * 
-       * # Errors
-       * - `UnauthorizedOperation`: If the caller is not an admin of the space.
-       * - Propagates errors from `space_delegate_addition` if it fails.
+       * Add a delegate with given permissions to a collection.
        **/
-      addAdminDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      addDelegate: AugmentedSubmittable<(collectionId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, roles: Vec<PalletCollectionPermissionVariant> | (PalletCollectionPermissionVariant | 'Entry' | 'Delegate' | 'Admin' | number | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Vec<PalletCollectionPermissionVariant>]>;
       /**
-       * Adds a delegate with the ability to assert new entries to a space.
-       * 
-       * The `ASSERT` permission allows the delegate to sign and add new
-       * entries within the space. This function is called to grant a
-       * delegate this specific permission. It checks that the caller has the
-       * necessary authorization (admin rights) to add a delegate to the
-       * space. If the caller is authorized, the delegate is added with the
-       * `ASSERT` permission using the `space_delegate_addition`
-       * internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an admin of the space.
-       * - `space_id`: The identifier of the space to which the delegate is being added.
-       * - `delegate`: The identifier of the delegate being added to the space.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the delegate was successfully added with
-       * `ASSERT` permission, or an `Err` with an appropriate error if the
-       * operation fails.
-       * 
-       * # Errors
-       * - `UnauthorizedOperation`: If the caller is not an admin of the space.
-       * - Propagates errors from `space_delegate_addition` if it fails.
+       * Add a registry to a collection.
        **/
-      addDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
+      addRegistry: AugmentedSubmittable<(collectionId: Bytes | string | Uint8Array, registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Adds an audit delegate to a space.
-       * 
-       * The `AUDIT` permission grants the delegate the ability to perform
-       * oversight and compliance checks within the space. This function is
-       * used to assign a delegate these audit privileges. It ensures that
-       * the caller has the necessary authorization (admin rights) to add an
-       * audit delegate to the space. If the caller is authorized, the
-       * delegate is added with the `AUDIT` permission using the
-       * `space_delegate_addition` internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing admin of the
-       * space.
-       * - `space_id`: The identifier of the space to which the audit delegate is being added.
-       * - `delegate`: The identifier of the delegate being granted audit permissions.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the audit delegate was successfully added, or an
-       * `Err` with an appropriate error if the operation fails.
+       * Archive a collection.
        **/
-      addDelegator: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
-      approvalRestore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      archive: AugmentedSubmittable<(collectionId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Revokes approval for a specified space.
-       * 
-       * This function can be executed by an authorized origin, as determined
-       * by `ChainSpaceOrigin`. It is designed to change the status of a
-       * given space, referred to by `space_id`, to unapproved.
-       * The revocation is only allowed if the space is currently approved,
-       * and not archived.
-       * 
-       * # Parameters
-       * - `origin`: The transaction's origin, which must satisfy the `ChainSpaceOrigin` policy.
-       * - `space_id`: The identifier of the space whose approval status is being revoked.
-       * 
-       * # Errors
-       * - Returns `SpaceNotFound` if no space corresponds to the provided `space_id`.
-       * - Returns `ArchivedSpace` if the space is archived, in which case its status cannot be
-       * altered.
-       * - Returns `SpaceNotApproved` if the space is already unapproved.
-       * 
-       * # Events
-       * - Emits `Revoke` when the space's approved status is successfully revoked.
+       * Create a new collection.
        **/
-      approvalRevoke: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      create: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Approves a space and sets its capacity.
-       * 
-       * This function can only be called by a council or root origin,
-       * reflecting its privileged nature. It is used to approve a space that
-       * has been previously created, setting its transaction capacity and
-       * marking it as approved. It ensures that the space exists, is not
-       * archived, and has not already been approved.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be a council or root origin.
-       * - `space_id`: The identifier of the space to be approved.
-       * - `txn_capacity`: The transaction capacity to be set for the space.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully approved, or an error
-       * (`DispatchError`) if:
-       * - The origin is not a council or root origin.
-       * - The space does not exist.
-       * - The space is archived.
-       * - The space is already approved.
-       * 
-       * # Errors
-       * - `BadOrigin`: If the call does not come from a council or root origin.
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `ArchivedSpace`: If the space is archived and no longer active.
-       * - `SpaceAlreadyApproved`: If the space has already been approved.
-       * 
-       * # Events
-       * - `Approve`: Emitted when a space is successfully approved. It includes the space
-       * identifier.
-       * 
-       * # Security Considerations
-       * Due to the privileged nature of this function, callers must ensure
-       * that they have the appropriate authority. Misuse can lead to
-       * unauthorized approval of spaces, which may have security
-       * implications.
+       * Adds an administrative delegate to a namespace.
        **/
-      approve: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, txnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+      removeDelegate: AugmentedSubmittable<(collectionId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Archives a space, rendering it inactive.
-       * 
-       * This function marks a space as archived based on the provided space
-       * ID. It checks that the space exists, is not already archived, and is
-       * approved. Additionally, it verifies that the caller has the
-       * authority to archive the space, as indicated by the provided
-       * authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `space_id`: The identifier of the space to be archived.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * archival.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully archived, or an error
-       * (`DispatchError`) if:
-       * - The space does not exist.
-       * - `ArchivedSpace`: If the space is already archived.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `UnauthorizedOperation`: If the caller does not have the authority to archive the
-       * space.
-       * 
-       * # Errors
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `ArchivedSpace`: If the space is already archived.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `UnauthorizedOperation`: If the caller is not authorized to archive the space.
-       * 
-       * # Events
-       * - `Archive`: Emitted when a space is successfully archived. It includes the space ID and
-       * the authority who performed the archival.
+       * Remove a registry from a collection.
        **/
-      archive: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      removeRegistry: AugmentedSubmittable<(collectionId: Bytes | string | Uint8Array, registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Creates a new space with a unique identifier based on the provided
-       * space code and the creator's identity.
-       * 
-       * This function generates a unique identifier for the space by hashing
-       * the encoded space code and creator's identifier. It ensures that the
-       * generated space identifier is not already in use. An authorization
-       * ID is also created for the new space, which is used to manage
-       * delegations. The creator is automatically added as a delegate with
-       * all permissions.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator.
-       * - `space_code`: A unique code representing the space to be created.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully created, or an error
-       * (`DispatchError`) if:
-       * - The generated space identifier is already in use.
-       * - The generated authorization ID is of invalid length.
-       * - The space delegates limit is exceeded.
-       * 
-       * # Errors
-       * - `InvalidIdentifierLength`: If the generated identifiers for the space or authorization
-       * are of invalid length.
-       * - `SpaceAlreadyAnchored`: If the space identifier is already in use.
-       * - `SpaceDelegatesLimitExceeded`: If the space exceeds the limit of allowed delegates.
-       * 
-       * # Events
-       * - `Create`: Emitted when a new space is successfully created. It includes the space
-       * identifier, the creator's identifier, and the authorization ID.
+       * Restore a collection.
        **/
-      create: AugmentedSubmittable<(spaceCode: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
-      /**
-       * Removes a delegate from a specified space.
-       * 
-       * This function will remove an existing delegate from a space, given
-       * the space ID and the delegate's authorization ID. It checks that the
-       * space exists, is not archived, is approved, and that the provided
-       * authorization corresponds to a delegate of the space. It also
-       * verifies that the caller has the authority to remove a delegate.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin.
-       * - `space_id`: The identifier of the space from which the delegate is being removed.
-       * - `remove_authorization`: The authorization ID of the delegate to be removed.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * removal.
-       * 
-       * # Returns
-       * - `DispatchResult`: This function returns `Ok(())` if the delegate is successfully
-       * removed, or an error (`DispatchError`) if any of the checks fail.
-       * 
-       * # Errors
-       * - `AuthorizationNotFound`: If the provided `remove_authorization` does not exist.
-       * - `UnauthorizedOperation`: If the origin is not authorized to remove a delegate from the
-       * space.
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `ArchivedSpace`: If the space is archived and no longer active.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `DelegateNotFound`: If the delegate specified by `remove_authorization` is not found
-       * in the space.
-       * 
-       * # Events
-       * 
-       * - `Deauthorization`: Emitted when a delegate is successfully removed from a space. The
-       * event includes the space ID and the authorization ID of the removed delegate.
-       **/
-      removeDelegate: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, removeAuthorization: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
-      /**
-       * Resets the usage counter of a specified space to zero.
-       * 
-       * This function can only be called by an authorized origin, defined by
-       * `ChainSpaceOrigin`, and is used to reset the usage metrics for a
-       * given space on the chain, identified by `space_id`. The reset action
-       * is only permissible if the space exists, is not archived, and is
-       * approved for operations.
-       * 
-       * # Parameters
-       * - `origin`: The transaction's origin, which must pass the `ChainSpaceOrigin` check.
-       * - `space_id`: The identifier of the space for which the usage counter will be reset.
-       * 
-       * # Errors
-       * - Returns `SpaceNotFound` if the specified `space_id` does not correspond to any
-       * existing space.
-       * - Returns `ArchivedSpace` if the space is archived and thus cannot be modified.
-       * - Returns `SpaceNotApproved` if the space is not approved for operations.
-       * 
-       * # Events
-       * - Emits `UpdateCapacity` upon successfully resetting the space's usage counter.
-       **/
-      resetTransactionCount: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Restores an archived space, making it active again.
-       * 
-       * This function unarchives a space based on the provided space ID. It
-       * checks that the space exists, is currently archived, and is
-       * approved. It also verifies that the caller has the authority to
-       * restore the space, as indicated by the provided authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `space_id`: The identifier of the space to be restored.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * restoration.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully restored, or an error
-       * (`DispatchError`) if:
-       * - The space does not exist.
-       * - The space is not archived.
-       * - The space is not approved.
-       * - The caller does not have the authority to restore the space.
-       * 
-       * # Errors
-       * - `SpaceNotFound`: If the specified space ID does not correspond to an existing space.
-       * - `SpaceNotArchived`: If the space is not currently archived.
-       * - `SpaceNotApproved`: If the space has not been approved for use.
-       * - `UnauthorizedOperation`: If the caller is not authorized to restore the space.
-       * 
-       * # Events
-       * - `Restore`: Emitted when a space is successfully restored. It includes the space ID and
-       * the authority who performed the restoration.
-       **/
-      restore: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * Creates a new space with a unique identifier based on the provided
-       * space code and the creator's identity, along with parent space ID.
-       * 
-       * This function generates a unique identifier for the space by hashing
-       * the encoded space code and creator's identifier. It ensures that the
-       * generated space identifier is not already in use. An authorization
-       * ID is also created for the new space, which is used to manage
-       * delegations. The creator is automatically added as a delegate with
-       * all permissions.
-       * NOTE: this call is different from create() in just 1 main step. This
-       * space can be created from the already 'approved' space, as a
-       * 'space-approval' is a council activity, instead in this case, its
-       * owner/creator's task. Thus reducing the involvement of council once
-       * the top level approval is present.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator.
-       * - `space_code`: A unique code representing the space to be created.
-       * - `count`: Number of approved transaction capacity in the sub-space.
-       * - `space_id`: Identifier of the parent space.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the space is successfully created, or an error
-       * (`DispatchError`) if:
-       * - The generated space identifier is already in use.
-       * - The generated authorization ID is of invalid length.
-       * - The space delegates limit is exceeded.
-       * 
-       * # Errors
-       * - `InvalidIdentifierLength`: If the generated identifiers for the space or authorization
-       * are of invalid length.
-       * - `SpaceAlreadyAnchored`: If the space identifier is already in use.
-       * - `SpaceDelegatesLimitExceeded`: If the space exceeds the limit of allowed delegates.
-       * 
-       * # Events
-       * - `Create`: Emitted when a new space is successfully created. It includes the space
-       * identifier, the creator's identifier, and the authorization ID.
-       **/
-      subspaceCreate: AugmentedSubmittable<(spaceCode: H256 | string | Uint8Array, count: Option<u64> | null | Uint8Array | u64 | AnyNumber, spaceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Option<u64>, Bytes]>;
-      /**
-       * Updates the transaction capacity of an existing space.
-       * 
-       * This extrinsic updates the capacity limit of a space, ensuring that
-       * the new limit is not less than the current usage to prevent
-       * over-allocation. It can only be called by an authorized origin and
-       * not on archived or unapproved spaces.
-       * 
-       * # Arguments
-       * * `origin` - The origin of the call, which must be from an authorized source.
-       * * `space_id` - The identifier of the space for which the capacity is being updated.
-       * * `new_txn_capacity` - The new capacity limit to be set for the space.
-       * 
-       * # Errors
-       * * `SpaceNotFound` - If the space with the given ID does not exist.
-       * * `ArchivedSpace` - If the space is archived and thus cannot be modified.
-       * * `SpaceNotApproved` - If the space has not been approved for use yet.
-       * * `CapacityLessThanUsage` - If the new capacity is less than the current usage of the
-       * space.
-       * 
-       * # Events
-       * * `UpdateCapacity` - Emits the space ID when the capacity is successfully updated.
-       **/
-      updateTransactionCapacity: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, newTxnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
-      /**
-       * Updates the transaction capacity of an existing subspace.
-       * 
-       * This extrinsic updates the capacity limit of a space, ensuring that
-       * the new limit is not less than the current usage to prevent
-       * over-allocation. It can only be called by an authorized origin and
-       * not on archived or unapproved spaces.
-       * 
-       * # Arguments
-       * * `origin` - The origin of the call, which must be from an authorized source.
-       * * `space_id` - The identifier of the space for which the capacity is being updated.
-       * * `new_txn_capacity` - The new capacity limit to be set for the space.
-       * 
-       * # Errors
-       * * `SpaceNotFound` - If the space with the given ID does not exist.
-       * * `ArchivedSpace` - If the space is archived and thus cannot be modified.
-       * * `SpaceNotApproved` - If the space has not been approved for use yet.
-       * * `CapacityLessThanUsage` - If the new capacity is less than the current usage of the
-       * space.
-       * 
-       * # Events
-       * * `UpdateCapacity` - Emits the space ID when the capacity is successfully updated.
-       **/
-      updateTransactionCapacitySub: AugmentedSubmittable<(spaceId: Bytes | string | Uint8Array, newTxnCapacity: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, u64]>;
+      restore: AugmentedSubmittable<(collectionId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
     contracts: {
       /**
@@ -1709,6 +1027,16 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       execute: AugmentedSubmittable<(proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, Compact<u32>]>;
       /**
+       * Disapprove the proposal and burn the cost held for storing this proposal.
+       * 
+       * Parameters:
+       * - `origin`: must be the `KillOrigin`.
+       * - `proposal_hash`: The hash of the proposal that should be killed.
+       * 
+       * Emits `Killed` and `ProposalCostBurned` if any cost was held for a given proposal.
+       **/
+      kill: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
+      /**
        * Add a new proposal to either be voted on or executed directly.
        * 
        * Requires the sender to be member.
@@ -1725,6 +1053,18 @@ declare module '@polkadot/api-base/types/submittable' {
        * - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
        **/
       propose: AugmentedSubmittable<(threshold: Compact<u32> | AnyNumber | Uint8Array, proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Call, Compact<u32>]>;
+      /**
+       * Release the cost held for storing a proposal once the given proposal is completed.
+       * 
+       * If there is no associated cost for the given proposal, this call will have no effect.
+       * 
+       * Parameters:
+       * - `origin`: must be `Signed` or `Root`.
+       * - `proposal_hash`: The hash of the proposal.
+       * 
+       * Emits `ProposalCostReleased` if any cost held for a given proposal.
+       **/
+      releaseProposalCost: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
       /**
        * Set the collective's membership.
        * 
@@ -1777,8 +1117,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * May only be called from `Signed` origin of a current member.
        * 
-       * Prime membership is passed from the origin account to `new`, if
-       * extant.
+       * Prime membership is passed from the origin account to `new`, if extant.
        **/
       changeKey: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
@@ -1794,8 +1133,8 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       removeMember: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Change the membership to a new set, disregarding the existing
-       * membership. Be nice and pass `members` pre-sorted.
+       * Change the membership to a new set, disregarding the existing membership. Be nice and
+       * pass `members` pre-sorted.
        * 
        * May only be called from `T::ResetOrigin`.
        **/
@@ -1815,345 +1154,64 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       swapMember: AugmentedSubmittable<(remove: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, add: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, MultiAddress]>;
     };
-    did: {
+    electionProviderMultiPhase: {
       /**
-       * Add a single new key agreement key to the DID.
+       * Trigger the governance fallback.
        * 
-       * The new key is added to the set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
+       * This can only be called when [`Phase::Emergency`] is enabled, as an alternative to
+       * calling [`Call::set_emergency_election_result`].
        **/
-      addKeyAgreementKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidEncryptionKey | { x25519: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidEncryptionKey]>;
+      governanceFallback: AugmentedSubmittable<(maybeMaxVoters: Option<u32> | null | Uint8Array | u32 | AnyNumber, maybeMaxTargets: Option<u32> | null | Uint8Array | u32 | AnyNumber) => SubmittableExtrinsic<ApiType>, [Option<u32>, Option<u32>]>;
       /**
-       * Add a new service endpoint under the given DID.
+       * Set a solution in the queue, to be handed out to the client of this pallet in the next
+       * call to `ElectionProvider::elect`.
        * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
+       * This can only be set by `T::ForceOrigin`, and only when the phase is `Emergency`.
        * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did, ServiceEndpoints, DidEndpointsCount
-       * - Writes: Did, ServiceEndpoints, DidEndpointsCount
-       * # </weight>
+       * The solution is not checked for any feasibility and is assumed to be trustworthy, as any
+       * feasibility check itself can in principle cause the election process to fail (due to
+       * memory/weight constrains).
        **/
-      addServiceEndpoint: AugmentedSubmittable<(serviceEndpoint: PalletDidServiceEndpointsDidEndpoint | { id?: any; serviceTypes?: any; urls?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidServiceEndpointsDidEndpoint]>;
+      setEmergencyElectionResult: AugmentedSubmittable<(supports: Vec<ITuple<[AccountId32, SpNposElectionsSupport]>> | ([AccountId32 | string | Uint8Array, SpNposElectionsSupport | { total?: any; voters?: any } | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[AccountId32, SpNposElectionsSupport]>>]>;
       /**
-       * Store a new DID on chain, after verifying that the creation
-       * operation has been signed by the CORD account associated with the
-       * identifier of the DID being created and that a DID with the same
-       * identifier has not previously existed on (and then deleted from) the
-       * chain.
+       * Set a new value for `MinimumUntrustedScore`.
        * 
-       * There must be no DID information stored on chain under the same DID
-       * identifier.
+       * Dispatch origin must be aligned with `T::ForceOrigin`.
        * 
-       * The new keys added with this operation are stored under the DID
-       * identifier along with the block number in which the operation was
-       * executed.
-       * 
-       * The dispatch origin can be any CORD account authorised to execute
-       * the extrinsic and it does not have to be tied in any way to the
-       * CORD account identifying the DID subject.
-       * 
-       * Emits `DidCreated`.
-       * 
-       * # <weight>
-       * - The transaction's complexity is mainly dependent on the number of new key agreement
-       * keys and the number of new service endpoints included in the operation.
-       * ---------
-       * Weight: O(K) + O(N) where K is the number of new key agreement
-       * keys bounded by `MaxNewKeyAgreementKeys`, while N is the number of
-       * new service endpoints bounded by `MaxNumberOfServicesPerDid`.
-       * - Reads: [Origin Account], Did, DidBlacklist
-       * - Writes: Did (with K new key agreement keys), ServiceEndpoints (with N new service
-       * endpoints), DidEndpointsCount
-       * # </weight>
+       * This check can be turned off by setting the value to `None`.
        **/
-      create: AugmentedSubmittable<(details: PalletDidDidDetailsDidCreationDetails | { did?: any; submitter?: any; newKeyAgreementKeys?: any; newAssertionKey?: any; newDelegationKey?: any; newServiceDetails?: any } | string | Uint8Array, signature: PalletDidDidDetailsDidSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidCreationDetails, PalletDidDidDetailsDidSignature]>;
+      setMinimumUntrustedScore: AugmentedSubmittable<(maybeNextScore: Option<SpNposElectionsElectionScore> | null | Uint8Array | SpNposElectionsElectionScore | { minimalStake?: any; sumStake?: any; sumStakeSquared?: any } | string) => SubmittableExtrinsic<ApiType>, [Option<SpNposElectionsElectionScore>]>;
       /**
-       * Store a new DID on chain.
+       * Submit a solution for the signed phase.
        * 
-       * The DID identifier is derived from the account ID that submits this
-       * call. The authentication key must correspond to the account ID that
-       * submitted this call. For accounts that use the ed25519 and sr25519
-       * schema, the authentication key must be of the
-       * `DidVerificationKey::ed25519` or `DidVerificationKey::sr25519`
-       * variant and contains the public key. For ecdsa accounts, the
-       * `DidVerificationKey::ecdsa` variant is calculated by hashing the
-       * ecdsa public key.
+       * The dispatch origin fo this call must be __signed__.
        * 
-       * If this call is dispatched by an account id that doesn't correspond
-       * to a public private key pair, the `DidVerificationKey::Account`
-       * variant shall be used (Multisig, Pure Proxy, Governance origins).
-       * The resulting DID can NOT be used for signing data and is therefore
-       * limited to onchain activities.
+       * The solution is potentially queued, based on the claimed score and processed at the end
+       * of the signed phase.
        * 
-       * There must be no DID information stored on chain under the same DID
-       * identifier. This call will fail if there exists a DID with the same
-       * identifier or if a DID with the same identifier existed and was
-       * deleted.
-       * 
-       * The origin for this account must be funded and provide the required
-       * deposit and fee.
-       * 
-       * Emits `DidCreated`.
+       * A deposit is reserved and recorded for the solution. Based on the outcome, the solution
+       * might be rewarded, slashed, or get all or a part of the deposit back.
        **/
-      createFromAccount: AugmentedSubmittable<(authenticationKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
+      submit: AugmentedSubmittable<(rawSolution: PalletElectionProviderMultiPhaseRawSolution | { solution?: any; score?: any; round?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletElectionProviderMultiPhaseRawSolution]>;
       /**
-       * Delete a DID from the chain and all information associated with it,
-       * after verifying that the delete operation has been signed by the DID
-       * subject using the authentication key currently stored on chain.
+       * Submit a solution for the unsigned phase.
        * 
-       * The referenced DID identifier must be present on chain before the
-       * delete operation is evaluated.
+       * The dispatch origin fo this call must be __none__.
        * 
-       * After it is deleted, a DID with the same identifier cannot be
-       * re-created ever again.
+       * This submission is checked on the fly. Moreover, this unsigned solution is only
+       * validated when submitted to the pool from the **local** node. Effectively, this means
+       * that only active validators can submit this transaction when authoring a block (similar
+       * to an inherent).
        * 
-       * As the result of the deletion, all traces of the DID are removed
-       * from the storage, which results in the invalidation of all
-       * assertions issued by the DID subject.
+       * To prevent any incorrect solution (and thus wasted time/weight), this transaction will
+       * panic if the solution submitted by the validator is invalid in any way, effectively
+       * putting their authoring reward at risk.
        * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidDeleted`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Kills: Did entry associated to the DID identifier
-       * # </weight>
+       * No deposit or reward is associated with this submission.
        **/
-      delete: AugmentedSubmittable<(endpointsToRemove: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
-      /**
-       * Proxy a dispatchable call of another runtime extrinsic that
-       * supports a DID origin.
-       * 
-       * The referenced DID identifier must be present on chain before the
-       * operation is dispatched.
-       * 
-       * A call submitted through this extrinsic must be signed with the
-       * right DID key, depending on the call. In contrast to the
-       * `submit_did_call` extrinsic, this call doesn't separate the sender
-       * from the DID subject. The key that must be used for this DID call
-       * is required to also be a valid account with enough balance to pay
-       * for fees.
-       * 
-       * The dispatch origin must be a KILT account with enough funds to
-       * execute the extrinsic and must correspond to the required DID
-       * Verification Key.
-       * 
-       * Emits `DidCallDispatched`.
-       **/
-      dispatchAs: AugmentedSubmittable<(didIdentifier: AccountId32 | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, Call]>;
-      /**
-       * Remove the DID assertion key.
-       * 
-       * The old key is deleted from the set of public keys if
-       * it is not used in any other part of the DID.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
-       **/
-      removeAssertionKey: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Remove the DID delegation key.
-       * 
-       * The old key is deleted from the set of public keys if
-       * it is not used in any other part of the DID.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
-       **/
-      removeDelegationKey: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Remove a DID key agreement key from both its set of key agreement
-       * keys and as well as its public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
-       **/
-      removeKeyAgreementKey: AugmentedSubmittable<(keyId: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
-      /**
-       * Remove the service with the provided ID from the DID.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], ServiceEndpoints, DidEndpointsCount
-       * - Writes: Did, ServiceEndpoints, DidEndpointsCount
-       * # </weight>
-       **/
-      removeServiceEndpoint: AugmentedSubmittable<(serviceId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Set or update the DID assertion key.
-       * 
-       * If an old key existed, it is deleted from the set of public keys if
-       * it is not used in any other part of the DID. The new key is added to
-       * the set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
-       **/
-      setAssertionKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
-      /**
-       * Update the DID authentication key.
-       * 
-       * The old key is deleted from the set of public keys if it is
-       * not used in any other part of the DID. The new key is added to the
-       * set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
-       **/
-      setAuthenticationKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
-      /**
-       * Set or update the DID delegation key.
-       * 
-       * If an old key existed, it is deleted from the set of public keys if
-       * it is not used in any other part of the DID. The new key is added to
-       * the set of public keys.
-       * 
-       * The dispatch origin must be a DID origin proxied via the
-       * `submit_did_call` extrinsic.
-       * 
-       * Emits `DidUpdated`.
-       * 
-       * # <weight>
-       * Weight: O(1)
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
-       **/
-      setDelegationKey: AugmentedSubmittable<(newKey: PalletDidDidDetailsDidVerificationKey | { ed25519: any } | { sr25519: any } | { ecdsa: any } | { Account: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidVerificationKey]>;
-      /**
-       * Proxy a dispatchable call of another runtime extrinsic that
-       * supports a DID origin.
-       * 
-       * The referenced DID identifier must be present on chain before the
-       * operation is dispatched.
-       * 
-       * A call submitted through this extrinsic must be signed with the
-       * right DID key, depending on the call. This information is provided
-       * by the `DidAuthorizedCallOperation` parameter, which specifies the
-       * DID subject acting as the origin of the call, the DID's tx counter
-       * (nonce), the dispatchable to call in case signature verification
-       * succeeds, the type of DID key to use to verify the operation
-       * signature, and the block number the operation was targeting for
-       * inclusion, when it was created and signed.
-       * 
-       * In case the signature is incorrect, the nonce is not valid, the
-       * required key is not present for the specified DID, or the block
-       * specified is too old the verification fails and the call is not
-       * dispatched. Otherwise, the call is properly dispatched with a
-       * `DidOrigin` origin indicating the DID subject.
-       * 
-       * A successful dispatch operation results in the tx counter associated
-       * with the given DID to be incremented, to mitigate replay attacks.
-       * 
-       * The dispatch origin can be any CORD account with enough funds to
-       * execute the extrinsic and it does not have to be tied in any way to
-       * the CORD account identifying the DID subject.
-       * 
-       * Emits `DidCallDispatched`.
-       * 
-       * # <weight>
-       * Weight: O(1) + weight of the dispatched call
-       * - Reads: [Origin Account], Did
-       * - Writes: Did
-       * # </weight>
-       **/
-      submitDidCall: AugmentedSubmittable<(didCall: PalletDidDidDetailsDidAuthorizedCallOperation | { did?: any; txCounter?: any; call?: any; blockNumber?: any; submitter?: any } | string | Uint8Array, signature: PalletDidDidDetailsDidSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletDidDidDetailsDidAuthorizedCallOperation, PalletDidDidDetailsDidSignature]>;
+      submitUnsigned: AugmentedSubmittable<(rawSolution: PalletElectionProviderMultiPhaseRawSolution | { solution?: any; score?: any; round?: any } | string | Uint8Array, witness: PalletElectionProviderMultiPhaseSolutionOrSnapshotSize | { voters?: any; targets?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletElectionProviderMultiPhaseRawSolution, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize]>;
     };
-    didName: {
-      /**
-       * Ban a name.
-       * 
-       * A banned name cannot be registered by anyone.
-       * 
-       * The origin must be the ban origin.
-       **/
-      ban: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Assign the specified name to the owner as specified in the
-       * origin.
-       * 
-       * The name must not have already been registered by someone else and
-       * the owner must not already own another name.
-       **/
-      register: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Release the provided name from its owner.
-       * 
-       * The origin must be the owner of the specified name.
-       **/
-      release: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Unban a name.
-       * 
-       * Make a name available again.
-       * 
-       * The origin must be the ban origin.
-       **/
-      unban: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-    };
-    entries: {
+    entry: {
       /**
        * Creates a new Registry Entry within a specified Registry.
        * 
@@ -2190,7 +1248,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * create(origin, registry_entry_id, authorization, digest, Some(blob))?;
        * ```
        **/
-      create: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Option<Bytes>]>;
+      create: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>]>;
       /**
        * Reinstates an revoked existing Registry Entry.
        * 
@@ -2219,7 +1277,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * reinstate(origin, registry_entry_id, authorization)?;
        * ```
        **/
-      reinstate: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      reinstate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
        * Revokes an existing Registry Entry.
        * 
@@ -2248,7 +1306,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * revoke(origin, registry_entry_id, authorization)?;
        * ```
        **/
-      revoke: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      revoke: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
        * Updates an existing Registry Entry with new metadata.
        * 
@@ -2270,7 +1328,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * Registry Entry.
        * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
        * exist.
-       * * `StateNotSupported` - If an unsupported state is provided.
        * 
        * # Events
        * Emits the `Event::RegistryEntryUpdated` event upon successful update of the Registry
@@ -2281,7 +1338,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * update(origin, registry_entry_id, authorization, digest, Some(blob))?;
        * ```
        **/
-      update: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Option<Bytes>]>;
+      update: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array, txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Option<Bytes>]>;
       /**
        * Updates the ownership of an existing Registry Entry.
        * 
@@ -2328,38 +1385,75 @@ declare module '@polkadot/api-base/types/submittable' {
        * )?;
        * ```
        **/
-      updateOwnership: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array, newOwner: AccountId32 | string | Uint8Array, newOwnerAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, AccountId32, Bytes]>;
+      updateOwnership: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array, newOwner: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, AccountId32]>;
+    };
+    fastUnstake: {
       /**
-       * Verifies the existence of a Registry Entry.
+       * Control the operation of this pallet.
        * 
-       * This function allows an account to verify the existence of a specific Registry Entry.
-       * If the entry exists and is not revoked, the latest identifier and digest are returned.
+       * ## Dispatch Origin
        * 
-       * # Arguments
-       * * `origin` - The origin of the call, which must be a signed account (verifier).
-       * * `registry_entry_id` - The unique identifier of the Registry Entry to verify.
+       * The dispatch origin of this call must be [`Config::ControlOrigin`].
        * 
-       * # Conditions
-       * - The Registry Entry must exist.
-       * - The Registry Entry must not be revoked.
+       * ## Details
        * 
-       * # Errors
-       * This function returns an error in the following cases:
-       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
-       * exist.
-       * * `RegistryEntryRevoked` - If the Registry Entry has been revoked.
+       * Can set the number of eras to check per block, and potentially other admin work.
        * 
-       * # Events
-       * Emits the `Event::RegistryEntryExistenceVerified` event upon successful verification.
-       * This event includes the `verifier`, the `registry_entry_id`, and the
-       * `registry_entry_digest`.
+       * ## Events
        * 
-       * # Example
-       * ```rust
-       * verify_existence(origin, registry_entry_id)?;
-       * ```
+       * No events are emitted from this dispatch.
        **/
-      verifyExistence: AugmentedSubmittable<(registryEntryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      control: AugmentedSubmittable<(erasToCheck: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+      /**
+       * Deregister oneself from the fast-unstake.
+       * 
+       * ## Dispatch Origin
+       * 
+       * The dispatch origin of this call must be *signed* by whoever is permitted to call
+       * unbond funds by the staking system. See [`Config::Staking`].
+       * 
+       * ## Details
+       * 
+       * This is useful if one is registered, they are still waiting, and they change their mind.
+       * 
+       * Note that the associated stash is still fully unbonded and chilled as a consequence of
+       * calling [`Pallet::register_fast_unstake`]. Therefore, this should probably be followed
+       * by a call to `rebond` in the staking system.
+       * 
+       * ## Events
+       * 
+       * Some events from the staking and currency system might be emitted.
+       **/
+      deregister: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Register oneself for fast-unstake.
+       * 
+       * ## Dispatch Origin
+       * 
+       * The dispatch origin of this call must be *signed* by whoever is permitted to call
+       * unbond funds by the staking system. See [`Config::Staking`].
+       * 
+       * ## Details
+       * 
+       * The stash associated with the origin must have no ongoing unlocking chunks. If
+       * successful, this will fully unbond and chill the stash. Then, it will enqueue the stash
+       * to be checked in further blocks.
+       * 
+       * If by the time this is called, the stash is actually eligible for fast-unstake, then
+       * they are guaranteed to remain eligible, because the call will chill them as well.
+       * 
+       * If the check works, the entire staking data is removed, i.e. the stash is fully
+       * unstaked.
+       * 
+       * If the check fails, the stash remains chilled and waiting for being unbonded as in with
+       * the normal staking system, but they lose part of their unbonding chunks due to consuming
+       * the chain's resources.
+       * 
+       * ## Events
+       * 
+       * Some events from the staking and currency system might be emitted.
+       **/
+      registerFastUnstake: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
     };
     grandpa: {
       /**
@@ -2426,8 +1520,9 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Add an `AccountId` with permission to grant usernames with a given `suffix` appended.
        * 
-       * The authority can grant up to `allocation` usernames. To top up their allocation, they
-       * should just issue (or request via governance) a new `add_username_authority` call.
+       * The authority can grant up to `allocation` usernames. To top up the allocation or
+       * change the account used to grant usernames, this call can be used with the updated
+       * parameters to overwrite the existing configuration.
        **/
       addUsernameAuthority: AugmentedSubmittable<(authority: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, suffix: Bytes | string | Uint8Array, allocation: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Bytes, u32]>;
       /**
@@ -2435,27 +1530,33 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Payment: A previously reserved deposit is returned on success.
        * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must have a registered identity.
+       * The dispatch origin for this call must be _Signed_ and the sender must have a
+       * registered identity.
        * 
        * - `reg_index`: The index of the registrar whose judgement is no longer requested.
        * 
        * Emits `JudgementUnrequested` if successful.
        **/
-      cancelRequest: AugmentedSubmittable<(registrar: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      cancelRequest: AugmentedSubmittable<(regIndex: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
-       * Clear an account's identity info and all sub-accounts
+       * Clear an account's identity info and all sub-accounts and return all deposits.
        * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must have a registered identity.
+       * Payment: All reserved balances on the account are returned.
+       * 
+       * The dispatch origin for this call must be _Signed_ and the sender must have a registered
+       * identity.
        * 
        * Emits `IdentityCleared` if successful.
        **/
       clearIdentity: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Remove an account's identity
+       * Remove an account's identity and sub-account information and slash the deposits.
        * 
-       * The dispatch origin for this call must match `T::RegistrarOrigin`.
+       * Payment: Reserved balances from `set_subs` and `set_identity` are slashed and handled by
+       * `Slash`. Verification request deposits are not returned; they should be cancelled
+       * manually using `cancel_request`.
+       * 
+       * The dispatch origin for this call must match `T::ForceOrigin`.
        * 
        * - `target`: the account whose identity the judgement is upon. This must be an account
        * with a registered identity.
@@ -2464,25 +1565,28 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       killIdentity: AugmentedSubmittable<(target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
+       * Call with [ForceOrigin](crate::Config::ForceOrigin) privileges which deletes a username
+       * and slashes any deposit associated with it.
+       **/
+      killUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
        * Provide a judgement for an account's identity.
        * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must be the account of the registrar whose index is `reg_index`.
+       * The dispatch origin for this call must be _Signed_ and the sender must be the account
+       * of the registrar whose index is `reg_index`.
        * 
        * - `reg_index`: the index of the registrar whose judgement is being made.
        * - `target`: the account whose identity the judgement is upon. This must be an account
        * with a registered identity.
        * - `judgement`: the judgement of the registrar of index `reg_index` about `target`.
-       * - `identity`: The hash of the [`IdentityInfo`] for that the judgement is provided.
+       * - `identity`: The hash of the [`IdentityInformationProvider`] for that the judgement is
+       * provided.
+       * 
+       * Note: Judgements do not apply to a username.
        * 
        * Emits `JudgementGiven` if successful.
-       * 
-       * ## Complexity
-       * - `O(R + X)`.
-       * - where `R` registrar-count (governance-bounded).
-       * - where `X` additional-field-count (deposit-bounded and code-bounded).
        **/
-      provideJudgement: AugmentedSubmittable<(target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, judgement: PalletIdentityJudgement | 'Unknown' | 'Requested' | 'Reasonable' | 'KnownGood' | 'OutOfDate' | 'LowQuality' | 'Erroneous' | number | Uint8Array, identity: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, PalletIdentityJudgement, H256]>;
+      provideJudgement: AugmentedSubmittable<(regIndex: Compact<u32> | AnyNumber | Uint8Array, target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, judgement: PalletIdentityJudgement | { Unknown: any } | { FeePaid: any } | { Reasonable: any } | { KnownGood: any } | { OutOfDate: any } | { LowQuality: any } | { Erroneous: any } | string | Uint8Array, identity: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress, PalletIdentityJudgement, H256]>;
       /**
        * Remove the sender as a sub-account.
        * 
@@ -2497,26 +1601,11 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       quitSub: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Remove a username that corresponds to an account with no identity. Exists when a user
-       * gets a username but then calls `clear_identity`.
-       **/
-      removeDanglingUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
        * Remove an expired username approval. The username was approved by an authority but never
        * accepted by the user and must now be beyond its expiration. The call must include the
        * full username, as in `username.suffix`.
        **/
       removeExpiredApproval: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Remove a registrar from the system.
-       * 
-       * The dispatch origin for this call must be `T::RegistrarOrigin`.
-       * 
-       * - `account`: the account of the registrar.
-       * 
-       * Emits `RegistrarRemoved` if successful.
-       **/
-      removeRegistrar: AugmentedSubmittable<(account: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
        * Remove the given account from the sender's subs.
        * 
@@ -2528,9 +1617,14 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       removeSub: AugmentedSubmittable<(sub: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
+       * Permanently delete a username which has been unbinding for longer than the grace period.
+       * Caller is refunded the fee if the username expired and the removal was successful.
+       **/
+      removeUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
        * Remove `authority` from the username authorities.
        **/
-      removeUsernameAuthority: AugmentedSubmittable<(authority: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
+      removeUsernameAuthority: AugmentedSubmittable<(suffix: Bytes | string | Uint8Array, authority: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, MultiAddress]>;
       /**
        * Alter the associated name of the given sub-account.
        * 
@@ -2541,37 +1635,57 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Request a judgement from a registrar.
        * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must have a registered identity.
+       * Payment: At most `max_fee` will be reserved for payment to the registrar if judgement
+       * given.
+       * 
+       * The dispatch origin for this call must be _Signed_ and the sender must have a
+       * registered identity.
        * 
        * - `reg_index`: The index of the registrar whose judgement is requested.
+       * - `max_fee`: The maximum fee that may be paid. This should just be auto-populated as:
+       * 
+       * ```nocompile
+       * Registrars::<T>::get().get(reg_index).unwrap().fee
+       * ```
        * 
        * Emits `JudgementRequested` if successful.
        **/
-      requestJudgement: AugmentedSubmittable<(registrar: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      requestJudgement: AugmentedSubmittable<(regIndex: Compact<u32> | AnyNumber | Uint8Array, maxFee: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Compact<u128>]>;
       /**
        * Change the account associated with a registrar.
        * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must be the account of the registrar whose index is `index`.
+       * The dispatch origin for this call must be _Signed_ and the sender must be the account
+       * of the registrar whose index is `index`.
        * 
        * - `index`: the index of the registrar whose fee is to be set.
        * - `new`: the new account ID.
        **/
-      setAccountId: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
+      setAccountId: AugmentedSubmittable<(index: Compact<u32> | AnyNumber | Uint8Array, updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress]>;
+      /**
+       * Set the fee required for a judgement to be requested from a registrar.
+       * 
+       * The dispatch origin for this call must be _Signed_ and the sender must be the account
+       * of the registrar whose index is `index`.
+       * 
+       * - `index`: the index of the registrar whose fee is to be set.
+       * - `fee`: the new fee.
+       **/
+      setFee: AugmentedSubmittable<(index: Compact<u32> | AnyNumber | Uint8Array, fee: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Compact<u128>]>;
       /**
        * Set the field information for a registrar.
        * 
-       * The dispatch origin for this call must be _Signed_ and the sender
-       * must be the account of the registrar whose index is `index`.
+       * The dispatch origin for this call must be _Signed_ and the sender must be the account
+       * of the registrar whose index is `index`.
        * 
        * - `index`: the index of the registrar whose fee is to be set.
        * - `fields`: the fields that the registrar concerns themselves with.
        **/
-      setFields: AugmentedSubmittable<(fields: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u64]>;
+      setFields: AugmentedSubmittable<(index: Compact<u32> | AnyNumber | Uint8Array, fields: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, u64]>;
       /**
-       * Set an account's identity information
+       * Set an account's identity information and reserve the appropriate deposit.
        * 
+       * If the account already has identity information, the deposit is taken as part payment
+       * for the new deposit.
        * 
        * The dispatch origin for this call must be _Signed_.
        * 
@@ -2579,13 +1693,16 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Emits `IdentitySet` if successful.
        **/
-      setIdentity: AugmentedSubmittable<(info: PalletIdentityLegacyIdentityInfo | { additional?: any; display?: any; legal?: any; web?: any; email?: any; image?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletIdentityLegacyIdentityInfo]>;
+      setIdentity: AugmentedSubmittable<(info: PalletIdentityLegacyIdentityInfo | { additional?: any; display?: any; legal?: any; web?: any; riot?: any; email?: any; pgpFingerprint?: any; image?: any; twitter?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletIdentityLegacyIdentityInfo]>;
       /**
        * Set a given username as the primary. The username should include the suffix.
        **/
       setPrimaryUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
        * Set the sub-accounts of the sender.
+       * 
+       * Payment: Any aggregate balance reserved by previous `set_subs` calls will be returned
+       * and an amount `SubAccountDeposit` will be reserved for each item in `subs`.
        * 
        * The dispatch origin for this call must be _Signed_ and the sender must have a registered
        * identity.
@@ -2596,7 +1713,11 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Set the username for `who`. Must be called by a username authority.
        * 
-       * The authority must have an `allocation`. Users can either pre-sign their usernames or
+       * If `use_allocation` is set, the authority must have a username allocation available to
+       * spend. Otherwise, the authority will need to put up a deposit for registering the
+       * username.
+       * 
+       * Users can either pre-sign their usernames or
        * accept them later.
        * 
        * Usernames must:
@@ -2604,7 +1725,13 @@ declare module '@polkadot/api-base/types/submittable' {
        * - When combined with the suffix of the issuing authority be _less than_ the
        * `MaxUsernameLength`.
        **/
-      setUsernameFor: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, username: Bytes | string | Uint8Array, signature: Option<SpRuntimeMultiSignature> | null | Uint8Array | SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string) => SubmittableExtrinsic<ApiType>, [MultiAddress, Bytes, Option<SpRuntimeMultiSignature>]>;
+      setUsernameFor: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, username: Bytes | string | Uint8Array, signature: Option<SpRuntimeMultiSignature> | null | Uint8Array | SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string, useAllocation: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Bytes, Option<SpRuntimeMultiSignature>, bool]>;
+      /**
+       * Start the process of removing a username by placing it in the unbinding usernames map.
+       * Once the grace period has passed, the username can be deleted by calling
+       * [remove_username](crate::Call::remove_username).
+       **/
+      unbindUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
     imOnline: {
       /**
@@ -2691,6 +1818,71 @@ declare module '@polkadot/api-base/types/submittable' {
        * - `O(1)`.
        **/
       transfer: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, u32]>;
+    };
+    messageQueue: {
+      /**
+       * Execute an overweight message.
+       * 
+       * Temporary processing errors will be propagated whereas permanent errors are treated
+       * as success condition.
+       * 
+       * - `origin`: Must be `Signed`.
+       * - `message_origin`: The origin from which the message to be executed arrived.
+       * - `page`: The page in the queue in which the message to be executed is sitting.
+       * - `index`: The index into the queue of the message to be executed.
+       * - `weight_limit`: The maximum amount of weight allowed to be consumed in the execution
+       * of the message.
+       * 
+       * Benchmark complexity considerations: O(index + weight_limit).
+       **/
+      executeOverweight: AugmentedSubmittable<(messageOrigin: u32 | AnyNumber | Uint8Array, page: u32 | AnyNumber | Uint8Array, index: u32 | AnyNumber | Uint8Array, weightLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, u32, SpWeightsWeightV2Weight]>;
+      /**
+       * Remove a page which has no more messages remaining to be processed or is stale.
+       **/
+      reapPage: AugmentedSubmittable<(messageOrigin: u32 | AnyNumber | Uint8Array, pageIndex: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+    };
+    metaTx: {
+      /**
+       * Dispatch a given meta transaction.
+       * 
+       * - `_origin`: Can be any kind of origin.
+       * - `meta_tx`: Meta Transaction with a target call to be dispatched.
+       **/
+      dispatch: AugmentedSubmittable<(metaTx: PalletMetaTxMetaTx | { call?: any; extensionVersion?: any; extension?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletMetaTxMetaTx]>;
+    };
+    multiBlockMigrations: {
+      /**
+       * Clears the `Historic` set.
+       * 
+       * `map_cursor` must be set to the last value that was returned by the
+       * `HistoricCleared` event. The first time `None` can be used. `limit` must be chosen in a
+       * way that will result in a sensible weight.
+       **/
+      clearHistoric: AugmentedSubmittable<(selector: PalletMigrationsHistoricCleanupSelector | { Specific: any } | { Wildcard: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletMigrationsHistoricCleanupSelector]>;
+      /**
+       * Forces the onboarding of the migrations.
+       * 
+       * This process happens automatically on a runtime upgrade. It is in place as an emergency
+       * measurement. The cursor needs to be `None` for this to succeed.
+       **/
+      forceOnboardMbms: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Allows root to set an active cursor to forcefully start/forward the migration process.
+       * 
+       * This is an edge-case version of [`Self::force_set_cursor`] that allows to set the
+       * `started_at` value to the next block number. Otherwise this would not be possible, since
+       * `force_set_cursor` takes an absolute block number. Setting `started_at` to `None`
+       * indicates that the current block number plus one should be used.
+       **/
+      forceSetActiveCursor: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array, innerCursor: Option<Bytes> | null | Uint8Array | Bytes | string, startedAt: Option<u32> | null | Uint8Array | u32 | AnyNumber) => SubmittableExtrinsic<ApiType>, [u32, Option<Bytes>, Option<u32>]>;
+      /**
+       * Allows root to set a cursor to forcefully start, stop or forward the migration process.
+       * 
+       * Should normally not be needed and is only in place as emergency measure. Note that
+       * restarting the migration process in this manner will not call the
+       * [`MigrationStatusHandler::started`] hook or emit an `UpgradeStarted` event.
+       **/
+      forceSetCursor: AugmentedSubmittable<(cursor: Option<PalletMigrationsMigrationCursor> | null | Uint8Array | PalletMigrationsMigrationCursor | { Active: any } | { Stuck: any } | string) => SubmittableExtrinsic<ApiType>, [Option<PalletMigrationsMigrationCursor>]>;
     };
     multisig: {
       /**
@@ -2808,422 +2000,1029 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       cancelAsMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], timepoint: PalletMultisigTimepoint | { height?: any; index?: any } | string | Uint8Array, callHash: U8aFixed | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, PalletMultisigTimepoint, U8aFixed]>;
     };
-    nameSpace: {
-      /**
-       * Adds an administrative delegate to a namespace.
-       * 
-       * The `ADMIN` permission grants the delegate extensive control over
-       * the namespace, including the ability to manage other delegates and
-       * change namespace configurations. This function is called to
-       * grant a delegate these administrative privileges. It verifies that
-       * the caller has the necessary authorization (admin rights) to add an
-       * admin delegate to the namespace. If the caller is authorized,
-       * the delegate is added with the `ADMIN` permission using the
-       * `space_delegate_addition` internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing admin of the
-       * namespace.
-       * - `namespace_id`: The identifier of the namespace to which the admin delegate is being
-       * added.
-       * - `delegate`: The identifier of the delegate being granted admin permissions.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the admin delegate was successfully added, or an
-       * `Err` with an appropriate error if the operation fails.
-       * 
-       * # Errors
-       * - `UnauthorizedOperation`: If the caller is not an admin of the namespace.
-       * - Propagates errors from `space_delegate_addition` if it fails.
-       **/
-      addAdminDelegate: AugmentedSubmittable<(namespaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
-      /**
-       * Adds a delegate with the ability to assert new entries to a namespace.
-       * 
-       * The `ASSERT` permission allows the delegate to sign and add new
-       * entries within the namespace. This function is called to grant a
-       * delegate this specific permission. It checks that the caller has the
-       * necessary authorization (admin rights) to add a delegate to the
-       * namespace. If the caller is authorized, the delegate is added with the
-       * `ASSERT` permission using the `space_delegate_addition`
-       * internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an admin of the namespace.
-       * - `namespace_id`: The identifier of the namespace to which the delegate is being added.
-       * - `delegate`: The identifier of the delegate being added to the namespace.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the delegate was successfully added with
-       * `ASSERT` permission, or an `Err` with an appropriate error if the
-       * operation fails.
-       * 
-       * # Errors
-       * - `UnauthorizedOperation`: If the caller is not an admin of the namespace.
-       * - Propagates errors from `space_delegate_addition` if it fails.
-       **/
-      addDelegate: AugmentedSubmittable<(namespaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
-      /**
-       * Adds an audit delegate to a namespace.
-       * 
-       * The `AUDIT` permission grants the delegate the ability to perform
-       * oversight and compliance checks within the namespace. This function is
-       * used to assign a delegate these audit privileges. It ensures that
-       * the caller has the necessary authorization (admin rights) to add an
-       * audit delegate to the namespace. If the caller is authorized, the
-       * delegate is added with the `AUDIT` permission using the
-       * `space_delegate_addition` internal function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing admin of the
-       * namespace.
-       * - `namespace_id`: The identifier of the namespace to which the audit delegate is being
-       * added.
-       * - `delegate`: The identifier of the delegate being granted audit permissions.
-       * - `authorization`: The authorization ID used to validate the addition.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the audit delegate was successfully added, or an
-       * `Err` with an appropriate error if the operation fails.
-       **/
-      addDelegator: AugmentedSubmittable<(namespaceId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes]>;
-      /**
-       * Archives a namespace, rendering it inactive.
-       * 
-       * This function marks a namespace as archived based on the provided namespace
-       * ID. It checks that the namespace exists, is not already archived.
-       * Additionally, it verifies that the caller has the
-       * authority to archive the namespace, as indicated by the provided
-       * authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `namespace_id`: The identifier of the namespace to be archived.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * archival.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the namespace is successfully archived, or an
-       * error (`DispatchError`) if:
-       * - The namespace does not exist.
-       * - `ArchivedNameSpace`: If the namespace is already archived.
-       * - `UnauthorizedOperation`: If the caller does not have the authority to archive the
-       * namespace.
-       * 
-       * # Errors
-       * - `NameSpaceNotFound`: If the specified namespace ID does not correspond to an existing
-       * namespace.
-       * - `ArchivedNameSpace`: If the namespace is already archived.
-       * - `UnauthorizedOperation`: If the caller is not authorized to archive the namespace.
-       * 
-       * # Events
-       * - `Archive`: Emitted when a namespace is successfully archived. It includes the
-       * namespace ID and the authority who performed the archival.
-       **/
-      archive: AugmentedSubmittable<(namespaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * Creates a new namespace with a unique identifier based on the provided
-       * namespace code and the creator's identity.
-       * 
-       * This function generates a unique identifier for the namespace by hashing
-       * the encoded namespace code and creator's identifier. It ensures that the
-       * generated namespace identifier is not already in use. An authorization
-       * ID is also created for the new namespace, which is used to manage
-       * delegations. The creator is automatically added as a delegate with
-       * all permissions.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator.
-       * - `space_code`: A unique code representing the namespace to be created.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the namespace is successfully created, or an
-       * error (`DispatchError`) if:
-       * - The generated namespace identifier is already in use.
-       * - The generated authorization ID is of invalid length.
-       * - The namespace delegates limit is exceeded.
-       * 
-       * # Errors
-       * - `InvalidIdentifierLength`: If the generated identifiers for the namespace or
-       * authorization are of invalid length.
-       * - `NameSpaceAlreadyAnchored`: If the namespace identifier is already in use.
-       * - `NameSpaceDelegatesLimitExceeded`: If the namespace exceeds the limit of allowed
-       * delegates.
-       * 
-       * # Events
-       * - `Create`: Emitted when a new namespace is successfully created. It includes the
-       * namespace identifier, the creator's identifier, and the authorization ID.
-       **/
-      create: AugmentedSubmittable<(digest: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Option<Bytes>]>;
-      /**
-       * Removes a delegate from a specified namespace.
-       * 
-       * This function will remove an existing delegate from a namespace, given
-       * the namespace ID and the delegate's authorization ID. It checks that the
-       * namespace exists, is not archived and that the provided
-       * authorization corresponds to a delegate of the namespace. It also
-       * verifies that the caller has the authority to remove a delegate.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin.
-       * - `namespace_id`: The identifier of the namespace from which the delegate is being
-       * removed.
-       * - `remove_authorization`: The authorization ID of the delegate to be removed.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * removal.
-       * 
-       * # Returns
-       * - `DispatchResult`: This function returns `Ok(())` if the delegate is successfully
-       * removed, or an error (`DispatchError`) if any of the checks fail.
-       * 
-       * # Errors
-       * - `AuthorizationNotFound`: If the provided `remove_authorization` does not exist.
-       * - `UnauthorizedOperation`: If the origin is not authorized to remove a delegate from the
-       * namespace.
-       * - `NameSpaceNotFound`: If the specified namespace ID does not correspond to an existing
-       * namespace.
-       * - `ArchivedNameSpace`: If the namespace is archived and no longer active.
-       * - `DelegateNotFound`: If the delegate specified by `remove_authorization` is not found
-       * in the namespace.
-       * 
-       * # Events
-       * 
-       * - `Deauthorization`: Emitted when a delegate is successfully removed from a namespace.
-       * The event includes the namespace ID and the authorization ID of the removed delegate.
-       **/
-      removeDelegate: AugmentedSubmittable<(namespaceId: Bytes | string | Uint8Array, removeAuthorization: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
-      /**
-       * Restores an archived namespace, making it active again.
-       * 
-       * This function unarchives a namespace based on the provided namespace ID. It
-       * checks that the namespace exists, is currently archived.
-       * It also verifies that the caller has the authority to
-       * restore the namespace, as indicated by the provided authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `namespace_id`: The identifier of the namespace to be restored.
-       * - `authorization`: An identifier for the authorization being used to validate the
-       * restoration.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the namespace is successfully restored, or an
-       * error (`DispatchError`) if:
-       * - The namespace does not exist.
-       * - The namespace is not archived.
-       * - The caller does not have the authority to restore the namespace.
-       * 
-       * # Errors
-       * - `NameSpaceNotFound`: If the specified namespace ID does not correspond to an existing
-       * namespace.
-       * - `NameSpaceNotArchived`: If the namespace is not currently archived.
-       * - `UnauthorizedOperation`: If the caller is not authorized to restore the namespace.
-       * 
-       * # Events
-       * - `Restore`: Emitted when a namespace is successfully restored. It includes the
-       * namespace ID and the authority who performed the restoration.
-       **/
-      restore: AugmentedSubmittable<(namespaceId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+    networkInfo: {
+      addStorageNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, author: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      networkInfo: AugmentedSubmittable<(name: Bytes | string | Uint8Array, endpoints: Vec<Bytes> | (Bytes | string | Uint8Array)[], website: Option<Bytes> | null | Uint8Array | Bytes | string, token: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<Bytes>, Option<Bytes>, Bytes]>;
+      removeRpcEndpoint: AugmentedSubmittable<(endpoint: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      removeStorageNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      updateName: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      updateRpcEndpoints: AugmentedSubmittable<(endpoints: Vec<Bytes> | (Bytes | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Bytes>]>;
+      updateStorageNodeInfo: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, nodeId: Option<Bytes> | null | Uint8Array | Bytes | string, author: Option<AccountId32> | null | Uint8Array | AccountId32 | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>, Option<AccountId32>]>;
+      updateToken: AugmentedSubmittable<(token: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      updateWebsite: AugmentedSubmittable<(website: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Option<Bytes>]>;
     };
-    networkMembership: {
+    networkRegistrar: {
       /**
-       * Add an author. Only root or council origin can perform this
-       * action.
+       * Deregister a network Id.
        **/
-      nominate: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array, expires: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, bool]>;
+      deregister: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string, id: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>, u32]>;
       /**
-       * Renew authorship. Only root or council orgin can perform this
-       * action.
+       * Register network genesis hash for a reserved Id.
        **/
-      renew: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      register: AugmentedSubmittable<(token: Bytes | string | Uint8Array, networkGenesisHead: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256]>;
       /**
-       * Revoke a membership. Only root or council orgin can perform this
-       * action.
+       * Schedule renewal of a network registration
        **/
-      revoke: AugmentedSubmittable<(member: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      renew: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string, id: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>, u32]>;
+      /**
+       * Renew an expired network registration
+       **/
+      renewNow: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string, id: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>, u32]>;
+      /**
+       * Reserve a Network Id on CORD.
+       **/
+      reserve: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>]>;
     };
-    networkScore: {
+    nftFractionalization: {
       /**
-       * Registers a new rating in the system.
+       * Lock the NFT and mint a new fungible asset.
        * 
-       * This function allows a user to submit a new rating for an entity.
-       * The rating is recorded along with various metadata, including the
-       * author of the rating, the space ID, and a unique message identifier.
+       * The dispatch origin for this call must be Signed.
+       * The origin must be the owner of the NFT they are trying to lock.
+       * 
+       * `Deposit` funds of sender are reserved.
+       * 
+       * - `nft_collection_id`: The ID used to identify the collection of the NFT.
+       * Is used within the context of `pallet_nfts`.
+       * - `nft_id`: The ID used to identify the NFT within the given collection.
+       * Is used within the context of `pallet_nfts`.
+       * - `asset_id`: The ID of the new asset. It must not exist.
+       * Is used within the context of `pallet_assets`.
+       * - `beneficiary`: The account that will receive the newly created asset.
+       * - `fractions`: The total issuance of the newly created asset class.
+       * 
+       * Emits `NftFractionalized` event when successful.
+       **/
+      fractionalize: AugmentedSubmittable<(nftCollectionId: u32 | AnyNumber | Uint8Array, nftId: u32 | AnyNumber | Uint8Array, assetId: u32 | AnyNumber | Uint8Array, beneficiary: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, fractions: u128 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, u32, MultiAddress, u128]>;
+      /**
+       * Burn the total issuance of the fungible asset and return (unlock) the locked NFT.
+       * 
+       * The dispatch origin for this call must be Signed.
+       * 
+       * `Deposit` funds will be returned to `asset_creator`.
+       * 
+       * - `nft_collection_id`: The ID used to identify the collection of the NFT.
+       * Is used within the context of `pallet_nfts`.
+       * - `nft_id`: The ID used to identify the NFT within the given collection.
+       * Is used within the context of `pallet_nfts`.
+       * - `asset_id`: The ID of the asset being returned and destroyed. Must match
+       * the original ID of the created asset, corresponding to the NFT.
+       * Is used within the context of `pallet_assets`.
+       * - `beneficiary`: The account that will receive the unified NFT.
+       * 
+       * Emits `NftUnified` event when successful.
+       **/
+      unify: AugmentedSubmittable<(nftCollectionId: u32 | AnyNumber | Uint8Array, nftId: u32 | AnyNumber | Uint8Array, assetId: u32 | AnyNumber | Uint8Array, beneficiary: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, u32, MultiAddress]>;
+    };
+    nfts: {
+      /**
+       * Approve item's attributes to be changed by a delegated third-party account.
+       * 
+       * Origin must be Signed and must be an owner of the `item`.
+       * 
+       * - `collection`: A collection of the item.
+       * - `item`: The item that holds attributes.
+       * - `delegate`: The account to delegate permission to change attributes of the item.
+       * 
+       * Emits `ItemAttributesApprovalAdded` on success.
+       **/
+      approveItemAttributes: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, MultiAddress]>;
+      /**
+       * Approve an item to be transferred by a delegated third-party account.
+       * 
+       * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+       * `item`.
+       * 
+       * - `collection`: The collection of the item to be approved for delegated transfer.
+       * - `item`: The item to be approved for delegated transfer.
+       * - `delegate`: The account to delegate permission to transfer the item.
+       * - `maybe_deadline`: Optional deadline for the approval. Specified by providing the
+       * number of blocks after which the approval will expire
+       * 
+       * Emits `TransferApproved` on success.
+       * 
+       * Weight: `O(1)`
+       **/
+      approveTransfer: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, maybeDeadline: Option<u32> | null | Uint8Array | u32 | AnyNumber) => SubmittableExtrinsic<ApiType>, [u32, u32, MultiAddress, Option<u32>]>;
+      /**
+       * Destroy a single item.
+       * 
+       * The origin must conform to `ForceOrigin` or must be Signed and the signing account must
+       * be the owner of the `item`.
+       * 
+       * - `collection`: The collection of the item to be burned.
+       * - `item`: The item to be burned.
+       * 
+       * Emits `Burned`.
+       * 
+       * Weight: `O(1)`
+       **/
+      burn: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Allows to buy an item if it's up for sale.
+       * 
+       * Origin must be Signed and must not be the owner of the `item`.
+       * 
+       * - `collection`: The collection of the item.
+       * - `item`: The item the sender wants to buy.
+       * - `bid_price`: The price the sender is willing to pay.
+       * 
+       * Emits `ItemBought` on success.
+       **/
+      buyItem: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, bidPrice: u128 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, u128]>;
+      /**
+       * Cancel one of the transfer approvals for a specific item.
+       * 
+       * Origin must be either:
+       * - the `Force` origin;
+       * - `Signed` with the signer being the Owner of the `item`;
+       * 
+       * Arguments:
+       * - `collection`: The collection of the item of whose approval will be cancelled.
+       * - `item`: The item of the collection of whose approval will be cancelled.
+       * - `delegate`: The account that is going to loose their approval.
+       * 
+       * Emits `ApprovalCancelled` on success.
+       * 
+       * Weight: `O(1)`
+       **/
+      cancelApproval: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, MultiAddress]>;
+      /**
+       * Cancel the previously provided approval to change item's attributes.
+       * All the previously set attributes by the `delegate` will be removed.
+       * 
+       * Origin must be Signed and must be an owner of the `item`.
+       * 
+       * - `collection`: Collection that the item is contained within.
+       * - `item`: The item that holds attributes.
+       * - `delegate`: The previously approved account to remove.
+       * 
+       * Emits `ItemAttributesApprovalRemoved` on success.
+       **/
+      cancelItemAttributesApproval: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, delegate: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, witness: PalletNftsCancelAttributesApprovalWitness | { accountAttributes?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, MultiAddress, PalletNftsCancelAttributesApprovalWitness]>;
+      /**
+       * Cancel an atomic swap.
+       * 
+       * Origin must be Signed.
+       * Origin must be an owner of the `item` if the deadline hasn't expired.
+       * 
+       * - `collection`: The collection of the item.
+       * - `item`: The item an owner wants to give.
+       * 
+       * Emits `SwapCancelled` on success.
+       **/
+      cancelSwap: AugmentedSubmittable<(offeredCollection: u32 | AnyNumber | Uint8Array, offeredItem: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Claim an atomic swap.
+       * This method executes a pending swap, that was created by a counterpart before.
+       * 
+       * Origin must be Signed and must be an owner of the `item`.
+       * 
+       * - `send_collection`: The collection of the item to be sent.
+       * - `send_item`: The item to be sent.
+       * - `receive_collection`: The collection of the item to be received.
+       * - `receive_item`: The item to be received.
+       * - `witness_price`: A price that was previously agreed on.
+       * 
+       * Emits `SwapClaimed` on success.
+       **/
+      claimSwap: AugmentedSubmittable<(sendCollection: u32 | AnyNumber | Uint8Array, sendItem: u32 | AnyNumber | Uint8Array, receiveCollection: u32 | AnyNumber | Uint8Array, receiveItem: u32 | AnyNumber | Uint8Array, witnessPrice: Option<PalletNftsPriceWithDirection> | null | Uint8Array | PalletNftsPriceWithDirection | { amount?: any; direction?: any } | string) => SubmittableExtrinsic<ApiType>, [u32, u32, u32, u32, Option<PalletNftsPriceWithDirection>]>;
+      /**
+       * Cancel all the approvals of a specific item.
+       * 
+       * Origin must be either:
+       * - the `Force` origin;
+       * - `Signed` with the signer being the Owner of the `item`;
+       * 
+       * Arguments:
+       * - `collection`: The collection of the item of whose approvals will be cleared.
+       * - `item`: The item of the collection of whose approvals will be cleared.
+       * 
+       * Emits `AllApprovalsCancelled` on success.
+       * 
+       * Weight: `O(1)`
+       **/
+      clearAllTransferApprovals: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Clear an attribute for a collection or item.
+       * 
+       * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+       * attribute.
+       * 
+       * Any deposit is freed for the collection's owner.
+       * 
+       * - `collection`: The identifier of the collection whose item's metadata to clear.
+       * - `maybe_item`: The identifier of the item whose metadata to clear.
+       * - `namespace`: Attribute's namespace.
+       * - `key`: The key of the attribute.
+       * 
+       * Emits `AttributeCleared`.
+       * 
+       * Weight: `O(1)`
+       **/
+      clearAttribute: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, maybeItem: Option<u32> | null | Uint8Array | u32 | AnyNumber, namespace: PalletNftsAttributeNamespace | { Pallet: any } | { CollectionOwner: any } | { ItemOwner: any } | { Account: any } | string | Uint8Array, key: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, Option<u32>, PalletNftsAttributeNamespace, Bytes]>;
+      /**
+       * Clear the metadata for a collection.
+       * 
+       * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Admin of
+       * the `collection`.
+       * 
+       * Any deposit is freed for the collection's owner.
+       * 
+       * - `collection`: The identifier of the collection whose metadata to clear.
+       * 
+       * Emits `CollectionMetadataCleared`.
+       * 
+       * Weight: `O(1)`
+       **/
+      clearCollectionMetadata: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+      /**
+       * Clear the metadata for an item.
+       * 
+       * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin of the
+       * `collection`.
+       * 
+       * Any deposit is freed for the collection's owner.
+       * 
+       * - `collection`: The identifier of the collection whose item's metadata to clear.
+       * - `item`: The identifier of the item whose metadata to clear.
+       * 
+       * Emits `ItemMetadataCleared`.
+       * 
+       * Weight: `O(1)`
+       **/
+      clearMetadata: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Issue a new collection of non-fungible items from a public origin.
+       * 
+       * This new collection has no items initially and its owner is the origin.
+       * 
+       * The origin must be Signed and the sender must have sufficient funds free.
+       * 
+       * `CollectionDeposit` funds of sender are reserved.
+       * 
+       * Parameters:
+       * - `admin`: The admin of this collection. The admin is the initial address of each
+       * member of the collection's admin team.
+       * 
+       * Emits `Created` event when successful.
+       * 
+       * Weight: `O(1)`
+       **/
+      create: AugmentedSubmittable<(admin: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, config: PalletNftsCollectionConfig | { settings?: any; maxSupply?: any; mintSettings?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, PalletNftsCollectionConfig]>;
+      /**
+       * Register a new atomic swap, declaring an intention to send an `item` in exchange for
+       * `desired_item` from origin to target on the current blockchain.
+       * The target can execute the swap during the specified `duration` of blocks (if set).
+       * Additionally, the price could be set for the desired `item`.
+       * 
+       * Origin must be Signed and must be an owner of the `item`.
+       * 
+       * - `collection`: The collection of the item.
+       * - `item`: The item an owner wants to give.
+       * - `desired_collection`: The collection of the desired item.
+       * - `desired_item`: The desired item an owner wants to receive.
+       * - `maybe_price`: The price an owner is willing to pay or receive for the desired `item`.
+       * - `duration`: A deadline for the swap. Specified by providing the number of blocks
+       * after which the swap will expire.
+       * 
+       * Emits `SwapCreated` on success.
+       **/
+      createSwap: AugmentedSubmittable<(offeredCollection: u32 | AnyNumber | Uint8Array, offeredItem: u32 | AnyNumber | Uint8Array, desiredCollection: u32 | AnyNumber | Uint8Array, maybeDesiredItem: Option<u32> | null | Uint8Array | u32 | AnyNumber, maybePrice: Option<PalletNftsPriceWithDirection> | null | Uint8Array | PalletNftsPriceWithDirection | { amount?: any; direction?: any } | string, duration: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, u32, Option<u32>, Option<PalletNftsPriceWithDirection>, u32]>;
+      /**
+       * Destroy a collection of fungible items.
+       * 
+       * The origin must conform to `ForceOrigin` or must be `Signed` and the sender must be the
+       * owner of the `collection`.
+       * 
+       * NOTE: The collection must have 0 items to be destroyed.
+       * 
+       * - `collection`: The identifier of the collection to be destroyed.
+       * - `witness`: Information on the items minted in the collection. This must be
+       * correct.
+       * 
+       * Emits `Destroyed` event when successful.
+       * 
+       * Weight: `O(m + c + a)` where:
+       * - `m = witness.item_metadatas`
+       * - `c = witness.item_configs`
+       * - `a = witness.attributes`
+       **/
+      destroy: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, witness: PalletNftsDestroyWitness | { itemMetadatas?: any; itemConfigs?: any; attributes?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, PalletNftsDestroyWitness]>;
+      /**
+       * Change the config of a collection.
+       * 
+       * Origin must be `ForceOrigin`.
+       * 
+       * - `collection`: The identifier of the collection.
+       * - `config`: The new config of this collection.
+       * 
+       * Emits `CollectionConfigChanged`.
+       * 
+       * Weight: `O(1)`
+       **/
+      forceCollectionConfig: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, config: PalletNftsCollectionConfig | { settings?: any; maxSupply?: any; mintSettings?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, PalletNftsCollectionConfig]>;
+      /**
+       * Change the Owner of a collection.
+       * 
+       * Origin must be `ForceOrigin`.
+       * 
+       * - `collection`: The identifier of the collection.
+       * - `owner`: The new Owner of this collection.
+       * 
+       * Emits `OwnerChanged`.
+       * 
+       * Weight: `O(1)`
+       **/
+      forceCollectionOwner: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, owner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, MultiAddress]>;
+      /**
+       * Issue a new collection of non-fungible items from a privileged origin.
+       * 
+       * This new collection has no items initially.
+       * 
+       * The origin must conform to `ForceOrigin`.
+       * 
+       * Unlike `create`, no funds are reserved.
+       * 
+       * - `owner`: The owner of this collection of items. The owner has full superuser
+       * permissions over this item, but may later change and configure the permissions using
+       * `transfer_ownership` and `set_team`.
+       * 
+       * Emits `ForceCreated` event when successful.
+       * 
+       * Weight: `O(1)`
+       **/
+      forceCreate: AugmentedSubmittable<(owner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, config: PalletNftsCollectionConfig | { settings?: any; maxSupply?: any; mintSettings?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, PalletNftsCollectionConfig]>;
+      /**
+       * Mint an item of a particular collection from a privileged origin.
+       * 
+       * The origin must conform to `ForceOrigin` or must be `Signed` and the sender must be the
+       * Issuer of the `collection`.
+       * 
+       * - `collection`: The collection of the item to be minted.
+       * - `item`: An identifier of the new item.
+       * - `mint_to`: Account into which the item will be minted.
+       * - `item_config`: A config of the new item.
+       * 
+       * Emits `Issued` event when successful.
+       * 
+       * Weight: `O(1)`
+       **/
+      forceMint: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, mintTo: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, itemConfig: PalletNftsItemConfig | { settings?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, MultiAddress, PalletNftsItemConfig]>;
+      /**
+       * Force-set an attribute for a collection or item.
+       * 
+       * Origin must be `ForceOrigin`.
+       * 
+       * If the attribute already exists and it was set by another account, the deposit
+       * will be returned to the previous owner.
+       * 
+       * - `set_as`: An optional owner of the attribute.
+       * - `collection`: The identifier of the collection whose item's metadata to set.
+       * - `maybe_item`: The identifier of the item whose metadata to set.
+       * - `namespace`: Attribute's namespace.
+       * - `key`: The key of the attribute.
+       * - `value`: The value to which to set the attribute.
+       * 
+       * Emits `AttributeSet`.
+       * 
+       * Weight: `O(1)`
+       **/
+      forceSetAttribute: AugmentedSubmittable<(setAs: Option<AccountId32> | null | Uint8Array | AccountId32 | string, collection: u32 | AnyNumber | Uint8Array, maybeItem: Option<u32> | null | Uint8Array | u32 | AnyNumber, namespace: PalletNftsAttributeNamespace | { Pallet: any } | { CollectionOwner: any } | { ItemOwner: any } | { Account: any } | string | Uint8Array, key: Bytes | string | Uint8Array, value: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>, u32, Option<u32>, PalletNftsAttributeNamespace, Bytes, Bytes]>;
+      /**
+       * Disallows specified settings for the whole collection.
+       * 
+       * Origin must be Signed and the sender should be the Owner of the `collection`.
+       * 
+       * - `collection`: The collection to be locked.
+       * - `lock_settings`: The settings to be locked.
+       * 
+       * Note: it's possible to only lock(set) the setting, but not to unset it.
+       * 
+       * Emits `CollectionLocked`.
+       * 
+       * Weight: `O(1)`
+       **/
+      lockCollection: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, lockSettings: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u64]>;
+      /**
+       * Disallows changing the metadata or attributes of the item.
+       * 
+       * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin
+       * of the `collection`.
+       * 
+       * - `collection`: The collection if the `item`.
+       * - `item`: An item to be locked.
+       * - `lock_metadata`: Specifies whether the metadata should be locked.
+       * - `lock_attributes`: Specifies whether the attributes in the `CollectionOwner` namespace
+       * should be locked.
+       * 
+       * Note: `lock_attributes` affects the attributes in the `CollectionOwner` namespace only.
+       * When the metadata or attributes are locked, it won't be possible the unlock them.
+       * 
+       * Emits `ItemPropertiesLocked`.
+       * 
+       * Weight: `O(1)`
+       **/
+      lockItemProperties: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, lockMetadata: bool | boolean | Uint8Array, lockAttributes: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, bool, bool]>;
+      /**
+       * Disallow further unprivileged transfer of an item.
+       * 
+       * Origin must be Signed and the sender should be the Freezer of the `collection`.
+       * 
+       * - `collection`: The collection of the item to be changed.
+       * - `item`: The item to become non-transferable.
+       * 
+       * Emits `ItemTransferLocked`.
+       * 
+       * Weight: `O(1)`
+       **/
+      lockItemTransfer: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Mint an item of a particular collection.
+       * 
+       * The origin must be Signed and the sender must comply with the `mint_settings` rules.
+       * 
+       * - `collection`: The collection of the item to be minted.
+       * - `item`: An identifier of the new item.
+       * - `mint_to`: Account into which the item will be minted.
+       * - `witness_data`: When the mint type is `HolderOf(collection_id)`, then the owned
+       * item_id from that collection needs to be provided within the witness data object. If
+       * the mint price is set, then it should be additionally confirmed in the `witness_data`.
+       * 
+       * Note: the deposit will be taken from the `origin` and not the `owner` of the `item`.
+       * 
+       * Emits `Issued` event when successful.
+       * 
+       * Weight: `O(1)`
+       **/
+      mint: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, mintTo: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, witnessData: Option<PalletNftsMintWitness> | null | Uint8Array | PalletNftsMintWitness | { ownedItem?: any; mintPrice?: any } | string) => SubmittableExtrinsic<ApiType>, [u32, u32, MultiAddress, Option<PalletNftsMintWitness>]>;
+      /**
+       * Mint an item by providing the pre-signed approval.
+       * 
+       * Origin must be Signed.
+       * 
+       * - `mint_data`: The pre-signed approval that consists of the information about the item,
+       * its metadata, attributes, who can mint it (`None` for anyone) and until what block
+       * number.
+       * - `signature`: The signature of the `data` object.
+       * - `signer`: The `data` object's signer. Should be an Issuer of the collection.
+       * 
+       * Emits `Issued` on success.
+       * Emits `AttributeSet` if the attributes were provided.
+       * Emits `ItemMetadataSet` if the metadata was not empty.
+       **/
+      mintPreSigned: AugmentedSubmittable<(mintData: PalletNftsPreSignedMint | { collection?: any; item?: any; attributes?: any; metadata?: any; onlyAccount?: any; deadline?: any; mintPrice?: any } | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array, signer: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNftsPreSignedMint, SpRuntimeMultiSignature, AccountId32]>;
+      /**
+       * Allows to pay the tips.
+       * 
+       * Origin must be Signed.
+       * 
+       * - `tips`: Tips array.
+       * 
+       * Emits `TipSent` on every tip transfer.
+       **/
+      payTips: AugmentedSubmittable<(tips: Vec<PalletNftsItemTip> | (PalletNftsItemTip | { collection?: any; item?: any; receiver?: any; amount?: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<PalletNftsItemTip>]>;
+      /**
+       * Re-evaluate the deposits on some items.
+       * 
+       * Origin must be Signed and the sender should be the Owner of the `collection`.
+       * 
+       * - `collection`: The collection of the items to be reevaluated.
+       * - `items`: The items of the collection whose deposits will be reevaluated.
+       * 
+       * NOTE: This exists as a best-effort function. Any items which are unknown or
+       * in the case that the owner account does not have reservable funds to pay for a
+       * deposit increase are ignored. Generally the owner isn't going to call this on items
+       * whose existing deposit is less than the refreshed deposit as it would only cost them,
+       * so it's of little consequence.
+       * 
+       * It will still return an error in the case that the collection is unknown or the signer
+       * is not permitted to call it.
+       * 
+       * Weight: `O(items.len())`
+       **/
+      redeposit: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, items: Vec<u32> | (u32 | AnyNumber | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [u32, Vec<u32>]>;
+      /**
+       * Set (or reset) the acceptance of ownership for a particular account.
+       * 
+       * Origin must be `Signed` and if `maybe_collection` is `Some`, then the signer must have a
+       * provider reference.
+       * 
+       * - `maybe_collection`: The identifier of the collection whose ownership the signer is
+       * willing to accept, or if `None`, an indication that the signer is willing to accept no
+       * ownership transferal.
+       * 
+       * Emits `OwnershipAcceptanceChanged`.
+       **/
+      setAcceptOwnership: AugmentedSubmittable<(maybeCollection: Option<u32> | null | Uint8Array | u32 | AnyNumber) => SubmittableExtrinsic<ApiType>, [Option<u32>]>;
+      /**
+       * Set an attribute for a collection or item.
+       * 
+       * Origin must be Signed and must conform to the namespace ruleset:
+       * - `CollectionOwner` namespace could be modified by the `collection` Admin only;
+       * - `ItemOwner` namespace could be modified by the `maybe_item` owner only. `maybe_item`
+       * should be set in that case;
+       * - `Account(AccountId)` namespace could be modified only when the `origin` was given a
+       * permission to do so;
+       * 
+       * The funds of `origin` are reserved according to the formula:
+       * `AttributeDepositBase + DepositPerByte * (key.len + value.len)` taking into
+       * account any already reserved funds.
+       * 
+       * - `collection`: The identifier of the collection whose item's metadata to set.
+       * - `maybe_item`: The identifier of the item whose metadata to set.
+       * - `namespace`: Attribute's namespace.
+       * - `key`: The key of the attribute.
+       * - `value`: The value to which to set the attribute.
+       * 
+       * Emits `AttributeSet`.
+       * 
+       * Weight: `O(1)`
+       **/
+      setAttribute: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, maybeItem: Option<u32> | null | Uint8Array | u32 | AnyNumber, namespace: PalletNftsAttributeNamespace | { Pallet: any } | { CollectionOwner: any } | { ItemOwner: any } | { Account: any } | string | Uint8Array, key: Bytes | string | Uint8Array, value: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, Option<u32>, PalletNftsAttributeNamespace, Bytes, Bytes]>;
+      /**
+       * Set attributes for an item by providing the pre-signed approval.
+       * 
+       * Origin must be Signed and must be an owner of the `data.item`.
+       * 
+       * - `data`: The pre-signed approval that consists of the information about the item,
+       * attributes to update and until what block number.
+       * - `signature`: The signature of the `data` object.
+       * - `signer`: The `data` object's signer. Should be an Admin of the collection for the
+       * `CollectionOwner` namespace.
+       * 
+       * Emits `AttributeSet` for each provided attribute.
+       * Emits `ItemAttributesApprovalAdded` if the approval wasn't set before.
+       * Emits `PreSignedAttributesSet` on success.
+       **/
+      setAttributesPreSigned: AugmentedSubmittable<(data: PalletNftsPreSignedAttributes | { collection?: any; item?: any; attributes?: any; namespace?: any; deadline?: any } | string | Uint8Array, signature: SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string | Uint8Array, signer: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNftsPreSignedAttributes, SpRuntimeMultiSignature, AccountId32]>;
+      /**
+       * Set the maximum number of items a collection could have.
+       * 
+       * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Owner of
+       * the `collection`.
+       * 
+       * - `collection`: The identifier of the collection to change.
+       * - `max_supply`: The maximum number of items a collection could have.
+       * 
+       * Emits `CollectionMaxSupplySet` event when successful.
+       **/
+      setCollectionMaxSupply: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, maxSupply: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Set the metadata for a collection.
+       * 
+       * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Admin of
+       * the `collection`.
+       * 
+       * If the origin is `Signed`, then funds of signer are reserved according to the formula:
+       * `MetadataDepositBase + DepositPerByte * data.len` taking into
+       * account any already reserved funds.
+       * 
+       * - `collection`: The identifier of the item whose metadata to update.
+       * - `data`: The general information of this item. Limited in length by `StringLimit`.
+       * 
+       * Emits `CollectionMetadataSet`.
+       * 
+       * Weight: `O(1)`
+       **/
+      setCollectionMetadata: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, data: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, Bytes]>;
+      /**
+       * Set the metadata for an item.
+       * 
+       * Origin must be either `ForceOrigin` or Signed and the sender should be the Admin of the
+       * `collection`.
+       * 
+       * If the origin is Signed, then funds of signer are reserved according to the formula:
+       * `MetadataDepositBase + DepositPerByte * data.len` taking into
+       * account any already reserved funds.
+       * 
+       * - `collection`: The identifier of the collection whose item's metadata to set.
+       * - `item`: The identifier of the item whose metadata to set.
+       * - `data`: The general information of this item. Limited in length by `StringLimit`.
+       * 
+       * Emits `ItemMetadataSet`.
+       * 
+       * Weight: `O(1)`
+       **/
+      setMetadata: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, data: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, Bytes]>;
+      /**
+       * Set (or reset) the price for an item.
+       * 
+       * Origin must be Signed and must be the owner of the `item`.
+       * 
+       * - `collection`: The collection of the item.
+       * - `item`: The item to set the price for.
+       * - `price`: The price for the item. Pass `None`, to reset the price.
+       * - `buyer`: Restricts the buy operation to a specific account.
+       * 
+       * Emits `ItemPriceSet` on success if the price is not `None`.
+       * Emits `ItemPriceRemoved` on success if the price is `None`.
+       **/
+      setPrice: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, price: Option<u128> | null | Uint8Array | u128 | AnyNumber, whitelistedBuyer: Option<MultiAddress> | null | Uint8Array | MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string) => SubmittableExtrinsic<ApiType>, [u32, u32, Option<u128>, Option<MultiAddress>]>;
+      /**
+       * Change the Issuer, Admin and Freezer of a collection.
+       * 
+       * Origin must be either `ForceOrigin` or Signed and the sender should be the Owner of the
+       * `collection`.
+       * 
+       * Note: by setting the role to `None` only the `ForceOrigin` will be able to change it
+       * after to `Some(account)`.
+       * 
+       * - `collection`: The collection whose team should be changed.
+       * - `issuer`: The new Issuer of this collection.
+       * - `admin`: The new Admin of this collection.
+       * - `freezer`: The new Freezer of this collection.
+       * 
+       * Emits `TeamChanged`.
+       * 
+       * Weight: `O(1)`
+       **/
+      setTeam: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, issuer: Option<MultiAddress> | null | Uint8Array | MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string, admin: Option<MultiAddress> | null | Uint8Array | MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string, freezer: Option<MultiAddress> | null | Uint8Array | MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string) => SubmittableExtrinsic<ApiType>, [u32, Option<MultiAddress>, Option<MultiAddress>, Option<MultiAddress>]>;
+      /**
+       * Move an item from the sender account to another.
+       * 
+       * Origin must be Signed and the signing account must be either:
+       * - the Owner of the `item`;
+       * - the approved delegate for the `item` (in this case, the approval is reset).
+       * 
+       * Arguments:
+       * - `collection`: The collection of the item to be transferred.
+       * - `item`: The item to be transferred.
+       * - `dest`: The account to receive ownership of the item.
+       * 
+       * Emits `Transferred`.
+       * 
+       * Weight: `O(1)`
+       **/
+      transfer: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array, dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32, MultiAddress]>;
+      /**
+       * Change the Owner of a collection.
+       * 
+       * Origin must be Signed and the sender should be the Owner of the `collection`.
+       * 
+       * - `collection`: The collection whose owner should be changed.
+       * - `owner`: The new Owner of this collection. They must have called
+       * `set_accept_ownership` with `collection` in order for this operation to succeed.
+       * 
+       * Emits `OwnerChanged`.
+       * 
+       * Weight: `O(1)`
+       **/
+      transferOwnership: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, newOwner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, MultiAddress]>;
+      /**
+       * Re-allow unprivileged transfer of an item.
+       * 
+       * Origin must be Signed and the sender should be the Freezer of the `collection`.
+       * 
+       * - `collection`: The collection of the item to be changed.
+       * - `item`: The item to become transferable.
+       * 
+       * Emits `ItemTransferUnlocked`.
+       * 
+       * Weight: `O(1)`
+       **/
+      unlockItemTransfer: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, item: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Update mint settings.
+       * 
+       * Origin must be either `ForceOrigin` or `Signed` and the sender should be the Issuer
+       * of the `collection`.
+       * 
+       * - `collection`: The identifier of the collection to change.
+       * - `mint_settings`: The new mint settings.
+       * 
+       * Emits `CollectionMintSettingsUpdated` event when successful.
+       **/
+      updateMintSettings: AugmentedSubmittable<(collection: u32 | AnyNumber | Uint8Array, mintSettings: PalletNftsMintSettings | { mintType?: any; price?: any; startBlock?: any; endBlock?: any; defaultItemSettings?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, PalletNftsMintSettings]>;
+    };
+    nominationPools: {
+      /**
+       * Top up the deficit or withdraw the excess ED from the pool.
+       * 
+       * When a pool is created, the pool depositor transfers ED to the reward account of the
+       * pool. ED is subject to change and over time, the deposit in the reward account may be
+       * insufficient to cover the ED deficit of the pool or vice-versa where there is excess
+       * deposit to the pool. This call allows anyone to adjust the ED deposit of the
+       * pool by either topping up the deficit or claiming the excess.
+       **/
+      adjustPoolDeposit: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+      /**
+       * Apply a pending slash on a member.
+       * 
+       * Fails unless [`crate::pallet::Config::StakeAdapter`] is of strategy type:
+       * [`adapter::StakeStrategyType::Delegate`].
+       * 
+       * The pending slash amount of the member must be equal or more than `ExistentialDeposit`.
+       * This call can be dispatched permissionlessly (i.e. by any account). If the execution
+       * is successful, fee is refunded and caller may be rewarded with a part of the slash
+       * based on the [`crate::pallet::Config::StakeAdapter`] configuration.
+       **/
+      applySlash: AugmentedSubmittable<(memberAccount: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
+      /**
+       * Bond `extra` more funds from `origin` into the pool to which they already belong.
+       * 
+       * Additional funds can come from either the free balance of the account, of from the
+       * accumulated rewards, see [`BondExtra`].
+       * 
+       * Bonding extra funds implies an automatic payout of all pending rewards as well.
+       * See `bond_extra_other` to bond pending rewards of `other` members.
+       **/
+      bondExtra: AugmentedSubmittable<(extra: PalletNominationPoolsBondExtra | { FreeBalance: any } | { Rewards: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNominationPoolsBondExtra]>;
+      /**
+       * `origin` bonds funds from `extra` for some pool member `member` into their respective
+       * pools.
+       * 
+       * `origin` can bond extra funds from free balance or pending rewards when `origin ==
+       * other`.
+       * 
+       * In the case of `origin != other`, `origin` can only bond extra pending rewards of
+       * `other` members assuming set_claim_permission for the given member is
+       * `PermissionlessCompound` or `PermissionlessAll`.
+       **/
+      bondExtraOther: AugmentedSubmittable<(member: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, extra: PalletNominationPoolsBondExtra | { FreeBalance: any } | { Rewards: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, PalletNominationPoolsBondExtra]>;
+      /**
+       * Chill on behalf of the pool.
+       * 
+       * The dispatch origin of this call can be signed by the pool nominator or the pool
+       * root role, same as [`Pallet::nominate`].
+       * 
+       * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
+       * account).
+       * 
+       * # Conditions for a permissionless dispatch:
+       * * When pool depositor has less than `MinNominatorBond` staked, otherwise  pool members
+       * are unable to unbond.
+       * 
+       * # Conditions for permissioned dispatch:
+       * * The caller has a nominator or root role of the pool.
+       * This directly forward the call to the staking pallet, on behalf of the pool bonded
+       * account.
+       **/
+      chill: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+      /**
+       * Claim pending commission.
+       * 
+       * The dispatch origin of this call must be signed by the `root` role of the pool. Pending
+       * commission is paid out and added to total claimed commission`. Total pending commission
+       * is reset to zero. the current.
+       **/
+      claimCommission: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+      /**
+       * A bonded member can use this to claim their payout based on the rewards that the pool
+       * has accumulated since their last claimed payout (OR since joining if this is their first
+       * time claiming rewards). The payout will be transferred to the member's account.
+       * 
+       * The member will earn rewards pro rata based on the members stake vs the sum of the
+       * members in the pools stake. Rewards do not "expire".
+       * 
+       * See `claim_payout_other` to claim rewards on behalf of some `other` pool member.
+       **/
+      claimPayout: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * `origin` can claim payouts on some pool member `other`'s behalf.
+       * 
+       * Pool member `other` must have a `PermissionlessWithdraw` or `PermissionlessAll` claim
+       * permission for this call to be successful.
+       **/
+      claimPayoutOther: AugmentedSubmittable<(other: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      /**
+       * Create a new delegation pool.
        * 
        * # Arguments
-       * * `origin` - The origin of the call, which should be a signed user in most cases.
-       * * `entry` - The rating entry, containing details about the entity being rated, the
-       * rating itself, and other metadata.
-       * * `digest` - A hash representing some unique aspects of the rating, used for
-       * identification and integrity purposes.
-       * * `authorization` - An identifier for authorization, used to validate the origin's
-       * permission to make this rating.
        * 
-       * # Errors
-       * Returns `Error::<T>::InvalidRatingValue` if the rating value is not
-       * within the expected range.
-       * Returns `Error::<T>::InvalidRatingType` if the entry type or
-       * rating type is not valid.
-       * Returns `Error::<T>::MessageIdAlreadyExists` if the message
-       * identifier is already used.
-       * Returns `Error::<T>::InvalidIdentifierLength` if the generated
-       * identifier for the rating is of invalid length.
-       * Returns `Error::<T>::RatingIdentifierAlreadyAdded` if the rating
-       * identifier is already in use.
+       * * `amount` - The amount of funds to delegate to the pool. This also acts of a sort of
+       * deposit since the pools creator cannot fully unbond funds until the pool is being
+       * destroyed.
+       * * `index` - A disambiguation index for creating the account. Likely only useful when
+       * creating multiple pools in the same extrinsic.
+       * * `root` - The account to set as [`PoolRoles::root`].
+       * * `nominator` - The account to set as the [`PoolRoles::nominator`].
+       * * `bouncer` - The account to set as the [`PoolRoles::bouncer`].
        * 
-       * # Events
-       * Emits `RatingEntryAdded` when a new rating is successfully
-       * registered.
+       * # Note
        * 
-       * # Example
-       * ```
-       * register_rating(origin, entry, digest, authorization)?;
-       * ```
+       * In addition to `amount`, the caller will transfer the existential deposit; so the caller
+       * needs at have at least `amount + existential_deposit` transferable.
        **/
-      registerRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityId?: any; providerId?: any; countOfTxn?: any; totalEncodedRating?: any; ratingType?: any; providerDid?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes]>;
+      create: AugmentedSubmittable<(amount: Compact<u128> | AnyNumber | Uint8Array, root: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, nominator: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, bouncer: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>, MultiAddress, MultiAddress, MultiAddress]>;
       /**
-       * Revises an existing rating by creating a new credit entry linked to
-       * the original.
-       * 
-       * This function allows for the modification of a previously submitted
-       * rating. It creates a new credit entry which is linked to the
-       * original rating (referred to by `amend_ref_id`). This function is
-       * used for correcting or updating an existing rating.
+       * Create a new delegation pool with a previously used pool id
        * 
        * # Arguments
-       * * `origin` - The origin of the call, usually a signed user.
-       * * `entry` - The new rating entry with updated details.
-       * * `digest` - A hash representing the revised rating, used for identification and
-       * integrity.
-       * * `message_id` - A new message identifier for the revised rating.
-       * * `amend_ref_id` - The identifier of the original rating entry that is being revised.
-       * * `authorization` - An identifier for authorization, validating the origin's permission
-       * to revise the rating.
        * 
-       * # Errors
-       * Returns `Error::<T>::InvalidRatingValue` if the new rating value is
-       * not within the expected range.
-       * Returns `Error::<T>::InvalidRatingType` if the entry type or
-       * rating type of the new rating is invalid.
-       * Returns `Error::<T>::ReferenceIdentifierNotFound` if the original
-       * rating reference identifier is not found.
-       * Returns `Error::<T>::EntityMismatch` if the entity UID of the new
-       * rating does not match the original.
-       * Returns `Error::<T>::SpaceMismatch` if the space ID does not match
-       * the original. Returns `Error::<T>::ReferenceNotAmendIdentifier` if
-       * the original entry is not a debit entry.
-       * Returns `Error::<T>::MessageIdAlreadyExists` if the new message
-       * identifier is already in use.
-       * Returns `Error::<T>::InvalidIdentifierLength` if the generated
-       * identifier for the revision is of invalid length.
-       * Returns `Error::<T>::RatingIdentifierAlreadyAdded` if the revised
-       * rating identifier is already in use.
-       * 
-       * # Events
-       * Emits `RatingEntryRevoked` when an existing rating entry is
-       * successfully revised.
-       * 
-       * # Example
-       * ```
-       * revise_rating(origin, entry, digest, message_id, amend_ref_id, authorization)?;
-       * ```
+       * same as `create` with the inclusion of
+       * * `pool_id` - `A valid PoolId.
        **/
-      reviseRating: AugmentedSubmittable<(entry: PalletNetworkScoreRatingInputEntry | { entityId?: any; providerId?: any; countOfTxn?: any; totalEncodedRating?: any; ratingType?: any; providerDid?: any } | string | Uint8Array, digest: H256 | string | Uint8Array, messageId: Bytes | string | Uint8Array, debitRefId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNetworkScoreRatingInputEntry, H256, Bytes, Bytes, Bytes]>;
+      createWithPoolId: AugmentedSubmittable<(amount: Compact<u128> | AnyNumber | Uint8Array, root: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, nominator: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, bouncer: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>, MultiAddress, MultiAddress, MultiAddress, u32]>;
       /**
-       * Amends an existing rating entry by creating a debit entry linked to
-       * the original.
+       * Stake funds with a pool. The amount to bond is transferred from the member to the pool
+       * account and immediately increases the pools bond.
        * 
-       * This function facilitates the amendment of a previously submitted
-       * rating. It creates a debit entry referencing the original rating
-       * entry. This function is typically used to correct or revoke a
-       * rating.
+       * The method of transferring the amount to the pool account is determined by
+       * [`adapter::StakeStrategyType`]. If the pool is configured to use
+       * [`adapter::StakeStrategyType::Delegate`], the funds remain in the account of
+       * the `origin`, while the pool gains the right to use these funds for staking.
+       * 
+       * # Note
+       * 
+       * * An account can only be a member of a single pool.
+       * * An account cannot join the same pool multiple times.
+       * * This call will *not* dust the member account, so the member must have at least
+       * `existential deposit + amount` in their account.
+       * * Only a pool with [`PoolState::Open`] can be joined
+       **/
+      join: AugmentedSubmittable<(amount: Compact<u128> | AnyNumber | Uint8Array, poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>, u32]>;
+      /**
+       * Migrates delegated funds from the pool account to the `member_account`.
+       * 
+       * Fails unless [`crate::pallet::Config::StakeAdapter`] is of strategy type:
+       * [`adapter::StakeStrategyType::Delegate`].
+       * 
+       * This is a permission-less call and refunds any fee if claim is successful.
+       * 
+       * If the pool has migrated to delegation based staking, the staked tokens of pool members
+       * can be moved and held in their own account. See [`adapter::DelegateStake`]
+       **/
+      migrateDelegation: AugmentedSubmittable<(memberAccount: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
+      /**
+       * Migrate pool from [`adapter::StakeStrategyType::Transfer`] to
+       * [`adapter::StakeStrategyType::Delegate`].
+       * 
+       * Fails unless [`crate::pallet::Config::StakeAdapter`] is of strategy type:
+       * [`adapter::StakeStrategyType::Delegate`].
+       * 
+       * This call can be dispatched permissionlessly, and refunds any fee if successful.
+       * 
+       * If the pool has already migrated to delegation based staking, this call will fail.
+       **/
+      migratePoolToDelegateStake: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+      /**
+       * Nominate on behalf of the pool.
+       * 
+       * The dispatch origin of this call must be signed by the pool nominator or the pool
+       * root role.
+       * 
+       * This directly forward the call to the staking pallet, on behalf of the pool bonded
+       * account.
+       * 
+       * # Note
+       * 
+       * In addition to a `root` or `nominator` role of `origin`, pool's depositor needs to have
+       * at least `depositor_min_bond` in the pool to start nominating.
+       **/
+      nominate: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, validators: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [u32, Vec<AccountId32>]>;
+      /**
+       * Call `withdraw_unbonded` for the pools account. This call can be made by any account.
+       * 
+       * This is useful if there are too many unlocking chunks to call `unbond`, and some
+       * can be cleared by withdrawing. In the case there are too many unlocking chunks, the user
+       * would probably see an error like `NoMoreChunks` emitted from the staking system when
+       * they attempt to unbond.
+       **/
+      poolWithdrawUnbonded: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, numSlashingSpans: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, u32]>;
+      /**
+       * Allows a pool member to set a claim permission to allow or disallow permissionless
+       * bonding and withdrawing.
        * 
        * # Arguments
-       * * `origin` - The origin of the call, usually a signed user.
-       * * `entry_identifier` - The identifier of the rating entry to be amended.
-       * * `message_id` - A new message identifier for the amendment.
-       * * `digest` - A hash representing the amendment, used for identification and integrity
-       * purposes.
-       * * `authorization` - An identifier for authorization, validating the origin's permission
-       * to amend the rating.
        * 
-       * # Errors
-       * Returns `Error::<T>::RatingIdentifierNotFound` if the original
-       * rating entry is not found.
-       * Returns `Error::<T>::UnauthorizedOperation` if the origin does not
-       * have the authority to amend the rating.
-       * Returns `Error::<T>::MessageIdAlreadyExists` if the new message
-       * identifier is already in use.
-       * Returns `Error::<T>::InvalidIdentifierLength` if the generated
-       * identifier for the amendment is of invalid length.
-       * Returns `Error::<T>::RatingIdentifierAlreadyAdded` if the amendment
-       * identifier is already in use.
-       * 
-       * # Events
-       * Emits `RatingEntryRevoked` when a rating entry is successfully
-       * amended.
-       * 
-       * # Example
-       * ```
-       * amend_rating(origin, entry_identifier, message_id, digest, authorization)?;
-       * ```
+       * * `origin` - Member of a pool.
+       * * `permission` - The permission to be applied.
        **/
-      revokeRating: AugmentedSubmittable<(entryIdentifier: Bytes | string | Uint8Array, messageId: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Bytes]>;
-    };
-    nodeAuthorization: {
+      setClaimPermission: AugmentedSubmittable<(permission: PalletNominationPoolsClaimPermission | 'Permissioned' | 'PermissionlessCompound' | 'PermissionlessWithdraw' | 'PermissionlessAll' | number | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNominationPoolsClaimPermission]>;
       /**
-       * Add additional connections to a given node.
+       * Set the commission of a pool.
+       * Both a commission percentage and a commission payee must be provided in the `current`
+       * tuple. Where a `current` of `None` is provided, any current commission will be removed.
        * 
-       * - `node`: identifier of the node.
-       * - `connections`: additonal nodes from which the connections are allowed.
+       * - If a `None` is supplied to `new_commission`, existing commission will be removed.
        **/
-      addConnection: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, connectionId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      setCommission: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, newCommission: Option<ITuple<[Perbill, AccountId32]>> | null | Uint8Array | ITuple<[Perbill, AccountId32]> | [Perbill | AnyNumber | Uint8Array, AccountId32 | string | Uint8Array]) => SubmittableExtrinsic<ApiType>, [u32, Option<ITuple<[Perbill, AccountId32]>>]>;
       /**
-       * Add a node to the set of well known nodes. If the node is already
-       * claimed, the owner will be updated and keep the existing additional
-       * connection unchanged.
+       * Set the commission change rate for a pool.
        * 
-       * May only be called from `T::AddOrigin`.
-       * 
-       * - `node`: identifier of the node.
+       * Initial change rate is not bounded, whereas subsequent updates can only be more
+       * restrictive than the current.
        **/
-      addWellKnownNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, owner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, MultiAddress]>;
+      setCommissionChangeRate: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, changeRate: PalletNominationPoolsCommissionChangeRate | { maxIncrease?: any; minDelay?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, PalletNominationPoolsCommissionChangeRate]>;
       /**
-       * Remove additional connections of a given node.
+       * Set or remove a pool's commission claim permission.
        * 
-       * - `node`: identifier of the node.
-       * - `connections`: additonal nodes from which the connections are not allowed anymore.
+       * Determines who can claim the pool's pending commission. Only the `Root` role of the pool
+       * is able to configure commission claim permissions.
        **/
-      removeConnection: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, connectionId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      setCommissionClaimPermission: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, permission: Option<PalletNominationPoolsCommissionClaimPermission> | null | Uint8Array | PalletNominationPoolsCommissionClaimPermission | { Permissionless: any } | { Account: any } | string) => SubmittableExtrinsic<ApiType>, [u32, Option<PalletNominationPoolsCommissionClaimPermission>]>;
       /**
-       * Remove a node from the set of well known nodes. The ownership and
-       * additional connections of the node will also be removed.
+       * Set the maximum commission of a pool.
        * 
-       * May only be called from `T::RemoveOrigin`.
-       * 
-       * - `node`: identifier of the node.
+       * - Initial max can be set to any `Perbill`, and only smaller values thereafter.
+       * - Current commission will be lowered in the event it is higher than a new max
+       * commission.
        **/
-      removeWellKnownNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      setCommissionMax: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, maxCommission: Perbill | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, Perbill]>;
       /**
-       * Swap a well known node to another. Both the ownership and additional
-       * connections stay untouched.
+       * Update configurations for the nomination pools. The origin for this call must be
+       * [`Config::AdminOrigin`].
        * 
-       * - `remove`: the node which will be moved out from the list.
-       * - `add`: the node which will be put in the list.
+       * # Arguments
+       * 
+       * * `min_join_bond` - Set [`MinJoinBond`].
+       * * `min_create_bond` - Set [`MinCreateBond`].
+       * * `max_pools` - Set [`MaxPools`].
+       * * `max_members` - Set [`MaxPoolMembers`].
+       * * `max_members_per_pool` - Set [`MaxPoolMembersPerPool`].
+       * * `global_max_commission` - Set [`GlobalMaxCommission`].
        **/
-      swapWellKnownNode: AugmentedSubmittable<(removeId: Bytes | string | Uint8Array, addId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      setConfigs: AugmentedSubmittable<(minJoinBond: PalletNominationPoolsConfigOpU128 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, minCreateBond: PalletNominationPoolsConfigOpU128 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, maxPools: PalletNominationPoolsConfigOpU32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, maxMembers: PalletNominationPoolsConfigOpU32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, maxMembersPerPool: PalletNominationPoolsConfigOpU32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, globalMaxCommission: PalletNominationPoolsConfigOpPerbill | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletNominationPoolsConfigOpU128, PalletNominationPoolsConfigOpU128, PalletNominationPoolsConfigOpU32, PalletNominationPoolsConfigOpU32, PalletNominationPoolsConfigOpU32, PalletNominationPoolsConfigOpPerbill]>;
       /**
-       * A node can be transferred to a new owner.
+       * Set a new metadata for the pool.
        * 
-       * - `node`: identifier of the node.
-       * - `owner`: new owner of the node.
+       * The dispatch origin of this call must be signed by the bouncer, or the root role of the
+       * pool.
        **/
-      transferNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, owner: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, MultiAddress]>;
+      setMetadata: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, metadata: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, Bytes]>;
+      /**
+       * Set a new state for the pool.
+       * 
+       * If a pool is already in the `Destroying` state, then under no condition can its state
+       * change again.
+       * 
+       * The dispatch origin of this call must be either:
+       * 
+       * 1. signed by the bouncer, or the root role of the pool,
+       * 2. if the pool conditions to be open are NOT met (as described by `ok_to_be_open`), and
+       * then the state of the pool can be permissionlessly changed to `Destroying`.
+       **/
+      setState: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, state: PalletNominationPoolsPoolState | 'Open' | 'Blocked' | 'Destroying' | number | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, PalletNominationPoolsPoolState]>;
+      /**
+       * Unbond up to `unbonding_points` of the `member_account`'s funds from the pool. It
+       * implicitly collects the rewards one last time, since not doing so would mean some
+       * rewards would be forfeited.
+       * 
+       * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
+       * account).
+       * 
+       * # Conditions for a permissionless dispatch.
+       * 
+       * * The pool is blocked and the caller is either the root or bouncer. This is refereed to
+       * as a kick.
+       * * The pool is destroying and the member is not the depositor.
+       * * The pool is destroying, the member is the depositor and no other members are in the
+       * pool.
+       * 
+       * ## Conditions for permissioned dispatch (i.e. the caller is also the
+       * `member_account`):
+       * 
+       * * The caller is not the depositor.
+       * * The caller is the depositor, the pool is destroying and no other members are in the
+       * pool.
+       * 
+       * # Note
+       * 
+       * If there are too many unlocking chunks to unbond with the pool account,
+       * [`Call::pool_withdraw_unbonded`] can be called to try and minimize unlocking chunks.
+       * The [`StakingInterface::unbond`] will implicitly call [`Call::pool_withdraw_unbonded`]
+       * to try to free chunks if necessary (ie. if unbound was called and no unlocking chunks
+       * are available). However, it may not be possible to release the current unlocking chunks,
+       * in which case, the result of this call will likely be the `NoMoreChunks` error from the
+       * staking system.
+       **/
+      unbond: AugmentedSubmittable<(memberAccount: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, unbondingPoints: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Compact<u128>]>;
+      /**
+       * Update the roles of the pool.
+       * 
+       * The root is the only entity that can change any of the roles, including itself,
+       * excluding the depositor, who can never change.
+       * 
+       * It emits an event, notifying UIs of the role change. This event is quite relevant to
+       * most pool members and they should be informed of changes to pool roles.
+       **/
+      updateRoles: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, newRoot: PalletNominationPoolsConfigOpAccountId32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, newNominator: PalletNominationPoolsConfigOpAccountId32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, newBouncer: PalletNominationPoolsConfigOpAccountId32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32, PalletNominationPoolsConfigOpAccountId32, PalletNominationPoolsConfigOpAccountId32, PalletNominationPoolsConfigOpAccountId32]>;
+      /**
+       * Withdraw unbonded funds from `member_account`. If no bonded funds can be unbonded, an
+       * error is returned.
+       * 
+       * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
+       * account).
+       * 
+       * # Conditions for a permissionless dispatch
+       * 
+       * * The pool is in destroy mode and the target is not the depositor.
+       * * The target is the depositor and they are the only member in the sub pools.
+       * * The pool is blocked and the caller is either the root or bouncer.
+       * 
+       * # Conditions for permissioned dispatch
+       * 
+       * * The caller is the target and they are not the depositor.
+       * 
+       * # Note
+       * 
+       * - If the target is the depositor, the pool will be destroyed.
+       * - If the pool has any pending slash, we also try to slash the member before letting them
+       * withdraw. This calculation adds some weight overhead and is only defensive. In reality,
+       * pool slashes must have been already applied via permissionless [`Call::apply_slash`].
+       **/
+      withdrawUnbonded: AugmentedSubmittable<(memberAccount: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, numSlashingSpans: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, u32]>;
     };
     poolAssets: {
       /**
@@ -3618,8 +3417,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * - `id`: The identifier of the asset to be destroyed. This must identify an existing
        * asset.
-       * 
-       * The asset class must be frozen before calling `start_destroy`.
        **/
       startDestroy: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
       /**
@@ -3694,6 +3491,25 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       transfer: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array, target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, amount: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress, Compact<u128>]>;
       /**
+       * Transfer the entire transferable balance from the caller asset account.
+       * 
+       * NOTE: This function only attempts to transfer _transferable_ balances. This means that
+       * any held, frozen, or minimum balance (when `keep_alive` is `true`), will not be
+       * transferred by this function. To ensure that this function results in a killed account,
+       * you might need to prepare the account by removing any reference counters, storage
+       * deposits, etc...
+       * 
+       * The dispatch origin of this call must be Signed.
+       * 
+       * - `id`: The identifier of the asset for the account holding a deposit.
+       * - `dest`: The recipient of the transfer.
+       * - `keep_alive`: A boolean to determine if the `transfer_all` operation should send all
+       * of the funds the asset account has, causing the sender asset account to be killed
+       * (false), or transfer everything except at least the minimum balance, which will
+       * guarantee to keep the sender asset account alive (true).
+       **/
+      transferAll: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array, dest: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, keepAlive: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress, bool]>;
+      /**
        * Transfer some asset balance from a previously delegated account to some third-party
        * account.
        * 
@@ -3751,7 +3567,7 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     preimage: {
       /**
-       * Ensure that the a bulk of pre-images is upgraded.
+       * Ensure that the bulk of pre-images is upgraded.
        * 
        * The caller pays no fee if at least 90% of pre-images were successfully updated.
        **/
@@ -3786,366 +3602,88 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       unrequestPreimage: AugmentedSubmittable<(hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
     };
-    registries: {
+    profile: {
       /**
-       * Adds an administrative delegate to a registry.
+       * Rotates the key of an existing Profile.
        * 
-       * This function grants the `ADMIN` permission to a specified delegate,
-       * allowing the delegate to manage other delegates and modify registry
-       * configurations. Only existing registry administrators can invoke this
-       * function to add another admin delegate.
-       * 
-       * The function ensures that the caller has sufficient administrative
-       * privileges in the registry and that the `registry_id` matches the
-       * authorization. If the checks pass, the delegate is added with `ADMIN`
-       * permissions using the internal `registry_delegate_addition` function.
+       * This extrinsic rotates the key of an existing Profile, identified through its
+       * Profile Identifier.
+       * This must be signed by the account tied to the Profile only.
+       * The `new-key` will be the public-key of the CORD/Substarte account tied to the Profile
+       * from here on. So all new operations will require `new-key` based acconut only.
        * 
        * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing administrator of
-       * the registry.
-       * - `registry_id`: The unique identifier of the registry to which the admin delegate is
-       * being added.
-       * - `delegate`: The account identifier of the delegate being granted admin permissions.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: The authorization ID used to validate the caller's
-       * permission to add an admin delegate to the specified registry.
+       * - `origin`: The origin of the call, which must be signed by the owner of the profile.
+       * - `new_key`: The new_key represnts the public key of the CORD/Substrate account for which
+       * The existing Profile Identifier will be tied to from here on. Make Sure this public key
+       * exists and accessible before making this call.
+       * This is irreversible and will tie all existing Profile Data to new-key based account.
        * 
        * # Returns
-       * Returns `Ok(())` if the admin delegate is successfully added, or an `Err`
-       * if the operation fails, such as when the caller lacks the necessary
-       * permissions or if there's an internal error during delegate addition.
+       * Returns `Ok(())` if the Profile is succesfully rotated to new-key.
+       * or an `Err` if the operation fails due to issues regarding Profile existence.
        * 
        * # Errors
-       * - `UnauthorizedOperation`: If the caller does not have admin permissions in the
-       * registry.
-       * - Propagates errors from `registry_delegate_addition` if delegate addition fails.
+       * - `ProfileNotFound`: If the Profile does not exist for the signed origin account.
        **/
-      addAdminDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes, Bytes]>;
+      rotateKey: AugmentedSubmittable<(newKey: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Adds a delegate with permission to assert new entries to a registry.
+       * Creates a new Profile with associated details.
        * 
-       * The `ASSERT` permission enables a delegate to add and sign new entries
-       * within the specified registry. This function is used to grant this
-       * permission to a delegate, provided that the caller has sufficient
-       * authorization, typically as an admin of the registry.
-       * 
-       * The function checks that the caller is authorized (as an admin) to add
-       * a delegate with `ASSERT` permissions to the registry. If the caller's
-       * authorization is verified, the delegate is added using the internal
-       * `registry_delegate_addition` function.
+       * This extrinsic creates a new Profile to be mapped to a CORD account.
+       * Also it expects a vector of Data Keys and its values.
+       * This HashMap is tied to the generated Profile Identifier.
+       * But currently expects the user given Data Keys to start with `pub_` prefix only.
        * 
        * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an admin of the registry.
-       * - `registry_id`: The unique identifier of the registry to which the delegate is being
-       * added.
-       * - `delegate`: The account identifier of the delegate being granted the `ASSERT`
-       * permission.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: The authorization ID used to validate the caller's
-       * permission to add a delegate.
+       * - `origin`: The origin of the call, which must be signed by the creator of the profile.
+       * - `data`: The data is a vector of a HashMap of the Data Key and associated Data Values.
        * 
        * # Returns
-       * Returns `Ok(())` if the delegate is successfully added with `ASSERT`
-       * permissions, or an `Err` if the operation fails due to authorization issues
-       * or internal errors during delegate addition.
+       * Returns `Ok(())` if the Profile is succesfully been created.
+       * or an `Err` if the operation fails due to a same profile already existing.
        * 
        * # Errors
-       * - `UnauthorizedOperation`: If the caller does not have the necessary admin permissions
-       * for the registry.
-       * - Propagates errors from `registry_delegate_addition` if the addition fails.
+       * - `InvalidIdentifierLength`: If the newly creted Profile Identifier exceeds limit.
+       * - `ProfileAlreadyExists`: If the newly created Profile already exists.
+       * This happens if a user creates a duplicate profile with the same account key-pair.
+       * - `InvalidKeyPrefix`: If the Profile Data Key starts with anything other than `pub_`.
        **/
-      addDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes, Bytes]>;
+      setProfile: AugmentedSubmittable<(data: Vec<ITuple<[Bytes, Bytes]>> | ([Bytes | string | Uint8Array, Bytes | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[Bytes, Bytes]>>]>;
+    };
+    registry: {
       /**
-       * Adds an audit delegate to a registry.
-       * 
-       * The `AUDIT` permission allows the delegate to perform oversight and
-       * compliance checks within the registry. This function is used to grant
-       * these audit privileges to a delegate. It checks that the caller has the
-       * necessary administrative rights to add an audit delegate to the registry.
-       * 
-       * If the caller is authorized, the delegate is added with the `AUDIT`
-       * permission using the internal `registry_delegate_addition` function.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an existing administrator of
-       * the registry.
-       * - `registry_id`: The unique identifier of the registry to which the audit delegate is
-       * being added.
-       * - `delegate`: The account identifier of the delegate being granted audit permissions.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: The authorization ID used to validate the caller's
-       * permission to add the audit delegate.
-       * 
-       * # Returns
-       * Returns `Ok(())` if the audit delegate is successfully added, or an `Err`
-       * if the operation fails due to authorization issues or internal errors
-       * during delegate addition.
-       * 
-       * # Errors
-       * - `UnauthorizedOperation`: If the caller does not have the necessary admin permissions
-       * for the registry.
-       * - Propagates errors from `registry_delegate_addition` if delegate addition fails.
+       * Add a delegate with given permissions.
        **/
-      addDelegator: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Bytes, Bytes]>;
+      addDelegate: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, roles: Vec<PalletRegistryPermissionVariant> | (PalletRegistryPermissionVariant | 'Entry' | 'Delegate' | 'Admin' | number | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Vec<PalletRegistryPermissionVariant>]>;
       /**
-       * Archives a registry, marking it as inactive.
-       * 
-       * This function allows the creator or an admin with the appropriate authority
-       * to archive an existing registry. It checks that the registry exists, is not already
-       * archived, and ensures that the caller has the necessary authorization to perform the
-       * archival.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `registry_id`: The identifier of the registry to be archived.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: An identifier for the authorization being used to validate
-       * the archival.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully archived, or an
-       * error (`DispatchError`) if:
-       * - The registry does not exist.
-       * - The registry is already archived.
-       * - The caller does not have the authority to archive the registry.
-       * 
-       * # Errors
-       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
-       * registry.
-       * - `RegistryAlreadyArchived`: If the registry is already archived.
-       * - `UnauthorizedOperation`: If the caller is not authorized to archive the registry.
-       * 
-       * # Events
-       * - `Archive`: Emitted when a registry is successfully archived. It includes the registry
-       * ID and the authority who performed the archival.
+       * Archive registry
        **/
-      archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Creates a new registry with a unique identifier based on the provided
-       * registry digest and the creator's identity.
-       * 
-       * This function generates a unique identifier for the registry by hashing
-       * the encoded digest of the registry and the creator's identifier. It ensures that the
-       * generated registry identifier is not already in use. An authorization
-       * ID is also created for the new registry, which is used to manage
-       * delegations. The creator is automatically added as a delegate with
-       * full permissions.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, signed by the creator.
-       * - `digest`: The digest representing the registry data to be created.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `schema_id`: (Optional) A unique code represnting the Schema.
-       * - `blob`: (Optional) Metadata or data associated with the registry.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully created, or an
-       * error (`DispatchError`) if:
-       * - The generated registry identifier is already in use.
-       * - The generated authorization ID has an invalid length.
-       * - The registry exceeds the allowed delegate limit.
-       * 
-       * # Errors
-       * - `InvalidIdentifierLength`: If the generated identifiers for the registry or
-       * authorization have invalid lengths.
-       * - `RegistryAlreadyAnchored`: If the registry identifier already exists.
-       * - `RegistryDelegatesLimitExceeded`: If the registry exceeds the maximum number of
-       * allowed delegates.
-       * 
-       * # Events
-       * - `Create`: Emitted when a new registry is successfully created. It includes the
-       * registry identifier, the creator's identifier, and the authorization ID.
+       * Create a new registry.
        **/
-      create: AugmentedSubmittable<(digest: H256 | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>, Option<Bytes>]>;
+      create: AugmentedSubmittable<(txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string, docId: Option<Bytes> | null | Uint8Array | Bytes | string, docAuthorId: Option<AccountId32> | null | Uint8Array | AccountId32 | string, docNodeId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Option<Bytes>, Option<Bytes>, Option<AccountId32>, Option<Bytes>]>;
       /**
-       * Reinstates a revoked registry, making it active again.
-       * 
-       * This function changes the status of a previously revoked registry to active
-       * based on the provided registry ID. It checks that the registry exists, is
-       * currently revoked, and ensures that the caller has the authority to reinstate
-       * the registry as indicated by the provided authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `registry_id`: The identifier of the registry to be reinstated.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: An identifier for the authorization being used to validate
-       * the reinstatement.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully reinstated, or an
-       * error (`DispatchError`) if:
-       * - The registry does not exist.
-       * - The registry is not revoked.
-       * - The caller does not have the authority to reinstate the registry.
-       * 
-       * # Errors
-       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
-       * registry.
-       * - `RegistryNotRevoked`: If the registry is not currently revoked.
-       * - `UnauthorizedOperation`: If the caller is not authorized to reinstate the registry.
-       * 
-       * # Events
-       * - `Reinstate`: Emitted when a registry is successfully reinstated. It includes the
-       * registry ID and the authority who performed the reinstatement.
+       * Removes a delegate
        **/
-      reinstate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      removeDelegate: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Removes a delegate from a specified registry.
-       * 
-       * This function removes an existing delegate from a registry, identified
-       * by the `registry_id` and the delegate's `remove_authorization` ID.
-       * It ensures that the registry exists, is not archived or revoked, and that
-       * the provided authorization corresponds to a delegate in the registry.
-       * Additionally, it verifies that the caller has the authority (admin rights)
-       * to remove the delegate.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the call, which must be signed by an admin of the registry.
-       * - `registry_id`: The unique identifier of the registry from which the delegate is being
-       * removed.
-       * - `remove_authorization`: The authorization ID of the delegate to be removed.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: The authorization ID validating the caller’s permission to
-       * perform the removal.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the delegate was successfully removed, or an
-       * error (`DispatchError`) if any of the checks fail.
-       * 
-       * # Errors
-       * - `AuthorizationNotFound`: If the provided `remove_authorization` does not exist.
-       * - `UnauthorizedOperation`: If the origin is not authorized to remove a delegate from the
-       * registry.
-       * - `RegistryNotFound`: If the specified `registry_id` does not correspond to an existing
-       * registry.
-       * - `RegistryArchived`: If the registry is archived and no longer active.
-       * - `RegistryRevoked`: If the registry has been revoked.
-       * - `DelegateNotFound`: If the delegate specified by `remove_authorization` is not found
-       * in the registry.
-       * 
-       * # Events
-       * - `Deauthorization`: Emitted when a delegate is successfully removed from the registry.
-       * The event includes the registry ID and the authorization ID of the removed delegate.
+       * Restore registry
        **/
-      removeDelegate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, removeAuthorization: Bytes | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes, Bytes]>;
+      restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Restores an archived registry, making it active again.
-       * 
-       * This function allows the creator or an admin with the appropriate authority
-       * to restore an archived registry. It checks that the registry exists, is currently
-       * archived, and ensures that the caller has the necessary authorization to perform the
-       * restoration.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `registry_id`: The identifier of the registry to be restored.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: An identifier for the authorization being used to validate
-       * the restoration.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully restored, or an
-       * error (`DispatchError`) if:
-       * - The registry does not exist.
-       * - The registry is not archived.
-       * - The caller does not have the authority to restore the registry.
-       * 
-       * # Errors
-       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
-       * registry.
-       * - `RegistryNotArchived`: If the registry is not currently archived.
-       * - `UnauthorizedOperation`: If the caller is not authorized to restore the registry.
-       * 
-       * # Events
-       * - `Restore`: Emitted when a registry is successfully restored. It includes the registry
-       * ID and the authority who performed the restoration.
+       * Update registry entry author
        **/
-      restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      updateAuthor: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, newDocAuthorId: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Revokes a registry, marking it as no longer active.
-       * 
-       * This function marks a registry as revoked based on the provided registry
-       * ID. It checks that the registry exists, is not already revoked, and
-       * ensures that the caller has the authority to revoke the registry, as
-       * indicated by the provided authorization ID.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `registry_id`: The identifier of the registry to be revoked.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: An identifier for the authorization being used to validate
-       * the revocation.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully revoked, or an
-       * error (`DispatchError`) if:
-       * - The registry does not exist.
-       * - The registry is already revoked.
-       * - The caller does not have the authority to revoke the registry.
-       * 
-       * # Errors
-       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
-       * registry.
-       * - `RegistryAlreadyRevoked`: If the registry has already been revoked.
-       * - `UnauthorizedOperation`: If the caller is not authorized to revoke the registry.
-       * 
-       * # Events
-       * - `Revoke`: Emitted when a registry is successfully revoked. It includes the registry ID
-       * and the authority who performed the revocation.
+       * Update registry creator
        **/
-      revoke: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      updateCreator: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, newCreator: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Updates the digest and optional blob of a registry.
-       * 
-       * This function allows the creator or an admin with the appropriate authority
-       * to update the digest and optionally the blob of an existing registry. It checks
-       * that the registry exists, ensures that the caller has the necessary authorization,
-       * and updates the registry with the new digest and blob (if provided).
-       * 
-       * # Parameters
-       * - `origin`: The origin of the transaction, which must be signed by the creator or an
-       * admin with the appropriate authority.
-       * - `registry_id`: The identifier of the registry to be updated.
-       * - `digest`: The new digest (hash) to be assigned to the registry.
-       * - `blob`: An optional new blob (data) to be assigned to the registry. If `None`, the
-       * existing blob remains unchanged.
-       * - `namespace_authorization`: The Namespace authorization ID used to validate the
-       * caller's permission inside a namespace.
-       * - `registry_authorization`: An identifier for the authorization being used to validate
-       * the update.
-       * 
-       * # Returns
-       * - `DispatchResult`: Returns `Ok(())` if the registry is successfully updated, or an
-       * error (`DispatchError`) if:
-       * - The registry does not exist.
-       * - The caller does not have the authority to update the registry.
-       * 
-       * # Errors
-       * - `RegistryNotFound`: If the specified registry ID does not correspond to an existing
-       * registry.
-       * - `UnauthorizedOperation`: If the caller is not authorized to update the registry.
-       * 
-       * # Events
-       * - `Update`: Emitted when a registry is successfully updated. It includes the registry
-       * ID, the updater, and the authorization used.
-       * TODO:
-       * Move optional parameter as last argument.
+       * Updates the registry hash, optionally accepts a blob.
        **/
-      update: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, digest: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string, namespaceAuthorization: Bytes | string | Uint8Array, registryAuthorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>, Bytes, Bytes]>;
+      updateRegistryHash: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>]>;
     };
     remark: {
       /**
@@ -4153,8 +3691,242 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       store: AugmentedSubmittable<(remark: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
     };
-    runtimeUpgrade: {
-      setCode: AugmentedSubmittable<(code: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+    revive: {
+      /**
+       * Makes a call to an account, optionally transferring some balance.
+       * 
+       * # Parameters
+       * 
+       * * `dest`: Address of the contract to call.
+       * * `value`: The balance to transfer from the `origin` to `dest`.
+       * * `gas_limit`: The gas limit enforced when executing the constructor.
+       * * `storage_deposit_limit`: The maximum amount of balance that can be charged from the
+       * caller to pay for the storage consumed.
+       * * `data`: The input data to pass to the contract.
+       * 
+       * * If the account is a smart-contract account, the associated code will be
+       * executed and any value will be transferred.
+       * * If the account is a regular account, any value will be transferred.
+       * * If no account exists and the call value is not less than `existential_deposit`,
+       * a regular account will be created and any value will be transferred.
+       **/
+      call: AugmentedSubmittable<(dest: H160 | string | Uint8Array, value: Compact<u128> | AnyNumber | Uint8Array, gasLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array, data: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H160, Compact<u128>, SpWeightsWeightV2Weight, Compact<u128>, Bytes]>;
+      /**
+       * Dispatch an `call` with the origin set to the callers fallback address.
+       * 
+       * Every `AccountId32` can control its corresponding fallback account. The fallback account
+       * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
+       * recovery function in case an `AccountId20` was used without creating a mapping first.
+       **/
+      dispatchAsFallbackAccount: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call]>;
+      /**
+       * A raw EVM transaction, typically dispatched by an Ethereum JSON-RPC server.
+       * 
+       * # Parameters
+       * 
+       * * `payload`: The encoded [`crate::evm::TransactionSigned`].
+       * * `gas_limit`: The gas limit enforced during contract execution.
+       * * `storage_deposit_limit`: The maximum balance that can be charged to the caller for
+       * storage usage.
+       * 
+       * # Note
+       * 
+       * This call cannot be dispatched directly; attempting to do so will result in a failed
+       * transaction. It serves as a wrapper for an Ethereum transaction. When submitted, the
+       * runtime converts it into a [`sp_runtime::generic::CheckedExtrinsic`] by recovering the
+       * signer and validating the transaction.
+       **/
+      ethTransact: AugmentedSubmittable<(payload: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Instantiates a contract from a previously deployed wasm binary.
+       * 
+       * This function is identical to [`Self::instantiate_with_code`] but without the
+       * code deployment step. Instead, the `code_hash` of an on-chain deployed wasm binary
+       * must be supplied.
+       **/
+      instantiate: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array, gasLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array, codeHash: H256 | string | Uint8Array, data: Bytes | string | Uint8Array, salt: Option<U8aFixed> | null | Uint8Array | U8aFixed | string) => SubmittableExtrinsic<ApiType>, [Compact<u128>, SpWeightsWeightV2Weight, Compact<u128>, H256, Bytes, Option<U8aFixed>]>;
+      /**
+       * Instantiates a new contract from the supplied `code` optionally transferring
+       * some balance.
+       * 
+       * This dispatchable has the same effect as calling [`Self::upload_code`] +
+       * [`Self::instantiate`]. Bundling them together provides efficiency gains. Please
+       * also check the documentation of [`Self::upload_code`].
+       * 
+       * # Parameters
+       * 
+       * * `value`: The balance to transfer from the `origin` to the newly created contract.
+       * * `gas_limit`: The gas limit enforced when executing the constructor.
+       * * `storage_deposit_limit`: The maximum amount of balance that can be charged/reserved
+       * from the caller to pay for the storage consumed.
+       * * `code`: The contract code to deploy in raw bytes.
+       * * `data`: The input data to pass to the contract constructor.
+       * * `salt`: Used for the address derivation. If `Some` is supplied then `CREATE2`
+       * semantics are used. If `None` then `CRATE1` is used.
+       * 
+       * 
+       * Instantiation is executed as follows:
+       * 
+       * - The supplied `code` is deployed, and a `code_hash` is created for that code.
+       * - If the `code_hash` already exists on the chain the underlying `code` will be shared.
+       * - The destination address is computed based on the sender, code_hash and the salt.
+       * - The smart-contract account is created at the computed address.
+       * - The `value` is transferred to the new account.
+       * - The `deploy` function is executed in the context of the newly-created account.
+       **/
+      instantiateWithCode: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array, gasLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array, code: Bytes | string | Uint8Array, data: Bytes | string | Uint8Array, salt: Option<U8aFixed> | null | Uint8Array | U8aFixed | string) => SubmittableExtrinsic<ApiType>, [Compact<u128>, SpWeightsWeightV2Weight, Compact<u128>, Bytes, Bytes, Option<U8aFixed>]>;
+      /**
+       * Register the callers account id so that it can be used in contract interactions.
+       * 
+       * This will error if the origin is already mapped or is a eth native `Address20`. It will
+       * take a deposit that can be released by calling [`Self::unmap_account`].
+       **/
+      mapAccount: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Remove the code stored under `code_hash` and refund the deposit to its owner.
+       * 
+       * A code can only be removed by its original uploader (its owner) and only if it is
+       * not used by any contract.
+       **/
+      removeCode: AugmentedSubmittable<(codeHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
+      /**
+       * Privileged function that changes the code of an existing contract.
+       * 
+       * This takes care of updating refcounts and all other necessary operations. Returns
+       * an error if either the `code_hash` or `dest` do not exist.
+       * 
+       * # Note
+       * 
+       * This does **not** change the address of the contract in question. This means
+       * that the contract address is no longer derived from its code hash after calling
+       * this dispatchable.
+       **/
+      setCode: AugmentedSubmittable<(dest: H160 | string | Uint8Array, codeHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H160, H256]>;
+      /**
+       * Unregister the callers account id in order to free the deposit.
+       * 
+       * There is no reason to ever call this function other than freeing up the deposit.
+       * This is only useful when the account should no longer be used.
+       **/
+      unmapAccount: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Upload new `code` without instantiating a contract from it.
+       * 
+       * If the code does not already exist a deposit is reserved from the caller
+       * and unreserved only when [`Self::remove_code`] is called. The size of the reserve
+       * depends on the size of the supplied `code`.
+       * 
+       * # Note
+       * 
+       * Anyone can instantiate a contract from any uploaded code and thus prevent its removal.
+       * To avoid this situation a constructor could employ access control so that it can
+       * only be instantiated by permissioned entities. The same is true when uploading
+       * through [`Self::instantiate_with_code`].
+       **/
+      uploadCode: AugmentedSubmittable<(code: Bytes | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Compact<u128>]>;
+    };
+    rootTesting: {
+      /**
+       * A dispatch that will fill the block weight up to the given ratio.
+       **/
+      fillBlock: AugmentedSubmittable<(ratio: Perbill | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Perbill]>;
+      triggerDefensive: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+    };
+    safeMode: {
+      /**
+       * Enter safe-mode permissionlessly for [`Config::EnterDuration`] blocks.
+       * 
+       * Reserves [`Config::EnterDepositAmount`] from the caller's account.
+       * Emits an [`Event::Entered`] event on success.
+       * Errors with [`Error::Entered`] if the safe-mode is already entered.
+       * Errors with [`Error::NotConfigured`] if the deposit amount is `None`.
+       **/
+      enter: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Extend the safe-mode permissionlessly for [`Config::ExtendDuration`] blocks.
+       * 
+       * This accumulates on top of the current remaining duration.
+       * Reserves [`Config::ExtendDepositAmount`] from the caller's account.
+       * Emits an [`Event::Extended`] event on success.
+       * Errors with [`Error::Exited`] if the safe-mode is entered.
+       * Errors with [`Error::NotConfigured`] if the deposit amount is `None`.
+       * 
+       * This may be called by any signed origin with [`Config::ExtendDepositAmount`] free
+       * currency to reserve. This call can be disabled for all origins by configuring
+       * [`Config::ExtendDepositAmount`] to `None`.
+       **/
+      extend: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Enter safe-mode by force for a per-origin configured number of blocks.
+       * 
+       * Emits an [`Event::Entered`] event on success.
+       * Errors with [`Error::Entered`] if the safe-mode is already entered.
+       * 
+       * Can only be called by the [`Config::ForceEnterOrigin`] origin.
+       **/
+      forceEnter: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Exit safe-mode by force.
+       * 
+       * Emits an [`Event::Exited`] with [`ExitReason::Force`] event on success.
+       * Errors with [`Error::Exited`] if the safe-mode is inactive.
+       * 
+       * Note: `safe-mode` will be automatically deactivated by [`Pallet::on_initialize`] hook
+       * after the block height is greater than the [`EnteredUntil`] storage item.
+       * Emits an [`Event::Exited`] with [`ExitReason::Timeout`] event when deactivated in the
+       * hook.
+       **/
+      forceExit: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Extend the safe-mode by force for a per-origin configured number of blocks.
+       * 
+       * Emits an [`Event::Extended`] event on success.
+       * Errors with [`Error::Exited`] if the safe-mode is inactive.
+       * 
+       * Can only be called by the [`Config::ForceExtendOrigin`] origin.
+       **/
+      forceExtend: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Force to release a deposit for an account that entered safe-mode at a given
+       * historical block.
+       * 
+       * This can be called while safe-mode is still entered.
+       * 
+       * Emits a [`Event::DepositReleased`] event on success.
+       * Errors with [`Error::Entered`] if safe-mode is entered.
+       * Errors with [`Error::NoDeposit`] if the payee has no reserved currency at the
+       * specified block.
+       * 
+       * Can only be called by the [`Config::ForceDepositOrigin`] origin.
+       **/
+      forceReleaseDeposit: AugmentedSubmittable<(account: AccountId32 | string | Uint8Array, block: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32]>;
+      /**
+       * Slash a deposit for an account that entered or extended safe-mode at a given
+       * historical block.
+       * 
+       * This can only be called while safe-mode is entered.
+       * 
+       * Emits a [`Event::DepositSlashed`] event on success.
+       * Errors with [`Error::Entered`] if safe-mode is entered.
+       * 
+       * Can only be called by the [`Config::ForceDepositOrigin`] origin.
+       **/
+      forceSlashDeposit: AugmentedSubmittable<(account: AccountId32 | string | Uint8Array, block: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32]>;
+      /**
+       * Permissionlessly release a deposit for an account that entered safe-mode at a
+       * given historical block.
+       * 
+       * The call can be completely disabled by setting [`Config::ReleaseDelay`] to `None`.
+       * This cannot be called while safe-mode is entered and not until
+       * [`Config::ReleaseDelay`] blocks have passed since safe-mode was entered.
+       * 
+       * Emits a [`Event::DepositReleased`] event on success.
+       * Errors with [`Error::Entered`] if the safe-mode is entered.
+       * Errors with [`Error::CannotReleaseYet`] if [`Config::ReleaseDelay`] block have not
+       * passed since safe-mode was entered. Errors with [`Error::NoDeposit`] if the payee has no
+       * reserved currency at the block specified.
+       **/
+      releaseDeposit: AugmentedSubmittable<(account: AccountId32 | string | Uint8Array, block: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32]>;
     };
     scheduler: {
       /**
@@ -4220,38 +3992,6 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       setRetryNamed: AugmentedSubmittable<(id: U8aFixed | string | Uint8Array, retries: u8 | AnyNumber | Uint8Array, period: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [U8aFixed, u8, u32]>;
     };
-    schema: {
-      /**
-       * Create a new schema and associates with its identifier.
-       * `create` takes a `InputSchemaOf<T>` and returns a `DispatchResult`
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `tx_schema`: The schema that is being anchored.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
-       **/
-      create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-    };
-    schemaDid: {
-      /**
-       * Create a new schema and associates with its identifier.
-       * `create` takes a `InputSchemaOf<T>` and returns a `DispatchResult`
-       * 
-       * Arguments:
-       * 
-       * * `origin`: The origin of the transaction.
-       * * `tx_schema`: The schema that is being anchored.
-       * 
-       * Returns:
-       * 
-       * DispatchResult
-       **/
-      create: AugmentedSubmittable<(txSchema: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-    };
     session: {
       /**
        * Removes any session key(s) of the function caller.
@@ -4279,735 +4019,508 @@ declare module '@polkadot/api-base/types/submittable' {
        * - `O(1)`. Actual cost depends on the number of length of `T::Keys::key_ids()` which is
        * fixed.
        **/
-      setKeys: AugmentedSubmittable<(keys: CordWeaveRuntimeSessionKeys | { grandpa?: any; babe?: any; imOnline?: any; authorityDiscovery?: any } | string | Uint8Array, proof: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeSessionKeys, Bytes]>;
+      setKeys: AugmentedSubmittable<(keys: CordWeaveRuntimeSessionKeys | { babe?: any; grandpa?: any; imOnline?: any; authorityDiscovery?: any; beefy?: any } | string | Uint8Array, proof: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeSessionKeys, Bytes]>;
     };
-    statement: {
+    staking: {
       /**
-       * Adds a presentation to a specified statement.
+       * Take the origin account as a stash and lock up `value` of its balance. `controller` will
+       * be the account that controls it.
        * 
-       * This privileged function is reserved for execution by the council or
-       * root origin only. It allows the removal of a presentation associated
-       * with a given  `statement_id`. The function performs authorization
-       * checks based on the provided `authorization` parameter, ensuring
-       * that the operation is performed within the correct chain space.
+       * `value` must be more than the `minimum_balance` specified by `T::Currency`.
        * 
-       * # Parameters
-       * - `origin`: The transaction's origin, restricted to council or root.
-       * - `statement_id`: The identifier of the statement to which the presentation will be
-       * added.
-       * - `presentation_digest`: The digest that uniquely identifies the new presentation.
-       * - `presentation_type`: The type categorization of the presentation.
-       * - `authorization`: The authorization identifier for the creator, required to perform the
-       * addition.
+       * The dispatch origin for this call must be _Signed_ by the stash account.
        * 
-       * # Errors
-       * - Returns `StatementNotFound` if the `statement_id` does not correspond to any existing
-       * statement.
-       * - Returns `StatementRevoked` if the statement associated with the `statement_id` has
-       * been revoked.
-       * - Returns `UnauthorizedOperation` if the operation is not authorized within the
-       * associated space.
-       * - Returns `PresentationDigestAlreadyAnchored` if the `presentation_digest` is not
-       * unique.
+       * Emits `Bonded`.
+       * ## Complexity
+       * - Independent of the arguments. Moderate complexity.
+       * - O(1).
+       * - Three extra DB entries.
        * 
-       * # Events
-       * - Emits `PresentationAdded` upon the successful addition of the presentation.
+       * NOTE: Two of the storage writes (`Self::bonded`, `Self::payee`) are _never_ cleaned
+       * unless the `origin` falls below _existential deposit_ (or equal to 0) and gets removed
+       * as dust.
        **/
-      addPresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, presentationType: PalletStatementPresentationTypeOf | 'Other' | 'PDF' | 'JPEG' | 'PNG' | 'GIF' | 'TXT' | 'SVG' | 'JSON' | 'DOCX' | 'XLSX' | 'PPTX' | 'MP3' | 'MP4' | 'XML' | number | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, PalletStatementPresentationTypeOf, Bytes]>;
+      bond: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array, payee: PalletStakingRewardDestination | { Staked: any } | { Stash: any } | { Controller: any } | { Account: any } | { None: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>, PalletStakingRewardDestination]>;
       /**
-       * Creates a new statement within a specified space subject to
-       * authorization and capacity constraints.
+       * Add some extra amount that have appeared in the stash `free_balance` into the balance up
+       * for staking.
        * 
-       * The function first ensures that the call's origin is authorized and
-       * retrieves the subject, referred to as the creator. It then verifies
-       * that the creator is a delegate for the space associated with the
-       * given authorization. Following this, it checks that the space has
-       * not exceeded its allowed number of statements.
+       * The dispatch origin for this call must be _Signed_ by the stash, not the controller.
        * 
-       * A unique identifier for the statement is generated by hashing the
-       * encoded statement digest, space identifier, and creator identifier.
-       * The function ensures that this identifier has not been used to
-       * anchor another statement.
+       * Use this if there are additional funds in your stash account that you wish to bond.
+       * Unlike [`bond`](Self::bond) or [`unbond`](Self::unbond) this function does not impose
+       * any limitation on the amount that can be added.
        * 
-       * Once the identifier is confirmed to be unique, the statement details
-       * are inserted into the `Statements` storage. Additionally, the
-       * statement entry and identifier lookup are recorded in their
-       * respective storages. The space's usage count is incremented to
-       * reflect the addition of the new statement.
+       * Emits `Bonded`.
        * 
-       * The function also logs the creation event by updating the activity
-       * log and emits an event to signal the successful creation of the
-       * statement.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * creator.
-       * - `digest`: The digest of the statement, serving as a unique identifier.
-       * - `authorization`: The authorization ID, verifying the creator's delegation status.
-       * - `schema_id`: An optional schema identifier to be associated with the statement.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the
-       * statement creation. On success, it returns `Ok(())`. On failure, it
-       * provides an error detailing the cause.
-       * 
-       * # Errors
-       * The function can fail for several reasons including unauthorized
-       * origin, the creator not being a delegate, space capacity being
-       * exceeded, invalid statement identifier, or the statement already
-       * being anchored. Errors related to incrementing space usage or
-       * updating the activity log may also occur.
-       * 
-       * # Events
-       * - `Create`: Emitted when a statement is successfully created, containing the
-       * `identifier`, `digest`, and `author` (creator).
+       * ## Complexity
+       * - Independent of the arguments. Insignificant complexity.
+       * - O(1).
        **/
-      register: AugmentedSubmittable<(digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>]>;
+      bondExtra: AugmentedSubmittable<(maxAdditional: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>]>;
       /**
-       * Creates multiple statements in a batch operation. This function
-       * takes a vector of statement digests and attempts to create a new
-       * statement for each digest. It performs checks on the batch size,
-       * ensures the creator has the proper authorization, and verifies that
-       * the space has enough capacity to accommodate the batch of new
-       * statements.
+       * Cancel enactment of a deferred slash.
        * 
-       * The function iterates over the provided digests, generating a unique
-       * identifier for each and attempting to create a new statement. If a
-       * statement with the generated identifier already exists, or if there
-       * is an error in generating the identifier, the digest is marked as
-       * failed. Otherwise, the new statement is recorded along
-       * with its details. The function also updates the activity log for
-       * each successful creation.
+       * Can be called by the `T::AdminOrigin`.
        * 
-       * After processing all digests, the function ensures that at least one
-       * statement was successfully created. It then increments the usage
-       * count of the space by the number of successful creations. Finally, a
-       * `BatchCreate` event is emitted, summarizing the results of the batch
-       * operation, including the number of successful and failed creations,
-       * the indices of the failed digests, and the author of the batch
-       * creation.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * creator.
-       * - `digests`: A vector of statement digests to be processed in the batch operation.
-       * - `authorization`: The authorization ID, verifying the creator's delegation status.
-       * - `schema_id`: An optional schema identifier that may be associated with the statements.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the batch
-       * creation. On success, it returns `Ok(())`. On failure, it provides
-       * an error detailing the cause, such as exceeding the maximum number
-       * of digests, the space capacity being exceeded, or all digests
-       * failing to create statements.
-       * 
-       * # Errors
-       * The function can fail for several reasons, including exceeding the
-       * maximum number of digests allowed in a batch, the space capacity
-       * being exceeded, or if no statements could be successfully created.
-       * 
-       * # Events
-       * - `BatchCreate`: Emitted upon the completion of the batch operation, providing details
-       * of the outcome.
+       * Parameters: era and indices of the slashes for that era to kill.
        **/
-      registerBatch: AugmentedSubmittable<(digests: Vec<H256> | (H256 | string | Uint8Array)[], authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Vec<H256>, Bytes, Option<Bytes>]>;
+      cancelDeferredSlash: AugmentedSubmittable<(era: u32 | AnyNumber | Uint8Array, slashIndices: Vec<u32> | (u32 | AnyNumber | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [u32, Vec<u32>]>;
       /**
-       * Removes a statement and its associated entries from the system. The
-       * removal can be either complete or partial, depending on the number
-       * of entries associated with the statement and a predefined maximum
-       * removal limit.
+       * Declare no desire to either validate or nominate.
        * 
-       * The function begins by authenticating the origin of the call to
-       * identify the updater. It then retrieves the statement details using
-       * the provided `statement_id`. If the statement cannot be found, the
-       * function fails with an error. An early authorization check is
-       * performed to ensure that the updater has the proper delegation
-       * status for the space associated with the statement.
+       * Effects will be felt at the beginning of the next era.
        * 
-       * The function counts the number of entries linked to the statement
-       * and compares this to the maximum number of entries that can be
-       * removed in a single operation, as specified by `MaxRemoveEntries`.
-       * If the count is less than or equal to the maximum, a complete
-       * removal is initiated; otherwise, a partial removal is performed.
+       * The dispatch origin for this call must be _Signed_ by the controller, not the stash.
        * 
-       * In a complete removal, all entries and their lookups are removed,
-       * the statement is deleted, and the space usage is decremented
-       * accordingly. In a partial removal, only up to the maximum number of
-       * entries are removed, and the space usage is decremented by the
-       * number of entries actually removed.
-       * 
-       * After the removal process, the function updates the activity log to
-       * record the event. It then emits either a `Removed` event for a
-       * complete removal or a `PartialRemoval` event for a partial removal,
-       * providing details of the operation including the statement
-       * identifier and the updater's information.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be removed.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the removal.
-       * On success, it returns `Ok(())`. On failure, it provides an error
-       * detailing the cause, such as the statement not being found or the
-       * updater not having the authority to perform the removal.
-       * 
-       * # Errors
-       * The function can fail for several reasons including the statement
-       * not being found or the updater lacking the authority to perform the
-       * removal.
-       * 
-       * # Events
-       * - `Removed`: Emitted when a statement and all its entries are completely removed.
-       * - `PartialRemoval`: Emitted when only a portion of the entries are removed, detailing
-       * the number of entries
-       * removed.
+       * ## Complexity
+       * - Independent of the arguments. Insignificant complexity.
+       * - Contains one read.
+       * - Writes are limited to the `origin` account key.
        **/
-      remove: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      chill: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
       /**
-       * Removes a presentation from a specified statement state.
+       * Declare a `controller` to stop participating as either a validator or nominator.
        * 
-       * This privileged function is reserved for execution by the council or
-       * root origin only. It allows the removal of a presentation associated
-       * with the `statement_id` and identified by `presentation_digest`. The
-       * function validates the `authorization` of the caller within the
-       * specified chain space before proceeding with the removal.
+       * Effects will be felt at the beginning of the next era.
        * 
-       * # Parameters
-       * - `origin`: The transaction's origin, restricted to council or root.
-       * - `statement_id`: The identifier of the statement associated with the presentation.
-       * - `presentation_digest`: The digest that uniquely identifies the presentation to be
-       * removed.
-       * - `authorization`: The authorization identifier that the remover must have to perform
-       * the removal.
+       * The dispatch origin for this call must be _Signed_, but can be called by anyone.
        * 
-       * # Errors
-       * - Returns `PresentationNotFound` if the specified presentation does not exist.
-       * - Returns `UnauthorizedOperation` if the origin is not authorized to perform this
-       * action.
+       * If the caller is the same as the controller being targeted, then no further checks are
+       * enforced, and this function behaves just like `chill`.
        * 
-       * # Events
-       * - Emits `PresentationRemoved` upon the successful removal of the presentation.
+       * If the caller is different than the controller being targeted, the following conditions
+       * must be met:
+       * 
+       * * `controller` must belong to a nominator who has become non-decodable,
+       * 
+       * Or:
+       * 
+       * * A `ChillThreshold` must be set and checked which defines how close to the max
+       * nominators or validators we must reach before users can start chilling one-another.
+       * * A `MaxNominatorCount` and `MaxValidatorCount` must be set which is used to determine
+       * how close we are to the threshold.
+       * * A `MinNominatorBond` and `MinValidatorBond` must be set and checked, which determines
+       * if this is a person that should be chilled because they have not met the threshold
+       * bond required.
+       * 
+       * This can be helpful if bond requirements are updated, and we need to remove old users
+       * who do not satisfy these requirements.
        **/
-      removePresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      chillOther: AugmentedSubmittable<(stash: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Restores a previously revoked statement, re-enabling its validity
-       * within the system. The restoration is contingent upon a set of
-       * checks to ensure that the action is permitted and appropriate.
+       * Updates a batch of controller accounts to their corresponding stash account if they are
+       * not the same. Ignores any controller accounts that do not exist, and does not operate if
+       * the stash and controller are already the same.
        * 
-       * The function commences by authenticating the origin of the call to
-       * ascertain the identity of the updater attempting the restoration. It
-       * then fetches the details of the statement using the `statement_id`
-       * provided. If the statement does not exist, the function aborts and
-       * signals an error.
+       * Effects will be felt instantly (as soon as this function is completed successfully).
        * 
-       * A crucial step in the process is to verify that the statement has
-       * indeed been revoked; if not, the function ceases further execution.
-       * Assuming the statement is revoked, the function then ascertains
-       * whether the updater is either the original creator of the statement
-       * or a delegate with the requisite authorization. If the updater
-       * is not the creator, their delegation status for the space linked to
-       * the statement is verified.
-       * 
-       * Upon confirming the updater's authority to restore the statement,
-       * the function removes the statement from the `RevocationList`,
-       * effectively reactivating it. It then logs the restoration event in
-       * the activity log. To finalize the process, a `Restored` event is
-       * broadcast, indicating the successful restoration of the statement
-       * with its identifier and the updater's details.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be restored.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status if
-       * they are not the creator.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the
-       * restoration. On success, it returns `Ok(())`. On failure, it
-       * provides an error detailing the cause, such as the statement not
-       * being found, not being revoked, or the updater not having the
-       * authority to restore the statement.
-       * 
-       * # Errors
-       * The function can fail for several reasons including the statement
-       * not being found, not being revoked, or the updater lacking the
-       * authority to perform the restoration.
-       * 
-       * # Events
-       * - `Restored`: Emitted when a statement is successfully restored, containing the
-       * `identifier` of the statement
-       * and the `author` who is the updater.
+       * The dispatch origin must be `T::AdminOrigin`.
        **/
-      restore: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      deprecateControllerBatch: AugmentedSubmittable<(controllers: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
       /**
-       * Revokes an existing statement, rendering it invalid for future
-       * operations. The revocation process involves several authorization
-       * and state checks to ensure the integrity of the operation.
-       * 
-       * Initially, the function authenticates the origin of the call to
-       * identify the updater, who is attempting the revocation. It then
-       * retrieves the details of the statement using the provided
-       * `statement_id`. If the statement is not found, the function fails
-       * with an error.
-       * 
-       * Before proceeding, the function checks whether the statement has
-       * already been revoked. If it has, the function terminates early to
-       * prevent redundant revocation attempts. If the statement is active,
-       * the function then determines whether the updater is the original
-       * creator of the statement or a delegate with proper authorization. If
-       * the updater is not the creator, they must be a delegate with
-       * authorization for the space associated with the statement, and the
-       * function checks for this condition.
-       * 
-       * Once the updater's authority to revoke the statement is confirmed,
-       * the function marks the statement as revoked in the `RevocationList`.
-       * It updates the activity log to record the revocation event. Finally,
-       * it emits a `Revoked` event, indicating the successful revocation of
-       * the statement with the statement identifier and the
-       * updater's information.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be revoked.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status if
-       * they are not the creator.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the
-       * revocation. On success, it returns `Ok(())`. On failure, it provides
-       * an error detailing the cause, such as the statement not being found
-       * or already being revoked, or the updater not having the authority to
-       * revoke the statement.
-       * 
-       * # Errors
-       * The function can fail due to several reasons including the statement
-       * not being found, already being revoked, or the updater lacking the
-       * authority to perform the revocation.
-       * 
-       * # Events
-       * - `Revoked`: Emitted when a statement is successfully revoked, containing the
-       * `identifier` of the statement and
-       * the `author` who is the updater.
+       * Force a validator to have at least the minimum commission. This will not affect a
+       * validator who already has a commission greater than or equal to the minimum. Any account
+       * can call this.
        **/
-      revoke: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      forceApplyMinCommission: AugmentedSubmittable<(validatorStash: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
       /**
-       * Updates the digest of an existing statement after performing a
-       * series of validations. Initially, the function confirms that the
-       * call's origin is authorized and identifies the updater. It then
-       * retrieves the statement details associated with the provided
-       * `statement_id`. Before proceeding, the function checks whether the
-       * statement has already been revoked; if so, it halts further
-       * execution. Additionally, it ensures that the new digest provided for
-       * the update is different from the current one to avoid unnecessary
-       * operations.
+       * Force there to be a new era at the end of the next session. After this, it will be
+       * reset to normal (non-forced) behaviour.
        * 
-       * Upon passing these checks, the updater's delegation status for the
-       * space linked to the statement is verified. The existing statement is
-       * then marked as revoked, and the new digest is recorded. This
-       * involves updating the `Entries` storage with the new digest and the
-       * updater's information, as well as adjusting the `IdentifierLookup`
-       * to reflect the change. The `Statements` storage is also updated with
-       * the new details of the statement.
+       * The dispatch origin must be Root.
        * 
-       * Subsequently, the space usage count is incremented to account for
-       * the updated statement. An activity log entry is created to record
-       * the update event. To conclude the process, an `Update` event is
-       * emitted, which includes the statement identifier, the new digest,
-       * and the authoring updater's details.
+       * # Warning
        * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be updated.
-       * - `new_statement_digest`: The new digest to replace the existing one for the statement.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status.
+       * The election process starts multiple blocks before the end of the era.
+       * If this is called just before a new era is triggered, the election process may not
+       * have enough blocks to get a result.
        * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the update
-       * operation. On success, it returns `Ok(())`. On failure, it provides
-       * an error detailing the cause.
-       * 
-       * # Errors
-       * The function can fail due to several reasons including an
-       * unauthorized origin, the statement not found, the statement being
-       * revoked, the new digest being the same as the existing one, or the
-       * updater not being authorized for the operation.
-       * 
-       * # Events
-       * - `Update`: Emitted when a statement is successfully updated, containing the
-       * `identifier`, `digest`, and `author`
-       * (updater).
+       * ## Complexity
+       * - No arguments.
+       * - Weight: O(1)
        **/
-      update: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, newStatementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      forceNewEra: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Force there to be a new era at the end of sessions indefinitely.
+       * 
+       * The dispatch origin must be Root.
+       * 
+       * # Warning
+       * 
+       * The election process starts multiple blocks before the end of the era.
+       * If this is called just before a new era is triggered, the election process may not
+       * have enough blocks to get a result.
+       **/
+      forceNewEraAlways: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Force there to be no new eras indefinitely.
+       * 
+       * The dispatch origin must be Root.
+       * 
+       * # Warning
+       * 
+       * The election process starts multiple blocks before the end of the era.
+       * Thus the election process may be ongoing when this is called. In this case the
+       * election will continue until the next era is triggered.
+       * 
+       * ## Complexity
+       * - No arguments.
+       * - Weight: O(1)
+       **/
+      forceNoEras: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Force a current staker to become completely unstaked, immediately.
+       * 
+       * The dispatch origin must be Root.
+       * 
+       * ## Parameters
+       * 
+       * - `num_slashing_spans`: Refer to comments on [`Call::withdraw_unbonded`] for more
+       * details.
+       **/
+      forceUnstake: AugmentedSubmittable<(stash: AccountId32 | string | Uint8Array, numSlashingSpans: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32]>;
+      /**
+       * Increments the ideal number of validators up to maximum of
+       * `ElectionProviderBase::MaxWinners`.
+       * 
+       * The dispatch origin must be Root.
+       * 
+       * ## Complexity
+       * Same as [`Self::set_validator_count`].
+       **/
+      increaseValidatorCount: AugmentedSubmittable<(additional: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
+      /**
+       * Remove the given nominations from the calling validator.
+       * 
+       * Effects will be felt at the beginning of the next era.
+       * 
+       * The dispatch origin for this call must be _Signed_ by the controller, not the stash.
+       * 
+       * - `who`: A list of nominator stash accounts who are nominating this validator which
+       * should no longer be nominating this validator.
+       * 
+       * Note: Making this call only makes sense if you first set the validator preferences to
+       * block any further nominations.
+       **/
+      kick: AugmentedSubmittable<(who: Vec<MultiAddress> | (MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<MultiAddress>]>;
+      /**
+       * Migrates permissionlessly a stash from locks to holds.
+       * 
+       * This removes the old lock on the stake and creates a hold on it atomically. If all
+       * stake cannot be held, the best effort is made to hold as much as possible. The remaining
+       * stake is removed from the ledger.
+       * 
+       * The fee is waived if the migration is successful.
+       **/
+      migrateCurrency: AugmentedSubmittable<(stash: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      /**
+       * Declare the desire to nominate `targets` for the origin controller.
+       * 
+       * Effects will be felt at the beginning of the next era.
+       * 
+       * The dispatch origin for this call must be _Signed_ by the controller, not the stash.
+       * 
+       * ## Complexity
+       * - The transaction's complexity is proportional to the size of `targets` (N)
+       * which is capped at CompactAssignments::LIMIT (T::MaxNominations).
+       * - Both the reads and writes follow a similar pattern.
+       **/
+      nominate: AugmentedSubmittable<(targets: Vec<MultiAddress> | (MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<MultiAddress>]>;
+      /**
+       * Pay out next page of the stakers behind a validator for the given era.
+       * 
+       * - `validator_stash` is the stash account of the validator.
+       * - `era` may be any era between `[current_era - history_depth; current_era]`.
+       * 
+       * The origin of this call must be _Signed_. Any account can call this function, even if
+       * it is not one of the stakers.
+       * 
+       * The reward payout could be paged in case there are too many nominators backing the
+       * `validator_stash`. This call will payout unpaid pages in an ascending order. To claim a
+       * specific page, use `payout_stakers_by_page`.`
+       * 
+       * If all pages are claimed, it returns an error `InvalidPage`.
+       **/
+      payoutStakers: AugmentedSubmittable<(validatorStash: AccountId32 | string | Uint8Array, era: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32]>;
+      /**
+       * Pay out a page of the stakers behind a validator for the given era and page.
+       * 
+       * - `validator_stash` is the stash account of the validator.
+       * - `era` may be any era between `[current_era - history_depth; current_era]`.
+       * - `page` is the page index of nominators to pay out with value between 0 and
+       * `num_nominators / T::MaxExposurePageSize`.
+       * 
+       * The origin of this call must be _Signed_. Any account can call this function, even if
+       * it is not one of the stakers.
+       * 
+       * If a validator has more than [`Config::MaxExposurePageSize`] nominators backing
+       * them, then the list of nominators is paged, with each page being capped at
+       * [`Config::MaxExposurePageSize`.] If a validator has more than one page of nominators,
+       * the call needs to be made for each page separately in order for all the nominators
+       * backing a validator to receive the reward. The nominators are not sorted across pages
+       * and so it should not be assumed the highest staker would be on the topmost page and vice
+       * versa. If rewards are not claimed in [`Config::HistoryDepth`] eras, they are lost.
+       **/
+      payoutStakersByPage: AugmentedSubmittable<(validatorStash: AccountId32 | string | Uint8Array, era: u32 | AnyNumber | Uint8Array, page: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32, u32]>;
+      /**
+       * Remove all data structures concerning a staker/stash once it is at a state where it can
+       * be considered `dust` in the staking system. The requirements are:
+       * 
+       * 1. the `total_balance` of the stash is below existential deposit.
+       * 2. or, the `ledger.total` of the stash is below existential deposit.
+       * 3. or, existential deposit is zero and either `total_balance` or `ledger.total` is zero.
+       * 
+       * The former can happen in cases like a slash; the latter when a fully unbonded account
+       * is still receiving staking rewards in `RewardDestination::Staked`.
+       * 
+       * It can be called by anyone, as long as `stash` meets the above requirements.
+       * 
+       * Refunds the transaction fees upon successful execution.
+       * 
+       * ## Parameters
+       * 
+       * - `num_slashing_spans`: Refer to comments on [`Call::withdraw_unbonded`] for more
+       * details.
+       **/
+      reapStash: AugmentedSubmittable<(stash: AccountId32 | string | Uint8Array, numSlashingSpans: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32]>;
+      /**
+       * Rebond a portion of the stash scheduled to be unlocked.
+       * 
+       * The dispatch origin must be signed by the controller.
+       * 
+       * ## Complexity
+       * - Time complexity: O(L), where L is unlocking chunks
+       * - Bounded by `MaxUnlockingChunks`.
+       **/
+      rebond: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>]>;
+      /**
+       * Restores the state of a ledger which is in an inconsistent state.
+       * 
+       * The requirements to restore a ledger are the following:
+       * * The stash is bonded; or
+       * * The stash is not bonded but it has a staking lock left behind; or
+       * * If the stash has an associated ledger and its state is inconsistent; or
+       * * If the ledger is not corrupted *but* its staking lock is out of sync.
+       * 
+       * The `maybe_*` input parameters will overwrite the corresponding data and metadata of the
+       * ledger associated with the stash. If the input parameters are not set, the ledger will
+       * be reset values from on-chain state.
+       **/
+      restoreLedger: AugmentedSubmittable<(stash: AccountId32 | string | Uint8Array, maybeController: Option<AccountId32> | null | Uint8Array | AccountId32 | string, maybeTotal: Option<u128> | null | Uint8Array | u128 | AnyNumber, maybeUnlocking: Option<Vec<PalletStakingUnlockChunk>> | null | Uint8Array | Vec<PalletStakingUnlockChunk> | (PalletStakingUnlockChunk | { value?: any; era?: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [AccountId32, Option<AccountId32>, Option<u128>, Option<Vec<PalletStakingUnlockChunk>>]>;
+      /**
+       * Scale up the ideal number of validators by a factor up to maximum of
+       * `ElectionProviderBase::MaxWinners`.
+       * 
+       * The dispatch origin must be Root.
+       * 
+       * ## Complexity
+       * Same as [`Self::set_validator_count`].
+       **/
+      scaleValidatorCount: AugmentedSubmittable<(factor: Percent | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Percent]>;
+      /**
+       * (Re-)sets the controller of a stash to the stash itself. This function previously
+       * accepted a `controller` argument to set the controller to an account other than the
+       * stash itself. This functionality has now been removed, now only setting the controller
+       * to the stash, if it is not already.
+       * 
+       * Effects will be felt instantly (as soon as this function is completed successfully).
+       * 
+       * The dispatch origin for this call must be _Signed_ by the stash, not the controller.
+       * 
+       * ## Complexity
+       * O(1)
+       * - Independent of the arguments. Insignificant complexity.
+       * - Contains a limited number of reads.
+       * - Writes are limited to the `origin` account key.
+       **/
+      setController: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
+      /**
+       * Set the validators who cannot be slashed (if any).
+       * 
+       * The dispatch origin must be Root.
+       **/
+      setInvulnerables: AugmentedSubmittable<(invulnerables: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<AccountId32>]>;
+      /**
+       * Sets the minimum amount of commission that each validators must maintain.
+       * 
+       * This call has lower privilege requirements than `set_staking_config` and can be called
+       * by the `T::AdminOrigin`. Root can always call this.
+       **/
+      setMinCommission: AugmentedSubmittable<(updated: Perbill | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Perbill]>;
+      /**
+       * (Re-)set the payment target for a controller.
+       * 
+       * Effects will be felt instantly (as soon as this function is completed successfully).
+       * 
+       * The dispatch origin for this call must be _Signed_ by the controller, not the stash.
+       * 
+       * ## Complexity
+       * - O(1)
+       * - Independent of the arguments. Insignificant complexity.
+       * - Contains a limited number of reads.
+       * - Writes are limited to the `origin` account key.
+       * ---------
+       **/
+      setPayee: AugmentedSubmittable<(payee: PalletStakingRewardDestination | { Staked: any } | { Stash: any } | { Controller: any } | { Account: any } | { None: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletStakingRewardDestination]>;
+      /**
+       * Update the various staking configurations .
+       * 
+       * * `min_nominator_bond`: The minimum active bond needed to be a nominator.
+       * * `min_validator_bond`: The minimum active bond needed to be a validator.
+       * * `max_nominator_count`: The max number of users who can be a nominator at once. When
+       * set to `None`, no limit is enforced.
+       * * `max_validator_count`: The max number of users who can be a validator at once. When
+       * set to `None`, no limit is enforced.
+       * * `chill_threshold`: The ratio of `max_nominator_count` or `max_validator_count` which
+       * should be filled in order for the `chill_other` transaction to work.
+       * * `min_commission`: The minimum amount of commission that each validators must maintain.
+       * This is checked only upon calling `validate`. Existing validators are not affected.
+       * 
+       * RuntimeOrigin must be Root to call this function.
+       * 
+       * NOTE: Existing nominators and validators will not be affected by this update.
+       * to kick people under the new limits, `chill_other` should be called.
+       **/
+      setStakingConfigs: AugmentedSubmittable<(minNominatorBond: PalletStakingPalletConfigOpU128 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, minValidatorBond: PalletStakingPalletConfigOpU128 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, maxNominatorCount: PalletStakingPalletConfigOpU32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, maxValidatorCount: PalletStakingPalletConfigOpU32 | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, chillThreshold: PalletStakingPalletConfigOpPercent | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, minCommission: PalletStakingPalletConfigOpPerbill | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array, maxStakedRewards: PalletStakingPalletConfigOpPercent | { Noop: any } | { Set: any } | { Remove: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletStakingPalletConfigOpU128, PalletStakingPalletConfigOpU128, PalletStakingPalletConfigOpU32, PalletStakingPalletConfigOpU32, PalletStakingPalletConfigOpPercent, PalletStakingPalletConfigOpPerbill, PalletStakingPalletConfigOpPercent]>;
+      /**
+       * Sets the ideal number of validators.
+       * 
+       * The dispatch origin must be Root.
+       * 
+       * ## Complexity
+       * O(1)
+       **/
+      setValidatorCount: AugmentedSubmittable<(updated: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
+      /**
+       * Schedule a portion of the stash to be unlocked ready for transfer out after the bond
+       * period ends. If this leaves an amount actively bonded less than
+       * [`asset::existential_deposit`], then it is increased to the full amount.
+       * 
+       * The dispatch origin for this call must be _Signed_ by the controller, not the stash.
+       * 
+       * Once the unlock period is done, you can call `withdraw_unbonded` to actually move
+       * the funds out of management ready for transfer.
+       * 
+       * No more than a limited number of unlocking chunks (see `MaxUnlockingChunks`)
+       * can co-exists at the same time. If there are no unlocking chunks slots available
+       * [`Call::withdraw_unbonded`] is called to remove some of the chunks (if possible).
+       * 
+       * If a user encounters the `InsufficientBond` error when calling this extrinsic,
+       * they should call `chill` first in order to free up their bonded funds.
+       * 
+       * Emits `Unbonded`.
+       * 
+       * See also [`Call::withdraw_unbonded`].
+       **/
+      unbond: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>]>;
+      /**
+       * Migrates an account's `RewardDestination::Controller` to
+       * `RewardDestination::Account(controller)`.
+       * 
+       * Effects will be felt instantly (as soon as this function is completed successfully).
+       * 
+       * This will waive the transaction fee if the `payee` is successfully migrated.
+       **/
+      updatePayee: AugmentedSubmittable<(controller: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      /**
+       * Declare the desire to validate for the origin controller.
+       * 
+       * Effects will be felt at the beginning of the next era.
+       * 
+       * The dispatch origin for this call must be _Signed_ by the controller, not the stash.
+       **/
+      validate: AugmentedSubmittable<(prefs: PalletStakingValidatorPrefs | { commission?: any; blocked?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletStakingValidatorPrefs]>;
+      /**
+       * Remove any unlocked chunks from the `unlocking` queue from our management.
+       * 
+       * This essentially frees up that balance to be used by the stash account to do whatever
+       * it wants.
+       * 
+       * The dispatch origin for this call must be _Signed_ by the controller.
+       * 
+       * Emits `Withdrawn`.
+       * 
+       * See also [`Call::unbond`].
+       * 
+       * ## Parameters
+       * 
+       * - `num_slashing_spans` indicates the number of metadata slashing spans to clear when
+       * this call results in a complete removal of all the data related to the stash account.
+       * In this case, the `num_slashing_spans` must be larger or equal to the number of
+       * slashing spans associated with the stash account in the [`SlashingSpans`] storage type,
+       * otherwise the call will fail. The call weight is directly proportional to
+       * `num_slashing_spans`.
+       * 
+       * ## Complexity
+       * O(S) where S is the number of slashing spans to remove
+       * NOTE: Weight annotation is the kill scenario, we refund otherwise.
+       **/
+      withdrawUnbonded: AugmentedSubmittable<(numSlashingSpans: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
     };
-    statementDid: {
+    stateTrieMigration: {
       /**
-       * Adds a presentation to a specified statement.
+       * Continue the migration for the given `limits`.
        * 
-       * This privileged function is reserved for execution by the council or
-       * root origin only. It allows the removal of a presentation associated
-       * with a given  `statement_id`. The function performs authorization
-       * checks based on the provided `authorization` parameter, ensuring
-       * that the operation is performed within the correct chain space.
+       * The dispatch origin of this call can be any signed account.
        * 
-       * # Parameters
-       * - `origin`: The transaction's origin, restricted to council or root.
-       * - `statement_id`: The identifier of the statement to which the presentation will be
-       * added.
-       * - `presentation_digest`: The digest that uniquely identifies the new presentation.
-       * - `presentation_type`: The type categorization of the presentation.
-       * - `authorization`: The authorization identifier for the creator, required to perform the
-       * addition.
+       * This transaction has NO MONETARY INCENTIVES. calling it will not reward anyone. Albeit,
+       * Upon successful execution, the transaction fee is returned.
        * 
-       * # Errors
-       * - Returns `StatementNotFound` if the `statement_id` does not correspond to any existing
-       * statement.
-       * - Returns `StatementRevoked` if the statement associated with the `statement_id` has
-       * been revoked.
-       * - Returns `UnauthorizedOperation` if the operation is not authorized within the
-       * associated space.
-       * - Returns `PresentationDigestAlreadyAnchored` if the `presentation_digest` is not
-       * unique.
+       * The (potentially over-estimated) of the byte length of all the data read must be
+       * provided for up-front fee-payment and weighing. In essence, the caller is guaranteeing
+       * that executing the current `MigrationTask` with the given `limits` will not exceed
+       * `real_size_upper` bytes of read data.
        * 
-       * # Events
-       * - Emits `PresentationAdded` upon the successful addition of the presentation.
+       * The `witness_task` is merely a helper to prevent the caller from being slashed or
+       * generally trigger a migration that they do not intend. This parameter is just a message
+       * from caller, saying that they believed `witness_task` was the last state of the
+       * migration, and they only wish for their transaction to do anything, if this assumption
+       * holds. In case `witness_task` does not match, the transaction fails.
+       * 
+       * Based on the documentation of [`MigrationTask::migrate_until_exhaustion`], the
+       * recommended way of doing this is to pass a `limit` that only bounds `count`, as the
+       * `size` limit can always be overwritten.
        **/
-      addPresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, presentationType: PalletStatementDidPresentationTypeOf | 'Other' | 'PDF' | 'JPEG' | 'PNG' | 'GIF' | 'TXT' | 'SVG' | 'JSON' | 'DOCX' | 'XLSX' | 'PPTX' | 'MP3' | 'MP4' | 'XML' | number | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, PalletStatementDidPresentationTypeOf, Bytes]>;
+      continueMigrate: AugmentedSubmittable<(limits: PalletStateTrieMigrationMigrationLimits | { size_?: any; item?: any } | string | Uint8Array, realSizeUpper: u32 | AnyNumber | Uint8Array, witnessTask: PalletStateTrieMigrationMigrationTask | { progressTop?: any; progressChild?: any; size_?: any; topItems?: any; childItems?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletStateTrieMigrationMigrationLimits, u32, PalletStateTrieMigrationMigrationTask]>;
       /**
-       * Creates a new statement within a specified space subject to
-       * authorization and capacity constraints.
+       * Control the automatic migration.
        * 
-       * The function first ensures that the call's origin is authorized and
-       * retrieves the subject, referred to as the creator. It then verifies
-       * that the creator is a delegate for the space associated with the
-       * given authorization. Following this, it checks that the space has
-       * not exceeded its allowed number of statements.
-       * 
-       * A unique identifier for the statement is generated by hashing the
-       * encoded statement digest, space identifier, and creator identifier.
-       * The function ensures that this identifier has not been used to
-       * anchor another statement.
-       * 
-       * Once the identifier is confirmed to be unique, the statement details
-       * are inserted into the `Statements` storage. Additionally, the
-       * statement entry and identifier lookup are recorded in their
-       * respective storages. The space's usage count is incremented to
-       * reflect the addition of the new statement.
-       * 
-       * The function also logs the creation event by updating the activity
-       * log and emits an event to signal the successful creation of the
-       * statement.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * creator.
-       * - `digest`: The digest of the statement, serving as a unique identifier.
-       * - `authorization`: The authorization ID, verifying the creator's delegation status.
-       * - `schema_id`: An optional schema identifier to be associated with the statement.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the
-       * statement creation. On success, it returns `Ok(())`. On failure, it
-       * provides an error detailing the cause.
-       * 
-       * # Errors
-       * The function can fail for several reasons including unauthorized
-       * origin, the creator not being a delegate, space capacity being
-       * exceeded, invalid statement identifier, or the statement already
-       * being anchored. Errors related to incrementing space usage or
-       * updating the activity log may also occur.
-       * 
-       * # Events
-       * - `Create`: Emitted when a statement is successfully created, containing the
-       * `identifier`, `digest`, and `author` (creator).
+       * The dispatch origin of this call must be [`Config::ControlOrigin`].
        **/
-      register: AugmentedSubmittable<(digest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Bytes, Option<Bytes>]>;
+      controlAutoMigration: AugmentedSubmittable<(maybeConfig: Option<PalletStateTrieMigrationMigrationLimits> | null | Uint8Array | PalletStateTrieMigrationMigrationLimits | { size_?: any; item?: any } | string) => SubmittableExtrinsic<ApiType>, [Option<PalletStateTrieMigrationMigrationLimits>]>;
       /**
-       * Creates multiple statements in a batch operation. This function
-       * takes a vector of statement digests and attempts to create a new
-       * statement for each digest. It performs checks on the batch size,
-       * ensures the creator has the proper authorization, and verifies that
-       * the space has enough capacity to accommodate the batch of new
-       * statements.
+       * Forcefully set the progress the running migration.
        * 
-       * The function iterates over the provided digests, generating a unique
-       * identifier for each and attempting to create a new statement. If a
-       * statement with the generated identifier already exists, or if there
-       * is an error in generating the identifier, the digest is marked as
-       * failed. Otherwise, the new statement is recorded along
-       * with its details. The function also updates the activity log for
-       * each successful creation.
+       * This is only useful in one case: the next key to migrate is too big to be migrated with
+       * a signed account, in a parachain context, and we simply want to skip it. A reasonable
+       * example of this would be `:code:`, which is both very expensive to migrate, and commonly
+       * used, so probably it is already migrated.
        * 
-       * After processing all digests, the function ensures that at least one
-       * statement was successfully created. It then increments the usage
-       * count of the space by the number of successful creations. Finally, a
-       * `BatchCreate` event is emitted, summarizing the results of the batch
-       * operation, including the number of successful and failed creations,
-       * the indices of the failed digests, and the author of the batch
-       * creation.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * creator.
-       * - `digests`: A vector of statement digests to be processed in the batch operation.
-       * - `authorization`: The authorization ID, verifying the creator's delegation status.
-       * - `schema_id`: An optional schema identifier that may be associated with the statements.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the batch
-       * creation. On success, it returns `Ok(())`. On failure, it provides
-       * an error detailing the cause, such as exceeding the maximum number
-       * of digests, the space capacity being exceeded, or all digests
-       * failing to create statements.
-       * 
-       * # Errors
-       * The function can fail for several reasons, including exceeding the
-       * maximum number of digests allowed in a batch, the space capacity
-       * being exceeded, or if no statements could be successfully created.
-       * 
-       * # Events
-       * - `BatchCreate`: Emitted upon the completion of the batch operation, providing details
-       * of the outcome.
+       * In case you mess things up, you can also, in principle, use this to reset the migration
+       * process.
        **/
-      registerBatch: AugmentedSubmittable<(digests: Vec<H256> | (H256 | string | Uint8Array)[], authorization: Bytes | string | Uint8Array, schemaId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Vec<H256>, Bytes, Option<Bytes>]>;
+      forceSetProgress: AugmentedSubmittable<(progressTop: PalletStateTrieMigrationProgress | { ToStart: any } | { LastKey: any } | { Complete: any } | string | Uint8Array, progressChild: PalletStateTrieMigrationProgress | { ToStart: any } | { LastKey: any } | { Complete: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletStateTrieMigrationProgress, PalletStateTrieMigrationProgress]>;
       /**
-       * Removes a statement and its associated entries from the system. The
-       * removal can be either complete or partial, depending on the number
-       * of entries associated with the statement and a predefined maximum
-       * removal limit.
+       * Migrate the list of child keys by iterating each of them one by one.
        * 
-       * The function begins by authenticating the origin of the call to
-       * identify the updater. It then retrieves the statement details using
-       * the provided `statement_id`. If the statement cannot be found, the
-       * function fails with an error. An early authorization check is
-       * performed to ensure that the updater has the proper delegation
-       * status for the space associated with the statement.
+       * All of the given child keys must be present under one `child_root`.
        * 
-       * The function counts the number of entries linked to the statement
-       * and compares this to the maximum number of entries that can be
-       * removed in a single operation, as specified by `MaxRemoveEntries`.
-       * If the count is less than or equal to the maximum, a complete
-       * removal is initiated; otherwise, a partial removal is performed.
-       * 
-       * In a complete removal, all entries and their lookups are removed,
-       * the statement is deleted, and the space usage is decremented
-       * accordingly. In a partial removal, only up to the maximum number of
-       * entries are removed, and the space usage is decremented by the
-       * number of entries actually removed.
-       * 
-       * After the removal process, the function updates the activity log to
-       * record the event. It then emits either a `Removed` event for a
-       * complete removal or a `PartialRemoval` event for a partial removal,
-       * providing details of the operation including the statement
-       * identifier and the updater's information.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be removed.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the removal.
-       * On success, it returns `Ok(())`. On failure, it provides an error
-       * detailing the cause, such as the statement not being found or the
-       * updater not having the authority to perform the removal.
-       * 
-       * # Errors
-       * The function can fail for several reasons including the statement
-       * not being found or the updater lacking the authority to perform the
-       * removal.
-       * 
-       * # Events
-       * - `Removed`: Emitted when a statement and all its entries are completely removed.
-       * - `PartialRemoval`: Emitted when only a portion of the entries are removed, detailing
-       * the number of entries
-       * removed.
+       * This does not affect the global migration process tracker ([`MigrationProcess`]), and
+       * should only be used in case any keys are leftover due to a bug.
        **/
-      remove: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      migrateCustomChild: AugmentedSubmittable<(root: Bytes | string | Uint8Array, childKeys: Vec<Bytes> | (Bytes | string | Uint8Array)[], totalSize: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<Bytes>, u32]>;
       /**
-       * Removes a presentation from a specified statement state.
+       * Migrate the list of top keys by iterating each of them one by one.
        * 
-       * This privileged function is reserved for execution by the council or
-       * root origin only. It allows the removal of a presentation associated
-       * with the `statement_id` and identified by `presentation_digest`. The
-       * function validates the `authorization` of the caller within the
-       * specified chain space before proceeding with the removal.
-       * 
-       * # Parameters
-       * - `origin`: The transaction's origin, restricted to council or root.
-       * - `statement_id`: The identifier of the statement associated with the presentation.
-       * - `presentation_digest`: The digest that uniquely identifies the presentation to be
-       * removed.
-       * - `authorization`: The authorization identifier that the remover must have to perform
-       * the removal.
-       * 
-       * # Errors
-       * - Returns `PresentationNotFound` if the specified presentation does not exist.
-       * - Returns `UnauthorizedOperation` if the origin is not authorized to perform this
-       * action.
-       * 
-       * # Events
-       * - Emits `PresentationRemoved` upon the successful removal of the presentation.
+       * This does not affect the global migration process tracker ([`MigrationProcess`]), and
+       * should only be used in case any keys are leftover due to a bug.
        **/
-      removePresentation: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, presentationDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      migrateCustomTop: AugmentedSubmittable<(keys: Vec<Bytes> | (Bytes | string | Uint8Array)[], witnessSize: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Vec<Bytes>, u32]>;
       /**
-       * Restores a previously revoked statement, re-enabling its validity
-       * within the system. The restoration is contingent upon a set of
-       * checks to ensure that the action is permitted and appropriate.
-       * 
-       * The function commences by authenticating the origin of the call to
-       * ascertain the identity of the updater attempting the restoration. It
-       * then fetches the details of the statement using the `statement_id`
-       * provided. If the statement does not exist, the function aborts and
-       * signals an error.
-       * 
-       * A crucial step in the process is to verify that the statement has
-       * indeed been revoked; if not, the function ceases further execution.
-       * Assuming the statement is revoked, the function then ascertains
-       * whether the updater is either the original creator of the statement
-       * or a delegate with the requisite authorization. If the updater
-       * is not the creator, their delegation status for the space linked to
-       * the statement is verified.
-       * 
-       * Upon confirming the updater's authority to restore the statement,
-       * the function removes the statement from the `RevocationList`,
-       * effectively reactivating it. It then logs the restoration event in
-       * the activity log. To finalize the process, a `Restored` event is
-       * broadcast, indicating the successful restoration of the statement
-       * with its identifier and the updater's details.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be restored.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status if
-       * they are not the creator.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the
-       * restoration. On success, it returns `Ok(())`. On failure, it
-       * provides an error detailing the cause, such as the statement not
-       * being found, not being revoked, or the updater not having the
-       * authority to restore the statement.
-       * 
-       * # Errors
-       * The function can fail for several reasons including the statement
-       * not being found, not being revoked, or the updater lacking the
-       * authority to perform the restoration.
-       * 
-       * # Events
-       * - `Restored`: Emitted when a statement is successfully restored, containing the
-       * `identifier` of the statement
-       * and the `author` who is the updater.
+       * Set the maximum limit of the signed migration.
        **/
-      restore: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * Revokes an existing statement, rendering it invalid for future
-       * operations. The revocation process involves several authorization
-       * and state checks to ensure the integrity of the operation.
-       * 
-       * Initially, the function authenticates the origin of the call to
-       * identify the updater, who is attempting the revocation. It then
-       * retrieves the details of the statement using the provided
-       * `statement_id`. If the statement is not found, the function fails
-       * with an error.
-       * 
-       * Before proceeding, the function checks whether the statement has
-       * already been revoked. If it has, the function terminates early to
-       * prevent redundant revocation attempts. If the statement is active,
-       * the function then determines whether the updater is the original
-       * creator of the statement or a delegate with proper authorization. If
-       * the updater is not the creator, they must be a delegate with
-       * authorization for the space associated with the statement, and the
-       * function checks for this condition.
-       * 
-       * Once the updater's authority to revoke the statement is confirmed,
-       * the function marks the statement as revoked in the `RevocationList`.
-       * It updates the activity log to record the revocation event. Finally,
-       * it emits a `Revoked` event, indicating the successful revocation of
-       * the statement with the statement identifier and the
-       * updater's information.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be revoked.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status if
-       * they are not the creator.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the
-       * revocation. On success, it returns `Ok(())`. On failure, it provides
-       * an error detailing the cause, such as the statement not being found
-       * or already being revoked, or the updater not having the authority to
-       * revoke the statement.
-       * 
-       * # Errors
-       * The function can fail due to several reasons including the statement
-       * not being found, already being revoked, or the updater lacking the
-       * authority to perform the revocation.
-       * 
-       * # Events
-       * - `Revoked`: Emitted when a statement is successfully revoked, containing the
-       * `identifier` of the statement and
-       * the `author` who is the updater.
-       **/
-      revoke: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      /**
-       * Updates the digest of an existing statement after performing a
-       * series of validations. Initially, the function confirms that the
-       * call's origin is authorized and identifies the updater. It then
-       * retrieves the statement details associated with the provided
-       * `statement_id`. Before proceeding, the function checks whether the
-       * statement has already been revoked; if so, it halts further
-       * execution. Additionally, it ensures that the new digest provided for
-       * the update is different from the current one to avoid unnecessary
-       * operations.
-       * 
-       * Upon passing these checks, the updater's delegation status for the
-       * space linked to the statement is verified. The existing statement is
-       * then marked as revoked, and the new digest is recorded. This
-       * involves updating the `Entries` storage with the new digest and the
-       * updater's information, as well as adjusting the `IdentifierLookup`
-       * to reflect the change. The `Statements` storage is also updated with
-       * the new details of the statement.
-       * 
-       * Subsequently, the space usage count is incremented to account for
-       * the updated statement. An activity log entry is created to record
-       * the update event. To conclude the process, an `Update` event is
-       * emitted, which includes the statement identifier, the new digest,
-       * and the authoring updater's details.
-       * 
-       * # Parameters
-       * - `origin`: The origin of the dispatch call, which should be a signed message from the
-       * updater.
-       * - `statement_id`: The identifier of the statement to be updated.
-       * - `new_statement_digest`: The new digest to replace the existing one for the statement.
-       * - `authorization`: The authorization ID, verifying the updater's delegation status.
-       * 
-       * # Returns
-       * A `DispatchResult` indicating the success or failure of the update
-       * operation. On success, it returns `Ok(())`. On failure, it provides
-       * an error detailing the cause.
-       * 
-       * # Errors
-       * The function can fail due to several reasons including an
-       * unauthorized origin, the statement not found, the statement being
-       * revoked, the new digest being the same as the existing one, or the
-       * updater not being authorized for the operation.
-       * 
-       * # Events
-       * - `Update`: Emitted when a statement is successfully updated, containing the
-       * `identifier`, `digest`, and `author`
-       * (updater).
-       **/
-      update: AugmentedSubmittable<(statementId: Bytes | string | Uint8Array, newStatementDigest: H256 | string | Uint8Array, authorization: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      setSignedMaxLimits: AugmentedSubmittable<(limits: PalletStateTrieMigrationMigrationLimits | { size_?: any; item?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletStateTrieMigrationMigrationLimits]>;
     };
     sudo: {
       /**
@@ -5167,6 +4680,16 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       execute: AugmentedSubmittable<(proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, Compact<u32>]>;
       /**
+       * Disapprove the proposal and burn the cost held for storing this proposal.
+       * 
+       * Parameters:
+       * - `origin`: must be the `KillOrigin`.
+       * - `proposal_hash`: The hash of the proposal that should be killed.
+       * 
+       * Emits `Killed` and `ProposalCostBurned` if any cost was held for a given proposal.
+       **/
+      kill: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
+      /**
        * Add a new proposal to either be voted on or executed directly.
        * 
        * Requires the sender to be member.
@@ -5183,6 +4706,18 @@ declare module '@polkadot/api-base/types/submittable' {
        * - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
        **/
       propose: AugmentedSubmittable<(threshold: Compact<u32> | AnyNumber | Uint8Array, proposal: Call | IMethod | string | Uint8Array, lengthBound: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Call, Compact<u32>]>;
+      /**
+       * Release the cost held for storing a proposal once the given proposal is completed.
+       * 
+       * If there is no associated cost for the given proposal, this call will have no effect.
+       * 
+       * Parameters:
+       * - `origin`: must be `Signed` or `Root`.
+       * - `proposal_hash`: The hash of the proposal.
+       * 
+       * Emits `ProposalCostReleased` if any cost held for a given proposal.
+       **/
+      releaseProposalCost: AugmentedSubmittable<(proposalHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
       /**
        * Set the collective's membership.
        * 
@@ -5235,8 +4770,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * May only be called from `Signed` origin of a current member.
        * 
-       * Prime membership is passed from the origin account to `new`, if
-       * extant.
+       * Prime membership is passed from the origin account to `new`, if extant.
        **/
       changeKey: AugmentedSubmittable<(updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
@@ -5252,8 +4786,8 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       removeMember: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
       /**
-       * Change the membership to a new set, disregarding the existing
-       * membership. Be nice and pass `members` pre-sorted.
+       * Change the membership to a new set, disregarding the existing membership. Be nice and
+       * pass `members` pre-sorted.
        * 
        * May only be called from `T::ResetOrigin`.
        **/
@@ -5394,7 +4928,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * Emits [`Event::AssetSpendApproved`] if successful.
        **/
-      spend: AugmentedSubmittable<(assetKind: Null | null, amount: Compact<u128> | AnyNumber | Uint8Array, beneficiary: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, validFrom: Option<u32> | null | Uint8Array | u32 | AnyNumber) => SubmittableExtrinsic<ApiType>, [Null, Compact<u128>, MultiAddress, Option<u32>]>;
+      spend: AugmentedSubmittable<(assetKind: FrameSupportTokensFungibleUnionOfNativeOrWithId | { Native: any } | { WithId: any } | string | Uint8Array, amount: Compact<u128> | AnyNumber | Uint8Array, beneficiary: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, validFrom: Option<u32> | null | Uint8Array | u32 | AnyNumber) => SubmittableExtrinsic<ApiType>, [FrameSupportTokensFungibleUnionOfNativeOrWithId, Compact<u128>, MultiAddress, Option<u32>]>;
       /**
        * Propose and approve a spend of treasury funds.
        * 
@@ -5434,6 +4968,22 @@ declare module '@polkadot/api-base/types/submittable' {
        * Emits [`Event::AssetSpendVoided`] if successful.
        **/
       voidSpend: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+    };
+    txPause: {
+      /**
+       * Pause a call.
+       * 
+       * Can only be called by [`Config::PauseOrigin`].
+       * Emits an [`Event::CallPaused`] event on success.
+       **/
+      pause: AugmentedSubmittable<(fullName: ITuple<[Bytes, Bytes]> | [Bytes | string | Uint8Array, Bytes | string | Uint8Array]) => SubmittableExtrinsic<ApiType>, [ITuple<[Bytes, Bytes]>]>;
+      /**
+       * Un-pause a call.
+       * 
+       * Can only be called by [`Config::UnpauseOrigin`].
+       * Emits an [`Event::CallUnpaused`] event on success.
+       **/
+      unpause: AugmentedSubmittable<(ident: ITuple<[Bytes, Bytes]> | [Bytes | string | Uint8Array, Bytes | string | Uint8Array]) => SubmittableExtrinsic<ApiType>, [ITuple<[Bytes, Bytes]>]>;
     };
     utility: {
       /**
@@ -5497,7 +5047,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * ## Complexity
        * - O(1).
        **/
-      dispatchAs: AugmentedSubmittable<(asOrigin: CordWeaveRuntimeOriginCaller | { system: any } | { Void: any } | { Council: any } | { TechnicalCommittee: any } | { Did: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeOriginCaller, Call]>;
+      dispatchAs: AugmentedSubmittable<(asOrigin: CordWeaveRuntimeOriginCaller | { system: any } | { Void: any } | { Council: any } | { TechnicalCommittee: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeOriginCaller, Call]>;
       /**
        * Send a batch of dispatch calls.
        * Unlike `batch`, it allows errors and won't interrupt.
@@ -5523,6 +5073,40 @@ declare module '@polkadot/api-base/types/submittable' {
        * The dispatch origin for this call must be _Root_.
        **/
       withWeight: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array, weight: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, SpWeightsWeightV2Weight]>;
+    };
+    voterList: {
+      /**
+       * Move the caller's Id directly in front of `lighter`.
+       * 
+       * The dispatch origin for this call must be _Signed_ and can only be called by the Id of
+       * the account going in front of `lighter`. Fee is payed by the origin under all
+       * circumstances.
+       * 
+       * Only works if:
+       * 
+       * - both nodes are within the same bag,
+       * - and `origin` has a greater `Score` than `lighter`.
+       **/
+      putInFrontOf: AugmentedSubmittable<(lighter: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
+      /**
+       * Same as [`Pallet::put_in_front_of`], but it can be called by anyone.
+       * 
+       * Fee is paid by the origin under all circumstances.
+       **/
+      putInFrontOfOther: AugmentedSubmittable<(heavier: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, lighter: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, MultiAddress]>;
+      /**
+       * Declare that some `dislocated` account has, through rewards or penalties, sufficiently
+       * changed its score that it should properly fall into a different bag than its current
+       * one.
+       * 
+       * Anyone can call this function about any potentially dislocated account.
+       * 
+       * Will always update the stored score of `dislocated` to the correct score, based on
+       * `ScoreProvider`.
+       * 
+       * If `dislocated` does not exists, it returns an error.
+       **/
+      rebag: AugmentedSubmittable<(dislocated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
     };
   } // AugmentedSubmittables
 } // declare module
