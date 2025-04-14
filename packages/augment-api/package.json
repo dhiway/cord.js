@@ -39,8 +39,8 @@
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
-    "@polkadot/api": "^10.12.2",
-    "@polkadot/typegen": "^10.12.2",
+    "@polkadot/api": "^15.9.1",
+    "@polkadot/typegen": "^15.9.1",
     "@types/node": "^20.11.6",
     "glob": "^7.1.1",
     "rimraf": "^5.0.5",
@@ -50,8 +50,8 @@
   },
   "dependencies": {
     "@cord.network/type-definitions": "workspace:*",
-    "@polkadot/rpc-augment": "^10.12.2",
-    "@polkadot/rpc-core": "^10.12.2",
-    "@polkadot/rpc-provider": "^10.12.2"
+    "@polkadot/rpc-augment": "^15.9.1",
+    "@polkadot/rpc-core": "^15.9.1",
+    "@polkadot/rpc-provider": "^15.9.1"
   }
 }
