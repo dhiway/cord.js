@@ -1,4 +1,5 @@
 import * as Cord from '@cord.network/sdk';
+import { blake2AsHex } from '@polkadot/util-crypto';
 
 async function main() {
   const networkAddress = process.env.NETWORK_ADDRESS || 'ws://127.0.0.1:9944';
@@ -31,19 +32,31 @@ async function main() {
     console.log(`\n📝 Creating profile for Alice (${alice.address})...`);
 
     // 🔑 Set Profile Data
-    const jsonProfileData = { "pub_name": "Alice", "pub_email": "alice@example.com" };
-    const profileData = Cord.Profile.jsonToProfileData(jsonProfileData);
-   
+    const rawProfileData = {
+      pub_name: 'Alice',
+      pub_email: 'alice@example.com',
+    };
+
+    // Hash the profile data
+    const hashedProfileData = Object.entries(rawProfileData).map(([key, value]) => [
+      key,
+      blake2AsHex(value),
+    ]);
+
     /* Can also use the below raw format to depict vector of tuples directly into 
-     * dispatch function without conversion 
+     * dispatch function without conversion.
+     * 
+     * Profile data can be a string or bytes. Recommeded to use hashed values for GDPR/ Privacy compliance.
+     * 
      */
     // const profileData: [string, string][] = [
     //   ['pub_name', 'Alice'],
     //   ['pub_email', 'alice@gmail.com'],
+    //   ['pub_phone', '0x12dwq34dwhqwegewq5678dw90'],
     // ];
 
     try {
-      await Cord.Profile.dispatchSetProfileToChain(profileData, alice);
+      await Cord.Profile.dispatchSetProfileToChain(hashedProfileData, alice);
       console.log('✅ Profile created successfully');
 
       // 🔄 Rotate Profile Key
