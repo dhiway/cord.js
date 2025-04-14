@@ -54,6 +54,7 @@
     "@cord.network/statement": "workspace:*",
     "@cord.network/statement-did": "workspace:*",
     "@cord.network/types": "workspace:*",
-    "@cord.network/utils": "workspace:*"
+    "@cord.network/utils": "workspace:*",
+    "@cord.network/profile": "workspace:*"
   }
 }
