@@ -62,6 +62,12 @@
       "@cord.network/registries": [
         "registries/src"
       ],
+      "@cord.network/profile": [
+        "profile/src"
+      ],
+      "@cord.network/registry": [
+        "registry/src"
+      ],
     }
   }
 }
