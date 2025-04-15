@@ -4,58 +4,58 @@ import type { NamespaceAuthorizationUri } from './Namespace.js';
 
 import { HexString } from './Imported.js'
 
-export const REGISTRY_IDENT = 9274;
-export const REGISTRY_PREFIX = 'registry:cord:';
-export type RegistryUri = `${typeof REGISTRY_PREFIX}${string}`;
-export type RegistryId = string;
-export type RegistryDigest = HexString;
+export const REGISTRIES_IDENT = 9274;
+export const REGISTRIES_PREFIX = 'registries:cord:';
+export type RegistriesUri = `${typeof REGISTRIES_PREFIX}${string}`;
+export type RegistriesId = string;
+export type RegistriesDigest = HexString;
 export const REGISTRYAUTH_IDENT = 10001;
-export const REGISTRYAUTH_PREFIX = 'registryauth:cord:';
+export const REGISTRYAUTH_PREFIX = 'registriesauth:cord:';
 export type RegistryAuthorizationUri = `${typeof REGISTRYAUTH_PREFIX}${string}`;
 export type RegistryAuthorizationId = string;
 
-export interface RegistryDetails {
-    uri: RegistryUri
+export interface RegistriesDetails {
+    uri: RegistriesUri
     authorizationUri: RegistryAuthorizationUri
 }
 
-export interface IRegistryCreate {
-    uri: RegistryUri
+export interface IRegistriesCreate {
+    uri: RegistriesUri
     creatorUri: DidUri
-    digest: RegistryDigest
+    digest: RegistriesDigest
     blob: string | null
     schemaUri: SchemaUri | null
     authorizationUri: RegistryAuthorizationUri
     namespaceAuthorizationUri: NamespaceAuthorizationUri
 }
 
-export interface IRegistryUpdate {
-    uri: RegistryUri
+export interface IRegistriesUpdate {
+    uri: RegistriesUri
     creatorUri: DidUri
-    digest: RegistryDigest
+    digest: RegistriesDigest
     blob: string | null
     authorizationUri: RegistryAuthorizationUri
     namespaceAuthorizationUri: NamespaceAuthorizationUri
 }
 
 /* eslint-disable no-bitwise */
-export const RegistryPermission = {
+export const RegistriesPermission = {
   ASSERT: 1 << 0, // 0001
   DELEGATE: 1 << 1, // 0010
   ADMIN: 1 << 2, // 0100
 } as const
-export type RegistryPermissionType = (typeof RegistryPermission)[keyof typeof RegistryPermission]
+export type RegistriesPermissionType = (typeof RegistriesPermission)[keyof typeof RegistriesPermission]
 
 export interface IRegistryAuthorization {
-  uri: RegistryUri
+  uri: RegistriesUri
   authorizationUri: RegistryAuthorizationUri
   delegateUri: DidUri
-  permission: RegistryPermissionType
+  permission: RegistriesPermissionType
   delegatorUri: DidUri
 }
 
 export interface IRegistryAuthorizationDetails {
-  uri: RegistryUri
+  uri: RegistriesUri
   delegateUri: DidUri
-  permission: RegistryPermissionType[]
+  permission: RegistriesPermissionType[]
 }
