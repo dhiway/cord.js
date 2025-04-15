@@ -22,7 +22,8 @@
     "test": "jest --coverage --group=unit --detectOpenHandles",
     "test:ci": "yarn test --ci --forceExit",
     "test:watch": "yarn test --watch",
-    "demo-profile": "tsx --no-cache demo/src/profile.ts"
+    "demo-profile": "tsx --no-cache demo/src/profile.ts",
+    "demo-registry": "tsx --no-cache demo/src/registry.ts",
   },
   "husky": {
     "hooks": {
