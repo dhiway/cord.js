@@ -1,6 +1,6 @@
 import { HexString } from './Imported.js'
 import { 
-    RegistryAuthorizationUri, RegistryUri
+    RegistryAuthorizationUri, RegistriesUri
 } from './Registries.js'
 import type { DidUri } from './DidDocument'
 
@@ -15,7 +15,7 @@ export interface IRegistryEntry {
   creatorUri: DidUri
   digest: HexString
   blob: string | null
-  registryUri: RegistryUri
+  registryUri: RegistriesUri
   authorizationUri: RegistryAuthorizationUri
 }
 
@@ -23,7 +23,7 @@ export interface IRegistryEntryDetails {
   uri: EntryUri
   digest: HexString
   blob: string | null
-  registryUri: RegistryUri
+  registryUri: RegistriesUri
   authorizationUri: RegistryAuthorizationUri
 }
 
@@ -31,7 +31,7 @@ export interface IRegistryEntryStatus {
   uri: EntryUri
   digest: HexString
   blob: string | null
-  registryUri: RegistryUri
+  registryUri: RegistriesUri
   authorizationUri: RegistryAuthorizationUri
   creatorUri: DidUri
   revoked: boolean
@@ -42,5 +42,5 @@ export interface IRegistryEntryChainStorage {
     digest: HexString
     revoked: boolean
     creatorUri: DidUri
-    registryUri: RegistryUri
+    registryUri: RegistriesUri
 }
