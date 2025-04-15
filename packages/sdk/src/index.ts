@@ -16,5 +16,6 @@ export * as Utils from '@cord.network/utils'
 // export * as Schema from '@cord.network/schema'
 // export * as Namespace from '@cord.network/namespace'
 export * as Profile from '@cord.network/profile'
+export * as Registry from '@cord.network/registry'
 export * from '@cord.network/types'
 
