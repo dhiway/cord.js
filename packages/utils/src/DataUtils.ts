@@ -179,3 +179,29 @@ export function convertDateTimeToUnixTime(dateTimeStr: string): number {
 
   return date.getTime()
 }
+
+/**
+ * Trims a specified prefix from an input string and returns the remaining part.
+ * If the prefix is not present, returns the original string.
+ *
+ * @param input - The input string to process (e.g., 'registry:cord:abcd').
+ * @param prefix - The prefix to remove (e.g., 'registry:cord:').
+ * @returns The string with the prefix removed (e.g., 'abcd'), or the original string if the prefix is not found.
+ * @throws {Error} If the input or prefix is empty or not a string.
+ * @example
+ * trimPrefix('registry:cord:abcd', 'registry:cord:') // Returns 'abcd'
+ * trimPrefix('did:cord:xyz', 'did:cord:') // Returns 'xyz'
+ * trimPrefix('abcd', 'registry:cord:') // Returns 'abcd'
+ */
+export function trimPrefix(input: string, prefix: string): string {
+  if (typeof input !== 'string' || typeof prefix !== 'string') {
+    throw new Error('Input and prefix must be strings');
+  }
+  if (!input || !prefix) {
+    throw new Error('Input and prefix cannot be empty');
+  }
+  if (input.startsWith(prefix)) {
+    return input.slice(prefix.length);
+  }
+  return input;
+}
