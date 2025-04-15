@@ -25,6 +25,8 @@
       "packages/asset/src/index.ts",
       "packages/sdk/src/index.ts",
       "packages/registries/src/index.ts",
+      "packages/profile/src/index.ts",
+      "packages/registry/src/index.ts",
     ],
     "out": "docs",
     "theme": "default",
