@@ -1,5 +1,7 @@
 import * as Cord from '@cord.network/sdk';
 import { blake2AsHex } from '@polkadot/util-crypto';
+import { Keyring } from '@polkadot/keyring';
+import { createAccount } from './utils/createAccount.js';
 
 async function main() {
   const networkAddress = process.env.NETWORK_ADDRESS || 'ws://127.0.0.1:9944';
@@ -9,29 +11,55 @@ async function main() {
     console.log(`\n🏦 Connecting to CORD network at ${networkAddress}...`);
     Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK });
     await Cord.connect(networkAddress);
-
+    
     const api = Cord.ConfigService.get('api');
     const runtimeVersion = api.runtimeVersion;
     const runtimeType = runtimeVersion.specName.toString();
+
+    const stashUri = process.env.STASH_URI || '//Alice'; // Default to Alice for dev chains
+    const TRANSFER_AMOUNT = 15 * 10**12; // 13 WAY, which is just enough for this script to complete :)
+
     console.log(`✅ Connected to CORD runtime: ${runtimeType} (version ${runtimeVersion.specVersion})`);
 
-    // 👤 Setup Network Members
-    console.log('\n👤 Setting up network members...');
-    const alice = Cord.Utils.Crypto.makeKeypairFromUri(
-      process.env.ANCHOR_URI || '//Alice',
-      'sr25519'
-    );
-    const bob = Cord.Utils.Crypto.makeKeypairFromUri(
-      process.env.ANCHOR_URI || '//Bob',
-      'sr25519'
-    );
-    console.log(`🏦 Member 1 (Alice): ${alice.address}`);
-    console.log(`🏦 Member 2 (Bob): ${bob.address}`);
+    console.log('\n👤 Setting up stash account...');
+    const keyring = new Keyring({ type: 'sr25519' });
+    const stash = keyring.createFromUri(stashUri);
+    console.log(`🏦 Stash account: ${stash.address}`);
 
-    // 📝 Create Profile for Alice
-    console.log(`\n📝 Creating profile for Alice (${alice.address})...`);
+    console.log('\n👤 Generating random accounts...');
+    const { account: account1 } = createAccount();
+    const { account: account2 } = createAccount();
+    const { account: account3 } = createAccount();
+    console.log(`🏦 Account 1: ${account1.address}`);
+    console.log(`🏦 Account 2: ${account2.address}`);
+    console.log(`🏦 Account 3: ${account3.address}`);
 
-    // 🔑 Set Profile Data
+    console.log('\n💸 Funding accounts from stash...');
+    const fundPromises = [
+      api.tx.balances.transferKeepAlive(account1.address, TRANSFER_AMOUNT),
+      api.tx.balances.transferKeepAlive(account2.address, TRANSFER_AMOUNT),
+      api.tx.balances.transferKeepAlive(account3.address, TRANSFER_AMOUNT),
+    ];
+
+    var acc = 1;
+    for (const tx of fundPromises) {
+      await new Promise<void>((resolve, reject) => {
+        tx.signAndSend(stash, ({ status, dispatchError }) => {
+          if (dispatchError) {
+            const errorMessage = dispatchError.toString();
+            reject(new Error(`Funding account-${acc} failed: ${errorMessage}`));
+          } else if (status.isInBlock) {
+            console.log(`✅ Funding account-${acc} transaction included in block`);
+            resolve();
+          }
+        }).catch(reject);
+      });
+      acc += 1;
+    }
+    console.log('✅ All accounts funded successfully');
+
+    console.log(`\n📝 Creating profile for Alice (${account1.address})...`);
+
     const rawProfileData = {
       pub_name: 'Alice',
       pub_email: 'alice@example.com',
@@ -56,12 +84,12 @@ async function main() {
     // ];
 
     try {
-      await Cord.Profile.dispatchSetProfileToChain(hashedProfileData, alice);
+      await Cord.Profile.dispatchSetProfileToChain(hashedProfileData, account1);
       console.log('✅ Profile created successfully');
 
       // 🔄 Rotate Profile Key
-      console.log(`🔄 Rotating profile key to Bob (${bob.address})...`);
-      await Cord.Profile.dispatchRotateKeyToChain(bob.address, alice);
+      console.log(`🔄 Rotating profile key to Bob (${account2.address})...`);
+      await Cord.Profile.dispatchRotateKeyToChain(account2.address, account1);
       console.log('✅ Key rotated successfully');
 
     } catch (error) {
