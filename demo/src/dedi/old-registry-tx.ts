@@ -245,7 +245,7 @@ async function main() {
   console.log(`\n❄️  Registry Assert Authorization `);
 
   // Add a delegate with ASSERT permission
-  const assertPermission: Cord.RegistryPermissionType = Cord.RegistryPermission.ASSERT;
+  const assertPermission: Cord.RegistriesPermissionType = Cord.RegistriesPermission.ASSERT;
   const registryAssertAuthProperties =
     await Cord.Registries.registryAuthorizationProperties(
       registry.uri,
@@ -305,7 +305,7 @@ async function main() {
   console.log(`\n❄️  Registry Admin Authorization `);
 
   // Add a delegate with DELEGATE permission
-  const adminPermission: Cord.RegistryPermissionType = Cord.RegistryPermission.ADMIN;
+  const adminPermission: Cord.RegistriesPermissionType = Cord.RegistriesPermission.ADMIN;
   const registryAdminAuthProperties =
     await Cord.Registries.registryAuthorizationProperties(
       registry.uri,
