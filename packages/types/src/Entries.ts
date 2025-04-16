@@ -4,14 +4,14 @@ import {
 } from './Registries.js'
 import type { DidUri } from './DidDocument'
 
-export const ENTRY_IDENT = 9944;
-export const ENTRY_PREFIX = 'entry:cord:';
-export type EntryUri = `${typeof ENTRY_PREFIX}${string}`;
-export type EntryId = string;
-export type EntryDigest = HexString;
+export const ENTRIES_IDENT = 9944;
+export const ENTRIES_PREFIX = 'entry:cord:';
+export type EntriesUri = `${typeof ENTRIES_PREFIX}${string}`;
+export type EntriesId = string;
+export type EntriesDigest = HexString;
 
-export interface IRegistryEntry {
-  uri: EntryUri
+export interface IRegistriesEntry {
+  uri: EntriesUri
   creatorUri: DidUri
   digest: HexString
   blob: string | null
@@ -19,16 +19,16 @@ export interface IRegistryEntry {
   authorizationUri: RegistryAuthorizationUri
 }
 
-export interface IRegistryEntryDetails {
-  uri: EntryUri
+export interface IRegistriesEntryDetails {
+  uri: EntriesUri
   digest: HexString
   blob: string | null
   registryUri: RegistriesUri
   authorizationUri: RegistryAuthorizationUri
 }
 
-export interface IRegistryEntryStatus {
-  uri: EntryUri
+export interface IRegistriesEntryStatus {
+  uri: EntriesUri
   digest: HexString
   blob: string | null
   registryUri: RegistriesUri
@@ -37,8 +37,8 @@ export interface IRegistryEntryStatus {
   revoked: boolean
 }
 
-export interface IRegistryEntryChainStorage {
-    uri: EntryUri
+export interface IRegistriesEntryChainStorage {
+    uri: EntriesUri
     digest: HexString
     revoked: boolean
     creatorUri: DidUri
