@@ -56,6 +56,7 @@
     "@cord.network/types": "workspace:*",
     "@cord.network/utils": "workspace:*",
     "@cord.network/profile": "workspace:*",
-    "@cord.network/registry": "workspace:*"
+    "@cord.network/registry": "workspace:*",
+    "@cord.network/entry": "workspace:*"
   }
 }
