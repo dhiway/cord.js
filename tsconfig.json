@@ -68,6 +68,9 @@
       "@cord.network/registry": [
         "registry/src"
       ],
+      "@cord.network/entry": [
+        "entry/src"
+      ],
     }
   }
 }

@@ -215,7 +215,7 @@ export async function decodeCborToStringifiedBlob(cborBlob: string): Promise<str
  * ```
  */
 export async function registryCreateProperties(
-  tx_hash: HexString,
+  tx_hash: HexString | null = null,
   blob: string | null = null,
   docId: string | null = null,
   docAuthorId: string | null = null,
