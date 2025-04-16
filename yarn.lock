@@ -1706,6 +1706,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@cord.network/entry@workspace:*, @cord.network/entry@workspace:packages/entry":
+  version: 0.0.0-use.local
+  resolution: "@cord.network/entry@workspace:packages/entry"
+  dependencies:
+    "@cord.network/config": "workspace:*"
+    "@cord.network/identifier": "workspace:*"
+    "@cord.network/network": "workspace:*"
+    "@cord.network/profile": "workspace:*"
+    "@cord.network/registry": "workspace:*"
+    "@cord.network/types": "workspace:*"
+    "@cord.network/utils": "workspace:*"
+    rimraf: "npm:^5.0.5"
+    typescript: "npm:^5.3.3"
+  languageName: unknown
+  linkType: soft
+
 "@cord.network/identifier@workspace:*, @cord.network/identifier@workspace:packages/identifier":
   version: 0.0.0-use.local
   resolution: "@cord.network/identifier@workspace:packages/identifier"
@@ -1851,6 +1867,7 @@ __metadata:
     "@cord.network/config": "workspace:*"
     "@cord.network/did": "workspace:*"
     "@cord.network/entries": "workspace:*"
+    "@cord.network/entry": "workspace:*"
     "@cord.network/identifier": "workspace:*"
     "@cord.network/namespace": "workspace:*"
     "@cord.network/network": "workspace:*"
