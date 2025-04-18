@@ -134,8 +134,8 @@ async function main() {
       (event) => api.events.registry.RegistryCreated.is(event),
       0
     );
-    const registryUri = `registry:cord:${identifier}`;
-    console.log(`✅ Registry created with URI: ${registryUri}`);
+    const registryId= identifier;
+    console.log(`✅ Registry created with URI: ${registryId}`);
 
     // 📝 Create Registry Entry
     console.log('\n📝 Creating registry entry...');
@@ -148,7 +148,7 @@ async function main() {
     const entryTxHash = await Cord.Registry.getDigestFromRawData(entryStringifiedBlob);
 
     const entryProperties = await Cord.Entry.createEntriesProperties(
-      registryUri,
+      registryId,
       entryTxHash,
       entryStringifiedBlob
     );
@@ -159,8 +159,8 @@ async function main() {
       (event) => api.events.entry.RegistryEntryCreated.is(event),
       2
     );
-    const entryUri = `entry:cord:${entryIdentifier}`;
-    console.log(`✅ Entry created with URI: ${entryUri}`);
+
+    console.log(`✅ Entry created with URI: ${entryIdentifier}`);
 
     // 🔄 Update Registry Entry
     console.log('\n🔄 Updating registry entry...');
@@ -173,8 +173,8 @@ async function main() {
     const updatedEntryTxHash = await Cord.Registry.getDigestFromRawData(updatedEntryStringifiedBlob);
 
     const updateProperties = await Cord.Entry.updateEntriesProperties(
-      registryUri,
-      entryUri,
+      registryId,
+      entryIdentifier,
       updatedEntryTxHash,
       updatedEntryStringifiedBlob
     );
@@ -184,42 +184,42 @@ async function main() {
     // ❄️ Verify Entry
     console.log('\n❄️ Verifying entry...');
     const verificationResult = await Cord.Entry.verifyAgainstInputProperties(
-      entryUri,
+      entryIdentifier,
       updatedEntryTxHash,
-      `did:cord:3${profileIdentifier1}`,
-      registryUri
+      profileIdentifier1,
+      registryId
     );
     console.log(
       verificationResult.isValid
-        ? `✅ Verification successful: ${entryUri}`
+        ? `✅ Verification successful: ${entryIdentifier}`
         : `🚫 Verification failed: ${verificationResult.message}`
     );
 
     // 🛑 Revoke Entry
     console.log('\n🛑 Revoking entry...');
-    await Cord.Entry.dispatchRevokeEntryToChain(registryUri, entryUri, accounts[0]);
+    await Cord.Entry.dispatchRevokeEntryToChain(registryId, entryIdentifier, accounts[0]);
     console.log('✅ Entry revoked');
 
     // ❄️ Verify Revocation
     console.log('\n❄️ Verifying revocation...');
-    const revokedDetails = await Cord.Entry.fetchRegistryEntryDetailsFromChain(entryUri);
+    const revokedDetails = await Cord.Entry.fetchRegistryEntryDetailsFromChain(entryIdentifier);
     console.log(
       revokedDetails.revoked
-        ? `✅ Entry ${entryUri} is revoked`
+        ? `✅ Entry ${entryIdentifier} is revoked`
         : `🚫 Revocation not applied`
     );
 
     // 🔄 Reinstate Entry
     console.log('\n🔄 Reinstating entry...');
-    await Cord.Entry.dispatchReinstateEntryToChain(registryUri, entryUri, accounts[0]);
+    await Cord.Entry.dispatchReinstateEntryToChain(registryId, entryIdentifier, accounts[0]);
     console.log('✅ Entry reinstated');
 
     // ❄️ Verify Reinstatement
     console.log('\n❄️ Verifying reinstatement...');
-    const reinstatedDetails = await Cord.Entry.fetchRegistryEntryDetailsFromChain(entryUri);
+    const reinstatedDetails = await Cord.Entry.fetchRegistryEntryDetailsFromChain(entryIdentifier);
     console.log(
       !reinstatedDetails.revoked
-        ? `✅ Entry ${entryUri} is active`
+        ? `✅ Entry ${entryIdentifier} is active`
         : `🚫 Reinstatement not applied`
     );
 
@@ -227,7 +227,7 @@ async function main() {
     console.log('\n🔄 Transferring ownership to Account 2...');
 
 		await Cord.Registry.dispatchAddDelegateToChain(
-			registryUri,
+			registryId,
 			accounts[1].address,
 			[Cord.RegistryPermissionVariant.Entry],
 			accounts[0]
@@ -235,8 +235,8 @@ async function main() {
 		console.log('\n✅ Delegate added');
 
     await Cord.Entry.dispatchUpdateOwnershipToChain(
-      registryUri,
-      entryUri,
+      registryId,
+      entryIdentifier,
       accounts[1].address,
       accounts[0]
     );
@@ -244,12 +244,12 @@ async function main() {
 
     // ❄️ Verify Ownership
     console.log('\n❄️ Verifying ownership...');
-    const ownershipDetails = await Cord.Entry.fetchRegistryEntryDetailsFromChain(entryUri);
-    const expectedCreatorUri = `did:cord:3${profileIdentifier2}`;
+    const ownershipDetails = await Cord.Entry.fetchRegistryEntryDetailsFromChain(entryIdentifier);
+    const expectedCreator = profileIdentifier2;
     console.log(
-      ownershipDetails.creatorUri === expectedCreatorUri
-        ? `✅ Ownership updated to Account 2 (creatorUri: ${expectedCreatorUri})`
-        : `🚫 Ownership not updated: got ${ownershipDetails.creatorUri}, expected ${expectedCreatorUri}`
+      ownershipDetails.creator === expectedCreator
+        ? `✅ Ownership updated to Account 2 (creatorUri: ${expectedCreator})`
+        : `🚫 Ownership not updated: got ${ownershipDetails.creator}, expected ${expectedCreator}`
     );
 
   } catch (error) {

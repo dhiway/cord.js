@@ -48,12 +48,12 @@ import {
   IRegistryTxHashUpdate,
   RegistryPermissionVariant,
   IRegistryCreate,
-  RegistryUri,
+  RegistryId,
   SubmittableExtrinsic,
 } from '@cord.network/types';
 
 import { Chain } from '@cord.network/network';
-import { SDKErrors, DataUtils } from '@cord.network/utils';
+import { SDKErrors } from '@cord.network/utils';
 import { ConfigService } from '@cord.network/config';
 
 
@@ -140,7 +140,7 @@ export async function dispatchCreateToChain(
  * @example
  * ```typescript
  * const registryDetails = {
- *   registryUri: 'registry:cord:3xygo...',
+ *   registryId '2L3xygo...',
  *   tx_hash: '0x456789abcdef',
  *   blob: '{"key":"newValue"}',
  * };
@@ -152,10 +152,9 @@ export async function prepareUpdateExtrinsic(
 ): Promise<SubmittableExtrinsic> {
   try {
     const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryDetails.registryUri, 'registry:cord:');
 
     const extrinsic = api.tx.registry.updateRegistryHash(
-      registryId,
+      registryDetails.registryId,
       registryDetails.tx_hash,
       registryDetails.blob
     );
@@ -182,7 +181,7 @@ export async function prepareUpdateExtrinsic(
  * @example
  * ```typescript
  * const registryDetails = {
- *   registryUri: 'registry:cord:3xygo...',
+ *   registryId: '2Ldhxygo...',
  *   tx_hash: '0x456789abcdef',
  *   blob: '{"key":"newValue"}',
  * };
@@ -209,7 +208,7 @@ export async function dispatchUpdateRegistryHashToChain(
 /**
  * Prepares an extrinsic to update the creator address of a registry.
  *
- * @param registryUri - The URI of the registry to update (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry to update (e.g., '2Ldxygo...').
  * @param newCreatorAddress - The new creator's SS58 address.
  * @returns A promise that resolves to the prepared extrinsic.
  * @throws {SDKErrors.CordDispatchError} If the preparation fails.
@@ -220,12 +219,11 @@ export async function dispatchUpdateRegistryHashToChain(
  * ```
  */
 export async function prepareUpdateCreatorExtrinsic(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   newCreatorAddress: string,
 ): Promise<SubmittableExtrinsic> {
   try {
     const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
 
     const extrinsic = api.tx.registry.updateCreator(registryId, newCreatorAddress);
 
@@ -243,7 +241,7 @@ export async function prepareUpdateCreatorExtrinsic(
 /**
  * Dispatches a transaction to update the creator address of a registry.
  *
- * @param registryUri - The URI of the registry to update (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry to update (e.g., '2Lxygo...').
  * @param newCreatorAddress - The new creator's SS58 address.
  * @param authorAccount - The keyring pair of the current author.
  * @returns A promise that resolves when the transaction is submitted.
@@ -255,13 +253,13 @@ export async function prepareUpdateCreatorExtrinsic(
  * ```
  */
 export async function dispatchUpdateCreator(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   newCreatorAddress: string,
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
     const extrinsic = await prepareUpdateCreatorExtrinsic(
-      registryUri,
+      registryId,
       newCreatorAddress
     );
 
@@ -279,7 +277,7 @@ export async function dispatchUpdateCreator(
 /**
  * Prepares an extrinsic to add a delegate to a registry with specified permissions.
  *
- * @param registryUri - The URI of the registry (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry (e.g., '2Ldew3xygo...').
  * @param delegateAddress - The SS58 address of the delegate.
  * @param roles - A single RegistryPermissionVariant or array of variants ('Entry', 'Delegate', 'Admin').
  * @returns A promise that resolves to the prepared extrinsic.
@@ -295,16 +293,14 @@ export async function dispatchUpdateCreator(
  * ```
  */
 export async function prepareAddDelegateExtrinsic(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   delegateAddress: string,
   roles: RegistryPermissionVariant | RegistryPermissionVariant[],
 ): Promise<SubmittableExtrinsic> {  
   try {
     const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
 
     const permissions = Array.isArray(roles) ? roles : [roles];
-
     const extrinsic = api.tx.registry.addDelegate(registryId, delegateAddress, permissions);
 
     return extrinsic;
@@ -321,7 +317,7 @@ export async function prepareAddDelegateExtrinsic(
 /**
  * Dispatches a transaction to add a delegate to a registry with specified permissions.
  *
- * @param registryUri - The URI of the registry (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry (e.g., '3xygo...').
  * @param delegateAddress - The SS58 address of the delegate.
  * @param roles - A single RegistryPermissionVariant or array of variants ('Entry', 'Delegate', 'Admin').
  * @param authorAccount - The keyring pair of the author.
@@ -331,7 +327,7 @@ export async function prepareAddDelegateExtrinsic(
  * @example
  * ```typescript
  * await dispatchAddDelegateToChain(
- *   'registry:cord:3xygo...',
+ *   '2Lwwd3xygo...',
  *   '5FHne...',
  *   [RegistryPermissionVariant.Entry, RegistryPermissionVariant.Delegate],
  *   alice
@@ -339,14 +335,14 @@ export async function prepareAddDelegateExtrinsic(
  * ```
  */
 export async function dispatchAddDelegateToChain(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   delegateAddress: string,
   roles: RegistryPermissionVariant | RegistryPermissionVariant[],
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
     const extrinsic = await prepareAddDelegateExtrinsic(
-      registryUri,
+      registryId,
       delegateAddress,
       roles
     );
@@ -365,7 +361,7 @@ export async function dispatchAddDelegateToChain(
 /**
  * Prepares an extrinsic to remove a delegate from a registry.
  *
- * @param registryUri - The URI of the registry (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry (e.g., '2Ld3xygo...').
  * @param delegateAddress - The SS58 address of the delegate to remove.
  * @returns A promise that resolves to the prepared extrinsic.
  * @throws {SDKErrors.CordDispatchError} If the preparation fails.
@@ -376,12 +372,11 @@ export async function dispatchAddDelegateToChain(
  * ```
  */
 export async function prepareRemoveDelegateExtrinsic(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   delegateAddress: string,
 ): Promise<SubmittableExtrinsic> {  
   try {
     const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
 
     const extrinsic = api.tx.registry.removeDelegate(registryId, delegateAddress);
 
@@ -399,7 +394,7 @@ export async function prepareRemoveDelegateExtrinsic(
 /**
  * Dispatches a transaction to remove a delegate from a registry.
  *
- * @param registryUri - The URI of the registry (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry (e.g., '2Lwd3xygo...').
  * @param delegateAddress - The SS58 address of the delegate to remove.
  * @param authorAccount - The keyring pair of the author.
  * @returns A promise that resolves when the transaction is submitted.
@@ -411,13 +406,13 @@ export async function prepareRemoveDelegateExtrinsic(
  * ```
  */
 export async function dispatchRemoveDelegateToChain(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   delegateAddress: string,
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
     const extrinsic = await prepareRemoveDelegateExtrinsic(
-      registryUri,
+      registryId,
       delegateAddress
     );
 
@@ -435,7 +430,7 @@ export async function dispatchRemoveDelegateToChain(
 /**
  * Prepares an extrinsic to archive a registry.
  *
- * @param registryUri - The URI of the registry to archive (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry to archive (e.g., '2Lwf3xygo...').
  * @returns A promise that resolves to the prepared extrinsic.
  * @throws {SDKErrors.CordDispatchError} If the preparation fails.
  *
@@ -445,11 +440,10 @@ export async function dispatchRemoveDelegateToChain(
  * ```
  */
 export async function prepareArchiveRegistryExtrinsic(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
 ): Promise<SubmittableExtrinsic> {
   try {
     const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
 
     const extrinsic = api.tx.registry.archive(registryId);
 
@@ -467,7 +461,7 @@ export async function prepareArchiveRegistryExtrinsic(
 /**
  * Dispatches a transaction to archive a registry.
  *
- * @param registryUri - The URI of the registry to archive (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry to archive (e.g., '2Ledf3xygo...').
  * @param authorAccount - The keyring pair of the author.
  * @returns A promise that resolves when the transaction is submitted.
  * @throws {SDKErrors.CordDispatchError} If the transaction fails.
@@ -478,11 +472,11 @@ export async function prepareArchiveRegistryExtrinsic(
  * ```
  */
 export async function dispatchArchiveRegistryToChain(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const extrinsic = await prepareArchiveRegistryExtrinsic(registryUri);
+    const extrinsic = await prepareArchiveRegistryExtrinsic(registryId);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -496,11 +490,10 @@ export async function dispatchArchiveRegistryToChain(
 
 
 export async function prepareRestoreRegistryExtrinsic(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
 ): Promise<SubmittableExtrinsic> {
   try {
     const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
 
     const extrinsic = api.tx.registry.restore(registryId);
 
@@ -518,7 +511,7 @@ export async function prepareRestoreRegistryExtrinsic(
 /**
  * Dispatches a transaction to restore an archived registry.
  *
- * @param registryUri - The URI of the registry to restore (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The identifier of the registry to restore (e.g., '2ldewxygo...').
  * @param authorAccount - The keyring pair of the author.
  * @returns A promise that resolves when the transaction is submitted.
  * @throws {SDKErrors.CordDispatchError} If the transaction fails.
@@ -529,11 +522,11 @@ export async function prepareRestoreRegistryExtrinsic(
  * ```
  */
 export async function dispatchRestoreRegistryToChain(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const extrinsic = await prepareRestoreRegistryExtrinsic(registryUri);
+    const extrinsic = await prepareRestoreRegistryExtrinsic(registryId);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {

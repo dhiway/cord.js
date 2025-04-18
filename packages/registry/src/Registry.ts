@@ -29,7 +29,7 @@
  *
  * // Example: Updating properties of an existing registry
  * const updateProperties = await registryUpdateHashProperties(
- *   'registry:cord:3xygo...', // registryUri
+ *   '2Lwjdh3xygo...', // registryId
  *   '0x456...',              // tx_hash
  *   '{"key":"newValue"}'     // blob
  * );
@@ -37,7 +37,7 @@
  *
  * // Example: Creating authorization properties (not implemented)
  * // const authorizationProperties = await registryAuthorizationProperties(
- * //   'registry:cord:3xygo...', // registryUri
+ * //   '2Lwed3xygo...', // registryId
  * //   '5FHne...',              // delegateAddress
  * //   'Delegate',              // permission
  * //   '5Grwv...'               // delegatorAddress
@@ -50,7 +50,7 @@ import type {
   HexString,
   IRegistryCreate,
   IRegistryTxHashUpdate,
-  RegistryUri,
+  RegistryId,
 } from '@cord.network/types';
 
 import { SDKErrors, Cbor } from '@cord.network/utils';
@@ -262,17 +262,17 @@ export async function registryCreateProperties(
  * - Use the existing `tx_hash` as-is for the registry update process,
  *   without computing a new hash from the `blob`.
  *
- * @param registryUri - The URI of the registry to update (e.g., 'registry:cord:3xygo...').
+ * @param registryId - The Identifier of the registry to update (e.g., '2Lxygo...').
  * @param tx_hash - A hex string representing the new transaction hash.
  * @param blob - An optional string representing the new data to be stored in the registry.
- * @returns A promise that resolves to an object containing the registry URI, transaction hash, and blob.
+ * @returns A promise that resolves to an object containing the registry identifier, transaction hash, and blob.
  * @throws {SDKErrors.InputContentsMalformedError} If neither transaction hash nor blob is provided,
  *          or if the transaction hash is empty after processing.
  *
  * @example
  * ```typescript
  * const updateProperties = await registryUpdateHashProperties(
- *   'registry:cord:3xygo...', // registryUri
+ *   '2Lewf3xygo...', // registryId
  *   '0x456...',              // tx_hash
  *   '{"key":"newValue"}'     // blob
  * );
@@ -280,7 +280,7 @@ export async function registryCreateProperties(
  * ```
  */
 export async function registryUpdateHashProperties(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   tx_hash: HexString,
   blob: string | null = null
 ): Promise<IRegistryTxHashUpdate> {
@@ -317,7 +317,7 @@ export async function registryUpdateHashProperties(
   }
 
   return {
-    registryUri,
+    registryId,
     tx_hash,
     blob,
   };
