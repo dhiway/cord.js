@@ -116,7 +116,7 @@ async function main() {
       });
 
       console.log(`✅ Registry created with identifier: ${identifier}`);
-      const registryUri = `registry:cord:${identifier}`;
+      const registryId = identifier;
 
       console.log('\n🔄 Updating the Registry Creator...');
 
@@ -136,7 +136,7 @@ async function main() {
       await Cord.Profile.dispatchSetProfileToChain(hashedProfileData, account2);
       console.log('✅ Account 2 Profile created successfully\n');
 
-      await Cord.Registry.dispatchUpdateCreator(registryUri, account2.address, account1);
+      await Cord.Registry.dispatchUpdateCreator(registryId, account2.address, account1);
       console.log('✅ Registry creator updated successfully');
 
       console.log('\n🔄 Updating the Registry TxHash and Blob...');
@@ -149,7 +149,7 @@ async function main() {
       tx_hash = await Cord.Registry.getDigestFromRawData(stringified_blob);
 
       const registryUpdateProperties = await Cord.Registry.registryUpdateHashProperties(
-        registryUri,
+        registryId,
         tx_hash,
         stringified_blob
       );
@@ -177,7 +177,7 @@ async function main() {
       console.log('✅ Account 3 Profile created successfully');
 
       await Cord.Registry.dispatchAddDelegateToChain(
-        registryUri,
+        registryId,
         account3.address,
         [RegistryPermissionVariant.Entry, RegistryPermissionVariant.Delegate],
         account2
@@ -186,17 +186,17 @@ async function main() {
 
       console.log('\n📝 Removing delegate with Entry and Delegate roles...');
 
-      await Cord.Registry.dispatchRemoveDelegateToChain(registryUri, account3.address, account2);
+      await Cord.Registry.dispatchRemoveDelegateToChain(registryId, account3.address, account2);
       console.log('\n✅ Delegate removed');
 
       console.log('\n📝 Archiving the registry...');
 
-      await Cord.Registry.dispatchArchiveRegistryToChain(registryUri, account2);
+      await Cord.Registry.dispatchArchiveRegistryToChain(registryId, account2);
       console.log('\n✅ Registry archived');
 
       console.log('\n📝 Restoring the Archived registry...');
 
-      await Cord.Registry.dispatchRestoreRegistryToChain(registryUri, account2);
+      await Cord.Registry.dispatchRestoreRegistryToChain(registryId, account2);
       console.log('\n✅ Archived Registry Restored');
     } catch (error) {
       console.error('❌ Profile or registry operation failed:', error instanceof Error ? error.message : error);

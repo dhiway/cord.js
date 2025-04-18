@@ -41,7 +41,7 @@ import type {
   HexString,
   StatementDigest,
   StatementUri,
-  EntryUri,
+  EntriesUri,
 } from '@cord.network/types'
 
 import {
@@ -822,14 +822,14 @@ export function elementUriToStatementUri(
 export function buildRegistryEntryUri(
   idDigest: HexString,
   digest: HexString
-): EntryUri {
+): EntriesUri {
   if (!digest.startsWith('0x') || !idDigest.startsWith('0x')) {
     throw new SDKErrors.InvalidInputError('Digest must start with 0x');
   }
   const prefix = hashToUri(idDigest, ENTRIES_IDENT, ENTRIES_PREFIX);
   const suffix = digest.slice(2);
 
-  const registryEntryUri = `${prefix}:${suffix}` as EntryUri;
+  const registryEntryUri = `${prefix}:${suffix}` as EntriesUri;
   return registryEntryUri;
 }
 
@@ -861,9 +861,9 @@ export function buildRegistryEntryUri(
  * The updated URI is constructed with the new digest (without '0x' prefix) and returned.
  */
 export function updateRegistryEntryUri(
-  registryEntryUri: EntryUri,
+  registryEntryUri: EntriesUri,
   digest: HexString
-): EntryUri {
+): EntriesUri {
   const parts = registryEntryUri.split(':');
 
   if (parts[0] !== 'entry' || parts[1] !== 'cord') {
@@ -875,7 +875,7 @@ export function updateRegistryEntryUri(
   }
   const suffix = digest.slice(2);
 
-  const entryUri = `entry:cord:${parts[2]}:${suffix}` as EntryUri;
+  const entryUri = `entry:cord:${parts[2]}:${suffix}` as EntriesUri;
   return entryUri;
 }
 
@@ -902,7 +902,7 @@ export function updateRegistryEntryUri(
  * The function splits the `registryEntryUri` string and validates its format. If valid, it returns the identifier
  * and the digest (with '0x' prefix).
  */
-export function uriToEntryIdAndDigest(registryEntryUri: EntryUri): {
+export function uriToEntryIdAndDigest(registryEntryUri: EntriesUri): {
   identifier: string;
   digest: HexString;
 } {
@@ -943,8 +943,8 @@ export function uriToEntryIdAndDigest(registryEntryUri: EntryUri): {
  * The function splits the `registryEntryUri`, validates its structure, and constructs a URI using only the identifier part.
  */
 export function elementUriToEntryUri(
-  registryEntryUri: EntryUri
-): EntryUri {
+  registryEntryUri: EntriesUri
+): EntriesUri {
   const parts = registryEntryUri.split(':');
 
   if (parts.length !== 4 || parts[0] !== 'entry' || parts[1] !== 'cord') {
@@ -952,7 +952,7 @@ export function elementUriToEntryUri(
   }
 
   const identifier = parts[2];
-  const identifierUri = `entry:cord:${identifier}` as EntryUri;
+  const identifierUri = `entry:cord:${identifier}` as EntriesUri;
 
   return identifierUri;
 }

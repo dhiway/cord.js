@@ -6,7 +6,7 @@ export type RegistryId = string;
 export type RegistryDigest = HexString;
 
 export interface RegistryDetails {
-    uri: RegistryUri
+    registryId: RegistryId
 }
 
 export interface IRegistryCreate {
@@ -15,14 +15,9 @@ export interface IRegistryCreate {
 }
 
 export interface IRegistryTxHashUpdate {
-    registryUri: RegistryUri
+    registryId: RegistryId
     tx_hash: RegistryDigest
     blob: string | null
-}
-
-export interface IRegistryCreator {
-    uri: RegistryUri
-    newCreatorAddress: string
 }
 
 export enum RegistryPermissionVariant {
