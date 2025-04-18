@@ -506,6 +506,12 @@ declare module '@polkadot/api-base/types/storage' {
     };
     entry: {
       /**
+       * Storage to map for Entry hashes to corresponding Registry Identifiers.
+       * It being a storage double-map will have the Registry Entry Hash and the Registry ID
+       * as the key, whereas the value resulted is the Registry Entry Identifier.
+       **/
+      hashToIdentifier: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [H256, Bytes]>;
+      /**
        * Storage for Registry Entries.
        * It maps Registry Entry Identifier to Registry Entry Details.
        **/

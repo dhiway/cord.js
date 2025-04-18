@@ -1771,6 +1771,14 @@ export default {
         creator: 'AccountId32',
         profileId: 'Bytes',
       },
+      RegistryStoreCreated: {
+        _alias: {
+          registry_: 'registry',
+        },
+        registry_: 'Bytes',
+        creator: 'AccountId32',
+        profileId: 'Bytes',
+      },
       RegistryUpdated: {
         _alias: {
           registry_: 'registry',
@@ -4134,9 +4142,12 @@ export default {
       create: {
         txHash: 'H256',
         blob: 'Option<Bytes>',
-        docId: 'Option<Bytes>',
-        docAuthorId: 'Option<AccountId32>',
-        docNodeId: 'Option<Bytes>',
+      },
+      create_store: {
+        txHash: 'H256',
+        docId: 'Bytes',
+        docAuthorId: 'AccountId32',
+        docNodeId: 'Bytes',
       },
       archive: {
         registryId: 'Bytes',
@@ -5769,7 +5780,7 @@ export default {
     _enum: ['UnauthorizedOperation', 'InvalidIdentifierLength', 'CollectionAlreadyExists', 'CollectionNotFound', 'ArchivedCollection', 'CollectionNotArchived', 'DelegateAlreadyExists', 'DelegateNotFound', 'RegistryAlreadyExists', 'RegistryNotFound', 'InvalidEntryTypeInput', 'ActivityUpdateFailed']
   },
   /**
-   * Lookup711: pallet_registry::types::RegistryDetails<primitive_types::H256, pallet_registry::types::Status>
+   * Lookup711: pallet_registry::types::RegistryDetails<primitive_types::H256, pallet_registry::types::Status, bounded_collections::bounded_vec::BoundedVec<T, S>, bounded_collections::bounded_vec::BoundedVec<T, S>>
    **/
   PalletRegistryRegistryDetails: {
     creator: 'Bytes',
@@ -5807,13 +5818,13 @@ export default {
     registryId: 'Bytes'
   },
   /**
-   * Lookup718: pallet_entry::pallet::Error<T>
+   * Lookup719: pallet_entry::pallet::Error<T>
    **/
   PalletEntryError: {
     _enum: ['InvalidIdentifierLength', 'InvalidRegistryEntryIdentifier', 'UnauthorizedOperation', 'RegistryEntryIdentifierAlreadyExists', 'RegistryEntryIdentifierDoesNotExist', 'RegistryEntryNotRevoked', 'NewOwnerCannotBeSameAsExistingOwner', 'RegistryAccessValidationFailed', 'InvalidEntryTypeInput', 'ActivityUpdateFailed']
   },
   /**
-   * Lookup719: pallet_config::pallet::NetworkInfo<bounded_collections::bounded_vec::BoundedVec<T, S>, bounded_collections::bounded_vec::BoundedVec<bounded_collections::bounded_vec::BoundedVec<T, S>, S>, Option<bounded_collections::bounded_vec::BoundedVec<T, S>>, bounded_collections::bounded_vec::BoundedVec<T, S>, sp_core::crypto::AccountId32>
+   * Lookup720: pallet_config::pallet::NetworkInfo<bounded_collections::bounded_vec::BoundedVec<T, S>, bounded_collections::bounded_vec::BoundedVec<bounded_collections::bounded_vec::BoundedVec<T, S>, S>, Option<bounded_collections::bounded_vec::BoundedVec<T, S>>, bounded_collections::bounded_vec::BoundedVec<T, S>, sp_core::crypto::AccountId32>
    **/
   PalletConfigNetworkInfo: {
     name: 'Bytes',
@@ -5823,19 +5834,19 @@ export default {
     owner: 'AccountId32'
   },
   /**
-   * Lookup724: pallet_config::pallet::Error<T>
+   * Lookup725: pallet_config::pallet::Error<T>
    **/
   PalletConfigError: {
     _enum: ['ActivityUpdateFailed', 'NetworkInfoNotFound', 'InvalidInput', 'InvalidEntryTypeInput', 'InvalidUri', 'InvalidIdentifierLength', 'NetworkConfigAlreadyAdded', 'StorageConfigAlreadyAdded', 'StorageConfigNotFound', 'InvalidToken', 'InvalidCordGenesisHead', 'InvalidNetworkGenesisHead', 'InvalidAccountId', 'InvalidChecksum', 'InvalidPrefix', 'InvalidNetworkId', 'Badorigin']
   },
   /**
-   * Lookup725: pallet_migrations::pallet::Error<T>
+   * Lookup726: pallet_migrations::pallet::Error<T>
    **/
   PalletMigrationsError: {
     _enum: ['Ongoing']
   },
   /**
-   * Lookup727: pallet_contracts::wasm::CodeInfo<T>
+   * Lookup728: pallet_contracts::wasm::CodeInfo<T>
    **/
   PalletContractsWasmCodeInfo: {
     owner: 'AccountId32',
@@ -5845,7 +5856,7 @@ export default {
     codeLen: 'u32'
   },
   /**
-   * Lookup728: pallet_contracts::storage::ContractInfo<T>
+   * Lookup729: pallet_contracts::storage::ContractInfo<T>
    **/
   PalletContractsStorageContractInfo: {
     trieId: 'Bytes',
@@ -5858,21 +5869,21 @@ export default {
     delegateDependencies: 'BTreeMap<H256, u128>'
   },
   /**
-   * Lookup733: pallet_contracts::storage::DeletionQueueManager<T>
+   * Lookup734: pallet_contracts::storage::DeletionQueueManager<T>
    **/
   PalletContractsStorageDeletionQueueManager: {
     insertCounter: 'u32',
     deleteCounter: 'u32'
   },
   /**
-   * Lookup735: pallet_contracts::schedule::Schedule<T>
+   * Lookup736: pallet_contracts::schedule::Schedule<T>
    **/
   PalletContractsSchedule: {
     limits: 'PalletContractsScheduleLimits',
     instructionWeights: 'PalletContractsScheduleInstructionWeights'
   },
   /**
-   * Lookup736: pallet_contracts::schedule::Limits
+   * Lookup737: pallet_contracts::schedule::Limits
    **/
   PalletContractsScheduleLimits: {
     eventTopics: 'u32',
@@ -5884,13 +5895,13 @@ export default {
     eventRefTime: 'u64'
   },
   /**
-   * Lookup737: pallet_contracts::schedule::InstructionWeights<T>
+   * Lookup738: pallet_contracts::schedule::InstructionWeights<T>
    **/
   PalletContractsScheduleInstructionWeights: {
     base: 'u32'
   },
   /**
-   * Lookup738: pallet_contracts::Environment<T>
+   * Lookup739: pallet_contracts::Environment<T>
    **/
   PalletContractsEnvironment: {
     _alias: {
@@ -5904,56 +5915,56 @@ export default {
     blockNumber: 'PalletContractsEnvironmentTypeU32'
   },
   /**
-   * Lookup739: pallet_contracts::EnvironmentType<sp_core::crypto::AccountId32>
+   * Lookup740: pallet_contracts::EnvironmentType<sp_core::crypto::AccountId32>
    **/
   PalletContractsEnvironmentTypeAccountId32: 'Null',
   /**
-   * Lookup740: pallet_contracts::EnvironmentType<T>
+   * Lookup741: pallet_contracts::EnvironmentType<T>
    **/
   PalletContractsEnvironmentTypeU128: 'Null',
   /**
-   * Lookup741: pallet_contracts::EnvironmentType<primitive_types::H256>
+   * Lookup742: pallet_contracts::EnvironmentType<primitive_types::H256>
    **/
   PalletContractsEnvironmentTypeH256: 'Null',
   /**
-   * Lookup742: pallet_contracts::EnvironmentType<sp_runtime::traits::BlakeTwo256>
+   * Lookup743: pallet_contracts::EnvironmentType<sp_runtime::traits::BlakeTwo256>
    **/
   PalletContractsEnvironmentTypeBlakeTwo256: 'Null',
   /**
-   * Lookup743: pallet_contracts::EnvironmentType<T>
+   * Lookup744: pallet_contracts::EnvironmentType<T>
    **/
   PalletContractsEnvironmentTypeU64: 'Null',
   /**
-   * Lookup744: pallet_contracts::EnvironmentType<T>
+   * Lookup745: pallet_contracts::EnvironmentType<T>
    **/
   PalletContractsEnvironmentTypeU32: 'Null',
   /**
-   * Lookup746: pallet_contracts::pallet::Error<T>
+   * Lookup747: pallet_contracts::pallet::Error<T>
    **/
   PalletContractsError: {
     _enum: ['InvalidSchedule', 'InvalidCallFlags', 'OutOfGas', 'OutputBufferTooSmall', 'TransferFailed', 'MaxCallDepthReached', 'ContractNotFound', 'CodeTooLarge', 'CodeNotFound', 'CodeInfoNotFound', 'OutOfBounds', 'DecodingFailed', 'ContractTrapped', 'ValueTooLarge', 'TerminatedWhileReentrant', 'InputForwarded', 'RandomSubjectTooLong', 'TooManyTopics', 'NoChainExtension', 'XCMDecodeFailed', 'DuplicateContract', 'TerminatedInConstructor', 'ReentranceDenied', 'StateChangeDenied', 'StorageDepositNotEnoughFunds', 'StorageDepositLimitExhausted', 'CodeInUse', 'ContractReverted', 'CodeRejected', 'Indeterministic', 'MigrationInProgress', 'NoMigrationPerformed', 'MaxDelegateDependenciesReached', 'DelegateDependencyNotFound', 'DelegateDependencyAlreadyExists', 'CannotAddSelfAsDelegateDependency', 'OutOfTransientStorage']
   },
   /**
-   * Lookup747: pallet_remark::pallet::Error<T>
+   * Lookup748: pallet_remark::pallet::Error<T>
    **/
   PalletRemarkError: {
     _enum: ['Empty', 'BadContext']
   },
   /**
-   * Lookup748: pallet_meta_tx::pallet::Error<T>
+   * Lookup749: pallet_meta_tx::pallet::Error<T>
    **/
   PalletMetaTxError: {
     _enum: ['BadProof', 'Future', 'Stale', 'AncientBirthBlock', 'UnknownOrigin', 'Invalid']
   },
   /**
-   * Lookup749: pallet_delegated_staking::types::Delegation<T>
+   * Lookup750: pallet_delegated_staking::types::Delegation<T>
    **/
   PalletDelegatedStakingDelegation: {
     agent: 'AccountId32',
     amount: 'u128'
   },
   /**
-   * Lookup750: pallet_delegated_staking::types::AgentLedger<T>
+   * Lookup751: pallet_delegated_staking::types::AgentLedger<T>
    **/
   PalletDelegatedStakingAgentLedger: {
     payee: 'AccountId32',
@@ -5962,13 +5973,13 @@ export default {
     pendingSlash: 'Compact<u128>'
   },
   /**
-   * Lookup751: pallet_delegated_staking::pallet::Error<T>
+   * Lookup752: pallet_delegated_staking::pallet::Error<T>
    **/
   PalletDelegatedStakingError: {
     _enum: ['NotAllowed', 'AlreadyStaking', 'InvalidRewardDestination', 'InvalidDelegation', 'NotEnoughFunds', 'NotAgent', 'NotDelegator', 'BadState', 'UnappliedSlash', 'NothingToSlash', 'WithdrawFailed', 'NotSupported']
   },
   /**
-   * Lookup753: pallet_revive::wasm::CodeInfo<T>
+   * Lookup754: pallet_revive::wasm::CodeInfo<T>
    **/
   PalletReviveWasmCodeInfo: {
     owner: 'AccountId32',
@@ -5978,7 +5989,7 @@ export default {
     behaviourVersion: 'u32'
   },
   /**
-   * Lookup754: pallet_revive::storage::ContractInfo<T>
+   * Lookup755: pallet_revive::storage::ContractInfo<T>
    **/
   PalletReviveStorageContractInfo: {
     trieId: 'Bytes',
@@ -5992,49 +6003,49 @@ export default {
     immutableDataLen: 'u32'
   },
   /**
-   * Lookup757: pallet_revive::storage::DeletionQueueManager<T>
+   * Lookup758: pallet_revive::storage::DeletionQueueManager<T>
    **/
   PalletReviveStorageDeletionQueueManager: {
     insertCounter: 'u32',
     deleteCounter: 'u32'
   },
   /**
-   * Lookup758: pallet_revive::pallet::Error<T>
+   * Lookup759: pallet_revive::pallet::Error<T>
    **/
   PalletReviveError: {
     _enum: ['InvalidSchedule', 'InvalidCallFlags', 'OutOfGas', 'TransferFailed', 'MaxCallDepthReached', 'ContractNotFound', 'CodeNotFound', 'CodeInfoNotFound', 'OutOfBounds', 'DecodingFailed', 'ContractTrapped', 'ValueTooLarge', 'TerminatedWhileReentrant', 'InputForwarded', 'TooManyTopics', 'NoChainExtension', 'XCMDecodeFailed', 'DuplicateContract', 'TerminatedInConstructor', 'ReentranceDenied', 'ReenteredPallet', 'StateChangeDenied', 'StorageDepositNotEnoughFunds', 'StorageDepositLimitExhausted', 'CodeInUse', 'ContractReverted', 'CodeRejected', 'BlobTooLarge', 'StaticMemoryTooLarge', 'BasicBlockTooLarge', 'InvalidInstruction', 'MaxDelegateDependenciesReached', 'DelegateDependencyNotFound', 'DelegateDependencyAlreadyExists', 'CannotAddSelfAsDelegateDependency', 'OutOfTransientStorage', 'InvalidSyscall', 'InvalidStorageFlags', 'ExecutionFailed', 'BalanceConversionFailed', 'DecimalPrecisionLoss', 'InvalidImmutableAccess', 'AccountUnmapped', 'AccountAlreadyMapped', 'InvalidGenericTransaction']
   },
   /**
-   * Lookup759: pallet_profile::types::ProfileMetadata<sp_core::crypto::AccountId32>
+   * Lookup760: pallet_profile::types::ProfileMetadata<sp_core::crypto::AccountId32>
    **/
   PalletProfileProfileMetadata: {
     latestKey: 'AccountId32'
   },
   /**
-   * Lookup761: pallet_profile::pallet::Error<T>
+   * Lookup762: pallet_profile::pallet::Error<T>
    **/
   PalletProfileError: {
     _enum: ['InvalidIdentifierLength', 'InvalidKeyPrefix', 'ProfileAlreadyExists', 'ProfileNotFound', 'ActivityUpdateFailed', 'InvalidEntryTypeInput', 'CannotRotateToSameAccount', 'TransactionFailed']
   },
   /**
-   * Lookup762: pallet_sudo::pallet::Error<T>
+   * Lookup763: pallet_sudo::pallet::Error<T>
    **/
   PalletSudoError: {
     _enum: ['RequireSudo']
   },
   /**
-   * Lookup765: frame_system::extensions::check_weight::CheckWeight<T>
+   * Lookup766: frame_system::extensions::check_weight::CheckWeight<T>
    **/
   FrameSystemExtensionsCheckWeight: 'Null',
   /**
-   * Lookup766: pallet_asset_conversion_tx_payment::ChargeAssetTxPayment<T>
+   * Lookup767: pallet_asset_conversion_tx_payment::ChargeAssetTxPayment<T>
    **/
   PalletAssetConversionTxPaymentChargeAssetTxPayment: {
     tip: 'Compact<u128>',
     assetId: 'Option<FrameSupportTokensFungibleUnionOfNativeOrWithId>'
   },
   /**
-   * Lookup768: frame_system::extensions::weight_reclaim::WeightReclaim<T>
+   * Lookup769: frame_system::extensions::weight_reclaim::WeightReclaim<T>
    **/
   FrameSystemExtensionsWeightReclaim: 'Null'
 };

@@ -1213,176 +1213,126 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     entry: {
       /**
-       * Creates a new Registry Entry within a specified Registry.
+       * Creates a new registry entry within a specified registry.
        * 
-       * This function allows a user to create a new entry within an existing Registry.
-       * The function verifies that the caller is authorized to create an entry within the
-       * specified Registry, ensures that the entry does not already exist.
-       * 
+       * Constructs a unique entry identifier from the transaction hash, registry ID, and creator's profile ID,
+       * ensuring it doesn’t already exist. The creator must have a valid profile and permission to create entries
+       * in the registry. The entry is stored with its hash, creator, and registry ID, marked as active.
        * 
        * # Arguments
-       * * `origin` - The origin of the call, which must be a signed account (creator of the
-       * entry).
-       * * `registry_entry_id` - A unique id as registry entry identifier.
-       * * `authorization` - The authorization identifier that links the creator to the Registry.
-       * * `digest` - The hash value or digest of the content associated with the Registry entry.
-       * * `blob` - (Optional) Additional data associated with the Registry entry, provided as an
-       * optional field.
+       * * `origin` - The signed account creating the entry.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `tx_hash` - The hash of the entry’s content.
+       * * `_blob` - Optional data associated with the entry.
        * 
        * # Errors
-       * This function returns an error in the following cases:
-       * * `UnauthorizedOperation` - If the caller does not have permission to create entries
-       * within the Registry.
-       * * `RegistryEntryIdentifierAlreadyExists` - If the `registry_entry_id` already exists in
-       * the storage.
-       * * `InvalidIdentifierLength` - If the `registry_entry_id` generated from the hash exceeds
-       * the expected length for identifiers.
+       * * `UnauthorizedOperation` - If the creator lacks permission.
+       * * `RegistryAccessValidationFailed` - If registry access validation fails.
+       * * `RegistryEntryIdentifierAlreadyExists` - If the entry ID already exists.
+       * * `InvalidIdentifierLength` - If the generated ID is invalid.
+       * * `pallet_profile::Error` - If the creator’s profile is invalid.
        * 
        * # Events
-       * Emits the `Event::RegistryEntryCreated` event upon successful creation of a new Registry
-       * entry. This event includes the `creator`, `registry_id`, and the `registry_entry_id`
-       * of the new entry.
-       * 
-       * # Example
-       * ```rust
-       * create(origin, registry_entry_id, authorization, digest, Some(blob))?;
+       * * `RegistryEntryCreated` - Emitted with `creator`, `registry_id`, `registry_entry_id`, `creator_profile_id`.
        * ```
        **/
       create: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>]>;
       /**
-       * Reinstates an revoked existing Registry Entry.
+       * Reinstates an existing revoked registry entry.
        * 
-       * This function allows an authorized user to reinstates revoked an existing Registry
-       * Entry, marking it active again. The revocation can only be performed by the account
-       * with appropriate permissions
+       * Restores an entry to active status if the caller is the registry admin or the entry’s creator.
+       * The entry must exist, belong to the specified registry, and be revoked. The status is updated in storage.
        * 
        * # Arguments
-       * * `origin` - The origin of the call, which must be a signed account (updater).
-       * * `registry_entry_id` - The unique identifier of the Registry Entry to be reinstated.
-       * * `authorization` - The authorization identifier that links the updater to the Registry.
+       * * `origin` - The signed account reinstating the entry.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `registry_entry_id` - The SS58 identifier of the entry.
        * 
        * # Errors
-       * This function returns an error in the following cases:
-       * * `UnauthorizedOperation` - If the caller does not have permission to revoke the
-       * Registry Entry.
-       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
-       * exist.
+       * * `UnauthorizedOperation` - If the caller lacks permission or registry ID mismatches.
+       * * `RegistryAccessValidationFailed` - If registry access validation fails.
+       * * `RegistryEntryIdentifierDoesNotExist` - If the entry ID doesn’t exist.
+       * * `RegistryEntryNotRevoked` - If the entry is not revoked.
+       * * `pallet_profile::Error` - If the updater’s profile is invalid.
        * 
        * # Events
-       * Emits the `Event::RegistryEntryReinstated` event upon Registry Entry successfully
-       * reinstated. This event includes the `updater` and the `registry_entry_id`.
+       * * `RegistryEntryReinstated` - Emitted with `updater`, `registry_entry_id`, `updater_profile_id`.
        * 
-       * # Example
-       * ```rust
-       * reinstate(origin, registry_entry_id, authorization)?;
        * ```
        **/
       reinstate: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Revokes an existing Registry Entry.
+       * Revokes an existing registry entry.
        * 
-       * This function allows an authorized user to revoke an existing Registry Entry, marking it
-       * as no longer valid. The revocation can only be performed by the account with
-       * appropriate permissions.
+       * Marks an entry as revoked if the caller is the registry admin or the entry’s creator.
+       * The entry must exist and belong to the specified registry. The revoked status is updated in storage.
        * 
        * # Arguments
-       * * `origin` - The origin of the call, which must be a signed account (updater).
-       * * `registry_entry_id` - The unique identifier of the Registry Entry to be revoked.
-       * * `authorization` - The authorization identifier that links the updater to the Registry.
+       * * `origin` - The signed account revoking the entry.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `registry_entry_id` - The SS58 identifier of the entry.
        * 
        * # Errors
-       * This function returns an error in the following cases:
-       * * `UnauthorizedOperation` - If the caller does not have permission to revoke the
-       * Registry Entry.
-       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
-       * exist.
+       * * `UnauthorizedOperation` - If the caller lacks permission or registry ID mismatches.
+       * * `RegistryAccessValidationFailed` - If registry access validation fails.
+       * * `RegistryEntryIdentifierDoesNotExist` - If the entry ID doesn’t exist.
+       * * `pallet_profile::Error` - If the updater’s profile is invalid.
        * 
        * # Events
-       * Emits the `Event::RegistryEntryRevoked` event upon successful revocation of the Registry
-       * Entry. This event includes the `updater` and the `registry_entry_id`.
+       * * `RegistryEntryRevoked` - Emitted with `updater`, `registry_entry_id`, `updater_profile_id`.
        * 
-       * # Example
-       * ```rust
-       * revoke(origin, registry_entry_id, authorization)?;
        * ```
        **/
       revoke: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
       /**
-       * Updates an existing Registry Entry with new metadata.
+       * Updates an existing registry entry’s transaction hash.
        * 
-       * This function allows an authorized user to update the metadata (such as the `digest` or
-       * optional `blob`) of an existing Registry Entry. The user must have the necessary
-       * permissions to perform this operation.
-       * 
+       * Updates the transaction hash of an entry if the caller is the registry admin or the entry’s creator.
+       * The entry must exist and belong to the specified registry. The new hash is stored, and an activity is recorded.
        * 
        * # Arguments
-       * * `origin` - The origin of the call, which must be a signed account (updater).
-       * * `registry_entry_id` - The unique identifier of the Registry Entry to be updated.
-       * * `authorization` - The authorization identifier that links the updater to the Registry.
-       * * `digest` - The new hash value or digest to be associated with the Registry Entry.
-       * * `blob` - (Optional) New additional data to be associated with the Registry Entry.
+       * * `origin` - The signed account updating the entry.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `registry_entry_id` - The SS58 identifier of the entry.
+       * * `tx_hash` - The new hash of the entry’s content.
+       * * `_blob` - Optional updated data.
        * 
        * # Errors
-       * This function returns an error in the following cases:
-       * * `UnauthorizedOperation` - If the caller does not have permission to update the
-       * Registry Entry.
-       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
-       * exist.
+       * * `UnauthorizedOperation` - If the caller lacks permission or registry ID mismatches.
+       * * `RegistryAccessValidationFailed` - If registry access validation fails.
+       * * `RegistryEntryIdentifierDoesNotExist` - If the entry ID doesn’t exist.
+       * * `pallet_profile::Error` - If the updater’s profile is invalid.
        * 
        * # Events
-       * Emits the `Event::RegistryEntryUpdated` event upon successful update of the Registry
-       * Entry. This event includes the `updater` and the `registry_entry_id`.
+       * * `RegistryEntryUpdated` - Emitted with `updater`, `registry_entry_id`, `updater_profile_id`.
        * 
-       * # Example
-       * ```rust
-       * update(origin, registry_entry_id, authorization, digest, Some(blob))?;
        * ```
        **/
       update: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array, txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, H256, Option<Bytes>]>;
       /**
-       * Updates the ownership of an existing Registry Entry.
+       * Updates the ownership of an existing registry entry.
        * 
-       * This function allows an authorized user (creator or admin) to update the ownership
-       * of an existing Registry Entry. Ownership can be transferred to a new owner within
-       * the same Registry.
+       * Transfers ownership to a new account if the caller is the registry admin or the entry’s creator.
+       * The entry must exist and belong to the specified registry. The new owner must have a valid profile and
+       * permission in the registry. The creator field is updated in storage.
        * 
        * # Arguments
-       * * `origin` - The origin of the call, which must be a signed account (updater).
-       * * `registry_entry_id` - The unique identifier of the Registry Entry to update ownership.
-       * * `authorization` - The authorization identifier that links the updater to the Registry.
-       * * `new_owner` - The account identifier of the new owner of the Registry Entry.
-       * * `new_owner_authorization` - The authorization identifier that links the new owner to
-       * the Registry.
-       * 
-       * # Conditions
-       * - Only the current creator (owner) of the Registry Entry or an admin of the Registry can
-       * perform this operation.
-       * - The new owner must be authorized within the same Registry.
-       * - The new owner cannot be the same as the current owner to avoid unnecessary storage
-       * writes.
+       * * `origin` - The signed account updating ownership.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `registry_entry_id` - The SS58 identifier of the entry.
+       * * `new_owner` - The account ID of the new owner.
        * 
        * # Errors
-       * This function returns an error in the following cases:
-       * * `RegistryEntryIdentifierDoesNotExist` - If the specified `registry_entry_id` does not
-       * exist.
-       * * `UnauthorizedOperation` - If the caller does not have permission to update the
-       * ownership or if the new owner is not authorized under the same Registry.
-       * * `NewOwnerCannotBeSameAsExistingOwner` - If the new owner is the same as the current
-       * owner.
+       * * `UnauthorizedOperation` - If the caller or new owner lacks permission, or registry ID mismatches.
+       * * `RegistryAccessValidationFailed` - If registry access validation fails.
+       * * `RegistryEntryIdentifierDoesNotExist` - If the entry ID doesn’t exist.
+       * * `NewOwnerCannotBeSameAsExistingOwner` - If the new owner matches the current owner.
+       * * `pallet_profile::Error` - If the updater’s or new owner’s profile is invalid.
        * 
        * # Events
-       * Emits the `Event::RegistryEntryOwnershipUpdated` event upon successful ownership update.
-       * This event includes the `updater`, the `new_owner`, and the `registry_entry_id`.
+       * * `RegistryEntryOwnershipUpdated` - Emitted with `updater`, `new_owner`, `registry_entry_id`,
+       * `updater_profile_id`, `new_owner_profile_id`.
        * 
-       * # Example
-       * ```rust
-       * update_ownership(
-       * origin,
-       * registry_entry_id,
-       * authorization,
-       * new_owner,
-       * new_owner_authorization,
-       * )?;
        * ```
        **/
       updateOwnership: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, registryEntryId: Bytes | string | Uint8Array, newOwner: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, AccountId32]>;
@@ -3653,35 +3603,218 @@ declare module '@polkadot/api-base/types/submittable' {
     };
     registry: {
       /**
-       * Add a delegate with given permissions.
+       * Adds a delegate with specified permissions to a registry.
+       * 
+       * Assigns permissions (e.g., ENTRY, ADMIN) to a delegate for the given registry. The caller
+       * must have ADMIN permissions, and both the caller and delegate must have valid profiles.
+       * The delegate is added via the `delegation::add_delegate` function, and an activity is recorded.
+       * 
+       * # Arguments
+       * * `origin` - The signed account adding the delegate.
+       * * `identifier` - The SS58 identifier of the registry.
+       * * `delegate` - The account ID of the delegate to add.
+       * * `roles` - A vector of permission variants (e.g., ENTRY, ADMIN).
+       * 
+       * # Errors
+       * * `UnauthorizedOperation` - If the caller lacks ADMIN permissions.
+       * * `DelegateAlreadyExists` - If the delegate is already added.
+       * * `pallet_profile::Error` - If the caller’s or delegate’s profile is invalid.
+       * 
+       * # Events
+       * * `DelegateAdded` - Emitted with `identifier`, `delegate`, `delegate_profile_id`.
+       * ```
        **/
       addDelegate: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array, roles: Vec<PalletRegistryPermissionVariant> | (PalletRegistryPermissionVariant | 'Entry' | 'Delegate' | 'Admin' | number | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32, Vec<PalletRegistryPermissionVariant>]>;
       /**
-       * Archive registry
+       * Archives a registry.
+       * 
+       * Marks a registry as archived, preventing further operations. The caller must have ADMIN
+       * permissions and a valid profile. The operation is performed via the `registry::archive_registry`
+       * function, and an activity is recorded.
+       * 
+       * # Arguments
+       * * `origin` - The signed account archiving the registry.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * 
+       * # Errors
+       * * `UnauthorizedOperation` - If the caller lacks ADMIN permissions.
+       * * `RegistryNotFound` - If the registry does not exist.
+       * * `ArchivedRegistry` - If the registry is already archived.
+       * * `pallet_profile::Error` - If the caller’s profile is invalid.
+       * 
+       * # Events
+       * * `RegistryArchived` - Emitted with `registry`, `authority`, `authority_profile_id`.
+       * 
+       * ```
        **/
       archive: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Create a new registry.
+       * Creates a new registry.
+       * 
+       * Initializes a new registry with the provided transaction hash and a optional blob.
+       * The creator must have a valid profile. The registry is created via the `registry::create_registry`
+       * function, assigned a unique SS58 identifier, and marked as active.
+       * 
+       * # Arguments
+       * * `origin` - The signed account creating the registry.
+       * * `tx_hash` - The hash of the registry’s content.
+       * * `_blob` - Optional data associated with the registry.
+       * 
+       * # Errors
+       * * `InvalidIdentifierLength` - If the generated registry ID is invalid.
+       * * `RegistryAlreadyExists` - If a registry with the same ID exists.
+       * * `pallet_profile::Error` - If the creator’s or author’s profile is invalid.
+       * 
+       * # Events
+       * * `RegistryCreated` - Emitted with `registry`, `creator`, `profile_id`.
+       * 
+       * ```
        **/
-      create: AugmentedSubmittable<(txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string, docId: Option<Bytes> | null | Uint8Array | Bytes | string, docAuthorId: Option<AccountId32> | null | Uint8Array | AccountId32 | string, docNodeId: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Option<Bytes>, Option<Bytes>, Option<AccountId32>, Option<Bytes>]>;
+      create: AugmentedSubmittable<(txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Option<Bytes>]>;
       /**
-       * Removes a delegate
+       * Creates a new registry store with cyra based credentials.
+       * 
+       * Initializes a new registry store with the provided transaction hash and optional metadata
+       * (document ID, author, node ID). The creator must have a valid profile. The registry is
+       * created via the `registry::create_registry_store` function, assigned a unique SS58 identifier,
+       * and marked as active.
+       * 
+       * The key difference between create and create-store is that create-store is to map the registry
+       * data present in Cyra into Cord.
+       * 
+       * # Arguments
+       * * `origin` - The signed account creating the registry.
+       * * `tx_hash` - The hash of the registry’s content.
+       * * `_blob` - Data associated with the registry.
+       * * `doc_id` - Document identifier.
+       * * `doc_author_id` - Account ID of the document author.
+       * * `doc_node_id` - Document node identifier.
+       * 
+       * # Errors
+       * * `InvalidIdentifierLength` - If the generated registry ID is invalid.
+       * * `RegistryAlreadyExists` - If a registry with the same ID exists.
+       * * `pallet_profile::Error` - If the creator’s or author’s profile is invalid.
+       * 
+       * # Events
+       * * `RegistryStoreCreated` - Emitted with `registry`, `creator`, `profile_id`.
+       * 
+       * ```
+       **/
+      createStore: AugmentedSubmittable<(txHash: H256 | string | Uint8Array, docId: Bytes | string | Uint8Array, docAuthorId: AccountId32 | string | Uint8Array, docNodeId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, Bytes, AccountId32, Bytes]>;
+      /**
+       * Removes a delegate from a registry.
+       * 
+       * Revokes all permissions for the specified delegate in the registry. The caller must have
+       * ADMIN permissions, and both the caller and delegate must have valid profiles. The delegate
+       * is removed via the `delegation::remove_delegate` function, and an activity is recorded.
+       * 
+       * # Arguments
+       * * `origin` - The signed account removing the delegate.
+       * * `identifier` - The SS58 identifier of the registry.
+       * * `delegate` - The account ID of the delegate to remove.
+       * 
+       * # Errors
+       * * `UnauthorizedOperation` - If the caller lacks ADMIN permissions.
+       * * `DelegateNotFound` - If the delegate is not found in the registry.
+       * * `pallet_profile::Error` - If the caller’s or delegate’s profile is invalid.
+       * 
+       * # Events
+       * * `DelegateRemoved` - Emitted with `identifier`, `delegate`, `delegate_profile_id`.
+       * 
+       * ```
        **/
       removeDelegate: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, delegate: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Restore registry
+       * Restores an archived registry.
+       * 
+       * Restores a previously archived registry to active status, allowing operations. The caller
+       * must have ADMIN permissions and a valid profile. The operation is performed via the
+       * `registry::restore_registry` function, and an activity is recorded.
+       * 
+       * # Arguments
+       * * `origin` - The signed account restoring the registry.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * 
+       * # Errors
+       * * `UnauthorizedOperation` - If the caller lacks ADMIN permissions.
+       * * `RegistryNotFound` - If the registry does not exist.
+       * * `RegistryNotArchived` - If the registry is not archived.
+       * * `pallet_profile::Error` - If the caller’s profile is invalid.
+       * 
+       * # Events
+       * * `RegistryRestored` - Emitted with `registry`, `authority`, `authority_profile_id`.
+       * 
+       * ```
        **/
       restore: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
       /**
-       * Update registry entry author
+       * Updates the document author of a registry.
+       * 
+       * Changes the document author of the registry to a new account. The caller must have ADMIN
+       * permissions, and both the caller and new author must have valid profiles. The operation is
+       * performed via the `registry::update_registry_author` function, and an activity is recorded.
+       * 
+       * # Arguments
+       * * `origin` - The signed account updating the author.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `new_doc_author_id` - The account ID of the new document author.
+       * 
+       * # Errors
+       * * `UnauthorizedOperation` - If the caller lacks ADMIN permissions.
+       * * `RegistryNotFound` - If the registry does not exist.
+       * * `pallet_profile::Error` - If the caller’s or new author’s profile is invalid.
+       * 
+       * # Events
+       * * `RegistryUpdated` - Emitted with `registry`, `authority` (new author), `authority_profile_id`.
+       * 
+       * ```
        **/
       updateAuthor: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, newDocAuthorId: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Update registry creator
+       * Updates the creator of a registry.
+       * 
+       * Transfers ownership of the registry to a new account. The caller must have ADMIN
+       * permissions, and both the caller and new creator must have valid profiles. The operation is
+       * performed via the `registry::update_registry_creator` function, and an activity is recorded.
+       * 
+       * # Arguments
+       * * `origin` - The signed account updating the creator.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `new_creator` - The account ID of the new creator.
+       * 
+       * # Errors
+       * * `UnauthorizedOperation` - If the caller lacks ADMIN permissions.
+       * * `RegistryNotFound` - If the registry does not exist.
+       * * `pallet_profile::Error` - If the caller’s or new creator’s profile is invalid.
+       * 
+       * # Events
+       * * `RegistryUpdated` - Emitted with `registry`, `authority` (new creator), `authority_profile_id`.
+       * 
+       * ```
        **/
       updateCreator: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, newCreator: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
       /**
-       * Updates the registry hash, optionally accepts a blob.
+       * Updates the transaction hash of a registry.
+       * 
+       * Updates the registry’s transaction hash and optionally its blob. The caller must have ADMIN
+       * permissions and a valid profile. The operation is performed via the
+       * `registry::update_registry_hash` function, and an activity is recorded.
+       * 
+       * # Arguments
+       * * `origin` - The signed account updating the hash.
+       * * `registry_id` - The SS58 identifier of the registry.
+       * * `tx_hash` - The new hash of the registry’s content.
+       * * `_blob` - Optional updated data.
+       * 
+       * # Errors
+       * * `UnauthorizedOperation` - If the caller lacks ADMIN permissions.
+       * * `RegistryNotFound` - If the registry does not exist.
+       * * `pallet_profile::Error` - If the caller’s profile is invalid.
+       * 
+       * # Events
+       * * `RegistryUpdated` - Emitted with `registry`, `authority`, `authority_profile_id`.
+       * 
+       * ```
        **/
       updateRegistryHash: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>]>;
     };
