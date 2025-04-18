@@ -7,15 +7,11 @@ export type RegistryDigest = HexString;
 
 export interface RegistryDetails {
     uri: RegistryUri
-    // authorizationUri: RegistryAuthorizationUri
 }
 
 export interface IRegistryCreate {
     tx_hash: RegistryDigest
     blob: string | null
-    docId: string | null
-    docAuthorId: string | null
-    docNodeId: string | null
 }
 
 export interface IRegistryTxHashUpdate {
