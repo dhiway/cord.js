@@ -59,7 +59,8 @@ import {
     EntryUri,
     RegistryUri,
     DidUri,
-    CordAddress
+    CordAddress,
+    SubmittableExtrinsic
 } from '@cord.network/types';
 
 import { Chain } from '@cord.network/network';
@@ -102,6 +103,55 @@ export async function isRegistryEntryStored(
 
 
 /**
+ * Prepares a transaction to create a new registry entry on the CORD blockchain.
+ *
+ * Constructs an extrinsic using the provided registry entry details, including the registry ID,
+ * transaction hash, and optional blob data.
+ *
+ * @param registryEntryDetails - The details of the entry to create.
+ * @param registryEntryDetails.registryUri - The URI of the registry (e.g., `registry:cord:3xygo...`).
+ * @param registryEntryDetails.tx_hash - The hash of the entry’s content.
+ * @param registryEntryDetails.blob - Optional serialized content for the entry.
+ * @returns A promise resolving to the prepared extrinsic for submission.
+ * @throws {SDKErrors.CordDispatchError} If an error occurs while preparing the extrinsic.
+ *
+ * @example
+ * ```typescript
+ * const entryDetails = {
+ *   registryUri: 'registry:cord:3xygo...',
+ *   tx_hash: '0x1234abcd...',
+ *   blob: '{"data":"example"}',
+ * };
+ * const extrinsic = await prepareCreateExtrinsic(entryDetails);
+ * console.log(extrinsic); // Prepared extrinsic for submission
+ * ```
+ */
+export async function prepareCreateExtrinsic(
+  registryEntryDetails: IRegistryEntry,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api'); 
+
+    const registryId = DataUtils.trimPrefix(registryEntryDetails.registryUri, 'registry:cord:');
+
+    const extrinsic = api.tx.entry.create(
+        registryId,
+        registryEntryDetails.tx_hash,
+        registryEntryDetails.blob
+    );
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
  * Dispatches a transaction to create a new registry entry on the CORD blockchain.
  *
  * Creates a new entry within a specified registry, storing its transaction hash and optional blob data.
@@ -130,15 +180,7 @@ export async function dispatchCreateEntryToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api'); 
-
-    const registryId = DataUtils.trimPrefix(registryEntryDetails.registryUri, 'registry:cord:');
-
-    const extrinsic = api.tx.entry.create(
-        registryId,
-        registryEntryDetails.tx_hash,
-        registryEntryDetails.blob
-    );
+    const extrinsic = await prepareCreateExtrinsic(registryEntryDetails);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
 } catch (error) {
@@ -146,6 +188,67 @@ export async function dispatchCreateEntryToChain(
         error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
         `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
+ * Prepares a transaction to update an existing registry entry on the CORD blockchain.
+ *
+ * Constructs an extrinsic using the provided registry entry details, including the registry ID,
+ * transaction hash, and optional blob data.
+ *
+ * @param registryEntryDetails - The details of the entry to update.
+ * @param registryEntryDetails.registryEntryUri - The URI of the entry to update (e.g., `entry:cord:abc123...`).
+ * @param registryEntryDetails.registryUri - The URI of the registry (e.g., `registry:cord:3xygo...`).
+ * @param registryEntryDetails.tx_hash - The new hash of the entry’s content.
+ * @param registryEntryDetails.blob - Optional updated serialized content.
+ * @returns A promise resolving to the prepared extrinsic for submission.
+ * @throws {SDKErrors.CordDispatchError} If an error occurs while preparing the extrinsic.
+ *
+ * @example
+ * ```typescript
+ * const updateDetails = {
+ *   registryEntryUri: 'entry:cord:abc123...',
+ *   registryUri: 'registry:cord:3xygo...',
+ *   tx_hash: '0x5678efgh...',
+ *   blob: '{"data":"updated"}',
+ * };
+ * const extrinsic = await prepareUpdateExtrinsic(updateDetails);
+ * console.log(extrinsic); // Prepared extrinsic for submission
+ * ```
+ */
+export async function prepareUpdateExtrinsic(
+  registryEntryDetails: IRegistryEntryUpdate,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api'); 
+
+    const registryEntryId = DataUtils.trimPrefix(registryEntryDetails.registryEntryUri, 'entry:cord:');
+
+    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
+    if (!registryEntryExists) {
+      throw new SDKErrors.CordDispatchError(
+        `Registry Entry does not exists at URI: "${registryEntryDetails.registryEntryUri}".`
+      );
+    }
+
+    const registryId = DataUtils.trimPrefix(registryEntryDetails.registryUri, 'registry:cord:');
+
+    const extrinsic = api.tx.entry.update(
+        registryId,
+        registryEntryId,
+        registryEntryDetails.tx_hash,
+        registryEntryDetails.blob,
+    );
+    
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -182,30 +285,7 @@ export async function dispatchUpdateEntryToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api'); 
-
-    // TODO: Once we have the capability of calculating identifier on SDK create like below,
-    // For now only entry:cord:identifier
-    // const registryEntryObj = uriToEntryIdAndDigest(registryEntryDetails.uri);
-    // const registryEntryId = registryEntryObj.identifier;
-
-    const registryEntryId = DataUtils.trimPrefix(registryEntryDetails.registryEntryUri, 'entry:cord:');
-
-    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
-    if (!registryEntryExists) {
-      throw new SDKErrors.CordDispatchError(
-        `Registry Entry does not exists at URI: "${registryEntryDetails.registryEntryUri}".`
-      );
-    }
-
-    const registryId = DataUtils.trimPrefix(registryEntryDetails.registryUri, 'registry:cord:');
-
-    const extrinsic = api.tx.entry.update(
-        registryId,
-        registryEntryId,
-        registryEntryDetails.tx_hash,
-        registryEntryDetails.blob,
-    );
+    const extrinsic = await prepareUpdateExtrinsic(registryEntryDetails);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -213,6 +293,58 @@ export async function dispatchUpdateEntryToChain(
         error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
         `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
+ * Prepares a transaction to revoke a registry entry on the CORD blockchain.
+ *
+ * Constructs an extrinsic using the provided registry and entry URIs.
+ *
+ * @param registryUri - The URI of the registry containing the entry (e.g., `registry:cord:3xygo...`).
+ * @param registryEntryUri - The URI of the entry to revoke (e.g., `entry:cord:abc123...`).
+ * @returns A promise resolving to the prepared extrinsic for submission.
+ * @throws {SDKErrors.CordDispatchError} If an error occurs while preparing the extrinsic.
+ *
+ * @example
+ * ```typescript
+ * const extrinsic = await prepareRevokeEntryExtrinsic(
+ *   'registry:cord:3xygo...',
+ *   'entry:cord:abc123...'
+ * );
+ * console.log(extrinsic); // Prepared extrinsic for submission
+ * ```
+ */
+export async function prepareRevokeEntryExtrinsic(
+  registryUri: RegistryUri,
+  registryEntryUri: EntryUri,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
+    const registryEntryId = DataUtils.trimPrefix(registryEntryUri, 'entry:cord:');
+
+    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
+    if (!registryEntryExists) {
+      throw new SDKErrors.CordDispatchError(
+        `Registry Entry does not exists at URI: "${registryEntryUri}".`
+      );
+    }
+
+    const api = ConfigService.get('api')
+
+    const extrinsic = api.tx.entry.revoke(
+        registryId,
+        registryEntryId,
+    );
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -243,10 +375,47 @@ export async function dispatchRevokeEntryToChain(
     registryEntryUri: EntryUri,
     authorAccount: CordKeyringPair,
 ): Promise<void> {
+    try {
+      const extrinsic = await prepareRevokeEntryExtrinsic(
+        registryUri,
+        registryEntryUri
+      );
 
-    // TODO: Once we have the capability of calculating identifier on SDK create like below,
-    // const registryEntryObj = uriToEntryIdAndDigest(registryEntryUri);
+      await Chain.signAndSubmitTx(extrinsic, authorAccount);
+    } catch(error) {
+        const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error)
+        throw new SDKErrors.CordDispatchError(
+        `Error dispatching to chain: "${errorMessage}".`
+        )
+    }
+}
 
+
+/**
+ * Prepares a transaction to reinstate a previously revoked registry entry on the CORD blockchain.
+ *
+ * Constructs an extrinsic using the provided registry and entry URIs.
+ *
+ * @param registryUri - The URI of the registry containing the entry (e.g., `registry:cord:3xygo...`).
+ * @param registryEntryUri - The URI of the entry to reinstate (e.g., `entry:cord:abc123...`).
+ * @returns A promise resolving to the prepared extrinsic for submission.
+ * @throws {SDKErrors.CordDispatchError} If an error occurs while preparing the extrinsic.
+ *
+ * @example
+ * ```typescript
+ * const extrinsic = await prepareReinstateEntryExtrinsic(
+ *   'registry:cord:3xygo...',
+ *   'entry:cord:abc123...'
+ * );
+ * console.log(extrinsic); // Prepared extrinsic for submission
+ * ```
+ */
+export async function prepareReinstateEntryExtrinsic(
+  registryUri: RegistryUri,
+  registryEntryUri: EntryUri,
+): Promise<SubmittableExtrinsic> {
+  try {
     const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
     const registryEntryId = DataUtils.trimPrefix(registryEntryUri, 'entry:cord:');
 
@@ -257,22 +426,21 @@ export async function dispatchRevokeEntryToChain(
       );
     }
 
-    try {
-        const api = ConfigService.get('api')
+    const api = ConfigService.get('api')
 
-        const extrinsic = api.tx.entry.revoke(
-            registryId,
-            registryEntryId,
-        );
+    const extrinsic = api.tx.entry.reinstate(
+        registryId,
+        registryEntryId,
+    );
 
-        await Chain.signAndSubmitTx(extrinsic, authorAccount);
-    } catch(error) {
-        const errorMessage =
-        error instanceof Error ? error.message : JSON.stringify(error)
-        throw new SDKErrors.CordDispatchError(
-        `Error dispatching to chain: "${errorMessage}".`
-        )
-    }
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
+    );
+  }
 }
 
 
@@ -302,36 +470,20 @@ export async function dispatchReinstateEntryToChain(
     registryEntryUri: EntryUri,
     authorAccount: CordKeyringPair,
 ): Promise<void> {
+  try {
+    const extrinsic = await prepareReinstateEntryExtrinsic(
+      registryUri,
+      registryEntryUri
+    );
 
-    // TODO: Once we have the capability of calculating identifier on SDK create like below,
-    // const registryEntryObj = uriToEntryIdAndDigest(registryEntryUri);
-
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
-    const registryEntryId = DataUtils.trimPrefix(registryEntryUri, 'entry:cord:');
-
-    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
-    if (!registryEntryExists) {
+    await Chain.signAndSubmitTx(extrinsic, authorAccount);
+  } catch(error) {
+      const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error)
       throw new SDKErrors.CordDispatchError(
-        `Registry Entry does not exists at URI: "${registryEntryUri}".`
-      );
-    }
-
-    try {
-        const api = ConfigService.get('api')
-
-        const extrinsic = api.tx.entry.reinstate(
-            registryId,
-            registryEntryId,
-        );
-
-        await Chain.signAndSubmitTx(extrinsic, authorAccount);
-    } catch(error) {
-        const errorMessage =
-        error instanceof Error ? error.message : JSON.stringify(error)
-        throw new SDKErrors.CordDispatchError(
-        `Error dispatching to chain: "${errorMessage}".`
-        )
-    }
+      `Error dispatching to chain: "${errorMessage}".`
+      )
+  }
 }
 
 
@@ -453,6 +605,62 @@ export async function fetchRegistryEntryDetailsFromChain(
 
 
 /**
+ * Prepares a transaction to update the ownership of a registry entry on the CORD blockchain.
+ *
+ * Constructs an extrinsic using the provided registry and entry URIs, along with the new owner account.
+ *
+ * @param registryUri - The URI of the registry containing the entry (e.g., `registry:cord:3xygo...`).
+ * @param registryEntryUri - The URI of the entry to update (e.g., `entry:cord:abc123...`).
+ * @param newOwnerAccount - The SS58 address of the new owner (e.g., `5FHne...`).
+ * @returns A promise resolving to the prepared extrinsic for submission.
+ * @throws {SDKErrors.CordDispatchError} If an error occurs while preparing the extrinsic.
+ *
+ * @example
+ * ```typescript
+ * const extrinsic = await prepareUpdateOwnershipExtrinsic(
+ *   'registry:cord:3xygo...',
+ *   'entry:cord:abc123...',
+ *   '5FHneW46xGXzs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty'
+ * );
+ * console.log(extrinsic); // Prepared extrinsic for submission
+ * ```
+ */
+export async function prepareUpdateOwnershipExtrinsic(
+  registryUri: RegistryUri,
+  registryEntryUri: EntryUri,
+  newOwnerAccount: CordAddress,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+
+    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
+    const registryEntryId = DataUtils.trimPrefix(registryEntryUri, 'entry:cord:');
+
+    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
+    if (!registryEntryExists) {
+      throw new SDKErrors.CordDispatchError(
+        `Registry Entry does not exists at URI: "${registryEntryUri}".`
+      );
+    }
+
+    const extrinsic = api.tx.entry.updateOwnership(
+        registryId,
+        registryEntryId,
+        newOwnerAccount,
+    );
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
  * Dispatches a transaction to update the ownership of a registry entry on the CORD blockchain.
  *
  * Transfers ownership to a new account, ensuring the entry exists before proceeding.
@@ -482,26 +690,10 @@ export async function dispatchUpdateOwnershipToChain(
   authorAccount: CordKeyringPair,
 ): Promise<void> {
   try {
-
-    const api = ConfigService.get('api');
-
-    // TODO: Once we have the capability of calculating identifier on SDK create like below,
-    // const registryEntryObj = uriToEntryIdAndDigest(registryEntryUri);
-
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
-    const registryEntryId = DataUtils.trimPrefix(registryEntryUri, 'entry:cord:');
-
-    const registryEntryExists = await isRegistryEntryStored(registryEntryId);
-    if (!registryEntryExists) {
-      throw new SDKErrors.CordDispatchError(
-        `Registry Entry does not exists at URI: "${registryEntryUri}".`
-      );
-    }
-
-    const extrinsic = api.tx.entry.updateOwnership(
-        registryId,
-        registryEntryId,
-        newOwnerAccount,
+    const extrinsic = await prepareUpdateOwnershipExtrinsic(
+      registryUri,
+      registryEntryUri,
+      newOwnerAccount
     );
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);

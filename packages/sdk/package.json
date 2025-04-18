@@ -44,19 +44,19 @@
     "@cord.network/config": "workspace:*",
     "@cord.network/did": "workspace:*",
     "@cord.network/entries": "workspace:*",
+    "@cord.network/entry": "workspace:*",
     "@cord.network/identifier": "workspace:*",
     "@cord.network/namespace": "workspace:*",
     "@cord.network/network": "workspace:*",
     "@cord.network/network-score": "workspace:*",
+    "@cord.network/profile": "workspace:*",
     "@cord.network/registries": "workspace:*",
+    "@cord.network/registry": "workspace:*",
     "@cord.network/schema": "workspace:*",
     "@cord.network/schema-did": "workspace:*",
     "@cord.network/statement": "workspace:*",
     "@cord.network/statement-did": "workspace:*",
     "@cord.network/types": "workspace:*",
-    "@cord.network/utils": "workspace:*",
-    "@cord.network/profile": "workspace:*",
-    "@cord.network/registry": "workspace:*",
-    "@cord.network/entry": "workspace:*"
+    "@cord.network/utils": "workspace:*"
   }
 }
