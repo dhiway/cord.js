@@ -47,17 +47,58 @@ import {
   CordKeyringPair,
   IRegistryTxHashUpdate,
   RegistryPermissionVariant,
+  IRegistryCreate,
+  RegistryUri,
+  SubmittableExtrinsic,
 } from '@cord.network/types';
 
 import { Chain } from '@cord.network/network';
 import { SDKErrors, DataUtils } from '@cord.network/utils';
 import { ConfigService } from '@cord.network/config';
-import { IRegistryCreate, RegistryUri } from '@cord.network/types';
+
+
+/**
+ * Prepares an extrinsic to create a new registry on the CORD blockchain.
+ *
+ * @param registryDetails - The details of the registry to create, including transaction hash, blob, and optional IDs.
+ * @returns A promise that resolves to the prepared extrinsic.
+ * @throws {SDKErrors.CordDispatchError} If the preparation fails.
+ *
+ * @example
+ * ```typescript
+ * const registryDetails = {
+ *   tx_hash: '0x1234567890abcdef',
+ *   blob: '{"key":"value"}',
+ * };
+ * const extrinsic = await prepareCreateExtrinsic(registryDetails);
+ * ```
+ */
+export async function prepareCreateExtrinsic(
+  registryDetails: IRegistryCreate,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+
+    const extrinsic = api.tx.registry.create(
+      registryDetails.tx_hash,
+      registryDetails.blob,
+    );
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
+    );
+  }
+}
+
 
 /**
  * Dispatches a transaction to create a new registry on the CORD blockchain.
  *
- * @param registryDetails - The details of the registry to create, including transaction hash, blob, and optional IDs.
+ * @param registryDetails - The details of the registry to create, including transaction hash and optional blob.
  * @param authorAccount - The keyring pair of the author creating the registry.
  * @returns A promise that resolves when the transaction is submitted.
  * @throws {SDKErrors.CordDispatchError} If the transaction fails.
@@ -67,7 +108,6 @@ import { IRegistryCreate, RegistryUri } from '@cord.network/types';
  * const registryDetails = {
  *   tx_hash: '0x1234567890abcdef',
  *   blob: '{"key":"value"}',
- *   docId: 'doc123',
  * };
  * await dispatchCreateToChain(registryDetails, alice);
  * ```
@@ -77,15 +117,7 @@ export async function dispatchCreateToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api');
-
-    const extrinsic = api.tx.registry.create(
-      registryDetails.tx_hash,
-      registryDetails.blob,
-      registryDetails.docId,
-      registryDetails.docAuthorId,
-      registryDetails.docNodeId
-    );
+    const extrinsic = await prepareCreateExtrinsic(registryDetails);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -93,6 +125,47 @@ export async function dispatchCreateToChain(
       error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
+ * Prepares an extrinsic to update the transaction hash and optional blob of a registry.
+ *
+ * @param registryDetails - The details for updating the registry, including URI, transaction hash, and optional blob.
+ * @returns A promise that resolves to the prepared extrinsic.
+ * @throws {SDKErrors.CordDispatchError} If the preparation fails.
+ *
+ * @example
+ * ```typescript
+ * const registryDetails = {
+ *   registryUri: 'registry:cord:3xygo...',
+ *   tx_hash: '0x456789abcdef',
+ *   blob: '{"key":"newValue"}',
+ * };
+ * const extrinsic = await prepareUpdateExtrinsic(registryDetails);
+ * ```
+ */
+export async function prepareUpdateExtrinsic(
+  registryDetails: IRegistryTxHashUpdate,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+    const registryId = DataUtils.trimPrefix(registryDetails.registryUri, 'registry:cord:');
+
+    const extrinsic = api.tx.registry.updateRegistryHash(
+      registryId,
+      registryDetails.tx_hash,
+      registryDetails.blob
+    );
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -121,14 +194,7 @@ export async function dispatchUpdateRegistryHashToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryDetails.registryUri, 'registry:cord:');
-
-    const extrinsic = api.tx.registry.updateRegistryHash(
-      registryId,
-      registryDetails.tx_hash,
-      registryDetails.blob
-    );
+    const extrinsic = await prepareUpdateExtrinsic(registryDetails);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -136,6 +202,39 @@ export async function dispatchUpdateRegistryHashToChain(
       error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+/**
+ * Prepares an extrinsic to update the creator address of a registry.
+ *
+ * @param registryUri - The URI of the registry to update (e.g., 'registry:cord:3xygo...').
+ * @param newCreatorAddress - The new creator's SS58 address.
+ * @returns A promise that resolves to the prepared extrinsic.
+ * @throws {SDKErrors.CordDispatchError} If the preparation fails.
+ *
+ * @example
+ * ```typescript
+ * const extrinsic = await prepareUpdateCreatorExtrinsic('registry:cord:3xygo...', '5FHne...');
+ * ```
+ */
+export async function prepareUpdateCreatorExtrinsic(
+  registryUri: RegistryUri,
+  newCreatorAddress: string,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
+
+    const extrinsic = api.tx.registry.updateCreator(registryId, newCreatorAddress);
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -161,10 +260,10 @@ export async function dispatchUpdateCreator(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
-
-    const extrinsic = api.tx.registry.updateCreator(registryId, newCreatorAddress);
+    const extrinsic = await prepareUpdateCreatorExtrinsic(
+      registryUri,
+      newCreatorAddress
+    );
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -172,6 +271,48 @@ export async function dispatchUpdateCreator(
       error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
+ * Prepares an extrinsic to add a delegate to a registry with specified permissions.
+ *
+ * @param registryUri - The URI of the registry (e.g., 'registry:cord:3xygo...').
+ * @param delegateAddress - The SS58 address of the delegate.
+ * @param roles - A single RegistryPermissionVariant or array of variants ('Entry', 'Delegate', 'Admin').
+ * @returns A promise that resolves to the prepared extrinsic.
+ * @throws {SDKErrors.CordDispatchError} If the preparation fails.
+ *
+ * @example
+ * ```typescript
+ * const extrinsic = await prepareAddDelegateExtrinsic(
+ *   'registry:cord:3xygo...',
+ *   '5FHne...',
+ *   [RegistryPermissionVariant.Entry, RegistryPermissionVariant.Delegate]
+ * );
+ * ```
+ */
+export async function prepareAddDelegateExtrinsic(
+  registryUri: RegistryUri,
+  delegateAddress: string,
+  roles: RegistryPermissionVariant | RegistryPermissionVariant[],
+): Promise<SubmittableExtrinsic> {  
+  try {
+    const api = ConfigService.get('api');
+    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
+
+    const permissions = Array.isArray(roles) ? roles : [roles];
+
+    const extrinsic = api.tx.registry.addDelegate(registryId, delegateAddress, permissions);
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -204,12 +345,11 @@ export async function dispatchAddDelegateToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
-
-    const permissions = Array.isArray(roles) ? roles : [roles];
-
-    const extrinsic = api.tx.registry.addDelegate(registryId, delegateAddress, permissions);
+    const extrinsic = await prepareAddDelegateExtrinsic(
+      registryUri,
+      delegateAddress,
+      roles
+    );
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -217,6 +357,40 @@ export async function dispatchAddDelegateToChain(
       error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
+ * Prepares an extrinsic to remove a delegate from a registry.
+ *
+ * @param registryUri - The URI of the registry (e.g., 'registry:cord:3xygo...').
+ * @param delegateAddress - The SS58 address of the delegate to remove.
+ * @returns A promise that resolves to the prepared extrinsic.
+ * @throws {SDKErrors.CordDispatchError} If the preparation fails.
+ *
+ * @example
+ * ```typescript
+ * const extrinsic = await prepareRemoveDelegateExtrinsic('registry:cord:3xygo...', '5FHne...');
+ * ```
+ */
+export async function prepareRemoveDelegateExtrinsic(
+  registryUri: RegistryUri,
+  delegateAddress: string,
+): Promise<SubmittableExtrinsic> {  
+  try {
+    const api = ConfigService.get('api');
+    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
+
+    const extrinsic = api.tx.registry.removeDelegate(registryId, delegateAddress);
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -242,10 +416,10 @@ export async function dispatchRemoveDelegateToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
-
-    const extrinsic = api.tx.registry.removeDelegate(registryId, delegateAddress);
+    const extrinsic = await prepareRemoveDelegateExtrinsic(
+      registryUri,
+      delegateAddress
+    );
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -253,6 +427,38 @@ export async function dispatchRemoveDelegateToChain(
       error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+/**
+ * Prepares an extrinsic to archive a registry.
+ *
+ * @param registryUri - The URI of the registry to archive (e.g., 'registry:cord:3xygo...').
+ * @returns A promise that resolves to the prepared extrinsic.
+ * @throws {SDKErrors.CordDispatchError} If the preparation fails.
+ *
+ * @example
+ * ```typescript
+ * const extrinsic = await prepareArchiveRegistryExtrinsic('registry:cord:3xygo...');
+ * ```
+ */
+export async function prepareArchiveRegistryExtrinsic(
+  registryUri: RegistryUri,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
+
+    const extrinsic = api.tx.registry.archive(registryId);
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -276,10 +482,7 @@ export async function dispatchArchiveRegistryToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
-
-    const extrinsic = api.tx.registry.archive(registryId);
+    const extrinsic = await prepareArchiveRegistryExtrinsic(registryUri);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {
@@ -287,6 +490,26 @@ export async function dispatchArchiveRegistryToChain(
       error instanceof Error ? error.message : JSON.stringify(error);
     throw new SDKErrors.CordDispatchError(
       `Error dispatching to chain: "${errorMessage}".`
+    );
+  }
+}
+
+
+export async function prepareRestoreRegistryExtrinsic(
+  registryUri: RegistryUri,
+): Promise<SubmittableExtrinsic> {
+  try {
+    const api = ConfigService.get('api');
+    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
+
+    const extrinsic = api.tx.registry.restore(registryId);
+
+    return extrinsic;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new SDKErrors.CordDispatchError(
+      `Error preparing extrinsic: "${errorMessage}".`
     );
   }
 }
@@ -310,10 +533,7 @@ export async function dispatchRestoreRegistryToChain(
   authorAccount: CordKeyringPair
 ): Promise<void> {
   try {
-    const api = ConfigService.get('api');
-    const registryId = DataUtils.trimPrefix(registryUri, 'registry:cord:');
-
-    const extrinsic = api.tx.registry.restore(registryId);
+    const extrinsic = await prepareRestoreRegistryExtrinsic(registryUri);
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
   } catch (error) {

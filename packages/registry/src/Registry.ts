@@ -24,9 +24,6 @@
  * const registryProperties = await registryCreateProperties(
  *   '0x123...',       // tx_hash
  *   '{"key":"value"}', // blob
- *   'doc123',         // docId
- *   'author456',      // docAuthorId
- *   'node789'         // docNodeId
  * );
  * console.log('Registry Properties:', registryProperties);
  *
@@ -194,9 +191,6 @@ export async function decodeCborToStringifiedBlob(cborBlob: string): Promise<str
  *
  * @param tx_hash - A hex string representing the transaction hash.
  * @param blob - An optional string representing the data to be stored in the registry.
- * @param docId - An optional string representing the cyra document ID for the registry.
- * @param docAuthorId - An optional string representing the cyra document author ID.
- * @param docNodeId - An optional string representing the cyra document node ID.
  * @returns A promise that resolves to an object containing the properties of the registry,
  *          including the transaction hash, blob, document ID, author ID, and node ID.
  * @throws {SDKErrors.InputContentsMalformedError} If neither transaction hash nor blob is provided,
@@ -207,9 +201,6 @@ export async function decodeCborToStringifiedBlob(cborBlob: string): Promise<str
  * const registryProperties = await registryCreateProperties(
  *   '0x123...',       // tx_hash
  *   '{"key":"value"}', // blob
- *   'doc123',         // docId
- *   'author456',      // docAuthorId
- *   'node789'         // docNodeId
  * );
  * console.log(registryProperties);
  * ```
@@ -217,9 +208,6 @@ export async function decodeCborToStringifiedBlob(cborBlob: string): Promise<str
 export async function registryCreateProperties(
   tx_hash: HexString | null = null,
   blob: string | null = null,
-  docId: string | null = null,
-  docAuthorId: string | null = null,
-  docNodeId: string | null = null
 ): Promise<IRegistryCreate> {
   if (!tx_hash && !blob) {
     throw new SDKErrors.InputContentsMalformedError(
@@ -256,9 +244,6 @@ export async function registryCreateProperties(
   return {
     tx_hash,
     blob,
-    docId,
-    docAuthorId,
-    docNodeId,
   };
 }
 
