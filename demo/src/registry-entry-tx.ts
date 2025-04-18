@@ -34,6 +34,37 @@ async function waitForEvent(api, eventCheck, fieldIndex) {
   });
 }
 
+/**
+ * Returns possible matches for a given transaction hash. The match is the Registry & Entry Identifiers.
+ * It is based on the lookup for a given transaction hash.
+ * @param api - CORD API instance.
+ * @param tx_hash - Transaction hash to search for.
+ * @returns Promise resolving to the match.
+ */
+async function getEntriesByTxHash(api: Cord.ApiPromise, tx_hash: string): Promise<{ registry_id: string; registry_entry_id: string | null }[]> {
+  try {
+    const entries = await api.query.entry.hashToIdentifier.entries();
+    const matches = entries
+      .filter(([key]) => {
+        const [key1] = key.args; 
+        return key1.toHex() === tx_hash; 
+      })
+      .map(([key, value]) => {
+        const [, registry_id] = key.args; 
+        return {
+          registry_id: registry_id.toHuman(), 
+          registry_entry_id: value.isNone ? null : value.unwrap().toHuman(), 
+        };
+      });
+
+    return matches;
+
+  } catch (error) {
+    console.error(`❌ Error querying entries: ${error.message}`);
+    throw error;
+  }
+}
+
 async function main() {
   const networkAddress = process.env.NETWORK_ADDRESS || 'ws://127.0.0.1:9944';
   const stashUri = process.env.STASH_URI || '//Alice';
@@ -134,7 +165,7 @@ async function main() {
       (event) => api.events.registry.RegistryCreated.is(event),
       0
     );
-    const registryId= identifier;
+    const registryId = identifier;
     console.log(`✅ Registry created with URI: ${registryId}`);
 
     // 📝 Create Registry Entry
@@ -159,7 +190,6 @@ async function main() {
       (event) => api.events.entry.RegistryEntryCreated.is(event),
       2
     );
-
     console.log(`✅ Entry created with URI: ${entryIdentifier}`);
 
     // 🔄 Update Registry Entry
@@ -248,9 +278,16 @@ async function main() {
     const expectedCreator = profileIdentifier2;
     console.log(
       ownershipDetails.creator === expectedCreator
-        ? `✅ Ownership updated to Account 2 (creatorUri: ${expectedCreator})`
+        ? `✅ Ownership updated to Account 2 (creator: ${expectedCreator})`
         : `🚫 Ownership not updated: got ${ownershipDetails.creator}, expected ${expectedCreator}`
     );
+
+		// ❄️ Get Registry & Entry Identifier from the transaction hash
+    console.log("\n❄️ Getting the registry entry identifier from registry entry hash:", entryTxHash);
+	
+    const entries = await getEntriesByTxHash(api, entryTxHash);
+
+    console.log(`\n✅ Registry & Entry Identifier for entry transaction hash ${entryTxHash}:`, entries);
 
   } catch (error) {
     console.error('❌ Error:', error instanceof Error ? error.message : error);
