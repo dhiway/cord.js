@@ -36,9 +36,8 @@ import {
 } from "@cord.network/registry";
 
 import { 
-  EntryUri,
-  RegistryUri,
-  DidUri,
+  EntryId,
+  RegistryId,
   HexString,
   IRegistryEntry,
   IRegistryEntryUpdate,
@@ -66,7 +65,7 @@ import {
  * const entry = {
  *   tx_hash: '0x1234abcd...',
  *   blob: '{"key":"value"}',
- *   registryUri: 'registry:cord:3xygo...',
+ *   registryUri: '2Lwdxygo...',
  * };
  * verifyRegistryEntry(entry);
  * console.log('✅ Entry verified');
@@ -76,13 +75,6 @@ export function verifyRegistryEntry(input: IRegistryEntry): void {
   if (!input.tx_hash) {
     throw new SDKErrors.InvalidInputError('Digest is required.');
   }
-
-  // TODO:
-	// The old way of calculating the identifier will not work.
-	// So disable for now.
-	//   checkIdentifier(input.registryUri);
-	//   checkIdentifier(input.authorizationUri);
-	//   checkIdentifier(input.creatorUri);
 
   DataUtils.verifyIsHex(input.tx_hash, 256);
 
@@ -99,7 +91,7 @@ export function verifyRegistryEntry(input: IRegistryEntry): void {
  * and optional blob. If no `tx_hash` is provided, it computes one from the blob. The blob,
  * if present, is serialized and encoded in CBOR format for chain dispatch.
  *
- * @param registryUri - The URI of the registry (e.g., `registry:cord:3xygo...`).
+ * @param registryId - The id of the registry
  * @param tx_hash - The hash of the entry’s content, or null if computed from `blob`.
  * @param blob - The optional serialized data for the entry, or null.
  * @returns A promise resolving to an `IRegistryEntry` object with the entry properties.
@@ -109,7 +101,7 @@ export function verifyRegistryEntry(input: IRegistryEntry): void {
  * @example
  * ```typescript
  * const entry = await createEntriesProperties(
- *   'registry:cord:3xygo...',
+ *   '2Lwed3xygo...',
  *   null,
  *   '{"key":"value"}'
  * );
@@ -117,7 +109,7 @@ export function verifyRegistryEntry(input: IRegistryEntry): void {
  * ```
  */
 export async function createEntriesProperties(
-  registryUri: RegistryUri,
+  registryId: RegistryId,
   tx_hash: HexString | null = null,
   blob: string | null = null,
 ): Promise<IRegistryEntry> {
@@ -161,7 +153,7 @@ export async function createEntriesProperties(
   const registryEntryObj = {
     tx_hash,
     blob,
-    registryUri,
+    registryId,
   };
 
   /* Process the entry object before dispatch */
@@ -186,8 +178,8 @@ export async function createEntriesProperties(
  * transaction hash, and optional blob. If no `tx_hash` is provided, it computes one from
  * the blob. The blob, if present, is serialized and encoded in CBOR format.
  *
- * @param registryUri - The URI of the registry (e.g., `registry:cord:3xygo...`).
- * @param registryEntryUri - The URI of the entry to update (e.g., `entry:cord:abc123...`).
+ * @param registryId - The identifier of the registry
+ * @param registryEntryId - The identifier of the entry to update 
  * @param tx_hash - The new hash of the entry’s content, or null if computed from `blob`.
  * @param blob - The optional updated serialized data, or null.
  * @returns A promise resolving to an `IRegistryEntryUpdate` object with the updated properties.
@@ -197,8 +189,8 @@ export async function createEntriesProperties(
  * @example
  * ```typescript
  * const updatedEntry = await updateEntriesProperties(
- *   'registry:cord:3xygo...',
- *   'entry:cord:abc123...',
+ *   '2hwdw3xygo...',
+ *   '2Lqewdabc123...',
  *   null,
  *   '{"key":"updated"}'
  * );
@@ -206,8 +198,8 @@ export async function createEntriesProperties(
  * ```
  */
 export async function updateEntriesProperties(
-  registryUri: RegistryUri,
-  registryEntryUri: EntryUri,
+  registryId: RegistryId,
+  registryEntryId: EntryId,
   tx_hash: HexString | null = null,
   blob: string | null = null,
 ): Promise<IRegistryEntryUpdate> {
@@ -247,21 +239,12 @@ export async function updateEntriesProperties(
       `Digest cannot be empty.`
     );
   }
-
-  // TODO: Update below once the identifier calculation support is reached
-  /* 
-   * Update the entryUri to have newer digest as suffix 
-   * Below `entryUri` is of type `entry:cord:IdDigest:entryDigest`
-   */
-  // const entryUri = updateRegistryEntryUri(
-  //   registryEntryUri, digest
-  // );
   
   const registryEntryObj = {
     tx_hash,
     blob,
-    registryUri,
-    registryEntryUri,
+    registryId,
+    registryEntryId,
   };
 
   /* Process the entry object before dispatch */
@@ -285,36 +268,32 @@ export async function updateEntriesProperties(
  * Ensures that the provided transaction hash, and optional creator URI and registry URI,
  * match the data stored on the blockchain. Also checks if the entry is revoked or if URIs mismatch.
  *
- * @param registryEntryUri - The URI of the entry to verify (e.g., `entry:cord:abc123...`).
+ * @param registryEntryId - The id of the entry to verify.
  * @param tx_hash - The expected transaction hash associated with the entry.
- * @param creatorUri - Optional DID URI of the entry’s creator.
- * @param registryUri - Optional URI of the registry.
+ * @param creatorAddress - Optional address of the entry’s creator profile id.
+ * @param registryId - Optional id of the registry.
  * @returns A promise resolving to an object with `isValid` (boolean) and `message` (string) describing the verification result.
  * @throws {Error} If an unexpected error occurs during verification.
  *
  * @example
  * ```typescript
  * const result = await verifyAgainstInputProperties(
- *   'entry:cord:abc123...',
+ *   '2Lwedabc123...',
  *   '0x1234abcd...',
- *   'did:cord:3xygo...',
- *   'registry:cord:3xygo...'
+ *   '2wed3xygo...',
+ *   '3HJB3xygo...'
  * );
  * console.log('✅', result.isValid, result.message);
  * ```
  */
 export async function verifyAgainstInputProperties(
-  registryEntryUri: EntryUri,
+  registryEntryId: EntryId,
   tx_hash: HexString,
-  creatorUri?: DidUri,
-  registryUri?: RegistryUri,
+  creator?: string,
+  registryId?: RegistryId,
 ): Promise<{ isValid: boolean; message: string }> {
   try {
-    const registryEntryStatus = await fetchRegistryEntryDetailsFromChain(registryEntryUri);
-    
-    // TODO: Once the identifier calculation support is reached, can do like below
-    // const registryEntryObj = uriToEntryIdAndDigest(registryEntryUri);
-    // const entryUri = identifierToUri(registryEntryObj.identifier);
+    const registryEntryStatus = await fetchRegistryEntryDetailsFromChain(registryEntryId);
 
     if (!registryEntryStatus) {
       return {
@@ -333,19 +312,19 @@ export async function verifyAgainstInputProperties(
     if (registryEntryStatus?.revoked) {
       return {
         isValid: false,
-        message: `Registry Entry "${registryEntryUri}" Revoked.`,
+        message: `Registry Entry "${registryEntryId}" Revoked.`,
       }
     }
 
-    if (registryEntryUri !== registryEntryStatus.uri) {
+    if (registryEntryId !== registryEntryStatus.registryEntryId) {
       return {
         isValid: false,
         message: 'Registry Entry and Chain Entry URI details does not match.',
       }
     }
 
-    if (creatorUri) {
-      if (creatorUri !== registryEntryStatus.creatorUri) {
+    if (creator) {
+      if (creator !== registryEntryStatus.creator) {
         return {
           isValid: false,
           message: 'Registry Entry and Digest creator does not match.',
@@ -353,8 +332,8 @@ export async function verifyAgainstInputProperties(
       }
     }
 
-    if (registryUri) {
-      if (registryUri !== registryEntryStatus.registryUri) {
+    if (registryId) {
+      if (registryId !== registryEntryStatus.registryId) {
         return {
           isValid: false,
           message: 'Registry URI and Chain Registry URI does not match.',

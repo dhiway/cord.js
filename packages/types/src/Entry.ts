@@ -1,47 +1,46 @@
 import { HexString } from './Imported.js'
-import { DidUri }  from './DidDocument.js'
 import { 
-  RegistryUri
+  RegistryId
 } from './Registry.js'
 
 export const ENTRY_PREFIX = 'entry:cord:';
-export type EntryUri = `${typeof ENTRY_PREFIX}${string}`;
 export type EntryId = string;
 export type EntryDigest = HexString;
+export type EntryUri = `${typeof ENTRY_PREFIX}${string}`;
 
 export interface IRegistryEntry {
   tx_hash: HexString
   blob: string | null
-  registryUri: RegistryUri
+  registryId: RegistryId
 }
 
 export interface IRegistryEntryUpdate {
   tx_hash: HexString
   blob: string | null
-  registryUri: RegistryUri
-  registryEntryUri: EntryUri
+  registryId: RegistryId
+  registryEntryId: EntryId
 }
 
 export interface IRegistryEntryDetails {
-  uri: EntryUri
+  registryEntryId: EntryId
   tx_hash: HexString
   blob: string | null
-  registryUri: RegistryUri
+  registryId: RegistryId
 }
 
 export interface IRegistryEntryStatus {
-  uri: EntryUri
+  registryEntryId: EntryId
   tx_hash: HexString
   blob: string | null
-  registryUri: RegistryUri
-  creatorUri: DidUri
+  registryId: RegistryId
+  creatorAddress: string
   revoked: boolean
 }
 
 export interface IRegistryEntryChainStorage {
-    uri: EntryUri
+    registryEntryId: EntryId
     tx_hash: HexString
     revoked: boolean
-    creatorUri: DidUri
-    registryUri: RegistryUri
+    creator: string
+    registryId: RegistryId
 }
