@@ -1149,6 +1149,7 @@ declare module '@polkadot/api-base/types/events' {
       RegistryArchived: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes], { registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
       RegistryCreated: AugmentedEvent<ApiType, [registry_: Bytes, creator: AccountId32, profileId: Bytes], { registry_: Bytes, creator: AccountId32, profileId: Bytes }>;
       RegistryRestored: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes], { registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
+      RegistryStoreCreated: AugmentedEvent<ApiType, [registry_: Bytes, creator: AccountId32, profileId: Bytes], { registry_: Bytes, creator: AccountId32, profileId: Bytes }>;
       RegistryUpdated: AugmentedEvent<ApiType, [registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes], { registry_: Bytes, authority: AccountId32, authorityProfileId: Bytes }>;
     };
     remark: {
