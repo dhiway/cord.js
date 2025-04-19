@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/registry",
-  "version": "0.9.5-1rc1",
+  "version": "0.9.6-1",
   "description": "CORD Registry Management",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",

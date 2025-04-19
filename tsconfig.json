@@ -26,9 +26,6 @@
       "@cord.network/utils": [
         "utils/src"
       ],
-      "@cord.network/did": [
-        "did/src"
-      ],
       "@cord.network/docs": [
         "docs/src"
       ],
@@ -43,6 +40,19 @@
       ],
       "@cord.network/identifier": [
         "identifier/src"
+      ],
+      "@cord.network/profile": [
+        "profile/src"
+      ],
+      "@cord.network/registry": [
+        "registry/src"
+      ],
+      "@cord.network/entry": [
+        "entry/src"
+      ],
+/*	
+      "@cord.network/did": [
+        "did/src"
       ],
       "@cord.network/chain-space": [
         "chain-space/src"
@@ -62,15 +72,7 @@
       "@cord.network/registries": [
         "registries/src"
       ],
-      "@cord.network/profile": [
-        "profile/src"
-      ],
-      "@cord.network/registry": [
-        "registry/src"
-      ],
-      "@cord.network/entry": [
-        "entry/src"
-      ],
+*/
     }
   }
 }
