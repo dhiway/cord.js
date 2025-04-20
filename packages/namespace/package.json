@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/namespace",
-  "version": "0.9.3-1rc4",
+  "version": "0.9.6-1",
   "description": "CORD Namespace Management",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
