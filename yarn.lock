@@ -1837,6 +1837,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cord.network/utils@workspace:packages/utils"
   dependencies:
+    "@cord.network/augment-api": "workspace:*"
     "@cord.network/types": "workspace:*"
     "@polkadot/api": "npm:^15.9.1"
     "@polkadot/keyring": "npm:^13.4.3"
