@@ -11,6 +11,8 @@ import { ApiPromise } from '@polkadot/api';
 import { decodeAddress, base58Encode } from '@polkadot/util-crypto';
 import { Option } from '@polkadot/types';
 import { PalletProfileProfileMetadata } from '@cord.network/augment-api';
+import { base58btc } from 'multiformats/bases/base58';
+import { encodeAddress } from '@polkadot/util-crypto';
 
 interface ResolveDidResponse {
   doc: string;
@@ -19,6 +21,7 @@ interface ResolveDidResponse {
 interface ProfileMetadata {
   latestKey?: string;
 }
+
 
 // Utility function to extract DID identifier and optional latestKey
 export function extractIdentifier(did: string): { profileId: string | null; latestKey: string | null } {
@@ -34,6 +37,7 @@ export function extractIdentifier(did: string): { profileId: string | null; late
   return { profileId, latestKey };
 }
 
+
 // Utility function to convert SS58 address to public key bytes
 export function ss58AddressToPublicKeyBytes(accountId: string): Buffer | null {
   try {
@@ -44,10 +48,12 @@ export function ss58AddressToPublicKeyBytes(accountId: string): Buffer | null {
   }
 }
 
+
 // Utility function to determine key type
 export function getKeyType(accountId: string): string {
   return 'Ed25519VerificationKey2020';
 }
+
 
 // Define query function using provided api
 export async function queryProfiles(profileId: string, api: ApiPromise): Promise<ProfileMetadata | null> {
@@ -62,6 +68,7 @@ export async function queryProfiles(profileId: string, api: ApiPromise): Promise
       latestKey: metadata.latestKey?.toHuman() || '',
   };
 }
+
 
 // Main function to resolve DID document
 export async function resolveDidDoc(did: string, api: ApiPromise): Promise<ResolveDidResponse> {
@@ -98,7 +105,11 @@ export async function resolveDidDoc(did: string, api: ApiPromise): Promise<Resol
 
   const didDocId = did; 
   const publicKeyId = `did:cord:${profileId}#${latestKey}`; 
-  const publicKeyMultibase = `z${base58Encode(publicKeyBytes)}`;
+
+  const multicodecPrefix = Buffer.from([0xed]);
+  const prefixedKey = Buffer.concat([multicodecPrefix, publicKeyBytes]);
+  const publicKeyMultibase = `z${base58Encode(prefixedKey)}`;
+
   const verificationType = getKeyType(latestKey);
 
   const didDocument: any = {
@@ -119,4 +130,32 @@ export async function resolveDidDoc(did: string, api: ApiPromise): Promise<Resol
   const didDocumentString = JSON.stringify(didDocument, null, 2);
 
   return { doc: didDocumentString };
+}
+
+
+/**
+ * Verifies that the given multibase public key matches the provided SS58 address.
+ * Returns the raw public key if it matches, or null if invalid.
+ */
+export async function verifyMultibaseKey(multibaseKey: string, accountAddress: string): Promise<Boolean> {
+  try {
+    const decoded = base58btc.decode(multibaseKey);
+
+    if (decoded[0] !== 0xed) {
+      console.warn('Not an Ed25519 multicodec key');
+    }
+
+    const rawPublicKey = decoded.slice(1);
+
+    const derivedAddress = encodeAddress(rawPublicKey, 29); 
+    if (derivedAddress !== accountAddress.toString()) {
+      console.warn('Public key does not match the account address');
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error decoding multibase key:', error);
+    return false;
+  }
 }
