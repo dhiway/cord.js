@@ -112,10 +112,18 @@ async function main() {
         console.log(`\n🔍 Latest Key for profileId: ${profileId}, latestKey: ${latestKey}`);
 
         console.log(`\n📜 Resolving DID document for did:cord:${profileId}:${latestKey}...`);
-        const did = `did:cord:${profileId}:${latestKey}`;
+        const did = `did:cord:${profileId}`;
         const didResponse = await DidResolver.resolveDidDoc(did, api);
         console.log('✅ DID Document resolved successfully:');
         console.log(didResponse.doc);
+
+        console.log("\n📜 Verifying PublicMultiBaseKey correctness...");
+        const jsonDidDoc = JSON.parse(didResponse.doc);
+        console.log('PublicMultiBaseKey:', jsonDidDoc.verificationMethod[0].publicKeyMultibase);
+        const accountId = api.createType('AccountId', account1.address);
+        const res = await DidResolver.verifyMultibaseKey(jsonDidDoc.verificationMethod[0].publicKeyMultibase, accountId);
+        console.log(res ? '✅ PublicMultiBaseKey is correct' : '❌ PublicMultiBaseKey is incorrect');
+
       } catch (error) {
         console.error('❌ DID resolution failed:', error instanceof Error ? error.message : error);
       }
