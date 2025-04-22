@@ -76,7 +76,7 @@ export async function resolveDidDoc(did: string, api: ApiPromise): Promise<Resol
     throw new Error('Missing DID field');
   }
 
-  const { profileId, latestKey: providedLatestKey } = extractIdentifier(did);
+  const { profileId, latestKey: _providedLatestKey } = extractIdentifier(did);
   if (!profileId) {
     throw new Error('Invalid DID format');
   }
@@ -93,9 +93,10 @@ export async function resolveDidDoc(did: string, api: ApiPromise): Promise<Resol
     throw new Error('Profile not found');
   }
 
-  if (providedLatestKey && providedLatestKey !== profileMetadata.latestKey) {
-    throw new Error('Provided latestKey does not match profile metadata');
-  }
+  /* Disbale check of key for now, once we have historical keys support in indexer we can have this */
+  // if (providedLatestKey && providedLatestKey !== profileMetadata.latestKey) {
+  //   throw new Error('Provided latestKey does not match profile metadata');
+  // }
 
   const { latestKey } = profileMetadata;
   const publicKeyBytes = ss58AddressToPublicKeyBytes(latestKey);
@@ -103,7 +104,8 @@ export async function resolveDidDoc(did: string, api: ApiPromise): Promise<Resol
     throw new Error('Invalid SS58 address');
   }
 
-  const didDocId = did; 
+  const didDocId = did;
+  const controller = `did:cord:${profileId}:${latestKey}`; 
   const publicKeyId = `did:cord:${profileId}#${latestKey}`; 
 
   const multicodecPrefix = Buffer.from([0xed]);
@@ -119,7 +121,7 @@ export async function resolveDidDoc(did: string, api: ApiPromise): Promise<Resol
       {
         id: publicKeyId,
         type: verificationType,
-        controller: didDocId,
+        controller: controller,
         publicKeyMultibase: publicKeyMultibase,
       },
     ],
