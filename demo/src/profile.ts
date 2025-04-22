@@ -112,7 +112,7 @@ async function main() {
         console.log(`\n🔍 Latest Key for profileId: ${profileId}, latestKey: ${latestKey}`);
 
         console.log(`\n📜 Resolving DID document for did:cord:${profileId}:${latestKey}...`);
-        const did = `did:cord:${profileId}`;
+        const did = `did:cord:${profileId}:${latestKey}`;
         const didResponse = await DidResolver.resolveDidDoc(did, api);
         console.log('✅ DID Document resolved successfully:');
         console.log(didResponse.doc);
