@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/chain-space-did",
-  "version": "0.9.6-1",
+  "version": "0.9.6-5",
   "description": "CORD Chain Space",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
