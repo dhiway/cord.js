@@ -8173,10 +8173,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"multiformats@npm:^9.0.0":
-  version: 9.9.0
-  resolution: "multiformats@npm:9.9.0"
-  checksum: ad55c7d480d22f4258a68fd88aa2aab744fe0cb1e68d732fc886f67d858b37e3aa6c2cec12b2960ead7730d43be690931485238569952d8a3d7f90fdc726c652
+"multiformats@npm:^13.3.7":
+  version: 13.3.7
+  resolution: "multiformats@npm:13.3.7"
+  checksum: 67ed738e51cbb8c6f23eb42f1fe585578a279e8c9a6c0198d3b140183ef8a10e976ba6edc7c5091d6b85258eb73f903592e9fe42779c18e2a78ecab3bd2ed429
   languageName: node
   linkType: hard
 
@@ -9188,7 +9188,7 @@ __metadata:
     husky: "npm:^9.0.10"
     jest: "npm:^29.7.0"
     moment: "npm:^2.30.1"
-    multiformats: "npm:^9.0.0"
+    multiformats: "npm:^13.3.7"
     prettier: "npm:^3.2.5"
     rimraf: "npm:^5.0.5"
     testcontainers: "npm:^10.7.1"
