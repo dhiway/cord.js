@@ -8,8 +8,8 @@ import '@polkadot/api-base/types/events';
 import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
 import type { Bytes, Null, Option, Result, U8aFixed, Vec, bool, u128, u32, u64, u8 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
-import type { AccountId32, H160, H256, Perbill, Permill } from '@polkadot/types/interfaces/runtime';
-import type { FrameSupportDispatchPostDispatchInfo, FrameSupportMessagesProcessMessageError, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscBalanceStatus, FrameSystemDispatchEventInfo, PalletContractsOrigin, PalletElectionProviderMultiPhaseElectionCompute, PalletElectionProviderMultiPhasePhase, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, PalletNftsAttributeNamespace, PalletNftsPalletAttributes, PalletNftsPriceWithDirection, PalletNominationPoolsCommissionChangeRate, PalletNominationPoolsCommissionClaimPermission, PalletNominationPoolsPoolState, PalletSafeModeExitReason, PalletStakingForcing, PalletStakingRewardDestination, PalletStakingValidatorPrefs, PalletStateTrieMigrationError, PalletStateTrieMigrationMigrationCompute, SpConsensusGrandpaAppPublic, SpNposElectionsElectionScore, SpRuntimeDispatchError, SpRuntimeDispatchErrorWithPostInfo, SpStakingExposure, SpStatementStoreStatement, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { AccountId32, H256, Perbill, Permill } from '@polkadot/types/interfaces/runtime';
+import type { FrameSupportDispatchPostDispatchInfo, FrameSupportMessagesProcessMessageError, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscBalanceStatus, FrameSystemDispatchEventInfo, PalletContractsOrigin, PalletElectionProviderMultiPhaseElectionCompute, PalletElectionProviderMultiPhasePhase, PalletImOnlineSr25519AppSr25519Public, PalletMultisigTimepoint, PalletNftsAttributeNamespace, PalletNftsPalletAttributes, PalletNftsPriceWithDirection, PalletNominationPoolsClaimPermission, PalletNominationPoolsCommissionChangeRate, PalletNominationPoolsCommissionClaimPermission, PalletNominationPoolsPoolState, PalletSafeModeExitReason, PalletStakingForcing, PalletStakingRewardDestination, PalletStakingValidatorPrefs, PalletStateTrieMigrationError, PalletStateTrieMigrationMigrationCompute, SpConsensusGrandpaAppPublic, SpNposElectionsElectionScore, SpRuntimeDispatchError, SpRuntimeDispatchErrorWithPostInfo, SpStakingExposure, SpStatementStoreStatement, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedEvent<ApiType extends ApiTypes> = AugmentedEvent<ApiType>;
 
@@ -413,6 +413,12 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Slashed: AugmentedEvent<ApiType, [agent: AccountId32, delegator: AccountId32, amount: u128], { agent: AccountId32, delegator: AccountId32, amount: u128 }>;
     };
+    doken: {
+      /**
+       * A doken state was updated.
+       **/
+      StateChange: AugmentedEvent<ApiType, [doken: Bytes, state: u32, action: Bytes], { doken: Bytes, state: u32, action: Bytes }>;
+    };
     electionProviderMultiPhase: {
       /**
        * An election failed.
@@ -446,6 +452,64 @@ declare module '@polkadot/api-base/types/events' {
        * room for this one.
        **/
       SolutionStored: AugmentedEvent<ApiType, [compute: PalletElectionProviderMultiPhaseElectionCompute, origin: Option<AccountId32>, prevEjected: bool], { compute: PalletElectionProviderMultiPhaseElectionCompute, origin: Option<AccountId32>, prevEjected: bool }>;
+    };
+    entity: {
+      /**
+       * An entity attribute was removed.
+       **/
+      EntityAttributeRemoved: AugmentedEvent<ApiType, [who: AccountId32, doken: Bytes, attr: Bytes], { who: AccountId32, doken: Bytes, attr: Bytes }>;
+      /**
+       * An entity attribute was rotated.
+       **/
+      EntityAttributeRotated: AugmentedEvent<ApiType, [who: AccountId32, doken: Bytes, attr: Bytes], { who: AccountId32, doken: Bytes, attr: Bytes }>;
+      /**
+       * An entity attribute was updated.
+       **/
+      EntityAttributeUpdated: AugmentedEvent<ApiType, [who: AccountId32, doken: Bytes], { who: AccountId32, doken: Bytes }>;
+      /**
+       * A controller was rotated.
+       **/
+      EntityControllerRotated: AugmentedEvent<ApiType, [doken: Bytes, new_: AccountId32], { doken: Bytes, new_: AccountId32 }>;
+      /**
+       * A controller was rotated by root or council.
+       **/
+      EntityControllerRotatedFor: AugmentedEvent<ApiType, [doken: Bytes, new_: AccountId32], { doken: Bytes, new_: AccountId32 }>;
+      /**
+       * A name was cleared.
+       **/
+      EntityInfoCleared: AugmentedEvent<ApiType, [doken: Bytes], { doken: Bytes }>;
+      /**
+       * A name was cleared by root or council.
+       **/
+      EntityInfoClearedFor: AugmentedEvent<ApiType, [doken: Bytes], { doken: Bytes }>;
+      /**
+       * A name was set or reset (which will remove all judgements).
+       **/
+      EntityInfoSet: AugmentedEvent<ApiType, [who: AccountId32, doken: Bytes], { who: AccountId32, doken: Bytes }>;
+      /**
+       * An entity info was updated.
+       **/
+      EntityInfoUpdated: AugmentedEvent<ApiType, [who: AccountId32, doken: Bytes], { who: AccountId32, doken: Bytes }>;
+      /**
+       * A sub-account was added to an entity.
+       **/
+      EntitySubAccountAdded: AugmentedEvent<ApiType, [sub: AccountId32, doken: Bytes], { sub: AccountId32, doken: Bytes }>;
+      /**
+       * A sub-identity was revoked
+       **/
+      EntitySubAccountRevoked: AugmentedEvent<ApiType, [sub: AccountId32, doken: Bytes], { sub: AccountId32, doken: Bytes }>;
+      /**
+       * A sub-identity was revoked by root or council
+       **/
+      EntitySubAccountRevokedFor: AugmentedEvent<ApiType, [sub: AccountId32, doken: Bytes], { sub: AccountId32, doken: Bytes }>;
+      /**
+       * A username was set for `who`.
+       **/
+      Ss58IdNameAdded: AugmentedEvent<ApiType, [doken: Bytes, name: Bytes], { doken: Bytes, name: Bytes }>;
+      /**
+       * A username has been removed.
+       **/
+      Ss58IdNameRemoved: AugmentedEvent<ApiType, [doken: Bytes], { doken: Bytes }>;
     };
     entry: {
       /**
@@ -513,98 +577,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Resumed: AugmentedEvent<ApiType, []>;
     };
-    identity: {
-      /**
-       * A username authority was added.
-       **/
-      AuthorityAdded: AugmentedEvent<ApiType, [authority: AccountId32], { authority: AccountId32 }>;
-      /**
-       * A username authority was removed.
-       **/
-      AuthorityRemoved: AugmentedEvent<ApiType, [authority: AccountId32], { authority: AccountId32 }>;
-      /**
-       * A dangling username (as in, a username corresponding to an account that has removed its
-       * identity) has been removed.
-       **/
-      DanglingUsernameRemoved: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes], { who: AccountId32, username: Bytes }>;
-      /**
-       * A name was cleared, and the given balance returned.
-       **/
-      IdentityCleared: AugmentedEvent<ApiType, [who: AccountId32, deposit: u128], { who: AccountId32, deposit: u128 }>;
-      /**
-       * A name was removed and the given balance slashed.
-       **/
-      IdentityKilled: AugmentedEvent<ApiType, [who: AccountId32, deposit: u128], { who: AccountId32, deposit: u128 }>;
-      /**
-       * A name was set or reset (which will remove all judgements).
-       **/
-      IdentitySet: AugmentedEvent<ApiType, [who: AccountId32], { who: AccountId32 }>;
-      /**
-       * A judgement was given by a registrar.
-       **/
-      JudgementGiven: AugmentedEvent<ApiType, [target: AccountId32, registrarIndex: u32], { target: AccountId32, registrarIndex: u32 }>;
-      /**
-       * A judgement was asked from a registrar.
-       **/
-      JudgementRequested: AugmentedEvent<ApiType, [who: AccountId32, registrarIndex: u32], { who: AccountId32, registrarIndex: u32 }>;
-      /**
-       * A judgement request was retracted.
-       **/
-      JudgementUnrequested: AugmentedEvent<ApiType, [who: AccountId32, registrarIndex: u32], { who: AccountId32, registrarIndex: u32 }>;
-      /**
-       * A queued username passed its expiration without being claimed and was removed.
-       **/
-      PreapprovalExpired: AugmentedEvent<ApiType, [whose: AccountId32], { whose: AccountId32 }>;
-      /**
-       * A username was set as a primary and can be looked up from `who`.
-       **/
-      PrimaryUsernameSet: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes], { who: AccountId32, username: Bytes }>;
-      /**
-       * A registrar was added.
-       **/
-      RegistrarAdded: AugmentedEvent<ApiType, [registrarIndex: u32], { registrarIndex: u32 }>;
-      /**
-       * An account's sub-identities were set (in bulk).
-       **/
-      SubIdentitiesSet: AugmentedEvent<ApiType, [main: AccountId32, numberOfSubs: u32, newDeposit: u128], { main: AccountId32, numberOfSubs: u32, newDeposit: u128 }>;
-      /**
-       * A sub-identity was added to an identity and the deposit paid.
-       **/
-      SubIdentityAdded: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
-      /**
-       * A sub-identity was removed from an identity and the deposit freed.
-       **/
-      SubIdentityRemoved: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
-      /**
-       * A given sub-account's associated name was changed by its super-identity.
-       **/
-      SubIdentityRenamed: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32], { sub: AccountId32, main: AccountId32 }>;
-      /**
-       * A sub-identity was cleared, and the given deposit repatriated from the
-       * main identity account to the sub-identity account.
-       **/
-      SubIdentityRevoked: AugmentedEvent<ApiType, [sub: AccountId32, main: AccountId32, deposit: u128], { sub: AccountId32, main: AccountId32, deposit: u128 }>;
-      /**
-       * A username has been killed.
-       **/
-      UsernameKilled: AugmentedEvent<ApiType, [username: Bytes], { username: Bytes }>;
-      /**
-       * A username was queued, but `who` must accept it prior to `expiration`.
-       **/
-      UsernameQueued: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes, expiration: u32], { who: AccountId32, username: Bytes, expiration: u32 }>;
-      /**
-       * A username has been removed.
-       **/
-      UsernameRemoved: AugmentedEvent<ApiType, [username: Bytes], { username: Bytes }>;
-      /**
-       * A username was set for `who`.
-       **/
-      UsernameSet: AugmentedEvent<ApiType, [who: AccountId32, username: Bytes], { who: AccountId32, username: Bytes }>;
-      /**
-       * A username has been unbound.
-       **/
-      UsernameUnbound: AugmentedEvent<ApiType, [username: Bytes], { username: Bytes }>;
-    };
     imOnline: {
       /**
        * At the end of the session, no offence was committed.
@@ -620,6 +592,10 @@ declare module '@polkadot/api-base/types/events' {
       SomeOffline: AugmentedEvent<ApiType, [offline: Vec<ITuple<[AccountId32, SpStakingExposure]>>], { offline: Vec<ITuple<[AccountId32, SpStakingExposure]>> }>;
     };
     indices: {
+      /**
+       * A deposit to reserve an index has been poked/reconsidered.
+       **/
+      DepositPoked: AugmentedEvent<ApiType, [who: AccountId32, index: u32, oldDeposit: u128, newDeposit: u128], { who: AccountId32, index: u32, oldDeposit: u128, newDeposit: u128 }>;
       /**
        * A account index was assigned.
        **/
@@ -704,6 +680,10 @@ declare module '@polkadot/api-base/types/events' {
     };
     multisig: {
       /**
+       * The deposit for a multisig operation has been updated/poked.
+       **/
+      DepositPoked: AugmentedEvent<ApiType, [who: AccountId32, callHash: U8aFixed, oldDeposit: u128, newDeposit: u128], { who: AccountId32, callHash: U8aFixed, oldDeposit: u128, newDeposit: u128 }>;
+      /**
        * A multisig operation has been approved by someone.
        **/
       MultisigApproval: AugmentedEvent<ApiType, [approving: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed], { approving: AccountId32, timepoint: PalletMultisigTimepoint, multisig: AccountId32, callHash: U8aFixed }>;
@@ -719,27 +699,6 @@ declare module '@polkadot/api-base/types/events' {
        * A new multisig operation has begun.
        **/
       NewMultisig: AugmentedEvent<ApiType, [approving: AccountId32, multisig: AccountId32, callHash: U8aFixed], { approving: AccountId32, multisig: AccountId32, callHash: U8aFixed }>;
-    };
-    networkInfo: {
-      /**
-       * Network Info added.
-       **/
-      NetworkInfo: AugmentedEvent<ApiType, [network: u32, manager: AccountId32], { network: u32, manager: AccountId32 }>;
-      NetworkNameUpdate: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
-      NetworkRpcRemove: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
-      NetworkRpcUpdate: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
-      NetworkWebUpdate: AugmentedEvent<ApiType, [network: u32], { network: u32 }>;
-      StorageNodeAdded: AugmentedEvent<ApiType, [identifier: Bytes, node: Bytes], { identifier: Bytes, node: Bytes }>;
-      StorageNodeRemoved: AugmentedEvent<ApiType, [identifier: Bytes, node: Bytes], { identifier: Bytes, node: Bytes }>;
-      StorageNodeUpdated: AugmentedEvent<ApiType, [identifier: Bytes, node: Bytes], { identifier: Bytes, node: Bytes }>;
-    };
-    networkRegistrar: {
-      Deregistered: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
-      Expired: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
-      Registered: AugmentedEvent<ApiType, [networkId: u32, manager: AccountId32, token: Bytes], { networkId: u32, manager: AccountId32, token: Bytes }>;
-      RenewalScheduled: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
-      Renewed: AugmentedEvent<ApiType, [networkId: u32], { networkId: u32 }>;
-      Reserved: AugmentedEvent<ApiType, [networkId: u32, who: AccountId32, token: Bytes], { networkId: u32, who: AccountId32, token: Bytes }>;
     };
     nftFractionalization: {
       /**
@@ -922,6 +881,14 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Destroyed: AugmentedEvent<ApiType, [poolId: u32], { poolId: u32 }>;
       /**
+       * Global parameters regulating nomination pools have been updated.
+       **/
+      GlobalParamsUpdated: AugmentedEvent<ApiType, [minJoinBond: u128, minCreateBond: u128, maxPools: Option<u32>, maxMembers: Option<u32>, maxMembersPerPool: Option<u32>, globalMaxCommission: Option<Perbill>], { minJoinBond: u128, minCreateBond: u128, maxPools: Option<u32>, maxMembers: Option<u32>, maxMembersPerPool: Option<u32>, globalMaxCommission: Option<Perbill> }>;
+      /**
+       * A pool member's claim permission has been updated.
+       **/
+      MemberClaimPermissionUpdated: AugmentedEvent<ApiType, [member: AccountId32, permission: PalletNominationPoolsClaimPermission], { member: AccountId32, permission: PalletNominationPoolsClaimPermission }>;
+      /**
        * A member has been removed from a pool.
        * 
        * The removal can be voluntary (withdrawn all unbonded funds) or involuntary (kicked).
@@ -929,6 +896,10 @@ declare module '@polkadot/api-base/types/events' {
        * represented by `released_balance`.
        **/
       MemberRemoved: AugmentedEvent<ApiType, [poolId: u32, member: AccountId32, releasedBalance: u128], { poolId: u32, member: AccountId32, releasedBalance: u128 }>;
+      /**
+       * A pool's metadata was updated.
+       **/
+      MetadataUpdated: AugmentedEvent<ApiType, [poolId: u32, caller: AccountId32], { poolId: u32, caller: AccountId32 }>;
       /**
        * Topped up deficit in frozen ED of the reward pool.
        **/
@@ -961,6 +932,15 @@ declare module '@polkadot/api-base/types/events' {
        * A pool's maximum commission setting has been changed.
        **/
       PoolMaxCommissionUpdated: AugmentedEvent<ApiType, [poolId: u32, maxCommission: Perbill], { poolId: u32, maxCommission: Perbill }>;
+      /**
+       * A pool's nominating account (or the pool's root account) has nominated a validator set
+       * on behalf of the pool.
+       **/
+      PoolNominationMade: AugmentedEvent<ApiType, [poolId: u32, caller: AccountId32], { poolId: u32, caller: AccountId32 }>;
+      /**
+       * The pool is chilled i.e. no longer nominating.
+       **/
+      PoolNominatorChilled: AugmentedEvent<ApiType, [poolId: u32, caller: AccountId32], { poolId: u32, caller: AccountId32 }>;
       /**
        * The active balance of pool `pool_id` has been slashed to `balance`.
        **/
@@ -1158,12 +1138,6 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Stored: AugmentedEvent<ApiType, [sender: AccountId32, contentHash: H256], { sender: AccountId32, contentHash: H256 }>;
     };
-    revive: {
-      /**
-       * A custom event emitted by the contract.
-       **/
-      ContractEmitted: AugmentedEvent<ApiType, [contract: H160, data: Bytes, topics: Vec<H256>], { contract: H160, data: Bytes, topics: Vec<H256> }>;
-    };
     rootTesting: {
       /**
        * Event dispatched when the trigger_defensive extrinsic is called.
@@ -1210,6 +1184,10 @@ declare module '@polkadot/api-base/types/events' {
     };
     scheduler: {
       /**
+       * Agenda is incomplete from `when`.
+       **/
+      AgendaIncomplete: AugmentedEvent<ApiType, [when: u32], { when: u32 }>;
+      /**
        * The call for the provided hash was not found so the task has been aborted.
        **/
       CallUnavailable: AugmentedEvent<ApiType, [task: ITuple<[u32, u32]>, id: Option<U8aFixed>], { task: ITuple<[u32, u32]>, id: Option<U8aFixed> }>;
@@ -1253,6 +1231,14 @@ declare module '@polkadot/api-base/types/events' {
        * block number as the type might suggest.
        **/
       NewSession: AugmentedEvent<ApiType, [sessionIndex: u32], { sessionIndex: u32 }>;
+      /**
+       * Validator has been disabled.
+       **/
+      ValidatorDisabled: AugmentedEvent<ApiType, [validator: AccountId32], { validator: AccountId32 }>;
+      /**
+       * Validator has been re-enabled.
+       **/
+      ValidatorReenabled: AugmentedEvent<ApiType, [validator: AccountId32], { validator: AccountId32 }>;
     };
     staking: {
       /**
@@ -1331,17 +1317,9 @@ declare module '@polkadot/api-base/types/events' {
        **/
       Unbonded: AugmentedEvent<ApiType, [stash: AccountId32, amount: u128], { stash: AccountId32, amount: u128 }>;
       /**
-       * Validator has been disabled.
-       **/
-      ValidatorDisabled: AugmentedEvent<ApiType, [stash: AccountId32], { stash: AccountId32 }>;
-      /**
        * A validator has set their preferences.
        **/
       ValidatorPrefsSet: AugmentedEvent<ApiType, [stash: AccountId32, prefs: PalletStakingValidatorPrefs], { stash: AccountId32, prefs: PalletStakingValidatorPrefs }>;
-      /**
-       * Validator has been re-enabled.
-       **/
-      ValidatorReenabled: AugmentedEvent<ApiType, [stash: AccountId32], { stash: AccountId32 }>;
       /**
        * An account has called `withdraw_unbonded` and removed unbonding chunks worth `Balance`
        * from the unlocking queue.
@@ -1412,6 +1390,10 @@ declare module '@polkadot/api-base/types/events' {
        * A new account was created.
        **/
       NewAccount: AugmentedEvent<ApiType, [account: AccountId32], { account: AccountId32 }>;
+      /**
+       * An invalid authorized upgrade was rejected while trying to apply it.
+       **/
+      RejectedInvalidAuthorizedUpgrade: AugmentedEvent<ApiType, [codeHash: H256, error: SpRuntimeDispatchError], { codeHash: H256, error: SpRuntimeDispatchError }>;
       /**
        * On on-chain remark happened.
        **/
@@ -1577,6 +1559,14 @@ declare module '@polkadot/api-base/types/events' {
        * A call was dispatched.
        **/
       DispatchedAs: AugmentedEvent<ApiType, [result: Result<Null, SpRuntimeDispatchError>], { result: Result<Null, SpRuntimeDispatchError> }>;
+      /**
+       * The fallback call was dispatched.
+       **/
+      IfElseFallbackCalled: AugmentedEvent<ApiType, [mainError: SpRuntimeDispatchError], { mainError: SpRuntimeDispatchError }>;
+      /**
+       * Main call was dispatched.
+       **/
+      IfElseMainSuccess: AugmentedEvent<ApiType, []>;
       /**
        * A single item within a Batch of dispatches has completed with no error.
        **/

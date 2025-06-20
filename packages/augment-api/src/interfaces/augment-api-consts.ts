@@ -7,7 +7,7 @@ import '@polkadot/api-base/types/consts';
 
 import type { ApiTypes, AugmentedConst } from '@polkadot/api-base/types';
 import type { Bytes, Option, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
-import type { Perbill, Permill } from '@polkadot/types/interfaces/runtime';
+import type { AccountId32, Perbill, Permill } from '@polkadot/types/interfaces/runtime';
 import type { FrameSupportPalletId, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSystemLimitsBlockLength, FrameSystemLimitsBlockWeights, PalletContractsEnvironment, PalletContractsSchedule, SpVersionRuntimeVersion, SpWeightsRuntimeDbWeight, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedConst<ApiType extends ApiTypes> = AugmentedConst<ApiType>;
@@ -314,6 +314,24 @@ declare module '@polkadot/api-base/types/consts' {
        **/
       signedRewardBase: u128 & AugmentedConst<ApiType>;
     };
+    entity: {
+      /**
+       * Maximum number of additional attributes allowed.
+       **/
+      maxAdditionalAttributes: u32 & AugmentedConst<ApiType>;
+      /**
+       * Maximum size for raw data fields.
+       **/
+      maxRawDataLength: u32 & AugmentedConst<ApiType>;
+      /**
+       * The maximum number of sub-accounts allowed per identified account.
+       **/
+      maxSubAccounts: u32 & AugmentedConst<ApiType>;
+      /**
+       * Max length for username prefix (before the dot).
+       **/
+      maxUsernameLength: u32 & AugmentedConst<ApiType>;
+    };
     entry: {
       /**
        * The maximum encoded length available for naming.
@@ -349,53 +367,6 @@ declare module '@polkadot/api-base/types/consts' {
        * can be zero.
        **/
       maxSetIdSessionEntries: u64 & AugmentedConst<ApiType>;
-    };
-    identity: {
-      /**
-       * The amount held on deposit for a registered identity.
-       **/
-      basicDeposit: u128 & AugmentedConst<ApiType>;
-      /**
-       * The amount held on deposit per encoded byte for a registered identity.
-       **/
-      byteDeposit: u128 & AugmentedConst<ApiType>;
-      /**
-       * Maximum number of registrars allowed in the system. Needed to bound the complexity
-       * of, e.g., updating judgements.
-       **/
-      maxRegistrars: u32 & AugmentedConst<ApiType>;
-      /**
-       * The maximum number of sub-accounts allowed per identified account.
-       **/
-      maxSubAccounts: u32 & AugmentedConst<ApiType>;
-      /**
-       * The maximum length of a suffix.
-       **/
-      maxSuffixLength: u32 & AugmentedConst<ApiType>;
-      /**
-       * The maximum length of a username, including its suffix and any system-added delimiters.
-       **/
-      maxUsernameLength: u32 & AugmentedConst<ApiType>;
-      /**
-       * The number of blocks within which a username grant must be accepted.
-       **/
-      pendingUsernameExpiration: u32 & AugmentedConst<ApiType>;
-      /**
-       * The amount held on deposit for a registered subaccount. This should account for the fact
-       * that one storage item's value will increase by the size of an account ID, and there will
-       * be another trie item whose value is the size of an account ID plus 32 bytes.
-       **/
-      subAccountDeposit: u128 & AugmentedConst<ApiType>;
-      /**
-       * The amount held on deposit per registered username. This value should change only in
-       * runtime upgrades with proper migration of existing deposits.
-       **/
-      usernameDeposit: u128 & AugmentedConst<ApiType>;
-      /**
-       * The number of blocks that must pass to enable the permanent deletion of a username by
-       * its respective authority.
-       **/
-      usernameGracePeriod: u32 & AugmentedConst<ApiType>;
     };
     imOnline: {
       /**
@@ -481,14 +452,6 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum amount of signatories allowed in the multisig.
        **/
       maxSignatories: u32 & AugmentedConst<ApiType>;
-    };
-    networkInfo: {
-      defaultNetworkId: u32 & AugmentedConst<ApiType>;
-    };
-    networkRegistrar: {
-      maxEntriesPerBlock: u32 & AugmentedConst<ApiType>;
-      registrationFee: u128 & AugmentedConst<ApiType>;
-      registrationPeriod: u32 & AugmentedConst<ApiType>;
     };
     nftFractionalization: {
       /**
@@ -640,54 +603,6 @@ declare module '@polkadot/api-base/types/consts' {
        * The maximum number of bytes in size a Registry Blob can hold.
        **/
       maxRegistryBlobSize: u32 & AugmentedConst<ApiType>;
-    };
-    revive: {
-      /**
-       * The [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID.
-       * 
-       * This is a unique identifier assigned to each blockchain network,
-       * preventing replay attacks.
-       **/
-      chainId: u64 & AugmentedConst<ApiType>;
-      /**
-       * The percentage of the storage deposit that should be held for using a code hash.
-       * Instantiating a contract, or calling [`chain_extension::Ext::lock_delegate_dependency`]
-       * protects the code from being removed. In order to prevent abuse these actions are
-       * protected with a percentage of the code deposit.
-       **/
-      codeHashLockupDepositPercent: Perbill & AugmentedConst<ApiType>;
-      /**
-       * The amount of balance a caller has to pay for each byte of storage.
-       * 
-       * # Note
-       * 
-       * It is safe to change this value on a live chain as all refunds are pro rata.
-       **/
-      depositPerByte: u128 & AugmentedConst<ApiType>;
-      /**
-       * The amount of balance a caller has to pay for each storage item.
-       * 
-       * # Note
-       * 
-       * It is safe to change this value on a live chain as all refunds are pro rata.
-       **/
-      depositPerItem: u128 & AugmentedConst<ApiType>;
-      /**
-       * The ratio between the decimal representation of the native token and the ETH token.
-       **/
-      nativeToEthRatio: u32 & AugmentedConst<ApiType>;
-      /**
-       * Make contract callable functions marked as `#[unstable]` available.
-       * 
-       * Contracts that use `#[unstable]` functions won't be able to be uploaded unless
-       * this is set to `true`. This is only meant for testnets and dev nodes in order to
-       * experiment with new features.
-       * 
-       * # Warning
-       * 
-       * Do **not** set to `true` on productions chains.
-       **/
-      unsafeUnstableInterface: bool & AugmentedConst<ApiType>;
     };
     safeMode: {
       /**
@@ -952,6 +867,10 @@ declare module '@polkadot/api-base/types/consts' {
        * The period during which an approved treasury spend has to be claimed.
        **/
       payoutPeriod: u32 & AugmentedConst<ApiType>;
+      /**
+       * Gets this pallet's derived pot account.
+       **/
+      potAccount: AccountId32 & AugmentedConst<ApiType>;
       /**
        * Period between successive spends.
        **/
