@@ -14,6 +14,12 @@ export interface IRegistryCreate {
     blob: string | null
 }
 
+export interface IRegistryDetails {
+    registryId: RegistryId | null
+    tx_hash: RegistryDigest
+    blob: string | null
+}
+
 export interface IRegistryTxHashUpdate {
     registryId: RegistryId
     tx_hash: RegistryDigest

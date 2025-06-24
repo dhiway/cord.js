@@ -1,10 +1,9 @@
 import { SDKErrors } from '@cord.network/utils';
 import { ConfigService } from '@cord.network/config';
 import { Chain } from '@cord.network/network';
-import { CordKeyringPair, SubmittableExtrinsic} from '@cord.network/types';
-import { Bytes } from '@polkadot/types';
+import { CordKeyringPair, SubmittableExtrinsic } from '@cord.network/types';
+import { Bytes } from '@cord.network/types';
 import { isValidAddress } from './Profile';
-
 
 /**
  * Prepares a `setProfile` extrinsic to create a profile on the CORD blockchain.
@@ -49,8 +48,9 @@ export async function dispatchSetProfileToChain(
 ): Promise<void> {
   try {
     const extrinsic = await prepareSetProfileExtrinsic(profileData);
-
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+    return;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : JSON.stringify(error);
@@ -66,7 +66,7 @@ export async function dispatchSetProfileToChain(
  *
  * @param newKey - The new account ID (SS58 address) to set as the profile's key.
  * @returns A promise that resolves to the prepared `SubmittableExtrinsic` for the `rotateKey` transaction.
- * @throws {SDKErrors.CordDispatchError} If the provided `newKey` is an invalid SS58 address or an error occurs while preparing the extrinsic.
+ * @throws {SDKErrors.CordDispatchError} If the provided `newKey` is invalid SS58 address or an error occurs while preparing the extrinsic.
  */
 export async function prepareRotateKeyExtrinsic(
   newKey: string,
@@ -95,7 +95,7 @@ export async function prepareRotateKeyExtrinsic(
  *
  * @param newKey - The new account ID (SS58 address) to set as the profile's key.
  * @param authorAccount - The keyring pair of the current profile owner to sign the transaction.
- * @returns A promise that resolves when the transaction is successfully submitted.
+ * @returns A promise that resolves with when the transaction is successfully submitted.
  * @throws {SDKErrors.CordDispatchError} If the newKey is invalid or an error occurs during dispatch.
  */
 export async function dispatchRotateKeyToChain(
@@ -104,8 +104,9 @@ export async function dispatchRotateKeyToChain(
 ): Promise<void> {
   try {
     const extrinsic = await prepareRotateKeyExtrinsic(newKey);
-
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+    return;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : JSON.stringify(error);
