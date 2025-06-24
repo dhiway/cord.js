@@ -6,11 +6,10 @@
 import '@polkadot/api-base/types/storage';
 
 import type { ApiTypes, AugmentedQuery, QueryableStorageEntry } from '@polkadot/api-base/types';
-import type { Data } from '@polkadot/types';
 import type { BTreeSet, Bytes, Null, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, ITuple } from '@polkadot/types-codec/types';
-import type { AccountId32, Call, H160, H256, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { CordUriActivityRecord, CordWeaveRuntimeNetworksRegistrarNetworkInfo, CordWeaveRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBagsListListBag, PalletBagsListListNode, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletCollectionCollectionDetails, PalletCollectionPermissions, PalletCollectiveVotes, PalletConfigNetworkInfo, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDelegatedStakingAgentLedger, PalletDelegatedStakingDelegation, PalletElectionProviderMultiPhasePhase, PalletElectionProviderMultiPhaseReadySolution, PalletElectionProviderMultiPhaseRoundSnapshot, PalletElectionProviderMultiPhaseSignedSignedSubmission, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize, PalletEntryRegistryEntryDetails, PalletFastUnstakeUnstakeRequest, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletIdentityAuthorityProperties, PalletIdentityProvider, PalletIdentityRegistrarInfo, PalletIdentityRegistration, PalletIdentityUsernameInformation, PalletImOnlineSr25519AppSr25519Public, PalletMessageQueueBookState, PalletMessageQueuePage, PalletMigrationsMigrationCursor, PalletMultisigMultisig, PalletNftFractionalizationDetails, PalletNftsAttributeDeposit, PalletNftsAttributeNamespace, PalletNftsCollectionConfig, PalletNftsCollectionDetails, PalletNftsCollectionMetadata, PalletNftsItemConfig, PalletNftsItemDetails, PalletNftsItemMetadata, PalletNftsPendingSwap, PalletNominationPoolsBondedPoolInner, PalletNominationPoolsClaimPermission, PalletNominationPoolsPoolMember, PalletNominationPoolsRewardPool, PalletNominationPoolsSubPools, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletProfileProfileMetadata, PalletRegistryPermissions, PalletRegistryRegistryDetails, PalletReviveStorageContractInfo, PalletReviveStorageDeletionQueueManager, PalletReviveWasmCodeInfo, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletStakingActiveEraInfo, PalletStakingEraRewardPoints, PalletStakingForcing, PalletStakingNominations, PalletStakingRewardDestination, PalletStakingSlashingSlashingSpans, PalletStakingSlashingSpanRecord, PalletStakingStakingLedger, PalletStakingUnappliedSlash, PalletStakingValidatorPrefs, PalletStateTrieMigrationMigrationLimits, PalletStateTrieMigrationMigrationTask, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusBeefyEcdsaCryptoPublic, SpConsensusBeefyMmrBeefyAuthoritySet, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpNposElectionsElectionScore, SpRuntimeDigest, SpStakingExposure, SpStakingExposurePage, SpStakingOffenceOffenceDetails, SpStakingPagedExposureMetadata, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { AccountId32, Call, H256, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
+import type { CordPrimitivesElementElum, CordWeaveRuntimeSessionKeys, FrameSupportDispatchPerDispatchClassWeight, FrameSupportTokensFungibleUnionOfNativeOrWithId, FrameSupportTokensMiscIdAmountRuntimeFreezeReason, FrameSupportTokensMiscIdAmountRuntimeHoldReason, FrameSystemAccountInfo, FrameSystemCodeUpgradeAuthorization, FrameSystemEventRecord, FrameSystemLastRuntimeUpgradeInfo, FrameSystemPhase, PalletAssetConversionPoolInfo, PalletAssetsApproval, PalletAssetsAssetAccount, PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletBagsListListBag, PalletBagsListListNode, PalletBalancesAccountData, PalletBalancesBalanceLock, PalletBalancesReserveData, PalletCollectionCollectionDetails, PalletCollectionPermissions, PalletCollectiveVotes, PalletContractsStorageContractInfo, PalletContractsStorageDeletionQueueManager, PalletContractsWasmCodeInfo, PalletDelegatedStakingAgentLedger, PalletDelegatedStakingDelegation, PalletDokenEventBlock, PalletDokenStateEvent, PalletElectionProviderMultiPhasePhase, PalletElectionProviderMultiPhaseReadySolution, PalletElectionProviderMultiPhaseRoundSnapshot, PalletElectionProviderMultiPhaseSignedSignedSubmission, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize, PalletEntityEntityEntityInfo, PalletEntryRegistryEntryDetails, PalletFastUnstakeUnstakeRequest, PalletGrandpaStoredPendingChange, PalletGrandpaStoredState, PalletImOnlineSr25519AppSr25519Public, PalletMessageQueueBookState, PalletMessageQueuePage, PalletMigrationsMigrationCursor, PalletMultisigMultisig, PalletNftFractionalizationDetails, PalletNftsAttributeDeposit, PalletNftsAttributeNamespace, PalletNftsCollectionConfig, PalletNftsCollectionDetails, PalletNftsCollectionMetadata, PalletNftsItemConfig, PalletNftsItemDetails, PalletNftsItemMetadata, PalletNftsPendingSwap, PalletNominationPoolsBondedPoolInner, PalletNominationPoolsClaimPermission, PalletNominationPoolsPoolMember, PalletNominationPoolsRewardPool, PalletNominationPoolsSubPools, PalletPreimageOldRequestStatus, PalletPreimageRequestStatus, PalletProfileProfileMetadata, PalletRegistryPermissions, PalletRegistryRegistryDetails, PalletSchedulerRetryConfig, PalletSchedulerScheduled, PalletStakingActiveEraInfo, PalletStakingEraRewardPoints, PalletStakingForcing, PalletStakingNominations, PalletStakingRewardDestination, PalletStakingSlashingSlashingSpans, PalletStakingSlashingSpanRecord, PalletStakingStakingLedger, PalletStakingUnappliedSlash, PalletStakingValidatorPrefs, PalletStateTrieMigrationMigrationLimits, PalletStateTrieMigrationMigrationTask, PalletTransactionPaymentReleases, PalletTreasuryProposal, PalletTreasurySpendStatus, SpAuthorityDiscoveryAppPublic, SpConsensusBabeAppPublic, SpConsensusBabeBabeEpochConfiguration, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBabeDigestsPreDigest, SpConsensusBeefyEcdsaCryptoPublic, SpConsensusBeefyMmrBeefyAuthoritySet, SpConsensusGrandpaAppPublic, SpCoreCryptoKeyTypeId, SpNposElectionsElectionScore, SpRuntimeDigest, SpStakingExposure, SpStakingExposurePage, SpStakingOffenceOffenceDetails, SpStakingPagedExposureMetadata, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 import type { Observable } from '@polkadot/types/types';
 
 export type __AugmentedQuery<ApiType extends ApiTypes> = AugmentedQuery<ApiType, () => unknown>;
@@ -424,6 +423,15 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       delegators: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletDelegatedStakingDelegation>>, [AccountId32]>;
     };
+    doken: {
+      genesisNetworkId: AugmentedQuery<ApiType, () => Observable<u16>, []>;
+      indexToPallet: AugmentedQuery<ApiType, (arg: u16 | AnyNumber | Uint8Array) => Observable<Option<Bytes>>, [u16]>;
+      isOriginChain: AugmentedQuery<ApiType, () => Observable<bool>, []>;
+      nextPalletIndex: AugmentedQuery<ApiType, () => Observable<u16>, []>;
+      palletIndex: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<u16>>, [Bytes]>;
+      stateHistory: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletDokenStateEvent>>, [Bytes, u32]>;
+      stateVersion: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<u32>, [Bytes]>;
+    };
     electionProviderMultiPhase: {
       /**
        * Current phase.
@@ -503,6 +511,44 @@ declare module '@polkadot/api-base/types/storage' {
        * Note: This storage type must only be mutated through [`SnapshotWrapper`].
        **/
       snapshotMetadata: AugmentedQuery<ApiType, () => Observable<Option<PalletElectionProviderMultiPhaseSolutionOrSnapshotSize>>, []>;
+    };
+    entity: {
+      /**
+       * Which account currently “owns” this Ss58‐ID?
+       **/
+      controllerOfSs58: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<AccountId32>>, [Bytes]>;
+      /**
+       * The on‐chain entity registration for an account.
+       **/
+      entityInfoOf: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletEntityEntityEntityInfo>>, [Bytes]>;
+      /**
+       * Reverse lookup: username → (owner, provider).
+       **/
+      nameSs58IdOf: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [Bytes]>;
+      /**
+       * Username attached to an entity doken.
+       **/
+      ss58IdNameOf: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<Bytes>>, [Bytes]>;
+      /**
+       * When was this account un-bound from this entity doken?
+       **/
+      ss58OfAccountHistory: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<PalletDokenEventBlock>>, [Bytes, AccountId32]>;
+      /**
+       * What Ss58‐ID does this account currently hold?
+       **/
+      ss58OfActiveAccounts: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Bytes>>, [AccountId32]>;
+      /**
+       * All history entries: (doken, (key, version)) → (old_value,  block).
+       **/
+      ss58OfAttributeHistory: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: ITuple<[Bytes, u64]> | [Bytes | string | Uint8Array, u64 | AnyNumber | Uint8Array]) => Observable<Option<ITuple<[CordPrimitivesElementElum, PalletDokenEventBlock]>>>, [Bytes, ITuple<[Bytes, u64]>]>;
+      /**
+       * Version counter for each (doken, attribute key).
+       **/
+      ss58OfAttributeVersion: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: Bytes | string | Uint8Array) => Observable<u64>, [Bytes, Bytes]>;
+      /**
+       * Linked sub-accounts for each entity doken.
+       **/
+      subAccounts: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Vec<AccountId32>>, [Bytes]>;
     };
     entry: {
       /**
@@ -595,75 +641,6 @@ declare module '@polkadot/api-base/types/storage' {
        * The range of historical sessions we store. [first, last)
        **/
       storedRange: AugmentedQuery<ApiType, () => Observable<Option<ITuple<[u32, u32]>>>, []>;
-    };
-    identifier: {
-      activityChain: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: u32 | AnyNumber | Uint8Array) => Observable<Option<CordUriActivityRecord>>, [Bytes, u32]>;
-      activityCounter: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<u32>, [Bytes]>;
-      genesisNetworkId: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      indexToPallet: AugmentedQuery<ApiType, (arg: u16 | AnyNumber | Uint8Array) => Observable<Option<Bytes>>, [u16]>;
-      palletIndex: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<u16>>, [Bytes]>;
-    };
-    identity: {
-      /**
-       * A map of the accounts who are authorized to grant usernames.
-       **/
-      authorityOf: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletIdentityAuthorityProperties>>, [Bytes]>;
-      /**
-       * Information that is pertinent to identify the entity behind an account. First item is the
-       * registration, second is the account's primary username.
-       * 
-       * TWOX-NOTE: OK ― `AccountId` is a secure hash.
-       **/
-      identityOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<PalletIdentityRegistration>>, [AccountId32]>;
-      /**
-       * Usernames that an authority has granted, but that the account controller has not confirmed
-       * that they want it. Used primarily in cases where the `AccountId` cannot provide a signature
-       * because they are a pure proxy, multisig, etc. In order to confirm it, they should call
-       * [accept_username](`Call::accept_username`).
-       * 
-       * First tuple item is the account and second is the acceptance deadline.
-       **/
-      pendingUsernames: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, u32, PalletIdentityProvider]>>>, [Bytes]>;
-      /**
-       * The set of registrars. Not expected to get very big as can only be added through a
-       * special origin (likely a council motion).
-       * 
-       * The index into this can be cast to `RegistrarIndex` to get a valid value.
-       **/
-      registrars: AugmentedQuery<ApiType, () => Observable<Vec<Option<PalletIdentityRegistrarInfo>>>, []>;
-      /**
-       * Alternative "sub" identities of this account.
-       * 
-       * The first item is the deposit, the second is a vector of the accounts.
-       * 
-       * TWOX-NOTE: OK ― `AccountId` is a secure hash.
-       **/
-      subsOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<ITuple<[u128, Vec<AccountId32>]>>, [AccountId32]>;
-      /**
-       * The super-identity of an alternative "sub" identity together with its name, within that
-       * context. If the account is not some other account's sub-identity, then just `None`.
-       **/
-      superOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<ITuple<[AccountId32, Data]>>>, [AccountId32]>;
-      /**
-       * Usernames for which the authority that granted them has started the removal process by
-       * unbinding them. Each unbinding username maps to its grace period expiry, which is the first
-       * block in which the username could be deleted through a
-       * [remove_username](`Call::remove_username`) call.
-       **/
-      unbindingUsernames: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<u32>>, [Bytes]>;
-      /**
-       * Reverse lookup from `username` to the `AccountId` that has registered it and the provider of
-       * the username. The `owner` value should be a key in the `UsernameOf` map, but it may not if
-       * the user has cleared their username or it has been removed.
-       * 
-       * Multiple usernames may map to the same `AccountId`, but `UsernameOf` will only map to one
-       * primary username.
-       **/
-      usernameInfoOf: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletIdentityUsernameInformation>>, [Bytes]>;
-      /**
-       * Identifies the primary username of an account.
-       **/
-      usernameOf: AugmentedQuery<ApiType, (arg: AccountId32 | string | Uint8Array) => Observable<Option<Bytes>>, [AccountId32]>;
     };
     imOnline: {
       /**
@@ -763,31 +740,6 @@ declare module '@polkadot/api-base/types/storage' {
        * The set of open multisig operations.
        **/
       multisigs: AugmentedQuery<ApiType, (arg1: AccountId32 | string | Uint8Array, arg2: U8aFixed | string | Uint8Array) => Observable<Option<PalletMultisigMultisig>>, [AccountId32, U8aFixed]>;
-    };
-    networkInfo: {
-      networkConfigInfo: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<PalletConfigNetworkInfo>>, [u32]>;
-      networkIdentifier: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      networkPermissioned: AugmentedQuery<ApiType, () => Observable<bool>, []>;
-      storageNodeConfigInfo: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<ITuple<[Bytes, AccountId32, bool]>>>, [Bytes]>;
-      storageNodes: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<ITuple<[Bytes, AccountId32]>>>, [Bytes]>;
-    };
-    networkRegistrar: {
-      /**
-       * Stores the expiry information indexed on block
-       **/
-      expiresOn: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Vec<u32>>, [u32]>;
-      /**
-       * Netoworks - maps a network to it's associated properties.
-       **/
-      networks: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<CordWeaveRuntimeNetworksRegistrarNetworkInfo>>, [u32]>;
-      /**
-       * Track the network IDs.
-       **/
-      nextFreeNetworkId: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      /**
-       * Scheduled renewals.
-       **/
-      renewsOn: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<Null>>, [u32]>;
     };
     nftFractionalization: {
       /**
@@ -1057,44 +1009,6 @@ declare module '@polkadot/api-base/types/storage' {
        **/
       registries: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletRegistryRegistryDetails>>, [Bytes]>;
     };
-    revive: {
-      /**
-       * Map a Ethereum address to its original `AccountId32`.
-       * 
-       * Stores the last 12 byte for addresses that were originally an `AccountId32` instead
-       * of an `H160`. Register your `AccountId32` using [`Pallet::map_account`] in order to
-       * use it with this pallet.
-       **/
-      addressSuffix: AugmentedQuery<ApiType, (arg: H160 | string | Uint8Array) => Observable<Option<U8aFixed>>, [H160]>;
-      /**
-       * A mapping from a contract's code hash to its code info.
-       **/
-      codeInfoOf: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletReviveWasmCodeInfo>>, [H256]>;
-      /**
-       * The code associated with a given account.
-       **/
-      contractInfoOf: AugmentedQuery<ApiType, (arg: H160 | string | Uint8Array) => Observable<Option<PalletReviveStorageContractInfo>>, [H160]>;
-      /**
-       * Evicted contracts that await child trie deletion.
-       * 
-       * Child trie deletion is a heavy operation depending on the amount of storage items
-       * stored in said trie. Therefore this operation is performed lazily in `on_idle`.
-       **/
-      deletionQueue: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Option<Bytes>>, [u32]>;
-      /**
-       * A pair of monotonic counters used to track the latest contract marked for deletion
-       * and the latest deleted contract in queue.
-       **/
-      deletionQueueCounter: AugmentedQuery<ApiType, () => Observable<PalletReviveStorageDeletionQueueManager>, []>;
-      /**
-       * The immutable data associated with a given account.
-       **/
-      immutableDataOf: AugmentedQuery<ApiType, (arg: H160 | string | Uint8Array) => Observable<Option<Bytes>>, [H160]>;
-      /**
-       * A mapping from a contract's code hash to its code.
-       **/
-      pristineCode: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<Bytes>>, [H256]>;
-    };
     safeMode: {
       /**
        * Holds the reserve that was taken from an account at a specific block number.
@@ -1117,6 +1031,9 @@ declare module '@polkadot/api-base/types/storage' {
        * Items to be executed, indexed by the block number that they should be executed on.
        **/
       agenda: AugmentedQuery<ApiType, (arg: u32 | AnyNumber | Uint8Array) => Observable<Vec<Option<PalletSchedulerScheduled>>>, [u32]>;
+      /**
+       * Block number at which the agenda began incomplete execution.
+       **/
       incompleteSince: AugmentedQuery<ApiType, () => Observable<Option<u32>>, []>;
       /**
        * Lookup from a name to the block number and index of the task.
@@ -1142,7 +1059,7 @@ declare module '@polkadot/api-base/types/storage' {
        * disabled using binary search. It gets cleared when `on_session_ending` returns
        * a new set of identities.
        **/
-      disabledValidators: AugmentedQuery<ApiType, () => Observable<Vec<u32>>, []>;
+      disabledValidators: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[u32, Perbill]>>>, []>;
       /**
        * The owner of a key. The key is the `KeyTypeId` + the encoded key.
        **/
@@ -1232,19 +1149,6 @@ declare module '@polkadot/api-base/types/storage' {
        * This is basically in sync with the call to [`pallet_session::SessionManager::new_session`].
        **/
       currentPlannedSession: AugmentedQuery<ApiType, () => Observable<u32>, []>;
-      /**
-       * Indices of validators that have offended in the active era. The offenders are disabled for a
-       * whole era. For this reason they are kept here - only staking pallet knows about eras. The
-       * implementor of [`DisablingStrategy`] defines if a validator should be disabled which
-       * implicitly means that the implementor also controls the max number of disabled validators.
-       * 
-       * The vec is always kept sorted based on the u32 index so that we can find whether a given
-       * validator has previously offended using binary search.
-       * 
-       * Additionally, each disabled validator is associated with an `OffenceSeverity` which
-       * represents how severe is the offence that got the validator disabled.
-       **/
-      disabledValidators: AugmentedQuery<ApiType, () => Observable<Vec<ITuple<[u32, Perbill]>>>, []>;
       /**
        * Rewards for the last [`Config::HistoryDepth`] eras.
        * If reward hasn't been set or has been removed then 0 reward is returned.

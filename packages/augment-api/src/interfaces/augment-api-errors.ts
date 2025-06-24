@@ -152,6 +152,14 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       CallbackFailed: AugmentedError<ApiType>;
       /**
+       * The asset cannot be destroyed because some accounts for this asset contain freezes.
+       **/
+      ContainsFreezes: AugmentedError<ApiType>;
+      /**
+       * The asset cannot be destroyed because some accounts for this asset contain holds.
+       **/
+      ContainsHolds: AugmentedError<ApiType>;
+      /**
        * The origin account is frozen.
        **/
       Frozen: AugmentedError<ApiType>;
@@ -311,10 +319,6 @@ declare module '@polkadot/api-base/types/errors' {
     };
     collection: {
       /**
-       * The activity update operation failed.
-       **/
-      ActivityUpdateFailed: AugmentedError<ApiType>;
-      /**
        * The collection is already archived.
        **/
       ArchivedCollection: AugmentedError<ApiType>;
@@ -339,9 +343,17 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       DelegateNotFound: AugmentedError<ApiType>;
       /**
+       * The activity update operation failed.
+       **/
+      EventUpdateFailed: AugmentedError<ApiType>;
+      /**
        * The provided entry type input is invalid.
        **/
       InvalidEntryTypeInput: AugmentedError<ApiType>;
+      /**
+       * The provided event type is invalid.
+       **/
+      InvalidEventType: AugmentedError<ApiType>;
       /**
        * The provided identifier length is invalid.
        **/
@@ -354,6 +366,7 @@ declare module '@polkadot/api-base/types/errors' {
        * The specified registry was not found in the collection.
        **/
       RegistryNotFound: AugmentedError<ApiType>;
+      StateUpdateFailed: AugmentedError<ApiType>;
       /**
        * The caller does not have the required permissions.
        **/
@@ -648,6 +661,65 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       WithdrawFailed: AugmentedError<ApiType>;
     };
+    doken: {
+      /**
+       * The value is out of the expected range for compact encoding.
+       **/
+      CompactValueOutOfRange: AugmentedError<ApiType>;
+      /**
+       * A compact‐encoded value used the wrong byte‐length form.
+       **/
+      InvalidCompactEncoding: AugmentedError<ApiType>;
+      /**
+       * The provided digest length is invalid. Expected 32 bytes.
+       **/
+      InvalidDigestLength: AugmentedError<ApiType>;
+      /**
+       * The doken is not valid.
+       **/
+      InvalidDoken: AugmentedError<ApiType>;
+      /**
+       * The checksum validation failed.
+       **/
+      InvalidDokenChecksum: AugmentedError<ApiType>;
+      /**
+       * The doken format is invalid.
+       **/
+      InvalidDokenFormat: AugmentedError<ApiType>;
+      /**
+       * The doken length is not valid.
+       **/
+      InvalidDokenLength: AugmentedError<ApiType>;
+      /**
+       * The prefix is invalid or unrecognized.
+       **/
+      InvalidDokenPrefix: AugmentedError<ApiType>;
+      /**
+       * The origin‐mode flag was not 0 or 1.
+       **/
+      InvalidMode: AugmentedError<ApiType>;
+      /**
+       * The provided network id does not match the expected value.
+       **/
+      InvalidNetworkId: AugmentedError<ApiType>;
+      /**
+       * The specified pallet index is invalid.
+       **/
+      InvalidPalletIndex: AugmentedError<ApiType>;
+      /**
+       * The pallet name format is invalid.
+       **/
+      InvalidPalletNameFormat: AugmentedError<ApiType>;
+      /**
+       * The pallet name exceeds the maximum allowed length.
+       **/
+      PalletNameTooLong: AugmentedError<ApiType>;
+      /**
+       * The specified pallet name was not found.
+       **/
+      PalletNotFound: AugmentedError<ApiType>;
+      StateUpdateFailed: AugmentedError<ApiType>;
+    };
     electionProviderMultiPhase: {
       /**
        * Some bound not met
@@ -710,15 +782,163 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       TooManyWinners: AugmentedError<ApiType>;
     };
+    entity: {
+      /**
+       * Account isn't found.
+       **/
+      AccountNotFound: AugmentedError<ApiType>;
+      /**
+       * Account ID is already named.
+       **/
+      AlreadyClaimed: AugmentedError<ApiType>;
+      /**
+       * Account is a controller.
+       **/
+      AlreadyController: AugmentedError<ApiType>;
+      /**
+       * Tried to add an attribute that already exists.
+       **/
+      AttributeExists: AugmentedError<ApiType>;
+      /**
+       * Tried to update or remove an attribute that doesn't exist.
+       **/
+      AttributeNotFound: AugmentedError<ApiType>;
+      /**
+       * Bad Origin
+       **/
+      BadOrigin: AugmentedError<ApiType>;
+      /**
+       * Account is a controller.
+       **/
+      ControllerAccount: AugmentedError<ApiType>;
+      /**
+       * Doken Exists.
+       **/
+      DokenAlreadyExists: AugmentedError<ApiType>;
+      /**
+       * The doken inputs are not valid.
+       **/
+      DokenCreationFailed: AugmentedError<ApiType>;
+      /**
+       * Doken not found.
+       **/
+      DokenNotFound: AugmentedError<ApiType>;
+      /**
+       * The username does not meet the requirements.
+       **/
+      DuplicateAttributeKey: AugmentedError<ApiType>;
+      /**
+       * Empty index.
+       **/
+      EmptyIndex: AugmentedError<ApiType>;
+      /**
+       * Account mapped to an entity.
+       **/
+      EntitySubAccount: AugmentedError<ApiType>;
+      /**
+       * Fee is changed.
+       **/
+      FeeChanged: AugmentedError<ApiType>;
+      /**
+       * Not enough free balance to pay the per-byte identity fee.
+       **/
+      InsufficientFunds: AugmentedError<ApiType>;
+      /**
+       * The action cannot be performed because of insufficient privileges (e.g. authority
+       * trying to unbind a username provided by the system).
+       **/
+      InsufficientPrivileges: AugmentedError<ApiType>;
+      /**
+       * The username does not meet the requirements.
+       **/
+      InvalidAttributeEntry: AugmentedError<ApiType>;
+      /**
+       * The provided event type is invalid.
+       **/
+      InvalidEventType: AugmentedError<ApiType>;
+      /**
+       * The index is invalid.
+       **/
+      InvalidIndex: AugmentedError<ApiType>;
+      /**
+       * The username does not meet the requirements.
+       **/
+      InvalidSs58IdName: AugmentedError<ApiType>;
+      /**
+       * The target is invalid.
+       **/
+      InvalidTarget: AugmentedError<ApiType>;
+      /**
+       * No identity found.
+       **/
+      NoIdentity: AugmentedError<ApiType>;
+      /**
+       * Account isn't named.
+       **/
+      NotNamed: AugmentedError<ApiType>;
+      /**
+       * Sub-account isn't owned by sender.
+       **/
+      NotOwned: AugmentedError<ApiType>;
+      /**
+       * Sender is not a sub-account.
+       **/
+      NotSub: AugmentedError<ApiType>;
+      /**
+       * The requested username does not exist.
+       **/
+      NoUsername: AugmentedError<ApiType>;
+      /**
+       * Setting this username requires a signature, but none was provided.
+       **/
+      RequiresSignature: AugmentedError<ApiType>;
+      /**
+       * The username is already taken.
+       **/
+      Ss58IdNameTaken: AugmentedError<ApiType>;
+      StateUpdateFailed: AugmentedError<ApiType>;
+      /**
+       * Sub account is already mapped to an entity.
+       **/
+      SubAccountAlreadyClaimed: AugmentedError<ApiType>;
+      /**
+       * Sub account not found.
+       **/
+      SubAccountExists: AugmentedError<ApiType>;
+      /**
+       * Sub account not found.
+       **/
+      SubAccountNotFound: AugmentedError<ApiType>;
+      /**
+       * Sub account is not linked to the entity
+       **/
+      SubAccountNotLinked: AugmentedError<ApiType>;
+      /**
+       * Exceeded the maximum number of additional attribute/value pairs.
+       **/
+      TooManyAttributes: AugmentedError<ApiType>;
+      /**
+       * Maximum amount of registrars reached. Cannot add any more.
+       **/
+      TooManyRegistrars: AugmentedError<ApiType>;
+      /**
+       * Too many subs-accounts.
+       **/
+      TooManySubAccounts: AugmentedError<ApiType>;
+    };
     entry: {
       /**
-       * Activity update has failed.
+       * The event activity update has failed.
        **/
-      ActivityUpdateFailed: AugmentedError<ApiType>;
+      EventUpdateFailed: AugmentedError<ApiType>;
       /**
        * Activity input type is invalid.
        **/
       InvalidEntryTypeInput: AugmentedError<ApiType>;
+      /**
+       * The provided event type is invalid.
+       **/
+      InvalidEventType: AugmentedError<ApiType>;
       /**
        * Invalid Identifer Length
        **/
@@ -747,6 +967,7 @@ declare module '@polkadot/api-base/types/errors' {
        * Registry Entry has not been revoked.
        **/
       RegistryEntryNotRevoked: AugmentedError<ApiType>;
+      StateUpdateFailed: AugmentedError<ApiType>;
       /**
        * Account has no valid authorization
        **/
@@ -811,129 +1032,6 @@ declare module '@polkadot/api-base/types/errors' {
        * Cannot signal forced change so soon after last.
        **/
       TooSoon: AugmentedError<ApiType>;
-    };
-    identity: {
-      /**
-       * Account ID is already named.
-       **/
-      AlreadyClaimed: AugmentedError<ApiType>;
-      /**
-       * The username cannot be unbound because it is already unbinding.
-       **/
-      AlreadyUnbinding: AugmentedError<ApiType>;
-      /**
-       * Empty index.
-       **/
-      EmptyIndex: AugmentedError<ApiType>;
-      /**
-       * Fee is changed.
-       **/
-      FeeChanged: AugmentedError<ApiType>;
-      /**
-       * The action cannot be performed because of insufficient privileges (e.g. authority
-       * trying to unbind a username provided by the system).
-       **/
-      InsufficientPrivileges: AugmentedError<ApiType>;
-      /**
-       * The index is invalid.
-       **/
-      InvalidIndex: AugmentedError<ApiType>;
-      /**
-       * Invalid judgement.
-       **/
-      InvalidJudgement: AugmentedError<ApiType>;
-      /**
-       * The signature on a username was not valid.
-       **/
-      InvalidSignature: AugmentedError<ApiType>;
-      /**
-       * The provided suffix is too long.
-       **/
-      InvalidSuffix: AugmentedError<ApiType>;
-      /**
-       * The target is invalid.
-       **/
-      InvalidTarget: AugmentedError<ApiType>;
-      /**
-       * The username does not meet the requirements.
-       **/
-      InvalidUsername: AugmentedError<ApiType>;
-      /**
-       * The provided judgement was for a different identity.
-       **/
-      JudgementForDifferentIdentity: AugmentedError<ApiType>;
-      /**
-       * Judgement given.
-       **/
-      JudgementGiven: AugmentedError<ApiType>;
-      /**
-       * Error that occurs when there is an issue paying for judgement.
-       **/
-      JudgementPaymentFailed: AugmentedError<ApiType>;
-      /**
-       * The authority cannot allocate any more usernames.
-       **/
-      NoAllocation: AugmentedError<ApiType>;
-      /**
-       * No identity found.
-       **/
-      NoIdentity: AugmentedError<ApiType>;
-      /**
-       * The username cannot be forcefully removed because it can still be accepted.
-       **/
-      NotExpired: AugmentedError<ApiType>;
-      /**
-       * Account isn't found.
-       **/
-      NotFound: AugmentedError<ApiType>;
-      /**
-       * Account isn't named.
-       **/
-      NotNamed: AugmentedError<ApiType>;
-      /**
-       * Sub-account isn't owned by sender.
-       **/
-      NotOwned: AugmentedError<ApiType>;
-      /**
-       * Sender is not a sub-account.
-       **/
-      NotSub: AugmentedError<ApiType>;
-      /**
-       * The username cannot be removed because it is not unbinding.
-       **/
-      NotUnbinding: AugmentedError<ApiType>;
-      /**
-       * The sender does not have permission to issue a username.
-       **/
-      NotUsernameAuthority: AugmentedError<ApiType>;
-      /**
-       * The requested username does not exist.
-       **/
-      NoUsername: AugmentedError<ApiType>;
-      /**
-       * Setting this username requires a signature, but none was provided.
-       **/
-      RequiresSignature: AugmentedError<ApiType>;
-      /**
-       * Sticky judgement.
-       **/
-      StickyJudgement: AugmentedError<ApiType>;
-      /**
-       * The username cannot be removed because it's still in the grace period.
-       **/
-      TooEarly: AugmentedError<ApiType>;
-      /**
-       * Maximum amount of registrars reached. Cannot add any more.
-       **/
-      TooManyRegistrars: AugmentedError<ApiType>;
-      /**
-       * Too many subs-accounts.
-       **/
-      TooManySubAccounts: AugmentedError<ApiType>;
-      /**
-       * The username is already taken.
-       **/
-      UsernameTaken: AugmentedError<ApiType>;
     };
     imOnline: {
       /**
@@ -1065,7 +1163,7 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NoApprovalsNeeded: AugmentedError<ApiType>;
       /**
-       * Multisig operation not found when attempting to cancel.
+       * Multisig operation not found in storage.
        **/
       NotFound: AugmentedError<ApiType>;
       /**
@@ -1073,7 +1171,8 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       NoTimepoint: AugmentedError<ApiType>;
       /**
-       * Only the account that originally created the multisig is able to cancel it.
+       * Only the account that originally created the multisig is able to cancel it or update
+       * its deposits.
        **/
       NotOwner: AugmentedError<ApiType>;
       /**
@@ -1100,162 +1199,6 @@ declare module '@polkadot/api-base/types/errors' {
        * A different timepoint was given to the multisig operation that is underway.
        **/
       WrongTimepoint: AugmentedError<ApiType>;
-    };
-    networkInfo: {
-      /**
-       * The identifier activity update failed
-       **/
-      ActivityUpdateFailed: AugmentedError<ApiType>;
-      /**
-       * The origin of the operation is not authorized or invalid.
-       **/
-      Badorigin: AugmentedError<ApiType>;
-      /**
-       * The provided account ID is invalid or not recognized.
-       **/
-      InvalidAccountId: AugmentedError<ApiType>;
-      /**
-       * The checksum of the token is invalid or does not match.
-       **/
-      InvalidChecksum: AugmentedError<ApiType>;
-      /**
-       * The cord genesis head is invalid or corrupted.
-       **/
-      InvalidCordGenesisHead: AugmentedError<ApiType>;
-      /**
-       * The provided entry input is invalid or malformed.
-       **/
-      InvalidEntryTypeInput: AugmentedError<ApiType>;
-      /**
-       * The identifier length is invalid or exceeds the maximum allowed.
-       **/
-      InvalidIdentifierLength: AugmentedError<ApiType>;
-      /**
-       * The provided input is invalid or malformed.
-       **/
-      InvalidInput: AugmentedError<ApiType>;
-      /**
-       * The network genesis head is invalid or corrupted.
-       **/
-      InvalidNetworkGenesisHead: AugmentedError<ApiType>;
-      /**
-       * The network ID is invalid or not recognized.
-       **/
-      InvalidNetworkId: AugmentedError<ApiType>;
-      /**
-       * The prefix in the provided token is invalid.
-       **/
-      InvalidPrefix: AugmentedError<ApiType>;
-      /**
-       * The provided token is invalid.
-       **/
-      InvalidToken: AugmentedError<ApiType>;
-      /**
-       * The provided URI is invalid or cannot be parsed.
-       **/
-      InvalidUri: AugmentedError<ApiType>;
-      /**
-       * The network configuration has already been added.
-       **/
-      NetworkConfigAlreadyAdded: AugmentedError<ApiType>;
-      /**
-       * The network information was not found.
-       **/
-      NetworkInfoNotFound: AugmentedError<ApiType>;
-      /**
-       * The storage configuration has already been added.
-       **/
-      StorageConfigAlreadyAdded: AugmentedError<ApiType>;
-      /**
-       * The storage configuration not found.
-       **/
-      StorageConfigNotFound: AugmentedError<ApiType>;
-    };
-    networkRegistrar: {
-      /**
-       * The network registration is currently active.
-       **/
-      ActiveRegistration: AugmentedError<ApiType>;
-      /**
-       * The ID is already registered and cannot be registered again.
-       **/
-      AlreadyRegistered: AugmentedError<ApiType>;
-      /**
-       * The origin of the operation is not authorized or invalid.
-       **/
-      BadOrigin: AugmentedError<ApiType>;
-      /**
-       * The cord genesis hash does not match the expected value.
-       **/
-      CordGenesisMismatch: AugmentedError<ApiType>;
-      /**
-       * The network registration has expired and is no longer active.
-       **/
-      InActiveRegistration: AugmentedError<ApiType>;
-      /**
-       * The provided account ID is invalid or not recognized.
-       **/
-      InvalidAccountId: AugmentedError<ApiType>;
-      /**
-       * The checksum of the token is invalid or does not match.
-       **/
-      InvalidChecksum: AugmentedError<ApiType>;
-      /**
-       * The cord genesis head is invalid or corrupted.
-       **/
-      InvalidCordGenesisHead: AugmentedError<ApiType>;
-      /**
-       * The provided genesis hash or head is invalid.
-       **/
-      InvalidGenesisHash: AugmentedError<ApiType>;
-      /**
-       * The network genesis head is invalid or corrupted.
-       **/
-      InvalidNetworkGenesisHead: AugmentedError<ApiType>;
-      /**
-       * The provided network id does not match the expected value.
-       **/
-      InvalidNetworkId: AugmentedError<ApiType>;
-      /**
-       * The prefix in the provided token is invalid.
-       **/
-      InvalidPrefix: AugmentedError<ApiType>;
-      /**
-       * The provided token is invalid.
-       **/
-      InvalidToken: AugmentedError<ApiType>;
-      /**
-       * The maximum number of entries supported for a block has been exceeded.
-       **/
-      MaxEntriesExceededForTheBlock: AugmentedError<ApiType>;
-      /**
-       * The caller is not the owner of the specified ID.
-       **/
-      NotOwner: AugmentedError<ApiType>;
-      /**
-       * The ID is not registered in the network.
-       **/
-      NotRegistered: AugmentedError<ApiType>;
-      /**
-       * The ID provided for registration has not been reserved beforehand.
-       **/
-      NotReserved: AugmentedError<ApiType>;
-      /**
-       * The network registration has been successfully renewed.
-       **/
-      RegistrationRenewed: AugmentedError<ApiType>;
-      /**
-       * The token generation process failed.
-       **/
-      TokenGenerationFailed: AugmentedError<ApiType>;
-      /**
-       * The provided token does not match the expected value.
-       **/
-      TokenMismatch: AugmentedError<ApiType>;
-      /**
-       * The network manager does not have sufficient balance to pay fees.
-       **/
-      UnableToPayFees: AugmentedError<ApiType>;
     };
     nftFractionalization: {
       /**
@@ -1603,6 +1546,11 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       PoolNotFound: AugmentedError<ApiType>;
       /**
+       * Account is restricted from participation in pools. This may happen if the account is
+       * staking in another way already.
+       **/
+      Restricted: AugmentedError<ApiType>;
+      /**
        * A reward pool does not exist. In all cases this is a system logic error.
        **/
       RewardPoolNotFound: AugmentedError<ApiType>;
@@ -1644,6 +1592,14 @@ declare module '@polkadot/api-base/types/errors' {
        * Callback action resulted in error
        **/
       CallbackFailed: AugmentedError<ApiType>;
+      /**
+       * The asset cannot be destroyed because some accounts for this asset contain freezes.
+       **/
+      ContainsFreezes: AugmentedError<ApiType>;
+      /**
+       * The asset cannot be destroyed because some accounts for this asset contain holds.
+       **/
+      ContainsHolds: AugmentedError<ApiType>;
       /**
        * The origin account is frozen.
        **/
@@ -1740,17 +1696,17 @@ declare module '@polkadot/api-base/types/errors' {
     };
     profile: {
       /**
-       * The event activity update has failed.
-       **/
-      ActivityUpdateFailed: AugmentedError<ApiType>;
-      /**
        * Rotation must be to new key, not to existing tied account.
        **/
       CannotRotateToSameAccount: AugmentedError<ApiType>;
       /**
-       * The entry type for the activity is not valid.
+       * The event activity update has failed.
        **/
-      InvalidEntryTypeInput: AugmentedError<ApiType>;
+      EventUpdateFailed: AugmentedError<ApiType>;
+      /**
+       * The provided event type is invalid.
+       **/
+      InvalidEventType: AugmentedError<ApiType>;
       /**
        * The length of the identifier exceeds capacity limit.
        **/
@@ -1767,16 +1723,13 @@ declare module '@polkadot/api-base/types/errors' {
        * The Profile Identifier does not exist.
        **/
       ProfileNotFound: AugmentedError<ApiType>;
+      StateUpdateFailed: AugmentedError<ApiType>;
       /**
        * Storage transaction has failed abrubtly.
        **/
       TransactionFailed: AugmentedError<ApiType>;
     };
     registry: {
-      /**
-       * The activity update operation failed.
-       **/
-      ActivityUpdateFailed: AugmentedError<ApiType>;
       /**
        * The registry is already archived.
        **/
@@ -1790,9 +1743,13 @@ declare module '@polkadot/api-base/types/errors' {
        **/
       DelegateNotFound: AugmentedError<ApiType>;
       /**
-       * The provided entry type input is invalid.
+       * The activity update operation failed.
        **/
-      InvalidEntryTypeInput: AugmentedError<ApiType>;
+      EventUpdateFailed: AugmentedError<ApiType>;
+      /**
+       * The provided event type is invalid.
+       **/
+      InvalidEventType: AugmentedError<ApiType>;
       /**
        * The provided identifier length is invalid.
        **/
@@ -1809,6 +1766,7 @@ declare module '@polkadot/api-base/types/errors' {
        * The specified registry was not found in the collection.
        **/
       RegistryNotFound: AugmentedError<ApiType>;
+      StateUpdateFailed: AugmentedError<ApiType>;
       /**
        * The caller does not have the required permissions.
        **/
@@ -1823,205 +1781,6 @@ declare module '@polkadot/api-base/types/errors' {
        * Attempting to store empty data.
        **/
       Empty: AugmentedError<ApiType>;
-    };
-    revive: {
-      /**
-       * Tried to map an account that is already mapped.
-       **/
-      AccountAlreadyMapped: AugmentedError<ApiType>;
-      /**
-       * An `AccountID32` account tried to interact with the pallet without having a mapping.
-       * 
-       * Call [`Pallet::map_account`] in order to create a mapping for the account.
-       **/
-      AccountUnmapped: AugmentedError<ApiType>;
-      /**
-       * Failed to convert a U256 to a Balance.
-       **/
-      BalanceConversionFailed: AugmentedError<ApiType>;
-      /**
-       * The program contains a basic block that is larger than allowed.
-       **/
-      BasicBlockTooLarge: AugmentedError<ApiType>;
-      /**
-       * The code blob supplied is larger than [`limits::code::BLOB_BYTES`].
-       **/
-      BlobTooLarge: AugmentedError<ApiType>;
-      /**
-       * Can not add a delegate dependency to the code hash of the contract itself.
-       **/
-      CannotAddSelfAsDelegateDependency: AugmentedError<ApiType>;
-      /**
-       * No code info could be found at the supplied code hash.
-       **/
-      CodeInfoNotFound: AugmentedError<ApiType>;
-      /**
-       * Code removal was denied because the code is still in use by at least one contract.
-       **/
-      CodeInUse: AugmentedError<ApiType>;
-      /**
-       * No code could be found at the supplied code hash.
-       **/
-      CodeNotFound: AugmentedError<ApiType>;
-      /**
-       * The contract failed to compile or is missing the correct entry points.
-       * 
-       * A more detailed error can be found on the node console if debug messages are enabled
-       * by supplying `-lruntime::revive=debug`.
-       **/
-      CodeRejected: AugmentedError<ApiType>;
-      /**
-       * No contract was found at the specified address.
-       **/
-      ContractNotFound: AugmentedError<ApiType>;
-      /**
-       * The contract ran to completion but decided to revert its storage changes.
-       * Please note that this error is only returned from extrinsics. When called directly
-       * or via RPC an `Ok` will be returned. In this case the caller needs to inspect the flags
-       * to determine whether a reversion has taken place.
-       **/
-      ContractReverted: AugmentedError<ApiType>;
-      /**
-       * Contract trapped during execution.
-       **/
-      ContractTrapped: AugmentedError<ApiType>;
-      /**
-       * Failed to convert an EVM balance to a native balance.
-       **/
-      DecimalPrecisionLoss: AugmentedError<ApiType>;
-      /**
-       * Input passed to a contract API function failed to decode as expected type.
-       **/
-      DecodingFailed: AugmentedError<ApiType>;
-      /**
-       * The contract already depends on the given delegate dependency.
-       **/
-      DelegateDependencyAlreadyExists: AugmentedError<ApiType>;
-      /**
-       * The dependency was not found in the contract's delegate dependencies.
-       **/
-      DelegateDependencyNotFound: AugmentedError<ApiType>;
-      /**
-       * A contract with the same AccountId already exists.
-       **/
-      DuplicateContract: AugmentedError<ApiType>;
-      /**
-       * PolkaVM failed during code execution. Probably due to a malformed program.
-       **/
-      ExecutionFailed: AugmentedError<ApiType>;
-      /**
-       * `seal_call` forwarded this contracts input. It therefore is no longer available.
-       **/
-      InputForwarded: AugmentedError<ApiType>;
-      /**
-       * Invalid combination of flags supplied to `seal_call` or `seal_delegate_call`.
-       **/
-      InvalidCallFlags: AugmentedError<ApiType>;
-      /**
-       * The transaction used to dry-run a contract is invalid.
-       **/
-      InvalidGenericTransaction: AugmentedError<ApiType>;
-      /**
-       * Immutable data can only be set during deploys and only be read during calls.
-       * Additionally, it is only valid to set the data once and it must not be empty.
-       **/
-      InvalidImmutableAccess: AugmentedError<ApiType>;
-      /**
-       * The program contains an invalid instruction.
-       **/
-      InvalidInstruction: AugmentedError<ApiType>;
-      /**
-       * Invalid schedule supplied, e.g. with zero weight of a basic operation.
-       **/
-      InvalidSchedule: AugmentedError<ApiType>;
-      /**
-       * Invalid storage flags were passed to one of the storage syscalls.
-       **/
-      InvalidStorageFlags: AugmentedError<ApiType>;
-      /**
-       * The contract tried to call a syscall which does not exist (at its current api level).
-       **/
-      InvalidSyscall: AugmentedError<ApiType>;
-      /**
-       * Performing a call was denied because the calling depth reached the limit
-       * of what is specified in the schedule.
-       **/
-      MaxCallDepthReached: AugmentedError<ApiType>;
-      /**
-       * The contract has reached its maximum number of delegate dependencies.
-       **/
-      MaxDelegateDependenciesReached: AugmentedError<ApiType>;
-      /**
-       * The chain does not provide a chain extension. Calling the chain extension results
-       * in this error. Note that this usually  shouldn't happen as deploying such contracts
-       * is rejected.
-       **/
-      NoChainExtension: AugmentedError<ApiType>;
-      /**
-       * A buffer outside of sandbox memory was passed to a contract API function.
-       **/
-      OutOfBounds: AugmentedError<ApiType>;
-      /**
-       * The executed contract exhausted its gas limit.
-       **/
-      OutOfGas: AugmentedError<ApiType>;
-      /**
-       * Can not add more data to transient storage.
-       **/
-      OutOfTransientStorage: AugmentedError<ApiType>;
-      /**
-       * A contract called into the runtime which then called back into this pallet.
-       **/
-      ReenteredPallet: AugmentedError<ApiType>;
-      /**
-       * A call tried to invoke a contract that is flagged as non-reentrant.
-       **/
-      ReentranceDenied: AugmentedError<ApiType>;
-      /**
-       * A contract attempted to invoke a state modifying API while being in read-only mode.
-       **/
-      StateChangeDenied: AugmentedError<ApiType>;
-      /**
-       * The static memory consumption of the blob will be larger than
-       * [`limits::code::STATIC_MEMORY_BYTES`].
-       **/
-      StaticMemoryTooLarge: AugmentedError<ApiType>;
-      /**
-       * More storage was created than allowed by the storage deposit limit.
-       **/
-      StorageDepositLimitExhausted: AugmentedError<ApiType>;
-      /**
-       * Origin doesn't have enough balance to pay the required storage deposits.
-       **/
-      StorageDepositNotEnoughFunds: AugmentedError<ApiType>;
-      /**
-       * A contract self destructed in its constructor.
-       * 
-       * This can be triggered by a call to `seal_terminate`.
-       **/
-      TerminatedInConstructor: AugmentedError<ApiType>;
-      /**
-       * Termination of a contract is not allowed while the contract is already
-       * on the call stack. Can be triggered by `seal_terminate`.
-       **/
-      TerminatedWhileReentrant: AugmentedError<ApiType>;
-      /**
-       * The amount of topics passed to `seal_deposit_events` exceeds the limit.
-       **/
-      TooManyTopics: AugmentedError<ApiType>;
-      /**
-       * Performing the requested transfer failed. Probably because there isn't enough
-       * free balance in the sender's account.
-       **/
-      TransferFailed: AugmentedError<ApiType>;
-      /**
-       * The size defined in `T::MaxValueSize` was exceeded.
-       **/
-      ValueTooLarge: AugmentedError<ApiType>;
-      /**
-       * Failed to decode the XCM program.
-       **/
-      XCMDecodeFailed: AugmentedError<ApiType>;
     };
     safeMode: {
       /**
@@ -2212,6 +1971,11 @@ declare module '@polkadot/api-base/types/errors' {
        * Can not rebond without unlocking chunks.
        **/
       NoUnlockChunk: AugmentedError<ApiType>;
+      /**
+       * Account is restricted from participation in staking. This may happen if the account is
+       * staking in another way already, such as via pool.
+       **/
+      Restricted: AugmentedError<ApiType>;
       /**
        * Provided reward destination is not allowed.
        **/

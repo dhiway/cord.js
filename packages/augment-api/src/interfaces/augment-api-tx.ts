@@ -6,11 +6,10 @@
 import '@polkadot/api-base/types/submittable';
 
 import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api-base/types';
-import type { Data } from '@polkadot/types';
 import type { Bytes, Compact, Option, U8aFixed, Vec, bool, u128, u16, u32, u64, u8 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
-import type { AccountId32, Call, H160, H256, MultiAddress, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
-import type { CordWeaveRuntimeOriginCaller, CordWeaveRuntimeSessionKeys, FrameSupportTokensFungibleUnionOfNativeOrWithId, PalletBalancesAdjustmentDirection, PalletCollectionPermissionVariant, PalletContractsWasmDeterminism, PalletElectionProviderMultiPhaseRawSolution, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize, PalletIdentityJudgement, PalletIdentityLegacyIdentityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMetaTxMetaTx, PalletMigrationsHistoricCleanupSelector, PalletMigrationsMigrationCursor, PalletMultisigTimepoint, PalletNftsAttributeNamespace, PalletNftsCancelAttributesApprovalWitness, PalletNftsCollectionConfig, PalletNftsDestroyWitness, PalletNftsItemConfig, PalletNftsItemTip, PalletNftsMintSettings, PalletNftsMintWitness, PalletNftsPreSignedAttributes, PalletNftsPreSignedMint, PalletNftsPriceWithDirection, PalletNominationPoolsBondExtra, PalletNominationPoolsClaimPermission, PalletNominationPoolsCommissionChangeRate, PalletNominationPoolsCommissionClaimPermission, PalletNominationPoolsConfigOpAccountId32, PalletNominationPoolsConfigOpPerbill, PalletNominationPoolsConfigOpU128, PalletNominationPoolsConfigOpU32, PalletNominationPoolsPoolState, PalletRegistryPermissionVariant, PalletStakingPalletConfigOpPerbill, PalletStakingPalletConfigOpPercent, PalletStakingPalletConfigOpU128, PalletStakingPalletConfigOpU32, PalletStakingRewardDestination, PalletStakingUnlockChunk, PalletStakingValidatorPrefs, PalletStateTrieMigrationMigrationLimits, PalletStateTrieMigrationMigrationTask, PalletStateTrieMigrationProgress, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBeefyDoubleVotingProof, SpConsensusBeefyForkVotingProof, SpConsensusBeefyFutureBlockVotingProof, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpNposElectionsElectionScore, SpNposElectionsSupport, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
+import type { AccountId32, Call, H256, MultiAddress, Perbill, Percent } from '@polkadot/types/interfaces/runtime';
+import type { CordPrimitivesElementElum, CordWeaveRuntimeOriginCaller, CordWeaveRuntimeSessionKeys, FrameSupportTokensFungibleUnionOfNativeOrWithId, PalletBalancesAdjustmentDirection, PalletCollectionPermissionVariant, PalletContractsWasmDeterminism, PalletElectionProviderMultiPhaseRawSolution, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize, PalletEntityEntityEntityInfo, PalletImOnlineHeartbeat, PalletImOnlineSr25519AppSr25519Signature, PalletMetaTxMetaTx, PalletMigrationsHistoricCleanupSelector, PalletMigrationsMigrationCursor, PalletMultisigTimepoint, PalletNftsAttributeNamespace, PalletNftsCancelAttributesApprovalWitness, PalletNftsCollectionConfig, PalletNftsDestroyWitness, PalletNftsItemConfig, PalletNftsItemTip, PalletNftsMintSettings, PalletNftsMintWitness, PalletNftsPreSignedAttributes, PalletNftsPreSignedMint, PalletNftsPriceWithDirection, PalletNominationPoolsBondExtra, PalletNominationPoolsClaimPermission, PalletNominationPoolsCommissionChangeRate, PalletNominationPoolsCommissionClaimPermission, PalletNominationPoolsConfigOpAccountId32, PalletNominationPoolsConfigOpPerbill, PalletNominationPoolsConfigOpU128, PalletNominationPoolsConfigOpU32, PalletNominationPoolsPoolState, PalletRegistryPermissionVariant, PalletStakingPalletConfigOpPerbill, PalletStakingPalletConfigOpPercent, PalletStakingPalletConfigOpU128, PalletStakingPalletConfigOpU32, PalletStakingRewardDestination, PalletStakingUnlockChunk, PalletStakingValidatorPrefs, PalletStateTrieMigrationMigrationLimits, PalletStateTrieMigrationMigrationTask, PalletStateTrieMigrationProgress, SpConsensusBabeDigestsNextConfigDescriptor, SpConsensusBeefyDoubleVotingProof, SpConsensusBeefyForkVotingProof, SpConsensusBeefyFutureBlockVotingProof, SpConsensusGrandpaEquivocationProof, SpConsensusSlotsEquivocationProof, SpNposElectionsElectionScore, SpNposElectionsSupport, SpRuntimeMultiSignature, SpSessionMembershipProof, SpWeightsWeightV2Weight } from '@polkadot/types/lookup';
 
 export type __AugmentedSubmittable = AugmentedSubmittable<() => unknown>;
 export type __SubmittableExtrinsic<ApiType extends ApiTypes> = SubmittableExtrinsic<ApiType>;
@@ -423,6 +422,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * refunded.
        * - `allow_burn`: If `true` then assets may be destroyed in order to complete the refund.
        * 
+       * It will fail with either [`Error::ContainsHolds`] or [`Error::ContainsFreezes`] if
+       * the asset account contains holds or freezes in place.
+       * 
        * Emits `Refunded` event when successful.
        **/
       refund: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array, allowBurn: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, bool]>;
@@ -435,6 +437,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * - `id`: The identifier of the asset for the account holding a deposit.
        * - `who`: The account to refund.
+       * 
+       * It will fail with either [`Error::ContainsHolds`] or [`Error::ContainsFreezes`] if
+       * the asset account contains holds or freezes in place.
        * 
        * Emits `Refunded` event when successful.
        **/
@@ -498,6 +503,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * - `id`: The identifier of the asset to be destroyed. This must identify an existing
        * asset.
+       * 
+       * It will fail with either [`Error::ContainsHolds`] or [`Error::ContainsFreezes`] if
+       * an account contains holds or freezes in place.
        **/
       startDestroy: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
       /**
@@ -1211,13 +1219,65 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       submitUnsigned: AugmentedSubmittable<(rawSolution: PalletElectionProviderMultiPhaseRawSolution | { solution?: any; score?: any; round?: any } | string | Uint8Array, witness: PalletElectionProviderMultiPhaseSolutionOrSnapshotSize | { voters?: any; targets?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletElectionProviderMultiPhaseRawSolution, PalletElectionProviderMultiPhaseSolutionOrSnapshotSize]>;
     };
+    entity: {
+      /**
+       * Add entity attributes key->Data.
+       **/
+      addAttributes: AugmentedSubmittable<(ops: Vec<ITuple<[Bytes, CordPrimitivesElementElum]>> | ([Bytes | string | Uint8Array, CordPrimitivesElementElum | { None: any } | { Raw: any } | { Digest: any } | { Doken: any } | { CID: any } | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[Bytes, CordPrimitivesElementElum]>>]>;
+      /**
+       * Remove all entity details from storage
+       **/
+      clearEverything: AugmentedSubmittable<(doken: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Council/Root Remove all details of an entity from storage
+       **/
+      clearEverythingFor: AugmentedSubmittable<(doken: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      removeAttribute: AugmentedSubmittable<(key: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Remove an existing username under the suffix "myn.social".
+       **/
+      removeIdName: AugmentedSubmittable<(doken: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Remove a previously-added sub-account.
+       **/
+      revokeSubAccount: AugmentedSubmittable<(sub: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      /**
+       * Remove a previously-added sub-account.
+       **/
+      revokeSubAccountFor: AugmentedSubmittable<(doken: Bytes | string | Uint8Array, sub: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      /**
+       * “Rotate” (update) an existing attribute: record the old value in history, bump the
+       * version, then overwrite. Fails if the key is missing or invalid.
+       **/
+      rotateAttribute: AugmentedSubmittable<(key: Bytes | string | Uint8Array, val: CordPrimitivesElementElum | { None: any } | { Raw: any } | { Digest: any } | { Doken: any } | { CID: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, CordPrimitivesElementElum]>;
+      rotateController: AugmentedSubmittable<(doken: Bytes | string | Uint8Array, newController: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      rotateControllerFor: AugmentedSubmittable<(doken: Bytes | string | Uint8Array, newController: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
+      /**
+       * Add an entity doken name under the constant suffix ".myn.social", always stored
+       * lowercase.
+       **/
+      setIdName: AugmentedSubmittable<(prefix: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      /**
+       * Set an entity's information and generate an entity doken.
+       **/
+      setInfo: AugmentedSubmittable<(info: PalletEntityEntityEntityInfo | { display?: any; legal?: any; web?: any; email?: any; twitter?: any; attributes?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletEntityEntityEntityInfo]>;
+      /**
+       * Set a sub-account of the sender.
+       **/
+      setSubAccount: AugmentedSubmittable<(sub: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32]>;
+      /**
+       * Update attributes in an existing entity.
+       **/
+      updateInfo: AugmentedSubmittable<(ops: Vec<ITuple<[Bytes, CordPrimitivesElementElum]>> | ([Bytes | string | Uint8Array, CordPrimitivesElementElum | { None: any } | { Raw: any } | { Digest: any } | { Doken: any } | { CID: any } | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[Bytes, CordPrimitivesElementElum]>>]>;
+    };
     entry: {
       /**
        * Creates a new registry entry within a specified registry.
        * 
-       * Constructs a unique entry identifier from the transaction hash, registry ID, and creator's profile ID,
-       * ensuring it doesn’t already exist. The creator must have a valid profile and permission to create entries
-       * in the registry. The entry is stored with its hash, creator, and registry ID, marked as active.
+       * Constructs a unique entry identifier from the transaction hash, registry ID, and
+       * creator's profile ID, ensuring it doesn’t already exist. The creator must have a valid
+       * profile and permission to create entries in the registry. The entry is stored with its
+       * hash, creator, and registry ID, marked as active.
        * 
        * # Arguments
        * * `origin` - The signed account creating the entry.
@@ -1233,15 +1293,17 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `pallet_profile::Error` - If the creator’s profile is invalid.
        * 
        * # Events
-       * * `RegistryEntryCreated` - Emitted with `creator`, `registry_id`, `registry_entry_id`, `creator_profile_id`.
+       * * `RegistryEntryCreated` - Emitted with `creator`, `registry_id`, `registry_entry_id`,
+       * `creator_profile_id`.
        * ```
        **/
       create: AugmentedSubmittable<(registryId: Bytes | string | Uint8Array, txHash: H256 | string | Uint8Array, blob: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>]>;
       /**
        * Reinstates an existing revoked registry entry.
        * 
-       * Restores an entry to active status if the caller is the registry admin or the entry’s creator.
-       * The entry must exist, belong to the specified registry, and be revoked. The status is updated in storage.
+       * Restores an entry to active status if the caller is the registry admin or the entry’s
+       * creator. The entry must exist, belong to the specified registry, and be revoked. The
+       * status is updated in storage.
        * 
        * # Arguments
        * * `origin` - The signed account reinstating the entry.
@@ -1256,7 +1318,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `pallet_profile::Error` - If the updater’s profile is invalid.
        * 
        * # Events
-       * * `RegistryEntryReinstated` - Emitted with `updater`, `registry_entry_id`, `updater_profile_id`.
+       * * `RegistryEntryReinstated` - Emitted with `updater`, `registry_entry_id`,
+       * `updater_profile_id`.
        * 
        * ```
        **/
@@ -1265,7 +1328,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * Revokes an existing registry entry.
        * 
        * Marks an entry as revoked if the caller is the registry admin or the entry’s creator.
-       * The entry must exist and belong to the specified registry. The revoked status is updated in storage.
+       * The entry must exist and belong to the specified registry. The revoked status is updated
+       * in storage.
        * 
        * # Arguments
        * * `origin` - The signed account revoking the entry.
@@ -1279,7 +1343,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `pallet_profile::Error` - If the updater’s profile is invalid.
        * 
        * # Events
-       * * `RegistryEntryRevoked` - Emitted with `updater`, `registry_entry_id`, `updater_profile_id`.
+       * * `RegistryEntryRevoked` - Emitted with `updater`, `registry_entry_id`,
+       * `updater_profile_id`.
        * 
        * ```
        **/
@@ -1287,8 +1352,9 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Updates an existing registry entry’s transaction hash.
        * 
-       * Updates the transaction hash of an entry if the caller is the registry admin or the entry’s creator.
-       * The entry must exist and belong to the specified registry. The new hash is stored, and an activity is recorded.
+       * Updates the transaction hash of an entry if the caller is the registry admin or the
+       * entry’s creator. The entry must exist and belong to the specified registry. The new
+       * hash is stored, and an activity is recorded.
        * 
        * # Arguments
        * * `origin` - The signed account updating the entry.
@@ -1304,7 +1370,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `pallet_profile::Error` - If the updater’s profile is invalid.
        * 
        * # Events
-       * * `RegistryEntryUpdated` - Emitted with `updater`, `registry_entry_id`, `updater_profile_id`.
+       * * `RegistryEntryUpdated` - Emitted with `updater`, `registry_entry_id`,
+       * `updater_profile_id`.
        * 
        * ```
        **/
@@ -1312,9 +1379,10 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Updates the ownership of an existing registry entry.
        * 
-       * Transfers ownership to a new account if the caller is the registry admin or the entry’s creator.
-       * The entry must exist and belong to the specified registry. The new owner must have a valid profile and
-       * permission in the registry. The creator field is updated in storage.
+       * Transfers ownership to a new account if the caller is the registry admin or the entry’s
+       * creator. The entry must exist and belong to the specified registry. The new owner must
+       * have a valid profile and permission in the registry. The creator field is updated in
+       * storage.
        * 
        * # Arguments
        * * `origin` - The signed account updating ownership.
@@ -1323,15 +1391,16 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `new_owner` - The account ID of the new owner.
        * 
        * # Errors
-       * * `UnauthorizedOperation` - If the caller or new owner lacks permission, or registry ID mismatches.
+       * * `UnauthorizedOperation` - If the caller or new owner lacks permission, or registry ID
+       * mismatches.
        * * `RegistryAccessValidationFailed` - If registry access validation fails.
        * * `RegistryEntryIdentifierDoesNotExist` - If the entry ID doesn’t exist.
        * * `NewOwnerCannotBeSameAsExistingOwner` - If the new owner matches the current owner.
        * * `pallet_profile::Error` - If the updater’s or new owner’s profile is invalid.
        * 
        * # Events
-       * * `RegistryEntryOwnershipUpdated` - Emitted with `updater`, `new_owner`, `registry_entry_id`,
-       * `updater_profile_id`, `new_owner_profile_id`.
+       * * `RegistryEntryOwnershipUpdated` - Emitted with `updater`, `new_owner`,
+       * `registry_entry_id`, `updater_profile_id`, `new_owner_profile_id`.
        * 
        * ```
        **/
@@ -1441,248 +1510,6 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       reportEquivocationUnsigned: AugmentedSubmittable<(equivocationProof: SpConsensusGrandpaEquivocationProof | { setId?: any; equivocation?: any } | string | Uint8Array, keyOwnerProof: SpSessionMembershipProof | { session?: any; trieNodes?: any; validatorCount?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [SpConsensusGrandpaEquivocationProof, SpSessionMembershipProof]>;
     };
-    identity: {
-      /**
-       * Accept a given username that an `authority` granted. The call must include the full
-       * username, as in `username.suffix`.
-       **/
-      acceptUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Add a registrar to the system.
-       * 
-       * The dispatch origin for this call must be `T::RegistrarOrigin`.
-       * 
-       * - `account`: the account of the registrar.
-       * 
-       * Emits `RegistrarAdded` if successful.
-       **/
-      addRegistrar: AugmentedSubmittable<(account: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * Add the given account to the sender's subs.
-       * 
-       * Payment: Balance reserved by a previous `set_subs` call for one sub will be repatriated
-       * to the sender.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a registered
-       * sub identity of `sub`.
-       **/
-      addSub: AugmentedSubmittable<(sub: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, data: Data | { None: any } | { Raw: any } | { BlakeTwo256: any } | { Sha256: any } | { Keccak256: any } | { ShaThree256: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Data]>;
-      /**
-       * Add an `AccountId` with permission to grant usernames with a given `suffix` appended.
-       * 
-       * The authority can grant up to `allocation` usernames. To top up the allocation or
-       * change the account used to grant usernames, this call can be used with the updated
-       * parameters to overwrite the existing configuration.
-       **/
-      addUsernameAuthority: AugmentedSubmittable<(authority: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, suffix: Bytes | string | Uint8Array, allocation: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Bytes, u32]>;
-      /**
-       * Cancel a previous request.
-       * 
-       * Payment: A previously reserved deposit is returned on success.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a
-       * registered identity.
-       * 
-       * - `reg_index`: The index of the registrar whose judgement is no longer requested.
-       * 
-       * Emits `JudgementUnrequested` if successful.
-       **/
-      cancelRequest: AugmentedSubmittable<(regIndex: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
-      /**
-       * Clear an account's identity info and all sub-accounts and return all deposits.
-       * 
-       * Payment: All reserved balances on the account are returned.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a registered
-       * identity.
-       * 
-       * Emits `IdentityCleared` if successful.
-       **/
-      clearIdentity: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Remove an account's identity and sub-account information and slash the deposits.
-       * 
-       * Payment: Reserved balances from `set_subs` and `set_identity` are slashed and handled by
-       * `Slash`. Verification request deposits are not returned; they should be cancelled
-       * manually using `cancel_request`.
-       * 
-       * The dispatch origin for this call must match `T::ForceOrigin`.
-       * 
-       * - `target`: the account whose identity the judgement is upon. This must be an account
-       * with a registered identity.
-       * 
-       * Emits `IdentityKilled` if successful.
-       **/
-      killIdentity: AugmentedSubmittable<(target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * Call with [ForceOrigin](crate::Config::ForceOrigin) privileges which deletes a username
-       * and slashes any deposit associated with it.
-       **/
-      killUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Provide a judgement for an account's identity.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must be the account
-       * of the registrar whose index is `reg_index`.
-       * 
-       * - `reg_index`: the index of the registrar whose judgement is being made.
-       * - `target`: the account whose identity the judgement is upon. This must be an account
-       * with a registered identity.
-       * - `judgement`: the judgement of the registrar of index `reg_index` about `target`.
-       * - `identity`: The hash of the [`IdentityInformationProvider`] for that the judgement is
-       * provided.
-       * 
-       * Note: Judgements do not apply to a username.
-       * 
-       * Emits `JudgementGiven` if successful.
-       **/
-      provideJudgement: AugmentedSubmittable<(regIndex: Compact<u32> | AnyNumber | Uint8Array, target: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, judgement: PalletIdentityJudgement | { Unknown: any } | { FeePaid: any } | { Reasonable: any } | { KnownGood: any } | { OutOfDate: any } | { LowQuality: any } | { Erroneous: any } | string | Uint8Array, identity: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress, PalletIdentityJudgement, H256]>;
-      /**
-       * Remove the sender as a sub-account.
-       * 
-       * Payment: Balance reserved by a previous `set_subs` call for one sub will be repatriated
-       * to the sender (*not* the original depositor).
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a registered
-       * super-identity.
-       * 
-       * NOTE: This should not normally be used, but is provided in the case that the non-
-       * controller of an account is maliciously registered as a sub-account.
-       **/
-      quitSub: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Remove an expired username approval. The username was approved by an authority but never
-       * accepted by the user and must now be beyond its expiration. The call must include the
-       * full username, as in `username.suffix`.
-       **/
-      removeExpiredApproval: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Remove the given account from the sender's subs.
-       * 
-       * Payment: Balance reserved by a previous `set_subs` call for one sub will be repatriated
-       * to the sender.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a registered
-       * sub identity of `sub`.
-       **/
-      removeSub: AugmentedSubmittable<(sub: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress]>;
-      /**
-       * Permanently delete a username which has been unbinding for longer than the grace period.
-       * Caller is refunded the fee if the username expired and the removal was successful.
-       **/
-      removeUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Remove `authority` from the username authorities.
-       **/
-      removeUsernameAuthority: AugmentedSubmittable<(suffix: Bytes | string | Uint8Array, authority: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, MultiAddress]>;
-      /**
-       * Alter the associated name of the given sub-account.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a registered
-       * sub identity of `sub`.
-       **/
-      renameSub: AugmentedSubmittable<(sub: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, data: Data | { None: any } | { Raw: any } | { BlakeTwo256: any } | { Sha256: any } | { Keccak256: any } | { ShaThree256: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Data]>;
-      /**
-       * Request a judgement from a registrar.
-       * 
-       * Payment: At most `max_fee` will be reserved for payment to the registrar if judgement
-       * given.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a
-       * registered identity.
-       * 
-       * - `reg_index`: The index of the registrar whose judgement is requested.
-       * - `max_fee`: The maximum fee that may be paid. This should just be auto-populated as:
-       * 
-       * ```nocompile
-       * Registrars::<T>::get().get(reg_index).unwrap().fee
-       * ```
-       * 
-       * Emits `JudgementRequested` if successful.
-       **/
-      requestJudgement: AugmentedSubmittable<(regIndex: Compact<u32> | AnyNumber | Uint8Array, maxFee: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Compact<u128>]>;
-      /**
-       * Change the account associated with a registrar.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must be the account
-       * of the registrar whose index is `index`.
-       * 
-       * - `index`: the index of the registrar whose fee is to be set.
-       * - `new`: the new account ID.
-       **/
-      setAccountId: AugmentedSubmittable<(index: Compact<u32> | AnyNumber | Uint8Array, updated: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, MultiAddress]>;
-      /**
-       * Set the fee required for a judgement to be requested from a registrar.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must be the account
-       * of the registrar whose index is `index`.
-       * 
-       * - `index`: the index of the registrar whose fee is to be set.
-       * - `fee`: the new fee.
-       **/
-      setFee: AugmentedSubmittable<(index: Compact<u32> | AnyNumber | Uint8Array, fee: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, Compact<u128>]>;
-      /**
-       * Set the field information for a registrar.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must be the account
-       * of the registrar whose index is `index`.
-       * 
-       * - `index`: the index of the registrar whose fee is to be set.
-       * - `fields`: the fields that the registrar concerns themselves with.
-       **/
-      setFields: AugmentedSubmittable<(index: Compact<u32> | AnyNumber | Uint8Array, fields: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, u64]>;
-      /**
-       * Set an account's identity information and reserve the appropriate deposit.
-       * 
-       * If the account already has identity information, the deposit is taken as part payment
-       * for the new deposit.
-       * 
-       * The dispatch origin for this call must be _Signed_.
-       * 
-       * - `info`: The identity information.
-       * 
-       * Emits `IdentitySet` if successful.
-       **/
-      setIdentity: AugmentedSubmittable<(info: PalletIdentityLegacyIdentityInfo | { additional?: any; display?: any; legal?: any; web?: any; riot?: any; email?: any; pgpFingerprint?: any; image?: any; twitter?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [PalletIdentityLegacyIdentityInfo]>;
-      /**
-       * Set a given username as the primary. The username should include the suffix.
-       **/
-      setPrimaryUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Set the sub-accounts of the sender.
-       * 
-       * Payment: Any aggregate balance reserved by previous `set_subs` calls will be returned
-       * and an amount `SubAccountDeposit` will be reserved for each item in `subs`.
-       * 
-       * The dispatch origin for this call must be _Signed_ and the sender must have a registered
-       * identity.
-       * 
-       * - `subs`: The identity's (new) sub-accounts.
-       **/
-      setSubs: AugmentedSubmittable<(subs: Vec<ITuple<[AccountId32, Data]>> | ([AccountId32 | string | Uint8Array, Data | { None: any } | { Raw: any } | { BlakeTwo256: any } | { Sha256: any } | { Keccak256: any } | { ShaThree256: any } | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[AccountId32, Data]>>]>;
-      /**
-       * Set the username for `who`. Must be called by a username authority.
-       * 
-       * If `use_allocation` is set, the authority must have a username allocation available to
-       * spend. Otherwise, the authority will need to put up a deposit for registering the
-       * username.
-       * 
-       * Users can either pre-sign their usernames or
-       * accept them later.
-       * 
-       * Usernames must:
-       * - Only contain lowercase ASCII characters or digits.
-       * - When combined with the suffix of the issuing authority be _less than_ the
-       * `MaxUsernameLength`.
-       **/
-      setUsernameFor: AugmentedSubmittable<(who: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, username: Bytes | string | Uint8Array, signature: Option<SpRuntimeMultiSignature> | null | Uint8Array | SpRuntimeMultiSignature | { ed25519: any } | { sr25519: any } | { ecdsa: any } | string, useAllocation: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [MultiAddress, Bytes, Option<SpRuntimeMultiSignature>, bool]>;
-      /**
-       * Start the process of removing a username by placing it in the unbinding usernames map.
-       * Once the grace period has passed, the username can be deleted by calling
-       * [remove_username](crate::Call::remove_username).
-       **/
-      unbindUsername: AugmentedSubmittable<(username: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-    };
     imOnline: {
       /**
        * ## Complexity:
@@ -1753,6 +1580,19 @@ declare module '@polkadot/api-base/types/submittable' {
        * - `O(1)`.
        **/
       freeze: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+      /**
+       * Poke the deposit reserved for an index.
+       * 
+       * The dispatch origin for this call must be _Signed_ and the signing account must have a
+       * non-frozen account `index`.
+       * 
+       * The transaction fees is waived if the deposit is changed after poking/reconsideration.
+       * 
+       * - `index`: the index whose deposit is to be poked/reconsidered.
+       * 
+       * Emits `DepositPoked` if successful.
+       **/
+      pokeDeposit: AugmentedSubmittable<(index: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
        * Assign an index already owned by the sender to another account. The balance reservation
        * is effectively transferred to the new account.
@@ -1949,39 +1789,22 @@ declare module '@polkadot/api-base/types/submittable' {
        * - Storage: removes one item.
        **/
       cancelAsMulti: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], timepoint: PalletMultisigTimepoint | { height?: any; index?: any } | string | Uint8Array, callHash: U8aFixed | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, PalletMultisigTimepoint, U8aFixed]>;
-    };
-    networkInfo: {
-      addStorageNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array, author: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, AccountId32]>;
-      networkInfo: AugmentedSubmittable<(name: Bytes | string | Uint8Array, endpoints: Vec<Bytes> | (Bytes | string | Uint8Array)[], website: Option<Bytes> | null | Uint8Array | Bytes | string, token: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Vec<Bytes>, Option<Bytes>, Bytes]>;
-      removeRpcEndpoint: AugmentedSubmittable<(endpoint: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      removeStorageNode: AugmentedSubmittable<(nodeId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      updateName: AugmentedSubmittable<(name: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      updateRpcEndpoints: AugmentedSubmittable<(endpoints: Vec<Bytes> | (Bytes | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Bytes>]>;
-      updateStorageNodeInfo: AugmentedSubmittable<(identifier: Bytes | string | Uint8Array, nodeId: Option<Bytes> | null | Uint8Array | Bytes | string, author: Option<AccountId32> | null | Uint8Array | AccountId32 | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>, Option<AccountId32>]>;
-      updateToken: AugmentedSubmittable<(token: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      updateWebsite: AugmentedSubmittable<(website: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Option<Bytes>]>;
-    };
-    networkRegistrar: {
       /**
-       * Deregister a network Id.
+       * Poke the deposit reserved for an existing multisig operation.
+       * 
+       * The dispatch origin for this call must be _Signed_ and must be the original depositor of
+       * the multisig operation.
+       * 
+       * The transaction fee is waived if the deposit amount has changed.
+       * 
+       * - `threshold`: The total number of approvals needed for this multisig.
+       * - `other_signatories`: The accounts (other than the sender) who are part of the
+       * multisig.
+       * - `call_hash`: The hash of the call this deposit is reserved for.
+       * 
+       * Emits `DepositPoked` if successful.
        **/
-      deregister: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string, id: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>, u32]>;
-      /**
-       * Register network genesis hash for a reserved Id.
-       **/
-      register: AugmentedSubmittable<(token: Bytes | string | Uint8Array, networkGenesisHead: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256]>;
-      /**
-       * Schedule renewal of a network registration
-       **/
-      renew: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string, id: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>, u32]>;
-      /**
-       * Renew an expired network registration
-       **/
-      renewNow: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string, id: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>, u32]>;
-      /**
-       * Reserve a Network Id on CORD.
-       **/
-      reserve: AugmentedSubmittable<(who: Option<AccountId32> | null | Uint8Array | AccountId32 | string) => SubmittableExtrinsic<ApiType>, [Option<AccountId32>]>;
+      pokeDeposit: AugmentedSubmittable<(threshold: u16 | AnyNumber | Uint8Array, otherSignatories: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[], callHash: U8aFixed | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [u16, Vec<AccountId32>, U8aFixed]>;
     };
     nftFractionalization: {
       /**
@@ -2696,25 +2519,37 @@ declare module '@polkadot/api-base/types/submittable' {
        * The dispatch origin of this call can be signed by the pool nominator or the pool
        * root role, same as [`Pallet::nominate`].
        * 
+       * This directly forwards the call to an implementation of `StakingInterface` (e.g.,
+       * `pallet-staking`) through [`Config::StakeAdapter`], on behalf of the bonded pool.
+       * 
        * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
        * account).
        * 
        * # Conditions for a permissionless dispatch:
-       * * When pool depositor has less than `MinNominatorBond` staked, otherwise  pool members
+       * * When pool depositor has less than `MinNominatorBond` staked, otherwise pool members
        * are unable to unbond.
        * 
        * # Conditions for permissioned dispatch:
-       * * The caller has a nominator or root role of the pool.
-       * This directly forward the call to the staking pallet, on behalf of the pool bonded
-       * account.
+       * * The caller is the pool's nominator or root.
        **/
       chill: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
        * Claim pending commission.
        * 
-       * The dispatch origin of this call must be signed by the `root` role of the pool. Pending
-       * commission is paid out and added to total claimed commission`. Total pending commission
-       * is reset to zero. the current.
+       * The `root` role of the pool is _always_ allowed to claim the pool's commission.
+       * 
+       * If the pool has set `CommissionClaimPermission::Permissionless`, then any account can
+       * trigger the process of claiming the pool's commission.
+       * 
+       * If the pool has set its `CommissionClaimPermission` to `Account(acc)`, then only
+       * accounts
+       * * `acc`, and
+       * * the pool's root account
+       * 
+       * may call this extrinsic on behalf of the pool.
+       * 
+       * Pending commissions are paid out and added to the total claimed commission.
+       * The total pending commission is reset to zero.
        **/
       claimCommission: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
       /**
@@ -2765,8 +2600,9 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       createWithPoolId: AugmentedSubmittable<(amount: Compact<u128> | AnyNumber | Uint8Array, root: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, nominator: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, bouncer: MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array, poolId: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u128>, MultiAddress, MultiAddress, MultiAddress, u32]>;
       /**
-       * Stake funds with a pool. The amount to bond is transferred from the member to the pool
-       * account and immediately increases the pools bond.
+       * Stake funds with a pool. The amount to bond is delegated (or transferred based on
+       * [`adapter::StakeStrategyType`]) from the member to the pool account and immediately
+       * increases the pool's bond.
        * 
        * The method of transferring the amount to the pool account is determined by
        * [`adapter::StakeStrategyType`]. If the pool is configured to use
@@ -2812,13 +2648,13 @@ declare module '@polkadot/api-base/types/submittable' {
        * The dispatch origin of this call must be signed by the pool nominator or the pool
        * root role.
        * 
-       * This directly forward the call to the staking pallet, on behalf of the pool bonded
-       * account.
+       * This directly forwards the call to an implementation of `StakingInterface` (e.g.,
+       * `pallet-staking`) through [`Config::StakeAdapter`], on behalf of the bonded pool.
        * 
        * # Note
        * 
-       * In addition to a `root` or `nominator` role of `origin`, pool's depositor needs to have
-       * at least `depositor_min_bond` in the pool to start nominating.
+       * In addition to a `root` or `nominator` role of `origin`, the pool's depositor needs to
+       * have at least `depositor_min_bond` in the pool to start nominating.
        **/
       nominate: AugmentedSubmittable<(poolId: u32 | AnyNumber | Uint8Array, validators: Vec<AccountId32> | (AccountId32 | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [u32, Vec<AccountId32>]>;
       /**
@@ -3292,6 +3128,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * refunded.
        * - `allow_burn`: If `true` then assets may be destroyed in order to complete the refund.
        * 
+       * It will fail with either [`Error::ContainsHolds`] or [`Error::ContainsFreezes`] if
+       * the asset account contains holds or freezes in place.
+       * 
        * Emits `Refunded` event when successful.
        **/
       refund: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array, allowBurn: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>, bool]>;
@@ -3304,6 +3143,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * - `id`: The identifier of the asset for the account holding a deposit.
        * - `who`: The account to refund.
+       * 
+       * It will fail with either [`Error::ContainsHolds`] or [`Error::ContainsFreezes`] if
+       * the asset account contains holds or freezes in place.
        * 
        * Emits `Refunded` event when successful.
        **/
@@ -3367,6 +3209,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * - `id`: The identifier of the asset to be destroyed. This must identify an existing
        * asset.
+       * 
+       * It will fail with either [`Error::ContainsHolds`] or [`Error::ContainsFreezes`] if
+       * an account contains holds or freezes in place.
        **/
       startDestroy: AugmentedSubmittable<(id: Compact<u32> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Compact<u32>]>;
       /**
@@ -3564,10 +3409,10 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * # Parameters
        * - `origin`: The origin of the call, which must be signed by the owner of the profile.
-       * - `new_key`: The new_key represnts the public key of the CORD/Substrate account for which
-       * The existing Profile Identifier will be tied to from here on. Make Sure this public key
-       * exists and accessible before making this call.
-       * This is irreversible and will tie all existing Profile Data to new-key based account.
+       * - `new_key`: The new_key represnts the public key of the CORD/Substrate account for
+       * which The existing Profile Identifier will be tied to from here on. Make Sure this
+       * public key exists and accessible before making this call. This is irreversible and
+       * will tie all existing Profile Data to new-key based account.
        * 
        * # Returns
        * Returns `Ok(())` if the Profile is succesfully rotated to new-key.
@@ -3595,8 +3440,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * 
        * # Errors
        * - `InvalidIdentifierLength`: If the newly creted Profile Identifier exceeds limit.
-       * - `ProfileAlreadyExists`: If the newly created Profile already exists.
-       * This happens if a user creates a duplicate profile with the same account key-pair.
+       * - `ProfileAlreadyExists`: If the newly created Profile already exists. This happens if a
+       * user creates a duplicate profile with the same account key-pair.
        * - `InvalidKeyPrefix`: If the Profile Data Key starts with anything other than `pub_`.
        **/
       setProfile: AugmentedSubmittable<(data: Vec<ITuple<[Bytes, Bytes]>> | ([Bytes | string | Uint8Array, Bytes | string | Uint8Array])[]) => SubmittableExtrinsic<ApiType>, [Vec<ITuple<[Bytes, Bytes]>>]>;
@@ -3605,9 +3450,10 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Adds a delegate with specified permissions to a registry.
        * 
-       * Assigns permissions (e.g., ENTRY, ADMIN) to a delegate for the given registry. The caller
-       * must have ADMIN permissions, and both the caller and delegate must have valid profiles.
-       * The delegate is added via the `delegation::add_delegate` function, and an activity is recorded.
+       * Assigns permissions (e.g., ENTRY, ADMIN) to a delegate for the given registry. The
+       * caller must have ADMIN permissions, and both the caller and delegate must have valid
+       * profiles. The delegate is added via the `delegation::add_delegate` function, and an
+       * activity is recorded.
        * 
        * # Arguments
        * * `origin` - The signed account adding the delegate.
@@ -3629,8 +3475,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * Archives a registry.
        * 
        * Marks a registry as archived, preventing further operations. The caller must have ADMIN
-       * permissions and a valid profile. The operation is performed via the `registry::archive_registry`
-       * function, and an activity is recorded.
+       * permissions and a valid profile. The operation is performed via the
+       * `registry::archive_registry` function, and an activity is recorded.
        * 
        * # Arguments
        * * `origin` - The signed account archiving the registry.
@@ -3652,8 +3498,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * Creates a new registry.
        * 
        * Initializes a new registry with the provided transaction hash and a optional blob.
-       * The creator must have a valid profile. The registry is created via the `registry::create_registry`
-       * function, assigned a unique SS58 identifier, and marked as active.
+       * The creator must have a valid profile. The registry is created via the
+       * `registry::create_registry` function, assigned a unique SS58 identifier, and marked as
+       * active.
        * 
        * # Arguments
        * * `origin` - The signed account creating the registry.
@@ -3674,13 +3521,13 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Creates a new registry store with cyra based credentials.
        * 
-       * Initializes a new registry store with the provided transaction hash and optional metadata
-       * (document ID, author, node ID). The creator must have a valid profile. The registry is
-       * created via the `registry::create_registry_store` function, assigned a unique SS58 identifier,
-       * and marked as active.
+       * Initializes a new registry store with the provided transaction hash and optional
+       * metadata (document ID, author, node ID). The creator must have a valid profile. The
+       * registry is created via the `registry::create_registry_store` function, assigned a
+       * unique SS58 identifier, and marked as active.
        * 
-       * The key difference between create and create-store is that create-store is to map the registry
-       * data present in Cyra into Cord.
+       * The key difference between create and create-store is that create-store is to map the
+       * registry data present in Cyra into Cord.
        * 
        * # Arguments
        * * `origin` - The signed account creating the registry.
@@ -3705,8 +3552,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * Removes a delegate from a registry.
        * 
        * Revokes all permissions for the specified delegate in the registry. The caller must have
-       * ADMIN permissions, and both the caller and delegate must have valid profiles. The delegate
-       * is removed via the `delegation::remove_delegate` function, and an activity is recorded.
+       * ADMIN permissions, and both the caller and delegate must have valid profiles. The
+       * delegate is removed via the `delegation::remove_delegate` function, and an activity is
+       * recorded.
        * 
        * # Arguments
        * * `origin` - The signed account removing the delegate.
@@ -3727,9 +3575,9 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Restores an archived registry.
        * 
-       * Restores a previously archived registry to active status, allowing operations. The caller
-       * must have ADMIN permissions and a valid profile. The operation is performed via the
-       * `registry::restore_registry` function, and an activity is recorded.
+       * Restores a previously archived registry to active status, allowing operations. The
+       * caller must have ADMIN permissions and a valid profile. The operation is performed via
+       * the `registry::restore_registry` function, and an activity is recorded.
        * 
        * # Arguments
        * * `origin` - The signed account restoring the registry.
@@ -3751,8 +3599,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * Updates the document author of a registry.
        * 
        * Changes the document author of the registry to a new account. The caller must have ADMIN
-       * permissions, and both the caller and new author must have valid profiles. The operation is
-       * performed via the `registry::update_registry_author` function, and an activity is recorded.
+       * permissions, and both the caller and new author must have valid profiles. The operation
+       * is performed via the `registry::update_registry_author` function, and an activity is
+       * recorded.
        * 
        * # Arguments
        * * `origin` - The signed account updating the author.
@@ -3765,7 +3614,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `pallet_profile::Error` - If the caller’s or new author’s profile is invalid.
        * 
        * # Events
-       * * `RegistryUpdated` - Emitted with `registry`, `authority` (new author), `authority_profile_id`.
+       * * `RegistryUpdated` - Emitted with `registry`, `authority` (new author),
+       * `authority_profile_id`.
        * 
        * ```
        **/
@@ -3774,8 +3624,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * Updates the creator of a registry.
        * 
        * Transfers ownership of the registry to a new account. The caller must have ADMIN
-       * permissions, and both the caller and new creator must have valid profiles. The operation is
-       * performed via the `registry::update_registry_creator` function, and an activity is recorded.
+       * permissions, and both the caller and new creator must have valid profiles. The operation
+       * is performed via the `registry::update_registry_creator` function, and an activity is
+       * recorded.
        * 
        * # Arguments
        * * `origin` - The signed account updating the creator.
@@ -3788,7 +3639,8 @@ declare module '@polkadot/api-base/types/submittable' {
        * * `pallet_profile::Error` - If the caller’s or new creator’s profile is invalid.
        * 
        * # Events
-       * * `RegistryUpdated` - Emitted with `registry`, `authority` (new creator), `authority_profile_id`.
+       * * `RegistryUpdated` - Emitted with `registry`, `authority` (new creator),
+       * `authority_profile_id`.
        * 
        * ```
        **/
@@ -3796,8 +3648,8 @@ declare module '@polkadot/api-base/types/submittable' {
       /**
        * Updates the transaction hash of a registry.
        * 
-       * Updates the registry’s transaction hash and optionally its blob. The caller must have ADMIN
-       * permissions and a valid profile. The operation is performed via the
+       * Updates the registry’s transaction hash and optionally its blob. The caller must have
+       * ADMIN permissions and a valid profile. The operation is performed via the
        * `registry::update_registry_hash` function, and an activity is recorded.
        * 
        * # Arguments
@@ -3823,140 +3675,6 @@ declare module '@polkadot/api-base/types/submittable' {
        * Index and store data off chain.
        **/
       store: AugmentedSubmittable<(remark: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-    };
-    revive: {
-      /**
-       * Makes a call to an account, optionally transferring some balance.
-       * 
-       * # Parameters
-       * 
-       * * `dest`: Address of the contract to call.
-       * * `value`: The balance to transfer from the `origin` to `dest`.
-       * * `gas_limit`: The gas limit enforced when executing the constructor.
-       * * `storage_deposit_limit`: The maximum amount of balance that can be charged from the
-       * caller to pay for the storage consumed.
-       * * `data`: The input data to pass to the contract.
-       * 
-       * * If the account is a smart-contract account, the associated code will be
-       * executed and any value will be transferred.
-       * * If the account is a regular account, any value will be transferred.
-       * * If no account exists and the call value is not less than `existential_deposit`,
-       * a regular account will be created and any value will be transferred.
-       **/
-      call: AugmentedSubmittable<(dest: H160 | string | Uint8Array, value: Compact<u128> | AnyNumber | Uint8Array, gasLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array, data: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H160, Compact<u128>, SpWeightsWeightV2Weight, Compact<u128>, Bytes]>;
-      /**
-       * Dispatch an `call` with the origin set to the callers fallback address.
-       * 
-       * Every `AccountId32` can control its corresponding fallback account. The fallback account
-       * is the `AccountId20` with the last 12 bytes set to `0xEE`. This is essentially a
-       * recovery function in case an `AccountId20` was used without creating a mapping first.
-       **/
-      dispatchAsFallbackAccount: AugmentedSubmittable<(call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call]>;
-      /**
-       * A raw EVM transaction, typically dispatched by an Ethereum JSON-RPC server.
-       * 
-       * # Parameters
-       * 
-       * * `payload`: The encoded [`crate::evm::TransactionSigned`].
-       * * `gas_limit`: The gas limit enforced during contract execution.
-       * * `storage_deposit_limit`: The maximum balance that can be charged to the caller for
-       * storage usage.
-       * 
-       * # Note
-       * 
-       * This call cannot be dispatched directly; attempting to do so will result in a failed
-       * transaction. It serves as a wrapper for an Ethereum transaction. When submitted, the
-       * runtime converts it into a [`sp_runtime::generic::CheckedExtrinsic`] by recovering the
-       * signer and validating the transaction.
-       **/
-      ethTransact: AugmentedSubmittable<(payload: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
-      /**
-       * Instantiates a contract from a previously deployed wasm binary.
-       * 
-       * This function is identical to [`Self::instantiate_with_code`] but without the
-       * code deployment step. Instead, the `code_hash` of an on-chain deployed wasm binary
-       * must be supplied.
-       **/
-      instantiate: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array, gasLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array, codeHash: H256 | string | Uint8Array, data: Bytes | string | Uint8Array, salt: Option<U8aFixed> | null | Uint8Array | U8aFixed | string) => SubmittableExtrinsic<ApiType>, [Compact<u128>, SpWeightsWeightV2Weight, Compact<u128>, H256, Bytes, Option<U8aFixed>]>;
-      /**
-       * Instantiates a new contract from the supplied `code` optionally transferring
-       * some balance.
-       * 
-       * This dispatchable has the same effect as calling [`Self::upload_code`] +
-       * [`Self::instantiate`]. Bundling them together provides efficiency gains. Please
-       * also check the documentation of [`Self::upload_code`].
-       * 
-       * # Parameters
-       * 
-       * * `value`: The balance to transfer from the `origin` to the newly created contract.
-       * * `gas_limit`: The gas limit enforced when executing the constructor.
-       * * `storage_deposit_limit`: The maximum amount of balance that can be charged/reserved
-       * from the caller to pay for the storage consumed.
-       * * `code`: The contract code to deploy in raw bytes.
-       * * `data`: The input data to pass to the contract constructor.
-       * * `salt`: Used for the address derivation. If `Some` is supplied then `CREATE2`
-       * semantics are used. If `None` then `CRATE1` is used.
-       * 
-       * 
-       * Instantiation is executed as follows:
-       * 
-       * - The supplied `code` is deployed, and a `code_hash` is created for that code.
-       * - If the `code_hash` already exists on the chain the underlying `code` will be shared.
-       * - The destination address is computed based on the sender, code_hash and the salt.
-       * - The smart-contract account is created at the computed address.
-       * - The `value` is transferred to the new account.
-       * - The `deploy` function is executed in the context of the newly-created account.
-       **/
-      instantiateWithCode: AugmentedSubmittable<(value: Compact<u128> | AnyNumber | Uint8Array, gasLimit: SpWeightsWeightV2Weight | { refTime?: any; proofSize?: any } | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array, code: Bytes | string | Uint8Array, data: Bytes | string | Uint8Array, salt: Option<U8aFixed> | null | Uint8Array | U8aFixed | string) => SubmittableExtrinsic<ApiType>, [Compact<u128>, SpWeightsWeightV2Weight, Compact<u128>, Bytes, Bytes, Option<U8aFixed>]>;
-      /**
-       * Register the callers account id so that it can be used in contract interactions.
-       * 
-       * This will error if the origin is already mapped or is a eth native `Address20`. It will
-       * take a deposit that can be released by calling [`Self::unmap_account`].
-       **/
-      mapAccount: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Remove the code stored under `code_hash` and refund the deposit to its owner.
-       * 
-       * A code can only be removed by its original uploader (its owner) and only if it is
-       * not used by any contract.
-       **/
-      removeCode: AugmentedSubmittable<(codeHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
-      /**
-       * Privileged function that changes the code of an existing contract.
-       * 
-       * This takes care of updating refcounts and all other necessary operations. Returns
-       * an error if either the `code_hash` or `dest` do not exist.
-       * 
-       * # Note
-       * 
-       * This does **not** change the address of the contract in question. This means
-       * that the contract address is no longer derived from its code hash after calling
-       * this dispatchable.
-       **/
-      setCode: AugmentedSubmittable<(dest: H160 | string | Uint8Array, codeHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H160, H256]>;
-      /**
-       * Unregister the callers account id in order to free the deposit.
-       * 
-       * There is no reason to ever call this function other than freeing up the deposit.
-       * This is only useful when the account should no longer be used.
-       **/
-      unmapAccount: AugmentedSubmittable<() => SubmittableExtrinsic<ApiType>, []>;
-      /**
-       * Upload new `code` without instantiating a contract from it.
-       * 
-       * If the code does not already exist a deposit is reserved from the caller
-       * and unreserved only when [`Self::remove_code`] is called. The size of the reserve
-       * depends on the size of the supplied `code`.
-       * 
-       * # Note
-       * 
-       * Anyone can instantiate a contract from any uploaded code and thus prevent its removal.
-       * To avoid this situation a constructor could employ access control so that it can
-       * only be instantiated by permissioned entities. The same is true when uploading
-       * through [`Self::instantiate_with_code`].
-       **/
-      uploadCode: AugmentedSubmittable<(code: Bytes | string | Uint8Array, storageDepositLimit: Compact<u128> | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Compact<u128>]>;
     };
     rootTesting: {
       /**
@@ -4338,11 +4056,35 @@ declare module '@polkadot/api-base/types/submittable' {
        **/
       kick: AugmentedSubmittable<(who: Vec<MultiAddress> | (MultiAddress | { Id: any } | { Index: any } | { Raw: any } | { Address32: any } | { Address20: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<MultiAddress>]>;
       /**
-       * Migrates permissionlessly a stash from locks to holds.
+       * This function allows governance to manually slash a validator and is a
+       * **fallback mechanism**.
        * 
-       * This removes the old lock on the stake and creates a hold on it atomically. If all
-       * stake cannot be held, the best effort is made to hold as much as possible. The remaining
-       * stake is removed from the ledger.
+       * The dispatch origin must be `T::AdminOrigin`.
+       * 
+       * ## Parameters
+       * - `validator_stash` - The stash account of the validator to slash.
+       * - `era` - The era in which the validator was in the active set.
+       * - `slash_fraction` - The percentage of the stake to slash, expressed as a Perbill.
+       * 
+       * ## Behavior
+       * 
+       * The slash will be applied using the standard slashing mechanics, respecting the
+       * configured `SlashDeferDuration`.
+       * 
+       * This means:
+       * - If the validator was already slashed by a higher percentage for the same era, this
+       * slash will have no additional effect.
+       * - If the validator was previously slashed by a lower percentage, only the difference
+       * will be applied.
+       * - The slash will be deferred by `SlashDeferDuration` eras before being enacted.
+       **/
+      manualSlash: AugmentedSubmittable<(validatorStash: AccountId32 | string | Uint8Array, era: u32 | AnyNumber | Uint8Array, slashFraction: Perbill | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [AccountId32, u32, Perbill]>;
+      /**
+       * Removes the legacy Staking locks if they exist.
+       * 
+       * This removes the legacy lock on the stake with [`Config::OldCurrency`] and creates a
+       * hold on it if needed. If all stake cannot be held, the best effort is made to hold as
+       * much as possible. The remaining stake is forced withdrawn from the ledger.
        * 
        * The fee is waived if the migration is successful.
        **/
@@ -5180,7 +4922,15 @@ declare module '@polkadot/api-base/types/submittable' {
        * ## Complexity
        * - O(1).
        **/
-      dispatchAs: AugmentedSubmittable<(asOrigin: CordWeaveRuntimeOriginCaller | { system: any } | { Void: any } | { Council: any } | { TechnicalCommittee: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeOriginCaller, Call]>;
+      dispatchAs: AugmentedSubmittable<(asOrigin: CordWeaveRuntimeOriginCaller | { system: any } | { Council: any } | { TechnicalCommittee: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeOriginCaller, Call]>;
+      /**
+       * Dispatches a function call with a provided origin.
+       * 
+       * Almost the same as [`Pallet::dispatch_as`] but forwards any error of the inner call.
+       * 
+       * The dispatch origin for this call must be _Root_.
+       **/
+      dispatchAsFallible: AugmentedSubmittable<(asOrigin: CordWeaveRuntimeOriginCaller | { system: any } | { Council: any } | { TechnicalCommittee: any } | string | Uint8Array, call: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [CordWeaveRuntimeOriginCaller, Call]>;
       /**
        * Send a batch of dispatch calls.
        * Unlike `batch`, it allows errors and won't interrupt.
@@ -5197,6 +4947,32 @@ declare module '@polkadot/api-base/types/submittable' {
        * - O(C) where C is the number of calls to be batched.
        **/
       forceBatch: AugmentedSubmittable<(calls: Vec<Call> | (Call | IMethod | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<Call>]>;
+      /**
+       * Dispatch a fallback call in the event the main call fails to execute.
+       * May be called from any origin except `None`.
+       * 
+       * This function first attempts to dispatch the `main` call.
+       * If the `main` call fails, the `fallback` is attemted.
+       * if the fallback is successfully dispatched, the weights of both calls
+       * are accumulated and an event containing the main call error is deposited.
+       * 
+       * In the event of a fallback failure the whole call fails
+       * with the weights returned.
+       * 
+       * - `main`: The main call to be dispatched. This is the primary action to execute.
+       * - `fallback`: The fallback call to be dispatched in case the `main` call fails.
+       * 
+       * ## Dispatch Logic
+       * - If the origin is `root`, both the main and fallback calls are executed without
+       * applying any origin filters.
+       * - If the origin is not `root`, the origin filter is applied to both the `main` and
+       * `fallback` calls.
+       * 
+       * ## Use Case
+       * - Some use cases might involve submitting a `batch` type call in either main, fallback
+       * or both.
+       **/
+      ifElse: AugmentedSubmittable<(main: Call | IMethod | string | Uint8Array, fallback: Call | IMethod | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Call, Call]>;
       /**
        * Dispatch a function call with a specified weight.
        * 
