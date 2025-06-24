@@ -48,7 +48,6 @@ import {
   DecoderUtils,
 } from '@cord.network/utils';
 
-
 import {
     IRegistryEntry,
     IRegistryEntryUpdate,
@@ -58,7 +57,7 @@ import {
     EntryId,
     RegistryId,
     CordAddress,
-    SubmittableExtrinsic
+    SubmittableExtrinsic,
 } from '@cord.network/types';
 
 import { Chain } from '@cord.network/network';
@@ -157,7 +156,7 @@ export async function prepareCreateExtrinsic(
  * @param registryEntryDetails.tx_hash - The hash of the entry’s content.
  * @param registryEntryDetails.blob - Optional serialized content for the entry.
  * @param authorAccount - The keyring pair of the account authorizing the transaction.
- * @returns A promise that resolves when the transaction is submitted successfully.
+ * @returns A promise which resolves on create.
  * @throws {SDKErrors.CordDispatchError} If the transaction fails or is invalid.
  *
  * @example
@@ -177,8 +176,9 @@ export async function dispatchCreateEntryToChain(
 ): Promise<void> {
   try {
     const extrinsic = await prepareCreateExtrinsic(registryEntryDetails);
-
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+    return;
 } catch (error) {
     const errorMessage =
         error instanceof Error ? error.message : JSON.stringify(error);
@@ -278,8 +278,9 @@ export async function dispatchUpdateEntryToChain(
 ): Promise<void> {
   try {
     const extrinsic = await prepareUpdateExtrinsic(registryEntryDetails);
-
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+    return;
   } catch (error) {
     const errorMessage =
         error instanceof Error ? error.message : JSON.stringify(error);
@@ -363,7 +364,7 @@ export async function dispatchRevokeEntryToChain(
     registryId: RegistryId,
     registryEntryId: EntryId,
     authorAccount: CordKeyringPair,
-): Promise<void> {
+): Promise<string> {
     try {
       const extrinsic = await prepareRevokeEntryExtrinsic(
         registryId,
@@ -371,6 +372,8 @@ export async function dispatchRevokeEntryToChain(
       );
 
       await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+      return registryEntryId;
     } catch(error) {
         const errorMessage =
         error instanceof Error ? error.message : JSON.stringify(error)
@@ -456,7 +459,7 @@ export async function dispatchReinstateEntryToChain(
     registryId: RegistryId,
     registryEntryId: EntryId,
     authorAccount: CordKeyringPair,
-): Promise<void> {
+): Promise<string> {
   try {
     const extrinsic = await prepareReinstateEntryExtrinsic(
       registryId,
@@ -464,6 +467,8 @@ export async function dispatchReinstateEntryToChain(
     );
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+    return registryEntryId;
   } catch(error) {
       const errorMessage =
       error instanceof Error ? error.message : JSON.stringify(error)
@@ -661,7 +666,7 @@ export async function dispatchUpdateOwnershipToChain(
   registryEntryId: EntryId,
   newOwnerAccount:  CordAddress,
   authorAccount: CordKeyringPair,
-): Promise<void> {
+): Promise<string> {
   try {
     const extrinsic = await prepareUpdateOwnershipExtrinsic(
       registryId,
@@ -670,6 +675,8 @@ export async function dispatchUpdateOwnershipToChain(
     );
 
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
+
+    return registryEntryId;
 } catch (error) {
     const errorMessage =
         error instanceof Error ? error.message : JSON.stringify(error);

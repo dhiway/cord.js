@@ -22,7 +22,7 @@ export interface IRegistryEntryUpdate {
 }
 
 export interface IRegistryEntryDetails {
-  registryEntryId: EntryId
+  registryEntryId: EntryId | null
   tx_hash: HexString
   blob: string | null
   registryId: RegistryId
