@@ -2,6 +2,7 @@ import * as Cord from '@cord.network/sdk';
 import { blake2AsHex } from '@polkadot/util-crypto';
 import { Keyring } from '@polkadot/keyring';
 import { createAccount } from './utils/createAccount.js';
+import { DokenHistory } from '@cord.network/utils'
 
 const TIMEOUT = 10_000; // 10s timeout for event listeners
 
@@ -288,6 +289,10 @@ async function main() {
     const entries = await getEntriesByTxHash(api, entryTxHash);
 
     console.log(`\n✅ Registry & Entry Identifier for entry transaction hash ${entryTxHash}:`, entries);
+
+    console.log('\n🔍 Querying Doken State History...');
+    const history = await DokenHistory.queryAllDokenStateHistory(api, entryIdentifier);
+    console.log('✅ Doken State Query completed', history);
 
   } catch (error) {
     console.error('❌ Error:', error instanceof Error ? error.message : error);
