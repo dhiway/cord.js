@@ -63,7 +63,7 @@
     "ts-jest": "^29.1.2",
     "ts-jest-resolver": "^2.0.1",
     "tsx": "^4.7.1",
-    "typedoc": "^0.25.8",
+    "typedoc": "^0.28.5",
     "typescript": "^5.3.3"
   },
   "resolutions": {
