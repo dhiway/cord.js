@@ -7,7 +7,7 @@ import { createAccount } from './utils/createAccount.js';
 import { DidResolver } from '@cord.network/utils';
 
 async function main() {
-  const networkAddress = process.env.NETWORK_ADDRESS || 'ws://127.0.0.1:9944';
+  const networkAddress = process.env.NETWORK_ADDRESS || 'wss://weave1.testnet.cord.network';
 
   try {
     // 🏦 Network Connection
@@ -19,7 +19,7 @@ async function main() {
     const runtimeVersion = api.runtimeVersion;
     const runtimeType = runtimeVersion.specName.toString();
 
-    const stashUri = process.env.STASH_URI || '//Alice'; // Default to Alice for dev chains
+    const stashUri = '//Alice';
     const TRANSFER_AMOUNT = 15 * 10**12; // 13 WAY, enough for this script
 
     console.log(`✅ Connected to CORD runtime: ${runtimeType} (version ${runtimeVersion.specVersion})`);

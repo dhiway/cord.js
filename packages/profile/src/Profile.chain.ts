@@ -6,6 +6,7 @@ import { Bytes } from '@cord.network/types';
 import { isValidAddress } from './Profile';
 
 /**
+ * 
  * Prepares a `setProfile` extrinsic to create a profile on the CORD blockchain.
  *
  * @param profileData - An array of key-value pairs representing profile attributes
@@ -46,7 +47,7 @@ export async function dispatchSetProfileToChain(
   profileData: [string | Bytes | Uint8Array, string | Bytes | Uint8Array][],
   authorAccount: CordKeyringPair
 ): Promise<void> {
-  try {
+  try {    
     const extrinsic = await prepareSetProfileExtrinsic(profileData);
     await Chain.signAndSubmitTx(extrinsic, authorAccount);
 

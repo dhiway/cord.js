@@ -69,5 +69,14 @@
   "resolutions": {
     "typescript": "^5.3.3"
   },
-  "version": "0.9.6-6"
+  "version": "0.9.6-6",
+  "dependencies": {
+    "doken-precomputer": "^0.0.4",
+    "inquirer": "^12.9.0",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.1",
+    "pdf2json": "^3.2.0",
+    "tesseract": "^0.0.3",
+    "tesseract.js": "5"
+  }
 }
