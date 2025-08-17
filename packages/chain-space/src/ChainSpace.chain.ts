@@ -535,7 +535,7 @@ export async function prepareDelegateAuthorizationExtrinsic(
  *   .then(authorizationId => {
  *     console.log('Authorization dispatched with ID:', authorizationId);
  *   })
- *   .catch(error => {
+ *   .catch(error => { 
  *     console.error('Error dispatching authorization:', error);
  *   });
  * ```
