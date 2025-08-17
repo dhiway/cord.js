@@ -8,6 +8,7 @@ export const types7: RegistryTypes = {
   SchemaIdOf: 'IdentifierOf',
   SchemaDigestOf: 'Hash',
   SwarmIdOf: 'IdentifierOf',
+  Address: "AccountId",
 
   // Statements
   CreatorOf: 'AccountId',
