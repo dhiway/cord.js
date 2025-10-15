@@ -9,7 +9,7 @@ import {
     sr25519PairFromSeed,
 } from '@polkadot/util-crypto'
 
-import { makeEncryptionKeypairFromSeed } from './Crypto';
+import { makeEncryptionKeypairFromSeed } from './Crypto.js';
 import { CordKeyringPair, ICordKeyPair } from '@cord.network/types';
 
 /**

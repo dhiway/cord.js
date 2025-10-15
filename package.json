@@ -69,6 +69,6 @@
   "resolutions": {
     "typescript": "^5.3.3"
   },
-  "version": "0.9.6-6",
+  "version": "0.9.6-10",
   "packageManager": "yarn@4.0.2"
 }

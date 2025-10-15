@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { ISubmittableResult } from '@cord.network/types'
 import type { EventRecord } from '@polkadot/types/interfaces'
-import { ErrorHandler } from './index'
+import { ErrorHandler } from './index.js'
 
 describe('ErrorHandler', () => {
   it('test extrinsic failed', () => {

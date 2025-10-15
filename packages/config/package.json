@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/config",
-  "version": "0.9.6-5",
+  "version": "0.9.6-10",
   "description": "",
   "type": "commonjs",
   "main": "./lib/index.js",

@@ -2,7 +2,7 @@ import { HexString } from './Imported.js'
 import { 
     RegistryAuthorizationUri, RegistriesUri
 } from './Registries.js'
-import type { DidUri } from './DidDocument'
+import type { DidUri } from './DidDocument.js'
 
 export const ENTRIES_IDENT = 9944;
 export const ENTRIES_PREFIX = 'entry:cord:';

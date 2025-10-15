@@ -1,4 +1,4 @@
-import type { CordKeyringPair, CordEncryptionKeypair } from './Address'
+import type { CordKeyringPair, CordEncryptionKeypair } from './Address.js'
 
 export interface ICordKeyPair {
   authentication: CordKeyringPair
