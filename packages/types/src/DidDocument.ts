@@ -1,6 +1,6 @@
 import type { BN } from '@polkadot/util'
 
-import type { CordAddress } from './Address'
+import type { CordAddress } from './Address.js'
 
 // NOTICE: The following string pattern types must be kept in sync with regex patterns @cord.network/did/Utils
 

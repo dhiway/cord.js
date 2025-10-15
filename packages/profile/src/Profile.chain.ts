@@ -3,7 +3,7 @@ import { ConfigService } from '@cord.network/config';
 import { Chain } from '@cord.network/network';
 import { CordKeyringPair, SubmittableExtrinsic } from '@cord.network/types';
 import { Bytes } from '@cord.network/types';
-import { isValidAddress } from './Profile';
+import { isValidAddress } from './Profile.js';
 
 /**
  * Prepares a `setProfile` extrinsic to create a profile on the CORD blockchain.

@@ -1,4 +1,4 @@
-import type { ISchema } from './SchemaDid'
+import type { ISchema } from './SchemaDid.js'
 
 /**
  * String struct with string keys and a mandatory `default` field.

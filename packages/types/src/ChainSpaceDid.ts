@@ -1,4 +1,4 @@
-import type { DidUri } from './DidDocument'
+import type { DidUri } from './DidDocument.js'
 import { HexString } from './Imported.js'
 
 export const SPACE_DID_IDENT = 3390

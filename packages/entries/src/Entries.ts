@@ -53,7 +53,7 @@ import { DataUtils } from '@cord.network/utils'
 
 import { 
   fetchRegistryEntryDetailsFromChain 
-} from "./Entries.chain";
+} from "./Entries.chain.js";
 
 import {
   uriToIdentifier,

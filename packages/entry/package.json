@@ -1,6 +1,6 @@
 {
   "name": "@cord.network/entry",
-  "version": "0.9.6-1",
+  "version": "0.9.6-10",
   "description": "CORD Registry Entry Management with suport for CORD URI",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",

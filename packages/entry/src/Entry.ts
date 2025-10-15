@@ -49,7 +49,7 @@ import { DataUtils } from '@cord.network/utils'
 
 import { 
   fetchRegistryEntryDetailsFromChain 
-} from "./Entry.chain";
+} from "./Entry.chain.js";
 
 /**
  * Verifies the integrity of the given IRegistryEntry object.
