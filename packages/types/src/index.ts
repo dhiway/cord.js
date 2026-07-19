@@ -1,6 +1,9 @@
-export type { ISubmittableResult } from '@polkadot/types/types'
-export type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
-export type { KeyringPair } from '@polkadot/keyring/types'
+export type {
+  ISubmittableResult,
+  SubmittableExtrinsic,
+  SubmittableExtrinsicFunction,
+} from './PolkadotApiCompat.js'
+export type { KeyringPair } from './CompatKeyring.js'
 
 export * as SubscriptionPromise from './SubscriptionPromise.js'
 
@@ -20,6 +23,7 @@ export * from './ChainSpaceDid.js'
 export * from './StatementDid.js'
 export * from './Weight.js'
 export * from './Imported.js'
+export * from './PolkadotApiCompat.js'
 export * from './Keys.js'
 export * from './Asset.js'
 export * from './Registries.js'

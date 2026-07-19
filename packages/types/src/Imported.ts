@@ -1,45 +1,68 @@
-export { Bytes } from '@polkadot/types'
+import BN from 'bn.js'
+import { mnemonicToMiniSecret } from '@polkadot-labs/hdkd-helpers'
+
+export { ApiPromise, WsProvider } from './PolkadotApiCompat.js'
+export { Keyring } from './CompatKeyring.js'
 export {
-  blake2AsHex,
-  cryptoWaitReady,
+  assert,
   base58Decode,
   base58Encode,
+  blake2AsHex,
   blake2AsU8a,
   checkAddress,
+  cryptoWaitReady,
+  decodeAddress,
+  encodeAddress,
+  hexToBn,
+  isHex,
+  isString,
+  mnemonicGenerate,
   randomAsU8a,
   signatureVerify,
-} from '@polkadot/util-crypto'
-export { ApiPromise, WsProvider, Keyring } from '@polkadot/api'
-export {
-  isHex,
-  hexToBn,
-  assert,
-  isString,
   stringToU8a,
   u8aConcat,
   u8aToHex,
   u8aToString,
   u8aToU8a,
-} from '@polkadot/util'
-export { mnemonicGenerate, mnemonicToMiniSecret } from '@polkadot/util-crypto'
-export { decodeAddress, encodeAddress } from '@polkadot/keyring'
+} from './CompatUtils.js'
 
-export type {
-  ISubmittableResult,
-  AnyNumber,
-  AnyJson,
-  Codec,
-} from '@polkadot/types/types'
-export type { BN } from '@polkadot/util'
-export type { HexString } from '@polkadot/util/types'
-export type { Prefix } from '@polkadot/util-crypto/address/types'
-export type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
-export type { KeyringPair } from '@polkadot/keyring/types'
+export { mnemonicToMiniSecret }
+export { BN }
+
+export type { ISubmittableResult } from './PolkadotApiCompat.js'
 export type {
   AccountId,
-  H256,
-  BlockNumber,
   AccountId32,
-} from '@polkadot/types/interfaces'
-export type { Option } from '@polkadot/types'
-export type { ApiOptions } from '@polkadot/api/types'
+  AnyJson,
+  AnyNumber,
+  BlockNumber,
+  Bytes,
+  Codec,
+  DefinitionCall,
+  DefinitionsCall,
+  DispatchError,
+  EventRecord,
+  Extrinsic,
+  ExtDef,
+  ExtInfo,
+  H256,
+  HexString,
+  Index,
+  NumberCodec,
+  Option,
+  OverrideBundleDefinition,
+  OverrideBundleType,
+  OverrideVersionedType,
+  Prefix,
+  RegistryError,
+  RegistryTypes,
+  RuntimeVersion,
+  StorageKey,
+} from './CompatTypes.js'
+export type { BN as BNType } from 'bn.js'
+export type { KeyringPair } from './CompatKeyring.js'
+export type {
+  ApiOptions,
+  SubmittableExtrinsic,
+  SubmittableExtrinsicFunction,
+} from './PolkadotApiCompat.js'

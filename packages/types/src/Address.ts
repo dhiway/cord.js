@@ -1,7 +1,5 @@
-import type { Prefix } from '@polkadot/util-crypto/address/types'
-import type { HexString } from '@polkadot/util/types'
-import '@polkadot/keyring' // TS needs this for the augmentation below
-import type { KeyringPair } from './index.js'
+import type { HexString, Prefix } from './CompatTypes.js'
+import type { KeyringPair } from './CompatKeyring.js'
 
 export interface CordEncryptionKeypair {
   secretKey: Uint8Array
@@ -17,13 +15,7 @@ export interface CordKeyringPair extends KeyringPair {
 /// A CORD-chain specific address.
 export type CordAddress = CordKeyringPair['address']
 
-declare module '@polkadot/keyring' {
-  function encodeAddress(
-    key: HexString | Uint8Array | string,
-    ss58Format?: Prefix
-  ): string
-  function encodeAddress(
-    key: HexString | Uint8Array | string,
-    ss58Format?: 29
-  ): CordAddress
-}
+export type EncodeAddress = (
+  key: HexString | Uint8Array | string,
+  ss58Format?: Prefix
+) => string

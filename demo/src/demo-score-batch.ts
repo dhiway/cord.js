@@ -1,8 +1,7 @@
 import * as Cord from '@cord.network/sdk'
 import moment from 'moment'
-import Keyring from '@polkadot/keyring'
-import { ApiPromise, WsProvider } from '@polkadot/api'
 import { ScoreType } from '@cord.network/types'
+import { Keyring } from '@cord.network/types'
 import { UUID } from '@cord.network/utils'
 
 export const sleep = (ms: number): Promise<void> => {
@@ -17,8 +16,8 @@ function getRandomFloat(min: number, max: number, decimals: number) {
 }
 async function main() {
   await Cord.init({ address: 'ws://127.0.0.1:9944' })
-  const wsProvider = new WsProvider('ws://127.0.0.1:9944')
-  const api = await ApiPromise.create({ provider: wsProvider })
+  const wsProvider = new Cord.WsProvider('ws://127.0.0.1:9944')
+  const api = await Cord.ApiPromise.create({ provider: wsProvider })
 
   // Step 1: Setup Identities
   console.log(`\n❄️  Demo Identities (KeyRing)`)

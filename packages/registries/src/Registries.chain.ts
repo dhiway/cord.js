@@ -67,9 +67,8 @@
 
 import {
     CordKeyringPair,
+    Option,
 } from '@cord.network/types'
-
-import { Option } from '@polkadot/types';
 
 import { Chain } from '@cord.network/network'
 
@@ -80,10 +79,13 @@ import { ConfigService } from '@cord.network/config'
 import { doesSchemaIdExists } from '@cord.network/schema';
 
 import { 
-    IRegistryCreate, IRegistryUpdate,
+    IRegistriesCreate as IRegistryCreate,
+    IRegistriesUpdate as IRegistryUpdate,
     RegistryAuthorizationUri,
-    RegistryUri, RegistryPermissionType,
-    RegistryPermission, IRegistryAuthorization,
+    RegistriesUri as RegistryUri,
+    RegistriesPermissionType as RegistryPermissionType,
+    RegistriesPermission as RegistryPermission,
+    IRegistryAuthorization,
     NamespaceAuthorizationUri,
 } from '@cord.network/types';
 

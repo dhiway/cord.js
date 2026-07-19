@@ -7,12 +7,15 @@
 /**
  * DID Resolver for CORD Profiles
  */
-import { ApiPromise } from '@polkadot/api';
-import { decodeAddress, base58Encode } from '@polkadot/util-crypto';
-import { Option } from '@polkadot/types';
 import { PalletProfileProfileMetadata } from '@cord.network/augment-api';
+import {
+  base58Encode,
+  decodeAddress,
+  encodeAddress,
+  Option,
+} from '@cord.network/types';
+import type { ApiPromise } from '@cord.network/types';
 import { base58btc } from 'multiformats/bases/base58';
-import { encodeAddress } from '@polkadot/util-crypto';
 
 interface ResolveDidResponse {
   doc: string;
@@ -65,7 +68,7 @@ export async function queryProfiles(profileId: string, api: ApiPromise): Promise
 
   const metadata = profileData.unwrap();
   return {
-      latestKey: metadata.latestKey?.toHuman() || '',
+      latestKey: metadata.latestKey ? String(metadata.latestKey.toHuman()) : '',
   };
 }
 

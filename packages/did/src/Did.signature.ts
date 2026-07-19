@@ -1,5 +1,3 @@
-import { isHex } from '@polkadot/util'
-
 import {
   DidResolveKey,
   DidResourceUri,
@@ -7,6 +5,7 @@ import {
   DidUri,
   SignResponseData,
   VerificationKeyRelationship,
+  isHex,
 } from '@cord.network/types'
 import { Crypto, SDKErrors } from '@cord.network/utils'
 

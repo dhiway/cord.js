@@ -468,7 +468,7 @@ function decodeEntryDetailsfromChain(
   const decodedDetails: IRatingChainStatus = {
     entryUri: identifierToUri(stmtUri) as RatingEntryUri,
     entry: decodedEntry,
-    digest: chainEntry.digest.toHex(),
+    digest: chainEntry.digest.toHex() as IRatingChainStatus['digest'],
     messageId: DecoderUtils.hexToString(chainEntry.messageId.toString()),
     space: identifierToUri(
       DecoderUtils.hexToString(chainEntry.space.toString())
@@ -590,7 +590,14 @@ export async function fetchEntityAggregateScorefromChain(
       })
     }
   } else {
-    const entries = await api.query.networkScore.aggregateScores.entries(entity)
+    const entries = (await api.query.networkScore.aggregateScores.entries(
+      entity
+    )) as Array<
+      [
+        { args: [{ toString(): string }, PalletNetworkScoreRatingTypeOf] },
+        Option<PalletNetworkScoreAggregatedEntryOf>
+      ]
+    >
     entries.forEach(([compositeKey, optionValue]) => {
       if (!optionValue.isNone) {
         const value: PalletNetworkScoreAggregatedEntryOf = optionValue.unwrap()

@@ -1,10 +1,7 @@
-import type { Option } from '@polkadot/types'
-import type { AccountId32, Extrinsic, Hash } from '@polkadot/types/interfaces'
-import type { AnyNumber } from '@polkadot/types/types'
-import { BN } from '@polkadot/util'
-import { mnemonicGenerate } from '@polkadot/util-crypto'
-
 import type {
+  AccountId32,
+  AnyNumber,
+  BN,
   DidDocument,
   DidEncryptionKey,
   DidKey,
@@ -15,15 +12,17 @@ import type {
   CordAddress,
   NewDidEncryptionKey,
   NewDidVerificationKey,
+  Option,
   SignExtrinsicCallback,
   SignRequestData,
   SignResponseData,
   SubmittableExtrinsic,
+  Extrinsic,
   UriFragment,
   VerificationKeyRelationship,
   CordKeyringPair,
 } from '@cord.network/types'
-import { verificationKeyTypes } from '@cord.network/types'
+import { mnemonicGenerate, verificationKeyTypes } from '@cord.network/types'
 import { Crypto, SDKErrors, ss58Format, Keys } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'
 import type {
@@ -87,7 +86,7 @@ type ChainDocument = Pick<
 // ### DECODED QUERYING (builds on top of raw querying)
 
 function didPublicKeyDetailsFromChain(
-  keyId: Hash,
+  keyId: { toHex(): string },
   keyDetails: ChainDidPublicKeyDetails
 ): DidKey {
   const key = keyDetails.key.isPublicEncryptionKey
@@ -107,7 +106,7 @@ function didPublicKeyDetailsFromChain(
  * @returns The DID URI.
  */
 export function fromChain(encoded: AccountId32): DidUri {
-  return getDidUri(Crypto.encodeAddress(encoded, ss58Format))
+  return getDidUri(Crypto.encodeAddress(encoded.toU8a(), ss58Format) as CordAddress)
 }
 
 /**

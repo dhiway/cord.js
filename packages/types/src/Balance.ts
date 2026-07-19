@@ -1,5 +1,5 @@
-import type { AnyNumber } from '@polkadot/types/types/codec'
-import type { BN } from '@polkadot/util'
+import type BN from 'bn.js'
+import type { AnyNumber } from './CompatTypes.js'
 
 export type Balances = {
   free: BN

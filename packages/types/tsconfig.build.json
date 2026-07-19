@@ -3,7 +3,8 @@
 
   "compilerOptions": {
     "module": "CommonJS",
-    "outDir": "./lib/cjs"
+    "outDir": "./lib/cjs",
+    "rootDir": "./src"
   },
 
   "include": [
@@ -13,5 +14,6 @@
   "exclude": [
     "coverage",
     "**/*.spec.ts",
+    "src/dist/**/*"
   ]
 }

@@ -6,11 +6,9 @@
  * @packageDocumentation
  * @module Chain
  */
-import { SubmittableResult } from '@polkadot/api'
-import { AnyNumber } from '@polkadot/types/types'
-
 import { ConfigService } from '@cord.network/config'
 import type {
+  AnyNumber,
   ISubmittableResult,
   KeyringPair,
   SubmittableExtrinsic,
@@ -186,21 +184,63 @@ export async function submitSignedTx(
     rejectOn,
   })
 
-  let latestResult: SubmittableResult | undefined
+  let latestResult: ISubmittableResult | undefined
   const unsubscribe = await tx.send((result) => {
     latestResult = result
     subscription(result)
   })
 
   function handleDisconnect(): void {
-    const result = new SubmittableResult({
-      events: latestResult?.events || [],
+    const events = latestResult?.events || []
+    const status =
+      latestResult?.status ||
+      api.registry.createType('ExtrinsicStatus', 'future')
+    const txHash = api.registry.createType('Hash')
+    const result = {
+      dispatchError: undefined,
+      events,
+      filterRecords: (section: string, method: string) =>
+        events.filter(
+          (eventRecord) =>
+            eventRecord.event.section === section &&
+            eventRecord.event.method === method
+        ),
+      findRecord: (section: string, method: string) =>
+        events.find(
+          (eventRecord) =>
+            eventRecord.event.section === section &&
+            eventRecord.event.method === method
+        ),
       internalError: new Error('connection error'),
-      status:
-        latestResult?.status ||
-        api.registry.createType('ExtrinsicStatus', 'future'),
-      txHash: api.registry.createType('Hash'),
-    })
+      isCompleted: false,
+      isError: true,
+      isFinalized: status.isFinalized,
+      isInBlock: status.isInBlock,
+      isWarning: false,
+      method: tx.method,
+      status,
+      toHuman: (isExtended?: boolean) => ({
+        events: events.map((eventRecord) =>
+          typeof eventRecord.toHuman === 'function'
+            ? eventRecord.toHuman(isExtended)
+            : eventRecord
+        ),
+        internalError: 'connection error',
+        method:
+          typeof tx.method.toHuman === 'function'
+            ? tx.method.toHuman(isExtended)
+            : tx.method.toString(),
+        status:
+          typeof status.toHuman === 'function'
+            ? status.toHuman(isExtended)
+            : status.toString(),
+        txHash:
+          typeof txHash.toHex === 'function'
+            ? txHash.toHex()
+            : txHash.toString(),
+      }),
+      txHash,
+    } as unknown as ISubmittableResult
     subscription(result)
   }
 
@@ -211,7 +251,9 @@ export async function submitSignedTx(
   } catch (e) {
     throw ErrorHandler.getExtrinsicError(e as ISubmittableResult) || e
   } finally {
-    unsubscribe()
+    if (typeof unsubscribe === 'function') {
+      unsubscribe()
+    }
     api.off('disconnected', handleDisconnect)
   }
 }

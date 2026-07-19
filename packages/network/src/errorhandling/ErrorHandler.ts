@@ -6,9 +6,11 @@
  * @preferred
  */
 
-import type { DispatchError } from '@polkadot/types/interfaces'
-import type { ISubmittableResult } from '@cord.network/types'
-import type { RegistryError } from '@polkadot/types/types'
+import type {
+  DispatchError,
+  ISubmittableResult,
+  RegistryError,
+} from '@cord.network/types'
 
 /**
  * Checks if there is `SystemEvent.ExtrinsicFailed` in the list of
@@ -53,10 +55,12 @@ export function getExtrinsicError(
 
   if (errorEvent && errorEvent.isModule) {
     const moduleError = errorEvent.asModule
-    try {
-      return moduleError.registry.findMetaError(moduleError)
-    } catch {
-      // handled with last return
+    if (moduleError) {
+      try {
+        return moduleError.registry.findMetaError(moduleError)
+      } catch {
+        // handled with last return
+      }
     }
   }
   return errorEvent || null

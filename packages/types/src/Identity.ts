@@ -1,9 +1,7 @@
-import type { KeyringPair } from '@polkadot/keyring/types'
-import type { SubmittableExtrinsic } from '@polkadot/api/promise/types'
+import type { KeyringPair } from './CompatKeyring.js'
 import type { BoxKeyPair } from 'tweetnacl'
-import type { Index } from '@polkadot/types/interfaces'
-import { AnyNumber } from '@polkadot/types/types'
-import { HexString } from '@polkadot/util/types.js'
+import type { AnyNumber, HexString, Index } from './CompatTypes.js'
+import type { SubmittableExtrinsic } from './PolkadotApiCompat.js'
 
 export const ACCOUNT_IDENT = 29
 export const ACCOUNT_PREFIX = 'id:cord:'

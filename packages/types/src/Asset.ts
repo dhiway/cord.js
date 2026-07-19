@@ -1,4 +1,4 @@
-import { HexString } from '@polkadot/util/types.js'
+import type { HexString } from './CompatTypes.js'
 import { DidUri } from './DidDocument.js'
 import { SpaceUri } from './ChainSpaceDid.js'
 import { CordAddress } from './Address.js'

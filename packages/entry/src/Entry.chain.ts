@@ -514,7 +514,7 @@ export function decodeRegistryEntryDetailsFromChain(
    */
   const registryEntry: IRegistryEntryChainStorage = {
     registryEntryId: registryEntryId,
-    tx_hash: chainRegistryEntry.txHash.toHex(),
+    tx_hash: chainRegistryEntry.txHash.toHex() as IRegistryEntryChainStorage['tx_hash'],
     revoked: chainRegistryEntry.revoked.valueOf(),
     creator: chainRegistryEntry.creator.toHuman() as string,
     registryId: registryId

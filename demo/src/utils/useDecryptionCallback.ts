@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { naclOpen } from '@polkadot/util-crypto'
+import nacl from 'tweetnacl'
 
 /**
  * It takes a keypair and returns a function that takes an encrypted message and returns the decrypted
@@ -16,7 +16,7 @@ export function useDecryptionCallback(
     nonce,
     peerPublicKey,
   }): Promise<Cord.DecryptResponseData> {
-    const decrypted = naclOpen(
+    const decrypted = nacl.box.open(
       data,
       nonce,
       peerPublicKey,

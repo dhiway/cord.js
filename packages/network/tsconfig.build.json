@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "module": "CommonJS",
-    "outDir": "./lib/cjs"
+    "outDir": "./lib/cjs",
+    "rootDir": "./src"
   },
   "include": [
     "src/**/*.ts",

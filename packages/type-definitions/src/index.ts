@@ -2,7 +2,7 @@ import type {
   OverrideBundleDefinition,
   OverrideBundleType,
   OverrideVersionedType,
-} from '@polkadot/types/types'
+} from '@cord.network/types'
 
 import { types7 } from './types_7.js'
 import { types8 } from './types_8.js'

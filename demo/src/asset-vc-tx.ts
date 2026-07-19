@@ -3,7 +3,6 @@ import { addNetworkMember } from "./utils/createAuthorities.js";
 import { createAccount } from "./utils/createAccount.js";
 
 import * as vcExport from "@cord.network/vc-export";
-import PalletAssetVcAssetEntry from '@polkadot/types/lookup';
 
 const { NETWORK_ADDRESS, ANCHOR_URI } = process.env;
 

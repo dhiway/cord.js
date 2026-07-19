@@ -1,4 +1,4 @@
-import type { RegistryTypes } from '@polkadot/types/types'
+import type { RegistryTypes } from '@cord.network/types'
 
 /**
  * Removes parts of the type definition without altering the original object.

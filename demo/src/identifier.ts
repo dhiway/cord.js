@@ -1,16 +1,16 @@
 import * as Cord from '@cord.network/sdk'
 import { UUID } from '@cord.network/utils'
-import type { HexString } from '@polkadot/util/types'
-
-import { base58Decode, base58Encode, blake2AsU8a } from '@polkadot/util-crypto'
 import {
+  HexString,
   assert,
+  base58Decode,
+  base58Encode,
+  blake2AsU8a,
+  isHex,
+  stringToU8a,
   u8aConcat,
   u8aToU8a,
-  stringToU8a,
-  isU8a,
-  isHex,
-} from '@polkadot/util'
+} from '@cord.network/types'
 
 export const defaults = {
   allowedDecodedLengths: [1, 2, 4, 8, 32, 33],
@@ -98,7 +98,7 @@ export function decodeIdentifier(
 ): Uint8Array {
   assert(encoded, 'Invalid empty address passed')
 
-  if (isU8a(encoded) || isHex(encoded)) {
+  if (encoded instanceof Uint8Array || isHex(encoded)) {
     return u8aToU8a(encoded)
   }
 

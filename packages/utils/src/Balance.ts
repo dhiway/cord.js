@@ -1,4 +1,4 @@
-import { BN, formatBalance } from '@polkadot/util'
+import { BN } from '@cord.network/types'
 import type {
   BalanceNumber,
   BalanceOptions,
@@ -27,32 +27,68 @@ export const Prefixes = new Map<MetricPrefix, number>([
   ['yotta', 24],
 ])
 
+function formatScaledValue(
+  value: BN,
+  decimals: number,
+  locale?: string
+): string {
+  const divisor = new BN(10).pow(new BN(decimals))
+  const integer = value.div(divisor).toString()
+  const fraction = value.mod(divisor).toString().padStart(decimals, '0')
+  const trimmedFraction = fraction.replace(/0+$/, '')
+  const localizedInteger = new Intl.NumberFormat(locale).format(Number(integer))
+
+  return trimmedFraction.length > 0
+    ? `${localizedInteger}.${trimmedFraction}`
+    : localizedInteger
+}
+
+function getDisplayUnit(
+  value: BN,
+  options: BalanceOptions
+): [MetricPrefix, number] {
+  const forced = options.forceUnit as MetricPrefix | undefined
+  if (forced && Prefixes.has(forced)) {
+    return [forced, Prefixes.get(forced) as number]
+  }
+
+  if (!options.withSi && !options.withSiFull) {
+    return ['WAY', 0]
+  }
+
+  const ordered = [...Prefixes.entries()].sort((left, right) => left[1] - right[1])
+  const absolute = value.abs()
+
+  for (let index = ordered.length - 1; index >= 0; index -= 1) {
+    const [prefix, power] = ordered[index]
+    const threshold = new BN(10).pow(new BN(power + 12))
+    if (!absolute.isZero() && absolute.gte(threshold)) {
+      return [prefix, power]
+    }
+  }
+
+  return ['WAY', 0]
+}
+
 /**
- * Uses the polkadot.js balance formatter, to convert given BN to a human readable prefixed number.
- *
- * @param amount BN to format.
- * @param additionalOptions Optional formatting settings, these are defaulted to CORD specific settings.
- * @returns String representation of the given BN with prefix and unit ('WAY' as default).
+ * Formats the provided pico-WAY balance into a human-readable string.
  */
 export function formatWayBalance(
   amount: BalanceNumber,
-  additionalOptions?: BalanceOptions
+  additionalOptions: BalanceOptions = {}
 ): string {
-  const options = {
-    decimals: 12,
-    withSiFull: true,
-    withUnit: 'WAY',
-    ...additionalOptions,
-  }
-  return formatBalance(amount, options)
+  const value = new BN(balanceNumberToString(amount))
+  const [prefix, power] = getDisplayUnit(value, additionalOptions)
+  const decimals = 12 + power
+  const formatted = formatScaledValue(value.abs(), decimals, additionalOptions.locale)
+  const sign = value.isNeg() ? '-' : ''
+  const unit = additionalOptions.withUnit === false ? '' : ` ${prefix === 'WAY' ? '' : prefix}${typeof additionalOptions.withUnit === 'string' ? additionalOptions.withUnit : 'WAY'}`
+
+  return `${sign}${formatted}${unit}`.trim()
 }
 
 /**
  * Converts balance from WAY denomination to base unit.
- *
- * @param balance Balance in WAY denomination.
- * @param power Allows modifying conversion. Set to 0 for conversion to base unit, set to <0 for various larger denominations. -12 is WAY denomination.
- * @returns Converted (redenominated) balance.
  */
 export function convertToTxUnit(balance: BN, power: number): BN {
   return new BN(balance).mul(new BN(10).pow(new BN(12 + power)))
@@ -60,15 +96,6 @@ export function convertToTxUnit(balance: BN, power: number): BN {
 
 export const TRANSACTION_FEE = convertToTxUnit(new BN(125), -9)
 
-/**
- * Safely converts the given [[BalanceNumber]] to a string, using the supplied methods,
- * or it given a string checks for valid number representation.
- *
- * @param input [[BalanceNumber]] to convert.
- * @returns String representation of the given [[BalanceNumber]].
- * @throws On invalid number representation if given a string.
- * @throws On malformed input.
- */
 export function balanceNumberToString(input: BalanceNumber): string {
   if (typeof input === 'string') {
     if (!input.match(/^-?\d*\.?\d+$/)) {
@@ -88,11 +115,6 @@ export function balanceNumberToString(input: BalanceNumber): string {
 
 /**
  * Converts the given [[BalanceNumber]] to the pico WAY equivalent.
- *
- * @param input [[BalanceNumber]] to convert.
- * @param unit Metric prefix of the given [[BalanceNumber]].
- * @returns Exact BN representation in picoWay, to use in transactions and calculations.
- * @throws Unknown metricPrefix, or if the input has too many decimal places for it's unit.
  */
 export function toPicoWay(
   input: BalanceNumber,
@@ -103,13 +125,13 @@ export function toPicoWay(
   if (!Prefixes.has(unit)) {
     throw new Error('Unknown metric prefix')
   }
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const unitVal = Prefixes.get(unit)!
-  const negative = stringRepresentation.substring(0, 1) === '-'
 
+  const unitVal = Prefixes.get(unit) as number
+  const negative = stringRepresentation.startsWith('-')
   const [integer, fraction] = negative
     ? stringRepresentation.substring(1).split('.')
     : stringRepresentation.split('.')
+
   if (fraction && fraction.length > unitVal + 12) {
     throw new Error(
       `Too many decimal places: input with unit ${unit} and value ${stringRepresentation} exceeds the ${
@@ -117,6 +139,7 @@ export function toPicoWay(
       } possible decimal places by ${fraction.length - unitVal + 12}`
     )
   }
+
   const fractionBN = fraction
     ? convertToTxUnit(new BN(fraction), unitVal - fraction.length)
     : new BN(0)
@@ -126,14 +149,7 @@ export function toPicoWay(
 }
 
 /**
- * Converts the given [[BalanceNumber]] to a human readable number with metric prefix and Unit.
- * This function uses the polkadot formatBalance function,
- * it's output can therefore be formatted via the polkadot formatting options.
- *
- * @param input [[BalanceNumber]] to convert from Pico WAY.
- * @param decimals Set the minimum decimal places in the formatted localized output, default is 4.
- * @param options [[BalanceOptions]] for internationalization and formatting.
- * @returns String representation of the given [[BalanceNumber]] with unit und metric prefix.
+ * Converts the given [[BalanceNumber]] to a localized human-readable balance.
  */
 export function fromPicoWay(
   input: BalanceNumber,
@@ -141,12 +157,12 @@ export function fromPicoWay(
   options: BalanceOptions = {}
 ): string {
   const inputBN = new BN(balanceNumberToString(input))
-  // overwriting the locale as parsing a number from a string only works with English locale formatted numbers
-  const formatted = formatWayBalance(inputBN, { ...options, locale: 'en' })
+  const formatted = formatWayBalance(inputBN, { ...options, locale: 'en', withSiFull: true })
   const [number, ...rest] = formatted.split(' ')
   const localeNumber = new Intl.NumberFormat(options.locale, {
-    minimumFractionDigits: decimals + 1,
-    maximumFractionDigits: decimals + 1,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   }).format(Number(number))
-  return `${localeNumber.slice(0, localeNumber.length - 1)} ${rest.join(' ')}`
+
+  return `${localeNumber} ${rest.join(' ')}`.trim()
 }

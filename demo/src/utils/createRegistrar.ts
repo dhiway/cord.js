@@ -1,5 +1,4 @@
 import * as Cord from '@cord.network/sdk'
-import { BN } from '@polkadot/util'
 import { setTimeout } from 'timers/promises'
 
 /**

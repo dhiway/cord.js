@@ -37,13 +37,13 @@ import {
   EntryUri,
   AccountId,
   H256,
-  RegistryUri,
   Bytes,
   DidUri,
   HexString,
   EntryDigest,
   RegistryAuthorizationUri,
-  IRegistryEntry,
+  IRegistriesEntry as IRegistryEntry,
+  RegistriesUri as RegistryUri,
   blake2AsHex,
 } from "@cord.network/types";
 

@@ -1,5 +1,3 @@
-import type { Option } from '@polkadot/types'
-import type { AccountId32, Hash } from '@polkadot/types/interfaces'
 import type {
   RawDidLinkedInfo,
   PalletDidDidDetailsDidPublicKeyDetails,
@@ -7,6 +5,9 @@ import type {
   PalletDidServiceEndpointsDidEndpoint,
 } from '@cord.network/augment-api'
 import type {
+  AccountId32,
+  BN,
+  CordAddress,
   DidDocument,
   DidEncryptionKey,
   DidKey,
@@ -14,15 +15,16 @@ import type {
   DidServiceEndpoint,
   DidUri,
   DidVerificationKey,
+  Option,
   UriFragment,
 } from '@cord.network/types'
 
-import { BN, u8aToString } from '@polkadot/util'
+import { u8aToString } from '@cord.network/types'
 import { Crypto, ss58Format } from '@cord.network/utils'
 import { getDidUri } from './Did.utils.js'
 
 function fromChain(encoded: AccountId32): DidUri {
-  return getDidUri(Crypto.encodeAddress(encoded, ss58Format))
+  return getDidUri(Crypto.encodeAddress(encoded.toU8a(), ss58Format) as CordAddress)
 }
 
 type RpcDocument = Pick<
@@ -33,7 +35,7 @@ type RpcDocument = Pick<
 }
 
 function didPublicKeyDetailsFromChain(
-  keyId: Hash,
+  keyId: { toHex(): string },
   keyDetails: PalletDidDidDetailsDidPublicKeyDetails
 ): DidKey {
   const key = keyDetails.key.isPublicEncryptionKey
@@ -152,8 +154,8 @@ export function linkedInfoFromChain(
     did.service = service
   }
 
-  const didName = name.isNone ? undefined : name.unwrap().toHuman()
-  const didAccount = account.toHuman()
+  const didName = name.isNone ? undefined : String(name.unwrap().toHuman())
+  const didAccount = String(account.toHuman())
 
   return {
     document: did,

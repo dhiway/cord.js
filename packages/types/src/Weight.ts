@@ -1,8 +1,8 @@
-import type { ICompact, INumber } from '@polkadot/types/types'
+import type { NumberCodec } from './CompatTypes.js'
 
-export type V1Weight = INumber
+export type V1Weight = NumberCodec
 
 export interface V2Weight {
-  refTime: ICompact<INumber>
-  proofSize: ICompact<INumber>
+  refTime: NumberCodec
+  proofSize: NumberCodec
 }

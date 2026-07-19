@@ -1,10 +1,10 @@
-import { blake2AsU8a, encodeAddress } from '@polkadot/util-crypto'
-
 import {
+  blake2AsU8a,
   DidResourceUri,
   DidUri,
   DidVerificationKey,
   CordAddress,
+  encodeAddress,
   UriFragment,
 } from '@cord.network/types'
 import { DataUtils, SDKErrors, ss58Format } from '@cord.network/utils'
@@ -128,13 +128,13 @@ export function getAddressByKey({
   type,
 }: Pick<DidVerificationKey, 'publicKey' | 'type'>): CordAddress {
   if (type === 'ed25519' || type === 'sr25519') {
-    return encodeAddress(publicKey, ss58Format)
+    return encodeAddress(publicKey, ss58Format) as CordAddress
   }
 
   // Otherwise it’s ecdsa.
   // Taken from https://github.com/polkadot-js/common/blob/master/packages/keyring/src/pair/index.ts#L44
   const address = publicKey.length > 32 ? blake2AsU8a(publicKey) : publicKey
-  return encodeAddress(address, ss58Format)
+  return encodeAddress(address, ss58Format) as CordAddress
 }
 
 /**

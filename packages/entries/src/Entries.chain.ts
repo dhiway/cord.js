@@ -45,20 +45,19 @@ import {
 
 
 import {
-    IRegistryEntry,
+    IRegistriesEntry as IRegistryEntry,
     EntryUri,
     CordKeyringPair,
+    encodeAddress,
     Option,
     RegistryAuthorizationUri,
-    IRegistryEntryChainStorage,
-    RegistryUri,
+    IRegistriesEntryChainStorage as IRegistryEntryChainStorage,
+    RegistriesUri as RegistryUri,
     DidUri,
     CordAddress
 } from '@cord.network/types';
 
 import { Chain } from '@cord.network/network';
-
-import { encodeAddress } from '@polkadot/util-crypto';
 
 import { ConfigService } from '@cord.network/config'
 
@@ -391,7 +390,7 @@ export function decodeRegistryEntryDetailsFromChain(
    */
   const registryEntry: IRegistryEntryChainStorage = {
     uri: identifierToUri(identifier) as EntryUri,
-    digest: chainRegistryEntry.digest.toHex(),
+    digest: chainRegistryEntry.digest.toHex() as IRegistryEntryChainStorage['digest'],
     revoked: chainRegistryEntry.revoked.valueOf(),
     creatorUri: `did:cord:3${encodeAddress(chainRegistryEntry.creator, 29)}` as DidUri,
     registryUri: identifierToUri(

@@ -29,14 +29,20 @@
   "bugs": "https://github.com/dhiway/cord.js/issues",
   "homepage": "https://github.com/dhiway/cord.js#readme",
   "dependencies": {
-    "@polkadot/api": "^15.9.1",
-    "@polkadot/keyring": "^13.4.3",
-    "@polkadot/types": "^15.9.1",
-    "@polkadot/util": "^13.4.3",
-    "@polkadot/util-crypto": "^13.4.3"
+    "@polkadot-api/legacy-provider": "0.3.8",
+    "@polkadot-api/metadata-builders": "0.14.3",
+    "@polkadot-api/substrate-bindings": "0.20.3",
+    "@polkadot-api/utils": "0.4.0",
+    "@polkadot-labs/hdkd": "0.0.29",
+    "@polkadot-labs/hdkd-helpers": "0.0.31",
+    "@scure/sr25519": "2.2.0",
+    "bn.js": "5.2.2",
+    "polkadot-api": "2.1.8",
+    "rxjs": "7.8.2",
+    "scale-ts": "1.6.1"
   },
   "devDependencies": {
-    "rimraf": "^5.0.5",
-    "typescript": "^5.3.3"
+    "rimraf": "6.1.3",
+    "typescript": "6.0.3"
   }
 }

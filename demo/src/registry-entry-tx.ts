@@ -1,6 +1,5 @@
 import * as Cord from '@cord.network/sdk';
-import { blake2AsHex } from '@polkadot/util-crypto';
-import { Keyring } from '@polkadot/keyring';
+import { blake2AsHex, Keyring } from '@cord.network/types';
 import { createAccount } from './utils/createAccount.js';
 import { DokenHistory } from '@cord.network/utils'
 
