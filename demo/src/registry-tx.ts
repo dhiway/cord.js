@@ -1,8 +1,6 @@
 import * as Cord from '@cord.network/sdk';
 import { RegistryPermissionVariant } from '@cord.network/types';
-import { blake2AsHex } from '@polkadot/util-crypto';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { Keyring } from '@polkadot/keyring';
+import { blake2AsHex, Keyring } from '@cord.network/types';
 import { createAccount } from './utils/createAccount.js';
 
 async function main() {

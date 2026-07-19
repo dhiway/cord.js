@@ -1,15 +1,13 @@
 import * as Cord from '@cord.network/sdk'
 import moment from 'moment'
-import Keyring from '@polkadot/keyring'
 import { Crypto } from '@cord.network/utils'
-import type { ICompact, INumber } from '@polkadot/types/types'
-import { BN } from '@polkadot/util'
+import { BN, Keyring, NumberCodec } from '@cord.network/types'
 
-type V1Weight = INumber
+type V1Weight = NumberCodec
 
 interface V2Weight {
-  refTime: ICompact<INumber>
-  proofSize: ICompact<INumber>
+  refTime: NumberCodec
+  proofSize: NumberCodec
 }
 
 export const sleep = (ms: number): Promise<void> => {

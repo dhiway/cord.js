@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import Keyring from '@polkadot/keyring'
+import { Keyring } from '@cord.network/types'
 import moment from 'moment'
 
 export const sleep = (ms: number): Promise<void> => {

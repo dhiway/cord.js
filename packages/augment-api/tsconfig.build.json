@@ -2,29 +2,24 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "outDir": "./lib",
+    "rootDir": "./src",
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
     "noUnusedLocals": false,
     "paths": {
       "@cord.network/augment-api/extraDefs": [
-        "./src/interfaces/extraDefs/index.ts"
-      ],
-      "@polkadot/api/augment": [
-        "./src/interfaces/augment-api.ts"
-      ],
-      "@polkadot/types/augment": [
-        "./src/interfaces/augment-types.ts"
+        "./src/extraDefs.ts"
       ]
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.js"
+    "src/index.ts",
+    "src/compat.ts",
+    "src/extraDefs.ts"
   ],
   "exclude": [
     "coverage",
-    "**/*.spec.ts",
-    "src/**/definitions.ts",
+    "**/*.spec.ts"
   ],
 }

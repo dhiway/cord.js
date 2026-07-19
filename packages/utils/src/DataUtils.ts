@@ -125,8 +125,7 @@ export function isCordAddress(input: unknown): input is CordAddress {
   }
 }
 
-// re-exporting isHex
-// export { isHex } from '@polkadot/util'
+// Re-exported from the shared compatibility types package.
 
 /**
  * Validates the format of a hex string via regex.

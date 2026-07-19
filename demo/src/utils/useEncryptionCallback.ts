@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk'
-import { naclSeal } from '@polkadot/util-crypto'
+import nacl from 'tweetnacl'
 
 /**
  * It takes a keyAgreement and keyAgreementUri and returns a function that takes a data and
@@ -18,11 +18,8 @@ export function useEncryptionCallback({
     data,
     peerPublicKey,
   }): Promise<Cord.EncryptResponseData> {
-    const { sealed, nonce } = naclSeal(
-      data,
-      keyAgreement.secretKey,
-      peerPublicKey
-    )
+    const nonce = nacl.randomBytes(nacl.box.nonceLength)
+    const sealed = nacl.box(data, nonce, peerPublicKey, keyAgreement.secretKey)
     return {
       nonce,
       data: sealed,

@@ -3,8 +3,7 @@
  */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import type { ISubmittableResult } from '@cord.network/types'
-import type { EventRecord } from '@polkadot/types/interfaces'
+import type { EventRecord, ISubmittableResult } from '@cord.network/types'
 import { ErrorHandler } from './index'
 
 describe('ErrorHandler', () => {

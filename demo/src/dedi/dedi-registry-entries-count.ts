@@ -1,5 +1,5 @@
 import * as Cord from '@cord.network/sdk';
-import { StorageKey } from '@polkadot/types'
+import { StorageKey } from '@cord.network/types'
 
 import fs from 'fs';
 import path from 'path';

@@ -1,4 +1,4 @@
-import type { DefinitionsCall, DefinitionCall } from '@polkadot/types/types'
+import type { DefinitionsCall, DefinitionCall } from '@cord.network/types'
 
 const DidApiCalls: Record<string, DefinitionCall> = {
   query_by_name: {

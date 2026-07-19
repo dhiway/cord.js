@@ -1,4 +1,4 @@
-import { decodeAddress } from '@polkadot/util-crypto';
+import { decodeAddress } from '@cord.network/types';
 import { SDKErrors } from '@cord.network/utils';
 
 /**

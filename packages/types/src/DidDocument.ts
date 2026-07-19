@@ -1,4 +1,4 @@
-import type { BN } from '@polkadot/util'
+import type BN from 'bn.js'
 
 import type { CordAddress } from './Address'
 

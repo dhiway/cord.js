@@ -5,7 +5,7 @@
  * It includes methods to fetch a specific state change by index or retrieve the complete history of state changes.
  */
 
-import { ApiPromise } from "@polkadot/api";
+import type { ApiPromise } from '@cord.network/types'
 
 interface DokenState {
   state: string;
@@ -16,7 +16,7 @@ interface DokenState {
 /**
  * Retrieves the state change details for a specific index in the doken's state history.
  * 
- * @param api - An instance of ApiPromise from @polkadot/api, connected to the CORD network.
+ * @param api - An instance of ApiPromise from the CORD PAPI-backed API layer, connected to the CORD network.
  * @param doken - A string representing the doken identifier (not necessarily in hex).
  * @param index - A non-negative integer indicating the position of the state change in the history (e.g., 0 for creation).
  * @returns A Promise resolving to a DokenState object containing the state, action, and height.
@@ -47,7 +47,7 @@ export async function queryDokenStateByIndex(api: ApiPromise, doken: string, ind
 /**
  * Retrieves the complete history of state changes for a given doken identifier.
  * 
- * @param api - An instance of ApiPromise from @polkadot/api, connected to the CORD network.
+ * @param api - An instance of ApiPromise from the CORD PAPI-backed API layer, connected to the CORD network.
  * @param doken - A string representing the doken identifier (not necessarily in hex).
  * @returns A Promise resolving to an array of DokenState objects, or an empty array if no history is found.
  * @throws Error if doken is invalid.
@@ -68,6 +68,9 @@ export async function queryAllDokenStateHistory(api: ApiPromise, doken: string):
     return [];
   }
 
-  const historyData = stateHistory.map(([_, value]) => value.toHuman() as unknown as DokenState);
+  const historyData = stateHistory.map((entry: [unknown, { toHuman: () => unknown }]) => {
+    const [, value] = entry;
+    return value.toHuman() as unknown as DokenState;
+  });
   return historyData;
 }

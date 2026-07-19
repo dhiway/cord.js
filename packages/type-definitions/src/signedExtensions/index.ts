@@ -1,4 +1,4 @@
-import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
+import type { ExtDef } from '@cord.network/types'
 import { emptyCheck } from './emptyCheck.js'
 
 export const cordSignedExtensions: ExtDef = {

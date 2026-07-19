@@ -1,7 +1,7 @@
 import * as Cord from "@cord.network/sdk";
 import { addNetworkMember } from "./utils/createAuthorities.js";
 import { createAccount } from "./utils/createAccount.js";
-import { BN } from '@polkadot/util'
+import { BN } from '@cord.network/types'
 import { uriToIdentifier } from '@cord.network/identifier'
 
 import moment from "moment";

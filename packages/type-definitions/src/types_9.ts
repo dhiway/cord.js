@@ -1,4 +1,4 @@
-import type { RegistryTypes } from '@polkadot/types/types'
+import type { RegistryTypes } from '@cord.network/types'
 
 import { types8 } from './types_8.js'
 

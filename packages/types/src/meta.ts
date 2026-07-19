@@ -1,4 +1,4 @@
-import { HexString } from '@polkadot/util/types.js'
+import type { HexString } from './CompatTypes.js'
 import type { IPublicIdentity } from './PublicIdentity.js'
 
 export interface IMetaDetails {

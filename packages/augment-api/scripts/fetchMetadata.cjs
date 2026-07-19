@@ -1,10 +1,15 @@
 /* eslint-disable */
 
-const { HttpProvider, WsProvider } = require('@polkadot/api')
-const yargs = require('yargs')
+const yargs = require('yargs/yargs')
+const { hideBin } = require('yargs/helpers')
 const fs = require('fs')
 
-const { argv } = yargs
+const loadModule = new Function(
+  'specifier',
+  'return import(specifier)'
+)
+
+const { argv } = yargs(hideBin(process.argv))
   .option('endpoint', {
     alias: 'e',
     description: 'http or ws endpoint from which to fetch metadata',
@@ -23,27 +28,55 @@ const { argv } = yargs
   .help()
   .alias('help', 'h')
 
-let provider
+let exitCode
+let disconnect = async () => {}
 
-switch (true) {
-  case argv.endpoint.startsWith('http'):
-    provider = new HttpProvider(argv.endpoint)
-    break
-  case argv.endpoint.startsWith('ws'):
-    provider = new WsProvider(argv.endpoint, false)
-    break
-  default:
-    throw new Error(
-      `Can only handle ws/wss and http/https endpoints, received "${argv.endpoint}"`
-    )
+async function fetchHttpMetadata() {
+  const response = await fetch(argv.endpoint, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      id: 1,
+      jsonrpc: '2.0',
+      method: 'state_getMetadata',
+      params: [],
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} while fetching metadata`)
+  }
+
+  const payload = await response.json()
+  return payload.result
 }
 
-let exitCode
+async function fetchWsMetadata() {
+  const { createWsClient } = await loadModule('polkadot-api/ws')
+  const client = createWsClient(argv.endpoint)
+  disconnect = async () => {
+    client.destroy()
+  }
+
+  return client._request('state_getMetadata', [])
+}
+
+async function fetchMetadata() {
+  if (argv.endpoint.startsWith('http')) {
+    return fetchHttpMetadata()
+  }
+
+  if (argv.endpoint.startsWith('ws')) {
+    return fetchWsMetadata()
+  }
+
+  throw new Error(
+    `Can only handle ws/wss and http/https endpoints, received "${argv.endpoint}"`
+  )
+}
 
 async function fetch() {
-  await provider.connect()
-  await provider.isReady
-  const result = await provider.send('state_getMetadata')
+  const result = await fetchMetadata()
 
   const metadata = JSON.stringify({ result })
 
@@ -73,7 +106,7 @@ const timeout = new Promise((_, reject) => {
     exitCode = exitCode || 1
   } finally {
     console.log('disconnecting...')
-    provider.disconnect().then(process.exit(exitCode))
+    disconnect().then(() => process.exit(exitCode))
     setTimeout(() => {
       console.error(`timeout while waiting for disconnect`)
       process.exit(exitCode)

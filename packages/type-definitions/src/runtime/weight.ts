@@ -1,4 +1,4 @@
-import type { DefinitionsCall, DefinitionCall } from '@polkadot/types/types'
+import type { DefinitionsCall, DefinitionCall } from '@cord.network/types'
 
 const TransactionWeightApiCalls: Record<string, DefinitionCall> = {
   query_weight_info: {

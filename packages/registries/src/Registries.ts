@@ -58,21 +58,21 @@ import type {
   DidUri,
   HexString,
   IRegistryAuthorization,
-  IRegistryCreate,
-  IRegistryUpdate,
+  IRegistriesCreate as IRegistryCreate,
+  IRegistriesUpdate as IRegistryUpdate,
   NamespaceAuthorizationUri,
-  RegistryPermissionType,
+  RegistriesPermissionType as RegistryPermissionType,
 } from '@cord.network/types';
 
 import { SDKErrors, Cbor } from '@cord.network/utils';
 
 import type {
-  RegistryDetails,
+  RegistriesDetails as RegistryDetails,
   AccountId,
   H256,
-  RegistryDigest,
+  RegistriesDigest as RegistryDigest,
   RegistryAuthorizationUri,
-  RegistryUri,
+  RegistriesUri as RegistryUri,
   SchemaUri
 } from '@cord.network/types';
 
@@ -82,8 +82,8 @@ import {
 } from '@cord.network/identifier';
 
 import {
-  REGISTRY_IDENT,
-  REGISTRY_PREFIX,
+  REGISTRIES_IDENT as REGISTRY_IDENT,
+  REGISTRIES_PREFIX as REGISTRY_PREFIX,
   REGISTRYAUTH_IDENT,
   REGISTRYAUTH_PREFIX,
   blake2AsHex,

@@ -1,8 +1,6 @@
 import * as Cord from '@cord.network/sdk';
-import { blake2AsHex } from '@polkadot/util-crypto';
-import { Keyring } from '@polkadot/keyring';
-import { Option } from '@polkadot/types';
 import { PalletProfileProfileMetadata } from '@cord.network/augment-api';
+import { blake2AsHex, Keyring, Option } from '@cord.network/types';
 import { createAccount } from './utils/createAccount.js';
 import { DidResolver } from '@cord.network/utils';
 
@@ -95,7 +93,7 @@ async function main() {
       console.log(`\n🔍 Querying accountProfiles for ${account1.address}...`);
       const profileData = (await api.query.profile.accountProfiles(account1.address)) as Option<PalletProfileProfileMetadata>;
       if (!profileData.isNone) {
-        profileId = profileData.unwrap().toHuman();
+        profileId = String(profileData.unwrap().toHuman());
         console.log(`✅ Profile ID for Alice: ${profileId}`);
       } else {
         console.error('❌ No profile found for account', account1.address);

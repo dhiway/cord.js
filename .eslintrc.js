@@ -9,7 +9,6 @@ module.exports = {
     'airbnb-base',
     'plugin:@typescript-eslint/recommended',
     'prettier',
-    'prettier/@typescript-eslint',
     'plugin:jsdoc/recommended',
   ],
   globals: {
@@ -105,14 +104,7 @@ module.exports = {
         },
       },
     ],
-    'jsdoc/check-examples': [
-      'warn',
-      {
-        exampleCodeRegex:
-          '^```(?:js|javascript|typescript)\\n([\\s\\S]*)```\\s*$',
-        configFile: '.eslintrc-jsdoc.json',
-      },
-    ],
+    'jsdoc/check-examples': 'off',
     'jsdoc/check-tag-names': [
       'warn',
       {

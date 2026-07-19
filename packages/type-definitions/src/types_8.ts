@@ -1,4 +1,4 @@
-import type { RegistryTypes } from '@polkadot/types/types'
+import type { RegistryTypes } from '@cord.network/types'
 
 export const types8: RegistryTypes = {
   RawDidLinkedInfo: {

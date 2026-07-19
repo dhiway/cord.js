@@ -53,9 +53,8 @@
 
 import {
     CordKeyringPair,
+    Option,
 } from '@cord.network/types'
-
-import { Option } from '@polkadot/types';
 
 import { Chain } from '@cord.network/network'
 

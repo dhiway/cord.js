@@ -1,14 +1,13 @@
-import type { Extrinsic } from '@polkadot/types/interfaces'
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types'
-import { BN } from '@polkadot/util'
-
 import type {
   DidUri,
   CordAddress,
+  Extrinsic,
   SignExtrinsicCallback,
   SubmittableExtrinsic,
+  SubmittableExtrinsicFunction,
   VerificationKeyRelationship,
 } from '@cord.network/types'
+import { BN } from '@cord.network/types'
 
 import { SDKErrors } from '@cord.network/utils'
 import { ConfigService } from '@cord.network/config'

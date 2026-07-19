@@ -1,5 +1,3 @@
-import { base58Encode } from '@polkadot/util-crypto'
-
 import type {
   DidDocument,
   ConformingDidDocument,
@@ -8,6 +6,7 @@ import type {
   UriFragment,
 } from '@cord.network/types'
 import {
+  base58Encode,
   encryptionKeyTypesMap,
   verificationKeyTypesMap,
 } from '@cord.network/types'

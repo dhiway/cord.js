@@ -1,8 +1,8 @@
 import * as Cord from '@cord.network/sdk'
 import { createAccount } from '../utils/createAccount'
-import { SubmittableExtrinsic } from '@polkadot/api/types'; 
+import type { SubmittableExtrinsic } from '@cord.network/types'
 
-import moment from "moment";
+import moment from 'moment'
 
 import {
   BN

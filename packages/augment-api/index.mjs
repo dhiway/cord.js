@@ -1,3 +1,4 @@
-// This package does not contain executable code. Index files are included only to allow api augmentation using `require('@cord.network/augment-api')`.
+// This package only publishes compatibility types. Runtime behaviour lives in
+// the PAPI-backed API implementation exposed by `@cord.network/types`.
 
 exports = {}

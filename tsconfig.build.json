@@ -10,6 +10,8 @@
     "resolveJsonModule": true,
     "jsx": "preserve",
     "moduleResolution": "node",
+    "types": ["node"],
+    "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -21,7 +23,10 @@
     "outDir": "./dist"
 
   },
-  "exclude": ["**/node_modules", "**/lib","./dist/**/*"]
+  "exclude": [
+    "**/node_modules",
+    "**/lib",
+    "**/src/dist/**/*",
+    "./dist/**/*"
+  ]
 }
-
-

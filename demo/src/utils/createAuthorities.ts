@@ -1,5 +1,4 @@
 import * as Cord from "@cord.network/sdk";
-import { BN } from "@polkadot/util";
 import { setTimeout } from "timers/promises";
 
 /**
@@ -37,8 +36,16 @@ export async function addNetworkMember(
   authority: Cord.CordAddress
 ) {
   const api = Cord.ConfigService.get("api");
+  const nominate = api.tx.networkMembership?.nominate;
 
-  const callTx = api.tx.networkMembership.nominate(authority, false);
+  if (typeof nominate !== "function") {
+    console.log(
+      "Network membership pallet is unavailable on this runtime. Skipping member nomination."
+    );
+    return;
+  }
+
+  const callTx = nominate(authority, false);
 
   const sudoTx = await api.tx.sudo.sudo(callTx);
 

@@ -599,7 +599,7 @@ export function decodeStatementDetailsfromChain(
 
   const statement: IStatementDetails = {
     uri: identifierToUri(identifier) as StatementUri,
-    digest: chainStatement.digest.toHex(),
+    digest: chainStatement.digest.toHex() as IStatementDetails['digest'],
     spaceUri: identifierToUri(
       DecoderUtils.hexToString(chainStatement.space.toString())
     ) as SpaceUri,

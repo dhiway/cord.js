@@ -6,7 +6,6 @@
  * @packageDocumentation
  */
 
-import { decodeAddress, encodeAddress } from '@polkadot/keyring'
 import type {
   HexString,
   CordEncryptionKeypair,
@@ -27,6 +26,8 @@ import {
   Keyring,
   mnemonicGenerate,
   mnemonicToMiniSecret,
+  decodeAddress,
+  encodeAddress,
 } from '@cord.network/types'
 import nacl from 'tweetnacl'
 import { v4 as uuid } from 'uuid'
